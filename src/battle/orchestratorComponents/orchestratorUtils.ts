@@ -76,6 +76,49 @@ export const OrchestratorUtilities = {
         }
 
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound = undefined;
+    },
+    highlightSquaddieRange: (gameEngineState: GameEngineState, battleSquaddieId: string) => {
+        return highlightSquaddieRange(gameEngineState, battleSquaddieId);
+    },
+    getSquaddieAtScreenLocation: ({
+                                      mouseX,
+                                      mouseY,
+                                      squaddieRepository,
+                                      camera,
+                                      map,
+                                  }: {
+        mouseX: number;
+        mouseY: number;
+        squaddieRepository: ObjectRepository;
+        camera: BattleCamera;
+        map: MissionMap
+    }): {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+        squaddieMapLocation: HexCoordinate,
+    } => {
+        return getSquaddieAtScreenLocation({
+            mouseX,
+            mouseY,
+            squaddieRepository,
+            camera,
+            map,
+        });
+    },
+    getSquaddieAtMapLocation: ({
+                                   mapLocation,
+                                   squaddieRepository,
+                                   map,
+                               }: {
+        mapLocation: HexCoordinate;
+        squaddieRepository: ObjectRepository;
+        map: MissionMap
+    }) => {
+        return getSquaddieAtMapLocation({
+            mapLocation,
+            squaddieRepository,
+            map,
+        });
     }
 }
 
@@ -198,7 +241,7 @@ const drawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: GameEngineSta
     }
 }
 
-export function GetSquaddieAtScreenLocation(param: {
+const getSquaddieAtScreenLocation = (param: {
     mouseX: number;
     mouseY: number;
     squaddieRepository: ObjectRepository;
@@ -208,7 +251,7 @@ export function GetSquaddieAtScreenLocation(param: {
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
     squaddieMapLocation: HexCoordinate,
-} {
+} => {
     const {
         mouseX,
         squaddieRepository,
@@ -225,14 +268,14 @@ export function GetSquaddieAtScreenLocation(param: {
         }
     ;
 
-    return GetSquaddieAtMapLocation({
+    return getSquaddieAtMapLocation({
         mapLocation: clickedLocation,
         squaddieRepository,
         map,
     });
-}
+};
 
-export function GetSquaddieAtMapLocation(param: {
+const getSquaddieAtMapLocation = (param: {
     mapLocation: HexCoordinate;
     squaddieRepository: ObjectRepository;
     map: MissionMap
@@ -240,7 +283,7 @@ export function GetSquaddieAtMapLocation(param: {
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
     squaddieMapLocation: HexCoordinate,
-} {
+} => {
     const {
         mapLocation,
         squaddieRepository,
@@ -267,4 +310,22 @@ export function GetSquaddieAtMapLocation(param: {
         battleSquaddie,
         squaddieMapLocation: squaddieAndLocationIdentifier.mapLocation,
     }
-}
+};
+
+const highlightSquaddieRange = (state: GameEngineState, battleSquaddieToHighlightId: string) => {
+    const {mapLocation: startLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddieToHighlightId)
+
+    const {
+        battleSquaddie,
+    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieToHighlightId));
+
+    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+    const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+        repository: state.repository,
+        missionMap: state.battleOrchestratorState.battleState.missionMap,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        startLocation: startLocation,
+        campaignResources: state.campaign.resources,
+    })
+    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+};

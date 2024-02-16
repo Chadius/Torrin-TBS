@@ -5,7 +5,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates,} from "../../hexMap/convertCoordinates";
-import {GetSquaddieAtMapLocation, GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {ArmyAttributesService} from "../../squaddie/armyAttributes";
@@ -112,7 +112,7 @@ describe("Orchestration Utils", () => {
             squaddieTemplate,
             battleSquaddie,
             squaddieMapLocation,
-        } = GetSquaddieAtScreenLocation({
+        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
             mouseX,
             mouseY,
             camera,
@@ -130,7 +130,7 @@ describe("Orchestration Utils", () => {
             squaddieTemplate,
             battleSquaddie,
             squaddieMapLocation,
-        } = GetSquaddieAtMapLocation({
+        } = OrchestratorUtilities.getSquaddieAtMapLocation({
             mapLocation: {q: 0, r: 2},
             map,
             squaddieRepository,
@@ -148,7 +148,7 @@ describe("Orchestration Utils", () => {
             squaddieTemplate,
             battleSquaddie,
             squaddieMapLocation,
-        } = GetSquaddieAtScreenLocation({
+        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
             mouseX,
             mouseY,
             camera,
@@ -168,7 +168,7 @@ describe("Orchestration Utils", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
 
         const shouldThrowError = () => {
-            GetSquaddieAtScreenLocation({
+            OrchestratorUtilities.getSquaddieAtScreenLocation({
                 mouseX,
                 mouseY,
                 camera,

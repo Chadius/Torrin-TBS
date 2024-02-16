@@ -21,7 +21,7 @@ import {TargetingResultsService} from "../targeting/targetingService";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait} from "../../trait/traitStatusStorage";
 import {LabelHelper} from "../../ui/label";
@@ -73,11 +73,15 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
+
+                    const battleSquaddieToHighlightId: string = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+
+                    OrchestratorUtilities.highlightSquaddieRange(state, battleSquaddieToHighlightId);
+
                     state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
                     if (state.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
                         state.battleOrchestratorState.battleState.actionsThisRound = undefined;
                     }
-                    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
                     return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state);
@@ -230,7 +234,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const {
             squaddieTemplate: targetSquaddieTemplate,
             battleSquaddie: targetBattleSquaddie,
-        } = GetSquaddieAtScreenLocation({
+        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
             mouseX,
             mouseY,
             camera: state.battleOrchestratorState.battleState.camera,

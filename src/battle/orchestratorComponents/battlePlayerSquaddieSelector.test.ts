@@ -256,18 +256,20 @@ describe('BattleSquaddieSelector', () => {
             campaign: CampaignService.default({}),
         });
 
-        const enemyLocation = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates())
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: enemyLocation[0],
-            mouseY: enemyLocation[1],
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 1,
+            camera
         });
 
-        const enemyDestination = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates())
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: enemyDestination[0],
-            mouseY: enemyDestination[1],
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 2,
+            camera
         });
 
         expect(selector.hasCompleted(state)).toBeFalsy();
@@ -333,18 +335,20 @@ describe('BattleSquaddieSelector', () => {
             campaign: CampaignService.default({}),
         });
 
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 0,
+            camera
         });
 
-        [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates());
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 1,
+            camera
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
@@ -384,22 +388,12 @@ describe('BattleSquaddieSelector', () => {
 
     describe('adding movement mid turn instruction', () => {
         let camera: BattleCamera;
+        let missionMap: MissionMap;
         let gameEngineState: GameEngineState;
         let actionsThisRound: ActionsThisRound;
 
         beforeEach(() => {
-            const missionMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 "]
-                })
-            });
-
-            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
-
             camera = new BattleCamera();
-
-            let mockResourceHandler = mocks.mockResourceHandler();
-            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
                 template: ActionEffectMovementTemplateService.new({}),
@@ -430,6 +424,17 @@ describe('BattleSquaddieSelector', () => {
                 ]
             });
 
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "]
+                })
+            });
+        });
+
+        const setUpGameEngineState = (missionMap: MissionMap, battlePhaseState: BattlePhaseState) => {
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
@@ -447,7 +452,7 @@ describe('BattleSquaddieSelector', () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             });
-        });
+        }
 
         const clickOnSquaddie = () => {
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -458,18 +463,30 @@ describe('BattleSquaddieSelector', () => {
             });
         }
 
-        it('show open the HUD if the character is controllable', () => {
+        it('open the HUD if the character is controllable', () => {
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            setUpGameEngineState(missionMap, battlePhaseState);
+
             selector.update(gameEngineState, mockedP5GraphicsContext);
             expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
-        it('when user clicks on new location, will add movement to existing instruction', () => {
-            clickOnSquaddie();
-            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
+        it('will not open the HUD if the character is not controllable', () => {
+            const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+            setUpGameEngineState(missionMap, battlePhaseState);
 
-            selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY,
+            selector.update(gameEngineState, mockedP5GraphicsContext);
+            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+        });
+        it('when user clicks on new location, will add movement to existing instruction', () => {
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            setUpGameEngineState(missionMap, battlePhaseState);
+            clickOnSquaddie();
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: 0,
+                r: 2,
+                camera
             });
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
@@ -503,13 +520,15 @@ describe('BattleSquaddieSelector', () => {
             );
         });
         it('will update squaddie location to destination and spend action points', () => {
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            setUpGameEngineState(missionMap, battlePhaseState);
             clickOnSquaddie();
-            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
-
-            selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY,
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: 0,
+                r: 2,
+                camera
             });
 
             expect(MissionMapService.getByBattleSquaddieId(gameEngineState.battleOrchestratorState.battleState.missionMap, playerSoldierBattleSquaddie.battleSquaddieId)).toEqual(
@@ -571,10 +590,12 @@ describe('BattleSquaddieSelector', () => {
             repository: squaddieRepo,
         });
 
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 0,
+            camera
         });
         selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
@@ -609,10 +630,12 @@ describe('BattleSquaddieSelector', () => {
             repository: squaddieRepo,
         });
 
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 0,
+            camera
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
@@ -689,11 +712,12 @@ describe('BattleSquaddieSelector', () => {
             }),
             repository: squaddieRepo,
         });
-
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 0,
+            camera
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
@@ -799,11 +823,12 @@ describe('BattleSquaddieSelector', () => {
                 campaign: CampaignService.default({}),
             });
 
-            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-            selector.mouseEventHappened(state, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState: state,
+                q: 0,
+                r: 0,
+                camera
             });
 
             const interruptSquaddieOnMap = missionMap.getSquaddieByBattleId("interrupting squaddie");
@@ -818,6 +843,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: startingMouseX,
                 mouseY: startingMouseY
             });
+
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
                 battleId: interruptBattleSquaddie.battleSquaddieId,
                 repositionWindow: {
@@ -839,15 +865,12 @@ describe('BattleSquaddieSelector', () => {
             expect(selector.hasCompleted(state)).toBeFalsy();
 
             const location = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(interruptBattleSquaddie.battleSquaddieId);
-            let [endingMouseX, endingMouseY] = convertMapCoordinatesToScreenCoordinates(
-                location.mapLocation.q, location.mapLocation.r,
-                ...camera.getCoordinates()
-            );
-
-            selector.mouseEventHappened(state, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: endingMouseX,
-                mouseY: endingMouseY
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState: state,
+                q: location.mapLocation.q,
+                r: location.mapLocation.r,
+                camera
             });
 
             expect(state.battleOrchestratorState.battleState.actionsThisRound).toEqual(actionsThisRound);
@@ -881,6 +904,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
+
             expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(actionsThisRound.battleSquaddieId);
             expect(state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
             expect(selector.hasCompleted(state)).toBeFalsy();
@@ -972,22 +996,123 @@ describe('BattleSquaddieSelector', () => {
             campaign: CampaignService.default({}),
         });
 
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 0,
+            camera
         });
 
-        ([mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates()));
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState: state,
+            q: 0,
+            r: 1,
+            camera
         });
 
         expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
         expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type).toEqual(ActionEffectType.MOVEMENT);
     });
-})
-;
+
+    it('selects a different squaddie if the first squaddie has not started their turn', () => {
+        const missionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: ["1 1 1 "]
+            })
+        });
+
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+
+        const playerTeam = teams.find(t => t.id === "playerTeamId");
+
+        const anotherPlayerSoldierBattleSquaddie = BattleSquaddieService.new({
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_1",
+        });
+
+        ObjectRepositoryService.addBattleSquaddie(squaddieRepo, anotherPlayerSoldierBattleSquaddie);
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_1"]);
+        MissionMapService.addSquaddie(missionMap, "player_soldier", "player_soldier_1", {q: 0, r: 2});
+
+        let mockResourceHandler = mocks.mockResourceHandler();
+        mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+        const camera = new BattleCamera();
+
+        const mockHud = new BattleSquaddieSelectedHUD();
+        const selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
+        const gameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: mockHud,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teams,
+                    recording: {history: []},
+                }),
+            }),
+            repository: squaddieRepo,
+            campaign: CampaignService.default({}),
+        });
+
+        const {mapLocation: firstBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_0");
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState,
+            q: firstBattleSquaddieMapLocation.q,
+            r: firstBattleSquaddieMapLocation.r,
+            camera
+        });
+        expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
+        expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0]["battleId"]).toEqual("player_soldier_0");
+
+        const {mapLocation: anotherBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_1");
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState,
+            q: anotherBattleSquaddieMapLocation.q,
+            r: anotherBattleSquaddieMapLocation.r,
+            camera
+        });
+        expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(2);
+        expect(selectSquaddieAndDrawWindowSpy.mock.calls[1][0]["battleId"]).toEqual("player_soldier_1");
+
+        clickOnMapCoordinate({
+            selector,
+            gameEngineState,
+            q: 0,
+            r: 1,
+            camera
+        });
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual("player_soldier_1");
+    });
+});
+
+const clickOnMapCoordinate = ({
+                                  selector,
+                                  gameEngineState,
+                                  q,
+                                  r,
+                                  camera
+                              }: {
+    selector: BattlePlayerSquaddieSelector,
+    gameEngineState: GameEngineState,
+    q: number,
+    r: number,
+    camera: BattleCamera
+}) => {
+    let [destinationScreenX, destinationScreenY] = convertMapCoordinatesToScreenCoordinates(
+        q,
+        r,
+        ...camera.getCoordinates()
+    );
+    selector.mouseEventHappened(gameEngineState, {
+        eventType: OrchestratorComponentMouseEventType.CLICKED,
+        mouseX: destinationScreenX,
+        mouseY: destinationScreenY
+    });
+}

@@ -43,6 +43,7 @@ import {
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
@@ -181,6 +182,7 @@ describe('BattleSquaddieTarget', () => {
                 }),
             }),
             repository: squaddieRepo,
+            campaign: CampaignService.default({}),
         });
     });
 

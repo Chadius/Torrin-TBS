@@ -14,7 +14,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetSquaddieAtMapLocation, OrchestratorUtilities} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {BattleSquaddieSelectorService} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -138,24 +138,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         });
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
-        const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.repository);
-        if (
-            BattleSquaddieTeamService.hasAnActingSquaddie(currentTeam, state.repository)
-            && !BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository)
-        ) {
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+        if (!this.playerCanControlAnySquaddiesOnTheCurrentTeam(gameEngineState)) {
             return;
         }
 
-        if (this.selectedBattleSquaddieId === ""
-            && OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
-        ) {
-            this.selectedBattleSquaddieId = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
-            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                battleId: this.selectedBattleSquaddieId,
-                state,
-            });
-        }
+        this.openHUDIfSquaddieWasSelected(gameEngineState);
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
@@ -188,6 +176,25 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         this.selectedBattleSquaddieId = "";
 
         state.battleOrchestratorState.battleSquaddieSelectedHUD.reset();
+    }
+
+    private playerCanControlAnySquaddiesOnTheCurrentTeam(gameEngineState: GameEngineState): boolean {
+        const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(gameEngineState.battleOrchestratorState.battleState, gameEngineState.repository);
+        return BattleSquaddieTeamService.hasAnActingSquaddie(currentTeam, gameEngineState.repository)
+            && BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, gameEngineState.repository);
+    }
+
+    private openHUDIfSquaddieWasSelected(gameEngineState: GameEngineState) {
+        if (
+            this.selectedBattleSquaddieId === ""
+            && OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
+        ) {
+            this.selectedBattleSquaddieId = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+            gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                battleId: this.selectedBattleSquaddieId,
+                state: gameEngineState,
+            });
+        }
     }
 
     private maybeReactToPlayerSelectedAction(state: GameEngineState) {
@@ -232,7 +239,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = GetSquaddieAtMapLocation({
+        } = OrchestratorUtilities.getSquaddieAtMapLocation({
             mapLocation: clickedHexCoordinate,
             map: state.battleOrchestratorState.battleState.missionMap,
             squaddieRepository: state.repository,
@@ -243,14 +250,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-            repository: state.repository,
-            missionMap: state.battleOrchestratorState.battleState.missionMap,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startLocation: clickedHexCoordinate,
-            campaignResources: state.campaign.resources,
-        })
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+        OrchestratorUtilities.highlightSquaddieRange(state, battleSquaddie.battleSquaddieId);
+
         state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddie.battleSquaddieId,
             repositionWindow: {
@@ -268,9 +269,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
         if (foundSquaddieAtLocation) {
             this.updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state, squaddieClickedOnInfoAndMapLocation, mouseX, mouseY);
-        } else {
-            this.updateBattleSquaddieUISelectedSquaddieClickedOnMap(state, clickedHexCoordinate, mouseX, mouseY);
+            return;
         }
+
+        this.updateBattleSquaddieUISelectedSquaddieClickedOnMap(state, clickedHexCoordinate, mouseX, mouseY);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state: GameEngineState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieLocation, mouseX: number, mouseY: number) {
@@ -287,9 +289,14 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
+        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
+            this.selectedBattleSquaddieId = squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
+        }
+
         const battleSquaddieToHighlightId: string = OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
             ? state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
             : squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
+
         const {mapLocation: startLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddieToHighlightId)
 
         const {

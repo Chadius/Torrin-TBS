@@ -99,40 +99,55 @@ describe('User cancels the previewed action', () => {
         graphicsContext = new MockedP5GraphicsContext();
     });
 
-    it('If the user clicks cancel the target, clear the previewed power in ActionsThisRound', () => {
-        gameEngineState = getGameEngineState({
-            repository,
-            actionsThisRound: ActionsThisRoundService.new({
-                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                startingLocation: {q: 0, r: 0},
-                previewedActionTemplateId: attackAction.name,
-                processedActions: [],
-            })
-        });
-        MissionMapService.addSquaddie(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
-                q: 0,
-                r: 0
+    describe('when the user clicks on canceling the target', () => {
+        let hexMapHighlightTilesSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+            gameEngineState = getGameEngineState({
+                repository,
+                actionsThisRound: ActionsThisRoundService.new({
+                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                    startingLocation: {q: 0, r: 0},
+                    previewedActionTemplateId: attackAction.name,
+                    processedActions: [],
+                }),
             });
+            MissionMapService.addSquaddie(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                playerSquaddieTemplate.squaddieId.templateId,
+                playerBattleSquaddie.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 0
+                });
 
-        targeting.update(gameEngineState, graphicsContext);
-        targeting.mouseEventHappened(
-            gameEngineState,
-            {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: ScreenDimensions.SCREEN_WIDTH,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            }
-        );
+            targeting.update(gameEngineState, graphicsContext);
+            hexMapHighlightTilesSpy = jest.spyOn(gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, "highlightTiles");
+            targeting.mouseEventHappened(
+                gameEngineState,
+                {
+                    eventType: OrchestratorComponentMouseEventType.CLICKED,
+                    mouseX: ScreenDimensions.SCREEN_WIDTH,
+                    mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                }
+            );
+        });
 
-        expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
-        const recommendedInfo = targeting.recommendStateChanges(gameEngineState);
-        expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+        it('completes the targeting module', () => {
+            expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
+        });
+
+        it('highlights the map', () => {
+            targeting.recommendStateChanges(gameEngineState);
+            expect(hexMapHighlightTilesSpy).toBeCalled();
+        });
+
+        it('If the user clicks cancel the target, clear the previewed power in ActionsThisRound', () => {
+            const recommendedInfo = targeting.recommendStateChanges(gameEngineState);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+            expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+        });
     });
 
     it('Ensure if this is the 2nd action the user cannot cancel their turn.', () => {
