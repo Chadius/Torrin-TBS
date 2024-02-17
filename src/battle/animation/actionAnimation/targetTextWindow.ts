@@ -9,8 +9,8 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../actionResultTextService";
+import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
 
 export class TargetTextWindow {
     constructor() {

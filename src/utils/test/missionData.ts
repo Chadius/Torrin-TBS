@@ -13,6 +13,7 @@ import {
 } from "../../battle/orchestrator/missionCutsceneCollection";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {CutsceneActionPlayerType} from "../../cutscene/cutsceneAction";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -489,23 +490,28 @@ export const TestMissionData = () => {
                 "crossOverPits": false,
             }
         },
-        "actions": [
+        "actionTemplates": [
             {
-                "name": "Bite",
                 "id": "demon_slither_bite",
-                "minimumRange": 0,
-                "maximumRange": 1,
-                "traits": {
-                    "booleanTraits": {
-                        [Trait.ATTACK]: true
+                "name": "Bite",
+                "actionPoints": 1,
+                "actionEffectTemplates": [
+                    {
+                        "type": ActionEffectType.SQUADDIE,
+                        "minimumRange": 0,
+                        "maximumRange": 1,
+                        "traits": {
+                            "booleanTraits": {
+                                [Trait.ATTACK]: true
+                            }
+                        },
+                        "damageDescriptions": {
+                            [DamageType.BODY]: 1,
+                        },
+                        "healingDescriptions": {},
+                        "targetingShape": TargetingShape.SNAKE,
                     }
-                },
-                "damageDescriptions": {
-                    [DamageType.BODY]: 1,
-                },
-                "healingDescriptions": {},
-                "actionPointCost": 1,
-                "targetingShape": TargetingShape.SNAKE,
+                ]
             }
         ]
     };

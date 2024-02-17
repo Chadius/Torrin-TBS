@@ -32,7 +32,6 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
@@ -40,10 +39,12 @@ import {InitializeBattle} from "./initializeBattle";
 import {BattleStateService} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -146,8 +147,6 @@ describe('Battle Orchestrator', () => {
         mockSquaddieUsesActionOnSquaddie.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieUsesActionOnSquaddie.mouseEventHappened = jest.fn();
         mockSquaddieUsesActionOnSquaddie.hasCompleted = jest.fn().mockReturnValue(true);
-        (mockSquaddieUsesActionOnSquaddie as any).maybeEndSquaddieTurn = jest.fn();
-        (mockSquaddieUsesActionOnSquaddie as any).consumeSquaddieActionPointsAndMaybeEndTheirTurn = jest.fn();
 
         defaultBattleOrchestrator = new DefaultBattleOrchestrator();
         defaultBattleOrchestrator.update = jest.fn();
@@ -391,24 +390,6 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
-        nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-            CurrentlySelectedSquaddieDecisionService.new({
-
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: "new static squaddie",
-                    battleSquaddieId: "new dynamic squaddie",
-                    startingLocation: {q: 0, r: 0},
-                }),
-            });
-        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase, DecisionService.new({
-            actionEffects: [
-                ActionEffectMovementService.new({
-                    destination: {q: 1, r: 2},
-                    numberOfActionPointsSpent: 2,
-                })
-            ]
-        }));
-
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
         expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
@@ -430,25 +411,24 @@ describe('Battle Orchestrator', () => {
             squaddieRepository: nullState.repository,
         });
 
-        nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-            CurrentlySelectedSquaddieDecisionService.new({
-
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: "new static squaddie",
-                    battleSquaddieId: "new dynamic squaddie",
-                    startingLocation: {q: 0, r: 0},
-                }),
-            });
-
-        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
-            DecisionService.new({
-                actionEffects: [
-                    ActionEffectMovementService.new({
-                        destination: {q: 1, r: 2},
-                        numberOfActionPointsSpent: 2,
+        nullState.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0},
+            processedActions: [
+                ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        battleSquaddieId: "new dynamic squaddie",
+                        actionPointCost: 2,
+                        actionEffects: [
+                            DecidedActionMovementEffectService.new({
+                                destination: {q: 1, r: 2},
+                                template: ActionEffectMovementTemplateService.new({}),
+                            })
+                        ]
                     })
-                ]
-            }));
+                })
+            ]
+        });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);

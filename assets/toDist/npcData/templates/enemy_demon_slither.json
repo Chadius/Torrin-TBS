@@ -24,20 +24,25 @@
       "movementPerAction": 2
     }
   },
-  "actions": [
+  "actionTemplates": [
     {
       "name": "Bite",
       "id": "demon_slither_bite",
-      "minimumRange": 0,
-      "maximumRange": 1,
-      "traits": {
-        "booleanTraits": {
-          "ATTACK": true
+      "actionEffectTemplates": [
+        {
+          "type": "SQUADDIE",
+          "minimumRange": 0,
+          "maximumRange": 1,
+          "traits": {
+            "booleanTraits": {
+              "ATTACK": true
+            }
+          },
+          "damageDescriptions": {
+            "BODY": 1
+          }
         }
-      },
-      "damageDescriptions": {
-        "BODY": 1
-      }
+      ]
     }
   ]
 }

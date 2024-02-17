@@ -6,10 +6,6 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -25,20 +21,19 @@ import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {ActionEffectType} from "../../decision/actionEffect";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {isValidValue} from "../../utils/validityCheck";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattlePhaseStateService} from "../orchestratorComponents/battlePhaseController";
 import {LoadSaveState} from "../../dataLoader/loadSaveState";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -47,14 +42,14 @@ describe('BattleSquaddieSelectedHUD', () => {
     let resourceHandler: ResourceHandler;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
     let playerSquaddieStatic: SquaddieTemplate;
-    let playerSquaddieDynamic: BattleSquaddie;
+    let playerBattleSquaddie: BattleSquaddie;
     let enemySquaddieDynamicID: string = "enemy_squaddie_0";
     let enemySquaddieStatic: SquaddieTemplate;
     let enemySquaddieDynamic: BattleSquaddie;
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: ActionTemplate;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -71,19 +66,22 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
-            actionPointCost: 1,
-            minimumRange: 0,
-            maximumRange: 1,
-            targetingShape: TargetingShape.SNAKE,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    targetingShape: TargetingShape.SNAKE,
+                })
+            ]
         });
 
         ({
                 squaddieTemplate: playerSquaddieStatic,
-                battleSquaddie: playerSquaddieDynamic,
+                battleSquaddie: playerBattleSquaddie,
             } =
                 CreateNewSquaddieAndAddToRepository({
                     templateId: "player_soldier",
@@ -91,9 +89,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: playerSquaddieDynamicID,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    actionTemplates: [longswordAction],
                 })
         );
 
@@ -107,9 +103,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: player2SquaddieDynamicId,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    actionTemplates: [longswordAction],
                 })
         );
 
@@ -123,9 +117,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleId: enemySquaddieDynamicID,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    actionTemplates: [longswordAction],
                 })
         );
 
@@ -133,33 +125,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         warnUserNotEnoughActionPointsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionPointsToPerformAction").mockReturnValue(null);
 
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-    });
-
-    it('generates a button for each squaddie action', () => {
-        hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamicID,
-                repositionWindow: {mouseX: 0, mouseY: 0},
-                state: GameEngineStateService.new({
-                    resourceHandler: resourceHandler,
-                    battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            missionMap,
-                            camera: new BattleCamera(0, 0),
-                        }),
-                    }),
-                    repository: squaddieRepository,
-                })
-            },
-        );
-
-        const actionButtons: MakeDecisionButton[] = hud.getUseActionButtons();
-        expect(actionButtons).toBeTruthy();
-
-        expect(actionButtons.find((button) => {
-            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === longswordAction.name;
-        })).toBeTruthy();
     });
 
     it('reports when an action button is clicked', () => {
@@ -182,22 +147,21 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
+            button.actionTemplate.id === longswordAction.id
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBe(longswordAction);
+        expect(hud.getSelectedActionTemplate()).toBe(longswordAction);
 
         hud.reset();
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
     });
 
     it('reports when an action button is hovered', () => {
@@ -221,11 +185,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
+            button.actionTemplate.id === longswordAction.id
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
@@ -237,7 +200,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             id: "player team",
             name: "player team",
             affiliation: SquaddieAffiliation.PLAYER,
-            battleSquaddieIds: [playerSquaddieDynamic.battleSquaddieId],
+            battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         });
 
         const state: GameEngineState = GameEngineStateService.new({
@@ -274,7 +237,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             id: "player team",
             name: "player team",
             affiliation: SquaddieAffiliation.PLAYER,
-            battleSquaddieIds: [playerSquaddieDynamic.battleSquaddieId],
+            battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         });
 
         const state: GameEngineState = GameEngineStateService.new({
@@ -300,7 +263,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             state,
         });
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
 
         hud.mouseClicked(
@@ -311,13 +274,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeTruthy();
-        expect(hud.getSelectedAction()).toEqual({
-            type: ActionEffectType.END_TURN,
-        });
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
         hud.reset();
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
     });
 
@@ -353,20 +314,15 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
-        notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
+        let notEnoughActionPointsAction = ActionTemplateService.new({
                 name: "not enough actions",
                 id: "not enough actions",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                actionPointCost: 9001,
-                minimumRange: 0,
-                maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                actionPoints: 9001,
             }
         );
 
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
-        squaddieTemplate.actions.push(notEnoughActionPointsAction);
+        squaddieTemplate.actionTemplates.push(notEnoughActionPointsAction);
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: resourceHandler,
@@ -388,10 +344,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === "not enough actions"
+        const notEnoughActionPointsButton: MakeDecisionButton = hud.getUseActionButtons().find((button) =>
+            button.actionTemplate.id === "not enough actions"
         );
 
         hud.mouseClicked(
@@ -401,7 +357,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(warnUserNotEnoughActionPointsToPerformActionSpy).toBeCalled();
     });
@@ -415,26 +371,17 @@ describe('BattleSquaddieSelectedHUD', () => {
                         missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
-                            currentlySelectedDecision: DecisionService.new({
-                                actionEffects: [
-                                    ActionEffectSquaddieService.new({
-                                        template: ActionEffectSquaddieTemplateService.new({
-                                            name: "purifying stream",
-                                            id: "purifying_stream",
-                                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                                        }),
-                                        targetLocation: {q: 0, r: 0},
-                                        numberOfActionPointsSpent: 1,
+                        actionsThisRound: ActionsThisRoundService.new({
+                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                            startingLocation: {q: 0, r: 0},
+                            previewedActionTemplateId: "purifying_stream",
+                            processedActions: [
+                                ProcessedActionService.new({
+                                    decidedAction: DecidedActionService.new({
+                                        battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                                     })
-                                ]
-                            }),
-                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                startingLocation: {q: 0, r: 0},
-                            }),
+                                })
+                            ]
                         }),
                     }),
                 }),
@@ -449,7 +396,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`wait for ${playerSquaddieStatic.squaddieId.name}`),
@@ -481,7 +428,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`cannot control ${enemySquaddieStatic.squaddieId.name}`),
@@ -512,11 +459,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             state: state,
         });
 
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
         hud.mouseClicked(
             RectAreaService.left(hud.endTurnButton.rectangle.area),
@@ -526,7 +473,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
     });
 
     describe("Save game button", () => {
@@ -543,14 +490,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
-                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                startingLocation: {q: 0, r: 0},
-                            }),
-                        })
                     }),
                 }),
                 repository: squaddieRepository,
@@ -559,12 +498,12 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud = new BattleSquaddieSelectedHUD()
 
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeTruthy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeTruthy();
         });
         it('should not show the button during other phases', () => {
             const state: GameEngineState = GameEngineStateService.new({
@@ -587,12 +526,12 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud = new BattleSquaddieSelectedHUD()
 
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeFalsy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         })
         ;
         it('should not show the button if the player controlled squaddie is mid way through their turn', () => {
@@ -608,24 +547,17 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
-                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                startingLocation: {q: 0, r: 0},
-                                decisions: [
-                                    DecisionService.new({
-                                        actionEffects: [
-                                            ActionEffectMovementService.new({
-                                                destination: {q: 1, r: 0},
-                                                numberOfActionPointsSpent: 1,
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                        })
+                        actionsThisRound: ActionsThisRoundService.new({
+                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                            startingLocation: {q: 0, r: 0},
+                            previewedActionTemplateId: "purifying_stream",
+                            processedActions: [
+                                ProcessedActionService.new({
+                                    decidedAction: undefined,
+                                    processedActionEffects: [],
+                                })
+                            ]
+                        }),
                     }),
                 }),
                 repository: squaddieRepository,
@@ -633,12 +565,12 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             hud = new BattleSquaddieSelectedHUD();
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeFalsy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         });
         describe('user clicks the save button', () => {
             let state: GameEngineState;
@@ -659,13 +591,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         currentAffiliation: BattlePhase.PLAYER,
                                         turnCount: 0,
                                     },
-                                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-                                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                            battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                            squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                            startingLocation: {q: 0, r: 0},
-                                        }),
-                                    }),
                                 }),
                             })
                     });
@@ -675,7 +600,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             it('should call the game engine save function', () => {
                 const saveGame = jest.spyOn(hud, "markGameToBeSaved");
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
@@ -687,20 +612,20 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
             it('should ignore other inputs while saving', () => {
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
 
-                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
                 hud.mouseClicked(RectAreaService.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaService.centerY(hud.nextSquaddieButton.rectangle.area), state,);
-                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
             });
             it('should show a Saving message while saving is active', () => {
                 const saveGame = jest.spyOn(hud, "markGameToBeSaved");
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
@@ -708,7 +633,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving...`),
@@ -723,7 +648,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 jest.spyOn(Date, "now").mockReturnValue(0);
                 const saveGame = jest.spyOn(hud, "markGameToBeSaved");
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
@@ -733,7 +658,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     .errorDuringSaving = true;
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
@@ -747,7 +672,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
                 expect(textSpy).not.toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
                     expect.anything(),
                     expect.anything(),
@@ -773,14 +698,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
-                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                startingLocation: {q: 0, r: 0},
-                            }),
-                        }),
                     }),
                 })
             });
@@ -788,7 +705,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud = new BattleSquaddieSelectedHUD();
             const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state: state,
             });
@@ -816,14 +733,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     currentAffiliation: BattlePhase.PLAYER,
                                     turnCount: 0,
                                 },
-                                squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
-                                    squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                                        squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                                        startingLocation: {q: 0, r: 0},
-                                    }),
-                                }),
                             }),
                         })
                 });
@@ -832,20 +741,20 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
             it('should ignore other inputs while loading', () => {
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
                 hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
 
-                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
                 hud.mouseClicked(RectAreaService.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaService.centerY(hud.nextSquaddieButton.rectangle.area), state,);
-                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
             });
             it('should show a Loading message while loading is active', () => {
                 const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
                 hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    battleId: playerBattleSquaddie.battleSquaddieId,
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state: state,
                 });
@@ -853,7 +762,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading...`),
@@ -897,7 +806,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     jest.spyOn(Date, "now").mockReturnValue(0);
                     const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
                     hud.selectSquaddieAndDrawWindow({
-                        battleId: playerSquaddieDynamic.battleSquaddieId,
+                        battleId: playerBattleSquaddie.battleSquaddieId,
                         repositionWindow: {mouseX: 0, mouseY: 0},
                         state: state,
                     });
@@ -906,7 +815,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     loadSaveStateChange(state.loadSaveState);
 
                     const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                    hud.draw(state, mockedP5GraphicsContext);
 
                     expect(textSpy).toBeCalled();
                     expect(textSpy).toBeCalledWith(expect.stringMatching(expectedErrorMessage),
@@ -920,7 +829,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                     textSpy.mockClear();
-                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                    hud.draw(state, mockedP5GraphicsContext);
                     expect(textSpy).not.toBeCalledWith(expect.stringMatching(expectedErrorMessage),
                         expect.anything(),
                         expect.anything(),
@@ -951,7 +860,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud = new BattleSquaddieSelectedHUD()
 
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state,
             });
@@ -961,7 +870,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is focused on an uncontrollable squaddie', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
-            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
             const state: GameEngineState = GameEngineStateService.new({
@@ -990,7 +899,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is not focused', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
-            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
             const state: GameEngineState = GameEngineStateService.new({
@@ -1013,7 +922,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
-            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
@@ -1031,7 +940,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud = new BattleSquaddieSelectedHUD();
 
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state,
             });
@@ -1042,7 +951,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         it('clicking on the next button will select a different squaddie', () => {
             const battleCamera = new BattleCamera(0, 0);
             hud = new BattleSquaddieSelectedHUD();
-            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerSquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
                 q: 0,
                 r: 0
             });
@@ -1065,12 +974,12 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
 
             hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
+                battleId: playerBattleSquaddie.battleSquaddieId,
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state: state,
             });
 
-            expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+            expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
             hud.mouseClicked(RectAreaService.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaService.centerY(hud.nextSquaddieButton.rectangle.area), state,);
             expect(hud.selectedBattleSquaddieId).toBe(player2SquaddieDynamic.battleSquaddieId);
             const panningInfo = battleCamera.getPanningInformation();
@@ -1098,7 +1007,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             jest.spyOn((hud as any), "generateSquaddieIdText").mockImplementation(() => {
             });
 
-            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerSquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
                 q: 0,
                 r: 0
             });

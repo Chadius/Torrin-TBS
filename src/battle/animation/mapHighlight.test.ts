@@ -1,22 +1,20 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HighlightTileDescription, TerrainTileMap, TerrainTileMapHelper} from "../../hexMap/terrainTileMap";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieIdService} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ArmyAttributesService} from "../../squaddie/armyAttributes";
-import {SquaddieMovementHelper} from "../../squaddie/movement";
+import {SquaddieMovementService} from "../../squaddie/movement";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MapHighlightHelper} from "./mapHighlight";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
 
 describe('map highlight generator', () => {
     let terrainAllSingleMovement: TerrainTileMap;
@@ -24,7 +22,7 @@ describe('map highlight generator', () => {
     let terrainAlternatingPits: TerrainTileMap;
     let repository: ObjectRepository;
 
-    let rangedAction: ActionEffectSquaddieTemplate;
+    let rangedAction: ActionTemplate;
     let campaignResources: CampaignResources;
 
     beforeEach(() => {
@@ -43,14 +41,18 @@ describe('map highlight generator', () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
-        rangedAction = ActionEffectSquaddieTemplateService.new({
+        rangedAction = ActionTemplateService.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
-            minimumRange: 0,
-            maximumRange: 2,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-            })
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 2,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                    })
+                })
+            ]
         });
     });
 
@@ -124,7 +126,7 @@ describe('map highlight generator', () => {
                 affiliation: SquaddieAffiliation.UNKNOWN,
             }),
             attributes: ArmyAttributesService.new({
-                movement: SquaddieMovementHelper.new({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 })
             })
@@ -196,7 +198,7 @@ describe('map highlight generator', () => {
                     affiliation: SquaddieAffiliation.UNKNOWN,
                 }),
                 attributes: ArmyAttributesService.new({
-                    movement: SquaddieMovementHelper.new({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                     })
                 })
@@ -315,28 +317,28 @@ describe('map highlight generator', () => {
     });
 
     describe('shows attack tiles when squaddie cannot move to location but can attack', () => {
-        let squaddieWithNoMovement: SquaddieTemplate;
+        let squaddieWithOneMovement: SquaddieTemplate;
         let battleSquaddie: BattleSquaddie;
 
         beforeEach(() => {
-            squaddieWithNoMovement = SquaddieTemplateService.new({
+            squaddieWithOneMovement = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     templateId: "templateId",
                     name: "template",
                     affiliation: SquaddieAffiliation.UNKNOWN,
                 }),
                 attributes: ArmyAttributesService.new({
-                    movement: SquaddieMovementHelper.new({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                     })
                 }),
-                actions: [rangedAction],
+                actionTemplates: [rangedAction],
             });
-            ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithNoMovement);
+            ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithOneMovement);
 
             battleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: "battleId",
-                squaddieTemplate: squaddieWithNoMovement,
+                squaddieTemplate: squaddieWithOneMovement,
             })
             ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie);
         });

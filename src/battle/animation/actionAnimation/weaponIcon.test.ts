@@ -1,41 +1,50 @@
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {WeaponIcon} from "./weaponIcon";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
+import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 describe('weapon icon', () => {
-    let hinderingAction: ActionEffectSquaddieTemplate;
-    let helpingAction: ActionEffectSquaddieTemplate;
+    let hinderingAction: ActionTemplate;
+    let helpingAction: ActionTemplate;
 
     let textSpy: jest.SpyInstance;
     let mockedGraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        hinderingAction = ActionEffectSquaddieTemplateService.new({
+        hinderingAction = ActionTemplateService.new({
             id: "hindering",
             name: "hindering",
-            damageDescriptions: {
-                [DamageType.BODY]: 1,
-            },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                ATTACK: true
-            }),
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        ATTACK: true
+                    }),
+                })
+            ],
         });
 
-        helpingAction = ActionEffectSquaddieTemplateService.new({
+        helpingAction = ActionTemplateService.new({
             id: "helping",
             name: "helping",
-            healingDescriptions: {
-                [HealingType.LOST_HIT_POINTS]: 1,
-            },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                HEALING: true
-            }),
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 1,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        HEALING: true
+                    }),
+                })
+            ]
         });
 
         mockedGraphicsContext = new MockedP5GraphicsContext();
@@ -51,7 +60,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            actionEffectSquaddieTemplate: hinderingAction,
+            actionEffectSquaddieTemplate: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });
@@ -74,7 +83,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            actionEffectSquaddieTemplate: helpingAction,
+            actionEffectSquaddieTemplate: helpingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });

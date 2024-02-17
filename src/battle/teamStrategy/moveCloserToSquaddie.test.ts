@@ -1,26 +1,24 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {TeamStrategyState} from "./teamStrategyState";
-import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddie} from "../battleSquaddie";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionService} from "../../action/processed/processedAction";
 
 describe('move towards closest squaddie in range', () => {
-    let squaddieRepository: ObjectRepository;
+    let repository: ObjectRepository;
     let missionMap: MissionMap;
     let targetSquaddieTemplate: SquaddieTemplate;
     let targetBattleSquaddie: BattleSquaddie;
@@ -31,7 +29,7 @@ describe('move towards closest squaddie in range', () => {
     let allyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryService.new();
+        repository = ObjectRepositoryService.new();
 
         ({
             squaddieTemplate: targetSquaddieTemplate,
@@ -41,7 +39,7 @@ describe('move towards closest squaddie in range', () => {
             battleId: "target_squaddie_0",
             name: "Target",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            squaddieRepository: repository,
         }));
 
         ({
@@ -52,7 +50,7 @@ describe('move towards closest squaddie in range', () => {
             battleId: "ignored_squaddie_0",
             name: "Ignored",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            squaddieRepository: repository,
         }));
 
         ({
@@ -63,13 +61,13 @@ describe('move towards closest squaddie in range', () => {
                 battleId: "searching_squaddie_0",
                 name: "Searching",
                 affiliation: SquaddieAffiliation.ALLY,
-                squaddieRepository,
+                squaddieRepository: repository,
                 attributes: {
                     ...DefaultArmyAttributes(),
                     ...{
                         movement: CreateNewSquaddieMovementWithTraits({
                             movementPerAction: 1,
-                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                            traits: TraitStatusStorageService.newUsingTraitValues(),
                         })
                     }
                 }
@@ -103,24 +101,14 @@ describe('move towards closest squaddie in range', () => {
             r: 2
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
-        const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: searchingSquaddieTemplate.squaddieId.templateId,
+        const expectedInstruction = DecidedActionService.new({
+            actionPointCost: 1,
+            actionTemplateName: "Move",
             battleSquaddieId: "searching_squaddie_0",
-            startingLocation: {q: 0, r: 2},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 0, r: 1},
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
+            actionEffects: [
+                DecidedActionMovementEffectService.new({
+                    destination: {q: 0, r: 1},
+                    template: ActionEffectMovementTemplateService.new({})
                 })
             ]
         });
@@ -128,10 +116,14 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            actionsThisRound: undefined,
+            repository
+        });
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will not change the currently acting squaddie', () => {
@@ -147,13 +139,13 @@ describe('move towards closest squaddie in range', () => {
             battleId: "searching_squaddie_2",
             name: "Searching",
             affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository,
+            squaddieRepository: repository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 10,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     })
                 }
             }
@@ -173,41 +165,35 @@ describe('move towards closest squaddie in range', () => {
             r: 2
         });
 
-        const startingInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: searchingSquaddieStatic2.squaddieId.templateId,
+        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+            destination: {q: 0, r: 3},
+            template: ActionEffectMovementTemplateService.new({})
+        });
+        const actionsThisRound = ActionsThisRoundService.new({
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 5},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 0, r: 3},
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
+            processedActions: [
+                ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionPointCost: 1,
+                        battleSquaddieId: "searching_squaddie_0",
+                        actionTemplateName: "Move",
+                        actionEffects: [
+                            decidedActionMovementEffect,
+                        ]
+                    })
                 })
             ]
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-            instruction: startingInstruction,
-        });
-
-        const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: searchingSquaddieStatic2.squaddieId.templateId,
+        const expectedInstruction = DecidedActionService.new({
+            actionPointCost: 1,
+            actionTemplateName: "Move",
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
-            startingLocation: {q: 0, r: 3},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 0, r: 1},
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
+            actionEffects: [
+                DecidedActionMovementEffectService.new({
+                    destination: {q: 0, r: 1},
+                    template: ActionEffectMovementTemplateService.new({})
                 })
             ]
         });
@@ -215,22 +201,26 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            actionsThisRound,
+            repository
+        });
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will raise an error if there is no target', () => {
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({});
 
         const shouldThrowError = () => {
-            strategy.DetermineNextInstruction(state, squaddieRepository);
+            strategy.DetermineNextInstruction({
+                team: allyTeam,
+                missionMap,
+                actionsThisRound: undefined,
+                repository
+            });
         }
 
         expect(() => {
@@ -260,16 +250,14 @@ describe('move towards closest squaddie in range', () => {
             r: 1
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0"
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            repository
+        });
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -287,16 +275,14 @@ describe('move towards closest squaddie in range', () => {
             r: 8
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0"
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            repository
+        });
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -318,24 +304,14 @@ describe('move towards closest squaddie in range', () => {
             r: 2
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
-        const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: searchingSquaddieTemplate.squaddieId.templateId,
+        const expectedInstruction = DecidedActionService.new({
+            actionPointCost: 1,
+            actionTemplateName: "Move",
             battleSquaddieId: "searching_squaddie_0",
-            startingLocation: {q: 0, r: 2},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 0, r: 1},
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
+            actionEffects: [
+                DecidedActionMovementEffectService.new({
+                    destination: {q: 0, r: 1},
+                    template: ActionEffectMovementTemplateService.new({})
                 })
             ]
         });
@@ -343,28 +319,28 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            repository
+        });
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will find an alternate destination if a squaddie is blocking its first space', () => {
-        const {
-            squaddieTemplate: playerSquaddieStatic,
-            battleSquaddie: playerSquaddieDynamic
-        } = CreateNewSquaddieAndAddToRepository({
+        CreateNewSquaddieAndAddToRepository({
             templateId: "player_squaddie",
             battleId: "player_squaddie_1",
             name: "Player",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            squaddieRepository: repository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     })
                 }
             }
@@ -392,24 +368,14 @@ describe('move towards closest squaddie in range', () => {
             r: 0
         });
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
-        const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: searchingSquaddieTemplate.squaddieId.templateId,
+        const expectedInstruction = DecidedActionService.new({
+            actionPointCost: 2,
+            actionTemplateName: "Move",
             battleSquaddieId: "searching_squaddie_0",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 1, r: 1},
-                            numberOfActionPointsSpent: 2,
-                        })
-                    ]
+            actionEffects: [
+                DecidedActionMovementEffectService.new({
+                    destination: {q: 1, r: 1},
+                    template: ActionEffectMovementTemplateService.new({})
                 })
             ]
         });
@@ -417,10 +383,12 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
-
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            repository
+        });
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will not follow dead squaddies', () => {
@@ -443,18 +411,14 @@ describe('move towards closest squaddie in range', () => {
             damageType: DamageType.UNKNOWN
         })
 
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: allyTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER
         });
-        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
-
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: allyTeam,
+            missionMap,
+            repository
+        });
         expect(actualInstruction).toBeUndefined();
-        expect(state.instruction).toBeUndefined();
     });
 });

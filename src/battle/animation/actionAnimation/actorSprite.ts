@@ -18,13 +18,12 @@ import {RollResultService} from "../../actionCalculator/rollResult";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
 
     constructor() {
-
     }
 
     private _squaddieRepository: ObjectRepository;

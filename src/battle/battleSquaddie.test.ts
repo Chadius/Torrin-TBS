@@ -1,7 +1,7 @@
 import {BattleSquaddie, BattleSquaddieService} from "./battleSquaddie";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 
 describe('BattleSquaddie', () => {
@@ -41,7 +41,7 @@ describe('BattleSquaddie', () => {
         let battleSoldier: BattleSquaddie;
 
         beforeEach(() => {
-            soldierTemplate = {
+            soldierTemplate = SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "soldier_static",
                     name: "Soldier",
@@ -54,8 +54,7 @@ describe('BattleSquaddie', () => {
                     armorClass: 2,
                     movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
                 },
-                actions: [],
-            };
+            });
         });
 
         it('will give battle squaddie defaults', () => {

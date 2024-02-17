@@ -6,10 +6,6 @@ import {SearchPath} from "../hexMap/pathfinder/searchPath";
 import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
-import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "../battle/history/currentlySelectedSquaddieDecision";
 
 export const SquaddieService = {
     dealDamageToTheSquaddie: ({
@@ -68,27 +64,6 @@ export const SquaddieService = {
         maxHitPoints: number
     } => {
         return GetHitPoints({squaddieTemplate, battleSquaddie});
-    },
-    isSquaddieCurrentlyTakingATurn: ({squaddieTemplate, battleSquaddie, currentlySelectedSquaddieDecision}: {
-        squaddieTemplate: SquaddieTemplate;
-        battleSquaddie: BattleSquaddie;
-        currentlySelectedSquaddieDecision?: CurrentlySelectedSquaddieDecision
-    }): boolean => {
-        let {
-            canAct,
-            isDead,
-        } = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie})
-
-        if (isDead || !canAct) {
-            return false;
-        }
-
-        if (currentlySelectedSquaddieDecision === undefined) {
-            return false;
-        }
-
-        return CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentlySelectedSquaddieDecision)
-            || CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentlySelectedSquaddieDecision);
     },
     canSquaddieActRightNow: ({
                                  squaddieTemplate,

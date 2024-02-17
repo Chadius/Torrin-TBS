@@ -1,36 +1,41 @@
 import {MissionMap} from "../../missionMap/missionMap";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {FindValidTargets, TargetingResults} from "./targetingService";
+import {TargetingResults, TargetingResultsService} from "./targetingService";
 
 import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../action/template/actionEffectSquaddieTemplate";
 
 describe('Targeting Service', () => {
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: ActionTemplate;
     let sirCamilSquaddieTemplate: SquaddieTemplate;
     let sirCamilBattleSquaddie: BattleSquaddie;
     let squaddieRepo: ObjectRepository;
 
     beforeEach(() => {
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }),
-            minimumRange: 1,
-            maximumRange: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    minimumRange: 1,
+                    maximumRange: 1,
+                })
+            ]
         });
 
         squaddieRepo = ObjectRepositoryService.new();
@@ -63,9 +68,9 @@ describe('Targeting Service', () => {
             {q: 1, r: 1},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
-            action: longswordAction,
+            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
             actingBattleSquaddie: sirCamilBattleSquaddie,
             squaddieRepository: squaddieRepo,
@@ -95,9 +100,9 @@ describe('Targeting Service', () => {
             sirCamilBattleSquaddie.battleSquaddieId,
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
-            action: longswordAction,
+            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
             actingBattleSquaddie: sirCamilBattleSquaddie,
             squaddieRepository: squaddieRepo,
@@ -117,15 +122,19 @@ describe('Targeting Service', () => {
             })
         });
 
-        let longbowAction = ActionEffectSquaddieTemplateService.new({
+        let longbowAction = ActionTemplateService.new({
             name: "longbow",
             id: "longbow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }),
-            minimumRange: 2,
-            maximumRange: 3,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    minimumRange: 2,
+                    maximumRange: 3,
+                })
+            ]
         });
 
         squaddieRepo = ObjectRepositoryService.new();
@@ -137,7 +146,7 @@ describe('Targeting Service', () => {
             templateId: "archer",
             battleId: "Archer 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            actions: [longbowAction],
+            actionTemplates: [longbowAction],
             squaddieRepository: squaddieRepo,
         });
 
@@ -147,9 +156,9 @@ describe('Targeting Service', () => {
             {q: 1, r: 1},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
-            action: longbowAction,
+            actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: archerSquaddieTemplate,
             actingBattleSquaddie: archerBattleSquaddie,
             squaddieRepository: squaddieRepo,
@@ -230,9 +239,9 @@ describe('Targeting Service', () => {
             {q: 0, r: 3},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
-            action: longswordAction,
+            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
             actingBattleSquaddie: sirCamilBattleSquaddie,
             squaddieRepository: squaddieRepo,
@@ -243,15 +252,19 @@ describe('Targeting Service', () => {
     });
 
     it('will ignore terrain costs when targeting', () => {
-        let longbowAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        let longbowAction: ActionTemplate = ActionTemplateService.new({
             name: "longbow",
             id: "longbow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }),
-            minimumRange: 1,
-            maximumRange: 3,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    minimumRange: 1,
+                    maximumRange: 3,
+                })
+            ]
         });
 
         let battleMap: MissionMap = new MissionMap({
@@ -268,9 +281,9 @@ describe('Targeting Service', () => {
             {q: 0, r: 0},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
-            action: longbowAction,
+            actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
             actingBattleSquaddie: sirCamilBattleSquaddie,
             squaddieRepository: squaddieRepo,

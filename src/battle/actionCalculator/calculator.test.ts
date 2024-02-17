@@ -1,20 +1,12 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "../history/currentlySelectedSquaddieDecision";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
@@ -24,19 +16,26 @@ import {StreamNumberGenerator} from "../numberGenerator/stream";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "./degreeOfSuccess";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {GameEngineStateService} from "../../gameEngine/gameEngine";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../action/template/actionEffectSquaddieTemplate";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
+import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 
 describe('calculator', () => {
     let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
     let player1DynamicId = "player 1";
-    let player1StaticId = "player 1";
+    let player1SquaddieTemplateId = "player 1";
     let player1BattleSquaddie: BattleSquaddie;
     let enemy1DynamicId = "enemy 1";
     let enemy1StaticId = "enemy 1";
@@ -44,8 +43,10 @@ describe('calculator', () => {
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
     let ally1BattleSquaddie: BattleSquaddie;
-    let actionAlwaysHitsAndDealsBodyDamage: ActionEffectSquaddieTemplate;
-    let actionNeedsAnAttackRollToDealBodyDamage: ActionEffectSquaddieTemplate;
+
+    let actionAlwaysHitsAndDealsBodyDamage: ActionTemplate;
+    let actionBodyDamageAmount: number;
+    let actionNeedsAnAttackRollToDealBodyDamage: ActionTemplate;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
@@ -55,13 +56,48 @@ describe('calculator', () => {
             })
         });
 
+        actionBodyDamageAmount = 2;
+        actionAlwaysHitsAndDealsBodyDamage = ActionTemplateService.new({
+            id: "deal body damage auto hit",
+            name: "deal body damage (Auto Hit)",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                        }
+                    ),
+                    minimumRange: 0,
+                    maximumRange: 9001,
+                    damageDescriptions: {[DamageType.BODY]: actionBodyDamageAmount}
+                })
+            ]
+        });
+
+        actionNeedsAnAttackRollToDealBodyDamage = ActionTemplateService.new({
+            id: "deal body damage",
+            name: "deal body damage",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                        }
+                    ),
+                    minimumRange: 0,
+                    maximumRange: 9001,
+                    damageDescriptions: {[DamageType.BODY]: actionBodyDamageAmount}
+                })
+            ],
+        });
+
         ({battleSquaddie: player1BattleSquaddie} =
                 CreateNewSquaddieAndAddToRepository({
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: player1DynamicId,
-                    templateId: player1StaticId,
+                    templateId: player1SquaddieTemplateId,
                     name: "player",
                     squaddieRepository,
+                    actionTemplates: [actionAlwaysHitsAndDealsBodyDamage, actionNeedsAnAttackRollToDealBodyDamage],
                     attributes: {
                         maxHitPoints: 5,
                         movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
@@ -76,6 +112,7 @@ describe('calculator', () => {
             templateId: enemy1StaticId,
             name: "enemy",
             squaddieRepository,
+            actionTemplates: [actionAlwaysHitsAndDealsBodyDamage, actionNeedsAnAttackRollToDealBodyDamage],
             attributes: {
                 maxHitPoints: 5,
                 movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
@@ -97,30 +134,6 @@ describe('calculator', () => {
                     }
                 })
         );
-
-        actionAlwaysHitsAndDealsBodyDamage = ActionEffectSquaddieTemplateService.new({
-            id: "deal body damage auto hit",
-            name: "deal body damage (Auto Hit)",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                    [Trait.ATTACK]: true,
-                    [Trait.ALWAYS_SUCCEEDS]: true,
-                }
-            ),
-            minimumRange: 0,
-            maximumRange: 9001,
-            damageDescriptions: {[DamageType.BODY]: 2}
-        });
-        actionNeedsAnAttackRollToDealBodyDamage = ActionEffectSquaddieTemplateService.new({
-            id: "deal body damage",
-            name: "deal body damage",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                    [Trait.ATTACK]: true,
-                }
-            ),
-            minimumRange: 0,
-            maximumRange: 9001,
-            damageDescriptions: {[DamageType.BODY]: 2}
-        });
     })
 
     function dealBodyDamage({
@@ -130,24 +143,33 @@ describe('calculator', () => {
                                 currentlySelectedAction,
                                 numberGenerator,
                             }: {
-        currentlySelectedAction?: ActionEffectSquaddieTemplate,
+        currentlySelectedAction: ActionTemplate,
         actingBattleSquaddie?: BattleSquaddie,
         validTargetLocation?: HexCoordinate,
         missionStatistics?: MissionStatistics,
         numberGenerator?: NumberGeneratorStrategy,
     }) {
-        const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-            currentlySelectedDecision: DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        template: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
-                        targetLocation: {q: 0, r: 0},
-                        numberOfActionPointsSpent: 1,
+        const battleSquaddieId = actingBattleSquaddie ? actingBattleSquaddie.battleSquaddieId : player1BattleSquaddie.battleSquaddieId;
+        const actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: battleSquaddieId,
+            startingLocation: {q: 1, r: 0},
+            processedActions: [
+                ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionTemplateName: currentlySelectedAction.name,
+                        actionTemplateId: currentlySelectedAction.id,
+                        battleSquaddieId,
+                        actionPointCost: currentlySelectedAction.actionPoints,
+                        actionEffects: [
+                            DecidedActionSquaddieEffectService.new({
+                                template: currentlySelectedAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: validTargetLocation ?? {q: 0, r: 1},
+                            })
+                        ]
                     })
-                ]
-            }),
-
-            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
+                })
+            ],
+            previewedActionTemplateId: currentlySelectedAction.id,
         });
 
         return ActionCalculator.calculateResults({
@@ -160,11 +182,13 @@ describe('calculator', () => {
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap,
-                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                             missionStatistics,
+                            actionsThisRound,
                         }),
                     }),
                 }),
+                actionsThisRound,
+                actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                 actingBattleSquaddie: actingBattleSquaddie ?? player1BattleSquaddie,
                 validTargetLocation: validTargetLocation ?? {q: 0, r: 1},
             }
@@ -173,7 +197,7 @@ describe('calculator', () => {
 
     describe('deals damage', () => {
         beforeEach(() => {
-            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(player1SquaddieTemplateId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
         });
 
@@ -204,7 +228,10 @@ describe('calculator', () => {
             MissionStatisticsHandler.reset(missionStatistics);
             MissionStatisticsHandler.startRecording(missionStatistics);
 
-            dealBodyDamage({missionStatistics});
+            dealBodyDamage({
+                currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
+                missionStatistics
+            });
 
             expect(missionStatistics.damageDealtByPlayerTeam).toBe(2);
         });
@@ -215,6 +242,7 @@ describe('calculator', () => {
             MissionStatisticsHandler.startRecording(missionStatistics);
 
             dealBodyDamage({
+                currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 actingBattleSquaddie: enemy1BattleSquaddie,
                 validTargetLocation: {q: 0, r: 0},
                 missionStatistics,
@@ -225,25 +253,30 @@ describe('calculator', () => {
     });
 
     describe('healing abilities', () => {
-        let healsLostHitPoints: ActionEffectSquaddieTemplate;
+        let healsLostHitPoints: ActionTemplate;
 
         beforeEach(() => {
-            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(player1SquaddieTemplateId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
-            healsLostHitPoints = ActionEffectSquaddieTemplateService.new({
+            healsLostHitPoints = ActionTemplateService.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(
-                    {
-                        [Trait.HEALING]: true,
-                        [Trait.ALWAYS_SUCCEEDS]: true,
-                    }
-                ),
-                minimumRange: 0,
-                maximumRange: 9001,
-                healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2},
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues(
+                            {
+                                [Trait.HEALING]: true,
+                                [Trait.ALWAYS_SUCCEEDS]: true,
+                            }
+                        ),
+                        minimumRange: 0,
+                        maximumRange: 9001,
+                        healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2},
+                    })
+                ],
             });
+            squaddieRepository.squaddieTemplates[player1SquaddieTemplateId].actionTemplates.push(healsLostHitPoints);
         });
 
         it('will heal allies fully', () => {
@@ -251,17 +284,25 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
-            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecision: DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: healsLostHitPoints,
-                            targetLocation: {q: 0, r: 0},
-                            numberOfActionPointsSpent: 1,
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                startingLocation: {q: 1, r: 0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                            actionTemplateName: healsLostHitPoints.name,
+                            actionTemplateId: healsLostHitPoints.id,
+                            actionEffects: [
+                                DecidedActionSquaddieEffectService.new({
+                                    template: healsLostHitPoints.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: {q: 0, r: 2},
+                                })
+                            ]
                         })
-                    ]
-                }),
-                squaddieActionsForThisRound: undefined
+                    })
+                ],
+                previewedActionTemplateId: healsLostHitPoints.id,
             });
 
             const results = ActionCalculator.calculateResults({
@@ -272,11 +313,13 @@ describe('calculator', () => {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
-                                squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                                actionsThisRound,
                             }),
                         }),
                         repository: squaddieRepository,
                     }),
+                    actionsThisRound,
+                    actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 2},
                 }
@@ -295,17 +338,25 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN
             );
 
-            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecision: DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: healsLostHitPoints,
-                            targetLocation: {q: 0, r: 0},
-                            numberOfActionPointsSpent: 1,
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                startingLocation: {q: 1, r: 0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                            actionTemplateName: healsLostHitPoints.name,
+                            actionTemplateId: healsLostHitPoints.id,
+                            actionEffects: [
+                                DecidedActionSquaddieEffectService.new({
+                                    template: healsLostHitPoints.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: {q: 0, r: 2},
+                                })
+                            ]
                         })
-                    ]
-                }),
-                squaddieActionsForThisRound: undefined,
+                    })
+                ],
+                previewedActionTemplateId: healsLostHitPoints.id,
             });
 
             ActionCalculator.calculateResults({
@@ -316,12 +367,14 @@ describe('calculator', () => {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
-                                squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                                 missionStatistics,
+                                actionsThisRound,
                             }),
                         }),
                         repository: squaddieRepository,
                     }),
+                    actionsThisRound,
+                    actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 0},
                 }
@@ -333,7 +386,7 @@ describe('calculator', () => {
 
     describe('chance to hit', () => {
         beforeEach(() => {
-            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(player1SquaddieTemplateId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
         });
 
@@ -349,7 +402,7 @@ describe('calculator', () => {
                 numberGenerator,
             });
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionBodyDamageAmount);
         });
 
         it('will miss if the roll is less than the defender armor class', () => {
@@ -380,7 +433,7 @@ describe('calculator', () => {
             });
 
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionBodyDamageAmount);
         });
 
         it('knows when multiple attack penalties should apply', () => {
@@ -390,43 +443,47 @@ describe('calculator', () => {
             const expectedRolls: number[] = [1, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecision: DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: actionNeedsAnAttackRollToDealBodyDamage,
-                            targetLocation: {q: 0, r: 0},
-                            numberOfActionPointsSpent: 1,
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                startingLocation: {q: 1, r: 0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        processedActionEffects: [
+                            ProcessedActionSquaddieEffectService.new({
+                                decidedActionEffect: DecidedActionSquaddieEffectService.new({
+                                    template: actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: {q: 0, r: 0},
+                                })
+                            })
+                        ],
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                            actionTemplateName: actionNeedsAnAttackRollToDealBodyDamage.name,
+                            actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
+                            actionPointCost: 1,
+                            actionEffects: [
+                                DecidedActionSquaddieEffectService.new({
+                                    template: actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: {q: 0, r: 0},
+                                })
+                            ]
+                        }),
+                    }),
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                            actionTemplateName: actionNeedsAnAttackRollToDealBodyDamage.name,
+                            actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
+                            actionEffects: [
+                                DecidedActionSquaddieEffectService.new({
+                                    template: actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: {q: 0, r: 2},
+                                })
+                            ]
                         })
-                    ]
-                }),
-
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
+                    })
+                ],
             });
-            SquaddieActionsForThisRoundService.addDecision(
-                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: actionNeedsAnAttackRollToDealBodyDamage,
-                            numberOfActionPointsSpent: 1,
-                            targetLocation: {q: 0, r: 0},
-                        })
-                    ]
-                })
-            );
-            SquaddieActionsForThisRoundService.addDecision(
-                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: actionNeedsAnAttackRollToDealBodyDamage,
-                            numberOfActionPointsSpent: 1,
-                            targetLocation: {q: 0, r: 0},
-                        })
-                    ]
-                })
-            );
 
             const results = ActionCalculator.calculateResults({
                     state: GameEngineStateService.new({
@@ -438,11 +495,13 @@ describe('calculator', () => {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
-                                squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                                actionsThisRound,
                                 missionStatistics: MissionStatisticsHandler.new(),
                             }),
                         }),
                     }),
+                    actionsThisRound,
+                    actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 1},
                 }
@@ -455,7 +514,7 @@ describe('calculator', () => {
 
     describe('critical hit chance', () => {
         beforeEach(() => {
-            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(player1SquaddieTemplateId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
         });
 
@@ -471,7 +530,7 @@ describe('calculator', () => {
                 numberGenerator,
             });
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY * 2);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionBodyDamageAmount * 2);
         });
 
         it('will critically hit if the roll is 6 and 6', () => {
@@ -486,7 +545,7 @@ describe('calculator', () => {
                 numberGenerator,
             });
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY * 2);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionBodyDamageAmount * 2);
         });
 
         it('cannot critically hit if the action is forbidden from critically succeeding', () => {
@@ -496,14 +555,14 @@ describe('calculator', () => {
             const expectedRolls: number[] = [6, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            TraitStatusStorageHelper.setStatus(actionAlwaysHitsAndDealsBodyDamage.traits, Trait.CANNOT_CRITICALLY_SUCCEED, true);
+            TraitStatusStorageService.setStatus((actionAlwaysHitsAndDealsBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate).traits, Trait.CANNOT_CRITICALLY_SUCCEED, true);
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 numberGenerator,
             });
 
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionBodyDamageAmount);
         });
 
         it('will critically miss if the roll is 6 points or more under the defender armor', () => {
@@ -543,7 +602,7 @@ describe('calculator', () => {
             const expectedRolls: number[] = [2, 2];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            TraitStatusStorageHelper.setStatus(actionNeedsAnAttackRollToDealBodyDamage.traits, Trait.CANNOT_CRITICALLY_FAIL, true);
+            TraitStatusStorageService.setStatus((actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate).traits, Trait.CANNOT_CRITICALLY_FAIL, true);
             const results = dealBodyDamage({
                 currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,

@@ -11,12 +11,12 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
@@ -38,7 +38,7 @@ describe('BattlePhaseController', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepo = ObjectRepositoryService.new();
 
-        playerSquaddieTemplate = {
+        playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "player_squaddie",
                 name: "Player",
@@ -46,12 +46,11 @@ describe('BattlePhaseController', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            actions: [],
             attributes: DefaultArmyAttributes(),
-        };
+        });
         playerBattleSquaddie = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
@@ -66,7 +65,7 @@ describe('BattlePhaseController', () => {
         );
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
@@ -74,12 +73,11 @@ describe('BattlePhaseController', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
-                actions: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({

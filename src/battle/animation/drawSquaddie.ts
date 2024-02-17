@@ -93,6 +93,32 @@ export const DrawSquaddieUtilities = {
     drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
         return drawSquaddieMapIconAtMapLocation(graphicsContext, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
     },
+    setImageToLocation: (
+        {
+            mapIcon,
+            xyCoords,
+        }: {
+            mapIcon: ImageUI,
+            xyCoords: [number, number]
+        }
+    ) => {
+        return setImageToLocation(mapIcon, xyCoords);
+    },
+    moveSquaddieAlongPath: ({
+                                squaddieRepository,
+                                battleSquaddie,
+                                timeMovementStarted,
+                                squaddieMovePath,
+                                camera,
+                            }: {
+        squaddieRepository: ObjectRepository,
+        battleSquaddie: BattleSquaddie,
+        timeMovementStarted: number,
+        squaddieMovePath: SearchPath,
+        camera: BattleCamera
+    }) => {
+        return moveSquaddieAlongPath(squaddieRepository, battleSquaddie, timeMovementStarted, squaddieMovePath, camera);
+    }
 }
 
 const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {

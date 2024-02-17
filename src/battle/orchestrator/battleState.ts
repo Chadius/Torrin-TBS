@@ -13,10 +13,6 @@ import {BattleCamera} from "../battleCamera";
 import {Recording} from "../history/recording";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "../history/currentlySelectedSquaddieDecision";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
@@ -28,6 +24,7 @@ import {
 } from "../orchestratorComponents/battlePhaseTracker";
 import {isValidValue} from "../../utils/validityCheck";
 import {ObjectRepository} from "../objectRepository";
+import {ActionsThisRound} from "../history/actionsThisRound";
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -46,7 +43,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     recording: Recording;
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
-    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision;
+    actionsThisRound: ActionsThisRound;
 }
 
 export const BattleStateService = {
@@ -146,7 +143,6 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap;
     camera?: BattleCamera;
     battlePhaseState?: BattlePhaseState;
-    squaddieCurrentlyActing?: CurrentlySelectedSquaddieDecision;
     recording?: Recording;
     teams?: BattleSquaddieTeam[];
     teamStrategiesById?: { [key: string]: TeamStrategy[] };
@@ -161,6 +157,7 @@ interface BattleStateConstructorParameters {
         loadRequested: boolean;
     };
     battleCompletionStatus?: BattleCompletionStatus;
+    actionsThisRound?: ActionsThisRound;
 }
 
 const newBattleState = ({
@@ -171,7 +168,6 @@ const newBattleState = ({
                             missionMap,
                             camera,
                             battlePhaseState,
-                            squaddieCurrentlyActing,
                             recording,
                             missionStatistics,
                             missionCompletionStatus,
@@ -180,6 +176,7 @@ const newBattleState = ({
                             battleCompletionStatus,
                             teams,
                             teamStrategiesById,
+                            actionsThisRound,
                         }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
         objectives,
@@ -200,11 +197,8 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        squaddieCurrentlyActing: squaddieCurrentlyActing || CurrentlySelectedSquaddieDecisionService.new({
-
-            squaddieActionsForThisRound: undefined,
-        }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
+        actionsThisRound,
     };
 };
 

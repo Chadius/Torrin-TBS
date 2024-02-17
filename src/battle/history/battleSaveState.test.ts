@@ -8,19 +8,14 @@ import {BattleCamera} from "../battleCamera";
 import {Recording, RecordingService} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {BattleEvent} from "./battleEvent";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+import {BattleEvent, BattleEventService} from "./battleEvent";
 import {Trait} from "../../trait/traitStatusStorage";
-import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
@@ -28,17 +23,21 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateService} from "../orchestrator/battleState";
-
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {CurrentlySelectedSquaddieDecisionService} from "./currentlySelectedSquaddieDecision";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {ActionsThisRound, ActionsThisRoundService} from "./actionsThisRound";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -52,52 +51,40 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        const action: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-                id: "att",
-                name: "attack",
-                traits: {
-                    booleanTraits: {
-                        [Trait.ATTACK]: true,
-                        [Trait.ALWAYS_SUCCEEDS]: true,
-                    }
-                },
-                maximumRange: 1,
-                minimumRange: 0,
-            })
-        ;
-
-        const firstSquaddieDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
-            {
-                squaddieTemplateId: "actor 1 template",
-                battleSquaddieId: "actor 1",
-                startingLocation: {q: 1, r: -2},
-                decisions: [
-                    {
-                        actionEffects: [
-                            ActionEffectMovementService.new({
-                                destination: {q: 2, r: -5},
-                                numberOfActionPointsSpent: 1,
-                            })
-                        ]
+        const action: ActionTemplate = ActionTemplateService.new({
+            id: "att",
+            name: "attack",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: {
+                        booleanTraits: {
+                            [Trait.ATTACK]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                        }
                     },
-                    {
-                        actionEffects: [
-                            ActionEffectSquaddieService.new({
-                                numberOfActionPointsSpent: 1,
-                                template: action,
-                                targetLocation: {q: 3, r: 4},
-                            })
-                        ]
-                    }
-                ],
-            });
+                    maximumRange: 1,
+                    minimumRange: 0,
+                })
+            ]
+        });
 
         eventRecording0 = {history: []};
-        firstBattleEvent = {
-            instruction: CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: firstSquaddieDecisions,
 
-                currentlySelectedDecision: undefined,
+        firstBattleEvent = BattleEventService.new({
+            processedAction: ProcessedActionService.new({
+                decidedAction: DecidedActionService.new({
+                    actionPointCost: 1,
+                    battleSquaddieId: "actor 1",
+                    actionTemplateName: "attack",
+                    actionTemplateId: "attackId",
+                    actionEffects: [
+                        DecidedActionSquaddieEffectService.new({
+                            template: ActionEffectSquaddieTemplateService.new({}),
+                            target: {q: 0, r: 0},
+                        })
+                    ]
+                }),
+                processedActionEffects: []
             }),
             results: {
                 actingBattleSquaddieId: "actor 1",
@@ -120,7 +107,7 @@ describe("BattleSaveState", () => {
                 },
                 actingSquaddieModifiers: {},
             }
-        };
+        });
         eventRecording0.history.push(
             firstBattleEvent
         );
@@ -132,7 +119,7 @@ describe("BattleSaveState", () => {
             healingReceivedByPlayerTeam: 314,
         };
 
-        const player0SquaddieTemplate: SquaddieTemplate = {
+        const player0SquaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 affiliation: SquaddieAffiliation.PLAYER,
                 name: "player 0",
@@ -141,8 +128,7 @@ describe("BattleSaveState", () => {
                 resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
-        };
+        });
 
         player0BattleSquaddie = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player battle 0",
@@ -150,15 +136,15 @@ describe("BattleSaveState", () => {
             squaddieTurn: SquaddieTurnService.new(),
         });
 
-        playerTeam = {
+        playerTeam = BattleSquaddieTeamService.new({
             id: "playerTeamId",
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Player Team",
             battleSquaddieIds: ["player battle 0"],
             iconResourceKey: "icon_player_team",
-        }
+        });
 
-        const enemy0SquaddieTemplate: SquaddieTemplate = {
+        const enemy0SquaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 affiliation: SquaddieAffiliation.ENEMY,
                 name: "enemy 0",
@@ -170,8 +156,7 @@ describe("BattleSaveState", () => {
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5
             },
-            actions: [],
-        };
+        });
 
         const finishedTurn = SquaddieTurnService.new();
         SquaddieTurnService.endTurn(finishedTurn);
@@ -309,28 +294,29 @@ describe("BattleSaveState", () => {
     });
 
     it("Can read the event recording and create a similar one", () => {
-        const secondSquaddieDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
+        const actionsThisRound: ActionsThisRound = ActionsThisRoundService.new(
             {
-                squaddieTemplateId: "actor 2 template",
                 battleSquaddieId: "actor 2",
                 startingLocation: {q: 0, r: 4},
-                decisions: [
-                    {
-                        actionEffects: [
-                            ActionEffectMovementService.new({
-                                destination: {q: 1, r: 6},
-                                numberOfActionPointsSpent: 3,
-                            })
-                        ]
-                    },
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 3,
+                            actionTemplateName: "Move",
+                            battleSquaddieId: "actor 2",
+                            actionEffects: [
+                                DecidedActionMovementEffectService.new({
+                                    destination: {q: 1, r: 6},
+                                    template: ActionEffectMovementTemplateService.new({})
+                                })
+                            ]
+                        })
+                    })
                 ],
             });
 
         const secondBattleEvent: BattleEvent = {
-            instruction: CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: secondSquaddieDecisions,
-                currentlySelectedDecision: undefined,
-            }),
+            processedAction: actionsThisRound.processedActions[0],
             results: {
                 actingBattleSquaddieId: undefined,
                 targetedBattleSquaddieIds: [],

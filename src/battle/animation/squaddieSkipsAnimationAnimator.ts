@@ -3,14 +3,15 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {ActionResultTextService} from "./actionResultTextService";
 import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {RecordingService} from "../history/recording";
-import {ActionEffectType} from "../../decision/actionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {ActionResultTextService} from "./actionResultTextService";
+import {RecordingService} from "../history/recording";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -59,14 +60,22 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
-            let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-            if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
                 return;
             }
 
+            if (processedActionEffectToShow.decidedActionEffect.type !== ActionEffectType.SQUADDIE) {
+                return;
+            }
+            const currentActionEffectSquaddieTemplate = processedActionEffectToShow.decidedActionEffect.template;
+
+            this.outputTextStrings = [];
             this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: state.repository,
-                currentActionEffectTemplate: squaddieActionEffect.template,
+                actionTemplateName: processedActionToShow.decidedAction.actionTemplateName,
+                currentActionEffectSquaddieTemplate,
                 result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
             });
 

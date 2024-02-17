@@ -6,7 +6,6 @@ import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelected
 import {RectAreaService} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
 
 jest.mock('p5', () => () => {
     return {
@@ -68,10 +67,6 @@ export const mockResourceHandler = () => {
 export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
-    hud.getSelectedAction = jest.fn().mockReturnValue(ActionEffectSquaddieTemplateService.new({
-        id: "do nothing",
-        name: "do nothing",
-    }));
     hud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false);
     hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
     hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);

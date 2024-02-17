@@ -1,28 +1,67 @@
 import {TeamStrategy, TeamStrategyType} from "./teamStrategy";
-import {TeamStrategyState} from "./teamStrategyState";
 import {ObjectRepository} from "../objectRepository";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
-import {SquaddieDecisionsDuringThisPhase} from "../history/squaddieDecisionsDuringThisPhase";
+import {DecidedAction} from "../../action/decided/decidedAction";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {MissionMap} from "../../missionMap/missionMap";
+import {ActionsThisRound} from "../history/actionsThisRound";
 
-export const DetermineNextDecision = ({strategy, state, squaddieRepository}:
-                                          {
-                                              strategy: TeamStrategy,
-                                              state: TeamStrategyState,
-                                              squaddieRepository: ObjectRepository
-                                          }): SquaddieDecisionsDuringThisPhase => {
+export const DetermineNextDecisionService = {
+    determineNextDecision: ({
+                                team,
+                                missionMap,
+                                repository,
+                                actionsThisRound,
+                                strategy,
+                            }: {
+        team: BattleSquaddieTeam,
+        missionMap: MissionMap,
+        repository: ObjectRepository,
+        actionsThisRound: ActionsThisRound,
+        strategy: TeamStrategy,
+    }): DecidedAction => {
+        return DetermineNextDecision({
+            team,
+            missionMap,
+            repository,
+            actionsThisRound,
+            strategy,
+        });
+    }
+}
+
+export const DetermineNextDecision = ({
+                                          team,
+                                          missionMap,
+                                          repository,
+                                          actionsThisRound,
+                                          strategy,
+                                      }: {
+    team: BattleSquaddieTeam,
+    missionMap: MissionMap,
+    repository: ObjectRepository,
+    actionsThisRound: ActionsThisRound,
+    strategy: TeamStrategy,
+}): DecidedAction => {
     let calculator: TeamStrategyCalculator;
     switch (strategy.type) {
         case TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE:
             calculator = new MoveCloserToSquaddie(strategy.options);
-            return calculator.DetermineNextInstruction(state, squaddieRepository);
+            break;
         case TeamStrategyType.TARGET_SQUADDIE_IN_RANGE:
             calculator = new TargetSquaddieInRange(strategy.options);
-            return calculator.DetermineNextInstruction(state, squaddieRepository);
+            break;
         default:
             calculator = new EndTurnTeamStrategy(strategy.options);
-            return calculator.DetermineNextInstruction(state, squaddieRepository);
+            break;
     }
+    return calculator.DetermineNextInstruction({
+        team,
+        missionMap,
+        repository,
+        actionsThisRound,
+    });
 }

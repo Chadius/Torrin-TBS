@@ -1,69 +1,50 @@
 import {Recording, RecordingService} from "./recording";
-import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
-import {BattleEvent} from "./battleEvent";
-import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "./currentlySelectedSquaddieDecision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {DecisionService} from "../../decision/decision";
+import {BattleEvent, BattleEventService} from "./battleEvent";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe('Recording', () => {
+    it('placeholder once you rewrite this', () => {
+        expect(true).toBeTruthy();
+    });
+
     it('can add an event and retrieve it', () => {
         const recording: Recording = {
             history: []
         };
 
-        const endTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: "player_squaddie",
-            battleSquaddieId: "player_squaddie_0",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectEndTurnService.new()
-                    ]
-                })
-            ]
+        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+            template: ActionEffectMovementTemplateService.new({}),
+            destination: {q: 0, r: 1},
         });
 
-        const squaddieMovesAndEndsTurn: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                squaddieTemplateId: "static",
-                battleSquaddieId: "dynamic",
-                startingLocation: {q: 2, r: 3},
-                decisions: [
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectMovementService.new({
-                                destination: {q: 3, r: 6},
-                                numberOfActionPointsSpent: 1,
-                            })
-                        ]
-                    }),
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectEndTurnService.new()
-                        ]
-                    }),
-                ],
+        const processedAction = ProcessedActionService.new({
+            decidedAction: DecidedActionService.new({
+                actionPointCost: 1,
+                battleSquaddieId: "playerSoldierBattleSquaddie",
+                actionTemplateName: "Move",
+                actionEffects: [
+                    decidedActionMovementEffect
+                ]
             }),
-        })
+            processedActionEffects: []
+        });
 
         RecordingService.addEvent(
             recording,
-            {
-                instruction: squaddieMovesAndEndsTurn,
+            BattleEventService.new({
                 results: undefined,
-            }
+                processedAction,
+            })
         );
 
         const history: BattleEvent[] = recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
-            instruction: squaddieMovesAndEndsTurn,
             results: undefined,
+            processedAction,
         });
     });
 });

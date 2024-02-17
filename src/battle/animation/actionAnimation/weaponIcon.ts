@@ -6,7 +6,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 export class WeaponIcon {
     constructor() {

@@ -7,12 +7,13 @@ import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants"
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
+import {DamageType, HealingType} from "../../../squaddie/squaddieService";
+import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
+import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
-import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 describe('Actor Sprite', () => {
     let squaddieRepository: ObjectRepository;
@@ -20,8 +21,8 @@ describe('Actor Sprite', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     const battleSquaddieId = "actor0";
 
-    let hinderingAction: ActionEffectSquaddieTemplate;
-    let helpfulAction: ActionEffectSquaddieTemplate;
+    let hinderingAction: ActionTemplate;
+    let helpfulAction: ActionTemplate;
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -44,26 +45,34 @@ describe('Actor Sprite', () => {
         timer.start();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
 
-        hinderingAction = ActionEffectSquaddieTemplateService.new({
+        hinderingAction = ActionTemplateService.new({
             id: "hindering",
             name: "hindering",
-            damageDescriptions: {
-                [DamageType.BODY]: 1,
-            },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                ATTACK: true
-            }),
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        ATTACK: true
+                    }),
+                })
+            ],
         });
 
-        helpfulAction = ActionEffectSquaddieTemplateService.new({
+        helpfulAction = ActionTemplateService.new({
             id: "helping",
             name: "helping",
-            healingDescriptions: {
-                [HealingType.LOST_HIT_POINTS]: 1,
-            },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                HEALING: true
-            }),
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 1,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        HEALING: true
+                    }),
+                })
+            ]
         });
     });
 
@@ -94,7 +103,7 @@ describe('Actor Sprite', () => {
         sprite.draw({
             timer,
             graphicsContext: mockedP5GraphicsContext,
-            actionEffectSquaddieTemplate: hinderingAction,
+            actionEffectSquaddieTemplate: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(getSquaddieEmotionSpy).toBeCalled();
@@ -112,7 +121,7 @@ describe('Actor Sprite', () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: hinderingAction,
+            action: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
@@ -125,7 +134,7 @@ describe('Actor Sprite', () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: hinderingAction,
+            action: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(emotion).toBe(SquaddieEmotion.ATTACK);
@@ -139,7 +148,7 @@ describe('Actor Sprite', () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: helpfulAction,
+            action: helpfulAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(emotion).toBe(SquaddieEmotion.ASSISTING);
@@ -163,8 +172,8 @@ describe('Actor Sprite', () => {
         ]
         beforeEach(() => {
             mapping = {
-                'deals damage': {action: hinderingAction},
-                'heals damage': {action: helpfulAction},
+                'deals damage': {action: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate},
+                'heals damage': {action: helpfulAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate},
             }
         })
         it.each(tests)(`$name will show the same emotion`, ({

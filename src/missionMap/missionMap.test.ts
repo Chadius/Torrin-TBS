@@ -1,7 +1,7 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {SquaddieId} from "../squaddie/id";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
-import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {MissionMap, MissionMapService} from "./missionMap";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./squaddieLocation";
@@ -25,7 +25,7 @@ describe('Mission Map', () => {
                 mapIconResourceKey: "map_icon_torrin",
                 actionSpritesByEmotion: {},
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            traits: TraitStatusStorageService.newUsingTraitValues(),
             affiliation: SquaddieAffiliation.PLAYER,
         };
     });

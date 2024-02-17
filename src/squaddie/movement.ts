@@ -1,4 +1,4 @@
-import {Trait, TraitStatusStorage, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorage, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface SquaddieMovement {
@@ -7,7 +7,7 @@ export interface SquaddieMovement {
     crossOverPits: boolean;
 }
 
-export const SquaddieMovementHelper = {
+export const SquaddieMovementService = {
     new: ({movementPerAction, traits}: {
         movementPerAction?: number;
         traits?: TraitStatusStorage;
@@ -33,8 +33,8 @@ export const CreateNewSquaddieMovementWithTraits = ({movementPerAction, traits}:
     let crossOverPits = false;
 
     if (traits) {
-        passThroughWalls = TraitStatusStorageHelper.getStatus(traits, Trait.PASS_THROUGH_WALLS);
-        crossOverPits = TraitStatusStorageHelper.getStatus(traits, Trait.CROSS_OVER_PITS);
+        passThroughWalls = TraitStatusStorageService.getStatus(traits, Trait.PASS_THROUGH_WALLS);
+        crossOverPits = TraitStatusStorageService.getStatus(traits, Trait.CROSS_OVER_PITS);
     }
 
     return {

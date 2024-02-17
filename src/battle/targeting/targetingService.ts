@@ -1,4 +1,3 @@
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
@@ -11,6 +10,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
+import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 
 export class TargetingResults {
     constructor() {
@@ -39,16 +39,43 @@ export class TargetingResults {
     }
 }
 
-export const FindValidTargets = ({
-                                     map,
-                                     action,
-                                     actingSquaddieTemplate,
-                                     actingBattleSquaddie,
-                                     squaddieRepository,
-                                     sourceTiles,
-                                 }: {
+export const TargetingResultsService = {
+    findValidTargets: ({
+                           map,
+                           actingSquaddieTemplate,
+                           actingBattleSquaddie,
+                           squaddieRepository,
+                           sourceTiles,
+                           actionEffectSquaddieTemplate,
+                       }: {
+        map: MissionMap,
+        actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
+        actingSquaddieTemplate: SquaddieTemplate,
+        actingBattleSquaddie: BattleSquaddie,
+        squaddieRepository: ObjectRepository,
+        sourceTiles?: HexCoordinate[],
+    }): TargetingResults => {
+        return findValidTargets({
+            map,
+            actingSquaddieTemplate,
+            actingBattleSquaddie,
+            squaddieRepository,
+            sourceTiles,
+            actionEffectSquaddieTemplate,
+        })
+    }
+}
+
+const findValidTargets = ({
+                              map,
+                              actingSquaddieTemplate,
+                              actingBattleSquaddie,
+                              squaddieRepository,
+                              sourceTiles,
+                              actionEffectSquaddieTemplate,
+                          }: {
     map: MissionMap,
-    action: ActionEffectSquaddieTemplate,
+    actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
     squaddieRepository: ObjectRepository,
@@ -68,8 +95,8 @@ export const FindValidTargets = ({
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,
-            minimumDistanceMoved: action.minimumRange,
-            maximumDistanceMoved: action.maximumRange,
+            minimumDistanceMoved: actionEffectSquaddieTemplate.minimumRange,
+            maximumDistanceMoved: actionEffectSquaddieTemplate.maximumRange,
             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
             movementPerAction: undefined,
             canPassOverPits: false,

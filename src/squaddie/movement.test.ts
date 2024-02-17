@@ -1,5 +1,5 @@
-import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementHelper} from "./movement";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementService} from "./movement";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 
 describe('movement for squaddies', () => {
     it('can make movement from data', () => {
@@ -17,7 +17,7 @@ describe('movement for squaddies', () => {
     it('can make movement using traits and movement speed', () => {
         const movement = CreateNewSquaddieMovementWithTraits({
             movementPerAction: 3,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.PASS_THROUGH_WALLS]: true,
             }),
         });
@@ -34,7 +34,7 @@ describe('movement for squaddies', () => {
                 passThroughWalls: undefined,
                 crossOverPits: null,
             };
-            SquaddieMovementHelper.sanitize(movementWithMissingFields);
+            SquaddieMovementService.sanitize(movementWithMissingFields);
             expect(movementWithMissingFields.movementPerAction).toEqual(0);
             expect(movementWithMissingFields.crossOverPits).toEqual(false);
             expect(movementWithMissingFields.passThroughWalls).toEqual(false);

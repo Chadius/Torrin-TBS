@@ -1,10 +1,10 @@
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieEmotion} from "../../battle/animation/actionAnimation/actionAnimationConstants";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {DamageType, HealingType} from "../../squaddie/squaddieService";
+import {ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -25,7 +25,7 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.THANKFUL]: "combat-young-torrin-thankful",
                         },
                     },
-                    "traits": TraitStatusStorageHelper.newUsingTraitValues({
+                    "traits": TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                         [Trait.MONSU]: true
                     }),
@@ -36,35 +36,48 @@ export const TestArmyPlayerData = () => {
                     "armorClass": 6,
                     "movement": CreateNewSquaddieMovementWithTraits({
                         "movementPerAction": 2,
-                        "traits": TraitStatusStorageHelper.newUsingTraitValues(),
+                        "traits": TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
-                "actions": [
-                    ActionEffectSquaddieTemplateService.new({
-                        name: "water cannon",
-                        id: "torrin_water_cannon",
-                        minimumRange: 0,
-                        maximumRange: 2,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                        }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
+                "actionTemplates": [
+                    ActionTemplateService.new({
+                        "name": "water cannon",
+                        "id": "torrin_water_cannon",
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 2,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ATTACK": true
+                                    }
+                                },
+                                "damageDescriptions": {
+                                    "BODY": 2
+                                }
+                            })
+                        ]
                     }),
-                    ActionEffectSquaddieTemplateService.new({
-                        name: "healing touch",
-                        id: "young_torrin_healing_touch",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
-                            [Trait.SKIP_ANIMATION]: true,
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.TARGETS_ALLIES]: true,
-                            [Trait.HEALING]: true,
-                        }),
-                        actionPointCost: 2,
-                        healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
+                    ActionTemplateService.new({
+                        "name": "healing touch",
+                        "id": "young_torrin_healing_touch",
+                        "actionPoints": 2,
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 1,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ALWAYS_SUCCEEDS": true,
+                                        "TARGETS_ALLIES": true,
+                                        "HEALING": true
+                                    }
+                                },
+                                "healingDescriptions": {
+                                    "LOST_HIT_POINTS": 2
+                                }
+                            })
+                        ]
                     })
                 ],
             },
@@ -74,7 +87,7 @@ export const TestArmyPlayerData = () => {
                     armorClass: 8,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
                 squaddieId: {
@@ -92,23 +105,29 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.THANKFUL]: "combat-sir-camil-thankful",
                         },
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                actions: [
-                    ActionEffectSquaddieTemplateService.new({
-                        name: "longsword",
-                        id: "sir_camil_longsword",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                        }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
+                "actionTemplates": [
+                    ActionTemplateService.new({
+                        "name": "longsword",
+                        "id": "sir_camil_longsword",
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 1,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ATTACK": true
+                                    }
+                                },
+                                "damageDescriptions": {
+                                    "BODY": 2
+                                }
+                            })
+                        ]
                     })
                 ],
             },

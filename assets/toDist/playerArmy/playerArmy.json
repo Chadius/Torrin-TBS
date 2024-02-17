@@ -33,37 +33,47 @@
           "crossOverPits": false
         }
       },
-      "actions": [
+      "actionTemplates": [
         {
           "name": "water cannon",
           "id": "torrin_water_cannon",
-          "minimumRange": 0,
-          "maximumRange": 2,
-          "traits": {
-            "booleanTraits": {
-              "ATTACK": true
+          "actionEffectTemplates": [
+            {
+              "type": "SQUADDIE",
+              "minimumRange": 0,
+              "maximumRange": 2,
+              "traits": {
+                "booleanTraits": {
+                  "ATTACK": true
+                }
+              },
+              "damageDescriptions": {
+                "BODY": 2
+              }
             }
-          },
-          "damageDescriptions": {
-            "BODY": 2
-          }
+          ]
         },
         {
           "name": "healing touch",
           "id": "young_torrin_healing_touch",
-          "minimumRange": 0,
-          "maximumRange": 1,
-          "traits": {
-            "booleanTraits": {
-              "ALWAYS_SUCCEEDS": true,
-              "TARGETS_ALLIES": true,
-              "HEALING": true
+          "actionPoints": 2,
+          "actionEffectTemplates": [
+            {
+              "type": "SQUADDIE",
+              "minimumRange": 0,
+              "maximumRange": 1,
+              "traits": {
+                "booleanTraits": {
+                  "ALWAYS_SUCCEEDS": true,
+                  "TARGETS_ALLIES": true,
+                  "HEALING": true
+                }
+              },
+              "healingDescriptions": {
+                "LOST_HIT_POINTS": 2
+              }
             }
-          },
-          "actionPointCost": 2,
-          "healingDescriptions": {
-            "LOST_HIT_POINTS": 2
-          }
+          ]
         }
       ]
     },
@@ -99,20 +109,25 @@
           "crossOverPits": false
         }
       },
-      "actions": [
+      "actionTemplates": [
         {
           "name": "longsword",
           "id": "sir_camil_longsword",
-          "minimumRange": 0,
-          "maximumRange": 1,
-          "traits": {
-            "booleanTraits": {
-              "ATTACK": true
+          "actionEffectTemplates": [
+            {
+              "type": "SQUADDIE",
+              "minimumRange": 0,
+              "maximumRange": 1,
+              "traits": {
+                "booleanTraits": {
+                  "ATTACK": true
+                }
+              },
+              "damageDescriptions": {
+                "BODY": 2
+              }
             }
-          },
-          "damageDescriptions": {
-            "BODY": 2
-          }
+          ]
         }
       ]
     },
@@ -149,20 +164,25 @@
           "crossOverPits": false
         }
       },
-      "actions": [
+      "actionTemplates": [
         {
           "name": "shard stab",
           "id": "petra-shard-stab",
-          "minimumRange": 0,
-          "maximumRange": 1,
-          "traits": {
-            "booleanTraits": {
-              "ATTACK": true
+          "actionEffectTemplates": [
+            {
+              "type": "SQUADDIE",
+              "minimumRange": 0,
+              "maximumRange": 1,
+              "traits": {
+                "booleanTraits": {
+                  "ATTACK": true
+                }
+              },
+              "damageDescriptions": {
+                "BODY": 2
+              }
             }
-          },
-          "damageDescriptions": {
-            "BODY": 2
-          }
+          ]
         }
       ]
     }

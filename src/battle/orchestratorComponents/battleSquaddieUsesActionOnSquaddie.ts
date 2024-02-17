@@ -7,10 +7,9 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
@@ -21,11 +20,9 @@ import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -77,17 +74,14 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         });
     }
 
-    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.nextActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-        );
-        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-        );
-
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
+        ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
+        OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
+        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(gameEngineState);
+        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
         return {
             nextMode,
@@ -96,40 +90,34 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         }
     }
 
-    reset(state: GameEngineState): void {
-        this.squaddieActionAnimator.reset(state);
+    reset(gameEngineState: GameEngineState): void {
+        this.squaddieActionAnimator.reset(gameEngineState);
         this._squaddieActionAnimator = undefined;
         this.resetInternalState();
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        MaybeEndSquaddieTurn(state);
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
-            this.setSquaddieActionAnimatorBasedOnAction(state.battleOrchestratorState);
+            this.setSquaddieActionAnimatorBasedOnAction(gameEngineState.battleOrchestratorState);
         }
-        this.squaddieActionAnimator.update(state, graphicsContext);
-        if (this.squaddieActionAnimator.hasCompleted(state)) {
-            this.hideDeadSquaddies(state);
+        this.squaddieActionAnimator.update(gameEngineState, graphicsContext);
+        if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
+            this.hideDeadSquaddies(gameEngineState);
 
             const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    state.repository,
-                    state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
+                    gameEngineState.repository,
+                    gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
                 )
             )
             DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
                 battleSquaddie,
                 squaddieTemplate,
-                missionMap: state.battleOrchestratorState.battleState.missionMap,
-                repository: state.repository,
-                campaign: state.campaign,
+                missionMap: gameEngineState.battleOrchestratorState.battleState.missionMap,
+                repository: gameEngineState.repository,
+                campaign: gameEngineState.campaign,
             });
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
-
-            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
-            OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, gameEngineState.repository);
             this.sawResultAftermath = true;
         }
     }
@@ -156,25 +144,19 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(state.battleState.recording);
         if (
             mostRecentEvent === undefined
-            || mostRecentEvent.instruction === undefined
-            || mostRecentEvent.instruction.currentlySelectedDecision === undefined
+            || mostRecentEvent.processedAction === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
         }
 
-        if (state.decisionActionEffectIterator === undefined) {
-            state.decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
-                decision: mostRecentEvent.instruction.currentlySelectedDecision
-            })
-        }
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleState.actionsThisRound);
 
-        let squaddieActionEffect: ActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
             return;
         }
 
-        if (squaddieActionEffect.template.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
+        if (processedActionEffectToShow.decidedActionEffect.template.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

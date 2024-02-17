@@ -1,48 +1,42 @@
-import {TeamStrategyCalculator} from "./teamStrategyCalculator";
-import {TeamStrategyState} from "./teamStrategyState";
-import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
-import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {TeamStrategyCalculator, TeamStrategyService} from "./teamStrategyCalculator";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {ObjectRepository} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
+import {MissionMap} from "../../missionMap/missionMap";
+import {ActionsThisRound} from "../history/actionsThisRound";
+import {isValidValue} from "../../utils/validityCheck";
+import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
-        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
-        if (squaddiesWhoCanAct.length === 0) {
+    DetermineNextInstruction({
+                                 team,
+                                 missionMap,
+                                 repository,
+                                 actionsThisRound,
+                             }: {
+        team: BattleSquaddieTeam,
+        missionMap: MissionMap,
+        repository: ObjectRepository,
+        actionsThisRound?: ActionsThisRound,
+    }): DecidedAction {
+        const battleSquaddieIdToAct = TeamStrategyService.getBattleSquaddieWhoCanAct(team, repository);
+        if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined;
         }
 
-        const squaddieToAct = squaddiesWhoCanAct[0];
-        const {
-            squaddieTemplate,
-            battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, squaddieToAct));
-
-        const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
-        const endTurnAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
-            battleSquaddieId: squaddieToAct,
-            startingLocation: datum.mapLocation,
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectEndTurnService.new()
-                    ]
-                })
-            ]
+        const endTurnDecidedActionEffect = DecidedActionEndTurnEffectService.new({
+            template: ActionEffectEndTurnTemplateService.new({})
         });
-
-        state.setInstruction(endTurnAction);
-
-        return endTurnAction;
+        return DecidedActionService.new({
+            actionTemplateName: "End Turn",
+            battleSquaddieId: battleSquaddieIdToAct,
+            actionEffects: [endTurnDecidedActionEffect],
+        });
     }
 }
+

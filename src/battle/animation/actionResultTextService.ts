@@ -1,13 +1,9 @@
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {ATTACK_MODIFIER} from "../modifierConstants";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {ActionResultText} from "./actionAnimation/actionResultText";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "../actionCalculator/degreeOfSuccess";
 import {ActionTimer} from "./actionAnimation/actionTimer";
@@ -15,43 +11,53 @@ import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {RollResultService} from "../actionCalculator/rollResult";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {BattleSquaddie} from "../battleSquaddie";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../action/template/actionEffectSquaddieTemplate";
+import {ActionTemplate} from "../../action/template/actionTemplate";
 
 export const ActionResultTextService = {
-    outputResultForTextOnly: ({currentActionEffectTemplate, result, squaddieRepository}: {
-        currentActionEffectTemplate: ActionEffectSquaddieTemplate,
+    outputResultForTextOnly: ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplateName}: {
+        currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         result: SquaddieSquaddieResults,
         squaddieRepository: ObjectRepository,
+        actionTemplateName: string,
     }): string[] => {
         return outputResultForTextOnly({
-            currentActionEffectSquaddieTemplate: currentActionEffectTemplate,
+            actionTemplateName,
+            currentActionEffectSquaddieTemplate,
             result,
             squaddieRepository
         });
     },
     outputIntentForTextOnly: ({
-                                  currentActionEffectTemplate,
+                                  actionTemplate,
+                                  currentActionEffectSquaddieTemplate,
                                   actingBattleSquaddieId,
                                   squaddieRepository,
                                   actingSquaddieModifiers
                               }: {
-        currentActionEffectTemplate: ActionEffectSquaddieTemplate,
+        actionTemplate: ActionTemplate,
+        currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         actingBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
         actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number },
     }): string[] => {
         return outputIntentForTextOnly({
-            currentActionEffectSquaddieTemplate: currentActionEffectTemplate,
+            actionTemplate,
+            currentActionEffectSquaddieTemplate,
             actingBattleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers
         });
     },
-    getSquaddieUsesActionString: ({squaddieTemplate, action, newline}: {
+    getSquaddieUsesActionString: ({squaddieTemplate, actionTemplateName, newline}: {
         squaddieTemplate: SquaddieTemplate,
-        action: ActionEffectSquaddieTemplate,
+        actionTemplateName: string,
         newline: boolean
     }): string => {
-        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.name}`;
+        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${actionTemplateName}`;
     },
     getRollsDescriptionString: ({rolls, addSpacing}: { rolls: number[], addSpacing: boolean }): string => {
         return `${addSpacing ? '   ' : ''}rolls (${rolls[0]}, ${rolls[1]})`;
@@ -86,17 +92,17 @@ export const ActionResultTextService = {
     calculateActorUsesActionDescriptionText: ({
                                                   timer,
                                                   actorTemplate,
-                                                  action,
+                                                  actionTemplateName,
                                                   results,
                                               }: {
         timer?: ActionTimer
         actorTemplate: SquaddieTemplate,
-        action: ActionEffectSquaddieTemplate,
+        actionTemplateName: string,
         results: SquaddieSquaddieResults,
     }): string => {
         let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
             squaddieTemplate: actorTemplate,
-            action: action,
+            actionTemplateName: actionTemplateName,
             newline: true,
         });
         if (!timer) {
@@ -187,17 +193,23 @@ export const ActionResultTextService = {
     }
 };
 
-const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, squaddieRepository}: {
+const outputResultForTextOnly = ({
+                                     currentActionEffectSquaddieTemplate,
+                                     result,
+                                     squaddieRepository,
+                                     actionTemplateName
+                                 }: {
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     result: SquaddieSquaddieResults,
     squaddieRepository: ObjectRepository,
+    actionTemplateName: string,
 }): string[] => {
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, result.actingBattleSquaddieId))
 
     let output: string[] = [];
     let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
         squaddieTemplate: actingSquaddieTemplate,
-        action: currentActionEffectSquaddieTemplate,
+        actionTemplateName,
         newline: false,
     });
     output.push(actorUsesActionDescriptionText);
@@ -209,8 +221,8 @@ const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, s
         }));
 
         if (
-            TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ATTACK) === true
-            && TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS) !== true
+            TraitStatusStorageService.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ATTACK) === true
+            && TraitStatusStorageService.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS) !== true
         ) {
             output.push(...ActionResultText.getAttackPenaltyDescriptions(result.actingSquaddieModifiers));
             output.push(...ActionResultText.getActingSquaddieRollTotalIfNeeded(result));
@@ -256,11 +268,13 @@ const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, s
 }
 
 const outputIntentForTextOnly = ({
+                                     actionTemplate,
                                      currentActionEffectSquaddieTemplate,
                                      actingBattleSquaddieId,
                                      squaddieRepository,
                                      actingSquaddieModifiers
                                  }: {
+    actionTemplate: ActionTemplate,
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     actingBattleSquaddieId: string,
     squaddieRepository: ObjectRepository,
@@ -269,10 +283,10 @@ const outputIntentForTextOnly = ({
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, actingBattleSquaddieId))
 
     let output: string[] = [];
-    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentActionEffectSquaddieTemplate.name}`);
+    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${actionTemplate.name}`);
     if (
-        TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ATTACK) === true
-        && TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS) !== true
+        TraitStatusStorageService.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ATTACK) === true
+        && TraitStatusStorageService.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS) !== true
     ) {
         output.push(...ActionResultText.getAttackPenaltyDescriptions(actingSquaddieModifiers));
     }

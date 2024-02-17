@@ -1,7 +1,7 @@
 import {SquaddieId, SquaddieIdService} from "./id";
 import {SquaddieResourceHelper} from "./resource";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../trait/traitStatusStorage";
 
 describe('Squaddie Id', () => {
     it('sanitizes to fill in missing values', () => {
@@ -18,7 +18,7 @@ describe('Squaddie Id', () => {
         expect(squaddieIdWithMissingFields.name).toEqual("name");
         expect(squaddieIdWithMissingFields.affiliation).toEqual(SquaddieAffiliation.UNKNOWN);
         expect(squaddieIdWithMissingFields.resources).toEqual(SquaddieResourceHelper.new());
-        expect(squaddieIdWithMissingFields.traits).toEqual(TraitStatusStorageHelper.newUsingTraitValues({}));
+        expect(squaddieIdWithMissingFields.traits).toEqual(TraitStatusStorageService.newUsingTraitValues({}));
     });
     it('throws an error during sanitization if there is no name or id', () => {
         const invalidSquaddie: SquaddieId = {

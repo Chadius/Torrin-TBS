@@ -116,7 +116,7 @@ export interface TraitStatusStorage {
     booleanTraits: { [key in Trait]?: boolean };
 }
 
-export const TraitStatusStorageHelper = {
+export const TraitStatusStorageService = {
     newUsingTraitValues: (initialTraitValues?: { [key in Trait]?: boolean }): TraitStatusStorage => {
         const newStorage: TraitStatusStorage = {
             booleanTraits: {}

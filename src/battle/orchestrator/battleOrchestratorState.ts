@@ -4,29 +4,24 @@ import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {RandomNumberGenerator} from "../numberGenerator/random";
-import {DecisionActionEffectIterator} from "../orchestratorComponents/decisionActionEffectIterator";
 
 export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     numberGenerator: NumberGeneratorStrategy;
     battleState: BattleState;
-    decisionActionEffectIterator: DecisionActionEffectIterator;
 
     constructor({
                     battleSquaddieSelectedHUD,
                     numberGenerator,
                     battleState,
-                    decisionActionEffectIterator,
                 }: {
         battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
         numberGenerator: NumberGeneratorStrategy,
         battleState: BattleState,
-        decisionActionEffectIterator: DecisionActionEffectIterator
     }) {
         this.battleState = battleState;
         this.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
         this.numberGenerator = numberGenerator;
-        this.decisionActionEffectIterator = decisionActionEffectIterator;
     }
 
     get isValid(): boolean {
@@ -75,12 +70,10 @@ export const BattleOrchestratorStateService = {
                                battleSquaddieSelectedHUD,
                                numberGenerator,
                                battleState,
-                               decisionActionEffectIterator,
                            }: {
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
-        decisionActionEffectIterator?: DecisionActionEffectIterator,
     }): BattleOrchestratorState => {
         return new BattleOrchestratorState({
             battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
@@ -93,7 +86,6 @@ export const BattleOrchestratorStateService = {
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             }),
             numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
-            decisionActionEffectIterator: decisionActionEffectIterator,
         });
     },
 };

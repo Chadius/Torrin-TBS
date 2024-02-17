@@ -12,52 +12,67 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {DIE_SIZE, RollResult, RollResultService} from "./rollResult";
 import {ObjectRepositoryService} from "../objectRepository";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
-import {ActionEffectType} from "../../decision/actionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
+import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
+import {isValidValue} from "../../utils/validityCheck";
 
 export const ActionCalculator = {
     calculateResults: ({
                            state,
                            actingBattleSquaddie,
                            validTargetLocation,
+                           actionEffect,
+                           actionsThisRound,
                        }: {
                            state: GameEngineState,
                            actingBattleSquaddie: BattleSquaddie,
-                           validTargetLocation: HexCoordinate
+                           validTargetLocation: HexCoordinate,
+                           actionsThisRound: ActionsThisRound,
+                           actionEffect: DecidedActionEffect,
                        }
     ): SquaddieSquaddieResults => {
-        return calculateResults({state, actingBattleSquaddie, validTargetLocation});
+        return calculateResults({
+            state,
+            actingBattleSquaddie,
+            validTargetLocation,
+            actionsThisRound,
+            actionEffect,
+        });
     }
 }
 
-function calculateResults({
+const calculateResults = ({
                               state,
                               actingBattleSquaddie,
                               validTargetLocation,
+                              actionsThisRound,
+                              actionEffect,
                           }: {
                               state: GameEngineState,
                               actingBattleSquaddie: BattleSquaddie,
-                              validTargetLocation: HexCoordinate
+                              validTargetLocation: HexCoordinate,
+                              actionsThisRound: ActionsThisRound,
+                              actionEffect: DecidedActionEffect,
                           }
-): SquaddieSquaddieResults {
+): SquaddieSquaddieResults => {
     const {
         targetedBattleSquaddieIds
     } = getTargetedBattleSquaddieIds(state.battleOrchestratorState, validTargetLocation);
 
     let actingSquaddieRoll: RollResult;
-    let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-    if (squaddieActionEffect.type === ActionEffectType.SQUADDIE) {
-        actingSquaddieRoll = maybeMakeAttackRoll(squaddieActionEffect.template, state.battleOrchestratorState);
+    if (actionEffect && actionEffect.type === ActionEffectType.SQUADDIE) {
+        actingSquaddieRoll = maybeMakeAttackRoll(actionEffect.template, state.battleOrchestratorState);
     }
-    let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
+    let {multipleAttackPenalty} = ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(actionsThisRound);
     let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
 
     if (multipleAttackPenalty !== 0) {
@@ -72,8 +87,14 @@ function calculateResults({
             battleSquaddie: targetedBattleSquaddie
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, targetedBattleSquaddieId));
 
-        let healingReceived = calculateTotalHealingReceived(state.battleOrchestratorState, targetedSquaddieTemplate, targetedBattleSquaddie);
+        let healingReceived = calculateTotalHealingReceived({
+            targetedSquaddieTemplate,
+            targetedBattleSquaddie,
+            actionEffect: actionEffect,
+        });
+
         let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
+            actionEffect: actionEffect,
             state: state.battleOrchestratorState,
             actingBattleSquaddie,
             targetedSquaddieTemplate,
@@ -98,30 +119,30 @@ function calculateResults({
         actingSquaddieRoll,
         actingSquaddieModifiers,
     };
-}
+};
 
 const compareAttackRollToGetDegreeOfSuccess = ({
                                                    actor,
                                                    actingSquaddieRoll,
-                                                   action,
+                                                   actionEffectSquaddieTemplate,
                                                    target,
                                                    actingSquaddieModifierTotal,
                                                }: {
     actor: BattleSquaddie;
     actingSquaddieRoll: RollResult;
-    action: ActionEffectSquaddieTemplate;
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     target: BattleSquaddie;
     actingSquaddieModifierTotal: number,
 }): DegreeOfSuccess => {
-    if (TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS)) {
+    if (TraitStatusStorageService.getStatus(actionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS)) {
         return DegreeOfSuccess.SUCCESS;
     }
 
-    const canCriticallySucceed: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
+    const canCriticallySucceed: boolean = !TraitStatusStorageService.getStatus(actionEffectSquaddieTemplate.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
     if (RollResultService.isACriticalSuccess(actingSquaddieRoll) && canCriticallySucceed) {
         return DegreeOfSuccess.CRITICAL_SUCCESS;
     }
-    const canCriticallyFail: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_FAIL);
+    const canCriticallyFail: boolean = !TraitStatusStorageService.getStatus(actionEffectSquaddieTemplate.traits, Trait.CANNOT_CRITICALLY_FAIL);
     if (RollResultService.isACriticalFailure(actingSquaddieRoll) && canCriticallyFail) {
         return DegreeOfSuccess.CRITICAL_FAILURE;
     }
@@ -146,6 +167,7 @@ const calculateTotalDamageDealt = (
         targetedBattleSquaddie,
         actingSquaddieRoll,
         actingSquaddieModifierTotal,
+        actionEffect,
     }
         : {
         state: BattleOrchestratorState,
@@ -154,28 +176,27 @@ const calculateTotalDamageDealt = (
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieRoll: RollResult,
         actingSquaddieModifierTotal: number,
+        actionEffect: DecidedActionEffect,
     }
 ): { damageDealt: number, degreeOfSuccess: DegreeOfSuccess } => {
     let damageDealt = 0;
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
-    let actionEffectTemplate: ActionEffectSquaddieTemplate = undefined;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-    if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
-        return;
+    if (actionEffect === undefined || actionEffect.type !== ActionEffectType.SQUADDIE) {
+        return {damageDealt: 0, degreeOfSuccess: DegreeOfSuccess.NONE};
     }
-    actionEffectTemplate = squaddieActionEffect.template;
+    const actionEffectSquaddieTemplate = actionEffect.template;
 
     degreeOfSuccess = compareAttackRollToGetDegreeOfSuccess({
-        action: actionEffectTemplate,
+        actionEffectSquaddieTemplate,
         actor: actingBattleSquaddie,
         target: targetedBattleSquaddie,
         actingSquaddieRoll,
         actingSquaddieModifierTotal,
     });
 
-    Object.keys(actionEffectTemplate.damageDescriptions).forEach((damageType: DamageType) => {
-        let rawDamageFromAction = actionEffectTemplate.damageDescriptions[damageType]
+    Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach((damageType: DamageType) => {
+        let rawDamageFromAction = actionEffectSquaddieTemplate.damageDescriptions[damageType]
         if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
             rawDamageFromAction *= 2;
         }
@@ -197,23 +218,37 @@ const calculateTotalDamageDealt = (
     };
 };
 
-function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
-    let healingReceived = 0;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-    if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+const calculateTotalHealingReceived = (
+    {
+        targetedSquaddieTemplate,
+        targetedBattleSquaddie,
+        actionEffect,
+    }: {
+        targetedSquaddieTemplate: SquaddieTemplate,
+        targetedBattleSquaddie: BattleSquaddie,
+        actionEffect: DecidedActionEffect,
+    }
+) => {
+    if (!isValidValue(actionEffect)) {
+        return 0;
+    }
+    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
         return 0;
     }
 
-    if (squaddieActionEffect.template.healingDescriptions.LOST_HIT_POINTS) {
+    let healingReceived = 0;
+    const actionEffectSquaddieTemplate = actionEffect.template;
+
+    if (actionEffectSquaddieTemplate.healingDescriptions.LOST_HIT_POINTS) {
         ({healingReceived} = GiveHealingToTheSquaddie({
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie,
-            healingAmount: squaddieActionEffect.template.healingDescriptions.LOST_HIT_POINTS,
+            healingAmount: actionEffectSquaddieTemplate.healingDescriptions.LOST_HIT_POINTS,
             healingType: HealingType.LOST_HIT_POINTS,
         }));
     }
     return healingReceived;
-}
+};
 
 function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate, state: GameEngineState, healingReceived: number, damageDealt: number, actingBattleSquaddie: BattleSquaddie) {
     if (targetedSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
@@ -228,7 +263,7 @@ function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate
 }
 
 function doesActionNeedAnAttackRoll(action: ActionEffectSquaddieTemplate): boolean {
-    return TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS) !== true;
+    return TraitStatusStorageService.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS) !== true;
 }
 
 function conformToSixSidedDieRoll(numberGeneratorResult: number): number {

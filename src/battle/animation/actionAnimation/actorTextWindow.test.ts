@@ -1,51 +1,54 @@
 import {ActorTextWindow} from "./actorTextWindow";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
-import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {ATTACK_MODIFIER} from "../../modifierConstants";
+import {ActionEffectSquaddieTemplateService} from "../../../action/template/actionEffectSquaddieTemplate";
+import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
 
 describe('ActorTextWindow', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let mockedActionTimer: ActionTimer;
 
     let actorTemplate: SquaddieTemplate;
-    let attackThatUsesAttackRoll: ActionEffectSquaddieTemplate;
+    let attackThatUsesAttackRoll: ActionTemplate;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         mockedActionTimer = new ActionTimer();
 
-        actorTemplate = {
+        actorTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "actor id",
                 name: "Actor",
                 resources: undefined,
-                traits: TraitStatusStorageHelper.newUsingTraitValues({}),
+                traits: TraitStatusStorageService.newUsingTraitValues({}),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
-        };
-        attackThatUsesAttackRoll = {
+        });
+        attackThatUsesAttackRoll = ActionTemplateService.new({
             id: "action Id",
             name: "Action",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-            }),
-            damageDescriptions: {},
-            healingDescriptions: {},
-            targetingShape: TargetingShape.SNAKE,
-            actionPointCost: 1,
-            minimumRange: 1,
-            maximumRange: 1,
-        };
-
+            actionPoints: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                    }),
+                    damageDescriptions: {},
+                    healingDescriptions: {},
+                    targetingShape: TargetingShape.SNAKE,
+                    minimumRange: 1,
+                    maximumRange: 1,
+                })
+            ]
+        });
     });
 
     it('initially shows the actor and their action', () => {
@@ -54,7 +57,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+            actionTemplateName: attackThatUsesAttackRoll.name,
             results: undefined,
         });
 
@@ -69,7 +72,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+            actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -98,7 +101,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+            actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -127,7 +130,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+            actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -156,7 +159,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+            actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -186,7 +189,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+                actionTemplateName: attackThatUsesAttackRoll.name,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",
@@ -217,7 +220,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
+                actionTemplateName: attackThatUsesAttackRoll.name,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",
