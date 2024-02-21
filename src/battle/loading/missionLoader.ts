@@ -174,7 +174,7 @@ export const MissionLoader = {
 
         playerArmyData.squaddieTemplates.forEach(template => {
             const resources = template.squaddieId.resources;
-            loadSquaddieTemplateResources({missionLoaderContext, resources, resourceHandler});
+            loadSquaddieTemplateResources({template, missionLoaderContext, resources, resourceHandler});
         });
 
         playerArmyData.squaddieTemplates.forEach(template => {
@@ -193,16 +193,16 @@ const loadSquaddieTemplateResources = ({
                                            missionLoaderContext,
                                            resources,
                                            resourceHandler,
+                                           template,
                                        }: {
     missionLoaderContext: MissionLoaderContext,
     resources: SquaddieResource,
     resourceHandler: ResourceHandler,
+    template: SquaddieTemplate,
 }) => {
-    resourceHandler.loadResources([resources.mapIconResourceKey]);
-    missionLoaderContext.resourcesPendingLoading.push(resources.mapIconResourceKey);
-
-    resourceHandler.loadResources(Object.values(resources.actionSpritesByEmotion));
-    missionLoaderContext.resourcesPendingLoading.push(...Object.values(resources.actionSpritesByEmotion));
+    const squaddieTemplateResourceKeys = SquaddieTemplateService.getResourceKeys(template);
+    resourceHandler.loadResources(squaddieTemplateResourceKeys);
+    missionLoaderContext.resourcesPendingLoading.push(...squaddieTemplateResourceKeys);
 };
 
 const initializeCameraPosition = ({
@@ -343,14 +343,9 @@ const loadAndPrepareNPCTemplateData = async ({
     Object.assign(missionLoaderContext.squaddieData.templates, loadedTemplatesById);
 
     Object.values(loadedTemplatesById).forEach(template => {
-        resourceHandler.loadResource(template.squaddieId.resources.mapIconResourceKey);
-        missionLoaderContext.resourcesPendingLoading.push(template.squaddieId.resources.mapIconResourceKey);
-
-        resourceHandler.loadResources(Object.values(template.squaddieId.resources.actionSpritesByEmotion));
-        missionLoaderContext.resourcesPendingLoading.push(
-            ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
-        );
-
+        const squaddieTemplateResourceKeys = SquaddieTemplateService.getResourceKeys(template);
+        resourceHandler.loadResources(squaddieTemplateResourceKeys);
+        missionLoaderContext.resourcesPendingLoading.push(...squaddieTemplateResourceKeys);
         ObjectRepositoryService.addSquaddieTemplate(repository, template);
     });
 }

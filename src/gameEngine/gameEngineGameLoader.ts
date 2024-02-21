@@ -223,11 +223,13 @@ export class GameEngineGameLoader implements GameEngineComponent {
         state.resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
         state.resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));
         state.resourceHandler.loadResources(Object.values(campaignResources.missionAttributeIconResourceKeys));
+        state.resourceHandler.loadResources(Object.values(campaignResources.actionEffectSquaddieTemplateButtonIcons));
         this.campaignLoaderContext.resourcesPendingLoading = [
             ...this.campaignLoaderContext.resourcesPendingLoading,
             ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
             ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
             ...Object.values(campaignResources.missionAttributeIconResourceKeys),
+            ...Object.values(campaignResources.actionEffectSquaddieTemplateButtonIcons),
         ];
         state.campaignIdThatWasLoaded = campaignData.id;
         state.campaign = campaignData;

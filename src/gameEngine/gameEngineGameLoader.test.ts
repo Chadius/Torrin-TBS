@@ -111,6 +111,7 @@ describe('GameEngineGameLoader', () => {
                 ...Object.values(campaignFileData.resources.missionMapMovementIconResourceKeys),
                 ...Object.values(campaignFileData.resources.missionMapAttackIconResourceKeys),
                 ...Object.values(campaignFileData.resources.missionAttributeIconResourceKeys),
+                ...Object.values(campaignFileData.resources.actionEffectSquaddieTemplateButtonIcons),
             ];
 
             await loader.update(state);

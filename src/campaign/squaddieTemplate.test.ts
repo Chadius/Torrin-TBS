@@ -3,6 +3,9 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {NewDummySquaddieID} from "../utils/test/squaddie";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
+import {SquaddieIdService} from "../squaddie/id";
+import {SquaddieResourceService} from "../squaddie/resource";
+import {SquaddieEmotion} from "../battle/animation/actionAnimation/actionAnimationConstants";
 
 describe('Squaddie Template', () => {
     describe('attributes', () => {
@@ -42,12 +45,12 @@ describe('Squaddie Template', () => {
     it('will sanitize action templates', () => {
         const actionTemplateSanitizeSpy = jest.spyOn(ActionTemplateService, "sanitize");
 
-        const actionTemplate: ActionTemplate = {
+        const actionTemplate: ActionTemplate = ActionTemplateService.new({
             id: "actionTemplateId",
             name: "must use raw object to test sanitization",
             actionPoints: 1,
             actionEffectTemplates: [],
-        };
+        });
         SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "templateId",
@@ -74,5 +77,38 @@ describe('Squaddie Template', () => {
         };
 
         expect(throwErrorBecauseOfNoSquaddieId).toThrowError('cannot sanitize');
+    });
+    it('can return all of the resource keys it needs', () => {
+        const longswordActionTemplate = ActionTemplateService.new({
+            id: "longsword",
+            name: "longsword",
+            buttonIconResourceKey: "icon-sword",
+        });
+        const squaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
+                templateId: "squaddieTemplate",
+                name: "squaddieTemplate",
+                affiliation: SquaddieAffiliation.PLAYER,
+                resources: SquaddieResourceService.new({
+                    mapIconResourceKey: "mapIconResourceKey",
+                    actionSpritesByEmotion: {
+                        [SquaddieEmotion.NEUTRAL]: "SquaddieEmotion.NEUTRAL",
+                    }
+                }),
+            }),
+            actionTemplates: [longswordActionTemplate],
+        });
+
+        const resourceKeys: string[] = SquaddieTemplateService.getResourceKeys(squaddieTemplate);
+
+        expect(resourceKeys).toEqual(
+            expect.arrayContaining(
+                [
+                    squaddieTemplate.squaddieId.resources.mapIconResourceKey,
+                    longswordActionTemplate.buttonIconResourceKey,
+                    ...Object.values(squaddieTemplate.squaddieId.resources.actionSpritesByEmotion),
+                ]
+            )
+        );
     });
 });

@@ -15,6 +15,9 @@ export const TestCampaignData = () => {
             },
             "missionAttributeIconResourceKeys": {
                 "ARMOR_CLASS": "armor class icon"
+            },
+            "actionEffectSquaddieTemplateButtonIcons": {
+                "UNKNOWN": "decision-button-unknown"
             }
         }
     };

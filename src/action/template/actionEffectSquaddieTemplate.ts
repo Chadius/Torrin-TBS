@@ -16,6 +16,7 @@ export interface ActionEffectSquaddieTemplate {
     minimumRange: number;
     maximumRange: number;
     targetingShape: TargetingShape;
+    buttonIconResourceKey?: string;
 }
 
 export const ActionEffectSquaddieTemplateService = {
@@ -26,6 +27,7 @@ export const ActionEffectSquaddieTemplateService = {
               minimumRange,
               traits,
               targetingShape,
+              buttonIconResourceKey,
           }: {
         traits?: {
             booleanTraits: { [key in Trait]?: boolean };
@@ -33,6 +35,7 @@ export const ActionEffectSquaddieTemplateService = {
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
         targetingShape?: TargetingShape,
+        buttonIconResourceKey?: string,
     } & Partial<ActionRange>): ActionEffectSquaddieTemplate => {
         const data: ActionEffectSquaddieTemplate = {
             type: ActionEffectType.SQUADDIE,
@@ -42,6 +45,7 @@ export const ActionEffectSquaddieTemplateService = {
             damageDescriptions: damageDescriptions,
             healingDescriptions: healingDescriptions,
             targetingShape: targetingShape,
+            buttonIconResourceKey,
         };
 
         sanitize(data);

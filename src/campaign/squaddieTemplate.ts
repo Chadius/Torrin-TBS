@@ -2,6 +2,7 @@ import {SquaddieId, SquaddieIdService} from "../squaddie/id";
 import {ArmyAttributes, ArmyAttributesService, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
+import {SquaddieResourceService} from "../squaddie/resource";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
@@ -25,6 +26,17 @@ export const SquaddieTemplateService = {
     },
     sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
         return sanitize(data);
+    },
+    getResourceKeys: (squaddieTemplate: SquaddieTemplate): string[] => {
+        let resourceKeys: string[] = [];
+
+        resourceKeys.push(...SquaddieResourceService.getResourceKeys(squaddieTemplate.squaddieId.resources));
+        resourceKeys.push(
+            ...squaddieTemplate.actionTemplates
+                .filter(actionTemplate => !!actionTemplate.buttonIconResourceKey)
+                .map(actionTemplate => actionTemplate.buttonIconResourceKey)
+        );
+        return resourceKeys;
     }
 }
 

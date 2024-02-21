@@ -1,5 +1,6 @@
 import {RectArea} from "./rectArea";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {isValidValue} from "../utils/validityCheck";
 
 type RequiredOptions = {
     area: RectArea;
@@ -10,6 +11,7 @@ type Options = {
     strokeColor?: number[];
     strokeWeight?: number;
     noStroke?: boolean;
+    noFill?: boolean;
 }
 
 export type RectangleArguments = RequiredOptions & Partial<Options>;
@@ -20,6 +22,7 @@ export interface Rectangle {
     strokeColor?: number[];
     strokeWeight?: number;
     noStroke?: boolean;
+    noFill?: boolean;
 }
 
 export const RectangleHelper = {
@@ -29,6 +32,7 @@ export const RectangleHelper = {
               strokeColor,
               strokeWeight,
               noStroke,
+              noFill,
           }:
               {
                   area: RectArea;
@@ -36,6 +40,7 @@ export const RectangleHelper = {
                   strokeColor?: number[];
                   strokeWeight?: number;
                   noStroke?: boolean;
+                  noFill?: boolean;
               } | RectangleArguments): Rectangle => {
         return {
             area: area,
@@ -43,18 +48,22 @@ export const RectangleHelper = {
             strokeColor: strokeColor,
             strokeWeight: strokeWeight,
             noStroke: noStroke,
+            noFill: noFill,
         }
     },
     draw: (rectangle: Rectangle, graphicsContext: GraphicsContext): void => {
         graphicsContext.push();
-        if (rectangle.fillColor) {
+        if (isValidValue(rectangle.fillColor)) {
             graphicsContext.fill({hsb: rectangle.fillColor});
         }
-        if (rectangle.strokeColor) {
+        if (isValidValue(rectangle.strokeColor)) {
             graphicsContext.stroke({hsb: rectangle.strokeColor});
         }
-        if (rectangle.strokeWeight) {
+        if (isValidValue(rectangle.strokeWeight)) {
             graphicsContext.strokeWeight(rectangle.strokeWeight);
+        }
+        if (rectangle.noFill) {
+            graphicsContext.noFill();
         }
         if (rectangle.noStroke) {
             graphicsContext.noStroke();

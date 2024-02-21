@@ -6,15 +6,27 @@ export interface SquaddieResource {
     actionSpritesByEmotion: { [key in SquaddieEmotion]?: string };
 }
 
-export const SquaddieResourceHelper = {
-    new: () => {
-        return {
-            mapIconResourceKey: "",
-            actionSpritesByEmotion: {},
-        }
+export const SquaddieResourceService = {
+    new: ({
+              mapIconResourceKey,
+              actionSpritesByEmotion,
+          }: {
+        mapIconResourceKey?: string,
+        actionSpritesByEmotion?: { [key in SquaddieEmotion]?: string },
+    }) => {
+        return sanitize({
+            mapIconResourceKey,
+            actionSpritesByEmotion,
+        });
     },
     sanitize: (data: SquaddieResource): SquaddieResource => {
         return sanitize(data);
+    },
+    getResourceKeys: (resource: SquaddieResource): string[] => {
+        let resourceKeys: string[] = [];
+        resourceKeys.push(resource.mapIconResourceKey);
+        resourceKeys.push(...Object.values(resource.actionSpritesByEmotion));
+        return resourceKeys;
     }
 }
 

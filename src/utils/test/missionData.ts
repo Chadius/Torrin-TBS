@@ -511,7 +511,8 @@ export const TestMissionData = () => {
                         "healingDescriptions": {},
                         "targetingShape": TargetingShape.SNAKE,
                     }
-                ]
+                ],
+                "buttonIconResourceKey": "decision-button-sword"
             }
         ]
     };

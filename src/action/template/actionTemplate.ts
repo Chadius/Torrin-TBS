@@ -8,6 +8,7 @@ export interface ActionTemplate {
     name: string;
     actionPoints: number;
     actionEffectTemplates: ActionEffectTemplate[];
+    buttonIconResourceKey: string;
 }
 
 export const ActionTemplateService = {
@@ -16,17 +17,20 @@ export const ActionTemplateService = {
               name,
               actionEffectTemplates,
               actionPoints,
+              buttonIconResourceKey,
           }: {
         id?: string,
         name: string,
         actionEffectTemplates?: ActionEffectTemplate[],
         actionPoints?: number;
+        buttonIconResourceKey?: string;
     }): ActionTemplate => {
         return sanitize({
             id,
             name,
             actionEffectTemplates,
             actionPoints,
+            buttonIconResourceKey,
         })
     },
     multipleAttackPenaltyMultiplier: (actionTemplate: ActionTemplate): number => {

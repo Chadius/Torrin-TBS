@@ -27,7 +27,7 @@ export class P5GraphicsContext implements GraphicsContext {
         color?: string
     }): void {
         if (hsb) {
-            this.p.fill(hsb[0], hsb[1], hsb[2]);
+            this.p.fill(hsb);
             return;
         }
 
@@ -83,7 +83,7 @@ export class P5GraphicsContext implements GraphicsContext {
         color?: string
     }): void {
         if (hsb) {
-            this.p.stroke(hsb[0], hsb[1], hsb[2]);
+            this.p.stroke(hsb);
             return;
         }
 

@@ -8,14 +8,13 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {TestMissionData} from "../../utils/test/missionData";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
 import {CutsceneService} from "../../cutscene/cutscene";
 import {isValidValue} from "../../utils/validityCheck";
-import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -26,11 +25,8 @@ describe('Mission Loader', () => {
     let enemyDemonSlitherTemplate: SquaddieTemplate;
     let enemyDemonSlitherTemplate2: SquaddieTemplate;
     let playerArmy: PlayerArmy;
-    let campaignResources: CampaignResources;
 
     beforeEach(() => {
-        campaignResources = CampaignResourcesService.default({});
-
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.loadResources = jest.fn();
         resourceHandler.loadResource = jest.fn();
@@ -146,13 +142,15 @@ describe('Mission Loader', () => {
                 expect(missionLoaderContext.squaddieData.templates[enemyDemonSlitherTemplate2.squaddieId.templateId]).toEqual(enemyDemonSlitherTemplate2);
             });
             it('knows it has to load resources based on the template resources', () => {
-                expect(missionLoaderContext.resourcesPendingLoading).toContain(enemyDemonSlitherTemplate.squaddieId.resources.mapIconResourceKey);
-                Object.values(enemyDemonSlitherTemplate.squaddieId.resources.actionSpritesByEmotion).forEach(resourceKey => {
-                    expect(missionLoaderContext.resourcesPendingLoading).toContain(resourceKey);
-                });
+                expect(missionLoaderContext.resourcesPendingLoading).toEqual(
+                    expect.arrayContaining(
+                        SquaddieTemplateService.getResourceKeys(enemyDemonSlitherTemplate)
+                    )
+                );
 
-                expect(resourceHandler.loadResource).toBeCalledWith(enemyDemonSlitherTemplate.squaddieId.resources.mapIconResourceKey);
-                expect(resourceHandler.loadResources).toBeCalledWith(Object.values(enemyDemonSlitherTemplate.squaddieId.resources.actionSpritesByEmotion));
+                expect(resourceHandler.loadResources).toBeCalledWith(
+                    SquaddieTemplateService.getResourceKeys(enemyDemonSlitherTemplate)
+                );
             });
             it('knows to add the template to the squaddie repository', () => {
                 expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
@@ -236,19 +234,18 @@ describe('Mission Loader', () => {
 
         it('adds resource keys to the list of resources to load', () => {
             expect(missionLoaderContext.resourcesPendingLoading.length).toBeGreaterThan(initialPendingResourceListLength);
-            expect(missionLoaderContext.resourcesPendingLoading).toContainEqual(playerArmy.squaddieTemplates[0].squaddieId.resources.mapIconResourceKey);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(
-                    Object.values(playerArmy.squaddieTemplates[0].squaddieId.resources.actionSpritesByEmotion)
-                )
-            );
 
-            expect(missionLoaderContext.resourcesPendingLoading).toContainEqual(playerArmy.squaddieTemplates[1].squaddieId.resources.mapIconResourceKey);
+            const player0ResourceKeys = SquaddieTemplateService.getResourceKeys(playerArmy.squaddieTemplates[0]);
             expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(
-                    Object.values(playerArmy.squaddieTemplates[1].squaddieId.resources.actionSpritesByEmotion)
-                )
+                expect.arrayContaining(player0ResourceKeys)
             );
+            expect(resourceHandler.loadResources).toBeCalledWith(player0ResourceKeys);
+
+            const player1ResourceKeys = SquaddieTemplateService.getResourceKeys(playerArmy.squaddieTemplates[0]);
+            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
+                expect.arrayContaining(player1ResourceKeys)
+            );
+            expect(resourceHandler.loadResources).toBeCalledWith(player1ResourceKeys);
         });
 
         it('adds player squaddies to the repository', () => {

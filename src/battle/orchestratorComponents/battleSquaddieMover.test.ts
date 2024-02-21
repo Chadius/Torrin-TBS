@@ -25,6 +25,7 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -128,7 +129,8 @@ describe('BattleSquaddieMover', () => {
                     searchPath: movePath,
                     actionsThisRound,
                 }),
-            })
+            }),
+            campaign: CampaignService.default({}),
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
@@ -267,6 +269,7 @@ describe('BattleSquaddieMover', () => {
                 }),
                 resourceHandler: mockResourceHandler,
                 repository: squaddieRepo,
+                campaign: CampaignService.default({}),
             });
 
             state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -320,6 +323,7 @@ describe('BattleSquaddieMover', () => {
                 }),
                 resourceHandler: mockResourceHandler,
                 repository: squaddieRepo,
+                campaign: CampaignService.default({}),
             });
 
             state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({

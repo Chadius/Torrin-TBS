@@ -34,6 +34,7 @@ import {ActionEffectSquaddieTemplateService} from "../../action/template/actionE
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -138,6 +139,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     camera: new BattleCamera(0, 0),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
         hud.selectSquaddieAndDrawWindow({
@@ -175,6 +177,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     camera: new BattleCamera(0, 0),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
 
@@ -217,6 +220,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     }),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
 
@@ -254,6 +258,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     }),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
 
@@ -293,6 +298,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     camera: new BattleCamera(0, 0),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         })
 
@@ -334,6 +340,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     camera: new BattleCamera(0, 0),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
 
@@ -385,6 +392,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         }),
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })
         ;
@@ -418,6 +426,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     camera: new BattleCamera(0, 0),
                 }),
             }),
+            campaign: CampaignService.default({}),
             repository: squaddieRepository,
         });
 
@@ -451,6 +460,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 }),
             }),
             repository: squaddieRepository,
+            campaign: CampaignService.default({}),
         });
 
         hud.selectSquaddieAndDrawWindow({
@@ -493,6 +503,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     }),
                 }),
                 repository: squaddieRepository,
+                campaign: CampaignService.default({}),
             });
 
             hud = new BattleSquaddieSelectedHUD()
@@ -520,6 +531,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         },
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -560,6 +572,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         }),
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -592,7 +605,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         turnCount: 0,
                                     },
                                 }),
-                            })
+                            }),
+                        campaign: CampaignService.default({}),
                     });
 
                 hud = new BattleSquaddieSelectedHUD();
@@ -688,6 +702,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
                 resourceHandler: resourceHandler,
+                campaign: CampaignService.default({}),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
@@ -734,7 +749,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     turnCount: 0,
                                 },
                             }),
-                        })
+                        }),
+                    campaign: CampaignService.default({}),
                 });
 
                 hud = new BattleSquaddieSelectedHUD();
@@ -854,6 +870,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -883,6 +900,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -934,6 +952,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: onePlayerOneEnemy,
             });
 
@@ -970,6 +989,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: battleCamera,
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -1026,6 +1046,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: battleCamera,
                     }),
                 }),
+                campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
 
@@ -1194,6 +1215,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                             teams,
                         }),
                     }),
+                    campaign: CampaignService.default({}),
                     repository,
                 });
 

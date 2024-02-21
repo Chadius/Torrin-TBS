@@ -54,9 +54,11 @@ export const TestArmyPlayerData = () => {
                                 },
                                 "damageDescriptions": {
                                     "BODY": 2
-                                }
+                                },
+                                "buttonIconResourceKey": "decision-button-bow",
                             })
-                        ]
+                        ],
+                        "buttonIconResourceKey": "decision-button-bow",
                     }),
                     ActionTemplateService.new({
                         "name": "healing touch",
@@ -77,7 +79,8 @@ export const TestArmyPlayerData = () => {
                                     "LOST_HIT_POINTS": 2
                                 }
                             })
-                        ]
+                        ],
+                        "buttonIconResourceKey": "decision-button-heart",
                     })
                 ],
             },
@@ -127,7 +130,8 @@ export const TestArmyPlayerData = () => {
                                     "BODY": 2
                                 }
                             })
-                        ]
+                        ],
+                        "buttonIconResourceKey": "decision-button-sword",
                     })
                 ],
             },

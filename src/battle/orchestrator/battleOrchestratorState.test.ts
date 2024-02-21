@@ -51,6 +51,8 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieIdService} from "../../squaddie/id";
 import {BattleSquaddieService} from "../battleSquaddie";
+import {mockResourceHandler} from "../../utils/test/mocks";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('orchestratorState', () => {
     let validBattleState: BattleState;
@@ -280,14 +282,15 @@ describe('orchestratorState', () => {
             ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie);
 
             return GameEngineStateService.new({
-                resourceHandler: undefined,
+                resourceHandler: mockResourceHandler(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         actionsThisRound,
-                    })
+                    }),
                 }),
                 repository,
+                campaign: CampaignService.default({}),
             });
         }
 

@@ -492,6 +492,26 @@ export class GameEngine {
                         path: "assets/splash-defeat-screen.png",
                         key: "splash defeat",
                     },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/decisions/decision-button-unknown-64.png",
+                        key: "decision-button-unknown"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/decisions/decision-button-sword-64.png",
+                        key: "decision-button-sword"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/decisions/decision-button-heart-64.png",
+                        key: "decision-button-heart"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/decisions/decision-button-bow-64.png",
+                        key: "decision-button-bow"
+                    },
                 ],
             })
         }

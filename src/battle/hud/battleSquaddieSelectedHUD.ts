@@ -10,7 +10,13 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelHelper} from "../../ui/label";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../ui/constants";
+import {
+    HORIZ_ALIGN_CENTER,
+    VERT_ALIGN_BASELINE,
+    VERT_ALIGN_CENTER,
+    WINDOW_SPACING1,
+    WINDOW_SPACING2
+} from "../../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
@@ -33,8 +39,17 @@ import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 import {ActionTemplate} from "../../action/template/actionTemplate";
+import {ResourceHandler} from "../../resource/resourceHandler";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
+const DECISION_BUTTON_LAYOUT = {
+    top: 12,
+    leftSideOfRowColumnOutOfTwelve: 6,
+    leftSidePadding: 24,
+    horizontalSpacePerButton: 16,
+    width: 72,
+    height: 72,
+}
 
 enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
@@ -134,7 +149,14 @@ export class BattleSquaddieSelectedHUD {
         this.generateEndTurnButton(windowDimensions);
 
         this.generateAffiliateIcon(battleSquaddie, state);
-        this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
+        this.generateUseActionButtons({
+            squaddieTemplate,
+            battleSquaddie,
+            squaddieAffiliationHue,
+            windowDimensions,
+            resourceHandler: state.resourceHandler,
+            defaultButtonIconResourceKey: state.campaign.resources.actionEffectSquaddieTemplateButtonIcons.UNKNOWN,
+        });
 
         this.generateSquaddieSpecificUITextBoxes(squaddieTemplate, battleSquaddie);
     }
@@ -397,26 +419,49 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private generateUseActionButtons(
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
-        squaddieAffiliationHue: number,
-        windowDimensions: RectArea
+        {
+            squaddieTemplate,
+            battleSquaddie,
+            squaddieAffiliationHue,
+            windowDimensions,
+            resourceHandler,
+            defaultButtonIconResourceKey,
+        }:
+            {
+                squaddieTemplate: SquaddieTemplate,
+                battleSquaddie: BattleSquaddie,
+                squaddieAffiliationHue: number,
+                windowDimensions: RectArea
+                resourceHandler: ResourceHandler,
+                defaultButtonIconResourceKey: string,
+            }
     ) {
         this.makeDecisionButtons = [];
+        const leftSideOfRow = (
+                windowDimensions.width
+                * DECISION_BUTTON_LAYOUT.leftSideOfRowColumnOutOfTwelve / 12
+            )
+            + DECISION_BUTTON_LAYOUT.leftSidePadding;
         squaddieTemplate.actionTemplates.forEach((actionTemplate: ActionTemplate, index: number) => {
+            const horizontalButtonSpacePerIndex = DECISION_BUTTON_LAYOUT.width + DECISION_BUTTON_LAYOUT.horizontalSpacePerButton
             this.makeDecisionButtons.push(
                 new MakeDecisionButton({
                     buttonArea: RectAreaService.new({
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
-                        anchorTop: VerticalAnchor.CENTER,
-                        vertAlign: VERT_ALIGN_CENTER,
-                        left: windowDimensions.width * (6.5 + index) / 12,
-                        width: (windowDimensions.width / 12) - 16,
-                        height: this._background.area.height * 0.5,
+                        anchorTop: VerticalAnchor.TOP,
+                        vertAlign: VERT_ALIGN_BASELINE,
+                        top: DECISION_BUTTON_LAYOUT.top,
+                        left: leftSideOfRow + (horizontalButtonSpacePerIndex * index),
+                        width: DECISION_BUTTON_LAYOUT.width,
+                        height: DECISION_BUTTON_LAYOUT.height,
                     }),
                     actionTemplate,
+                    buttonIconResourceKey: isValidValue(actionTemplate.buttonIconResourceKey)
+                        ? actionTemplate.buttonIconResourceKey
+                        : defaultButtonIconResourceKey,
                     hue: squaddieAffiliationHue,
+                    resourceHandler,
                 })
             );
         });

@@ -42,7 +42,8 @@
             "BODY": 1
           }
         }
-      ]
+      ],
+      "buttonIconResourceKey": "decision-button-sword"
     }
   ]
 }

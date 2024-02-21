@@ -40,8 +40,8 @@ import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedAc
 import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {OrchestratorUtilities} from "./orchestratorUtils";
-import {CampaignService} from "../../campaign/campaign";
 import {isValidValue} from "../../utils/validityCheck";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -199,6 +199,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
+            campaign: CampaignService.default({}),
         });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({

@@ -273,7 +273,7 @@ describe('User ends their turn', () => {
             mapAction = new BattleSquaddieUsesActionOnMap();
             gameEngineState = GameEngineStateService.new({
                 repository: repository,
-                resourceHandler: undefined,
+                resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
