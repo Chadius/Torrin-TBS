@@ -859,7 +859,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     describe("Next Squaddie button", () => {
-        it('should show the button if there are at least 2 player controllable squaddies', () => {
+        it('should show the button if there are at least 2 player controllable squaddies on the map', () => {
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
@@ -873,7 +873,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             });
-
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            missionMap.addSquaddie(player2SquaddieStatic.squaddieId.templateId, player2SquaddieDynamic.battleSquaddieId, {
+                q: 0,
+                r: 1
+            });
             hud = new BattleSquaddieSelectedHUD()
 
             hud.selectSquaddieAndDrawWindow({
@@ -889,6 +896,14 @@ describe('BattleSquaddieSelectedHUD', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            missionMap.addSquaddie(enemySquaddieStatic.squaddieId.templateId, enemySquaddieDynamic.battleSquaddieId, {
+                q: 0,
+                r: 1
+            });
 
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
@@ -919,6 +934,14 @@ describe('BattleSquaddieSelectedHUD', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            missionMap.addSquaddie(enemySquaddieStatic.squaddieId.templateId, enemySquaddieDynamic.battleSquaddieId, {
+                q: 0,
+                r: 1
+            });
 
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
@@ -938,10 +961,48 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.shouldDrawNextButton(state)).toBeTruthy();
         });
 
+        it('should not show the button if player controllable squaddies are off the map', () => {
+            const state: GameEngineState = GameEngineStateService.new({
+                resourceHandler: resourceHandler,
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: undefined,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                    }),
+                }),
+                campaign: CampaignService.default({}),
+                repository: squaddieRepository,
+            });
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            hud = new BattleSquaddieSelectedHUD()
+
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerBattleSquaddie.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawNextButton(state)).toBeFalsy();
+        });
+
         it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            missionMap.addSquaddie(enemySquaddieStatic.squaddieId.templateId, enemySquaddieDynamic.battleSquaddieId, {
+                q: 0,
+                r: 1
+            });
+
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({

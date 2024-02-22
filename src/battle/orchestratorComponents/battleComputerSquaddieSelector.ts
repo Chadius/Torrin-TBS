@@ -268,7 +268,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
         const {shouldEndTurn, actionPointCost} = this.calculateActionPointsSpentOnDecidedAction(state, decidedAction);
-        const {processedAction, results} = this.createProcessedActionAndResults(state, decidedAction); // This also creates results
+        const {processedAction, results} = this.createProcessedActionAndResults(state, decidedAction);
 
         decidedAction.actionEffects.forEach(decidedActionEffect => {
             switch (decidedActionEffect.type) {
