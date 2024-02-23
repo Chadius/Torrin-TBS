@@ -23,7 +23,7 @@ import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {RecordingService} from "../history/recording";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {DetermineNextDecision} from "../teamStrategy/determineNextDecision";
+import {DetermineNextDecisionService} from "../teamStrategy/determineNextDecision";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -225,7 +225,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private askTeamStrategyToInstructSquaddie(state: GameEngineState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): DecidedAction {
-        return DetermineNextDecision({
+        return DetermineNextDecisionService.determineNextDecision({
             strategy: currentTeamStrategy,
             team: currentTeam,
             repository: state.repository,

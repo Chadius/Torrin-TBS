@@ -17,7 +17,7 @@ import {BattleCamera, PanningInformation} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
-import * as determineNextInstruction from "../teamStrategy/determineNextDecision";
+import {DetermineNextDecisionService} from "../teamStrategy/determineNextDecision";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -199,7 +199,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         makeBattlePhaseTrackerWithEnemyTeam(missionMap);
-        const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(
+        const strategySpy = jest.spyOn(DetermineNextDecisionService, "determineNextDecision").mockReturnValue(
             DecidedActionService.new({
                 battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
                 actionTemplateName: "End Turn",
@@ -277,7 +277,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
-            const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision");
+            const strategySpy = jest.spyOn(DetermineNextDecisionService, "determineNextDecision");
 
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
@@ -373,7 +373,7 @@ describe('BattleComputerSquaddieSelector', () => {
                         })
                     })
                 });
-                determineNextDecisionSpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(undefined);
+                determineNextDecisionSpy = jest.spyOn(DetermineNextDecisionService, "determineNextDecision").mockReturnValue(undefined);
             });
 
             it('will default to ending its turn if none of the strategies provide instruction', () => {
@@ -458,7 +458,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 campaign: CampaignService.default({}),
             });
 
-            jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(moveAction);
+            jest.spyOn(DetermineNextDecisionService, "determineNextDecision").mockReturnValue(moveAction);
             selector.update(state, mockedP5GraphicsContext);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
@@ -515,7 +515,7 @@ describe('BattleComputerSquaddieSelector', () => {
                             })
                         })
                 });
-                jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(demonBiteDecision);
+                jest.spyOn(DetermineNextDecisionService, "determineNextDecision").mockReturnValue(demonBiteDecision);
 
                 jest.spyOn(Date, 'now').mockImplementation(() => 0);
                 selector.update(state, mockedP5GraphicsContext);

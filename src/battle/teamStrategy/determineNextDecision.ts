@@ -23,7 +23,7 @@ export const DetermineNextDecisionService = {
         actionsThisRound: ActionsThisRound,
         strategy: TeamStrategy,
     }): DecidedAction => {
-        return DetermineNextDecision({
+        return determineNextDecision({
             team,
             missionMap,
             repository,
@@ -33,13 +33,13 @@ export const DetermineNextDecisionService = {
     }
 }
 
-export const DetermineNextDecision = ({
-                                          team,
-                                          missionMap,
-                                          repository,
-                                          actionsThisRound,
-                                          strategy,
-                                      }: {
+const determineNextDecision = ({
+                                   team,
+                                   missionMap,
+                                   repository,
+                                   actionsThisRound,
+                                   strategy,
+                               }: {
     team: BattleSquaddieTeam,
     missionMap: MissionMap,
     repository: ObjectRepository,

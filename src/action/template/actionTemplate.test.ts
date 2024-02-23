@@ -1,6 +1,6 @@
 import {ActionTemplateService} from "./actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
-import {DamageType} from "../../squaddie/squaddieService";
+import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {ActionEffectMovementTemplateService} from "./actionEffectMovementTemplate";
@@ -46,6 +46,32 @@ describe('ActionTemplate', () => {
 
         expect(throwErrorBecauseOfNoName).toThrowError('cannot sanitize');
     })
+
+    it('can describe the damage and heal totals', () => {
+        const actionTemplate = ActionTemplateService.new({
+            id: "actionTemplate",
+            name: "actionTemplate",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    damageDescriptions: {
+                        [DamageType.BODY]: 3,
+                        [DamageType.SOUL]: 1,
+                    }
+                }),
+                ActionEffectSquaddieTemplateService.new({
+                    damageDescriptions: {
+                        [DamageType.MIND]: 2,
+                    },
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 4,
+                    },
+                }),
+            ]
+        });
+
+        expect(ActionTemplateService.getTotalDamage(actionTemplate)).toEqual(6);
+        expect(ActionTemplateService.getTotalHealing(actionTemplate)).toEqual(4);
+    });
 
     describe('MultipleAttackPenalty', () => {
         it('cannot contribute if it has no effects', () => {

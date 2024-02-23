@@ -54,6 +54,44 @@ export const ActionTemplateService = {
     },
     sanitize: (template: ActionTemplate): ActionTemplate => {
         return sanitize(template);
+    },
+    getTotalDamage: (actionTemplate: ActionTemplate): number => {
+        return actionTemplate.actionEffectTemplates.reduce(
+            (accumulator: number, actionEffectTemplate: ActionEffectTemplate): number => {
+                if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+                    return accumulator;
+                }
+
+                const damage = Object.values(actionEffectTemplate.damageDescriptions).reduce(
+                    (damageAccumulator: number, currentDamage: number): number => {
+                        return damageAccumulator + currentDamage;
+                    },
+                    0
+                )
+
+                return accumulator + damage;
+            },
+            0,
+        );
+    },
+    getTotalHealing: (actionTemplate: ActionTemplate): number => {
+        return actionTemplate.actionEffectTemplates.reduce(
+            (accumulator: number, actionEffectTemplate: ActionEffectTemplate): number => {
+                if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+                    return accumulator;
+                }
+
+                const healing = Object.values(actionEffectTemplate.healingDescriptions).reduce(
+                    (healingAccumulator: number, currentDamage: number): number => {
+                        return healingAccumulator + currentDamage;
+                    },
+                    0
+                )
+
+                return accumulator + healing;
+            },
+            0,
+        );
     }
 }
 

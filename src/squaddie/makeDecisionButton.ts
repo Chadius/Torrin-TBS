@@ -5,7 +5,7 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
-import {ActionTemplate} from "../action/template/actionTemplate";
+import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 import {getValidValueOrDefault} from "../utils/validityCheck";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ImageUI} from "../ui/imageUI";
@@ -23,7 +23,7 @@ const DECISION_BUTTON_LAYOUT_COLORS = {
     templateNameTextTopMargin: 4,
     templateNameTextSize: 12,
     templateNameFontColor: [0, 0, 192],
-    infoTextTopMargin: 12,
+    infoTextTopMargin: 2,
     infoTextSize: 10,
     infoFontColor: [0, 0, 192 - 64],
 }
@@ -113,36 +113,27 @@ export class MakeDecisionButton {
         TextBoxHelper.draw(buttonTextBox, graphicsContext);
 
         let infoTextTop = RectAreaService.bottom(buttonTextBox.area) + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin;
-        if (this.actionTemplate.actionPoints !== 1) {
+        if (this.shouldDrawActionPoints()) {
             this.drawActionPoints(graphicsContext, infoTextTop);
-            infoTextTop += (DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * 1.5) + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin;
+            infoTextTop += DECISION_BUTTON_LAYOUT_COLORS.infoTextSize + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin;
         }
 
-        const templateRange = this.getActionTemplateRange();
-        const minRangeIsWorthDescribing =
-            templateRange.minimumRange === undefined
-            || templateRange.minimumRange > 1;
-        const maxRangeIsWorthDescribing =
-            templateRange.maximumRange === undefined
-            || templateRange.maximumRange > 1;
-        if (minRangeIsWorthDescribing || maxRangeIsWorthDescribing) {
-            this.drawActionRange(graphicsContext, infoTextTop, templateRange.minimumRange || 0, templateRange.maximumRange || 0);
+        if (this.shouldDrawActionRange()) {
+            this.drawActionRange(graphicsContext, infoTextTop);
+            infoTextTop += DECISION_BUTTON_LAYOUT_COLORS.infoTextSize + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin;
+        }
+
+        if (this.shouldDrawActionTemplateEffects()) {
+            this.drawActionTemplateEffect(graphicsContext, infoTextTop);
         }
     }
 
     drawActionPoints(graphicsContext: GraphicsContext, top: number) {
-        const buttonTextBox: TextBox = TextBoxHelper.new({
-            area: RectAreaService.new({
-                left: RectAreaService.left(this.buttonIcon.area),
-                top: top,
-                width: RectAreaService.width(this.buttonIcon.area) * 2,
-                height: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * 1.5,
-            }),
-            fontColor: DECISION_BUTTON_LAYOUT_COLORS.infoFontColor,
-            text: `Action Points: ${this.actionTemplate.actionPoints}`,
-            textSize: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize,
-        });
-        TextBoxHelper.draw(buttonTextBox, graphicsContext);
+        this.drawInfoTextBox(
+            graphicsContext,
+            top,
+            `Action Points: ${this.actionTemplate.actionPoints}`,
+        );
     }
 
     getActionTemplateRange(): {
@@ -159,16 +150,38 @@ export class MakeDecisionButton {
         };
     }
 
-    drawActionRange(graphicsContext: GraphicsContext, top: number, minimumRange: number, maximumRange: number) {
+    drawActionRange = (graphicsContext: GraphicsContext, top: number) => {
+        const templateRange = this.getActionTemplateRange();
+        const minimumRange = templateRange.minimumRange || 0;
+        const maximumRange = templateRange.maximumRange || 0;
+
+        this.drawInfoTextBox(
+            graphicsContext,
+            top,
+            `Range: ${minimumRange} - ${maximumRange}`,
+        );
+    };
+
+    drawActionTemplateEffect = (graphicsContext: GraphicsContext, top: number) => {
+        const {damageDescription, healingDescription} = this.getActionTemplateEffectDescriptions(this.actionTemplate);
+
+        this.drawInfoTextBox(
+            graphicsContext,
+            top,
+            [`${damageDescription}`, `${healingDescription}`].join(' '),
+        );
+    }
+
+    drawInfoTextBox = (graphicsContext: GraphicsContext, top: number, text: string) => {
         const buttonTextBox: TextBox = TextBoxHelper.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),
                 top: top,
                 width: RectAreaService.width(this.buttonIcon.area) * 2,
-                height: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * 1.5,
+                height: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin,
             }),
             fontColor: DECISION_BUTTON_LAYOUT_COLORS.infoFontColor,
-            text: `Range: ${minimumRange} - ${maximumRange}`,
+            text,
             textSize: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize,
         });
         TextBoxHelper.draw(buttonTextBox, graphicsContext);
@@ -185,5 +198,33 @@ export class MakeDecisionButton {
                 height: image.height,
             })
         });
+    }
+
+    private getActionTemplateEffectDescriptions = (actionTemplate: ActionTemplate) => {
+        const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate);
+        const totalHealing = ActionTemplateService.getTotalHealing(actionTemplate);
+        const damageDescription = totalDamage > 0 ? `${totalDamage} damage` : '';
+        const healingDescription = totalHealing > 0 ? `${totalHealing} healing` : '';
+        return {damageDescription, healingDescription};
+    };
+
+    private shouldDrawActionPoints = () => {
+        return this.actionTemplate.actionPoints !== 1;
+    }
+
+    private shouldDrawActionRange = () => {
+        const templateRange = this.getActionTemplateRange();
+        const minRangeIsWorthDescribing =
+            templateRange.minimumRange === undefined
+            || templateRange.minimumRange > 1;
+        const maxRangeIsWorthDescribing =
+            templateRange.maximumRange === undefined
+            || templateRange.maximumRange > 1;
+        return (minRangeIsWorthDescribing || maxRangeIsWorthDescribing);
+    }
+    private shouldDrawActionTemplateEffects = () => {
+        const totalDamage = ActionTemplateService.getTotalDamage(this.actionTemplate);
+        const totalHealing = ActionTemplateService.getTotalHealing(this.actionTemplate);
+        return totalDamage > 0 || totalHealing > 0;
     }
 }
