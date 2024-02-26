@@ -42,7 +42,7 @@ describe('campaign loader', () => {
             } = TestCampaignData());
 
             loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<CampaignFileFormat> => {
-                if (filename === "assets/campaign/default.json") {
+                if (filename === "assets/campaign/default/campaign.json") {
                     return campaignFileData;
                 }
             });

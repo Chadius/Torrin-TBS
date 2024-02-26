@@ -12,12 +12,31 @@ import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
 import {ObjectRepositoryService} from "../battle/objectRepository";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
+import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
+import * as DataLoader from "../dataLoader/dataLoader";
+
+const resourceLocators: ResourceLocator[] = [
+    {
+        type: ResourceType.IMAGE,
+        key: "Cool pic",
+        path: "/path/to/cool_pic.png",
+    },
+    {
+        type: ResourceType.IMAGE,
+        key: "Cool pic2",
+        path: "/path/to/cool_pic_2.png",
+    },
+];
 
 describe('Game Engine', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let loadFileIntoFormatSpy: jest.SpyInstance;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(
+            resourceLocators
+        );
     });
 
     it('Will call the new mode based on the component recommendations', async () => {
@@ -25,15 +44,17 @@ describe('Game Engine', () => {
             startupMode: GameModeEnum.TITLE_SCREEN,
             graphicsContext: mockedP5GraphicsContext,
         });
-        newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-        newGameEngine.setCampaignId("default");
+        await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
 
         const nextComponent = newGameEngine.component;
+        const updateSpy = jest.spyOn(nextComponent, "update").mockReturnValue();
         const hasCompletedSpy = jest.spyOn(nextComponent, "hasCompleted").mockReturnValue(true);
         const recommendedSpy = jest.spyOn(nextComponent, "recommendStateChanges").mockReturnValue({nextMode: GameModeEnum.BATTLE});
 
         await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
+        expect(loadFileIntoFormatSpy).toBeCalled();
+        expect(updateSpy).toBeCalled();
         expect(hasCompletedSpy).toBeCalled();
         expect(recommendedSpy).toBeCalled();
 
@@ -75,10 +96,10 @@ describe('Game Engine', () => {
             expect(mouseMovedSpy.mock.calls[0][2]).toBe(200);
         }
 
-        const loadAndExpect = ({
-                                   startupMode,
-                                   componentType,
-                               }: {
+        const loadAndExpect = async ({
+                                         startupMode,
+                                         componentType,
+                                     }: {
             startupMode: GameModeEnum,
             componentType: any,
         }) => {
@@ -86,8 +107,8 @@ describe('Game Engine', () => {
                 startupMode,
                 graphicsContext: mockedP5GraphicsContext
             });
-            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.setCampaignId("default");
+            await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
+            expect(loadFileIntoFormatSpy).toBeCalled();
             expect(newGameEngine.currentMode).toBe(startupMode);
             expect(newGameEngine.component).toBeInstanceOf(componentType);
 
@@ -97,22 +118,22 @@ describe('Game Engine', () => {
             expectMouseMoved(newGameEngine);
         }
 
-        it('works on title screen', () => {
-            loadAndExpect({
+        it('works on title screen', async () => {
+            await loadAndExpect({
                 startupMode: GameModeEnum.TITLE_SCREEN,
                 componentType: TitleScreen,
             })
         });
 
-        it('works on battle mode', () => {
-            loadAndExpect({
+        it('works on battle mode', async () => {
+            await loadAndExpect({
                 startupMode: GameModeEnum.BATTLE,
                 componentType: BattleOrchestrator,
             })
         });
 
-        it('works on loading battle', () => {
-            loadAndExpect({
+        it('works on loading battle', async () => {
+            await loadAndExpect({
                 startupMode: GameModeEnum.LOADING_BATTLE,
                 componentType: GameEngineGameLoader,
             })
@@ -120,13 +141,19 @@ describe('Game Engine', () => {
     });
 
     describe('save the game', () => {
+        beforeEach(() => {
+            loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(
+                resourceLocators
+            );
+        });
+
         it('will save the game if the battle state asks for it', async () => {
             const newGameEngine = new GameEngine({
                 startupMode: GameModeEnum.BATTLE,
                 graphicsContext: mockedP5GraphicsContext,
             });
-            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.setCampaignId("default");
+            await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
+            expect(loadFileIntoFormatSpy).toBeCalled();
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
             newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
@@ -147,8 +174,7 @@ describe('Game Engine', () => {
                 startupMode: GameModeEnum.BATTLE,
                 graphicsContext: mockedP5GraphicsContext,
             });
-            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.setCampaignId("default");
+            await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
             newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockImplementation(() => {
@@ -168,13 +194,16 @@ describe('Game Engine', () => {
     describe('load the game', () => {
         let newGameEngine: GameEngine;
 
-        beforeEach(() => {
+        beforeEach(async () => {
+            loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(
+                resourceLocators
+            );
             newGameEngine = new GameEngine({
                 startupMode: GameModeEnum.BATTLE,
                 graphicsContext: mockedP5GraphicsContext,
             });
-            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.setCampaignId("default");
+
+            await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
             LoadSaveStateService.userRequestsLoad(newGameEngine.gameEngineState.loadSaveState);
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives = [
@@ -192,6 +221,7 @@ describe('Game Engine', () => {
                 })
             ];
             jest.spyOn(newGameEngine.battleOrchestrator, "hasCompleted").mockReturnValue(true);
+            expect(loadFileIntoFormatSpy).toBeCalled();
         });
         afterEach(() => {
             jest.clearAllMocks();

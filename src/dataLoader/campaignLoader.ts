@@ -26,10 +26,11 @@ export const CampaignLoaderService = {
         return sanitize(campaignFile);
     },
     loadCampaignFromFile: async (campaignId: string): Promise<CampaignFileFormat> => {
+        const filename = `assets/campaign/${campaignId}/campaign.json`;
         try {
-            return await LoadFileIntoFormat<CampaignFileFormat>(`assets/campaign/${campaignId}.json`);
+            return await LoadFileIntoFormat<CampaignFileFormat>(filename);
         } catch (e) {
-            console.error(`Error while loading campaign ${campaignId} file`);
+            console.error(`Error while loading campaign file: ${filename}`);
             console.error(e);
             return undefined;
         }

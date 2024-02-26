@@ -95,7 +95,7 @@ describe('GameEngineGameLoader', () => {
                 return playerArmy;
             }
 
-            if (filename === "assets/campaign/coolCampaign.json") {
+            if (filename === "assets/campaign/coolCampaign/campaign.json") {
                 return campaignFileData;
             }
         });
@@ -104,7 +104,7 @@ describe('GameEngineGameLoader', () => {
     describe('loading the campaign', () => {
         it('loads the campaign first', async () => {
             await loader.update(state);
-            expect(loadFileIntoFormatSpy).toBeCalledWith("assets/campaign/coolCampaign.json");
+            expect(loadFileIntoFormatSpy).toBeCalledWith("assets/campaign/coolCampaign/campaign.json");
         });
         it('adds the campaign resources to the pending list', async () => {
             const expectedResourceKeys = [

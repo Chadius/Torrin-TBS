@@ -8,14 +8,13 @@ let gameEngine: GameEngine;
 const CAMPAIGN_ID: string = "templeDefense";
 
 export const sketch = (p: p5) => {
-    p.setup = () => {
+    p.setup = async () => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
         p.colorMode("hsb", 360, 100, 100, 255)
 
         const p5GraphicsContext = new P5GraphicsContext({p});
         gameEngine = new GameEngine({graphicsContext: p5GraphicsContext, startupMode: StartupMode});
-        gameEngine.setup({graphicsContext: p5GraphicsContext});
-        gameEngine.setCampaignId(CAMPAIGN_ID);
+        await gameEngine.setup({graphicsContext: p5GraphicsContext, campaignId: CAMPAIGN_ID});
     }
 
     p.draw = () => {

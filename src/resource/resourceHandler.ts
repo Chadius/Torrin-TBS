@@ -2,13 +2,10 @@ import p5 from "p5";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {P5GraphicsContext} from "../utils/graphics/P5GraphicsContext";
+import {LoadFileIntoFormat} from "../dataLoader/dataLoader";
 
 export enum ResourceType {
-    IMAGE,
-}
-
-const resourceTypeToName = {
-    [ResourceType.IMAGE]: "IMAGE"
+    IMAGE = "IMAGE",
 }
 
 export type ResourceLocator = {
@@ -103,9 +100,7 @@ export class ResourceHandler {
 
         const resourceList = options.allResources || [];
         this.resourcesByKey = {};
-        resourceList.forEach((res) => {
-            this.resourcesByKey[res.key] = res;
-        })
+        addResourceLocators(this, resourceList);
         this.imagesByKey = {};
     }
 
@@ -128,7 +123,7 @@ export class ResourceHandler {
 
         const resourceLoader = resourceLoadersByType[resource.type];
         if (!resourceLoader) {
-            return new Error(`no loader exists for resource type: ${resourceTypeToName[resource.type]}`);
+            return new Error(`no loader exists for resource type: ${resource.type}`);
         }
 
         resourceLoader.loadResource(resourceKey, this);
@@ -201,3 +196,33 @@ export class ResourceHandler {
         return this.resourcesByKey[key];
     }
 }
+
+export const ResourceHandlerService = {
+    new: ({imageLoader, resourceLocators}: {
+        imageLoader: ResourceTypeLoader,
+        resourceLocators?: ResourceLocator[]
+    }): ResourceHandler => {
+        return new ResourceHandler({
+            imageLoader,
+            allResources: resourceLocators ?? [],
+        })
+    },
+    hasResourceLocations: (resourceHandler: ResourceHandler): boolean => {
+        return Object.values(resourceHandler.resourcesByKey).length > 0;
+    },
+    loadResourceLocations: async (resourceHandler: ResourceHandler, filename: string) => {
+        try {
+            const resourceLocators: ResourceLocator[] = await LoadFileIntoFormat<ResourceLocator[]>(filename);
+            addResourceLocators(resourceHandler, resourceLocators);
+        } catch (e) {
+            console.error("Error while loading mission from file");
+            console.error(e);
+        }
+    }
+}
+
+const addResourceLocators = (resourceHandler: ResourceHandler, resourceList: ResourceLocator[]) => {
+    resourceList.forEach((res) => {
+        resourceHandler.resourcesByKey[res.key] = res;
+    })
+};

@@ -14,7 +14,7 @@ import {GameModeEnum} from "../utils/startupConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
-import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {ResourceHandler, ResourceHandlerService} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
@@ -136,8 +136,9 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    setup({graphicsContext}: {
+    async setup({graphicsContext, campaignId}: {
         graphicsContext: GraphicsContext,
+        campaignId: string,
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
             initializeBattle: new InitializeBattle(),
@@ -152,15 +153,11 @@ export class GameEngine {
             squaddieUsesActionOnSquaddie: new BattleSquaddieUsesActionOnSquaddie(),
         });
 
-        this.lazyLoadResourceHandler({graphicsContext});
+        await this.lazyLoadResourceHandler({graphicsContext, campaignId});
 
         this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
-        this.gameEngineGameLoader = undefined;
-        this.resetComponentStates();
-    }
-
-    setCampaignId(campaignId: string) {
         this.gameEngineGameLoader = new GameEngineGameLoader(campaignId);
+        this.resetComponentStates();
     }
 
     async draw() {
@@ -230,290 +227,27 @@ export class GameEngine {
         }
     }
 
-    private lazyLoadResourceHandler({graphicsContext}: {
-        graphicsContext: GraphicsContext
+    private async lazyLoadResourceHandler({
+                                              graphicsContext,
+                                              campaignId,
+                                          }: {
+        graphicsContext: GraphicsContext,
+        campaignId: string,
     }) {
         if (this.resourceHandler === undefined) {
             this._resourceHandler = new ResourceHandler({
                 graphicsContext: graphicsContext,
-                allResources: [
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/testPortrait0001.png",
-                        key: "crazy pete face",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-young-torrin.png",
-                        key: "map icon young torrin",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-sir-camil.png",
-                        key: "map icon sir camil",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-demon-slither.png",
-                        key: "map icon demon slither",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-1-action.png",
-                        key: "map icon move 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-2-actions.png",
-                        key: "map icon move 2 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-3-actions.png",
-                        key: "map icon move 3 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-attack-1-action.png",
-                        key: "map icon attack 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-crusaders.png",
-                        key: "affiliate_icon_crusaders"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-infiltrators.png",
-                        key: "affiliate_icon_infiltrators"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-western.png",
-                        key: "affiliate_icon_western"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-none.png",
-                        key: "affiliate_icon_none"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-player.png",
-                        key: "phase banner player",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-enemy.png",
-                        key: "phase banner enemy",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/icon-armor-class.png",
-                        key: "armor class icon",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/logo-torrins-trial.png",
-                        key: "torrins trial logo",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/cutscene-portrait-young-torrin.png",
-                        key: "young torrin cutscene portrait",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/cutscene-portrait-sir-camil.png",
-                        key: "sir camil cutscene portrait",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/2023-09-24-TorrinTrialHUD.png",
-                        key: "tutorial-hud",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/2023-09-24-TorrinTrialMap.png",
-                        key: "tutorial-map",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/action-neutral-demon-slither.png",
-                        key: "action neutral demon slither",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-demon-slither-attack.png",
-                        key: "combat-demon-slither-attack",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-demon-slither-damaged.png",
-                        key: "combat-demon-slither-damaged",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-demon-slither-dead.png",
-                        key: "combat-demon-slither-dead",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-demon-slither-neutral.png",
-                        key: "combat-demon-slither-neutral",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-demon-slither-targeted.png",
-                        key: "combat-demon-slither-targeted",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-attack.png",
-                        key: "combat-sir-camil-attack",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-damaged.png",
-                        key: "combat-sir-camil-damaged",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-dead.png",
-                        key: "combat-sir-camil-dead",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-neutral.png",
-                        key: "combat-sir-camil-neutral",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-targeted.png",
-                        key: "combat-sir-camil-targeted",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-assisting.png",
-                        key: "combat-sir-camil-assisting",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-sir-camil-thankful.png",
-                        key: "combat-sir-camil-thankful",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-attack.png",
-                        key: "combat-young-torrin-attack",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-damaged.png",
-                        key: "combat-young-torrin-damaged",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-dead.png",
-                        key: "combat-young-torrin-dead",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-neutral.png",
-                        key: "combat-young-torrin-neutral",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-targeted.png",
-                        key: "combat-young-torrin-targeted",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-assisting.png",
-                        key: "combat-young-torrin-assisting",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/combat-young-torrin-thankful.png",
-                        key: "combat-young-torrin-thankful",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/map-icon-petra.png",
-                        key: "map icon petra",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-neutral.png",
-                        key: "petra cutscene portrait",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-attacking.png",
-                        key: "combat-petra-attack",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-damaged.png",
-                        key: "combat-petra-damaged",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-dead.png",
-                        key: "combat-petra-dead",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-neutral.png",
-                        key: "combat-petra-neutral",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-targeted.png",
-                        key: "combat-petra-targeted",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-assisting.png",
-                        key: "combat-petra-assisting",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/playerArmy/petra/combat-petra-thankful.png",
-                        key: "combat-petra-thankful",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/splash-victory-screen.png",
-                        key: "splash victory",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/splash-defeat-screen.png",
-                        key: "splash defeat",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/decisions/decision-button-unknown-64.png",
-                        key: "decision-button-unknown"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/decisions/decision-button-sword-64.png",
-                        key: "decision-button-sword"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/decisions/decision-button-heart-64.png",
-                        key: "decision-button-heart"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/decisions/decision-button-bow-64.png",
-                        key: "decision-button-bow"
-                    },
-                ],
-            })
+                allResources: [],
+            });
+
+            const resourceLocationsFilename = `assets/campaign/${campaignId}/resourceLocators.json`;
+            try {
+                await ResourceHandlerService.loadResourceLocations(this._resourceHandler, resourceLocationsFilename);
+            } catch (e) {
+                console.error(`Failed to load resource locations in file: ${resourceLocationsFilename}`);
+                console.error(e);
+                throw e;
+            }
         }
 
         return this.resourceHandler;

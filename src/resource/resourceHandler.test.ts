@@ -1,7 +1,8 @@
-import {ResourceHandler, ResourceType} from "./resourceHandler";
+import {ResourceHandler, ResourceHandlerService, ResourceLocator, ResourceType} from "./resourceHandler";
 import {StubImmediateLoader} from "./resourceHandlerTestUtils";
 import {isError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImageWithStringAsData} from "../utils/test/mocks";
+import * as DataLoader from "../dataLoader/dataLoader";
 
 describe('Resource Handler', () => {
     it('can load an individual resource', () => {
@@ -207,5 +208,57 @@ describe('Resource Handler', () => {
 
         const image2Data = unwrapResultOrError(image2);
         expect(image2Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for image2"));
+    });
+
+    describe('load resource locations', () => {
+        it('knows it does not have resource locations upon creation', () => {
+            const resourceHandler = ResourceHandlerService.new({
+                imageLoader: new StubImmediateLoader()
+            })
+
+            expect(ResourceHandlerService.hasResourceLocations(resourceHandler)).toBeFalsy();
+        });
+        it('assumes it has all resource locations upon creation if locations are provided', () => {
+            const resourceHandler = ResourceHandlerService.new({
+                imageLoader: new StubImmediateLoader(),
+                resourceLocators: [
+                    {
+                        type: ResourceType.IMAGE,
+                        key: "Cool pic",
+                        path: "/path/to/cool_pic.png",
+                    }
+                ],
+            })
+
+            expect(ResourceHandlerService.hasResourceLocations(resourceHandler)).toBeTruthy();
+        });
+        it('can try to load resource locations from a file asynchronously', async () => {
+            const resourceLocators: ResourceLocator[] = [
+                {
+                    type: ResourceType.IMAGE,
+                    key: "Cool pic",
+                    path: "/path/to/cool_pic.png",
+                },
+                {
+                    type: ResourceType.IMAGE,
+                    key: "Cool pic2",
+                    path: "/path/to/cool_pic_2.png",
+                },
+            ];
+
+            const loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(
+                resourceLocators
+            );
+
+            const resourceHandler = ResourceHandlerService.new({
+                imageLoader: new StubImmediateLoader(),
+            })
+
+            await ResourceHandlerService.loadResourceLocations(resourceHandler, "/path/to/resource_locations.json");
+
+            expect(loadFileIntoFormatSpy).toBeCalled();
+            expect(ResourceHandlerService.hasResourceLocations(resourceHandler)).toBeTruthy();
+            expect(resourceLocators.every(r => r.key in resourceHandler.resourcesByKey)).toBeTruthy();
+        });
     });
 });
