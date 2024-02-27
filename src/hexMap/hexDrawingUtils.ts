@@ -23,8 +23,8 @@ export const hexGridColorByTerrainType: HexGridTerrainToColor = {
 export const HighlightPulseRedColor: PulseBlendColor = {
     hue: 0,
     saturation: 80,
-    brightness: 80,
-    lowAlpha: 70,
+    brightness: 70,
+    lowAlpha: 80,
     highAlpha: 90,
     periodAlpha: 2000,
 }
@@ -32,7 +32,7 @@ export const HighlightPulseRedColor: PulseBlendColor = {
 export const HighlightPulseBlueColor: PulseBlendColor = {
     hue: 240,
     saturation: 80,
-    brightness: 80,
+    brightness: 70,
     lowAlpha: 80,
     highAlpha: 90,
     periodAlpha: 2000,

@@ -9,11 +9,7 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
-import {
-    CanPlayerControlSquaddieRightNow,
-    GetNumberOfActionPoints,
-    SquaddieService
-} from "../../squaddie/squaddieService";
+import {SquaddieService} from "../../squaddie/squaddieService";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -21,8 +17,37 @@ import {ImageUI} from "../../ui/imageUI";
 import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {MapHighlightHelper} from "./mapHighlight";
 import {Campaign} from "../../campaign/campaign";
+import {DEFAULT_ACTION_POINTS_PER_TURN} from "../../squaddie/turn";
+
+const MAP_ICON_CONSTANTS = {
+    ActionPointsBarColors: {
+        strokeColor: [0, 0, 50],
+        foregroundFillColor: [0, 2, 60],
+        backgroundFillColor: [0, 0, 12],
+    },
+    ActionPointsBarRectangle20ths: {
+        left: -8,
+        top: 6,
+        width: 14,
+        height: 2,
+    },
+    HitPointsBarRectangle20ths: {
+        left: -8,
+        top: 8,
+        width: 16,
+        height: 3,
+    },
+    HitPointsBarColors: {
+        strokeColor: [0, 10, 50],
+        foregroundFillColor: [0, 70, 70],
+        backgroundFillColor: [0, 0, 12],
+    },
+};
 
 export const DrawSquaddieUtilities = {
+    hasMovementAnimationFinished: (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
+        return hasMovementAnimationFinished(timeMovementStarted, squaddieMovePath);
+    },
     tintSquaddieMapIcon: ({
                               repository,
                               battleSquaddieId,
@@ -93,17 +118,6 @@ export const DrawSquaddieUtilities = {
     drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
         return drawSquaddieMapIconAtMapLocation(graphicsContext, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
     },
-    setImageToLocation: (
-        {
-            mapIcon,
-            xyCoords,
-        }: {
-            mapIcon: ImageUI,
-            xyCoords: [number, number]
-        }
-    ) => {
-        return setImageToLocation(mapIcon, xyCoords);
-    },
     moveSquaddieAlongPath: ({
                                 squaddieRepository,
                                 battleSquaddie,
@@ -118,7 +132,10 @@ export const DrawSquaddieUtilities = {
         camera: BattleCamera
     }) => {
         return moveSquaddieAlongPath(squaddieRepository, battleSquaddie, timeMovementStarted, squaddieMovePath, camera);
-    }
+    },
+    unTintSquaddieMapIcon: (repository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
+        return unTintSquaddieMapIcon(repository, battleSquaddie);
+    },
 }
 
 const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
@@ -129,8 +146,8 @@ const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTempl
     }
 }
 
-export const unTintSquaddieMapIcon = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
-    const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
+const unTintSquaddieMapIcon = (repository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
+    const mapIcon = repository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     if (mapIcon) {
         mapIcon.removeTint();
     }
@@ -141,16 +158,10 @@ const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squa
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     setImageToLocation(mapIcon, xyCoords);
-    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-    const {
-        squaddieHasThePlayerControlledAffiliation,
-        squaddieCanCurrentlyAct
-    } = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie})
-    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-    if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && actionPointsRemaining < 3) {
-        drawSquaddieActions(graphicsContext, squaddieTemplate, battleSquaddie, mapLocation, camera);
-    }
     mapIcon.draw(graphicsContext);
+    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+    drawMapIconActionPointsBar(graphicsContext, squaddieTemplate, battleSquaddie, mapLocation, camera);
+    drawMapIconHitPointBar(graphicsContext, squaddieTemplate, battleSquaddie, mapLocation, camera);
 }
 
 const setImageToLocation = (
@@ -161,45 +172,88 @@ const setImageToLocation = (
     RectAreaService.align(mapIcon.area, {horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 }
 
-export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+    const {
+        squaddieCanCurrentlyAct
+    } = SquaddieService.canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
+    if (!squaddieCanCurrentlyAct) {
+        return;
+    }
+
+    const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+    if (actionPointsRemaining >= DEFAULT_ACTION_POINTS_PER_TURN) {
+        return;
+    }
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
 
-    const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
-
-    const actionDrawingArea: RectArea = RectAreaService.new({
-        left: xyCoords[0] - (HEX_TILE_WIDTH * 0.40),
-        top: xyCoords[1] - (HEX_TILE_WIDTH * 0.25),
-        width: HEX_TILE_WIDTH * 0.15,
-        height: HEX_TILE_WIDTH * 0.45,
+    const backgroundArea: RectArea = RectAreaService.new({
+        left: xyCoords[0] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.left / 20),
+        top: xyCoords[1] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.top / 20),
+        width: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.width / 20,
+        height: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.height / 20,
     });
 
-    const background: Rectangle = RectangleHelper.new({
-        area: actionDrawingArea,
-        fillColor: [squaddieAffiliationHue, 10, 5],
-        strokeWeight: 0,
+    drawMapIconBar({
+        graphicsContext,
+        amount: {
+            current: actionPointsRemaining,
+            max: DEFAULT_ACTION_POINTS_PER_TURN,
+        },
+        bar: {
+            backgroundArea,
+            strokeWeight: 1,
+            backgroundColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.backgroundFillColor,
+            strokeColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.strokeColor,
+            foregroundColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.foregroundFillColor,
+        }
     })
-
-    RectangleHelper.draw(background, graphicsContext);
-
-    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-    const heightFromRemainingActionPoints = actionDrawingArea.height * actionPointsRemaining / 3;
-    const numberOfActionPointsArea: RectArea = RectAreaService.new({
-        top: RectAreaService.bottom(actionDrawingArea) - heightFromRemainingActionPoints,
-        bottom: RectAreaService.bottom(actionDrawingArea),
-        left: actionDrawingArea.left,
-        width: actionDrawingArea.width,
-    });
-
-    const numberOfActionPointsRect: Rectangle = RectangleHelper.new({
-        area: numberOfActionPointsArea,
-        fillColor: [squaddieAffiliationHue, 50, 85],
-    })
-
-    RectangleHelper.draw(numberOfActionPointsRect, graphicsContext);
 }
 
-export const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, destination: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconHitPointBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+    const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
+
+    if (currentHitPoints >= maxHitPoints) {
+        return;
+    }
+
+    const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
+
+    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
+
+    const backgroundArea: RectArea = RectAreaService.new({
+        left: xyCoords[0] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.left / 20),
+        top: xyCoords[1] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.top / 20),
+        width: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.width / 20,
+        height: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.height / 20,
+    });
+
+    drawMapIconBar({
+        graphicsContext,
+        amount: {
+            current: currentHitPoints,
+            max: maxHitPoints,
+        },
+        bar: {
+            backgroundArea,
+            strokeWeight: 1,
+            backgroundColor: MAP_ICON_CONSTANTS.HitPointsBarColors.backgroundFillColor,
+            strokeColor: [
+                squaddieAffiliationHue,
+                MAP_ICON_CONSTANTS.HitPointsBarColors.strokeColor[1],
+                MAP_ICON_CONSTANTS.HitPointsBarColors.strokeColor[2],
+            ],
+            foregroundColor: [
+                squaddieAffiliationHue,
+                MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[1],
+                MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[2],
+            ],
+        }
+    })
+}
+
+const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, destination: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         destination.q,
         destination.r,
@@ -209,7 +263,7 @@ export const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository,
     setImageToLocation(mapIcon, xyCoords);
 }
 
-export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
+const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
     if (SearchPathHelper.getLocations(squaddieMovePath).length <= 1) {
         return true;
     }
@@ -292,4 +346,44 @@ const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squa
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository,
     })
+}
+
+const drawMapIconBar = ({graphicsContext, amount, bar}:
+                            {
+                                graphicsContext: GraphicsContext,
+                                amount: {
+                                    current: number,
+                                    max: number
+                                },
+                                bar: {
+                                    backgroundArea: RectArea,
+                                    strokeWeight: number,
+                                    backgroundColor: number[],
+                                    strokeColor: number[],
+                                    foregroundColor: number[],
+                                }
+                            }
+) => {
+    const background: Rectangle = RectangleHelper.new({
+        area: bar.backgroundArea,
+        fillColor: bar.backgroundColor,
+        strokeColor: bar.strokeColor,
+        strokeWeight: bar.strokeWeight,
+    })
+    RectangleHelper.draw(background, graphicsContext);
+
+    const foregroundWidth = bar.backgroundArea.width * amount.current / amount.max;
+    const foregroundRectArea: RectArea = RectAreaService.new({
+        top: RectAreaService.top(bar.backgroundArea),
+        left: RectAreaService.left(bar.backgroundArea),
+        bottom: RectAreaService.bottom(bar.backgroundArea),
+        width: foregroundWidth,
+    });
+
+    const foreground: Rectangle = RectangleHelper.new({
+        area: foregroundRectArea,
+        fillColor: bar.foregroundColor,
+        noStroke: true,
+    });
+    RectangleHelper.draw(foreground, graphicsContext);
 }

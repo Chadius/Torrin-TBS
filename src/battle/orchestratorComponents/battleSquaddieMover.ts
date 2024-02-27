@@ -4,7 +4,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
-import {DrawSquaddieUtilities, hasMovementAnimationFinished} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -26,7 +26,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         if (state.battleOrchestratorState.battleState.squaddieMovePath === undefined) {
             return true;
         }
-        return this.animationStartTime && hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath);
+        return this.animationStartTime && DrawSquaddieUtilities.hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath);
     }
 
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
@@ -48,7 +48,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             this.animationStartTime = Date.now();
         }
 
-        if (!hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath)) {
+        if (!DrawSquaddieUtilities.hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath)) {
             this.updateWhileAnimationIsInProgress(state, graphicsContext);
         } else {
             this.updateWhenAnimationCompletes(state, graphicsContext);
