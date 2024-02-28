@@ -5,7 +5,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MissionMap} from "../../missionMap/missionMap";
-import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -146,7 +146,7 @@ const highlightAllLocationsWithinSquaddieMovementRange = (
             overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS,
         },
     ];
-    Object.entries(SearchResultsHelper.getLocationsByNumberOfMoveActions(reachableLocationSearch)).forEach(([moveActionsStr, locations]) => {
+    Object.entries(SearchResultsService.getLocationsByNumberOfMoveActions(reachableLocationSearch)).forEach(([moveActionsStr, locations]) => {
         const moveActions = Number(moveActionsStr);
         let highlightedLocationIndex: number = Math.min(moveActions, 3);
         const locationsBesidesStart = locations.filter(l => l.q !== startLocation.q || l.r !== startLocation.r)
@@ -178,7 +178,7 @@ const addAttackRangeOntoMovementRange = (
 
     const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 
-    const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableLocationSearch);
+    const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsService.getStoppableLocations(reachableLocationSearch);
 
     const attackLocations: HexCoordinate[] = [];
     squaddieTemplate.actionTemplates.forEach(actionTemplate => {
@@ -209,7 +209,7 @@ const addAttackRangeOntoMovementRange = (
                                 repository,
                             })
 
-                            uniqueLocations = SearchResultsHelper.getStoppableLocations(actionRangeResults).filter(location =>
+                            uniqueLocations = SearchResultsService.getStoppableLocations(actionRangeResults).filter(location =>
                                 !attackLocations.some(attackLoc => attackLoc.q === location.q && attackLoc.r === location.r)
                             ).filter(location =>
                                 !allLocationsSquaddieCanMoveTo.some(moveLoc => moveLoc.q === location.q && moveLoc.r === location.r)

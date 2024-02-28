@@ -14,7 +14,7 @@ export interface SearchResult {
     stopLocationsReached: HexCoordinate[];
 }
 
-export const SearchResultsHelper = {
+export const SearchResultsService = {
     new: ({shortestPathByLocation, stopLocationsReached}: {
         shortestPathByLocation: SearchPathByLocation,
         stopLocationsReached?: HexCoordinate[]
@@ -30,7 +30,9 @@ export const SearchResultsHelper = {
         };
     },
     getShortestPathToLocation: (searchResults: SearchResult, q: number, r: number): SearchPath => {
-        return searchResults.shortestPathByLocation[q][r];
+        return isLocationReachable(searchResults, q, r)
+            ? searchResults.shortestPathByLocation[q][r]
+            : undefined;
     },
     isLocationReachable: (searchResult: SearchResult, q: number, r: number): boolean => {
         return isLocationReachable(searchResult, q, r);

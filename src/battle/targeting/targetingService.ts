@@ -8,7 +8,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 
@@ -108,10 +108,10 @@ const findValidTargets = ({
 
     const results = new TargetingResults();
     results.addLocationsInRange(
-        SearchResultsHelper.getStoppableLocations(allLocationsInRange)
+        SearchResultsService.getStoppableLocations(allLocationsInRange)
     );
 
-    addValidTargetsToResult(results, actingSquaddieTemplate, SearchResultsHelper.getStoppableLocations(allLocationsInRange), map, squaddieRepository);
+    addValidTargetsToResult(results, actingSquaddieTemplate, SearchResultsService.getStoppableLocations(allLocationsInRange), map, squaddieRepository);
 
     return results;
 };

@@ -28,7 +28,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
@@ -170,7 +170,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             missionMap: state.battleOrchestratorState.battleState.missionMap,
             repository: state.repository,
         });
-        const tilesTargeted: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(searchResult);
+        const tilesTargeted: HexCoordinate[] = SearchResultsService.getStoppableLocations(searchResult);
 
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles([

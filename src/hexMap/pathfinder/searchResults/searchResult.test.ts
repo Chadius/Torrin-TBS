@@ -1,10 +1,10 @@
-import {SearchResultsHelper} from "./searchResult";
+import {SearchResultsService} from "./searchResult";
 import {SearchPathHelper} from "../searchPath";
 import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
 
 describe('Search Results', () => {
     it('Can organize locations by the number of move actions', () => {
-        const results = SearchResultsHelper.new({
+        const results = SearchResultsService.new({
             shortestPathByLocation: {
                 0: {
                     0: {
@@ -75,7 +75,7 @@ describe('Search Results', () => {
             }
         });
 
-        const locationsByNumberOfMoveActions = SearchResultsHelper.getLocationsByNumberOfMoveActions(results);
+        const locationsByNumberOfMoveActions = SearchResultsService.getLocationsByNumberOfMoveActions(results);
 
         expect(locationsByNumberOfMoveActions).toEqual({
             1: [
@@ -90,7 +90,7 @@ describe('Search Results', () => {
     });
 
     it('get closest routes to destination', () => {
-        const results = SearchResultsHelper.new({
+        const results = SearchResultsService.new({
             shortestPathByLocation: {
                 0: {
                     0: {
@@ -213,7 +213,7 @@ describe('Search Results', () => {
             }
         });
 
-        const radius0: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+        const radius0: HexCoordinate[] = SearchResultsService.getClosestRoutesToLocationByDistance(results, {
             q: 0,
             r: 2
         }, 0);
@@ -224,13 +224,13 @@ describe('Search Results', () => {
             ])
         );
 
-        const locationWithNoRoute: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+        const locationWithNoRoute: HexCoordinate[] = SearchResultsService.getClosestRoutesToLocationByDistance(results, {
             q: 1,
             r: 1
         }, 0);
         expect(locationWithNoRoute).toHaveLength(0);
 
-        const radius1: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+        const radius1: HexCoordinate[] = SearchResultsService.getClosestRoutesToLocationByDistance(results, {
             q: 0,
             r: 2
         }, 1);
@@ -243,7 +243,7 @@ describe('Search Results', () => {
             ])
         );
 
-        const radius2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+        const radius2: HexCoordinate[] = SearchResultsService.getClosestRoutesToLocationByDistance(results, {
             q: 0,
             r: 2
         }, 2);
@@ -258,7 +258,7 @@ describe('Search Results', () => {
     });
 
     it('can report all stoppable locations', () => {
-        const results = SearchResultsHelper.new({
+        const results = SearchResultsService.new({
             shortestPathByLocation: {
                 0: {
                     0: {
@@ -312,7 +312,7 @@ describe('Search Results', () => {
             }
         });
 
-        const stoppableLocations = SearchResultsHelper.getStoppableLocations(results);
+        const stoppableLocations = SearchResultsService.getStoppableLocations(results);
 
         expect(stoppableLocations).toHaveLength(3);
         expect(stoppableLocations).toContainEqual({q: 0, r: 0});

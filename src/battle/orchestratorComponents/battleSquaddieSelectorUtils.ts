@@ -6,7 +6,7 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -51,7 +51,7 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
         repository: state.repository,
     });
 
-    const closestRoute: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, clickedHexCoordinate.q, clickedHexCoordinate.r);
+    const closestRoute: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, clickedHexCoordinate.q, clickedHexCoordinate.r);
 
     const noDirectRouteToDestination = closestRoute === null;
     if (noDirectRouteToDestination) {
@@ -69,5 +69,5 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 
-    state.battleOrchestratorState.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+    state.battleOrchestratorState.battleSquaddieSelectedHUD.clearSelectedSquaddie();
 }

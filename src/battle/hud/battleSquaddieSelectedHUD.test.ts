@@ -33,8 +33,10 @@ import {ActionTemplate, ActionTemplateService} from "../../action/template/actio
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
-import {DecidedActionService} from "../../action/decided/decidedAction";
 import {CampaignService} from "../../campaign/campaign";
+import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -367,52 +369,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(warnUserNotEnoughActionPointsToPerformActionSpy).toBeCalled();
-    });
-
-    it('will warn the user if another squaddie is still completing their turn', () => {
-        const state: GameEngineState = GameEngineStateService.new({
-                resourceHandler: resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        missionMap,
-                        camera: new BattleCamera(0, 0),
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                            startingLocation: {q: 0, r: 0},
-                            previewedActionTemplateId: "purifying_stream",
-                            processedActions: [
-                                ProcessedActionService.new({
-                                    decidedAction: DecidedActionService.new({
-                                        battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                                    })
-                                })
-                            ]
-                        }),
-                    }),
-                }),
-                campaign: CampaignService.default({}),
-                repository: squaddieRepository,
-            })
-        ;
-
-        hud.selectSquaddieAndDrawWindow({
-            battleId: player2SquaddieDynamic.battleSquaddieId,
-            repositionWindow: {mouseX: 0, mouseY: 0},
-            state: state,
-        });
-
-        const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-        hud.draw(state, mockedP5GraphicsContext);
-
-        expect(textSpy).toBeCalled();
-        expect(textSpy).toBeCalledWith(expect.stringMatching(`wait for ${playerSquaddieStatic.squaddieId.name}`),
-            expect.anything(),
-            expect.anything(),
-            expect.anything(),
-            expect.anything()
-        );
     });
 
     it('will warn the user they cannot control enemy squaddies', () => {
@@ -891,7 +847,55 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawNextButton(state)).toBeTruthy();
         });
+        it('should not show the button if a squaddie is partway through their turn', () => {
+            const state: GameEngineState = GameEngineStateService.new({
+                resourceHandler: resourceHandler,
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: undefined,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        actionsThisRound: ActionsThisRoundService.new({
+                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                            startingLocation: {q: 0, r: 0},
+                            processedActions: [
+                                ProcessedActionService.new({
+                                    decidedAction: undefined,
+                                    processedActionEffects: [
+                                        ProcessedActionMovementEffectService.new({
+                                            decidedActionEffect: DecidedActionMovementEffectService.new({
+                                                destination: {q: 0, r: 1},
+                                                template: ActionEffectMovementTemplateService.new({})
+                                            })
+                                        }),
+                                    ]
+                                }),
+                            ]
+                        })
+                    }),
+                }),
+                campaign: CampaignService.default({}),
+                repository: squaddieRepository,
+            });
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
+            missionMap.addSquaddie(player2SquaddieStatic.squaddieId.templateId, player2SquaddieDynamic.battleSquaddieId, {
+                q: 0,
+                r: 1
+            });
+            hud = new BattleSquaddieSelectedHUD()
 
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerBattleSquaddie.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawNextButton(state)).toBeFalsy();
+        });
         it('should show the button if there is 1 player controllable squaddie and the HUD is focused on an uncontrollable squaddie', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
@@ -929,7 +933,6 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawNextButton(state)).toBeTruthy();
         });
-
         it('should show the button if there is 1 player controllable squaddie and the HUD is not focused', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
@@ -960,7 +963,6 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawNextButton(state)).toBeTruthy();
         });
-
         it('should not show the button if player controllable squaddies are off the map', () => {
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
@@ -989,7 +991,6 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawNextButton(state)).toBeFalsy();
         });
-
         it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
             const onePlayerOneEnemy = ObjectRepositoryService.new();
             ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerBattleSquaddie);
@@ -1027,7 +1028,6 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawNextButton(state)).toBeFalsy();
         });
-
         it('clicking on the next button will select a different squaddie', () => {
             const battleCamera = new BattleCamera(0, 0);
             hud = new BattleSquaddieSelectedHUD();
@@ -1074,7 +1074,6 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(panningInfo.xDestination).toBe(player2WorldCoordinates[0]);
             expect(panningInfo.yDestination).toBe(player2WorldCoordinates[1]);
         });
-
         it('should respond to keyboard presses for the next squaddie, even if the HUD is not open', () => {
             const battleCamera = new BattleCamera(0, 0);
             hud = new BattleSquaddieSelectedHUD();

@@ -1,6 +1,6 @@
 import {SearchParameters} from "../searchParams";
 import {TerrainTileMap} from "../../terrainTileMap";
-import {SearchPathByLocation, SearchResult, SearchResultsHelper} from "../searchResults/searchResult";
+import {SearchPathByLocation, SearchResult, SearchResultsService} from "../searchResults/searchResult";
 import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
 import {PriorityQueue} from "../../../utils/priorityQueue";
 import {SearchPath, SearchPathHelper} from "../searchPath";
@@ -303,7 +303,7 @@ const generateValidPaths = ({
 }
 
 const exportToSearchResult = ({workingState}: { workingState: PathfinderWorkingState }): SearchResult => {
-    return SearchResultsHelper.new({
+    return SearchResultsService.new({
         shortestPathByLocation: workingState.shortestPathByLocation,
         stopLocationsReached: workingState.stopLocationsReached,
     });

@@ -117,7 +117,7 @@ export class BattleSquaddieSelectedHUD {
         return this._background;
     }
 
-    mouseClickedNoSquaddieSelected() {
+    clearSelectedSquaddie() {
         this.selectedBattleSquaddieId = "";
     }
 
@@ -206,7 +206,6 @@ export class BattleSquaddieSelectedHUD {
         this.drawHitPoints(state, graphicsContext);
         this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state);
-        this.drawDifferentSquaddieWarning(state);
         this.drawFileAccessWarning(state);
         if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
             TextBoxHelper.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
@@ -300,11 +299,15 @@ export class BattleSquaddieSelectedHUD {
         this.errorDuringLoadingDisplayStartTimestamp = undefined;
     }
 
-    shouldDrawNextButton(state: GameEngineState): boolean {
-        const playerControllableSquaddiesWhoCanActAndOnTheMap = getPlayerControllableSquaddiesWhoCanActAndOnTheMap(state);
+    shouldDrawNextButton(gameEngineState: GameEngineState): boolean {
+        if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+            return;
+        }
+
+        const playerControllableSquaddiesWhoCanActAndOnTheMap = getPlayerControllableSquaddiesWhoCanActAndOnTheMap(gameEngineState);
         const numberOfPlayerControllableSquaddiesWhoCanCurrentlyActAndOnTheMap: number = playerControllableSquaddiesWhoCanActAndOnTheMap.length;
 
-        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedBattleSquaddieId && isSquaddiePlayerControllableRightNow(this.selectedBattleSquaddieId, state);
+        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedBattleSquaddieId && isSquaddiePlayerControllableRightNow(this.selectedBattleSquaddieId, gameEngineState);
 
         if (selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyActAndOnTheMap > 1) {
             return true;
@@ -368,34 +371,6 @@ export class BattleSquaddieSelectedHUD {
 
         this.maybeCreateInvalidCommandWarningTextBox(warningText, undefined);
 
-    }
-
-    drawDifferentSquaddieWarning(state: GameEngineState) {
-        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
-            return;
-        }
-
-        const {squaddieTemplate} = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
-                state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
-            )
-        );
-        const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddieTemplate.squaddieId.name}`;
-
-        if (
-            this.selectedBattleSquaddieId === state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
-        ) {
-            if (
-                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined
-                && this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text === differentSquaddieWarningText
-            ) {
-                TextBoxHelper.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
-            }
-            return;
-        }
-
-        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText, undefined);
     }
 
     checkForActionButtonClick(state: GameEngineState, mouseX: number, mouseY: number) {

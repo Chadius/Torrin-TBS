@@ -26,9 +26,7 @@ import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {CampaignService} from "../campaign/campaign";
 import {RectAreaService} from "../ui/rectArea";
 import {TextBoxHelper} from "../ui/textBox";
-import {ActionsThisRound, ActionsThisRoundService} from "../battle/history/actionsThisRound";
-import {ProcessedActionService} from "../action/processed/processedAction";
-import {DecidedActionService} from "../action/decided/decidedAction";
+import {ActionsThisRound} from "../battle/history/actionsThisRound";
 
 describe('User clicks on a squaddie', () => {
     let repository: ObjectRepository;
@@ -302,43 +300,6 @@ describe('User clicks on a squaddie', () => {
 
         expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
         expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual(`You cannot control ${enemySquaddieTemplate.squaddieId.name}`);
-    });
-
-    it('HUD presents a warning if another squaddie has already processed a decision', () => {
-        const {player2} = addAnotherPlayer({
-            playerSquaddieTemplate,
-            playerTeam,
-            repository
-        });
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: player2.battleSquaddieId,
-            startingLocation: {q: 0, r: 1},
-            processedActions: [
-                ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: player2.battleSquaddieId,
-                    })
-                })
-            ]
-        });
-        const gameEngineState = getGameEngineState({
-            resourceHandler,
-            missionMap,
-            repository,
-            teams: [],
-            battlePhaseState: undefined,
-            actionsThisRound,
-        });
-        selectSquaddieForTheHUD({
-            battleSquaddie: playerBattleSquaddie,
-            battleSquaddieSelectedHUD,
-            gameEngineState,
-        });
-
-        battleSquaddieSelectedHUD.drawDifferentSquaddieWarning(gameEngineState);
-
-        expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
-        expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual(`Cannot act, wait for ${playerSquaddieTemplate.squaddieId.name}`);
     });
 });
 

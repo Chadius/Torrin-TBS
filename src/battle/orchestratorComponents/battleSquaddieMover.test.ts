@@ -17,7 +17,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
@@ -93,7 +93,7 @@ describe('BattleSquaddieMover', () => {
             repository: squaddieRepo,
         });
 
-        const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
+        const movePath: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 1);
 
         const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
             destination: {q: 0, r: 3},
@@ -171,7 +171,7 @@ describe('BattleSquaddieMover', () => {
                 repository: squaddieRepo,
             });
 
-            const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
+            const movePath: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 1);
 
             return BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),

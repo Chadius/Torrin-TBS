@@ -3,7 +3,7 @@ import {TerrainTileMapHelper} from "../../terrainTileMap";
 import {SearchParameters, SearchParametersHelper} from "../searchParams";
 import {HexGridMovementCost} from "../../hexGridMovementCost";
 import {SearchPath, SearchPathHelper} from "../searchPath";
-import {SearchResult, SearchResultsHelper} from "../searchResults/searchResult";
+import {SearchResult, SearchResultsService} from "../searchResults/searchResult";
 import {PathfinderHelper} from "./pathfinder";
 import {ObjectRepositoryService} from "../../../battle/objectRepository";
 
@@ -42,20 +42,20 @@ describe("Pathfinder", () => {
                     const reachable: boolean = [
                         HexGridMovementCost.pit, HexGridMovementCost.wall
                     ].includes(missionMap.terrainTileMap.getTileTerrainTypeAtLocation({q, r})) !== true;
-                    expect(SearchResultsHelper.isLocationReachable(searchResults, q, r)).toBe(reachable);
+                    expect(SearchResultsService.isLocationReachable(searchResults, q, r)).toBe(reachable);
                 });
             });
         });
 
         it("path to the starting location costs no movement", () => {
-            const path2_0: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 2);
+            const path2_0: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 0, 2);
             expect(SearchPathHelper.getTotalMovementCost(path2_0)).toEqual(0);
             expect(SearchPathHelper.getLocations(path2_0)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path2_0)).toEqual(0);
         });
 
         it("path to further locations costs movement", () => {
-            const path1_4: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 4);
+            const path1_4: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 4);
             expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(4);
             expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(4);
             expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(3);
@@ -100,15 +100,15 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 5)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 6)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 5)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 6)).toBeTruthy();
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 7)).toBeFalsy();
         });
         it("can factor terrain movement costs", () => {
             const missionMap = MissionMapService.new({
@@ -133,11 +133,11 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 4)).toBeFalsy();
         });
         it("can ignores terrain movement costs if ignoreTerrainCosts is true", () => {
             const missionMap = MissionMapService.new({
@@ -163,11 +163,11 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
         });
     });
 
@@ -193,10 +193,10 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
         });
         it("cannot pass over pit tiles", () => {
             const missionMap = MissionMapService.new({
@@ -220,10 +220,10 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
         });
         it("can pass over pit tiles if search parameters is set but still cannot stop on them", () => {
             const missionMap = MissionMapService.new({
@@ -247,10 +247,10 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
         });
         it("can pass over wall tiles if search parameters is set but still cannot stop on them", () => {
             const missionMap = MissionMapService.new({
@@ -274,10 +274,10 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
         });
     });
 
@@ -304,17 +304,17 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(4);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 6)).toBe(4);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 7)).toBe(5);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 8)).toBe(5);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 9)).toBe(6);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 10)).toBe(6);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(4);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 6)).toBe(4);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 7)).toBe(5);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 8)).toBe(5);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 9)).toBe(6);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 10)).toBe(6);
         });
         it('will count number of actions based on the movement needed up to the number of actions', () => {
             const missionMap = MissionMapService.new({
@@ -339,12 +339,12 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(undefined);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(undefined);
         });
         it('will always assume 1 action needed if movement per action is not specified', () => {
             const missionMap = MissionMapService.new({
@@ -367,9 +367,9 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
+            expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
             for (let r = 1; r < missionMap.terrainTileMap.getDimensions().widthOfWidestRow; r++) {
-                expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, r)).toBe(1);
+                expect(SearchResultsService.numberOfActionsToReachLocation(searchResults, 0, r)).toBe(1);
             }
         });
     });
@@ -397,11 +397,11 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(false);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 4)).toBe(false);
         });
         it('will not include any paths less than the minimum distance', () => {
             const missionMap = MissionMapService.new({
@@ -425,13 +425,13 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryService.new(),
             });
 
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(false);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBe(false);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBe(false);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 6)).toBe(true);
-            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 0)).toBe(false);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 1)).toBe(false);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 2)).toBe(false);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 3)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 4)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 6)).toBe(true);
+            expect(SearchResultsService.isLocationReachable(searchResults, 0, 7)).toBe(true);
         });
     });
 
@@ -465,19 +465,19 @@ describe("Pathfinder", () => {
         });
 
         it("path to the starting location costs no movement", () => {
-            const path0_0: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 0);
+            const path0_0: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 0, 0);
             expect(SearchPathHelper.getTotalMovementCost(path0_0)).toEqual(0);
             expect(SearchPathHelper.getLocations(path0_0)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path0_0)).toEqual(0);
 
-            const path1_4: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 4);
+            const path1_4: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 4);
             expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(0);
             expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(0);
         });
 
         it("path to further locations refers to starting location with least movement cost", () => {
-            const path0_2: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 2);
+            const path0_2: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 0, 2);
 
             const route0_2 = SearchPathHelper.getLocations(path0_2);
             expect(route0_2).toHaveLength(3);
@@ -488,7 +488,7 @@ describe("Pathfinder", () => {
             expect(SearchPathHelper.getTotalMovementCost(path0_2)).toEqual(3);
             expect(SearchPathHelper.getTotalDistance(path0_2)).toEqual(2);
 
-            const path1_3: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 3);
+            const path1_3: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 3);
 
             const route1_3 = SearchPathHelper.getLocations(path1_3);
             expect(route1_3).toHaveLength(2);

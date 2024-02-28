@@ -44,6 +44,7 @@ import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedAct
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 import {BattlePhaseState} from "./battlePhaseController";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -141,7 +142,7 @@ describe('BattleSquaddieSelector', () => {
         };
     }
 
-    const makeBattlePhaseTrackerWithPlayerTeam = (missionMap: MissionMap) => {
+    const makeBattlePhaseTrackerWithPlayerTeam = (missionMap: MissionMap): BattlePhaseState => {
         const playerTeam: BattleSquaddieTeam =
             {
                 id: "playerTeamId",
@@ -844,25 +845,11 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: startingMouseY
             });
 
-            expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                battleId: interruptBattleSquaddie.battleSquaddieId,
-                repositionWindow: {
-                    mouseX: startingMouseX, mouseY: startingMouseY
-                },
-                state: state,
-            });
+            expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0].battleId).toEqual(playerSoldierBattleSquaddie.battleSquaddieId);
         });
 
         it('ignores movement commands issued to other squaddies', () => {
             expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(actionsThisRound.battleSquaddieId);
-            expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                battleId: interruptBattleSquaddie.battleSquaddieId,
-                repositionWindow: {
-                    mouseX: startingMouseX, mouseY: startingMouseY
-                },
-                state: state,
-            });
-            expect(selector.hasCompleted(state)).toBeFalsy();
 
             const location = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(interruptBattleSquaddie.battleSquaddieId);
             clickOnMapCoordinate({
@@ -898,6 +885,8 @@ describe('BattleSquaddieSelector', () => {
                 return false;
             }).mockReturnValue(true);
             mockHud.mouseClicked = jest.fn();
+
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
 
             selector.mouseEventHappened(state, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -1016,79 +1005,120 @@ describe('BattleSquaddieSelector', () => {
         expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type).toEqual(ActionEffectType.MOVEMENT);
     });
 
-    it('selects a different squaddie if the first squaddie has not started their turn', () => {
-        const missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
-                movementCost: ["1 1 1 "]
-            })
-        });
+    describe('selecting a different squaddie before and during a turn', () => {
+        let missionMap: MissionMap;
+        let gameEngineState: GameEngineState;
+        let camera: BattleCamera;
+        let selectSquaddieAndDrawWindowSpy: jest.SpyInstance;
 
-        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        beforeEach(() => {
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "]
+                })
+            });
 
-        const playerTeam = teams.find(t => t.id === "playerTeamId");
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            const playerTeam = teams.find(t => t.id === "playerTeamId");
 
-        const anotherPlayerSoldierBattleSquaddie = BattleSquaddieService.new({
-            squaddieTemplateId: "player_soldier",
-            battleSquaddieId: "player_soldier_1",
-        });
+            const anotherPlayerSoldierBattleSquaddie = BattleSquaddieService.new({
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_1",
+            });
 
-        ObjectRepositoryService.addBattleSquaddie(squaddieRepo, anotherPlayerSoldierBattleSquaddie);
-        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_1"]);
-        MissionMapService.addSquaddie(missionMap, "player_soldier", "player_soldier_1", {q: 0, r: 2});
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepo, anotherPlayerSoldierBattleSquaddie);
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_1"]);
+            MissionMapService.addSquaddie(missionMap, "player_soldier", "player_soldier_1", {q: 0, r: 2});
 
-        let mockResourceHandler = mocks.mockResourceHandler();
-        mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
-        const camera = new BattleCamera();
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+            camera = new BattleCamera();
 
-        const mockHud = new BattleSquaddieSelectedHUD();
-        const selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
-        const gameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    missionMap,
-                    camera,
-                    battlePhaseState,
-                    teams,
-                    recording: {history: []},
+            const mockHud = new BattleSquaddieSelectedHUD();
+            selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: mockHud,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: {history: []},
+                    }),
                 }),
-            }),
-            repository: squaddieRepo,
-            campaign: CampaignService.default({}),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            });
         });
 
-        const {mapLocation: firstBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_0");
-        clickOnMapCoordinate({
-            selector,
-            gameEngineState,
-            q: firstBattleSquaddieMapLocation.q,
-            r: firstBattleSquaddieMapLocation.r,
-            camera
-        });
-        expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
-        expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0]["battleId"]).toEqual("player_soldier_0");
+        it('selects a different squaddie if the first squaddie has not started their turn', () => {
+            const {mapLocation: firstBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_0");
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: firstBattleSquaddieMapLocation.q,
+                r: firstBattleSquaddieMapLocation.r,
+                camera
+            });
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
+            expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0]["battleId"]).toEqual("player_soldier_0");
 
-        const {mapLocation: anotherBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_1");
-        clickOnMapCoordinate({
-            selector,
-            gameEngineState,
-            q: anotherBattleSquaddieMapLocation.q,
-            r: anotherBattleSquaddieMapLocation.r,
-            camera
-        });
-        expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(2);
-        expect(selectSquaddieAndDrawWindowSpy.mock.calls[1][0]["battleId"]).toEqual("player_soldier_1");
+            const {mapLocation: anotherBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_1");
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: anotherBattleSquaddieMapLocation.q,
+                r: anotherBattleSquaddieMapLocation.r,
+                camera
+            });
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(2);
+            expect(selectSquaddieAndDrawWindowSpy.mock.calls[1][0]["battleId"]).toEqual("player_soldier_1");
 
-        clickOnMapCoordinate({
-            selector,
-            gameEngineState,
-            q: 0,
-            r: 1,
-            camera
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: 0,
+                r: 1,
+                camera
+            });
+            expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual("player_soldier_1");
         });
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual("player_soldier_1");
+        it('does not select a different squaddie if the first squaddie starts their turn', () => {
+            const {mapLocation: firstBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_0");
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: firstBattleSquaddieMapLocation.q,
+                r: firstBattleSquaddieMapLocation.r,
+                camera
+            });
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
+            expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0]["battleId"]).toEqual("player_soldier_0");
+
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: firstBattleSquaddieMapLocation.q,
+                r: firstBattleSquaddieMapLocation.r + 1,
+                camera
+            });
+
+            expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(playerSoldierBattleSquaddie.battleSquaddieId);
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeTruthy();
+
+            const {mapLocation: anotherBattleSquaddieMapLocation} = missionMap.getSquaddieByBattleId("player_soldier_1");
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState,
+                q: anotherBattleSquaddieMapLocation.q,
+                r: anotherBattleSquaddieMapLocation.r,
+                camera
+            });
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
+        });
     });
 });
 
