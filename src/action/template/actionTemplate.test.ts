@@ -4,6 +4,7 @@ import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {ActionEffectMovementTemplateService} from "./actionEffectMovementTemplate";
+import {ActionEffectEndTurnTemplateService} from "./actionEffectEndTurnTemplate";
 
 describe('ActionTemplate', () => {
     it('can create a template with default values without an id', () => {
@@ -108,6 +109,61 @@ describe('ActionTemplate', () => {
                 ],
             });
             expect(ActionTemplateService.multipleAttackPenaltyMultiplier(withMap)).toEqual(1);
+        });
+    });
+
+    describe('actionTemplateRange', () => {
+        it('returns undefined if none of the action effects have ranges', () => {
+            const justWaiting = ActionTemplateService.new({
+                id: "justWaiting",
+                name: "just waiting",
+                actionEffectTemplates: [
+                    ActionEffectEndTurnTemplateService.new({}),
+                    ActionEffectEndTurnTemplateService.new({}),
+                ]
+            });
+
+            const ranges = ActionTemplateService.getActionTemplateRange(justWaiting);
+
+            expect(ranges).toBeUndefined();
+        });
+
+        it('returns the range of the only action effect with a range', () => {
+            const bow = ActionTemplateService.new({
+                id: "bow",
+                name: "bow",
+                actionEffectTemplates: [
+                    ActionEffectEndTurnTemplateService.new({}),
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 1,
+                        maximumRange: 3,
+                    }),
+                ]
+            });
+
+            const ranges = ActionTemplateService.getActionTemplateRange(bow);
+            expect(ranges).toEqual([1, 3]);
+        });
+
+        it('combines the minimum and maximum of multiple effects', () => {
+            const swordAndArtillery = ActionTemplateService.new({
+                id: "swordAndArtillery",
+                name: "sword and artillery",
+                actionEffectTemplates: [
+                    ActionEffectEndTurnTemplateService.new({}),
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 0,
+                        maximumRange: 1,
+                    }),
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 2,
+                        maximumRange: 6,
+                    }),
+                ]
+            });
+
+            const ranges = ActionTemplateService.getActionTemplateRange(swordAndArtillery);
+            expect(ranges).toEqual([0, 6]);
         });
     });
 });

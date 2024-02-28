@@ -1,7 +1,7 @@
 import {ActionEffectTemplate, ActionEffectType} from "./actionEffectTemplate";
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
-import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
+import {ActionEffectSquaddieTemplate, ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
 
 export interface ActionTemplate {
     id: string;
@@ -92,6 +92,24 @@ export const ActionTemplateService = {
             },
             0,
         );
+    },
+    getActionTemplateRange: (actionTemplate: ActionTemplate): number[] => {
+        const actionEffectTemplatesWithRange = actionTemplate.actionEffectTemplates
+            .filter(actionEffectTemplate => actionEffectTemplate.type === ActionEffectType.SQUADDIE);
+
+        if (actionEffectTemplatesWithRange.length === 0) {
+            return undefined;
+        }
+
+        const minimumRanges = actionEffectTemplatesWithRange
+            .map(actionEffectSquaddieTemplate => (actionEffectSquaddieTemplate as ActionEffectSquaddieTemplate).minimumRange);
+        const maximumRanges = actionEffectTemplatesWithRange
+            .map(actionEffectSquaddieTemplate => (actionEffectSquaddieTemplate as ActionEffectSquaddieTemplate).maximumRange);
+
+        return [
+            Math.min(...minimumRanges),
+            Math.max(...maximumRanges),
+        ];
     }
 }
 

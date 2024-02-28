@@ -6,12 +6,10 @@ import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
-import {getValidValueOrDefault} from "../utils/validityCheck";
+import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ImageUI} from "../ui/imageUI";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {ActionEffectType} from "../action/template/actionEffectTemplate";
-import {ActionEffectSquaddieTemplate} from "../action/template/actionEffectSquaddieTemplate";
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     strokeSaturation: 50,
@@ -136,24 +134,10 @@ export class MakeDecisionButton {
         );
     }
 
-    getActionTemplateRange(): {
-        minimumRange: number;
-        maximumRange: number;
-    } {
-        const actionEffectSquaddieTemplates = this.actionTemplate.actionEffectTemplates
-            .filter(actionEffectTemplate => actionEffectTemplate.type === ActionEffectType.SQUADDIE)
-            .map(actionEffectSquaddieTemplate => actionEffectSquaddieTemplate as ActionEffectSquaddieTemplate);
-
-        return {
-            minimumRange: Math.min(...actionEffectSquaddieTemplates.map(actionEffectSquaddieTemplate => actionEffectSquaddieTemplate.minimumRange)),
-            maximumRange: Math.max(...actionEffectSquaddieTemplates.map(actionEffectSquaddieTemplate => actionEffectSquaddieTemplate.maximumRange)),
-        };
-    }
-
     drawActionRange = (graphicsContext: GraphicsContext, top: number) => {
-        const templateRange = this.getActionTemplateRange();
-        const minimumRange = templateRange.minimumRange || 0;
-        const maximumRange = templateRange.maximumRange || 0;
+        const templateRange = ActionTemplateService.getActionTemplateRange(this.actionTemplate)
+        const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0;
+        const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0;
 
         this.drawInfoTextBox(
             graphicsContext,
@@ -213,13 +197,9 @@ export class MakeDecisionButton {
     }
 
     private shouldDrawActionRange = () => {
-        const templateRange = this.getActionTemplateRange();
-        const minRangeIsWorthDescribing =
-            templateRange.minimumRange === undefined
-            || templateRange.minimumRange > 1;
-        const maxRangeIsWorthDescribing =
-            templateRange.maximumRange === undefined
-            || templateRange.maximumRange > 1;
+        const templateRange = ActionTemplateService.getActionTemplateRange(this.actionTemplate);
+        const minRangeIsWorthDescribing = !isValidValue(templateRange) || templateRange[0] > 1;
+        const maxRangeIsWorthDescribing = !isValidValue(templateRange) || templateRange[1] > 1;
         return (minRangeIsWorthDescribing || maxRangeIsWorthDescribing);
     }
     private shouldDrawActionTemplateEffects = () => {

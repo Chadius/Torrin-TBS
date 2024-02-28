@@ -188,6 +188,7 @@ const addAttackRangeOntoMovementRange = (
             return numberOfMoveActionsToReachEndOfPath + actionTemplate.actionPoints <= actionPointsRemaining;
         }).forEach(coordinate => {
             actionTemplate.actionEffectTemplates
+                .filter(actionEffectTemplate => actionEffectTemplate.type === ActionEffectType.SQUADDIE)
                 .forEach(actionSquaddieEffectTemplate => {
                     let uniqueLocations: HexCoordinate[] = [];
 
