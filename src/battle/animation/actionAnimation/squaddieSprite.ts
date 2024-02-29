@@ -3,7 +3,6 @@ import {SquaddieEmotion} from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ImageUI} from "../../../ui/imageUI";
-import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export class SquaddieSprite {
@@ -55,7 +54,7 @@ export class SquaddieSprite {
         for (let emotionStr in this.actionSpritesResourceKeysByEmotion) {
             const emotion = emotionStr as SquaddieEmotion;
             const resourceKey = this.actionSpritesResourceKeysByEmotion[emotion];
-            const image = getResultOrThrowError(this.resourceHandler.getResource(resourceKey));
+            const image = this.resourceHandler.getResource(resourceKey);
             this.actionSpritesByEmotion[emotion] = new ImageUI({
                 graphic: image,
                 area: RectAreaService.new({

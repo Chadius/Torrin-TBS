@@ -1,5 +1,4 @@
 import p5 from "p5";
-import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {P5GraphicsContext} from "../utils/graphics/P5GraphicsContext";
 import {LoadFileIntoFormat} from "../dataLoader/dataLoader";
@@ -19,13 +18,8 @@ type ImageResource = {
     image: GraphicImage;
 }
 
-type RequiredOptions = {
-    allResources: ResourceLocator[];
-}
-
-type Options = {
-    imageLoader: ResourceTypeLoader;
-    graphicsContext: GraphicsContext;
+const createPlaceholderImage = (graphicsContext: GraphicsContext): GraphicImage => {
+    return graphicsContext.createImage(1, 1,);
 }
 
 export interface ResourceTypeLoader {
@@ -86,10 +80,16 @@ export class ResourceHandler {
     imagesByKey: {
         [key: string]: ImageResource
     };
+    graphicsContext: GraphicsContext;
 
-    constructor(options: RequiredOptions & Partial<Options>) {
-        this.imageLoader = options.imageLoader || new p5ImageLoader(
-            options.graphicsContext
+    constructor({resourceLocators, imageLoader, graphicsContext}: {
+        resourceLocators: ResourceLocator[],
+        imageLoader?: ResourceTypeLoader,
+        graphicsContext?: GraphicsContext,
+    }) {
+        this.graphicsContext = graphicsContext;
+        this.imageLoader = imageLoader || new p5ImageLoader(
+            graphicsContext
         );
         this.imageLoader.setCallbacks(
             this.imageSuccessCallback,
@@ -98,7 +98,7 @@ export class ResourceHandler {
             }
         )
 
-        const resourceList = options.allResources || [];
+        const resourceList = resourceLocators ? [...resourceLocators] : [];
         this.resourcesByKey = {};
         addResourceLocators(this, resourceList);
         this.imagesByKey = {};
@@ -130,14 +130,16 @@ export class ResourceHandler {
         return undefined;
     }
 
-    getResource(resourceKey: string): ResultOrError<GraphicImage, Error> {
+    getResource(resourceKey: string): GraphicImage {
         const resourceType = this.resourcesByKey[resourceKey].type;
 
         if (resourceType === ResourceType.IMAGE) {
             if (!this.imagesByKey[resourceKey]) {
-                return makeError(new Error(`resource was not loaded with key: ${resourceKey}`));
+                console.warn(`getResource: "${resourceKey}" was not loaded, will retry and return placeholder image`);
+                this.loadResource(resourceKey);
+                return createPlaceholderImage(this.graphicsContext);
             }
-            return makeResult(this.imagesByKey[resourceKey].image);
+            return this.imagesByKey[resourceKey].image;
         }
 
         return undefined;
@@ -198,13 +200,15 @@ export class ResourceHandler {
 }
 
 export const ResourceHandlerService = {
-    new: ({imageLoader, resourceLocators}: {
+    new: ({imageLoader, resourceLocators, graphicsContext}: {
         imageLoader: ResourceTypeLoader,
-        resourceLocators?: ResourceLocator[]
+        resourceLocators?: ResourceLocator[],
+        graphicsContext: GraphicsContext,
     }): ResourceHandler => {
         return new ResourceHandler({
             imageLoader,
-            allResources: resourceLocators ?? [],
+            resourceLocators: resourceLocators ?? [],
+            graphicsContext,
         })
     },
     hasResourceLocations: (resourceHandler: ResourceHandler): boolean => {

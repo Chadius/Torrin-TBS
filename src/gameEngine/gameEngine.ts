@@ -235,9 +235,10 @@ export class GameEngine {
         campaignId: string,
     }) {
         if (this.resourceHandler === undefined) {
-            this._resourceHandler = new ResourceHandler({
+            this._resourceHandler = ResourceHandlerService.new({
                 graphicsContext: graphicsContext,
-                allResources: [],
+                resourceLocators: [],
+                imageLoader: undefined,
             });
 
             const resourceLocationsFilename = `assets/campaign/${campaignId}/resourceLocators.json`;

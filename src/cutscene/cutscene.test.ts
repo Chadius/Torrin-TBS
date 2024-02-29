@@ -2,13 +2,13 @@ import {DialoguePlayerService, DialoguePlayerState} from "./dialogue/dialogueBox
 import {SplashScreenPlayerState} from "./splashScreenPlayer";
 import {Cutscene, CutsceneService} from "./cutscene";
 import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
-import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {ResourceHandlerService, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../battle/orchestrator/battleState";
 import {SplashScreen, SplashScreenService} from "./splashScreen";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
-import {mockResourceHandler} from "../utils/test/mocks";
+import {MockedP5GraphicsContext, mockResourceHandler} from "../utils/test/mocks";
 import {RectAreaService} from "../ui/rectArea";
 
 describe('Cutscene', () => {
@@ -465,9 +465,10 @@ describe('Cutscene', () => {
             screenImageResourceKey: "restaurant_entrance"
         })
 
-        const handler = new ResourceHandler({
+        const handler = ResourceHandlerService.new({
+            graphicsContext: new MockedP5GraphicsContext(),
             imageLoader: new StubImmediateLoader(),
-            allResources: [
+            resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
                     path: "path/to/image",

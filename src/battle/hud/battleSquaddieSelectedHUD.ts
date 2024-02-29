@@ -1,6 +1,6 @@
 import {HorizontalAnchor, RectArea, RectAreaService, VerticalAnchor} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
-import {getResultOrThrowError, isResult} from "../../utils/ResultOrError";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ImageUI} from "../../ui/imageUI";
@@ -87,7 +87,7 @@ const getSquaddieTeamIconImage = (state: GameEngineState, battleSquaddie: Battle
         && isValidValue(team.iconResourceKey)
         && team.iconResourceKey !== ""
     ) {
-        affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource(team.iconResourceKey));
+        affiliateIconImage = state.resourceHandler.getResource(team.iconResourceKey);
     }
     return affiliateIconImage;
 };
@@ -842,19 +842,17 @@ export class BattleSquaddieSelectedHUD {
         TextBoxHelper.draw(textBox, graphicsContext);
 
         const iconAttempt = state.resourceHandler.getResource(iconResourceKey);
-        if (isResult(iconAttempt)) {
-            const iconImage = new ImageUI({
-                graphic: getResultOrThrowError(iconAttempt),
-                area: RectAreaService.new({
-                    baseRectangle,
-                    top: topOffset,
-                    left: iconLeftOffset,
-                    width: iconSize,
-                    height: iconSize,
-                })
-            });
-            iconImage.draw(graphicsContext);
-        }
+        const iconImage = new ImageUI({
+            graphic: iconAttempt,
+            area: RectAreaService.new({
+                baseRectangle,
+                top: topOffset,
+                left: iconLeftOffset,
+                width: iconSize,
+                height: iconSize,
+            })
+        });
+        iconImage.draw(graphicsContext);
     }
 
     private generateSaveAndLoadGameButton(windowDimensions: RectArea) {

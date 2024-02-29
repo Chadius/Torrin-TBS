@@ -6,7 +6,6 @@ import {Button, ButtonStatus} from "../ui/button";
 import {LabelHelper} from "../ui/label";
 import {RectAreaService} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
-import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
@@ -220,25 +219,20 @@ export const CutsceneService = {
                 }
 
                 if (locator.type === ResourceType.IMAGE) {
-                    let foundImage: GraphicImage;
-                    const foundResourceResultOrError = resourceHandler.getResource(locator.key);
-                    if (isResult(foundResourceResultOrError)) {
-                        foundImage = unwrapResultOrError(foundResourceResultOrError);
-
-                        switch (cutscene.cutscenePlayerStateById[direction.id].type) {
-                            case CutsceneActionPlayerType.DIALOGUE:
-                                DialoguePlayerService.setImageResource(
-                                    cutscene.cutscenePlayerStateById[direction.id] as DialoguePlayerState,
-                                    foundImage,
-                                );
-                                break;
-                            case CutsceneActionPlayerType.SPLASH_SCREEN:
-                                SplashScreenPlayerService.setImageResource(
-                                    cutscene.cutscenePlayerStateById[direction.id] as SplashScreenPlayerState,
-                                    foundImage,
-                                );
-                                break;
-                        }
+                    let foundImage: GraphicImage = resourceHandler.getResource(locator.key);
+                    switch (cutscene.cutscenePlayerStateById[direction.id].type) {
+                        case CutsceneActionPlayerType.DIALOGUE:
+                            DialoguePlayerService.setImageResource(
+                                cutscene.cutscenePlayerStateById[direction.id] as DialoguePlayerState,
+                                foundImage,
+                            );
+                            break;
+                        case CutsceneActionPlayerType.SPLASH_SCREEN:
+                            SplashScreenPlayerService.setImageResource(
+                                cutscene.cutscenePlayerStateById[direction.id] as SplashScreenPlayerState,
+                                foundImage,
+                            );
+                            break;
                     }
                 }
             });

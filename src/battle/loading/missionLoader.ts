@@ -228,9 +228,7 @@ const initializeSquaddieResources = ({
         const {battleSquaddie, battleSquaddieId} = info;
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
 
-        let image: GraphicImage = getResultOrThrowError(
-            resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
-        );
+        let image: GraphicImage = resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey);
         const datum = missionLoaderContext.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
         if (datum.mapLocation !== undefined) {

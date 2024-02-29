@@ -7,8 +7,7 @@ import {
 } from "./convertCoordinates";
 import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
-import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
@@ -106,27 +105,20 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     drawHexShape(graphicsContext, worldX, worldY, cameraX, cameraY);
 
     if (overlayImageResourceKey && resourceHandler) {
-        let image: GraphicImage;
-        const imageOrError = resourceHandler.getResource(overlayImageResourceKey);
-        if (isResult(imageOrError)) {
-            image = unwrapResultOrError(imageOrError);
+        const image = resourceHandler.getResource(overlayImageResourceKey);
+        graphicsContext.pop();
 
-            graphicsContext.pop();
+        let [imageWorldX, imageWorldY] = convertMapCoordinatesToWorldCoordinates(q, r);
+        let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(imageWorldX, imageWorldY, cameraX, cameraY)
+        graphicsContext.push();
+        graphicsContext.translate(screenDrawX, screenDrawY);
 
-            let [imageWorldX, imageWorldY] = convertMapCoordinatesToWorldCoordinates(q, r);
-            let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(imageWorldX, imageWorldY, cameraX, cameraY)
-            graphicsContext.push();
-            graphicsContext.translate(screenDrawX, screenDrawY);
+        graphicsContext.image(
+            image,
+            -image.width / 2,
+            -image.height / 2,
+        );
 
-            graphicsContext.image(
-                image,
-                -image.width / 2,
-                -image.height / 2,
-            );
-
-            graphicsContext.pop();
-        }
-    } else {
         graphicsContext.pop();
     }
 }

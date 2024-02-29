@@ -20,7 +20,6 @@ import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle, RectangleHelper} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
-import {getResultOrThrowError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
@@ -186,9 +185,7 @@ export class TitleScreen implements GameEngineComponent {
                 return;
             }
 
-            let image: GraphicImage = getResultOrThrowError(
-                this.resourceHandler.getResource("torrins trial logo")
-            );
+            let image: GraphicImage = this.resourceHandler.getResource("torrins trial logo");
 
             this.titleBannerArea = RectAreaService.new({
                 left: (ScreenDimensions.SCREEN_WIDTH - image.width) * 0.5,
@@ -538,18 +535,14 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         if (this.torrinIcon === undefined) {
-            let image: GraphicImage = getResultOrThrowError(
-                this.resourceHandler.getResource("young torrin cutscene portrait")
-            );
+            let image: GraphicImage = this.resourceHandler.getResource("young torrin cutscene portrait");
             this.setTorrinIconBasedOnImage(image);
             this.setTorrinDescriptionText(torrinDescriptionText);
         }
         this.torrinIcon.draw(graphicsContext);
 
         if (this.sirCamilIcon === undefined) {
-            let image: GraphicImage = getResultOrThrowError(
-                this.resourceHandler.getResource("sir camil cutscene portrait")
-            );
+            let image: GraphicImage = this.resourceHandler.getResource("sir camil cutscene portrait");
             this.setSirCamilIconBasedOnImageAndTorrinImage(image);
             this.setSirCamilDescriptionText(sirCamilDescriptionText);
         }

@@ -7,7 +7,6 @@ import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
-import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ImageUI} from "../ui/imageUI";
 import {ResourceHandler} from "../resource/resourceHandler";
 
@@ -172,7 +171,7 @@ export class MakeDecisionButton {
     }
 
     createButtonGraphic(resourceHandler: ResourceHandler) {
-        const image = getResultOrThrowError(resourceHandler.getResource(this.buttonIconResourceKey));
+        const image = resourceHandler.getResource(this.buttonIconResourceKey);
         this.buttonIcon = new ImageUI({
             graphic: image,
             area: RectAreaService.new({
