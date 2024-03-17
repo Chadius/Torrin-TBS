@@ -26,3 +26,5 @@ While testing offline, the game on itch.io stalls when it tries to fetch a resou
 resources on their servers and only uploads when requested.
 
 That's the platform's prerogative. I could always offer an offline solution and let people run it in their browsers.
+
+Steam doesn't run online, so it would give people the executable and all the information.
