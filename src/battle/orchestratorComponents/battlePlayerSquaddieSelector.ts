@@ -47,6 +47,8 @@ import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -111,18 +113,22 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         state.battleOrchestratorState.battleSquaddieSelectedHUD.mouseMoved(mouseX, mouseY, state.battleOrchestratorState);
     }
 
-    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentKeyEvent): void {
         if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
-            const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.repository);
-            if (BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository)) {
-                state.battleOrchestratorState.battleSquaddieSelectedHUD.keyPressed(event.keyCode, state);
+            const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(gameEngineState.battleOrchestratorState.battleState, gameEngineState.repository);
+            if (BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, gameEngineState.repository)) {
+                if (this.canSwapHUD(gameEngineState, event.keyCode)) {
+                    BattleOrchestratorStateService.swapHUD({battleOrchestratorState: gameEngineState.battleOrchestratorState});
+                }
 
-                if (state.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId != "") {
-                    const squaddieInfo = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(state.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId);
-                    if (MissionMapSquaddieLocationHandler.isValid(squaddieInfo) && state.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
-                        const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
-                        this.reactToClicking(state, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
-                        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...state.battleOrchestratorState.battleState.camera.getCoordinates());
+                gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.keyPressed(event.keyCode, gameEngineState);
+
+                if (gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId != "") {
+                    const squaddieInfo = gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId);
+                    if (MissionMapSquaddieLocationHandler.isValid(squaddieInfo) && gameEngineState.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
+                        const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+                        this.reactToClicking(gameEngineState, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
+                        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
                         return;
                     }
                 }
@@ -176,6 +182,11 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         this.selectedBattleSquaddieId = "";
 
         state.battleOrchestratorState.battleSquaddieSelectedHUD.reset();
+    }
+
+    private canSwapHUD(gameEngineState: GameEngineState, keyCode: number): boolean {
+        return KeyWasPressed(KeyButtonName.SWAP_HUD, keyCode)
+            && !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
     }
 
     private playerCanControlAnySquaddiesOnTheCurrentTeam(gameEngineState: GameEngineState): boolean {

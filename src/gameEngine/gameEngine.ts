@@ -68,7 +68,7 @@ export const GameEngineStateService = {
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
-            loadSaveState: LoadSaveStateService.new({}),
+            loadSaveState: LoadSaveStateService.new({})
         }
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {

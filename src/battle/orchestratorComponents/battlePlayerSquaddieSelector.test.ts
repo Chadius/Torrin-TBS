@@ -45,6 +45,8 @@ import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEf
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 import {BattlePhaseState} from "./battlePhaseController";
 import {OrchestratorUtilities} from "./orchestratorUtils";
+import {BATTLE_HUD_MODE, config} from "../../configuration/config";
+import {KeyButtonName} from "../../utils/keyboardConfig";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -1118,6 +1120,114 @@ describe('BattleSquaddieSelector', () => {
                 camera
             });
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1);
+        });
+    });
+
+    describe('swap HUD', () => {
+        let hud: BattleSquaddieSelectedHUD;
+        let battlePhaseState: BattlePhaseState;
+
+        beforeEach(() => {
+            hud = new BattleSquaddieSelectedHUD();
+        });
+        it('changes the HUD when the key is pressed and not in production', () => {
+            battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            const gameEngineState: GameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(),
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: hud,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        battlePhaseState,
+                        missionMap,
+                        camera: new BattleCamera(),
+                        teams,
+                    }),
+                }),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            selector.keyEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentKeyEventType.PRESSED,
+                keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_HUD_PANEL);
+        });
+        it('ignores change HUD command when it is not the player turn', () => {
+            battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+            const gameEngineState: GameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(),
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: hud,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        battlePhaseState,
+                        missionMap,
+                        camera: new BattleCamera(),
+                        teams,
+                    }),
+                }),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            selector.keyEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentKeyEventType.PRESSED,
+                keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+        });
+        it('ignores change HUD command when the player is mid turn', () => {
+            battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                template: ActionEffectMovementTemplateService.new({}),
+                destination: {q: 0, r: 1},
+            });
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                startingLocation: {q: 0, r: 0},
+                previewedActionTemplateId: undefined,
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 1,
+                            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                            actionTemplateName: "Move",
+                            actionEffects: [
+                                decidedActionMovementEffect
+                            ]
+                        }),
+                        processedActionEffects: [
+                            ProcessedActionMovementEffectService.new({
+                                decidedActionEffect: decidedActionMovementEffect,
+                            })
+                        ]
+                    })
+                ]
+            });
+            const gameEngineState: GameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(),
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: hud,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        battlePhaseState,
+                        missionMap,
+                        camera: new BattleCamera(),
+                        teams,
+                        actionsThisRound,
+                    }),
+                }),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            selector.keyEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentKeyEventType.PRESSED,
+                keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
+            });
+            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
         });
     });
 });

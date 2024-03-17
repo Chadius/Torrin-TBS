@@ -53,6 +53,7 @@ import {SquaddieIdService} from "../../squaddie/id";
 import {BattleSquaddieService} from "../battleSquaddie";
 import {mockResourceHandler} from "../../utils/test/mocks";
 import {CampaignService} from "../../campaign/campaign";
+import {BATTLE_HUD_MODE} from "../../configuration/config";
 
 describe('orchestratorState', () => {
     let validBattleState: BattleState;
@@ -367,6 +368,30 @@ describe('orchestratorState', () => {
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)).toBeUndefined();
             expect(recommendedChanges.nextMode).toBeUndefined();
+        });
+    });
+
+    describe('swap HUD', () => {
+        it('will start with Squaddie Selected HUD by default', () => {
+            const battleOrchestratorState = BattleOrchestratorStateService.new({
+                battleState: validBattleState,
+            });
+            expect(battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+        });
+        it('will swap from Squaddie Selected HUD to Panel', () => {
+            const battleOrchestratorState = BattleOrchestratorStateService.new({
+                battleState: validBattleState,
+            });
+            BattleOrchestratorStateService.swapHUD({battleOrchestratorState});
+            expect(battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_HUD_PANEL);
+        });
+        it('will swap from Panel to Squaddie Selected HUD', () => {
+            const battleOrchestratorState = BattleOrchestratorStateService.new({
+                battleState: validBattleState,
+                battleHUDMode: {hudMode: BATTLE_HUD_MODE.BATTLE_HUD_PANEL},
+            });
+            BattleOrchestratorStateService.swapHUD({battleOrchestratorState});
+            expect(battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
         });
     });
 });

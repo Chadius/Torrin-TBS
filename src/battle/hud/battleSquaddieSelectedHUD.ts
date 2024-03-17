@@ -240,14 +240,14 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedActionTemplate;
     }
 
-    keyPressed(keyCode: number, state: GameEngineState) {
+    keyPressed(keyCode: number, gameEngineState: GameEngineState) {
         if (this._background === undefined) {
             this.setBackgroundWindowAndGetWindowDimensions(SquaddieAffiliation.UNKNOWN, 0);
         }
 
-        const pressedTheNextSquaddieKey: boolean = this.shouldDrawNextButton(state) && KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, keyCode);
+        const pressedTheNextSquaddieKey: boolean = this.shouldDrawNextButton(gameEngineState) && KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, keyCode);
         if (pressedTheNextSquaddieKey) {
-            this.selectNextSquaddie(state);
+            this.selectNextSquaddie(gameEngineState);
         }
     }
 
