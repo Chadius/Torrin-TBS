@@ -1,5 +1,5 @@
 import {BattleSaveState} from "../battle/history/battleSaveState";
-import {isValidValue} from "../utils/validityCheck";
+import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 
 export interface LoadSaveState {
     saveState: BattleSaveState;
@@ -28,11 +28,11 @@ export const LoadSaveStateService = {
     }): LoadSaveState => {
         return newLoadSaveState({
             saveState: isValidValue(saveState) ? saveState : undefined,
-            applicationStartedLoad: isValidValue(applicationStartedLoad) ? applicationStartedLoad : false,
-            applicationErroredWhileLoading: isValidValue(applicationErroredWhileLoading) ? applicationStartedLoad : false,
-            applicationCompletedLoad: isValidValue(applicationCompletedLoad) ? applicationStartedLoad : false,
-            userLoadRequested: isValidValue(userLoadRequested) ? applicationStartedLoad : false,
-            userCanceledLoad: isValidValue(userCanceledLoad) ? applicationStartedLoad : false,
+            applicationStartedLoad: getValidValueOrDefault(applicationStartedLoad, false),
+            applicationErroredWhileLoading: getValidValueOrDefault(applicationErroredWhileLoading, false),
+            applicationCompletedLoad: getValidValueOrDefault(applicationCompletedLoad, false),
+            userRequestedLoad: getValidValueOrDefault(userLoadRequested, false),
+            userCanceledLoad: getValidValueOrDefault(userCanceledLoad, false),
         });
     },
     userRequestsLoad: (loadSaveState: LoadSaveState): void => {
@@ -65,11 +65,16 @@ export const LoadSaveStateService = {
                 applicationStartedLoad: false,
                 applicationErroredWhileLoading: false,
                 applicationCompletedLoad: false,
-                userLoadRequested: false,
+                userRequestedLoad: false,
                 userCanceledLoad: false,
             })
         );
     },
+    clone: (loadFlags: LoadSaveState): LoadSaveState => {
+        return newLoadSaveState({
+            ...loadFlags
+        });
+    }
 }
 
 const newLoadSaveState = ({
@@ -77,14 +82,14 @@ const newLoadSaveState = ({
                               applicationStartedLoad,
                               applicationErroredWhileLoading,
                               applicationCompletedLoad,
-                              userLoadRequested,
+                              userRequestedLoad,
                               userCanceledLoad
                           }: {
     saveState: BattleSaveState;
     applicationStartedLoad: boolean;
     applicationErroredWhileLoading: boolean;
     applicationCompletedLoad: boolean;
-    userLoadRequested: boolean;
+    userRequestedLoad: boolean;
     userCanceledLoad: boolean
 }): LoadSaveState => {
     return {
@@ -92,7 +97,7 @@ const newLoadSaveState = ({
         applicationStartedLoad: applicationStartedLoad,
         applicationErroredWhileLoading: applicationErroredWhileLoading,
         applicationCompletedLoad: applicationCompletedLoad,
-        userRequestedLoad: userLoadRequested,
+        userRequestedLoad: userRequestedLoad,
         userCanceledLoad,
     }
 }

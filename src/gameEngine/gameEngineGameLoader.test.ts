@@ -32,6 +32,7 @@ import {CampaignService} from "../campaign/campaign";
 import {CampaignFileFormat} from "../campaign/campaignFileFormat";
 import {TestCampaignData} from "../utils/test/campaignData";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
+import {SaveSaveStateService} from "../dataLoader/saveSaveState";
 
 describe('GameEngineGameLoader', () => {
     let loader: GameEngineGameLoader;
@@ -328,7 +329,17 @@ describe('GameEngineGameLoader', () => {
                 campaign: CampaignService.default({}),
             });
             LoadSaveStateService.userRequestsLoad(originalState.loadSaveState);
-            currentState = GameEngineStateService.clone({original: originalState});
+            currentState = GameEngineStateService.new({
+                titleScreenState: {...originalState.titleScreenState},
+                battleOrchestratorState: originalState.battleOrchestratorState.clone(),
+                campaign: {...originalState.campaign},
+                repository: originalState.repository,
+                resourceHandler: originalState.resourceHandler,
+            });
+            currentState.modeThatInitiatedLoading = originalState.modeThatInitiatedLoading;
+            currentState.saveSaveState = SaveSaveStateService.clone(originalState.saveSaveState);
+            currentState.loadSaveState = LoadSaveStateService.clone(originalState.loadSaveState);
+            currentState.campaignIdThatWasLoaded = originalState.campaignIdThatWasLoaded;
         });
 
         it('will backup the battle orchestrator state', async () => {

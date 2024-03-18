@@ -41,6 +41,7 @@ import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 import {ActionTemplate} from "../../action/template/actionTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMapService} from "../../missionMap/missionMap";
+import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 const DECISION_BUTTON_LAYOUT = {
@@ -253,7 +254,7 @@ export class BattleSquaddieSelectedHUD {
 
     mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
         if (
-            state.gameSaveFlags.savingInProgress
+            state.saveSaveState.savingInProgress
             || state.loadSaveState.userRequestedLoad
             || state.loadSaveState.applicationStartedLoad
         ) {
@@ -336,7 +337,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeSaved(state: GameEngineState): void {
-        state.gameSaveFlags.savingInProgress = true;
+        SaveSaveStateService.userRequestsSave(state.saveSaveState);
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
@@ -582,19 +583,19 @@ export class BattleSquaddieSelectedHUD {
 
         const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
         if (
-            state.gameSaveFlags.errorDuringSaving
+            state.saveSaveState.errorDuringSaving
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE_FAILED
             )
         ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            state.gameSaveFlags.errorDuringSaving = false;
+            SaveSaveStateService.reset(state.saveSaveState);
             return;
         }
 
         const WARNING_SAVE_FILE = "Saving...";
-        if (state.gameSaveFlags.savingInProgress
+        if (state.saveSaveState.savingInProgress
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE

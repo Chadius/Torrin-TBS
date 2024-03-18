@@ -24,6 +24,7 @@ import {Campaign} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {isValidValue} from "../utils/validityCheck";
 import {LoadSaveState, LoadSaveStateService} from "../dataLoader/loadSaveState";
+import {SaveSaveState, SaveSaveStateService} from "../dataLoader/saveSaveState";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -31,12 +32,9 @@ export interface GameEngineState {
     repository: ObjectRepository;
     resourceHandler: ResourceHandler;
     titleScreenState: TitleScreenState;
-    gameSaveFlags: {
-        errorDuringSaving: boolean;
-        savingInProgress: boolean;
-    },
     campaign: Campaign;
     campaignIdThatWasLoaded: string;
+    saveSaveState: SaveSaveState;
     loadSaveState: LoadSaveState;
 }
 
@@ -60,28 +58,12 @@ export const GameEngineStateService = {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
             battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            gameSaveFlags: {
-                errorDuringSaving: false,
-                savingInProgress: false,
-            },
+            saveSaveState: SaveSaveStateService.new({}),
             campaign,
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
             loadSaveState: LoadSaveStateService.new({})
-        }
-    },
-    clone: ({original}: { original: GameEngineState }): GameEngineState => {
-        return {
-            modeThatInitiatedLoading: original.modeThatInitiatedLoading,
-            titleScreenState: {...original.titleScreenState},
-            battleOrchestratorState: original.battleOrchestratorState.clone(),
-            gameSaveFlags: {...original.gameSaveFlags},
-            campaign: {...original.campaign},
-            campaignIdThatWasLoaded: original.campaignIdThatWasLoaded,
-            repository: original.repository,
-            resourceHandler: original.resourceHandler,
-            loadSaveState: {...original.loadSaveState},
         }
     }
 }
@@ -181,7 +163,7 @@ export class GameEngine {
     }) {
         this.component.update(this.gameEngineState, graphicsContext);
 
-        if (this.gameEngineState.gameSaveFlags.savingInProgress) {
+        if (this.gameEngineState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
 
@@ -265,8 +247,9 @@ export class GameEngine {
             BattleSaveStateService.SaveToFile(saveData);
         } catch (error) {
             console.log(`Save game failed: ${error}`);
-            this.gameEngineState.gameSaveFlags.errorDuringSaving = true;
+            this.gameEngineState.saveSaveState.errorDuringSaving = true;
+            SaveSaveStateService.foundErrorDuringSaving(this.gameEngineState.saveSaveState);
         }
-        this.gameEngineState.gameSaveFlags.savingInProgress = false;
+        SaveSaveStateService.savingAttemptIsComplete(this.gameEngineState.saveSaveState);
     }
 }

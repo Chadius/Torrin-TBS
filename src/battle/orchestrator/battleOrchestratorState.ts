@@ -6,32 +6,29 @@ import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {RandomNumberGenerator} from "../numberGenerator/random";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
-
-interface BattleHUDMode {
-    hudMode: BATTLE_HUD_MODE;
-}
+import {BattleHUDState, BattleHUDStateService} from "../hud/battleHUDState";
 
 export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     numberGenerator: NumberGeneratorStrategy;
     battleState: BattleState;
-    battleHUDMode: BattleHUDMode;
+    battleHUDState: BattleHUDState;
 
     constructor({
                     battleSquaddieSelectedHUD,
                     numberGenerator,
                     battleState,
-                    battleHUDMode,
+                    battleHUDState,
                 }: {
         battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
         numberGenerator: NumberGeneratorStrategy,
         battleState: BattleState,
-        battleHUDMode?: BattleHUDMode,
+        battleHUDState?: BattleHUDState,
     }) {
         this.battleState = battleState;
         this.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
         this.numberGenerator = numberGenerator;
-        this.battleHUDMode = getValidValueOrDefault(battleHUDMode, {hudMode: BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD});
+        this.battleHUDState = getValidValueOrDefault(battleHUDState, BattleHUDStateService.new({}));
     }
 
     get isValid(): boolean {
@@ -59,6 +56,7 @@ export class BattleOrchestratorState {
             battleState: BattleStateService.clone(this.battleState),
             battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
             numberGenerator: this.numberGenerator ? this.numberGenerator.clone() : undefined,
+            battleHUDState: BattleHUDStateService.clone(this.battleHUDState),
         });
     }
 
@@ -80,44 +78,44 @@ export const BattleOrchestratorStateService = {
                                battleSquaddieSelectedHUD,
                                numberGenerator,
                                battleState,
-                               battleHUDMode,
+                               battleHUDState,
                            }: {
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
-        battleHUDMode?: BattleHUDMode,
+        battleHUDState?: BattleHUDState,
     }): BattleOrchestratorState => {
         return newOrchestratorState({
             battleSquaddieSelectedHUD,
             numberGenerator,
             battleState,
-            battleHUDMode,
+            battleHUDState,
         });
     },
     new: ({
               battleSquaddieSelectedHUD,
               numberGenerator,
               battleState,
-              battleHUDMode,
+              battleHUDState,
           }: {
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
-        battleHUDMode?: BattleHUDMode,
+        battleHUDState?: BattleHUDState,
     }): BattleOrchestratorState => {
         return newOrchestratorState({
             battleSquaddieSelectedHUD,
             numberGenerator,
             battleState,
-            battleHUDMode,
+            battleHUDState,
         });
     },
     swapHUD: ({battleOrchestratorState}: { battleOrchestratorState: BattleOrchestratorState }) => {
-        if (battleOrchestratorState.battleHUDMode.hudMode === BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD) {
-            battleOrchestratorState.battleHUDMode.hudMode = BATTLE_HUD_MODE.BATTLE_HUD_PANEL;
+        if (battleOrchestratorState.battleHUDState.hudMode === BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD) {
+            battleOrchestratorState.battleHUDState.hudMode = BATTLE_HUD_MODE.BATTLE_HUD_PANEL;
             return;
         }
-        battleOrchestratorState.battleHUDMode.hudMode = BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD;
+        battleOrchestratorState.battleHUDState.hudMode = BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD;
     }
 };
 
@@ -125,12 +123,12 @@ const newOrchestratorState = ({
                                   battleSquaddieSelectedHUD,
                                   numberGenerator,
                                   battleState,
-                                  battleHUDMode,
+                                  battleHUDState,
                               }: {
     battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
     numberGenerator?: NumberGeneratorStrategy,
     battleState?: BattleState,
-    battleHUDMode?: BattleHUDMode,
+    battleHUDState?: BattleHUDState,
 }): BattleOrchestratorState => {
     return new BattleOrchestratorState({
         battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
@@ -143,6 +141,6 @@ const newOrchestratorState = ({
             battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
         }),
         numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
-        battleHUDMode
+        battleHUDState: battleHUDState
     });
 };

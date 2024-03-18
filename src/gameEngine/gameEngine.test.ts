@@ -14,6 +14,7 @@ import {ObjectRepositoryService} from "../battle/objectRepository";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import * as DataLoader from "../dataLoader/dataLoader";
+import {SaveSaveStateService} from "../dataLoader/saveSaveState";
 
 const resourceLocators: ResourceLocator[] = [
     {
@@ -155,7 +156,7 @@ describe('Game Engine', () => {
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             expect(loadFileIntoFormatSpy).toBeCalled();
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
+            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.saveSaveState);
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
             newGameEngine.gameEngineState.repository = ObjectRepositoryService.new();
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockReturnValue(null);
@@ -163,7 +164,7 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.gameEngineState.gameSaveFlags.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.saveSaveState.savingInProgress).toBeFalsy();
             const battleSaveStateSaved: BattleSaveState = saveSpy.mock.calls[0][0];
             expect(battleSaveStateSaved.missionId).toBe(newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId);
         });
@@ -176,7 +177,7 @@ describe('Game Engine', () => {
             });
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
+            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.saveSaveState);
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");
             });
@@ -184,8 +185,8 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.gameEngineState.gameSaveFlags.savingInProgress).toBeFalsy();
-            expect(newGameEngine.gameEngineState.gameSaveFlags.errorDuringSaving).toBeTruthy();
+            expect(newGameEngine.gameEngineState.saveSaveState.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.saveSaveState.errorDuringSaving).toBeTruthy();
 
             expect(consoleLoggerSpy).toBeCalled();
         });

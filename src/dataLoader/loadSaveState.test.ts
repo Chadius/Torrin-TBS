@@ -6,9 +6,9 @@ import {BattleStateService} from "../battle/orchestrator/battleState";
 import {BattleCamera} from "../battle/battleCamera";
 import {NullMissionMap} from "../utils/test/battleOrchestratorState";
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
-import {LoadSaveStateService} from "./loadSaveState";
+import {LoadSaveState, LoadSaveStateService} from "./loadSaveState";
 
-describe('Load Save State Process', () => {
+describe('Load SaveState', () => {
     let saveState: BattleSaveState;
 
     beforeEach(() => {
@@ -40,6 +40,48 @@ describe('Load Save State Process', () => {
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy();
         expect(loadFlags.applicationCompletedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
+    });
+
+    describe('can have set fields', () => {
+        it('userLoadRequested', () => {
+            const loadFlags = LoadSaveStateService.new({
+                userLoadRequested: true,
+            });
+            expect(loadFlags.userRequestedLoad).toBeTruthy();
+        });
+        it('applicationErroredWhileLoading', () => {
+            const loadFlags = LoadSaveStateService.new({
+                applicationErroredWhileLoading: true,
+            });
+            expect(loadFlags.applicationErroredWhileLoading).toBeTruthy();
+        });
+        it('applicationStartedLoad', () => {
+            const loadFlags = LoadSaveStateService.new({
+                applicationStartedLoad: true,
+            });
+
+            expect(loadFlags.applicationStartedLoad).toBeTruthy();
+        });
+        it('userCanceledLoad', () => {
+            const loadFlags = LoadSaveStateService.new({
+                userCanceledLoad: true,
+            });
+
+            expect(loadFlags.userCanceledLoad).toBeTruthy();
+        });
+        it('applicationCompletedLoad', () => {
+            const loadFlags = LoadSaveStateService.new({
+                applicationCompletedLoad: true,
+            });
+
+            expect(loadFlags.applicationCompletedLoad).toBeTruthy();
+        });
+        it('saveState', () => {
+            const loadFlags = LoadSaveStateService.new({
+                saveState: saveState,
+            });
+            expect(loadFlags.saveState).toEqual(saveState);
+        });
     });
 
     it('knows when the user has requested a loaded file', () => {
@@ -100,5 +142,25 @@ describe('Load Save State Process', () => {
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy();
         expect(loadFlags.applicationCompletedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
+    });
+
+    it('can be cloned', () => {
+        const loadFlags = LoadSaveStateService.new({
+            userLoadRequested: true,
+            applicationErroredWhileLoading: true,
+            applicationStartedLoad: true,
+            userCanceledLoad: true,
+            applicationCompletedLoad: true,
+            saveState: saveState,
+        });
+
+        const clone: LoadSaveState = LoadSaveStateService.clone(loadFlags);
+
+        expect(clone.userRequestedLoad).toEqual(loadFlags.userRequestedLoad);
+        expect(clone.applicationStartedLoad).toEqual(loadFlags.applicationStartedLoad);
+        expect(clone.userCanceledLoad).toEqual(loadFlags.userCanceledLoad);
+        expect(clone.applicationErroredWhileLoading).toEqual(loadFlags.applicationErroredWhileLoading);
+        expect(clone.applicationCompletedLoad).toEqual(loadFlags.applicationCompletedLoad);
+        expect(clone.saveState).toEqual(loadFlags.saveState);
     });
 })

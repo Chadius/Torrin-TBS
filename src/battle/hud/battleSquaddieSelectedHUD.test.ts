@@ -37,6 +37,7 @@ import {CampaignService} from "../../campaign/campaign";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -578,7 +579,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
                 expect(saveGame).toBeCalled();
 
-                expect(state.gameSaveFlags.savingInProgress).toBeTruthy();
+                expect(state.saveSaveState.savingInProgress).toBeTruthy();
             });
             it('should ignore other inputs while saving', () => {
                 hud.selectSquaddieAndDrawWindow({
@@ -624,8 +625,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 });
 
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
-                state.gameSaveFlags
-                    .errorDuringSaving = true;
+                SaveSaveStateService.foundErrorDuringSaving(state.saveSaveState);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 hud.draw(state, mockedP5GraphicsContext);
@@ -638,7 +638,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     expect.anything()
                 );
                 expect(saveGame).toBeCalled();
-                expect(state.gameSaveFlags.errorDuringSaving).toBeFalsy();
+                expect(state.saveSaveState.errorDuringSaving).toBeFalsy();
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();

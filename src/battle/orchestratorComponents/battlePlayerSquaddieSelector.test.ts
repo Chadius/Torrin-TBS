@@ -1147,12 +1147,12 @@ describe('BattleSquaddieSelector', () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
             selector.keyEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentKeyEventType.PRESSED,
                 keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_HUD_PANEL);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_HUD_PANEL);
         });
         it('ignores change HUD command when it is not the player turn', () => {
             battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
@@ -1171,12 +1171,12 @@ describe('BattleSquaddieSelector', () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
             selector.keyEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentKeyEventType.PRESSED,
                 keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
         });
         it('ignores change HUD command when the player is mid turn', () => {
             battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
@@ -1222,12 +1222,12 @@ describe('BattleSquaddieSelector', () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
             selector.keyEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentKeyEventType.PRESSED,
                 keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.SWAP_HUD][0],
             });
-            expect(gameEngineState.battleOrchestratorState.battleHUDMode.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
+            expect(gameEngineState.battleOrchestratorState.battleHUDState.hudMode).toEqual(BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD);
         });
     });
 });

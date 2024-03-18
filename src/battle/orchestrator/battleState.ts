@@ -149,13 +149,6 @@ interface BattleStateConstructorParameters {
     missionCompletionStatus?: MissionCompletionStatus;
     missionStatistics?: MissionStatistics;
     searchPath?: SearchPath;
-    gameSaveFlags?: {
-        errorDuringLoading: boolean;
-        errorDuringSaving: boolean;
-        loadingInProgress: boolean;
-        savingInProgress: boolean;
-        loadRequested: boolean;
-    };
     battleCompletionStatus?: BattleCompletionStatus;
     actionsThisRound?: ActionsThisRound;
 }
@@ -172,7 +165,6 @@ const newBattleState = ({
                             missionStatistics,
                             missionCompletionStatus,
                             searchPath,
-                            gameSaveFlags,
                             battleCompletionStatus,
                             teams,
                             teamStrategiesById,
