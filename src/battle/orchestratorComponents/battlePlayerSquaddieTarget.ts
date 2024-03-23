@@ -24,7 +24,7 @@ import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoor
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait} from "../../trait/traitStatusStorage";
-import {LabelHelper} from "../../ui/label";
+import {LabelService} from "../../ui/label";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {isValidValue} from "../../utils/validityCheck";
@@ -337,7 +337,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsContext) {
-        const buttonBackground = LabelHelper.new({
+        const buttonBackground = LabelService.new({
             area,
             fillColor: [0, 0, 60],
             strokeColor: [0, 0, 0],
@@ -351,7 +351,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             padding: [0, 0, 0, 0],
         });
 
-        LabelHelper.draw(buttonBackground, graphicsContext);
+        LabelService.draw(buttonBackground, graphicsContext);
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {

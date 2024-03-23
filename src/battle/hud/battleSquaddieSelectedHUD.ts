@@ -9,7 +9,7 @@ import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
-import {Label, LabelHelper} from "../../ui/label";
+import {Label, LabelService} from "../../ui/label";
 import {
     HORIZ_ALIGN_CENTER,
     VERT_ALIGN_BASELINE,
@@ -212,12 +212,12 @@ export class BattleSquaddieSelectedHUD {
             TextBoxHelper.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
         }
         if (this.shouldDrawNextButton(state)) {
-            LabelHelper.draw(this.nextSquaddieButton, graphicsContext);
+            LabelService.draw(this.nextSquaddieButton, graphicsContext);
         }
         this.maybeDrawEndTurnButton(state, graphicsContext);
         if (this.shouldDrawSaveAndLoadButton(state)) {
-            LabelHelper.draw(this.saveGameButton, graphicsContext);
-            LabelHelper.draw(this.loadGameButton, graphicsContext);
+            LabelService.draw(this.saveGameButton, graphicsContext);
+            LabelService.draw(this.loadGameButton, graphicsContext);
         }
     }
 
@@ -875,7 +875,7 @@ export class BattleSquaddieSelectedHUD {
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
         });
 
-        this.saveGameButton = LabelHelper.new({
+        this.saveGameButton = LabelService.new({
             text: "Save",
             textSize: 24,
             fillColor: [10, 2, 192],
@@ -886,7 +886,7 @@ export class BattleSquaddieSelectedHUD {
             padding: WINDOW_SPACING1,
         });
 
-        this.loadGameButton = LabelHelper.new({
+        this.loadGameButton = LabelService.new({
             text: "Load",
             textSize: 24,
             fillColor: [10, 2, 192],
@@ -907,7 +907,7 @@ export class BattleSquaddieSelectedHUD {
             endColumn: 5,
         });
 
-        this.nextSquaddieButton = LabelHelper.new({
+        this.nextSquaddieButton = LabelService.new({
             text: "Next",
             textSize: 24,
             fillColor: [10, 2, 192],
@@ -997,7 +997,7 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        LabelHelper.draw(this.endTurnButton, graphicsContext);
+        LabelService.draw(this.endTurnButton, graphicsContext);
     }
 
     private generateEndTurnButton(windowDimensions: RectArea) {
@@ -1010,7 +1010,7 @@ export class BattleSquaddieSelectedHUD {
         });
         RectAreaService.setBottom(endTurnButtonArea, RectAreaService.bottom(windowDimensions) - WINDOW_SPACING1);
 
-        this.endTurnButton = LabelHelper.new({
+        this.endTurnButton = LabelService.new({
             text: "End Turn",
             textSize: 20,
             fillColor: [10, 2, 192],

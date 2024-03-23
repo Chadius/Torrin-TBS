@@ -3,7 +3,7 @@ import {GameEngineChanges, GameEngineComponent} from "../gameEngine/gameEngineCo
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineState} from "../gameEngine/gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
-import {LabelHelper} from "../ui/label";
+import {LabelService} from "../ui/label";
 import {Button, ButtonStatus} from "../ui/button";
 import {
     HORIZ_ALIGN_CENTER,
@@ -317,7 +317,7 @@ export class TitleScreen implements GameEngineComponent {
 
         if (this.startNewGameButton === undefined || changePlayButtonLabel) {
             this.startNewGameButton = new Button({
-                activeLabel: LabelHelper.new({
+                activeLabel: LabelService.new({
                     text: "Now loading...",
                     fillColor: colors.playButtonActive,
                     area: buttonArea,
@@ -328,7 +328,7 @@ export class TitleScreen implements GameEngineComponent {
                     vertAlign: VERT_ALIGN_CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
-                readyLabel: LabelHelper.new({
+                readyLabel: LabelService.new({
                     text: this.startNewGameButtonLabel,
                     fillColor: colors.playButton,
                     area: buttonArea,
@@ -373,7 +373,7 @@ export class TitleScreen implements GameEngineComponent {
 
         if (this.continueGameButton === undefined || changePlayButtonLabel) {
             this.continueGameButton = new Button({
-                activeLabel: LabelHelper.new({
+                activeLabel: LabelService.new({
                     text: "Now loading...",
                     fillColor: colors.playButtonActive,
                     area: buttonArea,
@@ -384,7 +384,7 @@ export class TitleScreen implements GameEngineComponent {
                     vertAlign: VERT_ALIGN_CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
-                readyLabel: LabelHelper.new({
+                readyLabel: LabelService.new({
                     text: this.continueGameButtonLabel,
                     fillColor: colors.playButton,
                     area: buttonArea,

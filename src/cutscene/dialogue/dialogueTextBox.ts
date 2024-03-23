@@ -1,4 +1,4 @@
-import {Label, LabelHelper} from "../../ui/label";
+import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -21,7 +21,7 @@ export class DialogueTextBox {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        LabelHelper.draw(this.speakerTextLabel, graphicsContext);
+        LabelService.draw(this.speakerTextLabel, graphicsContext);
     }
 
     private createUIObjects() {
@@ -31,7 +31,7 @@ export class DialogueTextBox {
         const dialogueBoxHeight = this.screenDimensions[1] * 0.3;
         const dialogueBoxLeft = WINDOW_SPACING2;
 
-        this.speakerTextLabel = LabelHelper.new({
+        this.speakerTextLabel = LabelService.new({
             padding: [WINDOW_SPACING4, WINDOW_SPACING2, 0, WINDOW_SPACING2],
             area: RectAreaService.new({
                 left: dialogueBoxLeft,

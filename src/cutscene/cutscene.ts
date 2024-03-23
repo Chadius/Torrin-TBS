@@ -3,7 +3,7 @@ import {CutsceneDecisionTrigger, CutsceneDecisionTriggerService} from "./Decisio
 import {CutsceneActionPlayerType} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
-import {LabelHelper} from "../ui/label";
+import {LabelService} from "../ui/label";
 import {RectAreaService} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
@@ -417,7 +417,7 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
     }
 
     cutscene.fastForwardButton = new Button({
-        activeLabel: LabelHelper.new({
+        activeLabel: LabelService.new({
             text: "Stop FF",
             fillColor: buttonDeactivateBackgroundColor,
             area: buttonArea,
@@ -427,7 +427,7 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
             horizAlign: HORIZ_ALIGN_CENTER,
             vertAlign: VERT_ALIGN_CENTER,
         }),
-        readyLabel: LabelHelper.new({
+        readyLabel: LabelService.new({
             text: "Fast-forward",
             fillColor: buttonActivateBackgroundColor,
             area: buttonArea,
@@ -437,7 +437,7 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
             horizAlign: HORIZ_ALIGN_CENTER,
             vertAlign: VERT_ALIGN_CENTER,
         }),
-        hoverLabel: LabelHelper.new({
+        hoverLabel: LabelService.new({
             text: "Click to FF",
             fillColor: buttonActivateBackgroundColor,
             area: buttonArea,

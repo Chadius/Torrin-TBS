@@ -12,7 +12,7 @@ export interface Label {
     textBox: TextBox;
 }
 
-export const LabelHelper = {
+export const LabelService = {
     new: (options: RectangleArguments & TextBoxArguments & Padding): Label => {
         let rectangle = RectangleHelper.new(options);
 

@@ -3,7 +3,7 @@ import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationC
 import {BattleSquaddie} from "../../battleSquaddie";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
-import {Label, LabelHelper} from "../../../ui/label";
+import {Label, LabelService} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -76,7 +76,7 @@ export class ActorTextWindow {
         }
 
         this.updateActorLabel({timer});
-        LabelHelper.draw(this.actorLabel, graphicsContext);
+        LabelService.draw(this.actorLabel, graphicsContext);
     }
 
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
@@ -97,7 +97,7 @@ export class ActorTextWindow {
             80
         ];
 
-        this._actorLabel = LabelHelper.new({
+        this._actorLabel = LabelService.new({
             padding: WINDOW_SPACING1,
             area: RectAreaService.new({
                 startColumn: 4,

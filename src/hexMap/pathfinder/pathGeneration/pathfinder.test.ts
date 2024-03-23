@@ -1,5 +1,5 @@
 import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
-import {TerrainTileMapHelper} from "../../terrainTileMap";
+import {TerrainTileMapService} from "../../terrainTileMap";
 import {SearchParameters, SearchParametersHelper} from "../searchParams";
 import {HexGridMovementCost} from "../../hexGridMovementCost";
 import {SearchPath, SearchPathHelper} from "../searchPath";
@@ -15,7 +15,7 @@ describe("Pathfinder", () => {
 
         beforeEach(() => {
             missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 2 1 2 ",
                         " 1 x - 2 1 ",
@@ -79,7 +79,7 @@ describe("Pathfinder", () => {
     describe("distance limits and terrain movement costs", () => {
         it("can use movementPerAction and numberOfActions to determine distance", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 1 1 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -112,7 +112,7 @@ describe("Pathfinder", () => {
         });
         it("can factor terrain movement costs", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -141,7 +141,7 @@ describe("Pathfinder", () => {
         });
         it("can ignores terrain movement costs if ignoreTerrainCosts is true", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -174,7 +174,7 @@ describe("Pathfinder", () => {
     describe("wall and sky tiles", () => {
         it("cannot pass wall tiles", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -200,7 +200,7 @@ describe("Pathfinder", () => {
         });
         it("cannot pass over pit tiles", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -227,7 +227,7 @@ describe("Pathfinder", () => {
         });
         it("can pass over pit tiles if search parameters is set but still cannot stop on them", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -254,7 +254,7 @@ describe("Pathfinder", () => {
         });
         it("can pass over wall tiles if search parameters is set but still cannot stop on them", () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -284,7 +284,7 @@ describe("Pathfinder", () => {
     describe('Split movement by number of actions', () => {
         it('will count number of actions based on the movement per action', () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -318,7 +318,7 @@ describe("Pathfinder", () => {
         });
         it('will count number of actions based on the movement needed up to the number of actions', () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -348,7 +348,7 @@ describe("Pathfinder", () => {
         });
         it('will always assume 1 action needed if movement per action is not specified', () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
                     ]
@@ -377,7 +377,7 @@ describe("Pathfinder", () => {
     describe('minimum and maximum distances', () => {
         it('will not include anything past the maximum distance', () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "2 2 2 2 2 2 2 2 ",
                     ]
@@ -405,7 +405,7 @@ describe("Pathfinder", () => {
         });
         it('will not include any paths less than the minimum distance', () => {
             const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "2 2 2 2 2 2 2 2 ",
                     ]
@@ -442,7 +442,7 @@ describe("Pathfinder", () => {
 
         beforeEach(() => {
             missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 2 1 2 ",
                         " 1 x - 2 1 ",
@@ -535,7 +535,7 @@ describe("Pathfinder", () => {
 
         beforeEach(() => {
             missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapHelper.new({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: [
                         "1 1 2 1 2 ",
                         " 1 x - 2 1 ",

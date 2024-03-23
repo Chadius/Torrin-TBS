@@ -31,22 +31,46 @@ describe('Save SaveState', () => {
     it('knows when the user begins saving', () => {
         const saveSaveState: SaveSaveState = SaveSaveStateService.new({});
         SaveSaveStateService.userRequestsSave(saveSaveState);
+        expect(saveSaveState.userRequestedSave).toBeTruthy();
         expect(saveSaveState.savingInProgress).toBeTruthy();
         expect(saveSaveState.errorDuringSaving).toBeFalsy();
     });
-    it('knows when saving is complete', () => {
-        const saveSaveState: SaveSaveState = SaveSaveStateService.new({});
-        SaveSaveStateService.userRequestsSave(saveSaveState);
-        SaveSaveStateService.savingAttemptIsComplete(saveSaveState);
-        expect(saveSaveState.savingInProgress).toBeFalsy();
-        expect(saveSaveState.errorDuringSaving).toBeFalsy();
+    describe('save is successful', () => {
+        let saveSaveState: SaveSaveState
+        beforeEach(() => {
+            saveSaveState = SaveSaveStateService.new({});
+            SaveSaveStateService.userRequestsSave(saveSaveState);
+            SaveSaveStateService.savingAttemptIsComplete(saveSaveState);
+        });
+        it('knows when saving is complete', () => {
+            expect(saveSaveState.userRequestedSave).toBeTruthy();
+            expect(saveSaveState.savingInProgress).toBeFalsy();
+            expect(saveSaveState.errorDuringSaving).toBeFalsy();
+        });
+        it('knows it is now appropriate to clear the user request', () => {
+            expect(SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(saveSaveState)).toBeTruthy();
+            SaveSaveStateService.userFinishesRequestingSave(saveSaveState);
+            expect(saveSaveState.userRequestedSave).toBeFalsy();
+        });
     });
-    it('knows when an error was found during saving', () => {
-        const saveSaveState: SaveSaveState = SaveSaveStateService.new({});
-        SaveSaveStateService.userRequestsSave(saveSaveState);
-        SaveSaveStateService.foundErrorDuringSaving(saveSaveState);
-        expect(saveSaveState.savingInProgress).toBeFalsy();
-        expect(saveSaveState.errorDuringSaving).toBeTruthy();
+
+    describe('save fails due to an error', () => {
+        let saveSaveState: SaveSaveState
+        beforeEach(() => {
+            saveSaveState = SaveSaveStateService.new({});
+            SaveSaveStateService.userRequestsSave(saveSaveState);
+            SaveSaveStateService.foundErrorDuringSaving(saveSaveState);
+        });
+        it('knows when an error was found during saving', () => {
+            expect(saveSaveState.userRequestedSave).toBeTruthy();
+            expect(saveSaveState.savingInProgress).toBeFalsy();
+            expect(saveSaveState.errorDuringSaving).toBeTruthy();
+        });
+        it('knows it is now appropriate to clear the user request', () => {
+            expect(SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(saveSaveState)).toBeTruthy();
+            SaveSaveStateService.userFinishesRequestingSave(saveSaveState);
+            expect(saveSaveState.userRequestedSave).toBeFalsy();
+        });
     });
 
     it('can be reset to default values', () => {
@@ -69,6 +93,7 @@ describe('Save SaveState', () => {
 
         const clone: SaveSaveState = SaveSaveStateService.clone(saveSaveState);
 
+        expect(clone.userRequestedSave).toEqual(saveSaveState.userRequestedSave);
         expect(clone.savingInProgress).toEqual(saveSaveState.savingInProgress);
         expect(clone.errorDuringSaving).toEqual(saveSaveState.errorDuringSaving);
     });

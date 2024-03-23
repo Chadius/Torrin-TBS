@@ -1,5 +1,5 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {HighlightTileDescription, TerrainTileMap, TerrainTileMapHelper} from "../../hexMap/terrainTileMap";
+import {HighlightTileDescription, TerrainTileMap, TerrainTileMapService} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
@@ -29,15 +29,15 @@ describe('map highlight generator', () => {
         campaignResources = CampaignResourcesService.default({});
 
         repository = ObjectRepositoryService.new();
-        terrainAllSingleMovement = TerrainTileMapHelper.new({
+        terrainAllSingleMovement = TerrainTileMapService.new({
             movementCost: ["1 1 1 1 1 1 1 1 1 1 "],
         });
 
-        terrainAllDoubleMovement = TerrainTileMapHelper.new({
+        terrainAllDoubleMovement = TerrainTileMapService.new({
             movementCost: ["2 2 2 2 2 2 2 2 2 2 "],
         });
 
-        terrainAlternatingPits = TerrainTileMapHelper.new({
+        terrainAlternatingPits = TerrainTileMapService.new({
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
