@@ -6,8 +6,11 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {Label, LabelService} from "../../ui/label";
 import {WINDOW_SPACING1} from "../../ui/constants";
 import {isValidValue} from "../../utils/validityCheck";
-import {SaveSaveState, SaveSaveStateService} from "../../dataLoader/saveSaveState";
+import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
+import {GameEngineState} from "../../gameEngine/gameEngine";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -18,7 +21,6 @@ export enum FileAccessHUDMessage {
     LOAD_IN_PROGRESS = "Loading...",
 }
 
-// TODO Button colors for various states
 export const FileAccessHUDDesign = {
     MESSAGE_DISPLAY_DURATION: 2000,
     LOAD_BUTTON: {
@@ -29,26 +31,26 @@ export const FileAccessHUDDesign = {
             bottom: 100,
         },
         READY_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 192],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
         ACTIVE_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 192],
             strokeColor: [16, 16, 16],
-            strokeWeight: 2,
+            strokeWeight: 4,
         },
         HOVER_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 224],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
         DISABLED_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [128, 128, 64],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
-        FONT_COLOR: [0, 0, 0],
+        FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING1,
         TEXT: "Load",
         TEXT_SIZE: 10
@@ -61,26 +63,26 @@ export const FileAccessHUDDesign = {
             bottom: 100,
         },
         READY_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 192],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
         ACTIVE_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 192],
             strokeColor: [16, 16, 16],
-            strokeWeight: 2,
+            strokeWeight: 4,
         },
         HOVER_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [10, 2, 224],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
         DISABLED_RECTANGLE: {
-            fillColor: [128, 128, 128],
+            fillColor: [128, 128, 64],
             strokeColor: [16, 16, 16],
             strokeWeight: 2,
         },
-        FONT_COLOR: [0, 0, 0],
+        FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING1,
         TEXT: "Save",
         TEXT_SIZE: 10
@@ -121,18 +123,10 @@ export const FileAccessHUDService = {
             saveButtonCachedStatus: undefined,
             messageLabel: undefined,
             messageDisplayStartTime: undefined,
-            message: "",
+            message: undefined,
         };
         createUIObjects(fileAccessHUD);
         return fileAccessHUD;
-    },
-    playerCanAccessFiles: (fileAccessHUD: FileAccessHUD, canAccess: boolean) => {
-        if (canAccess) {
-            restoreButtonStatusAndClearCache(fileAccessHUD);
-            return;
-        }
-        disableButtonsAndCacheStatus(fileAccessHUD);
-        return;
     },
     mouseMoved: (
         {
@@ -168,8 +162,21 @@ export const FileAccessHUDService = {
         fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, battleHUDState});
         fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, battleHUDState});
     },
+    updateBasedOnGameEngineState: (fileAccessHUD: FileAccessHUD, gameEngineState: GameEngineState) => {
+        if (
+            !gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+            || gameEngineState.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER
+        ) {
+            return disableButtonsAndCacheStatus(fileAccessHUD);
+        }
+
+        if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+            return disableButtonsAndCacheStatus(fileAccessHUD);
+        }
+
+        return changeButtonStatusBasedOnMessage(fileAccessHUD);
+    },
     updateButtonStatus: (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState) => {
-        // TODO add the orchestrator utils and the game logic
         changeButtonStatusBasedOnMessage(fileAccessHUD);
     },
     updateStatusMessage: (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState): string => {
@@ -361,11 +368,15 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
 };
 
 const disableButtonsAndCacheStatus = (fileAccessHUD: FileAccessHUD) => {
-    fileAccessHUD.loadButtonCachedStatus = fileAccessHUD.loadButton.getStatus();
-    fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED);
+    if (fileAccessHUD.loadButton.getStatus() !== ButtonStatus.DISABLED) {
+        fileAccessHUD.loadButtonCachedStatus = fileAccessHUD.loadButton.getStatus();
+        fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED);
+    }
 
-    fileAccessHUD.saveButtonCachedStatus = fileAccessHUD.saveButton.getStatus();
-    fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED);
+    if (fileAccessHUD.saveButton.getStatus() !== ButtonStatus.DISABLED) {
+        fileAccessHUD.saveButtonCachedStatus = fileAccessHUD.saveButton.getStatus();
+        fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED);
+    }
 };
 
 const disableButtonsAndClearCache = (fileAccessHUD: FileAccessHUD) => {

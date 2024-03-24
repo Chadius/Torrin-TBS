@@ -8,13 +8,17 @@ import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {FileAccessHUD, FileAccessHUDDesign, FileAccessHUDMessage, FileAccessHUDService} from "./fileAccessHUD";
 import {MouseButton} from "../../utils/mouseConfig";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {ObjectRepositoryService} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {MissionMapService} from "../../missionMap/missionMap";
-import {TerrainTileMapService} from "../../hexMap/terrainTileMap";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
+import {TerrainTileMap, TerrainTileMapService} from "../../hexMap/terrainTileMap";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import {BattleCamera} from "../battleCamera";
+import {CampaignService} from "../../campaign/campaign";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 
-// TODO: HUD orchestrator needs to determine if this can save or not (aka mid turn stuff)
 describe('File Access HUD', () => {
     let fileAccessHUD: FileAccessHUD;
     let battleHUDState: BattleHUDState;
@@ -26,9 +30,6 @@ describe('File Access HUD', () => {
     });
 
     describe('has buttons during turn', () => {
-        beforeEach(() => {
-            FileAccessHUDService.playerCanAccessFiles(fileAccessHUD, true);
-        });
         it('Has a save button', () => {
             expect(fileAccessHUD.saveButton).not.toBeUndefined();
             expect(fileAccessHUD.saveButton.buttonStatus).toEqual(ButtonStatus.READY);
@@ -69,15 +70,67 @@ describe('File Access HUD', () => {
         });
     });
 
-    it('disables buttons when the player cannot access files', () => {
-        FileAccessHUDService.playerCanAccessFiles(fileAccessHUD, false);
-        expect(fileAccessHUD.loadButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
-        expect(fileAccessHUD.saveButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
+    describe('enable and disable buttons based on gameEngineState', () => {
+        let objectRepository: ObjectRepository;
+        let missionMap: MissionMap;
+        let resourceHandler: ResourceHandler;
+
+        beforeEach(() => {
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                })
+            });
+
+            objectRepository = ObjectRepositoryService.new();
+        });
+
+        const createGameEngineStateWithBattlePhase = (battlePhaseAffiliation: BattlePhase): GameEngineState => {
+            return GameEngineStateService.new({
+                resourceHandler: resourceHandler,
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    battleSquaddieSelectedHUD: undefined,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        battlePhaseState: {
+                            currentAffiliation: battlePhaseAffiliation,
+                            turnCount: 0,
+                        },
+                    }),
+                }),
+                repository: objectRepository,
+                campaign: CampaignService.default({}),
+            });
+        }
+
+        it('should enable the save and load buttons during the player phase', () => {
+            const gameEngineState: GameEngineState = createGameEngineStateWithBattlePhase(BattlePhase.PLAYER);
+            FileAccessHUDService.updateBasedOnGameEngineState(fileAccessHUD, gameEngineState);
+            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(ButtonStatus.READY);
+            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(ButtonStatus.READY);
+        });
+
+        it('should disable the save and load buttons during the player phase if a squaddie is taking a turn', () => {
+            const takingATurnSpy: jest.SpyInstance = jest.spyOn(OrchestratorUtilities, "isSquaddieCurrentlyTakingATurn").mockReturnValue(true);
+            const gameEngineState: GameEngineState = createGameEngineStateWithBattlePhase(BattlePhase.PLAYER);
+            FileAccessHUDService.updateBasedOnGameEngineState(fileAccessHUD, gameEngineState);
+            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
+            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
+            expect(takingATurnSpy).toBeCalled();
+        });
+
+        it('should disable the save and load buttons during other phases', () => {
+            const gameEngineState: GameEngineState = createGameEngineStateWithBattlePhase(BattlePhase.ENEMY);
+            FileAccessHUDService.updateBasedOnGameEngineState(fileAccessHUD, gameEngineState);
+            expect(fileAccessHUD.loadButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
+            expect(fileAccessHUD.saveButton.buttonStatus).toEqual(ButtonStatus.DISABLED);
+        });
     });
 
     describe('clicking on Save Game', () => {
         beforeEach(() => {
-            FileAccessHUDService.playerCanAccessFiles(fileAccessHUD, true);
             FileAccessHUDService.mouseClicked({
                 fileAccessHUD,
                 mouseButton: MouseButton.LEFT,
