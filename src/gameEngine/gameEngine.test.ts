@@ -156,7 +156,7 @@ describe('Game Engine', () => {
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             expect(loadFileIntoFormatSpy).toBeCalled();
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.saveSaveState);
+            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.fileState.saveSaveState);
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
             newGameEngine.gameEngineState.repository = ObjectRepositoryService.new();
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockReturnValue(null);
@@ -164,7 +164,7 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.gameEngineState.saveSaveState.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.fileState.saveSaveState.savingInProgress).toBeFalsy();
             const battleSaveStateSaved: BattleSaveState = saveSpy.mock.calls[0][0];
             expect(battleSaveStateSaved.missionId).toBe(newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId);
         });
@@ -177,7 +177,7 @@ describe('Game Engine', () => {
             });
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.saveSaveState);
+            SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.fileState.saveSaveState);
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");
             });
@@ -185,8 +185,8 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.gameEngineState.saveSaveState.savingInProgress).toBeFalsy();
-            expect(newGameEngine.gameEngineState.saveSaveState.errorDuringSaving).toBeTruthy();
+            expect(newGameEngine.gameEngineState.fileState.saveSaveState.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.fileState.saveSaveState.errorDuringSaving).toBeTruthy();
 
             expect(consoleLoggerSpy).toBeCalled();
         });
@@ -206,7 +206,7 @@ describe('Game Engine', () => {
 
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            LoadSaveStateService.userRequestsLoad(newGameEngine.gameEngineState.loadSaveState);
+            LoadSaveStateService.userRequestsLoad(newGameEngine.gameEngineState.fileState.loadSaveState);
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives = [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",

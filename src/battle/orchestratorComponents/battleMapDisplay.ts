@@ -33,6 +33,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera();
 
         gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(gameEngineState, graphicsContext);
+
+        FileAccessHUDService.updateBasedOnGameEngineState(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState);
         FileAccessHUDService.draw(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, graphicsContext);
     }
 

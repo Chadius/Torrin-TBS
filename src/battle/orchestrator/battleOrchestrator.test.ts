@@ -370,7 +370,7 @@ describe('Battle Orchestrator', () => {
                 }),
             repository: ObjectRepositoryService.new(),
         });
-        LoadSaveStateService.applicationStartsLoad(stateWithCutscene.loadSaveState);
+        LoadSaveStateService.applicationStartsLoad(stateWithCutscene.fileState.loadSaveState);
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
@@ -980,7 +980,7 @@ describe('Battle Orchestrator', () => {
             }),
             repository: undefined,
         });
-        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
+        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState);
 
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(orchestrator.hasCompleted(state)).toBeTruthy();

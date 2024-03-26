@@ -7,8 +7,8 @@ export interface BattleHUDState {
     hudMode: BATTLE_HUD_MODE;
     hoveredBattleSquaddieId: string;
     hoveredBattleSquaddieTimestamp: number;
-    loadSaveState: LoadSaveState;
-    saveSaveState: SaveSaveState;
+    loadSaveState: LoadSaveState; // TODO Nope should not be here, move into game engine state
+    saveSaveState: SaveSaveState; // TODO Nope should not be here, move into game engine state
 }
 
 export const BattleHUDStateService = {

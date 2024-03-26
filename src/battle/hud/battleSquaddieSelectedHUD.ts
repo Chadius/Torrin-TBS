@@ -254,9 +254,9 @@ export class BattleSquaddieSelectedHUD {
 
     mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
         if (
-            state.saveSaveState.savingInProgress
-            || state.loadSaveState.userRequestedLoad
-            || state.loadSaveState.applicationStartedLoad
+            state.fileState.saveSaveState.savingInProgress
+            || state.fileState.loadSaveState.userRequestedLoad
+            || state.fileState.loadSaveState.applicationStartedLoad
         ) {
             return;
         }
@@ -337,11 +337,11 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeSaved(state: GameEngineState): void {
-        SaveSaveStateService.userRequestsSave(state.saveSaveState);
+        SaveSaveStateService.userRequestsSave(state.fileState.saveSaveState);
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
-        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
+        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState);
     }
 
     drawUncontrollableSquaddieWarning(state: GameEngineState) {
@@ -583,19 +583,19 @@ export class BattleSquaddieSelectedHUD {
 
         const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
         if (
-            state.saveSaveState.errorDuringSaving
+            state.fileState.saveSaveState.errorDuringSaving
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE_FAILED
             )
         ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            SaveSaveStateService.reset(state.saveSaveState);
+            SaveSaveStateService.reset(state.fileState.saveSaveState);
             return;
         }
 
         const WARNING_SAVE_FILE = "Saving...";
-        if (state.saveSaveState.savingInProgress
+        if (state.fileState.saveSaveState.savingInProgress
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE
@@ -611,10 +611,10 @@ export class BattleSquaddieSelectedHUD {
         message?: string,
         clearWarningTextBox?: boolean
     } {
-        const userRequestedLoad: boolean = state.loadSaveState.userRequestedLoad === true;
+        const userRequestedLoad: boolean = state.fileState.loadSaveState.userRequestedLoad === true;
 
-        const loadingFailedDueToError: boolean = state.loadSaveState.applicationErroredWhileLoading
-        const userCanceledLoad: boolean = state.loadSaveState.userCanceledLoad;
+        const loadingFailedDueToError: boolean = state.fileState.loadSaveState.applicationErroredWhileLoading
+        const userCanceledLoad: boolean = state.fileState.loadSaveState.userCanceledLoad;
         const loadingFailed: boolean = loadingFailedDueToError || userCanceledLoad;
 
         if (
@@ -658,7 +658,7 @@ export class BattleSquaddieSelectedHUD {
                 };
             }
 
-            LoadSaveStateService.reset(state.loadSaveState);
+            LoadSaveStateService.reset(state.fileState.loadSaveState);
             this.errorDuringLoadingDisplayStartTimestamp = undefined;
             return {
                 clearWarningTextBox: true
@@ -681,7 +681,7 @@ export class BattleSquaddieSelectedHUD {
             };
         }
 
-        LoadSaveStateService.reset(state.loadSaveState);
+        LoadSaveStateService.reset(state.fileState.loadSaveState);
         this.errorDuringLoadingDisplayStartTimestamp = undefined;
         return {
             clearWarningTextBox: true

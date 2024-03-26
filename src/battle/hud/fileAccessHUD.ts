@@ -26,10 +26,10 @@ export const FileAccessHUDDesign = {
     MESSAGE_DISPLAY_DURATION: 2000,
     LOAD_BUTTON: {
         AREA: {
-            startColumn: 10,
-            endColumn: 12,
+            startColumn: 11,
+            endColumn: 11,
             top: 10,
-            bottom: 100,
+            bottom: 40,
         },
         READY_RECTANGLE: {
             fillColor: [10, 2, 192],
@@ -58,10 +58,10 @@ export const FileAccessHUDDesign = {
     },
     SAVE_BUTTON: {
         AREA: {
-            startColumn: 8,
+            startColumn: 10,
             endColumn: 10,
             top: 10,
-            bottom: 100,
+            bottom: 40,
         },
         READY_RECTANGLE: {
             fillColor: [10, 2, 192],
@@ -99,9 +99,9 @@ export const FileAccessHUDDesign = {
             noFill: true,
             noStroke: true,
         },
-        FONT_COLOR: [0, 0, 0],
+        FONT_COLOR: [0, 100, 100],
         PADDING: WINDOW_SPACING1,
-        TEXT_SIZE: 10
+        TEXT_SIZE: 100
     },
 }
 

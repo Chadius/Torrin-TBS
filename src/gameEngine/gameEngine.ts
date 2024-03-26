@@ -34,8 +34,10 @@ export interface GameEngineState {
     titleScreenState: TitleScreenState;
     campaign: Campaign;
     campaignIdThatWasLoaded: string;
-    saveSaveState: SaveSaveState;
-    loadSaveState: LoadSaveState;
+    fileState: {
+        saveSaveState: SaveSaveState;
+        loadSaveState: LoadSaveState;
+    }
 }
 
 export const GameEngineStateService = {
@@ -58,12 +60,14 @@ export const GameEngineStateService = {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
             battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            saveSaveState: SaveSaveStateService.new({}),
+            fileState: {
+                saveSaveState: SaveSaveStateService.new({}),
+                loadSaveState: LoadSaveStateService.new({})
+            },
             campaign,
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
-            loadSaveState: LoadSaveStateService.new({})
         }
     }
 }
@@ -163,7 +167,7 @@ export class GameEngine {
     }) {
         this.component.update(this.gameEngineState, graphicsContext);
 
-        if (this.gameEngineState.saveSaveState.savingInProgress) {
+        if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
 
@@ -247,9 +251,9 @@ export class GameEngine {
             BattleSaveStateService.SaveToFile(saveData);
         } catch (error) {
             console.log(`Save game failed: ${error}`);
-            this.gameEngineState.saveSaveState.errorDuringSaving = true;
-            SaveSaveStateService.foundErrorDuringSaving(this.gameEngineState.saveSaveState);
+            this.gameEngineState.fileState.saveSaveState.errorDuringSaving = true;
+            SaveSaveStateService.foundErrorDuringSaving(this.gameEngineState.fileState.saveSaveState);
         }
-        SaveSaveStateService.savingAttemptIsComplete(this.gameEngineState.saveSaveState);
+        SaveSaveStateService.savingAttemptIsComplete(this.gameEngineState.fileState.saveSaveState);
     }
 }

@@ -129,8 +129,8 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
-        LoadSaveStateService.reset(state.loadSaveState);
-        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
+        LoadSaveStateService.reset(state.fileState.loadSaveState);
+        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState);
     }
 
     private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -413,10 +413,10 @@ export class TitleScreen implements GameEngineComponent {
     private getNewButtonLabel(state: GameEngineState): string {
         const defaultMessage: string = "Continue";
 
-        const userRequestedLoad: boolean = state.loadSaveState.userRequestedLoad === true;
+        const userRequestedLoad: boolean = state.fileState.loadSaveState.userRequestedLoad === true;
 
-        const loadingFailedDueToError: boolean = state.loadSaveState.applicationErroredWhileLoading
-        const userCanceledLoad: boolean = state.loadSaveState.userCanceledLoad;
+        const loadingFailedDueToError: boolean = state.fileState.loadSaveState.applicationErroredWhileLoading
+        const userCanceledLoad: boolean = state.fileState.loadSaveState.userCanceledLoad;
         const loadingFailed: boolean = loadingFailedDueToError || userCanceledLoad;
 
         if (
@@ -453,7 +453,7 @@ export class TitleScreen implements GameEngineComponent {
                 return applicationErrorMessage;
             }
 
-            LoadSaveStateService.reset(state.loadSaveState);
+            LoadSaveStateService.reset(state.fileState.loadSaveState);
             this.errorDuringLoadingDisplayStartTimestamp = undefined;
             return defaultMessage;
         }
@@ -473,7 +473,7 @@ export class TitleScreen implements GameEngineComponent {
             return userCancelMessage;
         }
 
-        LoadSaveStateService.reset(state.loadSaveState);
+        LoadSaveStateService.reset(state.fileState.loadSaveState);
         this.errorDuringLoadingDisplayStartTimestamp = undefined;
         return defaultMessage;
     }

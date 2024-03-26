@@ -579,7 +579,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
                 expect(saveGame).toBeCalled();
 
-                expect(state.saveSaveState.savingInProgress).toBeTruthy();
+                expect(state.fileState.saveSaveState.savingInProgress).toBeTruthy();
             });
             it('should ignore other inputs while saving', () => {
                 hud.selectSquaddieAndDrawWindow({
@@ -625,7 +625,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 });
 
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
-                SaveSaveStateService.foundErrorDuringSaving(state.saveSaveState);
+                SaveSaveStateService.foundErrorDuringSaving(state.fileState.saveSaveState);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 hud.draw(state, mockedP5GraphicsContext);
@@ -638,7 +638,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     expect.anything()
                 );
                 expect(saveGame).toBeCalled();
-                expect(state.saveSaveState.errorDuringSaving).toBeFalsy();
+                expect(state.fileState.saveSaveState.errorDuringSaving).toBeFalsy();
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();
@@ -684,7 +684,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state);
             expect(loadGame).toBeCalled();
 
-            expect(state.loadSaveState.userRequestedLoad).toBeTruthy();
+            expect(state.fileState.loadSaveState.userRequestedLoad).toBeTruthy();
         });
         describe('user clicks the load button', () => {
             let state: GameEngineState;
@@ -784,7 +784,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     });
 
                     hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
-                    loadSaveStateChange(state.loadSaveState);
+                    loadSaveStateChange(state.fileState.loadSaveState);
 
                     const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                     hud.draw(state, mockedP5GraphicsContext);
@@ -797,7 +797,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         expect.anything()
                     );
                     expect(loadGame).toBeCalled();
-                    expect(expectedSaveStateField(state.loadSaveState)).toBeTruthy();
+                    expect(expectedSaveStateField(state.fileState.loadSaveState)).toBeTruthy();
 
                     jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                     textSpy.mockClear();
@@ -808,7 +808,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         expect.anything(),
                         expect.anything()
                     );
-                    expect(expectedSaveStateField(state.loadSaveState)).toBeFalsy();
+                    expect(expectedSaveStateField(state.fileState.loadSaveState)).toBeFalsy();
                 });
             });
         });

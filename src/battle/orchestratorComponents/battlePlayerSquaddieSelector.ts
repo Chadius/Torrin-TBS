@@ -49,6 +49,8 @@ import {DecidedActionMovementEffectService} from "../../action/decided/decidedAc
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -87,6 +89,15 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository)) {
             return;
         }
+
+        // TODO Even when I click on load button, changes aren't carrying over into the battleOrchestratorState.
+        FileAccessHUDService.mouseClicked({
+            fileAccessHUD: state.battleOrchestratorState.battleHUD.fileAccessHUD,
+            mouseX,
+            mouseY,
+            mouseButton: MouseButton.LEFT,
+            battleHUDState: state.battleOrchestratorState.battleHUDState,
+        });
 
         if (state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
             const playerClickOnHUD = state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.didMouseClickOnHUD(mouseX, mouseY);
