@@ -7,7 +7,7 @@ import {BattleStateService} from "../battle/orchestrator/battleState";
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
@@ -29,7 +29,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
-            battleSquaddieSelectedHUD: undefined,
+
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -48,7 +48,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                     turnCount: 5
                 }
             }),
-            battleSquaddieSelectedHUD: undefined,
+
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -70,7 +70,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             secondsPassed = (hours * 60 * 60 + minutes * 60 + seconds);
 
             battleState = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionStatistics: {
@@ -100,7 +100,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage dealt by player team', () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
@@ -118,7 +118,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage received by player team', () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
@@ -136,7 +136,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute healing received by player team', () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {

@@ -44,6 +44,7 @@ import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {CampaignService} from "../../campaign/campaign";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
@@ -173,7 +174,9 @@ describe('BattleSquaddieTarget', () => {
         state = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: battleMap,
@@ -341,7 +344,9 @@ describe('BattleSquaddieTarget', () => {
             state = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap: battleMap,
@@ -580,7 +585,9 @@ describe('BattleSquaddieTarget', () => {
             state = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap: battleMap,

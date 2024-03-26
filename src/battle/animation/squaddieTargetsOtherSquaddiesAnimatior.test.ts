@@ -153,7 +153,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
@@ -179,7 +179,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
@@ -213,7 +213,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,

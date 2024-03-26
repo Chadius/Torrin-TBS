@@ -55,6 +55,7 @@ import {mockResourceHandler} from "../../utils/test/mocks";
 import {CampaignService} from "../../campaign/campaign";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {BattleHUDStateService} from "../hud/battleHUDState";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('orchestratorState', () => {
     let validBattleState: BattleState;
@@ -112,7 +113,9 @@ describe('orchestratorState', () => {
 
         args = {
             ...args,
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD()
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD()
+            }),
         }
         validityCheck(args, false, [
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
@@ -135,8 +138,12 @@ describe('orchestratorState', () => {
     });
 
     it('can clone existing objects', () => {
+        const nowSpy = jest.spyOn(Date, "now").mockReturnValue(0);
+
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
             battleState: {
                 ...validBattleState,
             },
@@ -158,7 +165,9 @@ describe('orchestratorState', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
             battleState: {
                 ...validBattleState,
             },
@@ -170,7 +179,9 @@ describe('orchestratorState', () => {
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
-            battleSquaddieSelectedHUD: undefined,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: undefined
+            }),
             numberGenerator: undefined,
         });
         cloned.copyOtherOrchestratorState(originalBattleOrchestratorState);
@@ -186,12 +197,15 @@ describe('orchestratorState', () => {
         const newBattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: validBattleState,
             numberGenerator,
-            battleSquaddieSelectedHUD,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD
+            }),
         });
 
         expect(newBattleOrchestratorState.battleState).toEqual(validBattleState);
         expect(newBattleOrchestratorState.numberGenerator).toEqual(numberGenerator);
-        expect(newBattleOrchestratorState.battleSquaddieSelectedHUD).toEqual(battleSquaddieSelectedHUD);
+        expect(newBattleOrchestratorState.battleHUD.battleSquaddieSelectedHUD).toEqual(battleSquaddieSelectedHUD);
+        expect(newBattleOrchestratorState.battleHUD.fileAccessHUD).not.toBeUndefined();
     });
 
     describe('will determine the next mode based on the next action effect', () => {

@@ -122,7 +122,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     recording: battleEventRecording,
@@ -154,7 +154,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: monkMeditatesInstruction,
@@ -178,7 +178,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: monkMeditatesInstruction,

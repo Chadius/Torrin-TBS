@@ -208,7 +208,7 @@ describe("BattleSaveState", () => {
 
     it("Can read the camera and create a similar one", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 camera: new BattleCamera(100, 200),
@@ -231,7 +231,7 @@ describe("BattleSaveState", () => {
         expect(saveState.camera.yCoordinate).toBe(200);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -254,7 +254,7 @@ describe("BattleSaveState", () => {
 
     it("Can read the battle phase and create a similar one", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -274,7 +274,7 @@ describe("BattleSaveState", () => {
         expect(saveState.battlePhaseState.turnCount).toBe(3);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -333,7 +333,7 @@ describe("BattleSaveState", () => {
         );
 
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -354,7 +354,7 @@ describe("BattleSaveState", () => {
         expect(saveState.battleEventRecording.history).toHaveLength(2);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -386,7 +386,7 @@ describe("BattleSaveState", () => {
         missionMap.addSquaddie("template 1", "battle 1", {q: 0, r: 1});
 
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: missionMap,
@@ -406,7 +406,7 @@ describe("BattleSaveState", () => {
         expect(saveState.squaddieMapPlacements).toHaveLength(2);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: new MissionMap({
@@ -451,7 +451,7 @@ describe("BattleSaveState", () => {
 
     it("can record mission statistics and create a similar one", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics,
@@ -474,7 +474,7 @@ describe("BattleSaveState", () => {
         expect(saveState.missionStatistics).toStrictEqual(missionStatistics);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -494,7 +494,7 @@ describe("BattleSaveState", () => {
 
     it("can record squaddies in battle attributes create a similar ones in a repository", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -514,7 +514,7 @@ describe("BattleSaveState", () => {
         expect(Object.keys(saveState.inBattleAttributesBySquaddieBattleId)).toHaveLength(2);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -542,7 +542,7 @@ describe("BattleSaveState", () => {
     it("can record the squaddie teams from the Battle Orchestrator State and recreate them", () => {
         const teams: BattleSquaddieTeam[] = [playerTeam, enemyTeam];
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -563,7 +563,7 @@ describe("BattleSaveState", () => {
         expect(saveState.teams).toEqual(teams);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -611,7 +611,7 @@ describe("BattleSaveState", () => {
             "Unaffiliated do nothing": [],
         }
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -632,7 +632,7 @@ describe("BattleSaveState", () => {
         expect(saveState.teamStrategiesById).toEqual(teamStrategiesById);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -669,7 +669,7 @@ describe("BattleSaveState", () => {
         };
 
         const originalOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.defaultBattleState({
                 missionId: "test",
                 missionCompletionStatus,
@@ -686,7 +686,7 @@ describe("BattleSaveState", () => {
         expect(battleSaveState.missionCompletionStatus).toEqual(missionCompletionStatus);
 
         const newOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -716,7 +716,7 @@ describe("BattleSaveState", () => {
         ];
 
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -737,7 +737,7 @@ describe("BattleSaveState", () => {
         expect(saveState.cutsceneTriggerCompletion).toEqual(triggers);
 
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -859,7 +859,7 @@ describe("BattleSaveState", () => {
             };
 
             newBattleState = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: new MissionMap({
@@ -960,7 +960,7 @@ describe("BattleSaveState", () => {
                 }
             ];
             const battleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera: new BattleCamera(100, 200),
@@ -1056,7 +1056,7 @@ describe("BattleSaveState", () => {
                     saveVersion: 0,
                     repository: ObjectRepositoryService.new(),
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
+
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             camera: new BattleCamera(100, 200),

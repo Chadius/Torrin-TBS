@@ -43,7 +43,7 @@ describe('Mission Objective', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionCompletionStatus: {
@@ -110,7 +110,7 @@ describe('Mission Objective', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionCompletionStatus: {
@@ -178,7 +178,7 @@ describe('Mission Objective', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionCompletionStatus: {
@@ -230,7 +230,7 @@ describe('Mission Objective', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionCompletionStatus: {
@@ -283,7 +283,7 @@ describe('Mission Objective', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionCompletionStatus: {

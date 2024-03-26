@@ -177,7 +177,7 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngineState)
         !state.battleOrchestratorState.battleState.actionsThisRound
         || !isSquaddieCurrentlyTakingATurn(state)
     ) {
-        state.battleOrchestratorState.battleSquaddieSelectedHUD.reset();
+        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset();
         return;
     }
 
@@ -193,12 +193,12 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngineState)
         battleSquaddie,
     });
     if (playerCanControlThisSquaddieRightNow) {
-        state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
             state,
         });
     } else {
-        state.battleOrchestratorState.battleSquaddieSelectedHUD.reset();
+        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset();
     }
 }
 

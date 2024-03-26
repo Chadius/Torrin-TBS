@@ -32,6 +32,7 @@ import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator"
 import {BattleSquaddieMover} from "../battle/orchestratorComponents/battleSquaddieMover";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
+import {BattleHUDService} from "../battle/hud/battleHUD";
 import SpyInstance = jest.SpyInstance;
 
 describe("user clicks on the map to move", () => {
@@ -120,19 +121,19 @@ describe("user clicks on the map to move", () => {
         it('When user clicks off map', () => {
             selectorClicksOnMapLocation(selector, gameEngineState, -10, 9001);
             commonExpectations();
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
 
         it('When user clicks out of range', () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 4);
             commonExpectations();
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
         it('When user clicks in range but on invalid terrain', () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 1, 0);
             commonExpectations();
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
         it('When User clicks in range on another squaddie', () => {
@@ -147,8 +148,8 @@ describe("user clicks on the map to move", () => {
             });
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 2);
             commonExpectations();
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId).toEqual(anotherPlayer.battleSquaddieId);
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectedBattleSquaddieId).toEqual(anotherPlayer.battleSquaddieId);
         });
 
         const commonExpectations = () => {
@@ -252,7 +253,9 @@ const getGameEngineState = ({
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: battleSquaddieSelectedHUD,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD,
+            }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,

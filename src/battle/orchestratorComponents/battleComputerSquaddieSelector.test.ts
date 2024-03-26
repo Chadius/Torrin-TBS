@@ -52,6 +52,7 @@ import {ProcessedActionSquaddieEffect} from "../../action/processed/processedAct
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionService} from "../../action/processed/processedAction";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -221,7 +222,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 repository: squaddieRepo,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         battlePhaseState,
@@ -283,7 +284,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 repository: squaddieRepo,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         battlePhaseState,
@@ -356,7 +357,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     repository: squaddieRepo,
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
+
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             battlePhaseState,
@@ -438,7 +439,9 @@ describe('BattleComputerSquaddieSelector', () => {
                 repository: squaddieRepo,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         recording: {history: []},
@@ -497,7 +500,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     resourceHandler: undefined,
                     battleOrchestratorState:
                         BattleOrchestratorStateService.newOrchestratorState({
-                            battleSquaddieSelectedHUD: undefined,
+
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 battlePhaseState,

@@ -89,7 +89,7 @@ describe('File Access HUD', () => {
             return GameEngineStateService.new({
                 resourceHandler: resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,

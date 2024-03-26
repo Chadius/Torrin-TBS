@@ -33,6 +33,7 @@ import {CampaignFileFormat} from "../campaign/campaignFileFormat";
 import {TestCampaignData} from "../utils/test/campaignData";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {SaveSaveStateService} from "../dataLoader/saveSaveState";
+import {BattleHUDService} from "../battle/hud/battleHUD";
 
 describe('GameEngineGameLoader', () => {
     let loader: GameEngineGameLoader;
@@ -56,7 +57,7 @@ describe('GameEngineGameLoader', () => {
             repository: squaddieRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "",
                 }),
@@ -291,7 +292,9 @@ describe('GameEngineGameLoader', () => {
                 resourceHandler,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                        }),
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             camera: new BattleCamera(100, 200),

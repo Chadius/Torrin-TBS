@@ -55,7 +55,7 @@ const newSaveSaveState = ({
                           }: {
     errorDuringSaving?: boolean,
     savingInProgress?: boolean,
-    userRequestedSave?: boolean, // TODO clicking Save button should set this to true. What clears it?
+    userRequestedSave?: boolean,
 }): SaveSaveState => {
     return sanitize({
         errorDuringSaving,

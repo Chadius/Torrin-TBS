@@ -11,6 +11,7 @@ import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -181,6 +182,13 @@ export const FileAccessHUDService = {
     },
     updateStatusMessage: (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState): string => {
         return updateStatusMessage(fileAccessHUD, battleHUDState);
+    },
+    draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsContext) => {
+        fileAccessHUD.loadButton.draw(graphicsContext);
+        fileAccessHUD.saveButton.draw(graphicsContext);
+        if (fileAccessHUD.message) {
+            LabelService.draw(fileAccessHUD.messageLabel, graphicsContext);
+        }
     }
 }
 

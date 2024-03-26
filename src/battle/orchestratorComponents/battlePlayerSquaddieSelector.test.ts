@@ -47,6 +47,7 @@ import {BattlePhaseState} from "./battlePhaseController";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {BATTLE_HUD_MODE, config} from "../../configuration/config";
 import {KeyButtonName} from "../../utils/keyboardConfig";
+import {BattleHUDService} from "../hud/battleHUD";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -253,7 +254,9 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                 }),
-                battleSquaddieSelectedHUD: mockHud,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud
+                }),
             }),
             repository: squaddieRepo,
             campaign: CampaignService.default({}),
@@ -291,7 +294,6 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState,
@@ -324,7 +326,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(),
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -441,7 +445,9 @@ describe('BattleSquaddieSelector', () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
@@ -471,14 +477,14 @@ describe('BattleSquaddieSelector', () => {
             setUpGameEngineState(missionMap, battlePhaseState);
 
             selector.update(gameEngineState, mockedP5GraphicsContext);
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
         it('will not open the HUD if the character is not controllable', () => {
             const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
             setUpGameEngineState(missionMap, battlePhaseState);
 
             selector.update(gameEngineState, mockedP5GraphicsContext);
-            expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
         it('when user clicks on new location, will add movement to existing instruction', () => {
             const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
@@ -579,7 +585,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -620,7 +628,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -703,7 +713,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -811,7 +823,9 @@ describe('BattleSquaddieSelector', () => {
             state = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: mockHud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
@@ -913,7 +927,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -972,7 +988,9 @@ describe('BattleSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(),
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -1041,7 +1059,9 @@ describe('BattleSquaddieSelector', () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: mockHud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
@@ -1135,7 +1155,9 @@ describe('BattleSquaddieSelector', () => {
             const gameEngineState: GameEngineState = GameEngineStateService.new({
                 resourceHandler: mocks.mockResourceHandler(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: hud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: hud
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         battlePhaseState,
@@ -1159,7 +1181,9 @@ describe('BattleSquaddieSelector', () => {
             const gameEngineState: GameEngineState = GameEngineStateService.new({
                 resourceHandler: mocks.mockResourceHandler(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: hud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: hud
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         battlePhaseState,
@@ -1209,7 +1233,9 @@ describe('BattleSquaddieSelector', () => {
             const gameEngineState: GameEngineState = GameEngineStateService.new({
                 resourceHandler: mocks.mockResourceHandler(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: hud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: hud
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         battlePhaseState,

@@ -127,7 +127,6 @@ describe('dialogue box player', () => {
             });
 
             const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: {

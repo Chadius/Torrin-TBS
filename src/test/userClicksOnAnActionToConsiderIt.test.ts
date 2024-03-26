@@ -116,7 +116,7 @@ describe('user clicks on an action to consider it', () => {
                 turnCount: 0,
             }),
         });
-        gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
@@ -218,7 +218,6 @@ const getGameEngineState = ({
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
