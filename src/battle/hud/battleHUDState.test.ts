@@ -1,7 +1,5 @@
 import {BattleHUDState, BattleHUDStateService} from "./battleHUDState";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
-import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
-import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 
 describe('BattleHUDState', () => {
     it('can be initialized with default fields', () => {

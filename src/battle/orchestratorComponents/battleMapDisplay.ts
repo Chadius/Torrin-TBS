@@ -18,8 +18,7 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
-import {FileAccessHUD, FileAccessHUDService} from "../hud/fileAccessHUD";
-import {FileState} from "../../gameEngine/fileState";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {

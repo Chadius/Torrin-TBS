@@ -1,7 +1,5 @@
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
-import {LoadSaveState, LoadSaveStateService} from "../../dataLoader/loadSaveState";
-import {SaveSaveState, SaveSaveStateService} from "../../dataLoader/saveSaveState";
 
 export interface BattleHUDState {
     hudMode: BATTLE_HUD_MODE;

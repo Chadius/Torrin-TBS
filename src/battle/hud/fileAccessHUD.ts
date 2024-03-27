@@ -3,7 +3,7 @@ import {MouseButton} from "../../utils/mouseConfig";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {Label, LabelService} from "../../ui/label";
-import {WINDOW_SPACING1} from "../../ui/constants";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../../ui/constants";
 import {isValidValue} from "../../utils/validityCheck";
 import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
@@ -54,7 +54,7 @@ export const FileAccessHUDDesign = {
         FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING1,
         TEXT: "Load",
-        TEXT_SIZE: 10
+        TEXT_SIZE: 16
     },
     SAVE_BUTTON: {
         AREA: {
@@ -86,22 +86,22 @@ export const FileAccessHUDDesign = {
         FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING1,
         TEXT: "Save",
-        TEXT_SIZE: 10
+        TEXT_SIZE: 16
     },
     MESSAGE_LABEL: {
         AREA: {
-            startColumn: 0,
-            endColumn: 2,
+            startColumn: 9,
+            endColumn: 9,
             top: 10,
-            bottom: 100,
+            bottom: 50,
         },
         RECTANGLE: {
             noFill: true,
             noStroke: true,
         },
-        FONT_COLOR: [0, 100, 100],
+        FONT_COLOR: [0, 0, 100],
         PADDING: WINDOW_SPACING1,
-        TEXT_SIZE: 10
+        TEXT_SIZE: 20
     },
 }
 
@@ -261,6 +261,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.strokeColor,
@@ -271,6 +273,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.strokeColor,
@@ -281,6 +285,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.strokeColor,
@@ -291,6 +297,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.strokeColor,
@@ -314,6 +322,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.strokeColor,
@@ -324,6 +334,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.strokeColor,
@@ -334,6 +346,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.strokeColor,
@@ -344,6 +358,8 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
             padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor: FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.fillColor,
             strokeColor: FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.strokeColor,
@@ -370,6 +386,8 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
         noStroke: FileAccessHUDDesign.MESSAGE_LABEL.RECTANGLE.noStroke,
         padding: FileAccessHUDDesign.MESSAGE_LABEL.PADDING,
         text: fileAccessHUD.message,
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER,
         textSize: FileAccessHUDDesign.MESSAGE_LABEL.TEXT_SIZE,
         fontColor: FileAccessHUDDesign.MESSAGE_LABEL.FONT_COLOR
     });
@@ -417,14 +435,14 @@ const changeButtonStatusBasedOnMessage = (fileAccessHUD: FileAccessHUD) => {
     }
 };
 
-function didCurrentMessageExpire(fileAccessHUD: FileAccessHUD) {
+const didCurrentMessageExpire = (fileAccessHUD: FileAccessHUD) => {
     const messageIsCurrentlySet: boolean = isValidValue(fileAccessHUD.message);
     const messageTimerIsSet: boolean = isValidValue(fileAccessHUD.messageDisplayStartTime);
     const messageExpired = Date.now() > fileAccessHUD.messageDisplayStartTime + FileAccessHUDDesign.MESSAGE_DISPLAY_DURATION;
     return messageIsCurrentlySet
         && messageTimerIsSet
         && messageExpired;
-}
+};
 
 const calculateMessageToShow = (fileState: FileState, fileAccessHUD: FileAccessHUD): string => {
     const messageChecks: { [key in FileAccessHUDMessage]?: boolean } = {

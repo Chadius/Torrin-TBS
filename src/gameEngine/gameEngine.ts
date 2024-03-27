@@ -22,9 +22,8 @@ import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 import {Campaign} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
-import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
-import {LoadSaveState, LoadSaveStateService} from "../dataLoader/loadSaveState";
-import {SaveSaveState, SaveSaveStateService} from "../dataLoader/saveSaveState";
+import {isValidValue} from "../utils/validityCheck";
+import {SaveSaveStateService} from "../dataLoader/saveSaveState";
 import {FileState, FileStateService} from "./fileState";
 
 export interface GameEngineState {

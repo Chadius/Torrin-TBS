@@ -37,6 +37,9 @@ export const LoadSaveStateService = {
     },
     userRequestsLoad: (loadSaveState: LoadSaveState): void => {
         loadSaveState.userRequestedLoad = true;
+        loadSaveState.applicationErroredWhileLoading = false;
+        loadSaveState.userCanceledLoad = false;
+        loadSaveState.applicationCompletedLoad = false;
     },
     applicationStartsLoad: (loadSaveState: LoadSaveState): void => {
         loadSaveState.applicationStartedLoad = true;
