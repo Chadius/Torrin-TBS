@@ -1,6 +1,5 @@
 import {Button, ButtonStatus} from "../../ui/button";
 import {MouseButton} from "../../utils/mouseConfig";
-import {BattleHUDState} from "./battleHUDState";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {Label, LabelService} from "../../ui/label";
@@ -12,6 +11,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {FileState} from "../../gameEngine/fileState";
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -90,8 +90,8 @@ export const FileAccessHUDDesign = {
     },
     MESSAGE_LABEL: {
         AREA: {
-            startColumn: 6,
-            endColumn: 8,
+            startColumn: 0,
+            endColumn: 2,
             top: 10,
             bottom: 100,
         },
@@ -101,7 +101,7 @@ export const FileAccessHUDDesign = {
         },
         FONT_COLOR: [0, 100, 100],
         PADDING: WINDOW_SPACING1,
-        TEXT_SIZE: 100
+        TEXT_SIZE: 10
     },
 }
 
@@ -150,18 +150,18 @@ export const FileAccessHUDService = {
             mouseButton,
             mouseX,
             mouseY,
-            battleHUDState,
+            fileState,
         }
             : {
             fileAccessHUD: FileAccessHUD,
             mouseButton: MouseButton,
             mouseX: number,
             mouseY: number,
-            battleHUDState: BattleHUDState
+            fileState: FileState,
         }
     ) => {
-        fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, battleHUDState});
-        fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, battleHUDState});
+        fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, fileState});
+        fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, fileState});
     },
     updateBasedOnGameEngineState: (fileAccessHUD: FileAccessHUD, gameEngineState: GameEngineState) => {
         if (
@@ -177,41 +177,41 @@ export const FileAccessHUDService = {
 
         return changeButtonStatusBasedOnMessage(fileAccessHUD);
     },
-    updateButtonStatus: (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState) => {
+    updateButtonStatus: (fileAccessHUD: FileAccessHUD) => {
         changeButtonStatusBasedOnMessage(fileAccessHUD);
     },
-    updateStatusMessage: (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState): string => {
-        return updateStatusMessage(fileAccessHUD, battleHUDState);
+    updateStatusMessage: (fileAccessHUD: FileAccessHUD, fileState: FileState): string => {
+        return updateStatusMessage(fileAccessHUD, fileState);
     },
     draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsContext) => {
         fileAccessHUD.loadButton.draw(graphicsContext);
         fileAccessHUD.saveButton.draw(graphicsContext);
-        if (fileAccessHUD.message) {
+        if (isValidValue(fileAccessHUD.messageLabel.textBox.text)) {
             LabelService.draw(fileAccessHUD.messageLabel, graphicsContext);
         }
     }
 }
 
-const updateStatusMessage = (fileAccessHUD: FileAccessHUD, battleHUDState: BattleHUDState): string => {
+const updateStatusMessage = (fileAccessHUD: FileAccessHUD, fileState: FileState): string => {
     switch (didCurrentMessageExpire(fileAccessHUD)) {
         case true:
-            if (SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(battleHUDState.saveSaveState)) {
-                SaveSaveStateService.userFinishesRequestingSave(battleHUDState.saveSaveState);
+            if (SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(fileState.saveSaveState)) {
+                SaveSaveStateService.userFinishesRequestingSave(fileState.saveSaveState);
             }
-            clearMessage(battleHUDState, fileAccessHUD);
+            clearMessage(fileAccessHUD);
             break;
         default:
-            const messageToShow = calculateMessageToShow(battleHUDState, fileAccessHUD);
+            const messageToShow = calculateMessageToShow(fileState, fileAccessHUD);
             updateMessageLabel(fileAccessHUD, messageToShow);
             break;
     }
     return fileAccessHUD.message;
 }
 
-const battleIsCurrentlySavingOrLoading = (caller: { fileAccessHUD: FileAccessHUD; battleHUDState: BattleHUDState }) =>
-    caller.battleHUDState.saveSaveState.savingInProgress
-    || caller.battleHUDState.loadSaveState.userRequestedLoad
-    || caller.battleHUDState.loadSaveState.applicationStartedLoad;
+const battleIsCurrentlySavingOrLoading = (caller: { fileAccessHUD: FileAccessHUD; fileState: FileState }) =>
+    caller.fileState.saveSaveState.savingInProgress
+    || caller.fileState.loadSaveState.userRequestedLoad
+    || caller.fileState.loadSaveState.applicationStartedLoad;
 
 const clickedOnLoadButton = (
     mouseX: number,
@@ -219,13 +219,13 @@ const clickedOnLoadButton = (
     button: Button,
     caller: {
         fileAccessHUD: FileAccessHUD,
-        battleHUDState: BattleHUDState
+        fileState: FileState,
     }
 ): {} => {
     if (battleIsCurrentlySavingOrLoading(caller)) {
         return;
     }
-    LoadSaveStateService.userRequestsLoad(caller.battleHUDState.loadSaveState);
+    LoadSaveStateService.userRequestsLoad(caller.fileState.loadSaveState);
     disableButtonsAndClearCache(caller.fileAccessHUD);
     return undefined;
 }
@@ -236,13 +236,13 @@ const clickedOnSaveButton = (
     button: Button,
     caller: {
         fileAccessHUD: FileAccessHUD,
-        battleHUDState: BattleHUDState
+        fileState: FileState,
     }
 ): {} => {
     if (battleIsCurrentlySavingOrLoading(caller)) {
         return;
     }
-    SaveSaveStateService.userRequestsSave(caller.battleHUDState.saveSaveState);
+    SaveSaveStateService.userRequestsSave(caller.fileState.saveSaveState);
     disableButtonsAndClearCache(caller.fileAccessHUD);
     return undefined;
 }
@@ -298,7 +298,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         }),
         onClickHandler(mouseX: number, mouseY: number, button: Button, caller: {
             fileAccessHUD: FileAccessHUD,
-            battleHUDState: BattleHUDState
+            fileState: FileState,
         }): {} {
             return clickedOnLoadButton(mouseX, mouseY, button, caller);
         },
@@ -351,7 +351,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         }),
         onClickHandler(mouseX: number, mouseY: number, button: Button, caller: {
             fileAccessHUD: FileAccessHUD,
-            battleHUDState: BattleHUDState
+            fileState: FileState,
         }): {} {
             return clickedOnSaveButton(mouseX, mouseY, button, caller);
         },
@@ -396,14 +396,16 @@ const disableButtonsAndClearCache = (fileAccessHUD: FileAccessHUD) => {
 };
 
 const restoreButtonStatusAndClearCache = (fileAccessHUD: FileAccessHUD) => {
-    if (fileAccessHUD.loadButtonCachedStatus != undefined) {
-        fileAccessHUD.loadButton.setStatus(fileAccessHUD.loadButtonCachedStatus);
-    }
+    const loadButtonStatus: ButtonStatus = fileAccessHUD.loadButtonCachedStatus != undefined
+        ? fileAccessHUD.loadButtonCachedStatus
+        : ButtonStatus.READY;
+    fileAccessHUD.loadButton.setStatus(loadButtonStatus);
     fileAccessHUD.loadButtonCachedStatus = undefined;
 
-    if (fileAccessHUD.saveButtonCachedStatus != undefined) {
-        fileAccessHUD.saveButton.setStatus(fileAccessHUD.saveButtonCachedStatus);
-    }
+    const saveButtonStatus: ButtonStatus = fileAccessHUD.saveButtonCachedStatus != undefined
+        ? fileAccessHUD.saveButtonCachedStatus
+        : ButtonStatus.READY;
+    fileAccessHUD.saveButton.setStatus(saveButtonStatus);
     fileAccessHUD.saveButtonCachedStatus = undefined;
 };
 
@@ -424,14 +426,14 @@ function didCurrentMessageExpire(fileAccessHUD: FileAccessHUD) {
         && messageExpired;
 }
 
-const calculateMessageToShow = (battleHUDState: BattleHUDState, fileAccessHUD: FileAccessHUD): string => {
+const calculateMessageToShow = (fileState: FileState, fileAccessHUD: FileAccessHUD): string => {
     const messageChecks: { [key in FileAccessHUDMessage]?: boolean } = {
-        [FileAccessHUDMessage.SAVE_IN_PROGRESS]: (battleHUDState.saveSaveState.userRequestedSave && battleHUDState.saveSaveState.savingInProgress),
-        [FileAccessHUDMessage.SAVE_SUCCESS]: (battleHUDState.saveSaveState.userRequestedSave && !battleHUDState.saveSaveState.savingInProgress),
-        [FileAccessHUDMessage.SAVE_FAILED]: (battleHUDState.saveSaveState.userRequestedSave && battleHUDState.saveSaveState.errorDuringSaving),
-        [FileAccessHUDMessage.LOAD_IN_PROGRESS]: (battleHUDState.loadSaveState.userRequestedLoad && battleHUDState.loadSaveState.applicationStartedLoad),
-        [FileAccessHUDMessage.LOAD_SUCCESS]: (battleHUDState.loadSaveState.userRequestedLoad && battleHUDState.loadSaveState.applicationCompletedLoad),
-        [FileAccessHUDMessage.LOAD_FAILED]: (battleHUDState.loadSaveState.userRequestedLoad && battleHUDState.loadSaveState.applicationErroredWhileLoading),
+        [FileAccessHUDMessage.SAVE_IN_PROGRESS]: (fileState.saveSaveState.userRequestedSave && fileState.saveSaveState.savingInProgress),
+        [FileAccessHUDMessage.SAVE_SUCCESS]: (fileState.saveSaveState.userRequestedSave && !fileState.saveSaveState.savingInProgress),
+        [FileAccessHUDMessage.SAVE_FAILED]: (fileState.saveSaveState.userRequestedSave && fileState.saveSaveState.errorDuringSaving),
+        [FileAccessHUDMessage.LOAD_IN_PROGRESS]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationStartedLoad),
+        [FileAccessHUDMessage.LOAD_SUCCESS]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationCompletedLoad),
+        [FileAccessHUDMessage.LOAD_FAILED]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationErroredWhileLoading),
     }
 
     const messagePriority = [
@@ -465,7 +467,7 @@ const updateMessageLabel = (fileAccessHUD: FileAccessHUD, messageToShow: string)
     resetMessageTimer(fileAccessHUD);
 };
 
-const clearMessage = (battleHUDState: BattleHUDState, fileAccessHUD: FileAccessHUD) => {
+const clearMessage = (fileAccessHUD: FileAccessHUD) => {
     fileAccessHUD.message = undefined;
     fileAccessHUD.messageDisplayStartTime = undefined;
     createMessageLabel(fileAccessHUD);

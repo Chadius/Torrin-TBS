@@ -480,7 +480,6 @@ export class TitleScreen implements GameEngineComponent {
 
     private lazyLoadBackground() {
         if (this.background === undefined) {
-
             this.background = RectangleHelper.new({
                 area: RectAreaService.new({
                     left: 0,

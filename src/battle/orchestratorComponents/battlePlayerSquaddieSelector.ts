@@ -90,13 +90,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        // TODO Even when I click on load button, changes aren't carrying over into the battleOrchestratorState.
         FileAccessHUDService.mouseClicked({
             fileAccessHUD: state.battleOrchestratorState.battleHUD.fileAccessHUD,
             mouseX,
             mouseY,
             mouseButton: MouseButton.LEFT,
-            battleHUDState: state.battleOrchestratorState.battleHUDState,
+            fileState: state.fileState,
         });
 
         if (state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {

@@ -22,9 +22,10 @@ import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 import {Campaign} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
-import {isValidValue} from "../utils/validityCheck";
+import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {LoadSaveState, LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {SaveSaveState, SaveSaveStateService} from "../dataLoader/saveSaveState";
+import {FileState, FileStateService} from "./fileState";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -34,10 +35,7 @@ export interface GameEngineState {
     titleScreenState: TitleScreenState;
     campaign: Campaign;
     campaignIdThatWasLoaded: string;
-    fileState: {
-        saveSaveState: SaveSaveState;
-        loadSaveState: LoadSaveState;
-    }
+    fileState: FileState;
 }
 
 export const GameEngineStateService = {
@@ -60,10 +58,7 @@ export const GameEngineStateService = {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
             battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            fileState: {
-                saveSaveState: SaveSaveStateService.new({}),
-                loadSaveState: LoadSaveStateService.new({})
-            },
+            fileState: FileStateService.new({}),
             campaign,
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,

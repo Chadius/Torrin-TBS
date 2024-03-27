@@ -18,7 +18,8 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
-import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {FileAccessHUD, FileAccessHUDService} from "../hud/fileAccessHUD";
+import {FileState} from "../../gameEngine/fileState";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -35,6 +36,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(gameEngineState, graphicsContext);
 
         FileAccessHUDService.updateBasedOnGameEngineState(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState);
+        FileAccessHUDService.updateStatusMessage(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState.fileState);
         FileAccessHUDService.draw(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, graphicsContext);
     }
 
