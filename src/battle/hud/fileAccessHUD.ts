@@ -187,6 +187,9 @@ export const FileAccessHUDService = {
         if (isValidValue(fileAccessHUD.messageLabel.textBox.text)) {
             LabelService.draw(fileAccessHUD.messageLabel, graphicsContext);
         }
+    },
+    enableButtons: (fileAccessHUD: FileAccessHUD) => {
+        return enableButtons(fileAccessHUD);
     }
 }
 

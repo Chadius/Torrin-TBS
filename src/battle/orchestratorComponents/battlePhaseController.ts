@@ -29,6 +29,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -129,6 +130,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             state.battleOrchestratorState.battleState.camera.setYVelocity(0);
 
             this.panToControllablePlayerSquaddieIfPlayerPhase(state);
+            this.updateHUDIfPlayerPhase(state);
 
             FindTeamsOfAffiliation(
                 state.battleOrchestratorState.battleState.teams,
@@ -257,6 +259,14 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             });
             return;
         }
+    }
+
+    private updateHUDIfPlayerPhase = (gameEngineState: GameEngineState) => {
+        if (gameEngineState.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER) {
+            return;
+        }
+
+        FileAccessHUDService.enableButtons(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD);
     }
 }
 

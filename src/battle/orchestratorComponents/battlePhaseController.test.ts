@@ -20,6 +20,7 @@ import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: ObjectRepository;
@@ -217,7 +218,7 @@ describe('BattlePhaseController', () => {
         expect(state.battleOrchestratorState.battleState.camera.getVelocity()).toStrictEqual([0, 0]);
     });
 
-    describe('Pan camera at the start of Player Phase', () => {
+    describe('The start of Player Phase', () => {
         let missionMap: MissionMap;
 
         beforeEach(() => {
@@ -280,6 +281,22 @@ describe('BattlePhaseController', () => {
             expect(state.battleOrchestratorState.battleState.camera.panningInformation.yDestination).toBe(playerSquaddieLocation[1]);
         });
 
+        it('enables and shows the HUD at the start of the player phase', () => {
+            const fileAccessHUDSpy = jest.spyOn(FileAccessHUDService, "enableButtons");
+            const state = initializeState({
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
+                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
+                camera: new BattleCamera(
+                    ScreenDimensions.SCREEN_WIDTH * 10,
+                    ScreenDimensions.SCREEN_HEIGHT * 10,
+                ),
+            });
+
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(fileAccessHUDSpy).toBeCalled();
+            fileAccessHUDSpy.mockRestore();
+        });
+
         it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {
             const state = initializeState({
                 squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
@@ -303,28 +320,43 @@ describe('BattlePhaseController', () => {
         });
     });
 
-    it('starts the animation and completes if team has finished their turns', () => {
-        state.battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
-            turnCount: 0,
-        };
-
-        AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
-        expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
-
-        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
-        BattleSquaddieService.endTurn(battleSquaddie0);
-
+    describe('player team completes their turn', () => {
         const startTime = 100;
-        jest.spyOn(Date, 'now').mockImplementation(() => startTime);
-        battlePhaseController.update(state, mockedP5GraphicsContext);
-        expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
-        expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
 
-        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
-        battlePhaseController.update(state, mockedP5GraphicsContext);
-        expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
-        expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
+        beforeEach(() => {
+            state.battleOrchestratorState.battleState.battlePhaseState = {
+                currentAffiliation: BattlePhase.UNKNOWN,
+                turnCount: 0,
+            };
+
+            AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
+
+            const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
+            BattleSquaddieService.endTurn(battleSquaddie0);
+
+            jest.spyOn(Date, 'now').mockImplementation(() => startTime);
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
+        });
+
+        it('starts the animation and completes if team has finished their turns', () => {
+            jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
+        });
+
+        it('does not enable the HUD at the start of the phase', () => {
+            const fileAccessHUDSpy = jest.spyOn(FileAccessHUDService, "enableButtons");
+            jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).not.toBe(BattlePhase.PLAYER);
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(fileAccessHUDSpy).not.toBeCalled();
+            fileAccessHUDSpy.mockRestore();
+        });
     });
 
     it('only draws the banner while the timer is going', () => {
