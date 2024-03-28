@@ -40,7 +40,7 @@ describe('BattleCutscenePlayer', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -60,7 +60,7 @@ describe('BattleCutscenePlayer', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -84,7 +84,7 @@ describe('BattleCutscenePlayer', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -108,7 +108,7 @@ describe('BattleCutscenePlayer', () => {
         });
         const initialState: GameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -140,7 +140,7 @@ describe('BattleCutscenePlayer', () => {
         const initialState: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -169,7 +169,7 @@ describe('BattleCutscenePlayer', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection

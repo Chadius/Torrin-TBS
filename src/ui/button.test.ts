@@ -1,11 +1,11 @@
 import {Button, ButtonStatus} from "./button";
-import {LabelHelper} from "./label";
+import {LabelService} from "./label";
 import {RectAreaService} from "./rectArea";
 
 describe('Button UI', () => {
     it('defaults to ready status', () => {
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: undefined,
                 padding: undefined,
                 text: "ready",
@@ -19,7 +19,7 @@ describe('Button UI', () => {
 
     it('can change initial status', () => {
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: undefined,
                 padding: undefined,
                 text: "should be active",
@@ -34,7 +34,7 @@ describe('Button UI', () => {
 
     it('can change status', () => {
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: undefined,
                 padding: undefined,
                 text: "active then ready",
@@ -54,7 +54,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -82,7 +82,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -94,7 +94,7 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: LabelHelper.new({
+            hoverLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -123,7 +123,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -150,7 +150,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -162,7 +162,7 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: LabelHelper.new({
+            hoverLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -191,7 +191,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -217,7 +217,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -229,7 +229,7 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: LabelHelper.new({
+            hoverLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -255,7 +255,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -267,7 +267,7 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: LabelHelper.new({
+            hoverLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -292,7 +292,7 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: LabelHelper.new({
+            readyLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,
@@ -304,7 +304,7 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: LabelHelper.new({
+            hoverLabel: LabelService.new({
                 area: RectAreaService.new({
                     left: 10,
                     top: 25,

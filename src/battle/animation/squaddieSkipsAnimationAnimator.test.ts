@@ -14,7 +14,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import {LabelHelper} from "../../ui/label";
+import {LabelService} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
@@ -122,7 +122,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     recording: battleEventRecording,
@@ -133,7 +133,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         })
 
         const outputResultForTextOnlySpy = jest.spyOn(ActionResultTextService.ActionResultTextService, "outputResultForTextOnly");
-        const drawLabelSpy = jest.spyOn(LabelHelper, "draw");
+        const drawLabelSpy = jest.spyOn(LabelService, "draw");
 
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
@@ -154,7 +154,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: monkMeditatesInstruction,
@@ -178,7 +178,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: monkMeditatesInstruction,

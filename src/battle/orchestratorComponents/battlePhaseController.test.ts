@@ -113,7 +113,7 @@ describe('BattlePhaseController', () => {
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: {
@@ -153,7 +153,7 @@ describe('BattlePhaseController', () => {
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -191,7 +191,7 @@ describe('BattlePhaseController', () => {
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -239,7 +239,7 @@ describe('BattlePhaseController', () => {
         }): GameEngineState => {
             missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, {q: 0, r: 0});
             const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -332,7 +332,7 @@ describe('BattlePhaseController', () => {
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -378,7 +378,7 @@ describe('BattlePhaseController', () => {
                 resourceHandler: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
+
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                         }),
@@ -401,7 +401,7 @@ describe('BattlePhaseController', () => {
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: phase,
@@ -461,7 +461,7 @@ describe('BattlePhaseController', () => {
                 repository: squaddieRepo,
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         teams,
@@ -498,7 +498,7 @@ describe('BattlePhaseController', () => {
                 repository: squaddieRepo,
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         teams,

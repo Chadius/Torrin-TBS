@@ -3,7 +3,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {Label, LabelHelper} from "../../ui/label";
+import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -81,7 +81,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
             const textToDraw = this.outputTextStrings.join("\n");
 
-            this.outputTextDisplay = LabelHelper.new({
+            this.outputTextDisplay = LabelService.new({
                 area: RectAreaService.new({
                     startColumn: 4,
                     endColumn: 10,
@@ -101,7 +101,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             });
         }
 
-        LabelHelper.draw(this.outputTextDisplay, graphicsContext);
+        LabelService.draw(this.outputTextDisplay, graphicsContext);
     }
 
     private draw(state: GameEngineState, graphicsContext: GraphicsContext) {

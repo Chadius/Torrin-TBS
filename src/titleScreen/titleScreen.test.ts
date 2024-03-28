@@ -152,7 +152,7 @@ describe('Title Screen', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
             expect(loadGame).toBeCalled();
 
-            expect(gameEngineState.loadSaveState.userRequestedLoad).toBeTruthy();
+            expect(gameEngineState.fileState.loadSaveState.userRequestedLoad).toBeTruthy();
 
             let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -200,7 +200,7 @@ describe('Title Screen', () => {
                 const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
                 titleScreen.update(gameEngineState, mockedP5GraphicsContext);
                 titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
-                loadSaveStateChange(gameEngineState.loadSaveState);
+                loadSaveStateChange(gameEngineState.fileState.loadSaveState);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -213,7 +213,7 @@ describe('Title Screen', () => {
                     expect.anything(),
                     expect.anything()
                 );
-                expect(expectedSaveStateField(gameEngineState.loadSaveState)).toBeTruthy();
+                expect(expectedSaveStateField(gameEngineState.fileState.loadSaveState)).toBeTruthy();
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();
@@ -225,7 +225,7 @@ describe('Title Screen', () => {
                     expect.anything()
                 );
 
-                expect(expectedSaveStateField(gameEngineState.loadSaveState)).toBeFalsy();
+                expect(expectedSaveStateField(gameEngineState.fileState.loadSaveState)).toBeFalsy();
             });
         });
 
@@ -234,7 +234,7 @@ describe('Title Screen', () => {
             const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
             titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
-            gameEngineState.loadSaveState.applicationErroredWhileLoading = true;
+            gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading = true;
 
             const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -247,7 +247,7 @@ describe('Title Screen', () => {
                 expect.anything(),
                 expect.anything()
             );
-            expect(gameEngineState.loadSaveState.applicationErroredWhileLoading).toBeTruthy();
+            expect(gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading).toBeTruthy();
 
             jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
             textSpy.mockClear();
@@ -259,7 +259,7 @@ describe('Title Screen', () => {
                 expect.anything()
             );
 
-            expect(gameEngineState.loadSaveState.applicationErroredWhileLoading).toBeFalsy();
+            expect(gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading).toBeFalsy();
         });
         it('should mark as completed and recommend the battle loader', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();

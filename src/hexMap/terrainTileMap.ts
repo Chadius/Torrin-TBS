@@ -180,7 +180,7 @@ export class TerrainTileMap {
     }
 }
 
-export const TerrainTileMapHelper = {
+export const TerrainTileMapService = {
     new: ({movementCost}: { movementCost: string[] }): TerrainTileMap => {
         return new TerrainTileMap({movementCost});
     },

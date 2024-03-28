@@ -1,4 +1,4 @@
-import {Label, LabelHelper} from "./label";
+import {Label, LabelService} from "./label";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {RectAreaService} from "./rectArea";
 
@@ -94,7 +94,7 @@ export class Button {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        LabelHelper.draw(this.getCurrentLabel(), graphicsContext);
+        LabelService.draw(this.getCurrentLabel(), graphicsContext);
     }
 
     private getCurrentLabel(): Label {

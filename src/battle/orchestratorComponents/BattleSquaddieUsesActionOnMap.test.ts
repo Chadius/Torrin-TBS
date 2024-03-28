@@ -56,7 +56,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             repository: squaddieRepository,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     actionsThisRound: ActionsThisRoundService.new({

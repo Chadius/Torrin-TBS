@@ -501,7 +501,7 @@ describe('Cutscene', () => {
             ]
         });
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),

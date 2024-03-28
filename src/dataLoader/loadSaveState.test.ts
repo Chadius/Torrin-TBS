@@ -16,7 +16,7 @@ describe('Load SaveState', () => {
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera: new BattleCamera(100, 200),

@@ -45,6 +45,7 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -175,7 +176,9 @@ describe('Battle Orchestrator', () => {
             resourceHandler: undefined,
             battleOrchestratorState:
                 BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: mockHud,
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
+                    }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap: new MissionMap({
@@ -253,7 +256,7 @@ describe('Battle Orchestrator', () => {
         const turn0State: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: new MissionMap({
@@ -295,7 +298,7 @@ describe('Battle Orchestrator', () => {
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
             resourceHandler: nullState.resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
+
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection,
@@ -336,7 +339,7 @@ describe('Battle Orchestrator', () => {
             resourceHandler: nullState.resourceHandler,
             battleOrchestratorState:
                 BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
+
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         cutsceneCollection,
@@ -367,7 +370,7 @@ describe('Battle Orchestrator', () => {
                 }),
             repository: ObjectRepositoryService.new(),
         });
-        LoadSaveStateService.applicationStartsLoad(stateWithCutscene.loadSaveState);
+        LoadSaveStateService.applicationStartsLoad(stateWithCutscene.fileState.loadSaveState);
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
@@ -554,7 +557,9 @@ describe('Battle Orchestrator', () => {
                 resourceHandler: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: mockHud,
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD: mockHud,
+                        }),
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap: new MissionMap({
@@ -598,7 +603,9 @@ describe('Battle Orchestrator', () => {
                 resourceHandler: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: mockHud,
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD: mockHud,
+                        }),
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap: new MissionMap({
@@ -641,7 +648,9 @@ describe('Battle Orchestrator', () => {
                     resourceHandler: undefined,
                     battleOrchestratorState:
                         BattleOrchestratorStateService.newOrchestratorState({
-                            battleSquaddieSelectedHUD: mockHud,
+                            battleHUD: BattleHUDService.new({
+                                battleSquaddieSelectedHUD: mockHud,
+                            }),
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap: new MissionMap({
@@ -851,7 +860,7 @@ describe('Battle Orchestrator', () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                     }),
-                    battleSquaddieSelectedHUD: undefined,
+
                 }),
                 repository: undefined,
             });
@@ -900,7 +909,9 @@ describe('Battle Orchestrator', () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                     }),
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    }),
                 }),
                 repository: undefined,
             });
@@ -939,7 +950,7 @@ describe('Battle Orchestrator', () => {
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                         }),
-                        battleSquaddieSelectedHUD: undefined,
+
                     }),
                 repository: undefined,
             });
@@ -965,11 +976,11 @@ describe('Battle Orchestrator', () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                 }),
-                battleSquaddieSelectedHUD: undefined,
+
             }),
             repository: undefined,
         });
-        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
+        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState);
 
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(orchestrator.hasCompleted(state)).toBeTruthy();

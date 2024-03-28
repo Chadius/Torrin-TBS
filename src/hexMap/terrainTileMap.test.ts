@@ -1,4 +1,4 @@
-import {TerrainTileMap, TerrainTileMapHelper} from "./terrainTileMap";
+import {TerrainTileMap, TerrainTileMapService} from "./terrainTileMap";
 import {HexGridTile} from "./hexGrid";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
@@ -158,7 +158,7 @@ describe('hexMap', () => {
                 ]
             });
 
-            const mapWithLocationsThatCanBeVisitedByWalker: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+            const mapWithLocationsThatCanBeVisitedByWalker: MapLayer = TerrainTileMapService.createMapLayerForVisitableTiles({
                 terrainTileMap: terrain,
                 canCrossOverPits: false,
                 canPassThroughWalls: false
@@ -176,7 +176,7 @@ describe('hexMap', () => {
                 });
             });
 
-            const mapWithLocationsThatCanBeVisitedByFlyer: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+            const mapWithLocationsThatCanBeVisitedByFlyer: MapLayer = TerrainTileMapService.createMapLayerForVisitableTiles({
                 terrainTileMap: terrain,
                 canCrossOverPits: true,
                 canPassThroughWalls: false
@@ -194,7 +194,7 @@ describe('hexMap', () => {
                 });
             });
 
-            const mapWithLocationsThatCanBeVisitedByTeleport: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+            const mapWithLocationsThatCanBeVisitedByTeleport: MapLayer = TerrainTileMapService.createMapLayerForVisitableTiles({
                 terrainTileMap: terrain,
                 canCrossOverPits: true,
                 canPassThroughWalls: true
@@ -215,7 +215,7 @@ describe('hexMap', () => {
                 ]
             });
 
-            const mapWithLocationsThatCanBeStoppedOn: MapLayer = TerrainTileMapHelper.createMapLayerForStoppableTiles({
+            const mapWithLocationsThatCanBeStoppedOn: MapLayer = TerrainTileMapService.createMapLayerForStoppableTiles({
                 terrainTileMap: terrain,
             });
             [0, 1, 2, 3, 4].forEach(r => {

@@ -9,14 +9,8 @@ import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
-import {Label, LabelHelper} from "../../ui/label";
-import {
-    HORIZ_ALIGN_CENTER,
-    VERT_ALIGN_BASELINE,
-    VERT_ALIGN_CENTER,
-    WINDOW_SPACING1,
-    WINDOW_SPACING2
-} from "../../ui/constants";
+import {Label, LabelService} from "../../ui/label";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER, WINDOW_SPACING1,} from "../../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
@@ -24,7 +18,6 @@ import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContex
 import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DrawBattleHUD} from "./drawBattleHUD";
@@ -37,11 +30,9 @@ import {isValidValue} from "../../utils/validityCheck";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
-import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 import {ActionTemplate} from "../../action/template/actionTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMapService} from "../../missionMap/missionMap";
-import {SaveSaveStateService} from "../../dataLoader/saveSaveState";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 const DECISION_BUTTON_LAYOUT = {
@@ -99,8 +90,6 @@ export class BattleSquaddieSelectedHUD {
 
     affiliateIcon?: ImageUI;
     makeDecisionButtons: MakeDecisionButton[];
-    loadGameButton: Label;
-    saveGameButton: Label;
     nextSquaddieButton: Label;
     endTurnButton: Label;
     nextBattleSquaddieIds: string[];
@@ -146,7 +135,6 @@ export class BattleSquaddieSelectedHUD {
             squaddieTemplate.squaddieId.affiliation,
             repositionWindow ? repositionWindow.mouseY : undefined
         );
-        this.generateSaveAndLoadGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateEndTurnButton(windowDimensions);
 
@@ -207,18 +195,13 @@ export class BattleSquaddieSelectedHUD {
         this.drawHitPoints(state, graphicsContext);
         this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state);
-        this.drawFileAccessWarning(state);
         if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
             TextBoxHelper.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
         }
         if (this.shouldDrawNextButton(state)) {
-            LabelHelper.draw(this.nextSquaddieButton, graphicsContext);
+            LabelService.draw(this.nextSquaddieButton, graphicsContext);
         }
         this.maybeDrawEndTurnButton(state, graphicsContext);
-        if (this.shouldDrawSaveAndLoadButton(state)) {
-            LabelHelper.draw(this.saveGameButton, graphicsContext);
-            LabelHelper.draw(this.loadGameButton, graphicsContext);
-        }
     }
 
     getUseActionButtons(): MakeDecisionButton[] {
@@ -254,9 +237,9 @@ export class BattleSquaddieSelectedHUD {
 
     mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
         if (
-            state.saveSaveState.savingInProgress
-            || state.loadSaveState.userRequestedLoad
-            || state.loadSaveState.applicationStartedLoad
+            state.fileState.saveSaveState.savingInProgress
+            || state.fileState.loadSaveState.userRequestedLoad
+            || state.fileState.loadSaveState.applicationStartedLoad
         ) {
             return;
         }
@@ -269,13 +252,6 @@ export class BattleSquaddieSelectedHUD {
         }
 
         this.checkForEndTurnButtonClick(state, mouseX, mouseY);
-
-        if (this.shouldDrawSaveAndLoadButton(state) && RectAreaService.isInside(this.saveGameButton.rectangle.area, mouseX, mouseY)) {
-            this.markGameToBeSaved(state);
-        }
-        if (this.shouldDrawSaveAndLoadButton(state) && RectAreaService.isInside(this.loadGameButton.rectangle.area, mouseX, mouseY)) {
-            this.markGameToBeLoaded(state);
-        }
     }
 
     mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
@@ -323,25 +299,6 @@ export class BattleSquaddieSelectedHUD {
             return false;
         }
         return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository);
-    }
-
-    shouldDrawSaveAndLoadButton(state: GameEngineState): boolean {
-        if (
-            !state.battleOrchestratorState.battleState.battlePhaseState
-            || state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER
-        ) {
-            return false;
-        }
-
-        return !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state);
-    }
-
-    markGameToBeSaved(state: GameEngineState): void {
-        SaveSaveStateService.userRequestsSave(state.saveSaveState);
-    }
-
-    markGameToBeLoaded(state: GameEngineState): void {
-        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
     }
 
     drawUncontrollableSquaddieWarning(state: GameEngineState) {
@@ -571,123 +528,6 @@ export class BattleSquaddieSelectedHUD {
         };
     }
 
-    private drawFileAccessWarning(state: GameEngineState) {
-        const warningString = this.getMessageBasedOnLoadingFile(state);
-        if (isValidValue(warningString.message)) {
-            this.maybeCreateInvalidCommandWarningTextBox(warningString.message, FILE_MESSAGE_DISPLAY_DURATION);
-        }
-
-        if (warningString.clearWarningTextBox === true) {
-            this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX = undefined;
-        }
-
-        const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
-        if (
-            state.saveSaveState.errorDuringSaving
-            && (
-                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
-                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE_FAILED
-            )
-        ) {
-            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            SaveSaveStateService.reset(state.saveSaveState);
-            return;
-        }
-
-        const WARNING_SAVE_FILE = "Saving...";
-        if (state.saveSaveState.savingInProgress
-            && (
-                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
-                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE
-            )
-        ) {
-            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE, FILE_MESSAGE_DISPLAY_DURATION);
-            return;
-
-        }
-    }
-
-    private getMessageBasedOnLoadingFile(state: GameEngineState): {
-        message?: string,
-        clearWarningTextBox?: boolean
-    } {
-        const userRequestedLoad: boolean = state.loadSaveState.userRequestedLoad === true;
-
-        const loadingFailedDueToError: boolean = state.loadSaveState.applicationErroredWhileLoading
-        const userCanceledLoad: boolean = state.loadSaveState.userCanceledLoad;
-        const loadingFailed: boolean = loadingFailedDueToError || userCanceledLoad;
-
-        if (
-            !(userRequestedLoad || loadingFailed)
-        ) {
-            return {};
-        }
-
-        const loadingMessage: string = "Loading...";
-        if (
-            userRequestedLoad
-            && !loadingFailed
-        ) {
-            return {
-                message: loadingMessage
-            };
-        }
-
-        const applicationErrorMessage: string = 'Loading failed. Check logs.';
-        const userCancelMessage: string = `Canceled loading.`;
-
-        const currentlyShowingApplicationErrorMessage: boolean =
-            isValidValue(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)
-            && this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text === applicationErrorMessage
-
-        const errorMessageTimeoutIsReached: boolean =
-            this.errorDuringLoadingDisplayStartTimestamp === undefined
-            || Date.now() - this.errorDuringLoadingDisplayStartTimestamp >= FILE_MESSAGE_DISPLAY_DURATION;
-
-        if (loadingFailedDueToError) {
-            if (!currentlyShowingApplicationErrorMessage) {
-                this.errorDuringLoadingDisplayStartTimestamp = Date.now();
-                return {
-                    message: applicationErrorMessage
-                };
-            }
-
-            if (!errorMessageTimeoutIsReached) {
-                return {
-                    message: applicationErrorMessage
-                };
-            }
-
-            LoadSaveStateService.reset(state.loadSaveState);
-            this.errorDuringLoadingDisplayStartTimestamp = undefined;
-            return {
-                clearWarningTextBox: true
-            };
-        }
-
-        const currentlyShowingUserCancelMessage: boolean = isValidValue(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)
-            && this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text === userCancelMessage;
-
-        if (!currentlyShowingUserCancelMessage) {
-            this.errorDuringLoadingDisplayStartTimestamp = Date.now();
-            return {
-                message: userCancelMessage
-            };
-        }
-
-        if (!errorMessageTimeoutIsReached) {
-            return {
-                message: userCancelMessage
-            };
-        }
-
-        LoadSaveStateService.reset(state.loadSaveState);
-        this.errorDuringLoadingDisplayStartTimestamp = undefined;
-        return {
-            clearWarningTextBox: true
-        };
-    }
-
     private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration: number | undefined) {
         if (
             this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
@@ -856,48 +696,6 @@ export class BattleSquaddieSelectedHUD {
         iconImage.draw(graphicsContext);
     }
 
-    private generateSaveAndLoadGameButton(windowDimensions: RectArea) {
-        const saveButtonArea = RectAreaService.new({
-            top: windowDimensions.top + WINDOW_SPACING1,
-            height: windowDimensions.height / 2 - WINDOW_SPACING1,
-            screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 4,
-            endColumn: 4,
-            margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
-        });
-
-        const loadButtonArea = RectAreaService.new({
-            top: RectAreaService.centerY(windowDimensions) + WINDOW_SPACING1,
-            height: windowDimensions.height / 2 - WINDOW_SPACING1,
-            screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 4,
-            endColumn: 4,
-            margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
-        });
-
-        this.saveGameButton = LabelHelper.new({
-            text: "Save",
-            textSize: 24,
-            fillColor: [10, 2, 192],
-            fontColor: [20, 5, 16],
-            area: saveButtonArea,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
-            padding: WINDOW_SPACING1,
-        });
-
-        this.loadGameButton = LabelHelper.new({
-            text: "Load",
-            textSize: 24,
-            fillColor: [10, 2, 192],
-            fontColor: [20, 5, 16],
-            area: loadButtonArea,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
-            padding: WINDOW_SPACING1,
-        });
-    }
-
     private generateNextSquaddieButton(windowDimensions: RectArea) {
         const nextButtonArea = RectAreaService.new({
             top: windowDimensions.top + WINDOW_SPACING1,
@@ -907,7 +705,7 @@ export class BattleSquaddieSelectedHUD {
             endColumn: 5,
         });
 
-        this.nextSquaddieButton = LabelHelper.new({
+        this.nextSquaddieButton = LabelService.new({
             text: "Next",
             textSize: 24,
             fillColor: [10, 2, 192],
@@ -997,7 +795,7 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        LabelHelper.draw(this.endTurnButton, graphicsContext);
+        LabelService.draw(this.endTurnButton, graphicsContext);
     }
 
     private generateEndTurnButton(windowDimensions: RectArea) {
@@ -1010,7 +808,7 @@ export class BattleSquaddieSelectedHUD {
         });
         RectAreaService.setBottom(endTurnButtonArea, RectAreaService.bottom(windowDimensions) - WINDOW_SPACING1);
 
-        this.endTurnButton = LabelHelper.new({
+        this.endTurnButton = LabelService.new({
             text: "End Turn",
             textSize: 20,
             fillColor: [10, 2, 192],

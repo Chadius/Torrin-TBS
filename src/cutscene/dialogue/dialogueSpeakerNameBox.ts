@@ -1,4 +1,4 @@
-import {Label, LabelHelper} from "../../ui/label";
+import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE, WINDOW_SPACING2} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -21,7 +21,7 @@ export class DialogueSpeakerNameBox {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        LabelHelper.draw(this.speakerNameLabel, graphicsContext);
+        LabelService.draw(this.speakerNameLabel, graphicsContext);
     }
 
     private createUIObjects() {
@@ -35,7 +35,7 @@ export class DialogueSpeakerNameBox {
 
         const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
 
-        this.speakerNameLabel = LabelHelper.new({
+        this.speakerNameLabel = LabelService.new({
             padding: [WINDOW_SPACING2, 0, 0, WINDOW_SPACING2 * 0.5],
             area: RectAreaService.new({
                 left: speakerBoxLeft,

@@ -177,7 +177,7 @@ describe('calculator', () => {
                     resourceHandler: undefined,
                     repository: squaddieRepository,
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
+
                         numberGenerator,
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
@@ -309,7 +309,7 @@ describe('calculator', () => {
                     state: GameEngineStateService.new({
                         resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            battleSquaddieSelectedHUD: undefined,
+
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
@@ -363,7 +363,7 @@ describe('calculator', () => {
                     state: GameEngineStateService.new({
                         resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            battleSquaddieSelectedHUD: undefined,
+
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
@@ -490,7 +490,7 @@ describe('calculator', () => {
                         repository: squaddieRepository,
                         resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            battleSquaddieSelectedHUD: undefined,
+
                             numberGenerator,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",

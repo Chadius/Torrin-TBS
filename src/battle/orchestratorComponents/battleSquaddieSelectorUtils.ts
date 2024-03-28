@@ -69,5 +69,5 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 
-    state.battleOrchestratorState.battleSquaddieSelectedHUD.clearSelectedSquaddie();
+    state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.clearSelectedSquaddie();
 }

@@ -1,4 +1,4 @@
-import {Label, LabelHelper} from "../../ui/label";
+import {Label, LabelService} from "../../ui/label";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -22,7 +22,7 @@ export class DialogueAnswerButton {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        LabelHelper.draw(this.answerLabel, graphicsContext);
+        LabelService.draw(this.answerLabel, graphicsContext);
     }
 
     buttonWasClicked(mouseX: number, mouseY: number): boolean {
@@ -38,7 +38,7 @@ export class DialogueAnswerButton {
         const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
 
-        this.answerLabel = LabelHelper.new({
+        this.answerLabel = LabelService.new({
             padding: [this.buttonRect.height * 0.1, this.buttonRect.width * 0.1],
             area: RectAreaService.new({
                 left: this.buttonRect.left,

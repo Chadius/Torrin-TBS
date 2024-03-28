@@ -13,6 +13,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -39,7 +40,9 @@ describe('battleMapDisplay', () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
@@ -69,7 +72,9 @@ describe('battleMapDisplay', () => {
                 resourceHandler: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD,
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD,
+                        }),
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             camera,
@@ -129,7 +134,9 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
             state = BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD,
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD,
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
@@ -222,7 +229,9 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: hudIsOpen,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: hudIsOpen,
+            }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 camera,
@@ -290,7 +299,9 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: hudIsOpen,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: hudIsOpen,
+            }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 camera,

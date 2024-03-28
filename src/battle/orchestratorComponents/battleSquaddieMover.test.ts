@@ -26,6 +26,7 @@ import {DecidedActionService} from "../../action/decided/decidedAction";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
 import {CampaignService} from "../../campaign/campaign";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -122,7 +123,6 @@ describe('BattleSquaddieMover', () => {
             repository: squaddieRepo,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
@@ -174,7 +174,9 @@ describe('BattleSquaddieMover', () => {
             const movePath: SearchPath = SearchResultsService.getShortestPathToLocation(searchResults, 1, 1);
 
             return BattleOrchestratorStateService.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
@@ -229,7 +231,7 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
             mover.recommendStateChanges(state);
             expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
         });
@@ -272,7 +274,7 @@ describe('BattleSquaddieMover', () => {
                 campaign: CampaignService.default({}),
             });
 
-            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "player_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state: state,
@@ -284,7 +286,7 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
@@ -326,7 +328,7 @@ describe('BattleSquaddieMover', () => {
                 campaign: CampaignService.default({}),
             });
 
-            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "enemy_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
                 state: state,
@@ -339,7 +341,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.recommendStateChanges(state);
             mover.reset(state);
-            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
     });
 });

@@ -1,7 +1,7 @@
 import {ActionAnimationFontColor} from "./actionAnimationConstants";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
-import {Label, LabelHelper} from "../../../ui/label";
+import {Label, LabelService} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {
     ActionEffectSquaddieTemplate,
@@ -49,7 +49,7 @@ export class WeaponIcon {
             left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
             top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
         });
-        LabelHelper.draw(this.attackingLabel, graphicsContext);
+        LabelService.draw(this.attackingLabel, graphicsContext);
     }
 
     private lazyLoadAttackingTextBox(action: ActionEffectSquaddieTemplate, actorImageArea: RectArea) {
@@ -66,7 +66,7 @@ export class WeaponIcon {
             labelText = "Helping...";
         }
 
-        this._attackingLabel = LabelHelper.new({
+        this._attackingLabel = LabelService.new({
             padding: 0,
             area: RectAreaService.new({
                 left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,

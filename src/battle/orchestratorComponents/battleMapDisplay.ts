@@ -18,20 +18,25 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    draw(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
         graphicsContext.background(50, 10, 20);
 
-        if (state.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
-            drawHexMap(graphicsContext, state.battleOrchestratorState.battleState.missionMap.terrainTileMap, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
+        if (gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
+            drawHexMap(graphicsContext, gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
         }
 
-        let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(state);
-        this.drawSquaddieMapIcons(state, graphicsContext, battleSquaddieIdsToOmit);
-        state.battleOrchestratorState.battleState.camera.moveCamera();
+        let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(gameEngineState);
+        this.drawSquaddieMapIcons(gameEngineState, graphicsContext, battleSquaddieIdsToOmit);
+        gameEngineState.battleOrchestratorState.battleState.camera.moveCamera();
 
-        state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state, graphicsContext);
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(gameEngineState, graphicsContext);
+
+        FileAccessHUDService.updateBasedOnGameEngineState(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState);
+        FileAccessHUDService.updateStatusMessage(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState.fileState);
+        FileAccessHUDService.draw(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, graphicsContext);
     }
 
     hasCompleted(state: GameEngineState): boolean {
@@ -59,11 +64,11 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             return;
         }
 
-        if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD() && state.battleSquaddieSelectedHUD.isMouseInsideHUD(mouseX, mouseY)) {
-            if (mouseX < state.battleSquaddieSelectedHUD.background.area.left) {
+        if (state.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD() && state.battleHUD.battleSquaddieSelectedHUD.isMouseInsideHUD(mouseX, mouseY)) {
+            if (mouseX < state.battleHUD.battleSquaddieSelectedHUD.background.area.left) {
                 state.battleState.camera.setXVelocity(-5);
             }
-            if (mouseX > RectAreaService.right(state.battleSquaddieSelectedHUD.background.area)) {
+            if (mouseX > RectAreaService.right(state.battleHUD.battleSquaddieSelectedHUD.background.area)) {
                 state.battleState.camera.setXVelocity(5);
             }
 

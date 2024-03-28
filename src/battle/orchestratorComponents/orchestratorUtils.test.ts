@@ -43,6 +43,7 @@ import {BattlePhase} from "./battlePhaseTracker";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe("Orchestration Utils", () => {
     let knightSquaddieStatic: SquaddieTemplate;
@@ -213,7 +214,7 @@ describe("Orchestration Utils", () => {
                     battleState: BattleStateService.defaultBattleState({
                         missionId: "missionId"
                     }),
-                    battleSquaddieSelectedHUD: undefined,
+                    battleHUD: BattleHUDService.new({}),
                     numberGenerator: undefined,
                 }),
                 resourceHandler: undefined,
@@ -241,7 +242,7 @@ describe("Orchestration Utils", () => {
                 GameEngineStateService.new({
                     battleOrchestratorState: new BattleOrchestratorState({
                         battleState: undefined,
-                        battleSquaddieSelectedHUD: undefined,
+                        battleHUD: BattleHUDService.new({}),
                         numberGenerator: undefined,
                     }),
                     resourceHandler: undefined,

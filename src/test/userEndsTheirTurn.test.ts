@@ -123,7 +123,7 @@ describe('User ends their turn', () => {
                 turnCount: 0,
             }),
         });
-        gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
@@ -275,7 +275,6 @@ describe('User ends their turn', () => {
                 repository: repository,
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
@@ -354,7 +353,6 @@ const getGameEngineState = ({
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,

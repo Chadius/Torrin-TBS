@@ -9,7 +9,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import {LabelHelper} from "../../ui/label";
+import {LabelService} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
@@ -42,6 +42,7 @@ import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {isValidValue} from "../../utils/validityCheck";
 import {CampaignService} from "../../campaign/campaign";
+import {BattleHUDService} from "../hud/battleHUD";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -134,7 +135,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        jest.spyOn(LabelHelper, "draw").mockReturnValue(null);
+        jest.spyOn(LabelService, "draw").mockReturnValue(null);
         jest.spyOn(OrchestratorUtilities, "drawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
         });
 
@@ -186,7 +187,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         RecordingService.addEvent(battleEventRecording, newEvent);
 
         const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
@@ -202,7 +205,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             campaign: CampaignService.default({}),
         });
 
-        battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: gameEngineState,
@@ -266,7 +269,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
@@ -282,7 +287,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             campaign: CampaignService.default({}),
         });
 
-        battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: gameEngineState,
@@ -350,7 +355,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.recommendStateChanges(state);
         squaddieUsesActionOnSquaddie.reset(state);
-        expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+        expect(state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).not.toBeUndefined();
     });
 

@@ -137,7 +137,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private applySaveStateToBattleOrchestratorState(gameEngineState: GameEngineState) {
-        if (!gameEngineState.loadSaveState.applicationCompletedLoad) {
+        if (!gameEngineState.fileState.loadSaveState.applicationCompletedLoad) {
             return;
         }
 
@@ -156,7 +156,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             battleOrchestratorState.copyOtherOrchestratorState(this.backupBattleOrchestratorState);
             this.errorFoundWhileLoading = true;
         }
-        LoadSaveStateService.reset(gameEngineState.loadSaveState);
+        LoadSaveStateService.reset(gameEngineState.fileState.loadSaveState);
     }
 
     private applyMissionLoaderContextToBattleOrchestratorState(battleOrchestratorState: BattleOrchestratorState) {
@@ -264,24 +264,24 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private async loadBattleSaveStateFromFile(gameEngineState: GameEngineState): Promise<void> {
-        if (!gameEngineState.loadSaveState.userRequestedLoad) {
+        if (!gameEngineState.fileState.loadSaveState.userRequestedLoad) {
             return;
         }
 
-        if (gameEngineState.loadSaveState.applicationStartedLoad) {
+        if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
             return;
         }
 
-        LoadSaveStateService.applicationStartsLoad(gameEngineState.loadSaveState);
+        LoadSaveStateService.applicationStartsLoad(gameEngineState.fileState.loadSaveState);
         await SaveFile.RetrieveFileContent()
             .then((saveState: BattleSaveState) => {
                 this.loadedBattleSaveState = saveState;
-                LoadSaveStateService.applicationCompletesLoad(gameEngineState.loadSaveState, this.loadedBattleSaveState);
+                LoadSaveStateService.applicationCompletesLoad(gameEngineState.fileState.loadSaveState, this.loadedBattleSaveState);
             }).catch((reason) => {
                 if (reason === "user canceled") {
-                    LoadSaveStateService.userCancelsLoad(gameEngineState.loadSaveState);
+                    LoadSaveStateService.userCancelsLoad(gameEngineState.fileState.loadSaveState);
                 } else {
-                    LoadSaveStateService.applicationErrorsWhileLoading(gameEngineState.loadSaveState);
+                    LoadSaveStateService.applicationErrorsWhileLoading(gameEngineState.fileState.loadSaveState);
                 }
                 this.errorFoundWhileLoading = true;
                 console.error("Failed to load progress file from storage.");

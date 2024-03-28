@@ -7,26 +7,29 @@ import {RandomNumberGenerator} from "../numberGenerator/random";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {BattleHUDState, BattleHUDStateService} from "../hud/battleHUDState";
+import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {BattleHUD, BattleHUDService} from "../hud/battleHUD";
+
 
 export class BattleOrchestratorState {
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
+    battleHUD: BattleHUD;
     numberGenerator: NumberGeneratorStrategy;
     battleState: BattleState;
     battleHUDState: BattleHUDState;
 
     constructor({
-                    battleSquaddieSelectedHUD,
                     numberGenerator,
                     battleState,
                     battleHUDState,
+                    battleHUD,
                 }: {
-        battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
         numberGenerator: NumberGeneratorStrategy,
         battleState: BattleState,
         battleHUDState?: BattleHUDState,
+        battleHUD?: BattleHUD,
     }) {
         this.battleState = battleState;
-        this.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
+        this.battleHUD = getValidValueOrDefault(battleHUD, BattleHUDService.new({}));
         this.numberGenerator = numberGenerator;
         this.battleHUDState = getValidValueOrDefault(battleHUDState, BattleHUDStateService.new({}));
     }
@@ -41,7 +44,7 @@ export class BattleOrchestratorState {
 
     get missingComponents(): BattleOrchestratorStateValidityReason[] {
         const expectedComponents = {
-            [BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD]: this.battleSquaddieSelectedHUD !== undefined,
+            [BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD]: this.battleHUD.battleSquaddieSelectedHUD !== undefined,
             [BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE]: BattleStateService.isValid(this.battleState),
             [BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR]: this.numberGenerator !== undefined,
         }
@@ -54,15 +57,18 @@ export class BattleOrchestratorState {
     public clone(): BattleOrchestratorState {
         return BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.clone(this.battleState),
-            battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
             numberGenerator: this.numberGenerator ? this.numberGenerator.clone() : undefined,
             battleHUDState: BattleHUDStateService.clone(this.battleHUDState),
+            battleHUD: this.battleHUD,
         });
     }
 
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.battleState = BattleStateService.clone(other.battleState);
-        this.battleSquaddieSelectedHUD = other.battleSquaddieSelectedHUD;
+        this.battleHUD = getValidValueOrDefault(other.battleHUD, {
+            battleSquaddieSelectedHUD: other.battleHUD.battleSquaddieSelectedHUD,
+            fileAccessHUD: FileAccessHUDService.new({}),
+        });
         this.numberGenerator = other.numberGenerator.clone();
     }
 }
@@ -75,36 +81,33 @@ export enum BattleOrchestratorStateValidityReason {
 
 export const BattleOrchestratorStateService = {
     newOrchestratorState: ({
-                               battleSquaddieSelectedHUD,
                                numberGenerator,
                                battleState,
                                battleHUDState,
+                               battleHUD,
                            }: {
-        battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
         battleHUDState?: BattleHUDState,
+        battleHUD?: BattleHUD,
     }): BattleOrchestratorState => {
         return newOrchestratorState({
-            battleSquaddieSelectedHUD,
             numberGenerator,
             battleState,
             battleHUDState,
+            battleHUD: battleHUD,
         });
     },
     new: ({
-              battleSquaddieSelectedHUD,
               numberGenerator,
               battleState,
               battleHUDState,
           }: {
-        battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
         battleHUDState?: BattleHUDState,
     }): BattleOrchestratorState => {
         return newOrchestratorState({
-            battleSquaddieSelectedHUD,
             numberGenerator,
             battleState,
             battleHUDState,
@@ -120,18 +123,17 @@ export const BattleOrchestratorStateService = {
 };
 
 const newOrchestratorState = ({
-                                  battleSquaddieSelectedHUD,
                                   numberGenerator,
                                   battleState,
                                   battleHUDState,
+                                  battleHUD,
                               }: {
-    battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
     numberGenerator?: NumberGeneratorStrategy,
     battleState?: BattleState,
     battleHUDState?: BattleHUDState,
+    battleHUD?: BattleHUD,
 }): BattleOrchestratorState => {
     return new BattleOrchestratorState({
-        battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
         battleState: battleState ?? BattleStateService.newBattleState({
             missionId: "test mission",
             battlePhaseState: {
@@ -141,6 +143,9 @@ const newOrchestratorState = ({
             battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
         }),
         numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
-        battleHUDState: battleHUDState
+        battleHUDState: battleHUDState,
+        battleHUD: getValidValueOrDefault(battleHUD, BattleHUDService.new({
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+        })),
     });
 };
