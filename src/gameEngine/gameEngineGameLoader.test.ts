@@ -66,10 +66,15 @@ describe('GameEngineGameLoader', () => {
 
         let enemyDemonSlitherTemplate: SquaddieTemplate;
         let enemyDemonSlitherTemplate2: SquaddieTemplate;
+        let allyGuardTemplate: SquaddieTemplate;
+        let noAffiliationLivingFlameTemplate: SquaddieTemplate;
+
         ({
             missionData,
             enemyDemonSlitherTemplate,
             enemyDemonSlitherTemplate2,
+            allyGuardTemplate,
+            noAffiliationLivingFlameTemplate,
         } = TestMissionData());
 
         ({
@@ -91,6 +96,14 @@ describe('GameEngineGameLoader', () => {
 
             if (filename === "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json") {
                 return enemyDemonSlitherTemplate2;
+            }
+
+            if (filename === "assets/npcData/templates/ally_guard.json") {
+                return allyGuardTemplate;
+            }
+
+            if (filename === "assets/npcData/templates/no_affiliation_living_flame.json") {
+                return noAffiliationLivingFlameTemplate;
             }
 
             if (filename === "assets/playerArmy/playerArmy.json") {
@@ -215,8 +228,8 @@ describe('GameEngineGameLoader', () => {
             ).toBeTruthy();
 
             expect(Object.keys(state.battleOrchestratorState.battleState.teamStrategiesById).length).toBeGreaterThan(0);
-            expect(state.battleOrchestratorState.battleState.teamStrategiesById[missionData.enemy.teams[0].id]).toEqual(
-                missionData.enemy.teams[0].strategies
+            expect(state.battleOrchestratorState.battleState.teamStrategiesById[missionData.npcDeployments.enemy.teams[0].id]).toEqual(
+                missionData.npcDeployments.enemy.teams[0].strategies
             );
 
             expect(Object.keys(state.repository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepositorySize);
@@ -617,7 +630,11 @@ describe('GameEngineGameLoader', () => {
             await loader.update(state);
             const missionMapCallsCount = 1;
             const playerArmyCallsCount = 1;
-            const templateCallsCount = missionData.enemy.templateIds.length;
+            const templateCallsCount =
+                missionData.npcDeployments.enemy.templateIds.length
+                + missionData.npcDeployments.ally.templateIds.length
+                + missionData.npcDeployments.noAffiliation.templateIds.length
+            ;
             expect(loadFileIntoFormatSpy).toBeCalledTimes(
                 initialFileLoadCalls
                 + missionMapCallsCount

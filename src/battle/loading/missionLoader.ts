@@ -1,6 +1,11 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMap} from "../../missionMap/missionMap";
-import {LoadMissionFromFile, LoadPlayerArmyFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
+import {
+    LoadMissionFromFile,
+    LoadPlayerArmyFromFile,
+    MissionFileFormat,
+    NpcTeamMissionDeployment
+} from "../../dataLoader/missionLoader";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionCutsceneCollection, MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
@@ -111,7 +116,9 @@ export const MissionLoader = {
         missionLoaderContext.completionProgress.loadedFileData = true;
 
         missionLoaderContext.squaddieData.templates = {};
-        missionData.enemy.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
+        missionData.npcDeployments.enemy.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
+        missionData.npcDeployments.ally.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
+        missionData.npcDeployments.noAffiliation.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
 
         const loaderLock = {
             locked: false,
@@ -357,40 +364,68 @@ const spawnNPCSquaddiesAndAddToMap = ({
     missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
 }) => {
-    missionData.enemy.mapPlacements.forEach(mapPlacement => {
-        let {
-            location,
-            battleSquaddieId,
-            squaddieTemplateId,
-        } = mapPlacement;
-        ObjectRepositoryService.addBattleSquaddie(repository,
-            BattleSquaddieService.newBattleSquaddie({
+    const deployments: NpcTeamMissionDeployment[] = [
+        missionData.npcDeployments.enemy,
+        missionData.npcDeployments.ally,
+        missionData.npcDeployments.noAffiliation,
+    ]
+
+    deployments.forEach(
+        deployment => deployment.mapPlacements.forEach(mapPlacement => {
+            let {
+                location,
                 battleSquaddieId,
                 squaddieTemplateId,
-                squaddieTurn: SquaddieTurnService.new(),
-            })
-        );
-        missionLoaderContext.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
-    });
+            } = mapPlacement;
+            ObjectRepositoryService.addBattleSquaddie(repository,
+                BattleSquaddieService.newBattleSquaddie({
+                    battleSquaddieId,
+                    squaddieTemplateId,
+                    squaddieTurn: SquaddieTurnService.new(),
+                })
+            );
+            missionLoaderContext.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
+        })
+    );
 }
 
 const createSquaddieTeams = ({missionData, missionLoaderContext}: {
     missionData: MissionFileFormat;
     missionLoaderContext: MissionLoaderContext
 }) => {
-    missionData.enemy.teams.forEach(enemyTeam => {
-        const team: BattleSquaddieTeam = {
-            id: enemyTeam.id,
-            name: enemyTeam.name,
+    const deploymentInfo: {
+        affiliation: SquaddieAffiliation,
+        deployment: NpcTeamMissionDeployment
+    }[] = [
+        {
             affiliation: SquaddieAffiliation.ENEMY,
-            battleSquaddieIds: enemyTeam.battleSquaddieIds,
-            iconResourceKey: enemyTeam.iconResourceKey,
-        }
-        missionLoaderContext.squaddieData.teams ||= [];
-        missionLoaderContext.squaddieData.teams.push(team);
-        missionLoaderContext.squaddieData.teamStrategyById[team.id] ||= [];
-        missionLoaderContext.squaddieData.teamStrategyById[team.id].push(...enemyTeam.strategies);
-    });
+            deployment: missionData.npcDeployments.enemy,
+        },
+        {
+            affiliation: SquaddieAffiliation.ALLY,
+            deployment: missionData.npcDeployments.ally,
+        },
+        {
+            affiliation: SquaddieAffiliation.NONE,
+            deployment: missionData.npcDeployments.noAffiliation,
+        },
+    ]
+
+    deploymentInfo.forEach(
+        info => info.deployment.teams.forEach(npcTeam => {
+            const team: BattleSquaddieTeam = {
+                id: npcTeam.id,
+                name: npcTeam.name,
+                affiliation: info.affiliation,
+                battleSquaddieIds: npcTeam.battleSquaddieIds,
+                iconResourceKey: npcTeam.iconResourceKey,
+            }
+            missionLoaderContext.squaddieData.teams ||= [];
+            missionLoaderContext.squaddieData.teams.push(team);
+            missionLoaderContext.squaddieData.teamStrategyById[team.id] ||= [];
+            missionLoaderContext.squaddieData.teamStrategyById[team.id].push(...npcTeam.strategies);
+        })
+    );
 }
 
 const deployRequiredPlayerSquaddies = (missionLoaderContext: MissionLoaderContext, missionData: MissionFileFormat) => {
@@ -438,12 +473,20 @@ const loadTeamIcons = (missionLoaderContext: MissionLoaderContext, missionData: 
         missionLoaderContext.resourcesPendingLoading.push(playerTeamIconResourceKey);
     }
 
-    missionData.enemy.teams
-        .filter(team => isValidValue(team.iconResourceKey) && team.iconResourceKey !== "")
-        .forEach(team => {
-            const teamIconResourceKey = team.iconResourceKey;
-            repository.uiElements.teamAffiliationIcons[team.id] = teamIconResourceKey;
-            resourceHandler.loadResource(teamIconResourceKey);
-            missionLoaderContext.resourcesPendingLoading.push(teamIconResourceKey);
-        });
+    const deployments: NpcTeamMissionDeployment[] = [
+        missionData.npcDeployments.enemy,
+        missionData.npcDeployments.ally,
+        missionData.npcDeployments.noAffiliation,
+    ]
+
+    deployments.forEach(
+        deployment => deployment.teams
+            .filter(team => isValidValue(team.iconResourceKey) && team.iconResourceKey !== "")
+            .forEach(team => {
+                const teamIconResourceKey = team.iconResourceKey;
+                repository.uiElements.teamAffiliationIcons[team.id] = teamIconResourceKey;
+                resourceHandler.loadResource(teamIconResourceKey);
+                missionLoaderContext.resourcesPendingLoading.push(teamIconResourceKey);
+            })
+    );
 }

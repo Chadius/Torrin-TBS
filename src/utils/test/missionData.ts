@@ -89,86 +89,166 @@ export const TestMissionData = () => {
                 ]
             }
         },
-        "enemy": {
-            "templateIds": [
-                "enemy_demon_slither",
-                "enemyDemonSlitherTemplate2_id",
-            ],
-            "mapPlacements": [
-                {
-                    "squaddieTemplateId": "enemy_demon_slither",
-                    "battleSquaddieId": "enemy_demon_slither_0",
-                    "location": {"q": 1, "r": 5}
-                },
-                {
-                    "squaddieTemplateId": "enemy_demon_slither",
-                    "battleSquaddieId": "enemy_demon_slither_1",
-                    "location": {"q": 1, "r": 9}
-                },
-                {
-                    "squaddieTemplateId": "enemyDemonSlitherTemplate2_id",
-                    "battleSquaddieId": "enemy_demon_slither_2",
-                    "location": {"q": 1, "r": 12}
-                }
-            ],
-            "teams": [
-                {
-                    "id": "enemy0",
-                    "name": "Infiltrators",
-                    "iconResourceKey": "affiliate_icon_infiltrators",
-                    "battleSquaddieIds": [
-                        "enemy_demon_slither_0",
-                        "enemy_demon_slither_1",
-                        "enemy_demon_slither_3",
-                        "enemy_demon_slither_4",
-                        "enemy_demon_slither_5",
-                        "enemy_demon_slither_6"
-                    ],
-                    "strategies": [
-                        {
-                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                            "options": {
-                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+        "npcDeployments": {
+            "enemy": {
+                "templateIds": [
+                    "enemy_demon_slither",
+                    "enemyDemonSlitherTemplate2_id",
+                ],
+                "mapPlacements": [
+                    {
+                        "squaddieTemplateId": "enemy_demon_slither",
+                        "battleSquaddieId": "enemy_demon_slither_0",
+                        "location": {"q": 1, "r": 5}
+                    },
+                    {
+                        "squaddieTemplateId": "enemy_demon_slither",
+                        "battleSquaddieId": "enemy_demon_slither_1",
+                        "location": {"q": 1, "r": 9}
+                    },
+                    {
+                        "squaddieTemplateId": "enemyDemonSlitherTemplate2_id",
+                        "battleSquaddieId": "enemy_demon_slither_2",
+                        "location": {"q": 1, "r": 12}
+                    }
+                ],
+                "teams": [
+                    {
+                        "id": "enemy0",
+                        "name": "Infiltrators",
+                        "iconResourceKey": "affiliate_icon_infiltrators",
+                        "battleSquaddieIds": [
+                            "enemy_demon_slither_0",
+                            "enemy_demon_slither_1",
+                            "enemy_demon_slither_3",
+                            "enemy_demon_slither_4",
+                            "enemy_demon_slither_5",
+                            "enemy_demon_slither_6"
+                        ],
+                        "strategies": [
+                            {
+                                "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
                             }
-                        },
-                        {
-                            "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                            "options": {
-                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                        ]
+                    },
+                    {
+                        "id": "enemy follow",
+                        "name": "Infiltrators",
+                        "iconResourceKey": "affiliate_icon_infiltrators",
+                        "battleSquaddieIds": [
+                            "enemy_demon_slither_2",
+                            "enemy_demon_slither_7"
+                        ],
+                        "strategies": [
+                            {
+                                "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
                             }
-                        }
-                    ]
-                },
-                {
-                    "id": "enemy follow",
-                    "name": "Infiltrators",
-                    "iconResourceKey": "affiliate_icon_infiltrators",
-                    "battleSquaddieIds": [
-                        "enemy_demon_slither_2",
-                        "enemy_demon_slither_7"
-                    ],
-                    "strategies": [
-                        {
-                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                            "options": {
-                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                        ]
+                    }
+                ]
+            },
+            "ally": {
+                "templateIds": [
+                    "ally_guard",
+                ],
+                "mapPlacements": [
+                    {
+                        "squaddieTemplateId": "ally_guard",
+                        "battleSquaddieId": "ally_guard_0",
+                        "location": {"q": 0, "r": 10}
+                    }
+                ],
+                "teams": [
+                    {
+                        "id": "ally0",
+                        "name": "Allies",
+                        "iconResourceKey": "affiliate_icon_western",
+                        "battleSquaddieIds": [
+                            "ally_guard_0",
+                        ],
+                        "strategies": [
+                            {
+                                "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.ENEMY
+                                }
                             }
-                        },
-                        {
-                            "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                            "options": {
-                                "desiredAffiliation": SquaddieAffiliation.PLAYER
-                            }
-                        },
-                        {
-                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                            "options": {
-                                "desiredAffiliation": SquaddieAffiliation.PLAYER
-                            }
-                        }
-                    ]
-                }
-            ]
+                        ]
+                    },
+                ]
+            },
+            "noAffiliation": {
+                "templateIds": [
+                    "no_affiliation_living_flame",
+                ],
+                "mapPlacements": [
+                    {
+                        "squaddieTemplateId": "no_affiliation_living_flame",
+                        "battleSquaddieId": "no_affiliation_living_flame_0",
+                        "location": {"q": 0, "r": 11}
+                    }
+                ],
+                "teams": [
+                    {
+                        "id": "no_affiliation0",
+                        "name": "Living Flames",
+                        "iconResourceKey": "affiliate_icon_none",
+                        "battleSquaddieIds": [
+                            "no_affiliation_living_flame_0",
+                        ],
+                        "strategies": [
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.ENEMY
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.PLAYER
+                                }
+                            },
+                            {
+                                "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                "options": {
+                                    "desiredAffiliation": SquaddieAffiliation.NONE
+                                }
+                            },
+                        ]
+                    },
+                ]
+            },
         },
         "phaseBannersByAffiliation": {
             "PLAYER": "phase banner player",
@@ -523,10 +603,120 @@ export const TestMissionData = () => {
             templateId: "enemyDemonSlitherTemplate2_id",
         }
     };
+    const allyGuardTemplate: SquaddieTemplate = {
+        "squaddieId": {
+            "name": "Guard",
+            "templateId": "ally_guard",
+            "resources": {
+                "mapIconResourceKey": "map icon demon slither",
+                "actionSpritesByEmotion": {
+                    "NEUTRAL": "combat-demon-slither-neutral",
+                    "ATTACK": "combat-demon-slither-attack",
+                    "TARGETED": "combat-demon-slither-targeted",
+                    "DAMAGED": "combat-demon-slither-damaged",
+                    "DEAD": "combat-demon-slither-dead"
+                }
+            },
+            "traits": {
+                "booleanTraits": {}
+            },
+            "affiliation": SquaddieAffiliation.ALLY,
+        },
+        "attributes": {
+            "maxHitPoints": 3,
+            "armorClass": 5,
+            "movement": {
+                "movementPerAction": 2,
+                "passThroughWalls": false,
+                "crossOverPits": false,
+            }
+        },
+        "actionTemplates": [
+            {
+                "id": "short_sword",
+                "name": "Short sword",
+                "actionPoints": 1,
+                "actionEffectTemplates": [
+                    {
+                        "type": ActionEffectType.SQUADDIE,
+                        "minimumRange": 0,
+                        "maximumRange": 1,
+                        "traits": {
+                            "booleanTraits": {
+                                [Trait.ATTACK]: true
+                            }
+                        },
+                        "damageDescriptions": {
+                            [DamageType.BODY]: 1,
+                        },
+                        "healingDescriptions": {},
+                        "targetingShape": TargetingShape.SNAKE,
+                    }
+                ],
+                "buttonIconResourceKey": "decision-button-sword"
+            }
+        ]
+    };
+    const noAffiliationLivingFlameTemplate: SquaddieTemplate = {
+        "squaddieId": {
+            "name": "Living Flame",
+            "templateId": "no_affiliation_living_flame",
+            "resources": {
+                "mapIconResourceKey": "map icon demon slither",
+                "actionSpritesByEmotion": {
+                    "NEUTRAL": "combat-demon-slither-neutral",
+                    "ATTACK": "combat-demon-slither-attack",
+                    "TARGETED": "combat-demon-slither-targeted",
+                    "DAMAGED": "combat-demon-slither-damaged",
+                    "DEAD": "combat-demon-slither-dead"
+                }
+            },
+            "traits": {
+                "booleanTraits": {}
+            },
+            "affiliation": SquaddieAffiliation.ALLY,
+        },
+        "attributes": {
+            "maxHitPoints": 3,
+            "armorClass": 5,
+            "movement": {
+                "movementPerAction": 2,
+                "passThroughWalls": false,
+                "crossOverPits": false,
+            }
+        },
+        "actionTemplates": [
+            {
+                "id": "ignition",
+                "name": "Ignition",
+                "actionPoints": 1,
+                "actionEffectTemplates": [
+                    {
+                        "type": ActionEffectType.SQUADDIE,
+                        "minimumRange": 0,
+                        "maximumRange": 1,
+                        "traits": {
+                            "booleanTraits": {
+                                [Trait.ATTACK]: true
+                            }
+                        },
+                        "damageDescriptions": {
+                            [DamageType.BODY]: 1,
+                        },
+                        "healingDescriptions": {},
+                        "targetingShape": TargetingShape.SNAKE,
+                    }
+                ],
+                "buttonIconResourceKey": "decision-button-sword"
+            }
+        ]
+    };
 
     return {
         missionData,
         enemyDemonSlitherTemplate,
         enemyDemonSlitherTemplate2,
+        allyGuardTemplate,
+        noAffiliationLivingFlameTemplate,
     }
 }

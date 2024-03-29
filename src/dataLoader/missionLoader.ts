@@ -4,7 +4,7 @@ import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {TeamStrategy} from "../battle/teamStrategy/teamStrategy";
 import {PlayerArmy, PlayerArmyHelper} from "../campaign/playerArmy";
 import {SquaddieDeployment, SquaddieDeploymentHelper} from "../missionMap/squaddieDeployment";
-import {isValidValue} from "../utils/validityCheck";
+import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CutsceneTrigger} from "../cutscene/cutsceneTrigger";
 import {Cutscene} from "../cutscene/cutscene";
@@ -23,6 +23,22 @@ export interface NpcTeam {
     iconResourceKey: string,
 }
 
+export interface NpcTeamMissionDeployment {
+    templateIds: string[],
+    mapPlacements: MapPlacement[],
+    teams: NpcTeam[],
+}
+
+export const NpcTeamMissionDeploymentService = {
+    new: ({}): NpcTeamMissionDeployment => {
+        return {
+            templateIds: [],
+            mapPlacements: [],
+            teams: [],
+        };
+    }
+}
+
 export interface MissionFileFormat {
     id: string,
     terrain: string[],
@@ -33,10 +49,10 @@ export interface MissionFileFormat {
         teamName: string,
         iconResourceKey: string,
     },
-    enemy: {
-        templateIds: string[],
-        mapPlacements: MapPlacement[],
-        teams: NpcTeam[],
+    npcDeployments: {
+        enemy?: NpcTeamMissionDeployment,
+        ally?: NpcTeamMissionDeployment,
+        noAffiliation?: NpcTeamMissionDeployment,
     },
     phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string },
     cutscene: {
@@ -45,13 +61,13 @@ export interface MissionFileFormat {
     }
 }
 
-export const MissionFileFormatHelper = {
+export const MissionFileFormatService = {
     new: ({
               id,
               terrain,
               objectives,
               player,
-              enemy,
+              npcDeployments,
               phaseBannersByAffiliation,
           }: {
         id: string,
@@ -63,10 +79,10 @@ export const MissionFileFormatHelper = {
             teamName: string,
             iconResourceKey: string,
         },
-        enemy?: {
-            templateIds: string[],
-            mapPlacements: MapPlacement[],
-            teams: NpcTeam[],
+        npcDeployments?: {
+            enemy: NpcTeamMissionDeployment,
+            ally: NpcTeamMissionDeployment,
+            noAffiliation: NpcTeamMissionDeployment,
         },
         phaseBannersByAffiliation?: { [affiliation in SquaddieAffiliation]?: string },
     }): MissionFileFormat => {
@@ -75,7 +91,7 @@ export const MissionFileFormatHelper = {
             terrain,
             objectives,
             player,
-            enemy,
+            npcDeployments,
             phaseBannersByAffiliation,
             cutscene: {
                 cutsceneTriggers: [],
@@ -127,13 +143,14 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
         }
     }
 
-    data.terrain = isValidValue(data.terrain) ? data.terrain : ["1 "];
+    data.terrain = getValidValueOrDefault(data.terrain, ["1 "]);
     data.objectives = isValidValue(data.objectives) ? data.objectives.map(obj => MissionObjectiveHelper.validateMissionObjective(obj)) : [];
-    data.enemy = isValidValue(data.enemy) ? data.enemy : {
-        templateIds: [],
-        mapPlacements: [],
-        teams: [],
-    };
+
+    data.npcDeployments = getValidValueOrDefault(data.npcDeployments, {});
+    data.npcDeployments.enemy = getValidValueOrDefault(data.npcDeployments?.enemy, NpcTeamMissionDeploymentService.new({}));
+    data.npcDeployments.ally = getValidValueOrDefault(data.npcDeployments?.ally, NpcTeamMissionDeploymentService.new({}));
+    data.npcDeployments.noAffiliation = getValidValueOrDefault(data.npcDeployments?.noAffiliation, NpcTeamMissionDeploymentService.new({}));
+
     data.phaseBannersByAffiliation = isValidValue(data.phaseBannersByAffiliation)
         ? data.phaseBannersByAffiliation
         : {};

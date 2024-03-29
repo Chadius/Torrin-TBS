@@ -1,7 +1,7 @@
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import * as mocks from "../../utils/test/mocks";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {MissionFileFormat, NpcTeam} from "../../dataLoader/missionLoader";
+import {MissionFileFormat, NpcTeam, NpcTeamMissionDeployment} from "../../dataLoader/missionLoader";
 import * as DataLoader from "../../dataLoader/dataLoader";
 import {MissionLoader, MissionLoaderContext} from "./missionLoader";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
@@ -24,6 +24,8 @@ describe('Mission Loader', () => {
     let repository: ObjectRepository;
     let enemyDemonSlitherTemplate: SquaddieTemplate;
     let enemyDemonSlitherTemplate2: SquaddieTemplate;
+    let allyGuardTemplate: SquaddieTemplate;
+    let noAffiliationLivingFlameTemplate: SquaddieTemplate;
     let playerArmy: PlayerArmy;
 
     beforeEach(() => {
@@ -36,6 +38,8 @@ describe('Mission Loader', () => {
             missionData,
             enemyDemonSlitherTemplate,
             enemyDemonSlitherTemplate2,
+            allyGuardTemplate,
+            noAffiliationLivingFlameTemplate,
         } = TestMissionData());
 
         ({
@@ -53,6 +57,14 @@ describe('Mission Loader', () => {
 
             if (filename === "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json") {
                 return enemyDemonSlitherTemplate2;
+            }
+
+            if (filename === "assets/npcData/templates/ally_guard.json") {
+                return allyGuardTemplate;
+            }
+
+            if (filename === "assets/npcData/templates/no_affiliation_living_flame.json") {
+                return noAffiliationLivingFlameTemplate;
             }
 
             if (filename === "assets/playerArmy/playerArmy.json") {
@@ -158,42 +170,107 @@ describe('Mission Loader', () => {
                 expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
             });
             it('adds battle squaddies to the squaddie repository', () => {
-                missionData.enemy.mapPlacements.forEach(placement => {
-                    const {
-                        battleSquaddie,
-                    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, placement.battleSquaddieId));
-                    expect(battleSquaddie.battleSquaddieId).toEqual(placement.battleSquaddieId);
-                    expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
-                });
+                const npcDeployments: NpcTeamMissionDeployment[] = [
+                    missionData.npcDeployments.enemy,
+                    missionData.npcDeployments.ally,
+                    missionData.npcDeployments.noAffiliation,
+                ];
+
+                npcDeployments.forEach(deployment => deployment.mapPlacements.forEach(placement => {
+                        const {
+                            battleSquaddie,
+                        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, placement.battleSquaddieId));
+                        expect(battleSquaddie.battleSquaddieId).toEqual(placement.battleSquaddieId);
+                        expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
+                    })
+                );
             });
             it('adds squaddies to the map', () => {
-                missionData.enemy.mapPlacements.forEach(placement => {
-                    const {
-                        battleSquaddieId,
-                        squaddieTemplateId,
-                        mapLocation,
-                    } = missionLoaderContext.missionMap.getSquaddieByBattleId(placement.battleSquaddieId);
-                    expect(battleSquaddieId).toEqual(placement.battleSquaddieId);
-                    expect(squaddieTemplateId).toEqual(placement.squaddieTemplateId);
-                    expect(mapLocation).toEqual(placement.location);
+                const npcDeployments: NpcTeamMissionDeployment[] = [
+                    missionData.npcDeployments.enemy,
+                    missionData.npcDeployments.ally,
+                    missionData.npcDeployments.noAffiliation,
+                ];
+
+                npcDeployments.forEach(deployment => deployment.mapPlacements.forEach(placement => {
+                        const {
+                            battleSquaddieId,
+                            squaddieTemplateId,
+                            mapLocation,
+                        } = missionLoaderContext.missionMap.getSquaddieByBattleId(placement.battleSquaddieId);
+                        expect(battleSquaddieId).toEqual(placement.battleSquaddieId);
+                        expect(squaddieTemplateId).toEqual(placement.squaddieTemplateId);
+                        expect(mapLocation).toEqual(placement.location);
+                    })
+                );
+            });
+            describe('creates enemy teams', () => {
+                it('creates enemy teams', () => {
+                    const enemyNpcTeam0: NpcTeam = missionData.npcDeployments.enemy.teams[0];
+                    expect(missionLoaderContext.squaddieData.teams).toContainEqual({
+                            affiliation: SquaddieAffiliation.ENEMY,
+                            id: enemyNpcTeam0.id,
+                            name: enemyNpcTeam0.name,
+                            battleSquaddieIds: enemyNpcTeam0.battleSquaddieIds,
+                            iconResourceKey: enemyNpcTeam0.iconResourceKey,
+                        }
+                    );
+                    expect(missionLoaderContext.squaddieData.teams.some(team => team.id === missionData.npcDeployments.enemy.teams[1].id)).toBeTruthy();
+                });
+                it('creates team strategies', () => {
+                    expect(missionLoaderContext.squaddieData.teamStrategyById[missionData.npcDeployments.enemy.teams[0].id]).toEqual(
+                        missionData.npcDeployments.enemy.teams[0].strategies
+                    );
                 });
             });
-            it('creates non-player teams', () => {
-                const enemyNpcTeam0: NpcTeam = missionData.enemy.teams[0];
-                expect(missionLoaderContext.squaddieData.teams).toContainEqual({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                        id: enemyNpcTeam0.id,
-                        name: enemyNpcTeam0.name,
-                        battleSquaddieIds: enemyNpcTeam0.battleSquaddieIds,
-                        iconResourceKey: enemyNpcTeam0.iconResourceKey,
+            describe('creates other NPC teams', () => {
+                const affiliations: { name: string, affiliation: SquaddieAffiliation }[] =
+                    [
+                        {
+                            name: "ally",
+                            affiliation: SquaddieAffiliation.ALLY,
+                        },
+                        {
+                            name: "no affiliation",
+                            affiliation: SquaddieAffiliation.NONE,
+                        },
+                    ]
+
+                const getNpcTeamByAffiliation = (affiliation: SquaddieAffiliation): NpcTeam => {
+                    switch (affiliation) {
+                        case SquaddieAffiliation.ALLY:
+                            return missionData.npcDeployments.ally.teams[0];
+                        case SquaddieAffiliation.NONE:
+                            return missionData.npcDeployments.noAffiliation.teams[0];
                     }
-                );
-                expect(missionLoaderContext.squaddieData.teams.some(team => team.id === missionData.enemy.teams[1].id)).toBeTruthy();
-            });
-            it('creates team strategies', () => {
-                expect(missionLoaderContext.squaddieData.teamStrategyById[missionData.enemy.teams[0].id]).toEqual(
-                    missionData.enemy.teams[0].strategies
-                );
+                    return undefined;
+                }
+
+                it.each(affiliations)(`create $name deployment`, ({
+                                                                      name,
+                                                                      affiliation
+                                                                  }) => {
+                    const npcTeam0 = getNpcTeamByAffiliation(affiliation);
+                    expect(missionLoaderContext.squaddieData.teams).toContainEqual({
+                            affiliation,
+                            id: npcTeam0.id,
+                            name: npcTeam0.name,
+                            battleSquaddieIds: npcTeam0.battleSquaddieIds,
+                            iconResourceKey: npcTeam0.iconResourceKey,
+                        }
+                    );
+                    expect(missionLoaderContext.squaddieData.teams.some(team => team.id === npcTeam0.id)).toBeTruthy();
+                });
+
+                it.each(affiliations)(`create $name team strategies`, ({
+                                                                           name,
+                                                                           affiliation
+                                                                       }) => {
+                    const npcTeam0 = getNpcTeamByAffiliation(affiliation);
+                    expect(missionLoaderContext.squaddieData.teamStrategyById[npcTeam0.id]).toEqual(
+                        npcTeam0.strategies
+                    );
+                });
             });
             it('creates affiliation banners', () => {
                 expect(missionLoaderContext.phaseBannersByAffiliation).toEqual(missionData.phaseBannersByAffiliation);
@@ -376,9 +453,15 @@ describe('Mission Loader', () => {
         it('copies the team affiliation icons', () => {
             const expectedKeys: { [teamId: string]: string } = {};
             expectedKeys[missionData.player.teamId] = missionData.player.iconResourceKey;
-            missionData.enemy.teams.forEach(team => {
-                expectedKeys[team.id] = team.iconResourceKey;
-            });
+
+            [
+                missionData.npcDeployments.enemy,
+                missionData.npcDeployments.ally,
+                missionData.npcDeployments.noAffiliation,
+            ].forEach(npcDeployment => npcDeployment.teams.forEach(team => {
+                    expectedKeys[team.id] = team.iconResourceKey;
+                })
+            );
 
             expect(repository.uiElements.teamAffiliationIcons).toEqual(expectedKeys);
         });
