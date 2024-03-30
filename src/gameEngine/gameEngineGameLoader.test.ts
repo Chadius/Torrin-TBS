@@ -595,11 +595,15 @@ describe('GameEngineGameLoader', () => {
             openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockRejectedValue(
                 null
             );
+            LoadSaveStateService.userRequestsLoad(currentState.fileState.loadSaveState);
             await loader.update(currentState);
             await loader.update(currentState);
             expect(consoleErrorSpy).toBeCalled();
+            expect(openDialogSpy).toBeCalled();
             expect(loader.hasCompleted(currentState)).toBeTruthy();
             expect(loader.recommendStateChanges(currentState).nextMode).toBe(GameModeEnum.TITLE_SCREEN);
+            expect(currentState.fileState.loadSaveState.userRequestedLoad).toBeFalsy();
+            openDialogSpy.mockRestore();
         });
     });
 

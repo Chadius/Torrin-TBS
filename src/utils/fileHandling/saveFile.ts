@@ -33,8 +33,14 @@ async function OpenFileDialogToSelectAFile() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const dataString: string = event.target.result;
-                const saveState: BattleSaveState = BattleSaveStateService.parseJsonIntoBattleSaveStateData(dataString);
-                resolve(saveState);
+                try {
+                    const saveState: BattleSaveState = BattleSaveStateService.parseJsonIntoBattleSaveStateData(dataString);
+                    resolve(saveState);
+                } catch (e) {
+                    console.error(`Failed to load saveState`);
+                    console.error(e);
+                    reject(`Failed to load saveState`);
+                }
             };
             reader.readAsText(file, 'UTF-8');
         }

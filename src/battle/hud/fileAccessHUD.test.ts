@@ -233,12 +233,6 @@ describe('File Access HUD', () => {
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD);
                 dateSpy = jest.spyOn(Date, 'now').mockReturnValue(0);
             });
-            it('tells the user the load is complete', () => {
-                const initialMessage: string = FileAccessHUDService.updateStatusMessage(fileAccessHUD, fileState);
-                expect(initialMessage).toEqual(FileAccessHUDMessage.LOAD_SUCCESS);
-                expect(fileAccessHUD.messageDisplayStartTime).toEqual(0);
-                expectNoMessageAfterDisplayDuration(dateSpy, fileState, fileAccessHUD);
-            });
             it('enables the button after load completes and the message expires', () => {
                 FileAccessHUDService.updateStatusMessage(fileAccessHUD, fileState);
                 expectNoMessageAfterDisplayDuration(dateSpy, fileState, fileAccessHUD);
@@ -251,12 +245,6 @@ describe('File Access HUD', () => {
                 LoadSaveStateService.applicationErrorsWhileLoading(fileState.loadSaveState);
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD);
                 dateSpy = jest.spyOn(Date, 'now').mockReturnValue(0);
-            });
-            it('tells the user the load encountered an error', () => {
-                const initialMessage: string = FileAccessHUDService.updateStatusMessage(fileAccessHUD, fileState);
-                expect(initialMessage).toEqual(FileAccessHUDMessage.LOAD_FAILED);
-                expect(fileAccessHUD.messageDisplayStartTime).toEqual(0);
-                expectNoMessageAfterDisplayDuration(dateSpy, fileState, fileAccessHUD);
             });
             it('enables the button after load errors and the message expires', () => {
                 FileAccessHUDService.updateStatusMessage(fileAccessHUD, fileState);

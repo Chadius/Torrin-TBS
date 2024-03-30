@@ -17,9 +17,6 @@ export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
     SAVE_FAILED = "Save Failed",
     SAVE_IN_PROGRESS = "Saving...",
-    LOAD_SUCCESS = "Loaded!",
-    LOAD_FAILED = "Load Failed",
-    LOAD_IN_PROGRESS = "Loading...",
 }
 
 export const FileAccessHUDDesign = {
@@ -424,18 +421,12 @@ const calculateMessageToShow = (fileState: FileState, fileAccessHUD: FileAccessH
         [FileAccessHUDMessage.SAVE_IN_PROGRESS]: (fileState.saveSaveState.userRequestedSave && fileState.saveSaveState.savingInProgress),
         [FileAccessHUDMessage.SAVE_SUCCESS]: (fileState.saveSaveState.userRequestedSave && !fileState.saveSaveState.savingInProgress),
         [FileAccessHUDMessage.SAVE_FAILED]: (fileState.saveSaveState.userRequestedSave && fileState.saveSaveState.errorDuringSaving),
-        [FileAccessHUDMessage.LOAD_IN_PROGRESS]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationStartedLoad),
-        [FileAccessHUDMessage.LOAD_SUCCESS]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationCompletedLoad),
-        [FileAccessHUDMessage.LOAD_FAILED]: (fileState.loadSaveState.userRequestedLoad && fileState.loadSaveState.applicationErroredWhileLoading),
     }
 
     const messagePriority = [
         FileAccessHUDMessage.SAVE_FAILED,
         FileAccessHUDMessage.SAVE_IN_PROGRESS,
         FileAccessHUDMessage.SAVE_SUCCESS,
-        FileAccessHUDMessage.LOAD_FAILED,
-        FileAccessHUDMessage.LOAD_IN_PROGRESS,
-        FileAccessHUDMessage.LOAD_SUCCESS,
     ];
 
     return messagePriority.find(message =>
