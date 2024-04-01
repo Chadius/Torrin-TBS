@@ -11,7 +11,7 @@
     "tsc": "./node_modules/.bin/tsc --allowSyntheticDefaultImports -t es6 src/*.ts",
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
-    "zip": "cd dist && zip -r ../build/torrins-trial.zip ./",
+    "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
     "devserve": "rsync --recursive assets/toDist/* dist/assets && npm run dev && npm run serve"
   },
   "author": "",
