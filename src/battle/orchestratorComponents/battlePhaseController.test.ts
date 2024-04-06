@@ -21,6 +21,9 @@ import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {BattleHUDListener} from "../hud/battleHUD";
+import {MessageBoardMessageType} from "../../message/messageBoardMessage";
+import {ButtonStatus} from "../../ui/button";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: ObjectRepository;
@@ -282,8 +285,7 @@ describe('BattlePhaseController', () => {
         });
 
         it('enables and shows the HUD at the start of the player phase', () => {
-            const fileAccessHUDSpy = jest.spyOn(FileAccessHUDService, "enableButtons");
-            const state = initializeState({
+            const gameEngineState = initializeState({
                 squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
                 camera: new BattleCamera(
@@ -291,10 +293,19 @@ describe('BattlePhaseController', () => {
                     ScreenDimensions.SCREEN_HEIGHT * 10,
                 ),
             });
+            const battleHUDListener: BattleHUDListener = new BattleHUDListener("battleHUDListener");
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.STARTED_PLAYER_PHASE
+            );
 
-            battlePhaseController.update(state, mockedP5GraphicsContext);
-            expect(fileAccessHUDSpy).toBeCalled();
-            fileAccessHUDSpy.mockRestore();
+            const messageSpy: jest.SpyInstance = jest.spyOn(gameEngineState.messageBoard, "sendMessage");
+
+            battlePhaseController.update(gameEngineState, mockedP5GraphicsContext);
+            expect(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD.loadButton.getStatus()).toBe(ButtonStatus.READY);
+            expect(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD.saveButton.getStatus()).toBe(ButtonStatus.READY);
+            expect(messageSpy).toBeCalled();
+            messageSpy.mockRestore();
         });
 
         it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {

@@ -29,7 +29,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
-import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -266,7 +266,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        FileAccessHUDService.enableButtons(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD);
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
+            gameEngineState,
+        });
     }
 }
 

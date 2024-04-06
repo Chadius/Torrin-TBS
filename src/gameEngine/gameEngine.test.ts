@@ -15,6 +15,7 @@ import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import * as DataLoader from "../dataLoader/dataLoader";
 import {SaveSaveStateService} from "../dataLoader/saveSaveState";
+import {MessageBoardMessageType} from "../message/messageBoardMessage";
 
 const resourceLocators: ResourceLocator[] = [
     {
@@ -126,18 +127,28 @@ describe('Game Engine', () => {
             })
         });
 
-        it('works on battle mode', async () => {
+        it('battle mode starts the battle orchestrator', async () => {
             await loadAndExpect({
                 startupMode: GameModeEnum.BATTLE,
                 componentType: BattleOrchestrator,
-            })
+            });
+        });
+
+        it('battle mode sets up message board', async () => {
+            const newGameEngine = new GameEngine({
+                startupMode: GameModeEnum.BATTLE,
+                graphicsContext: mockedP5GraphicsContext
+            });
+            await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
+
+            expect(newGameEngine.gameEngineState.messageBoard.getListenersByMessageType(MessageBoardMessageType.STARTED_PLAYER_PHASE).length).toBeGreaterThan(0);
         });
 
         it('works on loading battle', async () => {
             await loadAndExpect({
                 startupMode: GameModeEnum.LOADING_BATTLE,
                 componentType: GameEngineGameLoader,
-            })
+            });
         });
     });
 

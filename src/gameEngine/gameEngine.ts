@@ -25,6 +25,9 @@ import {ObjectRepository, ObjectRepositoryService} from "../battle/objectReposit
 import {isValidValue} from "../utils/validityCheck";
 import {SaveSaveStateService} from "../dataLoader/saveSaveState";
 import {FileState, FileStateService} from "./fileState";
+import {MessageBoard} from "../message/messageBoard";
+import {BattleHUDListener} from "../battle/hud/battleHUD";
+import {MessageBoardMessageType} from "../message/messageBoardMessage";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -35,6 +38,7 @@ export interface GameEngineState {
     campaign: Campaign;
     campaignIdThatWasLoaded: string;
     fileState: FileState;
+    messageBoard: MessageBoard;
 }
 
 export const GameEngineStateService = {
@@ -62,6 +66,7 @@ export const GameEngineStateService = {
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
+            messageBoard: new MessageBoard(),
         }
     }
 }
@@ -193,18 +198,11 @@ export class GameEngine {
             resourceHandler: this.resourceHandler,
             campaign: undefined,
         });
-    }
-
-    private getComponentState(): BattleOrchestratorState | TitleScreenState {
-        switch (this.currentMode) {
-            case GameModeEnum.TITLE_SCREEN:
-                return this.gameEngineState.titleScreenState;
-            case GameModeEnum.BATTLE:
-            case GameModeEnum.LOADING_BATTLE:
-                return this.gameEngineState.battleOrchestratorState;
-            default:
-                throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
-        }
+        const battleHUDListener: BattleHUDListener = new BattleHUDListener("battleHUDListener");
+        this.gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.STARTED_PLAYER_PHASE
+        );
     }
 
     private async lazyLoadResourceHandler({

@@ -102,15 +102,18 @@ export const BattleOrchestratorStateService = {
               numberGenerator,
               battleState,
               battleHUDState,
+              battleHUD,
           }: {
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
         battleHUDState?: BattleHUDState,
+        battleHUD?: BattleHUD,
     }): BattleOrchestratorState => {
         return newOrchestratorState({
             numberGenerator,
             battleState,
             battleHUDState,
+            battleHUD,
         });
     },
     swapHUD: ({battleOrchestratorState}: { battleOrchestratorState: BattleOrchestratorState }) => {

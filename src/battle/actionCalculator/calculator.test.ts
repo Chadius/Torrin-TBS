@@ -177,7 +177,6 @@ describe('calculator', () => {
                     resourceHandler: undefined,
                     repository: squaddieRepository,
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
                         numberGenerator,
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
