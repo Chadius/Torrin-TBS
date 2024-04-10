@@ -264,6 +264,7 @@ describe('User ends their turn', () => {
         let graphicsContext: GraphicsContext;
         let decidedActionEndTurnEffect: DecidedActionEndTurnEffect;
         let tintSpy: jest.SpyInstance;
+        let orchestratorUtilsSpy: jest.SpyInstance;
 
         beforeEach(() => {
             decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
@@ -278,6 +279,10 @@ describe('User ends their turn', () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
                         actionsThisRound: ActionsThisRoundService.new({
                             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                             startingLocation: {q: 0, r: 0},
@@ -307,6 +312,13 @@ describe('User ends their turn', () => {
             mapAction.update(gameEngineState, graphicsContext);
             jest.spyOn(Date, 'now').mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS + 1);
             mapAction.update(gameEngineState, graphicsContext);
+
+            orchestratorUtilsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
+        });
+
+        afterEach(() => {
+            tintSpy.mockRestore();
+            orchestratorUtilsSpy.mockRestore();
         });
 
         it('component is completed', () => {
@@ -331,6 +343,10 @@ describe('User ends their turn', () => {
         });
         it('The squaddie is grayed out since it is out of actions', () => {
             expect(tintSpy).toBeCalled();
+        });
+        it('checks to see if it should generate a message to alert another player squaddie can act', () => {
+            mapAction.recommendStateChanges(gameEngineState);
+            expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState);
         });
     });
 });

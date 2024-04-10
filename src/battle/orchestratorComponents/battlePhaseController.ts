@@ -18,7 +18,6 @@ import {GraphicsConfig, ScreenDimensions} from "../../utils/graphics/graphicsCon
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {CanPlayerControlSquaddieRightNow} from "../../squaddie/squaddieService";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
@@ -30,6 +29,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
+import {SquaddieService} from "../../squaddie/squaddieService";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -230,7 +230,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, id));
             const {
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
+            } = SquaddieService.canPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
 
             return playerCanControlThisSquaddieRightNow;
         });

@@ -2,7 +2,7 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {DrawSquaddieUtilities} from "./animation/drawSquaddie";
-import {CanPlayerControlSquaddieRightNow, SquaddieService} from "../squaddie/squaddieService";
+import {SquaddieService} from "../squaddie/squaddieService";
 import {BattleSquaddieService} from "./battleSquaddie";
 import {isValidValue} from "../utils/validityCheck";
 
@@ -64,7 +64,7 @@ export const BattleSquaddieTeamService = {
                 squaddieTemplate,
                 battleSquaddie
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-            const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
+            const {playerCanControlThisSquaddieRightNow} = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate,
                 battleSquaddie,
             });
@@ -80,7 +80,7 @@ export const BattleSquaddieTeamService = {
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation
-            } = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie,});
+            } = SquaddieService.canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie,});
             return !squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct;
         })
     },

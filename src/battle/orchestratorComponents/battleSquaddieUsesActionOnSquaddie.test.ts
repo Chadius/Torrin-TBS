@@ -320,22 +320,28 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     });
 
     it('resets squaddie currently acting when it runs out of actions and finishes acting', () => {
+        let orchestratorUtilsSpy: jest.SpyInstance;
+        orchestratorUtilsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
+
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
         })
 
-        const state = usePowerAttackLongswordAndReturnState({missionMap});
+        const gameEngineState = usePowerAttackLongswordAndReturnState({missionMap});
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 0;
 
-        jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const animatorSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
 
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
+        squaddieUsesActionOnSquaddie.update(gameEngineState, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)).toBeTruthy();
 
-        squaddieUsesActionOnSquaddie.recommendStateChanges(state);
-        expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState);
+        expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState);
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+        animatorSpy.mockRestore();
+        orchestratorUtilsSpy.mockRestore();
     });
 
     it('reopens HUD on squaddie when it finishes animating and can still act', () => {

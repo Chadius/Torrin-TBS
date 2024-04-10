@@ -58,9 +58,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
         ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
+        OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(gameEngineState);
         const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
-        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(gameEngineState);
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 

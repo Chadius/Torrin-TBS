@@ -203,6 +203,10 @@ export class GameEngine {
             battleHUDListener,
             MessageBoardMessageType.STARTED_PLAYER_PHASE
         );
+        this.gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
+        );
     }
 
     private async lazyLoadResourceHandler({

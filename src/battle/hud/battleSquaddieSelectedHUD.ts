@@ -8,7 +8,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TextBoxHelper} from "../../ui/textBox";
-import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
+import {GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelService} from "../../ui/label";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER, WINDOW_SPACING1,} from "../../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
@@ -314,7 +314,7 @@ export class BattleSquaddieSelectedHUD {
             squaddieHasThePlayerControlledAffiliation,
             squaddieCanCurrentlyAct,
             playerCanControlThisSquaddieRightNow,
-        } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
+        } = SquaddieService.canPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
 
         if (playerCanControlThisSquaddieRightNow) {
             return;
@@ -581,8 +581,11 @@ export class BattleSquaddieSelectedHUD {
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, this.selectedBattleSquaddieId));
 
-        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
-        return canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow;
+        const {playerCanControlThisSquaddieRightNow} = SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie
+        });
+        return playerCanControlThisSquaddieRightNow;
     }
 
     private checkIfActionIsValid(actionTemplate: ActionTemplate, state: GameEngineState): ActionValidityCheck {
@@ -850,7 +853,7 @@ const isSquaddiePlayerControllableRightNow = (battleSquaddieId: string, gameEngi
 
     const {
         playerCanControlThisSquaddieRightNow
-    } = CanPlayerControlSquaddieRightNow({
+    } = SquaddieService.canPlayerControlSquaddieRightNow({
         squaddieTemplate,
         battleSquaddie,
     });

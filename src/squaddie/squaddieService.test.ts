@@ -3,7 +3,6 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {BattleSquaddie} from "../battle/battleSquaddie";
 import {
-    CanPlayerControlSquaddieRightNow,
     DamageType,
     DealDamageToTheSquaddie,
     GetArmorClass,
@@ -257,7 +256,7 @@ describe('Squaddie Service', () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({
+            } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             });
@@ -272,7 +271,7 @@ describe('Squaddie Service', () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({
+            } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             });
@@ -285,7 +284,7 @@ describe('Squaddie Service', () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({
+            } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: enemyStatic,
                 battleSquaddie: enemyDynamic,
             });
@@ -305,7 +304,7 @@ describe('Squaddie Service', () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({
+            } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             });

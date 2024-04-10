@@ -77,8 +77,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     const battleSquaddieToHighlightId: string = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
 
                     OrchestratorUtilities.highlightSquaddieRange(state, battleSquaddieToHighlightId);
-
                     state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+
                     if (state.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
                         state.battleOrchestratorState.battleState.actionsThisRound = undefined;
                     }
@@ -126,6 +126,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(state);
         if (this.cancelAbility) {
             return {
                 displayMap: true,

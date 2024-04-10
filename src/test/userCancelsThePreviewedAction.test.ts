@@ -32,6 +32,7 @@ import {ProcessedActionSquaddieEffectService} from "../action/processed/processe
 import {DecidedActionSquaddieEffectService} from "../action/decided/decidedActionSquaddieEffect";
 import {OrchestratorUtilities} from "../battle/orchestratorComponents/orchestratorUtils";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
+import SpyInstance = jest.SpyInstance;
 
 describe('User cancels the previewed action', () => {
     let repository: ObjectRepository;
@@ -101,6 +102,7 @@ describe('User cancels the previewed action', () => {
 
     describe('when the user clicks on canceling the target', () => {
         let hexMapHighlightTilesSpy: jest.SpyInstance;
+        let orchestratorSpy: SpyInstance;
 
         beforeEach(() => {
             gameEngineState = getGameEngineState({
@@ -112,6 +114,8 @@ describe('User cancels the previewed action', () => {
                     processedActions: [],
                 }),
             });
+            orchestratorSpy = jest.spyOn(OrchestratorUtilities, "generateMessagesIfThePlayerCanActWithANewSquaddie");
+
             MissionMapService.addSquaddie(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 playerSquaddieTemplate.squaddieId.templateId,
@@ -132,6 +136,9 @@ describe('User cancels the previewed action', () => {
                 }
             );
         });
+        afterEach(() => {
+            orchestratorSpy.mockRestore();
+        });
 
         it('completes the targeting module', () => {
             expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
@@ -147,6 +154,11 @@ describe('User cancels the previewed action', () => {
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+        });
+
+        it('Sees if it should send a message if the player controlled squaddie has not started their turn', () => {
+            targeting.recommendStateChanges(gameEngineState);
+            expect(orchestratorSpy).toBeCalledWith(gameEngineState);
         });
     });
 

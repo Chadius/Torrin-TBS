@@ -89,7 +89,7 @@ export const SquaddieService = {
         squaddieCanCurrentlyAct: boolean,
         playerCanControlThisSquaddieRightNow: boolean,
     } => {
-        return CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
+        return canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
     }
 }
 
@@ -196,10 +196,10 @@ export const GiveHealingToTheSquaddie = ({
     }
 }
 
-export const CanPlayerControlSquaddieRightNow = ({
-                                                     squaddieTemplate,
-                                                     battleSquaddie,
-                                                 }: {
+const canPlayerControlSquaddieRightNow = ({
+                                              squaddieTemplate,
+                                              battleSquaddie,
+                                          }: {
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
 }): {

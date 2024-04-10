@@ -32,10 +32,11 @@ export class BattleHUDListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        if (message.type !== MessageBoardMessageType.STARTED_PLAYER_PHASE) {
-            return;
+        switch (message.type) {
+            case MessageBoardMessageType.STARTED_PLAYER_PHASE:
+            case MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE:
+                FileAccessHUDService.enableButtons(message.gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD);
+                break;
         }
-
-        FileAccessHUDService.enableButtons(message.gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD);
     }
 }
