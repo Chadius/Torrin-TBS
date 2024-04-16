@@ -164,6 +164,9 @@ export class GameEngine {
     async update({graphicsContext}: {
         graphicsContext: GraphicsContext
     }) {
+        if (!isValidValue(this.component)) {
+            return;
+        }
         this.component.update(this.gameEngineState, graphicsContext);
 
         if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {

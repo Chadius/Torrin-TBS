@@ -43,11 +43,60 @@ const colors = {
     playButtonText: [207, 17, 80],
 }
 
+const TitleScreenDesign = {
+    logo: {
+        iconImageResourceKey: "torrins trial logo",
+        screenWidth: 0.3,
+    },
+    title: {
+        screenHeight: 0.55,
+    },
+    gameDescription: {
+        screenHeightTop: 0.56,
+        screenHeightBottom: 0.8,
+        startColumn: 0,
+        endColumn: 6,
+    },
+    byLine: {
+        screenHeight: 0.64,
+    },
+    startGameButton: {
+        smallWindowWarning: "Window is too small",
+        playGameMessage: "Click here to Play Demo",
+        screenHeightTop: 0.8,
+    },
+    demon: {
+        iconArea: {
+            startColumn: 5,
+            width: 100,
+        },
+        descriptionText: "Destroy these demons. They bite pretty hard!",
+        iconImageResourceKey: "combat-demon-slither-neutral",
+    },
+    torrin: {
+        iconArea: {
+            startColumn: 5,
+            width: 100,
+        },
+        descriptionText: "Torrin can attack at range and heal in melee.",
+        iconImageResourceKey: "young torrin cutscene portrait",
+    },
+    sirCamil: {
+        iconArea: {
+            startColumn: 6,
+            width: 100,
+        },
+        descriptionText: "Sir Camil has a melee attack and more armor.",
+        iconImageResourceKey: "sir camil cutscene portrait",
+    },
+}
+
 const resourceKeys: string[] = [
-    "torrins trial logo",
-    "young torrin cutscene portrait",
-    "sir camil cutscene portrait",
-];
+    TitleScreenDesign.logo.iconImageResourceKey,
+    TitleScreenDesign.sirCamil.iconImageResourceKey,
+    TitleScreenDesign.demon.iconImageResourceKey,
+    TitleScreenDesign.torrin.iconImageResourceKey,
+]
 
 export class TitleScreen implements GameEngineComponent {
     startLoadingResources: boolean;
@@ -61,14 +110,26 @@ export class TitleScreen implements GameEngineComponent {
     private background: Rectangle;
     private titleBanner: ImageUI;
     private titleBannerArea: RectArea;
-    private torrinIcon: ImageUI;
-    private torrinIconArea: RectArea;
-    private torrinDescriptionText: TextBox;
-    private sirCamilIcon: ImageUI;
-    private sirCamilIconArea: RectArea;
-    private sirCamilDescriptionText: TextBox;
     private startNewGameButton: Button;
     private startNewGameButtonLabel: string;
+
+    private demonUIElements: {
+        icon: ImageUI
+        iconArea: RectArea
+        descriptionText: TextBox
+    }
+
+    private sirCamilUIElements: {
+        icon: ImageUI
+        iconArea: RectArea
+        descriptionText: TextBox
+    }
+
+    private torrinUIElements: {
+        icon: ImageUI
+        iconArea: RectArea
+        descriptionText: TextBox
+    }
 
     constructor({
                     resourceHandler
@@ -153,12 +214,37 @@ export class TitleScreen implements GameEngineComponent {
             this.titleBannerArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
-        if (this.torrinIcon === undefined) {
-            this.torrinIconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
+        if(!isValidValue(this.demonUIElements)) {
+            this.demonUIElements = {
+                icon: undefined,
+                iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
+                descriptionText: undefined,
+            }
+        }
+        if(!isValidValue(this.demonUIElements.icon)) {
+            this.demonUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
-        if (this.sirCamilIcon === undefined) {
-            this.sirCamilIconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
+        if(!isValidValue(this.torrinUIElements)) {
+            this.torrinUIElements = {
+                icon: undefined,
+                iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
+                descriptionText: undefined,
+            }
+        }
+        if(!isValidValue(this.torrinUIElements.icon)) {
+            this.torrinUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
+        }
+
+        if(!isValidValue(this.sirCamilUIElements)) {
+            this.sirCamilUIElements = {
+                icon: undefined,
+                iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
+                descriptionText: undefined,
+            }
+        }
+        if(!isValidValue(this.sirCamilUIElements.icon)) {
+            this.sirCamilUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
         this.titleBanner = undefined;
@@ -172,12 +258,11 @@ export class TitleScreen implements GameEngineComponent {
 
     private drawTitleBanner(graphicsContext: GraphicsContext) {
         if (this.titleBanner === undefined) {
-
             this.titleBannerArea =
                 RectAreaService.new({
-                    left: ScreenDimensions.SCREEN_WIDTH * 0.25,
-                    top: 20,
-                    width: ScreenDimensions.SCREEN_WIDTH * 0.5,
+                    left: WINDOW_SPACING1,
+                    top: WINDOW_SPACING1,
+                    width: ScreenDimensions.SCREEN_WIDTH * 0.25,
                     height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
                 })
 
@@ -185,16 +270,16 @@ export class TitleScreen implements GameEngineComponent {
                 return;
             }
 
-            let image: GraphicImage = this.resourceHandler.getResource("torrins trial logo");
+            let image: GraphicImage = this.resourceHandler.getResource(TitleScreenDesign.logo.iconImageResourceKey);
 
             this.titleBannerArea = RectAreaService.new({
-                left: (ScreenDimensions.SCREEN_WIDTH - image.width) * 0.5,
-                top: 20,
-                height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
-                width: ScaleImageWidth({
+                left: WINDOW_SPACING1,
+                top: WINDOW_SPACING1,
+                width: ScreenDimensions.SCREEN_WIDTH * TitleScreenDesign.logo.screenWidth,
+                height: ScaleImageHeight({
                     imageWidth: image.width,
                     imageHeight: image.height,
-                    desiredHeight: ScreenDimensions.SCREEN_HEIGHT * 0.25,
+                    desiredWidth: ScreenDimensions.SCREEN_WIDTH * TitleScreenDesign.logo.screenWidth,
                 }),
             })
 
@@ -211,32 +296,53 @@ export class TitleScreen implements GameEngineComponent {
         if (this.titleText === undefined) {
             this.titleText = TextBoxHelper.new({
                 area: RectAreaService.new({
-                    startColumn: 1,
+                    startColumn: 0,
                     endColumn: 3,
-                    left: 20,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaService.bottom(this.titleBannerArea) + WINDOW_SPACING1,
+                    top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.title.screenHeight,
                     height: WINDOW_SPACING4,
                 }),
                 text: "Torrin's Trial",
-                textSize: WINDOW_SPACING4,
+                textSize: WINDOW_SPACING2,
                 fontColor: colors.backgroundText,
+                horizAlign: HORIZ_ALIGN_CENTER,
             })
         }
         return this.titleText;
     }
 
-    private lazyLoadByLine() {
-        if (this.byLine === undefined) {
-            this.byLine = TextBoxHelper.new({
+    private lazyLoadGameDescription() {
+        if (this.gameDescription === undefined) {
+            this.gameDescription = TextBoxHelper.new({
                 area: RectAreaService.new({
-                    startColumn: 3,
-                    endColumn: 4,
+                    startColumn: TitleScreenDesign.gameDescription.startColumn,
+                    endColumn: TitleScreenDesign.gameDescription.endColumn,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaService.bottom(this.titleText.area),
-                    height: WINDOW_SPACING2,
+                    top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.gameDescription.screenHeightTop,
+                    bottom: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.gameDescription.screenHeightBottom,
+                    margin: [WINDOW_SPACING4, WINDOW_SPACING1, WINDOW_SPACING1, WINDOW_SPACING1],
+                }),
+                text: "Desert Fantasy Squad Tactics",
+                textSize: WINDOW_SPACING4,
+                fontColor: colors.descriptionText,
+            });
+        }
+
+        return this.gameDescription;
+    }
+
+    private lazyLoadByLine() {
+        if (!isValidValue(this.byLine)) {
+            this.byLine = TextBoxHelper.new({
+                area: RectAreaService.new({
+                    startColumn: 0,
+                    endColumn: 5,
+                    screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                    screenHeight: ScreenDimensions.SCREEN_HEIGHT,
+                    top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.byLine.screenHeight,
+                    bottom: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.byLine.screenHeight + WINDOW_SPACING4,
                     margin: WINDOW_SPACING1,
                 }),
                 text: "by Chad Serrant",
@@ -245,29 +351,6 @@ export class TitleScreen implements GameEngineComponent {
             })
         }
         return this.byLine;
-    }
-
-    private lazyLoadGameDescription() {
-        if (this.gameDescription === undefined) {
-            this.gameDescription = TextBoxHelper.new({
-                area: RectAreaService.new({
-                    startColumn: 1,
-                    endColumn: 6,
-                    screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                    screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaService.bottom(this.byLine.area),
-                    bottom: ScreenDimensions.SCREEN_HEIGHT * 0.8,
-                    margin: [WINDOW_SPACING4, WINDOW_SPACING1, WINDOW_SPACING1, WINDOW_SPACING4],
-                }),
-                text: "Help Torrin and Sir Camil protect their base.\n\nDefeat all the demon infiltrators!",
-                vertAlign: VERT_ALIGN_CENTER,
-                horizAlign: HORIZ_ALIGN_LEFT,
-                textSize: WINDOW_SPACING1 * 2,
-                fontColor: colors.descriptionText,
-            });
-        }
-
-        return this.gameDescription;
     }
 
     private updateStartGameButton(graphicsContext: GraphicsContext) {
@@ -289,18 +372,18 @@ export class TitleScreen implements GameEngineComponent {
             const buttonTextMinimumSize = 18;
             if (buttonTextSize < buttonTextMinimumSize) {
                 buttonTextSize = buttonTextMinimumSize;
-                this.startNewGameButtonLabel = "Window is too small";
+                this.startNewGameButtonLabel = TitleScreenDesign.startGameButton.smallWindowWarning;
             }
             changePlayButtonLabel = true;
         } else if (
             !windowIsTooSmall
             && !playButtonHasBeenClicked
-            && this.startNewGameButtonLabel !== "Click here to Play Demo"
+            && this.startNewGameButtonLabel !== TitleScreenDesign.startGameButton.playGameMessage
         ) {
-            this.startNewGameButtonLabel = "Click here to Play Demo";
+            this.startNewGameButtonLabel = TitleScreenDesign.startGameButton.playGameMessage;
             changePlayButtonLabel = true;
         } else if (this.startNewGameButton === undefined) {
-            this.startNewGameButtonLabel = "Click here to Play Demo";
+            this.startNewGameButtonLabel = TitleScreenDesign.startGameButton.playGameMessage;
             changePlayButtonLabel = true;
         }
 
@@ -311,7 +394,7 @@ export class TitleScreen implements GameEngineComponent {
         const buttonArea = RectAreaService.new({
             left: 0,
             width: ScreenDimensions.SCREEN_WIDTH,
-            top: ScreenDimensions.SCREEN_HEIGHT * 0.8,
+            top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.startGameButton.screenHeightTop,
             bottom: ScreenDimensions.SCREEN_HEIGHT,
         })
 
@@ -507,51 +590,38 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private drawCharacterIntroductions(state: GameEngineState, graphicsContext: GraphicsContext) {
-        if (this.torrinIcon === undefined) {
-            this.createPlaceholderTorrinIconArea();
-        }
+        this.drawTorrinCharacterIntroduction(graphicsContext);
+        this.drawSirCamilCharacterIntroduction(graphicsContext);
+        this.drawDemonCharacterIntroduction(graphicsContext);
+    }
 
-        const torrinDescriptionText: string = "Torrin has two powers: \n - Water Cannon: A ranged blast\n - Healing Touch: A close ranged heal";
-        if (this.torrinDescriptionText === undefined) {
-            this.setTorrinDescriptionText(torrinDescriptionText);
-        }
-
-        TextBoxHelper.draw(this.torrinDescriptionText, graphicsContext);
-
-        if (this.sirCamilIcon === undefined) {
+    private drawSirCamilCharacterIntroduction (graphicsContext: GraphicsContext) {
+        if (this.sirCamilUIElements.icon === undefined) {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
         }
 
-        const sirCamilDescriptionText: string = "Sir Camil has more health and armor. \n - Longsword: Melee attack."
-        if (this.sirCamilDescriptionText === undefined) {
-            this.setSirCamilDescriptionText(sirCamilDescriptionText);
+        if (this.sirCamilUIElements.descriptionText === undefined) {
+            this.setSirCamilDescriptionText();
         }
 
-        TextBoxHelper.draw(this.sirCamilDescriptionText, graphicsContext);
+        TextBoxHelper.draw(this.sirCamilUIElements.descriptionText, graphicsContext);
 
         if (this.areResourcesLoaded() === false) {
             return;
         }
 
-        if (this.torrinIcon === undefined) {
-            let image: GraphicImage = this.resourceHandler.getResource("young torrin cutscene portrait");
-            this.setTorrinIconBasedOnImage(image);
-            this.setTorrinDescriptionText(torrinDescriptionText);
-        }
-        this.torrinIcon.draw(graphicsContext);
-
-        if (this.sirCamilIcon === undefined) {
+        if (this.sirCamilUIElements.icon === undefined) {
             let image: GraphicImage = this.resourceHandler.getResource("sir camil cutscene portrait");
             this.setSirCamilIconBasedOnImageAndTorrinImage(image);
-            this.setSirCamilDescriptionText(sirCamilDescriptionText);
+            this.setSirCamilDescriptionText();
         }
-        this.sirCamilIcon.draw(graphicsContext);
+        this.sirCamilUIElements.icon.draw(graphicsContext);
     }
 
     private setSirCamilIconBasedOnImageAndTorrinImage(image: GraphicImage) {
-        this.sirCamilIconArea = RectAreaService.new({
-            left: RectAreaService.right(this.sirCamilIconArea) - 110,
-            top: RectAreaService.bottom(this.torrinIconArea) + WINDOW_SPACING1,
+        this.sirCamilUIElements.iconArea = RectAreaService.new({
+            left: RectAreaService.right(this.sirCamilUIElements.iconArea) - 110,
+            top: RectAreaService.bottom(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
             height: ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
@@ -560,79 +630,170 @@ export class TitleScreen implements GameEngineComponent {
             width: 100,
         });
 
-        this.sirCamilIcon = new ImageUI({
+        this.sirCamilUIElements.icon = new ImageUI({
             graphic: image,
-            area: this.sirCamilIconArea,
+            area: this.sirCamilUIElements.iconArea,
         });
-    }
-
-    private setTorrinIconBasedOnImage(image: GraphicImage) {
-        this.torrinIconArea = RectAreaService.new({
-            left: this.torrinIconArea.left,
-            top: this.torrinIconArea.top,
-            height: ScaleImageHeight({
-                imageWidth: image.width,
-                imageHeight: image.height,
-                desiredWidth: 100,
-            }),
-            width: 100,
-        });
-
-        this.torrinIcon = new ImageUI({
-            graphic: image,
-            area: this.torrinIconArea,
-        })
     }
 
     private createSirCamilPlaceholderIconAreaUnderTorrin() {
-        this.sirCamilIconArea = RectAreaService.new({
-            startColumn: 10,
-            endColumn: 11,
+        this.sirCamilUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.sirCamil.iconArea.startColumn,
+            endColumn: TitleScreenDesign.sirCamil.iconArea.startColumn + 1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: RectAreaService.bottom(this.torrinIconArea) + WINDOW_SPACING1,
+            top: RectAreaService.bottom(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         });
+    }
+
+    private setSirCamilDescriptionText() {
+        this.sirCamilUIElements.descriptionText = TextBoxHelper.new({
+            area: RectAreaService.new({
+                left: RectAreaService.right(this.sirCamilUIElements.iconArea) + WINDOW_SPACING1,
+                top: this.sirCamilUIElements.iconArea.top,
+                height: this.sirCamilUIElements.iconArea.height,
+                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.sirCamilUIElements.iconArea),
+                margin: [0, 0, 0, WINDOW_SPACING1],
+            }),
+            text: TitleScreenDesign.sirCamil.descriptionText,
+            textSize: WINDOW_SPACING2,
+            fontColor: colors.descriptionText,
+            vertAlign: VERT_ALIGN_CENTER,
+        });
+    }
+
+    private drawTorrinCharacterIntroduction (graphicsContext: GraphicsContext) {
+        if (this.torrinUIElements.icon === undefined) {
+            this.createPlaceholderTorrinIconArea();
+        }
+
+        if (this.torrinUIElements.descriptionText === undefined) {
+            this.setTorrinDescriptionText();
+        }
+        TextBoxHelper.draw(this.torrinUIElements.descriptionText, graphicsContext);
+
+        if (this.areResourcesLoaded() === false) {
+            return;
+        }
+
+        if (this.torrinUIElements.icon === undefined) {
+            let image: GraphicImage = this.resourceHandler.getResource("young torrin cutscene portrait");
+            this.setTorrinIconBasedOnImage(image);
+            this.setTorrinDescriptionText();
+        }
+        this.torrinUIElements.icon.draw(graphicsContext);
+    }
+
+    private setTorrinIconBasedOnImage(image: GraphicImage) {
+        this.torrinUIElements.iconArea = RectAreaService.new({
+            left: this.torrinUIElements.iconArea.left,
+            top: this.torrinUIElements.iconArea.top,
+            height: ScaleImageHeight({
+                imageWidth: image.width,
+                imageHeight: image.height,
+                desiredWidth: TitleScreenDesign.torrin.iconArea.width,
+            }),
+            width: TitleScreenDesign.torrin.iconArea.width,
+        });
+
+        this.torrinUIElements.icon = new ImageUI({
+            graphic: image,
+            area: this.torrinUIElements.iconArea,
+        })
+    }
+
+    private setTorrinDescriptionText() {
+        this.torrinUIElements.descriptionText = TextBoxHelper.new({
+            area: RectAreaService.new({
+                left: RectAreaService.right(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
+                top: this.torrinUIElements.iconArea.top,
+                height: this.torrinUIElements.iconArea.height,
+                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.torrinUIElements.iconArea) - WINDOW_SPACING2,
+            }),
+            text: TitleScreenDesign.torrin.descriptionText,
+            textSize: WINDOW_SPACING2,
+            fontColor: colors.descriptionText,
+            vertAlign: VERT_ALIGN_CENTER,
+        })
     }
 
     private createPlaceholderTorrinIconArea() {
-        this.torrinIconArea = RectAreaService.new({
-            startColumn: 7,
-            endColumn: 8,
+        this.torrinUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.torrin.iconArea.startColumn,
+            endColumn: TitleScreenDesign.torrin.iconArea.startColumn + 1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: RectAreaService.bottom(this.byLine.area),
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.1,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         });
     }
 
-    private setSirCamilDescriptionText(sirCamilDescriptionText: string) {
-        this.sirCamilDescriptionText = TextBoxHelper.new({
+    private drawDemonCharacterIntroduction (graphicsContext: GraphicsContext) {
+        if (!isValidValue(this.demonUIElements.icon)) {
+            this.createDemonPlaceholderIconAreaUnderSirCamil();
+        }
+
+        if (this.demonUIElements.descriptionText === undefined) {
+            this.setDemonDescriptionText();
+        }
+        TextBoxHelper.draw(this.demonUIElements.descriptionText, graphicsContext);
+
+        if (this.areResourcesLoaded() === false) {
+            return;
+        }
+
+        if (!isValidValue(this.demonUIElements.icon)) {
+            let image: GraphicImage = this.resourceHandler.getResource(TitleScreenDesign.demon.iconImageResourceKey);
+            this.setDemonIconBasedOnImage(image);
+            this.setDemonDescriptionText();
+        }
+
+        this.demonUIElements.icon.draw(graphicsContext);
+    }
+
+    private setDemonDescriptionText() {
+        this.demonUIElements.descriptionText = TextBoxHelper.new({
             area: RectAreaService.new({
-                left: this.torrinIconArea.left,
-                top: this.sirCamilIconArea.top,
-                height: this.sirCamilIconArea.height,
-                width: this.sirCamilIconArea.left - this.torrinIconArea.left - WINDOW_SPACING2,
+                left: RectAreaService.right(this.demonUIElements.iconArea) + WINDOW_SPACING1,
+                top: this.demonUIElements.iconArea.top,
+                height: this.demonUIElements.iconArea.height,
+                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.demonUIElements.iconArea),
+                margin: [0,0,0,WINDOW_SPACING1],
             }),
-            text: sirCamilDescriptionText,
+            text: TitleScreenDesign.demon.descriptionText,
             textSize: WINDOW_SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERT_ALIGN_CENTER,
         });
     }
 
-    private setTorrinDescriptionText(torrinDescriptionText: string) {
-        this.torrinDescriptionText = TextBoxHelper.new({
-            area: RectAreaService.new({
-                left: RectAreaService.right(this.torrinIconArea) + WINDOW_SPACING1,
-                top: this.torrinIconArea.top,
-                height: this.torrinIconArea.height,
-                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.torrinIconArea) - WINDOW_SPACING2,
+    private createDemonPlaceholderIconAreaUnderSirCamil() {
+        this.demonUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.demon.iconArea.startColumn,
+            endColumn: TitleScreenDesign.demon.iconArea.startColumn + 1,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            screenHeight: ScreenDimensions.SCREEN_HEIGHT,
+            top: RectAreaService.bottom(this.sirCamilUIElements.iconArea) + WINDOW_SPACING1,
+            height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
+        });
+    }
+
+    private setDemonIconBasedOnImage(image: GraphicImage) {
+        this.demonUIElements.iconArea = RectAreaService.new({
+            left: this.demonUIElements.iconArea.left,
+            top: this.demonUIElements.iconArea.top,
+            height: ScaleImageHeight({
+                imageWidth: image.width,
+                imageHeight: image.height,
+                desiredWidth: TitleScreenDesign.demon.iconArea.width,
             }),
-            text: torrinDescriptionText,
-            textSize: WINDOW_SPACING2,
-            fontColor: colors.descriptionText,
-            vertAlign: VERT_ALIGN_CENTER,
+            width: TitleScreenDesign.demon.iconArea.width,
+        });
+
+        this.demonUIElements.icon = new ImageUI({
+            graphic: image,
+            area: this.demonUIElements.iconArea,
         })
     }
 }

@@ -101,11 +101,6 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/action-neutral-demon-slither.png",
-    "key": "action neutral demon slither"
-  },
-  {
-    "type": "IMAGE",
     "path": "assets/combat-demon-slither-attack.png",
     "key": "combat-demon-slither-attack"
   },
