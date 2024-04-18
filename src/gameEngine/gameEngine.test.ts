@@ -82,9 +82,9 @@ describe('Game Engine', () => {
         function expectMouseClicked(newGameEngine: GameEngine) {
             const mouseClickedSpy = jest.spyOn(newGameEngine.component, "mouseClicked").mockImplementation(() => {
             });
-            newGameEngine.mouseClicked(MouseButton.LEFT, 100, 200);
+            newGameEngine.mouseClicked(MouseButton.ACCEPT, 100, 200);
             expect(mouseClickedSpy).toBeCalled();
-            expect(mouseClickedSpy.mock.calls[0][1]).toBe(MouseButton.LEFT);
+            expect(mouseClickedSpy.mock.calls[0][1]).toBe(MouseButton.ACCEPT);
             expect(mouseClickedSpy.mock.calls[0][2]).toBe(100);
             expect(mouseClickedSpy.mock.calls[0][3]).toBe(200);
         }

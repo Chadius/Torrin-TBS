@@ -30,6 +30,7 @@ import {ProcessedActionSquaddieEffectService} from "../../action/processed/proce
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {DecidedActionService} from "../../action/decided/decidedAction";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -198,6 +199,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: 0,
             mouseY: 0,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         animator.mouseEventHappened(state, mouseEvent);

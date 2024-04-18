@@ -27,6 +27,7 @@ import {CampaignService} from "../campaign/campaign";
 import {RectAreaService} from "../ui/rectArea";
 import {TextBoxHelper} from "../ui/textBox";
 import {ActionsThisRound} from "../battle/history/actionsThisRound";
+import {MouseButton} from "../utils/mouseConfig";
 
 describe('User clicks on a squaddie', () => {
     let repository: ObjectRepository;
@@ -155,7 +156,8 @@ describe('User clicks on a squaddie', () => {
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
-                mouseY
+                mouseY,
+                mouseButton: MouseButton.ACCEPT,
             });
         };
 
@@ -203,14 +205,16 @@ describe('User clicks on a squaddie', () => {
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
-            mouseY
+            mouseY,
+            mouseButton: MouseButton.ACCEPT,
         });
 
         ([mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()));
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
-            mouseY
+            mouseY,
+            mouseButton: MouseButton.ACCEPT,
         });
 
         const battleState = gameEngineState.battleOrchestratorState.battleState;
@@ -259,11 +263,12 @@ describe('User clicks on a squaddie', () => {
             return button.actionTemplate.id === actionCostIsTooHigh.id;
         });
 
-        battleSquaddieSelectedHUD.mouseClicked(
-            RectAreaService.centerX(actionButton.buttonArea),
-            RectAreaService.centerY(actionButton.buttonArea),
+        battleSquaddieSelectedHUD.mouseClicked({
+            mouseX: RectAreaService.centerX(actionButton.buttonArea),
+            mouseY: RectAreaService.centerY(actionButton.buttonArea),
             gameEngineState,
-        );
+            mouseButton: MouseButton.ACCEPT,
+        });
 
         expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
         expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual("Need 9001 action points");

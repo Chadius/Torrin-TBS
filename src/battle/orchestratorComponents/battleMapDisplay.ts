@@ -45,7 +45,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(event.mouseX, event.mouseY, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked({
+                mouseX: event.mouseX,
+                mouseY: event.mouseY,
+                mouseButton: event.mouseButton,
+                ...state.battleOrchestratorState.battleState.camera.getCoordinatesAsObject()
+            });
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
             this.moveCameraBasedOnMouseMovement(state.battleOrchestratorState, event.mouseX, event.mouseY);

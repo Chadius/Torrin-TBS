@@ -4,6 +4,7 @@ import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {MapLayer} from "../missionMap/mapLayer";
+import {MouseButton} from "../utils/mouseConfig";
 
 describe('hexMap', () => {
     describe('mouseClicks on the map', () => {
@@ -19,25 +20,68 @@ describe('hexMap', () => {
 
             const hexGrid = new TerrainTileMap({tiles: gridTiles});
 
-            hexGrid.mouseClicked(-100, -100, 0, 0);
+            hexGrid.mouseClicked({
+                mouseX: -100,
+                mouseY: -100,
+                cameraX: 0,
+                cameraY: 0,
+                mouseButton: MouseButton.ACCEPT
+            });
+
             expect(hexGrid.outlineTileCoordinates).toBe(undefined);
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT / 2, 0, 0);
+            hexGrid.mouseClicked({
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0,
+                mouseButton: MouseButton.ACCEPT
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 0});
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH, ScreenDimensions.SCREEN_HEIGHT / 2, 0, 0);
+            hexGrid.mouseClicked({
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 1});
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2 + (2 * HEX_TILE_WIDTH), ScreenDimensions.SCREEN_HEIGHT / 2, 0, 0);
+            hexGrid.mouseClicked({
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + (2 * HEX_TILE_WIDTH),
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 2});
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2 - HEX_TILE_WIDTH, ScreenDimensions.SCREEN_HEIGHT / 2, 0, 0);
+            hexGrid.mouseClicked({
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 - HEX_TILE_WIDTH,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: -1});
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH / 2), ScreenDimensions.SCREEN_HEIGHT / 2 + (HEX_TILE_WIDTH / 2), 0, 0);
+            hexGrid.mouseClicked({
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH / 2),
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2 + (HEX_TILE_WIDTH / 2),
+                cameraX: 0,
+                cameraY: 0
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 1, r: 0});
 
-            hexGrid.mouseClicked(ScreenDimensions.SCREEN_WIDTH / 2 - (HEX_TILE_WIDTH / 2), ScreenDimensions.SCREEN_HEIGHT / 2 - (HEX_TILE_WIDTH / 2), 0, 0);
+            hexGrid.mouseClicked({
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 - (HEX_TILE_WIDTH / 2),
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2 - (HEX_TILE_WIDTH / 2),
+                cameraX: 0,
+                cameraY: 0
+            });
             expect(hexGrid.outlineTileCoordinates).toMatchObject({q: -1, r: -0});
         });
     });

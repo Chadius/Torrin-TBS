@@ -32,6 +32,7 @@ import {ProcessedActionSquaddieEffectService} from "../action/processed/processe
 import {DecidedActionSquaddieEffectService} from "../action/decided/decidedActionSquaddieEffect";
 import {OrchestratorUtilities} from "../battle/orchestratorComponents/orchestratorUtils";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
+import {MouseButton} from "../utils/mouseConfig";
 import SpyInstance = jest.SpyInstance;
 
 describe('User cancels the previewed action', () => {
@@ -100,7 +101,7 @@ describe('User cancels the previewed action', () => {
         graphicsContext = new MockedP5GraphicsContext();
     });
 
-    describe('when the user clicks on canceling the target', () => {
+    describe('when the user cancels after selecting an action', () => {
         let hexMapHighlightTilesSpy: jest.SpyInstance;
         let orchestratorSpy: SpyInstance;
 
@@ -127,42 +128,81 @@ describe('User cancels the previewed action', () => {
 
             targeting.update(gameEngineState, graphicsContext);
             hexMapHighlightTilesSpy = jest.spyOn(gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, "highlightTiles");
-            targeting.mouseEventHappened(
-                gameEngineState,
-                {
-                    eventType: OrchestratorComponentMouseEventType.CLICKED,
-                    mouseX: ScreenDimensions.SCREEN_WIDTH,
-                    mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                }
-            );
         });
         afterEach(() => {
             orchestratorSpy.mockRestore();
         });
 
-        it('completes the targeting module', () => {
+        const cancelMethods = [
+            {
+                name: "mouse clicks ACCEPT on lower right corner",
+                action: () => {
+                    targeting.mouseEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentMouseEventType.CLICKED,
+                            mouseX: ScreenDimensions.SCREEN_WIDTH,
+                            mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                            mouseButton: MouseButton.ACCEPT,
+                        }
+                    );
+                }
+            },
+            {
+                name: "mouse clicks CANCEL",
+                action: () => {
+                    targeting.mouseEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentMouseEventType.CLICKED,
+                            mouseX: 0,
+                            mouseY: 0,
+                            mouseButton: MouseButton.CANCEL,
+                        }
+                    );
+                }
+            },
+        ]
+
+        it.each(cancelMethods)(`completes the targeting module via $name`, ({
+                                                                                name,
+                                                                                action,
+                                                                            }) => {
+            action();
             expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
         });
 
-        it('highlights the map', () => {
+        it.each(cancelMethods)('highlights the map via $name', ({
+                                                                    name,
+                                                                    action,
+                                                                }) => {
+            action();
             targeting.recommendStateChanges(gameEngineState);
             expect(hexMapHighlightTilesSpy).toBeCalled();
         });
 
-        it('If the user clicks cancel the target, clear the previewed power in ActionsThisRound', () => {
+        it.each(cancelMethods)('If the user clicks cancel the target, clear the previewed power in ActionsThisRound via $name', ({
+                                                                                                                                     name,
+                                                                                                                                     action,
+                                                                                                                                 }) => {
+            action();
             const recommendedInfo = targeting.recommendStateChanges(gameEngineState);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
         });
 
-        it('Sees if it should send a message if the player controlled squaddie has not started their turn', () => {
+        it.each(cancelMethods)('Sees if it should send a message if the player controlled squaddie has not started their turn via $name', ({
+                                                                                                                                               name,
+                                                                                                                                               action,
+                                                                                                                                           }) => {
+            action();
             targeting.recommendStateChanges(gameEngineState);
             expect(orchestratorSpy).toBeCalledWith(gameEngineState);
         });
     });
 
-    it('Ensure if this is the 2nd action the user cannot cancel their turn.', () => {
+    it('Ensure if this is the 2nd action the user cannot cancel their turn. via $name', () => {
         gameEngineState = getGameEngineState({
             repository,
             actionsThisRound: ActionsThisRoundService.new({
@@ -201,6 +241,7 @@ describe('User cancels the previewed action', () => {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                mouseButton: MouseButton.ACCEPT,
             }
         );
 
@@ -211,7 +252,7 @@ describe('User cancels the previewed action', () => {
         expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeTruthy();
     });
 
-    it('After Clicking a target, Canceling the confirmation should not change ActionsThisRound - we’re still previewing', () => {
+    it('After Clicking a target, Canceling the confirmation should not change ActionsThisRound - we’re still previewing via $name', () => {
         const enemySquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
                 name: "enemy",
@@ -275,7 +316,8 @@ describe('User cancels the previewed action', () => {
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
-            mouseY
+            mouseY,
+            mouseButton: MouseButton.ACCEPT,
         });
         targeting.update(gameEngineState, graphicsContext);
 
@@ -287,6 +329,7 @@ describe('User cancels the previewed action', () => {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                mouseButton: MouseButton.ACCEPT,
             }
         );
 

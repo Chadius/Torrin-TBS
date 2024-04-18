@@ -14,6 +14,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {BattleHUDService} from "../hud/battleHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -52,7 +53,8 @@ describe('battleMapDisplay', () => {
         battleMapDisplay.mouseEventHappened(state, {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX: 0,
-            mouseY: 0
+            mouseY: 0,
+            mouseButton: MouseButton.ACCEPT,
         });
         expect(camera.setXVelocity).toBeCalled();
         expect(camera.setYVelocity).toBeCalled();
@@ -110,7 +112,8 @@ describe('battleMapDisplay', () => {
             battleMapDisplay.mouseEventHappened(state, {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
                 mouseX: 0,
-                mouseY: 0
+                mouseY: 0,
+                mouseButton: MouseButton.ACCEPT,
             });
             expect(camera.setXVelocity).not.toBeCalled();
             expect(camera.setYVelocity).not.toBeCalled();

@@ -8,6 +8,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 import {MapLayer, MapLayerHelper} from "../missionMap/mapLayer";
+import {MouseButton} from "../utils/mouseConfig";
 
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
     const newTiles: HexGridTile[] = [];
@@ -99,7 +100,13 @@ export class TerrainTileMap {
         return this._highlightedTiles;
     }
 
-    mouseClicked(mouseX: number, mouseY: number, cameraX: number, cameraY: number) {
+    mouseClicked({mouseButton, mouseX, mouseY, cameraX, cameraY}: {
+        mouseButton: MouseButton,
+        mouseX: number,
+        mouseY: number,
+        cameraX: number,
+        cameraY: number
+    }) {
         const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, cameraX, cameraY);
         const tileCoordinates = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
 

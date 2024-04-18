@@ -2,6 +2,7 @@ import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {MouseButton} from "../../utils/mouseConfig";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -13,6 +14,7 @@ export type OrchestratorComponentMouseEvent = {
     eventType: OrchestratorComponentMouseEventType;
     mouseX: number;
     mouseY: number;
+    mouseButton: MouseButton;
 }
 
 export enum OrchestratorComponentKeyEventType {

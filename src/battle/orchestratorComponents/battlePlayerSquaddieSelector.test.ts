@@ -48,6 +48,7 @@ import {OrchestratorUtilities} from "./orchestratorUtils";
 import {BATTLE_HUD_MODE, config} from "../../configuration/config";
 import {KeyButtonName} from "../../utils/keyboardConfig";
 import {BattleHUDService} from "../hud/battleHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -468,7 +469,8 @@ describe('BattleSquaddieSelector', () => {
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
-                mouseY
+                mouseY,
+                mouseButton: MouseButton.ACCEPT,
             });
         }
 
@@ -858,7 +860,8 @@ describe('BattleSquaddieSelector', () => {
             selector.mouseEventHappened(state, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: startingMouseX,
-                mouseY: startingMouseY
+                mouseY: startingMouseY,
+                mouseButton: MouseButton.ACCEPT,
             });
 
             expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0].battleId).toEqual(playerSoldierBattleSquaddie.battleSquaddieId);
@@ -907,7 +910,8 @@ describe('BattleSquaddieSelector', () => {
             selector.mouseEventHappened(state, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: 0,
-                mouseY: 0
+                mouseY: 0,
+                mouseButton: MouseButton.ACCEPT,
             });
 
             expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(actionsThisRound.battleSquaddieId);
@@ -1279,6 +1283,7 @@ const clickOnMapCoordinate = ({
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX: destinationScreenX,
-        mouseY: destinationScreenY
+        mouseY: destinationScreenY,
+        mouseButton: MouseButton.ACCEPT,
     });
 }

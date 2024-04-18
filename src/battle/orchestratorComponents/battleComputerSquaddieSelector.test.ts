@@ -53,6 +53,7 @@ import {ProcessedActionEndTurnEffectService} from "../../action/processed/proces
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionService} from "../../action/processed/processedAction";
 import {BattleHUDService} from "../hud/battleHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -565,6 +566,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     eventType: OrchestratorComponentMouseEventType.CLICKED,
                     mouseX: 0,
                     mouseY: 0,
+                    mouseButton: MouseButton.ACCEPT,
                 };
 
                 selector.mouseEventHappened(state, mouseEvent);

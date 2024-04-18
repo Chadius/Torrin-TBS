@@ -16,6 +16,11 @@ export function getProductionConfig(processVariables: ProcessVariables): Config 
             NEXT_SQUADDIE: [KeyCodes.x, KeyCodes.ctrl],
             ACCEPT: [KeyCodes.enter],
         },
+        MOUSE_BUTTON_BINDINGS: {
+            ACCEPT: "left",
+            INFO: "center",
+            CANCEL: "right",
+        },
         STARTUP_MODE: "TITLE_SCREEN",
         HUD: getValidValueOrDefault(processVariables.HUD, BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD),
     };

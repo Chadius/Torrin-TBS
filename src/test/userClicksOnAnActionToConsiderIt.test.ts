@@ -31,6 +31,7 @@ import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordin
 import {OrchestratorComponentMouseEventType} from "../battle/orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battlePlayerSquaddieTarget";
+import {MouseButton} from "../utils/mouseConfig";
 
 describe('user clicks on an action to consider it', () => {
     let repository: ObjectRepository;
@@ -138,6 +139,7 @@ describe('user clicks on an action to consider it', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseButton: MouseButton.ACCEPT,
         });
 
         expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
@@ -151,6 +153,7 @@ describe('user clicks on an action to consider it', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseButton: MouseButton.ACCEPT,
         });
 
         expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeTruthy();
@@ -172,6 +175,7 @@ describe('user clicks on an action to consider it', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseButton: MouseButton.ACCEPT,
         });
 
         expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
@@ -186,6 +190,7 @@ describe('user clicks on an action to consider it', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseButton: MouseButton.ACCEPT,
         });
         selector.recommendStateChanges(gameEngineState);
         selector.reset(gameEngineState);
@@ -253,6 +258,7 @@ const selectorClicksOnSquaddie = (selector: BattlePlayerSquaddieSelector, gameEn
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,
-        mouseY
+        mouseY,
+        mouseButton: MouseButton.ACCEPT,
     });
 };

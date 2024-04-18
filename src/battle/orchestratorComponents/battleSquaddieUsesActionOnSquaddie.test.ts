@@ -43,6 +43,7 @@ import {OrchestratorUtilities} from "./orchestratorUtils";
 import {isValidValue} from "../../utils/validityCheck";
 import {CampaignService} from "../../campaign/campaign";
 import {BattleHUDService} from "../hud/battleHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -424,6 +425,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: 0,
             mouseY: 0,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         squaddieUsesActionOnSquaddie.mouseEventHappened(state, mouseEvent);

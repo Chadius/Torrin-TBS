@@ -74,45 +74,63 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         return (gaveCompleteInstruction || selectedActionRequiresATarget) && cameraIsNotPanning;
     }
 
-    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.mouseClicked(state, event.mouseX, event.mouseY);
+            this.mouseClicked(
+                {mouseX: event.mouseX, mouseY: event.mouseY, mouseButton: event.mouseButton, gameEngineState}
+            );
         }
 
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
-            this.mouseMoved(state, event.mouseX, event.mouseY);
+            this.mouseMoved(gameEngineState, event.mouseX, event.mouseY);
         }
     }
 
-    mouseClicked(state: GameEngineState, mouseX: number, mouseY: number): void {
-        const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.repository);
-        if (!BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository)) {
+    mouseClicked({
+                     gameEngineState, mouseX, mouseY, mouseButton
+                 }: {
+        gameEngineState: GameEngineState,
+        mouseX: number,
+        mouseY: number,
+        mouseButton: MouseButton
+    }): void {
+        const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(gameEngineState.battleOrchestratorState.battleState, gameEngineState.repository);
+        if (!BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, gameEngineState.repository)) {
             return;
         }
 
         FileAccessHUDService.mouseClicked({
-            fileAccessHUD: state.battleOrchestratorState.battleHUD.fileAccessHUD,
+            fileAccessHUD: gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             mouseX,
             mouseY,
-            mouseButton: MouseButton.LEFT,
-            fileState: state.fileState,
+            mouseButton,
+            fileState: gameEngineState.fileState,
         });
 
-        if (state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
-            const playerClickOnHUD = state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.didMouseClickOnHUD(mouseX, mouseY);
+        if (gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
+            const playerClickOnHUD = gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.didMouseClickOnHUD(mouseX, mouseY);
             if (playerClickOnHUD) {
-                state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.mouseClicked(mouseX, mouseY, state);
+                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.mouseClicked({
+                    mouseX,
+                    mouseY,
+                    mouseButton,
+                    gameEngineState
+                });
             }
 
-            this.maybeReactToPlayerSelectedAction(state);
+            this.maybeReactToPlayerSelectedAction(gameEngineState);
 
             if (playerClickOnHUD) {
                 return;
             }
         }
-
-        this.reactToClicking(state, mouseX, mouseY);
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(mouseX, mouseY, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
+        this.reactToClicking({gameEngineState, mouseX, mouseY, mouseButton});
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked({
+            mouseX,
+            mouseY,
+            mouseButton,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject()
+        });
     }
 
     mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {
@@ -143,8 +161,18 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                     const squaddieInfo = gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectedBattleSquaddieId);
                     if (MissionMapSquaddieLocationHandler.isValid(squaddieInfo) && gameEngineState.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
                         const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
-                        this.reactToClicking(gameEngineState, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
-                        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+                        this.reactToClicking({
+                            mouseButton: MouseButton.ACCEPT,
+                            gameEngineState,
+                            mouseX: squaddieScreenCoordinates[0],
+                            mouseY: squaddieScreenCoordinates[1],
+                        });
+                        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked({
+                            mouseX: squaddieScreenCoordinates[0],
+                            mouseY: squaddieScreenCoordinates[1],
+                            mouseButton: MouseButton.ACCEPT,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject()
+                        });
                         return;
                     }
                 }
@@ -241,13 +269,21 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.repository);
     }
 
-    private reactToClicking(state: GameEngineState, mouseX: number, mouseY: number) {
-        const {areCoordinatesOnMap, clickedHexCoordinate} = getMouseClickHexCoordinates(state, mouseX, mouseY);
+    private reactToClicking({mouseButton, gameEngineState, mouseX, mouseY}: {
+        mouseButton: MouseButton,
+        gameEngineState: GameEngineState,
+        mouseX: number,
+        mouseY: number
+    }) {
+        const {
+            areCoordinatesOnMap,
+            clickedHexCoordinate
+        } = getMouseClickHexCoordinates(gameEngineState, mouseX, mouseY);
         if (
-            !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
+            !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
             && !areCoordinatesOnMap
         ) {
-            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.clearSelectedSquaddie();
+            gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.clearSelectedSquaddie();
             return;
         }
 
@@ -255,9 +291,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             !isValidValue(this.selectedBattleSquaddieId)
             || this.selectedBattleSquaddieId == ""
         ) {
-            this.reactToClickingOnMapWhenNoSquaddieSelected(state, clickedHexCoordinate, mouseX, mouseY);
+            this.reactToClickingOnMapWhenNoSquaddieSelected(gameEngineState, clickedHexCoordinate, mouseX, mouseY);
         }
-        this.reactToClickingOnMapWhenSquaddieAlreadySelected(state, clickedHexCoordinate, mouseX, mouseY);
+        this.reactToClickingOnMapWhenSquaddieAlreadySelected(gameEngineState, clickedHexCoordinate, mouseX, mouseY);
     }
 
     private reactToClickingOnMapWhenNoSquaddieSelected(state: GameEngineState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -337,6 +373,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     private reactToSelectingSquaddieThenSelectingMap(state: GameEngineState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
+            return;
+        }
+        if (this.selectedBattleSquaddieId === "") {
             return;
         }
 

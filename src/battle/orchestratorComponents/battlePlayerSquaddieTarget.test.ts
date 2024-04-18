@@ -45,6 +45,7 @@ import {ProcessedActionSquaddieEffectService} from "../../action/processed/proce
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {CampaignService} from "../../campaign/campaign";
 import {BattleHUDService} from "../hud/battleHUD";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
@@ -200,6 +201,7 @@ describe('BattleSquaddieTarget', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         targetComponent.mouseEventHappened(state, mouseEvent);
@@ -216,6 +218,7 @@ describe('BattleSquaddieTarget', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         targetComponent.mouseEventHappened(state, mouseEvent);
@@ -226,6 +229,7 @@ describe('BattleSquaddieTarget', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: ScreenDimensions.SCREEN_WIDTH,
             mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         targetComponent.mouseEventHappened(state, confirmSelectionClick);
@@ -271,6 +275,7 @@ describe('BattleSquaddieTarget', () => {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
                 mouseY,
+                mouseButton: MouseButton.ACCEPT,
             };
 
             targetComponent.mouseEventHappened(state, mouseEvent);
@@ -289,6 +294,7 @@ describe('BattleSquaddieTarget', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
+            mouseButton: MouseButton.ACCEPT,
         };
 
         targetComponent.mouseEventHappened(state, mouseEvent);
@@ -323,6 +329,7 @@ describe('BattleSquaddieTarget', () => {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                mouseButton: MouseButton.ACCEPT,
             };
 
             targetComponent.mouseEventHappened(state, cancelTargetClick);

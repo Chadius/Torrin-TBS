@@ -45,6 +45,7 @@ import {BattleSquaddieUsesActionOnSquaddie} from "../battle/orchestratorComponen
 import {DamageType} from "../squaddie/squaddieService";
 import {SquaddieSkipsAnimationAnimator} from "../battle/animation/squaddieSkipsAnimationAnimator";
 import {DecidedActionService} from "../action/decided/decidedAction";
+import {MouseButton} from "../utils/mouseConfig";
 
 describe('User Selects Target and Confirms', () => {
     let repository: ObjectRepository;
@@ -166,7 +167,8 @@ describe('User Selects Target and Confirms', () => {
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
-            mouseY
+            mouseY,
+            mouseButton: MouseButton.ACCEPT,
         });
         targeting.update(gameEngineState, graphicsContext);
 
@@ -430,7 +432,8 @@ const clickOnEnemy = ({
     targeting.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,
-        mouseY
+        mouseY,
+        mouseButton: MouseButton.ACCEPT,
     });
     targeting.update(gameEngineState, graphicsContext);
 
@@ -451,6 +454,7 @@ const clickOnConfirmTarget = ({
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX: ScreenDimensions.SCREEN_WIDTH,
         mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+        mouseButton: MouseButton.ACCEPT,
     };
 
     targeting.mouseEventHappened(gameEngineState, confirmSelectionClick);

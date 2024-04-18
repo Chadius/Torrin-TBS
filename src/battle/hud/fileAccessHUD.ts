@@ -155,6 +155,9 @@ export const FileAccessHUDService = {
             fileState: FileState,
         }
     ) => {
+        if (mouseButton !== MouseButton.ACCEPT) {
+            return;
+        }
         fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, fileState});
         fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {fileAccessHUD, fileState});
     },

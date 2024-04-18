@@ -1,6 +1,7 @@
 import {getDevelopmentConfig} from "./configDevelopment";
 import {getProductionConfig} from "./configProduction";
 import {KeyButtonName} from "../utils/keyboardConfig";
+import {MouseButton} from "../utils/mouseConfig";
 
 export type Environment =
     | "production"
@@ -13,6 +14,7 @@ export interface Config {
     KEYBOARD_SHORTCUTS: { [key in KeyButtonName]?: number[] };
     STARTUP_MODE: string;
     HUD: string;
+    MOUSE_BUTTON_BINDINGS: { [key in MouseButton]?: string };
 }
 
 export enum BATTLE_HUD_MODE {
@@ -27,6 +29,7 @@ export interface ProcessVariables {
     KEYBOARD_SHORTCUTS?: { [key in string]: number[] };
     STARTUP_MODE?: string;
     HUD?: BATTLE_HUD_MODE;
+    MOUSE_BUTTON_BINDINGS?: { [key in MouseButton]?: string };
 }
 
 export const config = getConfig(process.env.NODE_ENV as unknown as ProcessVariables)

@@ -42,6 +42,7 @@ import {
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
+import {MouseButton} from "../../utils/mouseConfig";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -68,35 +69,20 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return userWantsADifferentAbility || userConfirmedTarget;
     }
 
-    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            if (!this.hasSelectedValidTarget) {
-                if (event.mouseY > BUTTON_TOP) {
-                    this.cancelAbility = true;
-
-                    const battleSquaddieToHighlightId: string = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
-
-                    OrchestratorUtilities.highlightSquaddieRange(state, battleSquaddieToHighlightId);
-                    state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
-
-                    if (state.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
-                        state.battleOrchestratorState.battleState.actionsThisRound = undefined;
-                    }
-                    return;
-                } else {
-                    return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state);
-                }
-            }
-
-            if (!this.hasConfirmedAction) {
-                if (event.mouseY > BUTTON_TOP) {
-                    return this.cancelTargetSelection(state.battleOrchestratorState);
-                }
-
-                return this.confirmTargetSelection(state);
-            }
+    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void {
+        if (event.eventType !== OrchestratorComponentMouseEventType.CLICKED) {
+            return;
         }
-        return;
+
+        if (!this.hasSelectedValidTarget) {
+            this.waitingForValidTarget(gameEngineState, event);
+            return;
+        }
+
+        if (!this.hasConfirmedAction) {
+            this.waitingForConfirmation(gameEngineState, event);
+            return;
+        }
     }
 
     keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
@@ -150,6 +136,60 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     shouldDrawConfirmWindow(): boolean {
         return this.hasSelectedValidTarget === true;
+    }
+
+    private waitingForConfirmation(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent) {
+        if (this.didUserCancelActionConfirmation(gameEngineState, event)) {
+            this.hasSelectedValidTarget = false;
+            return;
+        }
+
+        if (event.mouseButton !== MouseButton.ACCEPT) {
+            return;
+        }
+
+        this.confirmTargetSelection(gameEngineState);
+    }
+
+    private waitingForValidTarget = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent) => {
+        if (this.didUserCancelTargetLocation(gameEngineState, event)) {
+            this.cancelTargetSelection(gameEngineState);
+            return;
+        }
+
+        if (event.mouseButton !== MouseButton.ACCEPT) {
+            return;
+        }
+
+        this.tryToSelectValidTarget({
+            mouseX: event.mouseX,
+            mouseY: event.mouseY,
+            gameEngineState,
+            mouseButton: event.mouseButton,
+        });
+    };
+
+    private didUserCancelActionConfirmation = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): boolean => {
+        return event.mouseButton === MouseButton.CANCEL
+            || event.mouseY > BUTTON_TOP;
+    }
+
+    private didUserCancelTargetLocation = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): boolean => {
+        return event.mouseButton === MouseButton.CANCEL
+            || event.mouseY > BUTTON_TOP;
+    }
+
+    private cancelTargetSelection = (gameEngineState: GameEngineState): void => {
+        this.cancelAbility = true;
+
+        const battleSquaddieToHighlightId: string = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+
+        OrchestratorUtilities.highlightSquaddieRange(gameEngineState, battleSquaddieToHighlightId);
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+
+        if (gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound = undefined;
+        }
     }
 
     private resetObject() {
@@ -215,8 +255,16 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
     }
 
-    private tryToSelectValidTarget(mouseX: number, mouseY: number, state: GameEngineState) {
-        const coordinates = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
+    private tryToSelectValidTarget({
+                                       mouseX, mouseY, mouseButton, gameEngineState,
+                                   }:
+                                       {
+                                           mouseX: number,
+                                           mouseY: number,
+                                           mouseButton: MouseButton,
+                                           gameEngineState: GameEngineState
+                                       }) {
+        const coordinates = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
 
         const clickedLocation: HexCoordinate = {
             q: coordinates[0],
@@ -238,9 +286,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         } = OrchestratorUtilities.getSquaddieAtScreenLocation({
             mouseX,
             mouseY,
-            camera: state.battleOrchestratorState.battleState.camera,
-            map: state.battleOrchestratorState.battleState.missionMap,
-            squaddieRepository: state.repository,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            map: gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieRepository: gameEngineState.repository,
         });
 
         if (targetSquaddieTemplate === undefined) {
@@ -249,14 +297,14 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
-                state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+                gameEngineState.repository,
+                gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
             )
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
 
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
 
         if (!isValidValue(actionTemplate)) {
             return;
@@ -274,8 +322,14 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return;
         }
 
-        const cameraCoordinates = state.battleOrchestratorState.battleState.camera.getCoordinates();
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(mouseX, mouseY, cameraCoordinates[0], cameraCoordinates[1]);
+        const cameraCoordinates = gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates();
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked({
+            mouseX,
+            mouseY,
+            mouseButton,
+            cameraX: cameraCoordinates[0],
+            cameraY: cameraCoordinates[1],
+        });
         this.hasSelectedValidTarget = true;
         this.validTargetLocation = clickedLocation;
     }
@@ -353,10 +407,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         });
 
         LabelService.draw(buttonBackground, graphicsContext);
-    }
-
-    private cancelTargetSelection(state: BattleOrchestratorState) {
-        this.hasSelectedValidTarget = false;
     }
 
     private confirmTargetSelection(state: GameEngineState) {

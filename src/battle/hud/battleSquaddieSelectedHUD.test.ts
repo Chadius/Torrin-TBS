@@ -36,6 +36,7 @@ import {CampaignService} from "../../campaign/campaign";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {MouseButton} from "../../utils/mouseConfig";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -155,7 +156,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         const longswordButton = hud.getUseActionButtons().find((button) =>
             button.actionTemplate.id === longswordAction.id
         );
-        hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
+        hud.mouseClicked({
+            mouseX: longswordButton.buttonArea.left,
+            mouseY: longswordButton.buttonArea.top,
+            gameEngineState: state,
+            mouseButton: MouseButton.ACCEPT
+        });
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
@@ -272,11 +278,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
 
-        hud.mouseClicked(
-            RectAreaService.left(hud.endTurnButton.rectangle.area),
-            RectAreaService.top(hud.endTurnButton.rectangle.area),
-            state
-        );
+        hud.mouseClicked({
+            mouseX: RectAreaService.left(hud.endTurnButton.rectangle.area),
+            mouseY: RectAreaService.top(hud.endTurnButton.rectangle.area),
+            gameEngineState: state,
+            mouseButton: MouseButton.ACCEPT
+        });
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeTruthy();
@@ -358,11 +365,12 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.actionTemplate.id === "not enough actions"
         );
 
-        hud.mouseClicked(
-            notEnoughActionPointsButton.buttonArea.left,
-            notEnoughActionPointsButton.buttonArea.top,
-            state,
-        );
+        hud.mouseClicked({
+            mouseX: notEnoughActionPointsButton.buttonArea.left,
+            mouseY: notEnoughActionPointsButton.buttonArea.top,
+            gameEngineState: state,
+            mouseButton: MouseButton.ACCEPT
+        });
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
@@ -430,11 +438,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        hud.mouseClicked(
-            RectAreaService.left(hud.endTurnButton.rectangle.area),
-            RectAreaService.top(hud.endTurnButton.rectangle.area),
-            state
-        );
+        hud.mouseClicked({
+            mouseX: RectAreaService.left(hud.endTurnButton.rectangle.area),
+            mouseY: RectAreaService.top(hud.endTurnButton.rectangle.area),
+            gameEngineState: state,
+            mouseButton: MouseButton.ACCEPT
+        });
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
@@ -688,7 +697,13 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
 
             expect(hud.selectedBattleSquaddieId).toBe(playerBattleSquaddie.battleSquaddieId);
-            hud.mouseClicked(RectAreaService.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaService.centerY(hud.nextSquaddieButton.rectangle.area), state,);
+            hud.mouseClicked({
+                mouseX: RectAreaService.centerX(hud.nextSquaddieButton.rectangle.area),
+                mouseY: RectAreaService.centerY(hud.nextSquaddieButton.rectangle.area),
+                gameEngineState: state,
+                mouseButton: MouseButton.ACCEPT
+            });
+
             expect(hud.selectedBattleSquaddieId).toBe(player2SquaddieDynamic.battleSquaddieId);
             const panningInfo = battleCamera.getPanningInformation();
             const player2MapCoordinates = missionMap.getSquaddieByBattleId(player2SquaddieDynamicId);

@@ -44,6 +44,7 @@ import {ProcessedActionService} from "../action/processed/processedAction";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleEventService} from "../battle/history/battleEvent";
+import {MouseButton} from "../utils/mouseConfig";
 
 describe('User ends their turn', () => {
     let repository: ObjectRepository;
@@ -133,11 +134,12 @@ describe('User ends their turn', () => {
     });
 
     it('HUD knows the user selected end turn', () => {
-        battleSquaddieSelectedHUD.mouseClicked(
-            RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
-            RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+        battleSquaddieSelectedHUD.mouseClicked({
+            mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+            mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
             gameEngineState,
-        );
+            mouseButton: MouseButton.ACCEPT,
+        });
 
         expect(battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()).toBeTruthy();
         expect(battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()).toBeFalsy();
@@ -150,6 +152,7 @@ describe('User ends their turn', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
+            mouseButton: MouseButton.ACCEPT,
         });
 
         expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
@@ -158,6 +161,7 @@ describe('User ends their turn', () => {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
             mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+            mouseButton: MouseButton.ACCEPT,
         });
 
         const actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
@@ -197,12 +201,14 @@ describe('User ends their turn', () => {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
                 mouseY,
+                mouseButton: MouseButton.ACCEPT,
             });
 
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
                 mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+                mouseButton: MouseButton.ACCEPT,
             });
         });
 

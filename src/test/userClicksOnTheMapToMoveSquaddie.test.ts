@@ -33,6 +33,7 @@ import {BattleSquaddieMover} from "../battle/orchestratorComponents/battleSquadd
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleHUDService} from "../battle/hud/battleHUD";
+import {MouseButton} from "../utils/mouseConfig";
 import SpyInstance = jest.SpyInstance;
 
 describe("user clicks on the map to move", () => {
@@ -275,7 +276,8 @@ const selectorAndHUDClickOnSquaddie = (selector: BattlePlayerSquaddieSelector, b
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,
-        mouseY
+        mouseY,
+        mouseButton: MouseButton.ACCEPT,
     });
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddieId,
@@ -289,6 +291,7 @@ const selectorClicksOnMapLocation = (selector: BattlePlayerSquaddieSelector, gam
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,
-        mouseY
+        mouseY,
+        mouseButton: MouseButton.ACCEPT,
     });
 };

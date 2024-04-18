@@ -33,6 +33,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {ActionTemplate} from "../../action/template/actionTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMapService} from "../../missionMap/missionMap";
+import {MouseButton} from "../../utils/mouseConfig";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 const DECISION_BUTTON_LAYOUT = {
@@ -235,23 +236,29 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
+    mouseClicked(
+        {mouseX, mouseY, mouseButton, gameEngineState}:
+            { mouseX: number, mouseY: number, gameEngineState: GameEngineState, mouseButton: MouseButton }
+    ) {
         if (
-            state.fileState.saveSaveState.savingInProgress
-            || state.fileState.loadSaveState.userRequestedLoad
-            || state.fileState.loadSaveState.applicationStartedLoad
+            gameEngineState.fileState.saveSaveState.savingInProgress
+            || gameEngineState.fileState.loadSaveState.userRequestedLoad
+            || gameEngineState.fileState.loadSaveState.applicationStartedLoad
         ) {
             return;
         }
 
-        this.checkForActionButtonClick(state, mouseX, mouseY);
+        this.checkForActionButtonClick({gameEngineState, mouseX, mouseY, mouseButton});
 
-        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && RectAreaService.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
+        const clickedOnNextButton: boolean = this.shouldDrawNextButton(gameEngineState)
+            && RectAreaService.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY)
+            && mouseButton === MouseButton.ACCEPT;
+
         if (clickedOnNextButton) {
-            this.selectNextSquaddie(state);
+            this.selectNextSquaddie(gameEngineState);
         }
 
-        this.checkForEndTurnButtonClick(state, mouseX, mouseY);
+        this.checkForEndTurnButtonClick({gameEngineState, mouseX, mouseY, mouseButton});
     }
 
     mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
@@ -331,7 +338,14 @@ export class BattleSquaddieSelectedHUD {
 
     }
 
-    checkForActionButtonClick(state: GameEngineState, mouseX: number, mouseY: number) {
+    checkForActionButtonClick(
+        {mouseX, mouseY, mouseButton, gameEngineState}:
+            { mouseX: number, mouseY: number, gameEngineState: GameEngineState, mouseButton: MouseButton }
+    ) {
+        if (mouseButton != MouseButton.ACCEPT) {
+            return;
+        }
+
         const selectedUseActionButton = this.makeDecisionButtons.find((button) =>
             RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
         );
@@ -342,7 +356,7 @@ export class BattleSquaddieSelectedHUD {
 
         const actionValidityCheck = this.checkIfActionIsValid(
             selectedUseActionButton.actionTemplate,
-            state,
+            gameEngineState,
         );
         if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
             this.selectedActionTemplate = selectedUseActionButton.actionTemplate;
@@ -823,16 +837,25 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private checkForEndTurnButtonClick(state: GameEngineState, mouseX: number, mouseY: number) {
+    private checkForEndTurnButtonClick({gameEngineState, mouseX, mouseY, mouseButton}: {
+        gameEngineState: GameEngineState,
+        mouseX: number,
+        mouseY: number,
+        mouseButton: MouseButton,
+    }) {
+        if (mouseButton !== MouseButton.ACCEPT) {
+            return;
+        }
+
         const clickedOnEndTurnButton: boolean =
-            this.shouldDrawEndTurnButton(state)
+            this.shouldDrawEndTurnButton(gameEngineState)
             && RectAreaService.isInside(this.endTurnButton.rectangle.area, mouseX, mouseY)
         ;
         if (!clickedOnEndTurnButton) {
             return;
         }
 
-        if (!this.canPlayerControlThisSquaddie(state)) {
+        if (!this.canPlayerControlThisSquaddie(gameEngineState)) {
             return;
         }
 

@@ -127,7 +127,7 @@ describe('File Access HUD', () => {
             jest.clearAllMocks();
             FileAccessHUDService.mouseClicked({
                 fileAccessHUD,
-                mouseButton: MouseButton.LEFT,
+                mouseButton: MouseButton.ACCEPT,
                 mouseX: RectAreaService.centerX(fileAccessHUD.saveButton.readyLabel.rectangle.area),
                 mouseY: RectAreaService.centerY(fileAccessHUD.saveButton.readyLabel.rectangle.area),
                 fileState,
@@ -197,7 +197,7 @@ describe('File Access HUD', () => {
         beforeEach(() => {
             FileAccessHUDService.mouseClicked({
                 fileAccessHUD,
-                mouseButton: MouseButton.LEFT,
+                mouseButton: MouseButton.ACCEPT,
                 mouseX: RectAreaService.centerX(fileAccessHUD.loadButton.readyLabel.rectangle.area),
                 mouseY: RectAreaService.centerY(fileAccessHUD.loadButton.readyLabel.rectangle.area),
                 fileState,

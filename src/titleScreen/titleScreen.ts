@@ -19,7 +19,7 @@ import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle, RectangleHelper} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
+import {ImageUI, ScaleImageHeight} from "../ui/imageUI";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
@@ -214,36 +214,36 @@ export class TitleScreen implements GameEngineComponent {
             this.titleBannerArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
-        if(!isValidValue(this.demonUIElements)) {
+        if (!isValidValue(this.demonUIElements)) {
             this.demonUIElements = {
                 icon: undefined,
                 iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
                 descriptionText: undefined,
             }
         }
-        if(!isValidValue(this.demonUIElements.icon)) {
+        if (!isValidValue(this.demonUIElements.icon)) {
             this.demonUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
-        if(!isValidValue(this.torrinUIElements)) {
+        if (!isValidValue(this.torrinUIElements)) {
             this.torrinUIElements = {
                 icon: undefined,
                 iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
                 descriptionText: undefined,
             }
         }
-        if(!isValidValue(this.torrinUIElements.icon)) {
+        if (!isValidValue(this.torrinUIElements.icon)) {
             this.torrinUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
-        if(!isValidValue(this.sirCamilUIElements)) {
+        if (!isValidValue(this.sirCamilUIElements)) {
             this.sirCamilUIElements = {
                 icon: undefined,
                 iconArea: RectAreaService.new({left: 0, top: 0, width: 0, height: 0}),
                 descriptionText: undefined,
             }
         }
-        if(!isValidValue(this.sirCamilUIElements.icon)) {
+        if (!isValidValue(this.sirCamilUIElements.icon)) {
             this.sirCamilUIElements.iconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
@@ -595,7 +595,7 @@ export class TitleScreen implements GameEngineComponent {
         this.drawDemonCharacterIntroduction(graphicsContext);
     }
 
-    private drawSirCamilCharacterIntroduction (graphicsContext: GraphicsContext) {
+    private drawSirCamilCharacterIntroduction(graphicsContext: GraphicsContext) {
         if (this.sirCamilUIElements.icon === undefined) {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
         }
@@ -663,7 +663,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private drawTorrinCharacterIntroduction (graphicsContext: GraphicsContext) {
+    private drawTorrinCharacterIntroduction(graphicsContext: GraphicsContext) {
         if (this.torrinUIElements.icon === undefined) {
             this.createPlaceholderTorrinIconArea();
         }
@@ -729,7 +729,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private drawDemonCharacterIntroduction (graphicsContext: GraphicsContext) {
+    private drawDemonCharacterIntroduction(graphicsContext: GraphicsContext) {
         if (!isValidValue(this.demonUIElements.icon)) {
             this.createDemonPlaceholderIconAreaUnderSirCamil();
         }
@@ -759,7 +759,7 @@ export class TitleScreen implements GameEngineComponent {
                 top: this.demonUIElements.iconArea.top,
                 height: this.demonUIElements.iconArea.height,
                 width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.demonUIElements.iconArea),
-                margin: [0,0,0,WINDOW_SPACING1],
+                margin: [0, 0, 0, WINDOW_SPACING1],
             }),
             text: TitleScreenDesign.demon.descriptionText,
             textSize: WINDOW_SPACING2,

@@ -57,6 +57,10 @@ export class BattleCamera {
         return [this.xCoord, this.yCoord];
     }
 
+    getCoordinatesAsObject(): { cameraX: number, cameraY: number } {
+        return {cameraX: this.xCoord, cameraY: this.yCoord};
+    }
+
     getVelocity(): [number, number] {
         return [this.xVelocity, this.yVelocity];
     }
