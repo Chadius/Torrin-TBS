@@ -8,6 +8,7 @@ import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
@@ -43,6 +44,7 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MouseButton} from "../../utils/mouseConfig";
+import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -69,23 +71,36 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return userWantsADifferentAbility || userConfirmedTarget;
     }
 
-    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void {
-        if (event.eventType !== OrchestratorComponentMouseEventType.CLICKED) {
+    mouseEventHappened(gameEngineState: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void {
+        if (mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED) {
             return;
         }
 
         if (!this.hasSelectedValidTarget) {
-            this.waitingForValidTarget(gameEngineState, event);
+            this.waitingForValidTarget({gameEngineState, mouseEvent});
             return;
         }
 
         if (!this.hasConfirmedAction) {
-            this.waitingForConfirmation(gameEngineState, event);
+            this.waitingForConfirmation({gameEngineState, mouseEvent});
             return;
         }
     }
 
-    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(gameEngineState: GameEngineState, keyboardEvent: OrchestratorComponentKeyEvent): void {
+        if (keyboardEvent.eventType !== OrchestratorComponentKeyEventType.PRESSED) {
+            return;
+        }
+
+        if (!this.hasSelectedValidTarget) {
+            this.waitingForValidTarget({gameEngineState, keyboardEvent});
+            return;
+        }
+
+        if (!this.hasConfirmedAction) {
+            this.waitingForConfirmation({gameEngineState, keyboardEvent});
+            return;
+        }
     }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
@@ -138,45 +153,79 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return this.hasSelectedValidTarget === true;
     }
 
-    private waitingForConfirmation(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent) {
-        if (this.didUserCancelActionConfirmation(gameEngineState, event)) {
+    private waitingForConfirmation({gameEngineState, mouseEvent, keyboardEvent}: {
+        gameEngineState: GameEngineState,
+        mouseEvent?: OrchestratorComponentMouseEvent,
+        keyboardEvent?: OrchestratorComponentKeyEvent,
+    }) {
+        if (this.didUserCancelActionConfirmation({gameEngineState, mouseEvent, keyboardEvent})) {
             this.hasSelectedValidTarget = false;
             return;
         }
 
-        if (event.mouseButton !== MouseButton.ACCEPT) {
+        const mouseClickedAccept: boolean = isValidValue(mouseEvent) && mouseEvent.mouseButton === MouseButton.ACCEPT;
+        if (!mouseClickedAccept) {
             return;
         }
 
         this.confirmTargetSelection(gameEngineState);
     }
 
-    private waitingForValidTarget = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent) => {
-        if (this.didUserCancelTargetLocation(gameEngineState, event)) {
+    private waitingForValidTarget = ({gameEngineState, mouseEvent, keyboardEvent}: {
+        gameEngineState: GameEngineState,
+        mouseEvent?: OrchestratorComponentMouseEvent,
+        keyboardEvent?: OrchestratorComponentKeyEvent,
+    }) => {
+        if (this.didUserCancelTargetLocation({gameEngineState, mouseEvent, keyboardEvent})) {
             this.cancelTargetSelection(gameEngineState);
             return;
         }
 
-        if (event.mouseButton !== MouseButton.ACCEPT) {
+        if (!isValidValue(mouseEvent)) {
+            return;
+        }
+
+        const mouseClickedAccept: boolean = isValidValue(mouseEvent) && mouseEvent.mouseButton === MouseButton.ACCEPT;
+        if (!mouseClickedAccept) {
             return;
         }
 
         this.tryToSelectValidTarget({
-            mouseX: event.mouseX,
-            mouseY: event.mouseY,
+            mouseX: mouseEvent.mouseX,
+            mouseY: mouseEvent.mouseY,
             gameEngineState,
-            mouseButton: event.mouseButton,
+            mouseButton: mouseEvent.mouseButton,
         });
     };
 
-    private didUserCancelActionConfirmation = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): boolean => {
-        return event.mouseButton === MouseButton.CANCEL
-            || event.mouseY > BUTTON_TOP;
+    private didUserCancelActionConfirmation = ({gameEngineState, mouseEvent, keyboardEvent}: {
+        gameEngineState: GameEngineState,
+        mouseEvent?: OrchestratorComponentMouseEvent,
+        keyboardEvent?: OrchestratorComponentKeyEvent,
+    }): boolean => {
+        if (isValidValue(mouseEvent)) {
+            return mouseEvent.mouseButton === MouseButton.CANCEL
+                || mouseEvent.mouseY > BUTTON_TOP;
+        }
+        if (isValidValue(keyboardEvent)) {
+            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode);
+        }
+        return false;
     }
 
-    private didUserCancelTargetLocation = (gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): boolean => {
-        return event.mouseButton === MouseButton.CANCEL
-            || event.mouseY > BUTTON_TOP;
+    private didUserCancelTargetLocation = ({gameEngineState, mouseEvent, keyboardEvent}: {
+        gameEngineState: GameEngineState,
+        mouseEvent?: OrchestratorComponentMouseEvent,
+        keyboardEvent?: OrchestratorComponentKeyEvent,
+    }): boolean => {
+        if (isValidValue(mouseEvent)) {
+            return mouseEvent.mouseButton === MouseButton.CANCEL
+                || mouseEvent.mouseY > BUTTON_TOP;
+        }
+        if (isValidValue(keyboardEvent)) {
+            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode);
+        }
+        return false;
     }
 
     private cancelTargetSelection = (gameEngineState: GameEngineState): void => {
@@ -243,6 +292,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+        const cancelAbilityButtonText = "CONFIRM: Left Mouse Button on target.     CANCEL: LMB on this button/Right Mouse Button/Escape/Delete/Backspace";
         this.drawButton(
             RectAreaService.new({
                 left: 0,
@@ -250,7 +300,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
-            "Click on target or click HERE to Cancel",
+            cancelAbilityButtonText,
             graphicsContext,
         );
     }
@@ -373,8 +423,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         intentMessages.push(...[
             "",
-            "Click to Confirm",
-            "or click Cancel button",
+            "CONFIRM: Left Mouse Button here",
+            "CANCEL: Right Mouse Button/Escape/Backspace/Delete",
         ]);
 
         const messageToShow = intentMessages.join("\n");

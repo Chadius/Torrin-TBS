@@ -24,7 +24,10 @@ import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrche
 import {BattleStateService} from "../battle/orchestrator/battleState";
 import {BattleCamera} from "../battle/battleCamera";
 import {CampaignService} from "../campaign/campaign";
-import {OrchestratorComponentMouseEventType} from "../battle/orchestrator/battleOrchestratorComponent";
+import {
+    OrchestratorComponentKeyEventType,
+    OrchestratorComponentMouseEventType
+} from "../battle/orchestrator/battleOrchestratorComponent";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {ProcessedActionService} from "../action/processed/processedAction";
@@ -33,6 +36,8 @@ import {DecidedActionSquaddieEffectService} from "../action/decided/decidedActio
 import {OrchestratorUtilities} from "../battle/orchestratorComponents/orchestratorUtils";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
 import {MouseButton} from "../utils/mouseConfig";
+import {config} from "../configuration/config";
+import {KeyButtonName} from "../utils/keyboardConfig";
 import SpyInstance = jest.SpyInstance;
 
 describe('User cancels the previewed action', () => {
@@ -160,6 +165,18 @@ describe('User cancels the previewed action', () => {
                             mouseButton: MouseButton.CANCEL,
                         }
                     );
+                }
+            },
+            {
+                name: "keyboard presses CANCEL",
+                action: () => {
+                    targeting.keyEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentKeyEventType.PRESSED,
+                            keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                        }
+                    )
                 }
             },
         ]

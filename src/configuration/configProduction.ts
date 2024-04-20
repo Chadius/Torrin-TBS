@@ -6,6 +6,9 @@ export function getProductionConfig(processVariables: ProcessVariables): Config 
         "ctrl": 17,
         "x": 88,
         "enter": 13,
+        "backspace": 8,
+        "delete": 46,
+        "escape": 27,
     }
 
     return {

@@ -5,6 +5,7 @@ export enum KeyButtonName {
     NEXT_SQUADDIE = "NEXT_SQUADDIE",
     ACCEPT = "ACCEPT",
     SWAP_HUD = "SWAP_HUD",
+    CANCEL = "CANCEL",
 }
 
 export const KeyWasPressed = (desiredKey: KeyButtonName, keyCode: number): boolean => {
@@ -12,6 +13,7 @@ export const KeyWasPressed = (desiredKey: KeyButtonName, keyCode: number): boole
         NEXT_SQUADDIE: config.KEYBOARD_SHORTCUTS["NEXT_SQUADDIE"],
         ACCEPT: config.KEYBOARD_SHORTCUTS["ACCEPT"],
         SWAP_HUD: config.KEYBOARD_SHORTCUTS["SWAP_HUD"],
+        CANCEL: config.KEYBOARD_SHORTCUTS["CANCEL"],
     }
 
     return KeyboardShortcuts[desiredKey] !== undefined && KeyboardShortcuts[desiredKey].includes(keyCode);

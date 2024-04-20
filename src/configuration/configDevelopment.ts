@@ -7,6 +7,9 @@ export function getDevelopmentConfig(processVariables: ProcessVariables): Config
         "x": 88,
         "enter": 13,
         "c": 67,
+        "backspace": 8,
+        "delete": 46,
+        "escape": 27,
     }
 
     return {
@@ -17,6 +20,7 @@ export function getDevelopmentConfig(processVariables: ProcessVariables): Config
             NEXT_SQUADDIE: [KeyCodes.x, KeyCodes.ctrl],
             ACCEPT: [KeyCodes.enter],
             SWAP_HUD: [KeyCodes.c],
+            CANCEL: [KeyCodes.backspace, KeyCodes.delete, KeyCodes.escape]
         },
         MOUSE_BUTTON_BINDINGS: {
             ACCEPT: "left",

@@ -33,6 +33,7 @@ import {
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
 import {
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../battle/orchestrator/battleOrchestratorComponent";
@@ -46,6 +47,8 @@ import {DamageType} from "../squaddie/squaddieService";
 import {SquaddieSkipsAnimationAnimator} from "../battle/animation/squaddieSkipsAnimationAnimator";
 import {DecidedActionService} from "../action/decided/decidedAction";
 import {MouseButton} from "../utils/mouseConfig";
+import {config} from "../configuration/config";
+import {KeyButtonName} from "../utils/keyboardConfig";
 
 describe('User Selects Target and Confirms', () => {
     let repository: ObjectRepository;
@@ -257,6 +260,91 @@ describe('User Selects Target and Confirms', () => {
         it('Next mode should be the Squaddie Actor', () => {
             const battleOrchestratorChanges = targeting.recommendStateChanges(gameEngineState);
             expect(battleOrchestratorChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE)
+        });
+    });
+
+    describe('Canceling attack', () => {
+        let actionsThisRound: ActionsThisRound;
+
+        beforeEach(() => {
+            ({gameEngineState, actionsThisRound} = clickOnEnemy({
+                actionTemplate: attackAction,
+                attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                targetBattleTemplateId: enemyBattleSquaddie.squaddieTemplateId,
+                targeting,
+                repository,
+                missionMap,
+                graphicsContext
+            }))
+        });
+
+        const cancelMethods = [
+            {
+                name: "mouse clicks ACCEPT on lower right corner",
+                action: () => {
+                    targeting.mouseEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentMouseEventType.CLICKED,
+                            mouseX: ScreenDimensions.SCREEN_WIDTH,
+                            mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                            mouseButton: MouseButton.ACCEPT,
+                        }
+                    );
+                }
+            },
+            {
+                name: "mouse clicks CANCEL",
+                action: () => {
+                    targeting.mouseEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentMouseEventType.CLICKED,
+                            mouseX: 0,
+                            mouseY: 0,
+                            mouseButton: MouseButton.CANCEL,
+                        }
+                    );
+                }
+            },
+            {
+                name: "keyboard presses CANCEL",
+                action: () => {
+                    targeting.keyEventHappened(
+                        gameEngineState,
+                        {
+                            eventType: OrchestratorComponentKeyEventType.PRESSED,
+                            keyCode: config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                        }
+                    )
+                }
+            },
+        ]
+
+        it.each(cancelMethods)(`does not complete the targeting module via $name`, ({
+                                                                                        name,
+                                                                                        action,
+                                                                                    }) => {
+            action();
+            expect(targeting.hasCompleted(gameEngineState)).toBeFalsy();
+        });
+
+        it.each(cancelMethods)(`did not select a valid target via $name`, ({
+                                                                               name,
+                                                                               action,
+                                                                           }) => {
+            action();
+            expect(targeting.hasSelectedValidTarget).toBeFalsy();
+        });
+
+        it.each(cancelMethods)(`did not confirm an action via $name`, ({
+                                                                           name,
+                                                                           action,
+                                                                       }) => {
+            action();
+            expect(actionsThisRound.previewedActionTemplateId).toEqual(attackAction.id);
+            expect(actionsThisRound.processedActions).toHaveLength(0);
         });
     });
 
