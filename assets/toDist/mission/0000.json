@@ -284,20 +284,14 @@
       {
         "triggeringEvent": "START_OF_TURN",
         "systemReactedToTrigger": false,
-        "cutsceneId": "turn4",
-        "turn": 4
+        "cutsceneId": "turn3",
+        "turn": 3
       },
       {
         "triggeringEvent": "START_OF_TURN",
         "systemReactedToTrigger": false,
         "cutsceneId": "turn5",
         "turn": 5
-      },
-      {
-        "triggeringEvent": "START_OF_TURN",
-        "systemReactedToTrigger": false,
-        "cutsceneId": "turn7",
-        "turn": 7
       }
     ],
     "cutsceneById": {
@@ -309,14 +303,6 @@
             "speakerName": "Sir Camil",
             "speakerText": "That's the last of them.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "victory_1",
-            "speakerName": "Torrin",
-            "speakerText": "Yay! We did it!",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
           {
@@ -379,40 +365,16 @@
             "type": "DIALOGUE",
             "id": "how_to_play_0",
             "speakerName": "How to play",
-            "speakerText": "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
-            "speakerPortraitResourceKey": "tutorial-map",
+            "speakerText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click (or Escape, Delete, Backspace)",
+            "speakerPortraitResourceKey": "tutorial-confirm-cancel",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "how_to_play_1",
             "speakerName": "How to play",
-            "speakerText": "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
-            "speakerPortraitResourceKey": "tutorial-hud",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "how_to_play_2",
-            "speakerName": "How to play",
-            "speakerText": "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
-            "speakerPortraitResourceKey": "tutorial-hud",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "how_to_play_3",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
-            "speakerName": "Torrin",
-            "speakerText": "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "how_to_play_4",
-            "speakerName": "Sir Camil",
-            "speakerText": "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
-            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerText": "Click on Torrin and Sir Camil.\nSpend 3 Action Points to move or act.\nMore movement costs more Action Points.",
+            "speakerPortraitResourceKey": "tutorial-action-points",
             "animationDuration": 0
           }
         ]
@@ -423,7 +385,7 @@
             "type": "DIALOGUE",
             "id": "turn1_0",
             "speakerName": "Torrin",
-            "speakerText": "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
+            "speakerText": "We have to destroy all of these demons!\nI can stay back and fire at range.\nOr I can heal you. It will cost 2 action points, though.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -431,7 +393,7 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "speakerText": "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
+            "speakerText": "I'll take the lead, I have more health.\nI'll destroy these demons with my longsword.\nTry to heal me if I am injured.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -443,7 +405,7 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "speakerText": "And all of this sand poured in this morning... I can barely move through it.",
+            "speakerText": "All of this bright yellow sand is slowing us down.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -451,27 +413,27 @@
             "type": "DIALOGUE",
             "id": "turn2_1",
             "speakerName": "Torrin",
-            "speakerText": "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
+            "speakerText": "Cuts our movement in half.\nBut it slows the demons down as well.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }
         ]
       },
-      "turn4": {
+      "turn3": {
         "directions": [
           {
             "type": "DIALOGUE",
-            "id": "turn4_0",
+            "id": "turn3_0",
             "speakerName": "Torrin",
-            "speakerText": "I can barely see ahead of us. What's going on down there?",
+            "speakerText": "If you move the pointer to the edge of the screen, we can see more demons.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
-            "id": "turn4_1",
+            "id": "turn3_1",
             "speakerName": "Sir Camil",
-            "speakerText": "If you move the pointer to the edges of the screen, we can move the camera a bit.",
+            "speakerText": "Some of them like to travel in groups.\nClick on them to see the extent of their movement.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -482,50 +444,22 @@
           {
             "type": "DIALOGUE",
             "id": "turn5_0",
-            "speakerName": "Sir Camil",
-            "speakerText": "What are those demons thinking? I don't know how far they can reach.",
-            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerName": "Torrin",
+            "speakerText": "Multiple Attack Penalty.\nTry not to attack 3 times in a single turn.",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn5_1",
-            "speakerName": "Torrin",
-            "speakerText": "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "turn5_2",
-            "speakerName": "Torrin",
-            "speakerText": "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
-            "animationDuration": 0
-          }
-        ]
-      },
-      "turn7": {
-        "directions": [
-          {
-            "type": "DIALOGUE",
-            "id": "turn7_0",
-            "speakerName": "Torrin",
-            "speakerText": "Ah! I missed again!",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "turn7_1",
             "speakerName": "Sir Camil",
-            "speakerText": "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
+            "speakerText": "Follow up attacks are less accurate.\nSometimes it's better to back away and let the enemy waste actions.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
-            "id": "turn7_2",
+            "id": "turn5_2",
             "speakerName": "Sir Camil",
             "speakerText": "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",

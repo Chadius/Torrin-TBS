@@ -158,6 +158,10 @@ export class ResourceHandler {
     }
 
     isResourceLoaded = (resourceKey: string): boolean => {
+        if (this.resourcesByKey[resourceKey] === undefined) {
+            console.error(`isResourceLoaded: ${resourceKey} not defined.`);
+            return false;
+        }
         const resourceType = this.resourcesByKey[resourceKey].type;
 
         if (

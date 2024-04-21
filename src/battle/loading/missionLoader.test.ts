@@ -369,7 +369,7 @@ describe('Mission Loader', () => {
                 Object.keys(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById)
             );
 
-            expect(missionLoaderContext.resourcesPendingLoading).toContain("tutorial-map");
+            expect(missionLoaderContext.resourcesPendingLoading).toContain("tutorial-confirm-cancel");
             expect(missionLoaderContext.resourcesPendingLoading).toContain("splash victory");
             expect(missionLoaderContext.resourcesPendingLoading.every(key => isValidValue(key))).toBeTruthy();
 

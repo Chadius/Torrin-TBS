@@ -383,7 +383,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_0",
                             speakerName: "How to play",
                             speakerText: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
-                            speakerPortraitResourceKey: "tutorial-map",
+                            speakerPortraitResourceKey: "tutorial-confirm-cancel",
                             animationDuration: 0,
                         },
                         {
@@ -391,7 +391,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_1",
                             speakerName: "How to play",
                             speakerText: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
-                            speakerPortraitResourceKey: "tutorial-hud",
+                            speakerPortraitResourceKey: "tutorial-spend-action-points",
                             animationDuration: 0,
                         },
                         {
@@ -399,7 +399,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_2",
                             speakerName: "How to play",
                             speakerText: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
-                            speakerPortraitResourceKey: "tutorial-hud",
+                            speakerPortraitResourceKey: "tutorial-spend-action-points",
                             animationDuration: 0,
                         },
                         {

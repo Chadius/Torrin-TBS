@@ -91,13 +91,13 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/2023-09-24-TorrinTrialHUD.png",
-    "key": "tutorial-hud"
+    "path": "assets/tutorial/ConfirmCancel.png",
+    "key": "tutorial-confirm-cancel"
   },
   {
     "type": "IMAGE",
-    "path": "assets/2023-09-24-TorrinTrialMap.png",
-    "key": "tutorial-map"
+    "path": "assets/tutorial/SpendActionPoints.png",
+    "key": "tutorial-action-points"
   },
   {
     "type": "IMAGE",
