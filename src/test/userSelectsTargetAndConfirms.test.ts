@@ -33,6 +33,7 @@ import {
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
 import {
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -209,15 +210,28 @@ describe('User Selects Target and Confirms', () => {
                 missionMap,
                 graphicsContext
             }))
-            clickOnConfirmTarget({targeting, gameEngineState});
         });
 
-        it('Clicking confirm will create a Decided Action in ActionsThisRound', () => {
-            expect(targeting.hasSelectedValidTarget).toBeTruthy();
-            expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toEqual(actionsThisRound);
-        });
+        const confirmMethods = [
+            {
+                name: "mouse clicks confirm",
+                action: () => {
+                    clickOnConfirmTarget({targeting, gameEngineState});
+                }
+            },
+            {
+                name: "keyboard presses accept",
+                action: () => {
+                    keyboardPressToConfirmTarget({targeting, gameEngineState});
+                }
+            },
+        ];
 
-        it('After Squaddie Targets is confirmed, will process the first action template', () => {
+        it.each(confirmMethods)(`After Squaddie Targets is confirmed, will process the first action template via $name`, ({
+                                                                                                                              name,
+                                                                                                                              action,
+                                                                                                                          }) => {
+            action();
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toEqual(
                 ActionsThisRoundService.new({
                     battleSquaddieId: actionsThisRound.battleSquaddieId,
@@ -253,11 +267,19 @@ describe('User Selects Target and Confirms', () => {
             );
         });
 
-        it('Knows the targeting system is done', () => {
+        it.each(confirmMethods)(`Knows the targeting system is done via $name`, ({
+                                                                                     name,
+                                                                                     action,
+                                                                                 }) => {
+            action();
             expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
         });
 
-        it('Next mode should be the Squaddie Actor', () => {
+        it.each(confirmMethods)(`Next mode should be the Squaddie Actor via $name`, ({
+                                                                                         name,
+                                                                                         action,
+                                                                                     }) => {
+            action();
             const battleOrchestratorChanges = targeting.recommendStateChanges(gameEngineState);
             expect(battleOrchestratorChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE)
         });
@@ -546,4 +568,19 @@ const clickOnConfirmTarget = ({
     };
 
     targeting.mouseEventHappened(gameEngineState, confirmSelectionClick);
+}
+
+const keyboardPressToConfirmTarget = ({
+                                          targeting,
+                                          gameEngineState,
+                                      }: {
+    targeting: BattlePlayerSquaddieTarget,
+    gameEngineState: GameEngineState
+}) => {
+    const confirmSelectionPress: OrchestratorComponentKeyEvent = {
+        eventType: OrchestratorComponentKeyEventType.PRESSED,
+        keyCode: config.KEYBOARD_SHORTCUTS.ACCEPT[0],
+    };
+
+    targeting.keyEventHappened(gameEngineState, confirmSelectionPress);
 }

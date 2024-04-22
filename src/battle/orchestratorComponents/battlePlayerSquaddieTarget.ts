@@ -163,12 +163,31 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return;
         }
 
-        const mouseClickedAccept: boolean = isValidValue(mouseEvent) && mouseEvent.mouseButton === MouseButton.ACCEPT;
-        if (!mouseClickedAccept) {
+        if (!this.didUserConfirmActionConfirmation({gameEngineState, mouseEvent, keyboardEvent})) {
             return;
         }
 
         this.confirmTargetSelection(gameEngineState);
+    }
+
+    private didUserConfirmActionConfirmation({gameEngineState, mouseEvent, keyboardEvent}: {
+        gameEngineState: GameEngineState,
+        mouseEvent?: OrchestratorComponentMouseEvent,
+        keyboardEvent?: OrchestratorComponentKeyEvent,
+    }) {
+        if (
+            isValidValue(mouseEvent)
+            && mouseEvent.mouseButton !== MouseButton.ACCEPT
+        ) {
+            return false;
+        }
+        if (
+            isValidValue(keyboardEvent)
+            && KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) !== true
+        ) {
+            return false;
+        }
+        return true;
     }
 
     private waitingForValidTarget = ({gameEngineState, mouseEvent, keyboardEvent}: {
@@ -292,7 +311,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        const cancelAbilityButtonText = "CONFIRM: Left Mouse Button on target.     CANCEL: LMB on this button/Right Mouse Button/Escape/Delete/Backspace";
+        const cancelAbilityButtonText = "CONFIRM: Click on the target.     CANCEL: Click here.";
         this.drawButton(
             RectAreaService.new({
                 left: 0,
@@ -392,7 +411,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
-            "Cancel",
+            "CANCEL: Click here.",
             graphicsContext,
         );
 
@@ -423,8 +442,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         intentMessages.push(...[
             "",
-            "CONFIRM: Left Mouse Button here",
-            "CANCEL: Right Mouse Button/Escape/Backspace/Delete",
+            "CONFIRM: Click here",
+            "CANCEL: Right Mouse Button",
         ]);
 
         const messageToShow = intentMessages.join("\n");
