@@ -51,6 +51,8 @@ export const SplashScreenPlayerService = {
         return !isAnimating(state) || state.dialogFinished;
     },
     draw: (state: SplashScreenPlayerState, graphicsContext: GraphicsContext): void => {
+        drawBackground(state, graphicsContext);
+
         if (state.screenImage) {
             state.screenImage.draw(graphicsContext);
         }
@@ -82,3 +84,12 @@ const setScreenImage = (state: SplashScreenPlayerState, splashImage: GraphicImag
         })
     });
 }
+
+const drawBackground = (state: SplashScreenPlayerState, graphicsContext: GraphicsContext) => {
+    if (isValidValue(state.splashScreen.backgroundColor)) {
+        graphicsContext.push();
+        graphicsContext.fill({hsb: state.splashScreen.backgroundColor});
+        graphicsContext.rect(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        graphicsContext.pop();
+    }
+};

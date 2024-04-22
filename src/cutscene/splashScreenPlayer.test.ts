@@ -1,5 +1,7 @@
 import {SplashScreenPlayerService} from "./splashScreenPlayer";
 import {SplashScreenService} from "./splashScreen";
+import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 describe('splash screen', () => {
     it('should mark as finished if clicked', () => {
@@ -48,5 +50,49 @@ describe('splash screen', () => {
 
         expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy();
         expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy();
+    });
+
+    describe('backgroundColor', () => {
+        let drawRectSpy: jest.SpyInstance;
+        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+
+        beforeEach(() => {
+            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect");
+        });
+
+        afterEach(() => {
+            drawRectSpy.mockRestore();
+        });
+
+        it('will draw the background when it is set', () => {
+            const splashWithBackgroundState = SplashScreenService.new({
+                id: "splash",
+                screenImageResourceKey: "backgroundScreen",
+                backgroundColor: [1, 2, 3],
+            });
+
+            const splashPlayerState = SplashScreenPlayerService.new({
+                splashScreen: splashWithBackgroundState
+            });
+
+            SplashScreenPlayerService.draw(splashPlayerState, mockedP5GraphicsContext);
+            expect(drawRectSpy).toBeCalled();
+            expect(drawRectSpy).toBeCalledWith(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        });
+
+        it('will not draw the background when it is not set', () => {
+            const splashWithoutBackgroundState = SplashScreenService.new({
+                id: "splash",
+                screenImageResourceKey: "backgroundScreen",
+            });
+
+            const splashPlayerState = SplashScreenPlayerService.new({
+                splashScreen: splashWithoutBackgroundState
+            });
+
+            SplashScreenPlayerService.draw(splashPlayerState, mockedP5GraphicsContext);
+            expect(drawRectSpy).not.toBeCalled();
+        });
     });
 });

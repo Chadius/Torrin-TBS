@@ -15,6 +15,9 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
 import {CutsceneService} from "../../cutscene/cutscene";
 import {isValidValue} from "../../utils/validityCheck";
+import {CutsceneActionPlayerType} from "../../cutscene/cutsceneAction";
+import {Dialogue} from "../../cutscene/dialogue/dialogue";
+import {SplashScreen} from "../../cutscene/splashScreen";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -374,6 +377,14 @@ describe('Mission Loader', () => {
             expect(missionLoaderContext.resourcesPendingLoading.every(key => isValidValue(key))).toBeTruthy();
 
             expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(missionData.cutscene.cutsceneTriggers);
+
+            const introductionCutsceneDirections = missionData.cutscene.cutsceneById["introduction"].directions[0];
+            expect(introductionCutsceneDirections.type).toEqual(CutsceneActionPlayerType.DIALOGUE);
+            expect((introductionCutsceneDirections as Dialogue).backgroundColor).toEqual([1, 2, 3]);
+
+            const victoryCutsceneDirections = missionData.cutscene.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].directions;
+            expect(victoryCutsceneDirections[victoryCutsceneDirections.length - 1].type).toEqual(CutsceneActionPlayerType.SPLASH_SCREEN);
+            expect((victoryCutsceneDirections[victoryCutsceneDirections.length - 1] as SplashScreen).backgroundColor).toEqual([10, 11, 12]);
         });
     });
 

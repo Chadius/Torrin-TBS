@@ -348,6 +348,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.SPLASH_SCREEN,
                             id: "victory_final",
                             screenImageResourceKey: "splash victory",
+                            backgroundColor: [10, 11, 12],
                         },
                     ],
                 },
@@ -385,6 +386,7 @@ export const TestMissionData = () => {
                             speakerText: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
                             speakerPortraitResourceKey: "tutorial-confirm-cancel",
                             animationDuration: 0,
+                            backgroundColor: [1, 2, 3],
                         },
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,

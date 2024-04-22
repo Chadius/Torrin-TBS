@@ -8,9 +8,9 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {BattleStateService} from "../../battle/orchestrator/battleState";
 import {Dialogue, DialogueService} from "./dialogue";
 import {RectAreaService} from "../../ui/rectArea";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 
 describe('dialogue box player', () => {
-
     it('should wait for a certain amount of time before saying it is finished', () => {
         const dialogue = DialogueService.new({
             id: "1",
@@ -142,6 +142,10 @@ describe('dialogue box player', () => {
             textSpy = jest.spyOn(mockedP5GraphicsContext, "text");
         });
 
+        afterEach(() => {
+            textSpy.mockRestore();
+        });
+
         it('will set the text to the substituted text', () => {
             expect(dialoguePlayerState.textBox.speakerText).toContain("How many turns did this take? 5 turns");
             expect(dialoguePlayerState.answerButtons[0].answerText).toContain("Yes, 5");
@@ -171,6 +175,50 @@ describe('dialogue box player', () => {
                 expect.anything(),
                 expect.anything(),
             );
+        });
+    });
+
+    describe('backgroundColor', () => {
+        let drawRectSpy: jest.SpyInstance;
+        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+
+        beforeEach(() => {
+            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect");
+        });
+
+        afterEach(() => {
+            drawRectSpy.mockRestore();
+        });
+
+        it('will draw the background when it is set', () => {
+            const dialogueWithBackgroundState = DialogueService.new({
+                id: "dialogue",
+                speakerText: "I'm saying something",
+                backgroundColor: [1, 2, 3],
+            });
+
+            const dialoguePlayerState = DialoguePlayerService.new({
+                dialogue: dialogueWithBackgroundState
+            });
+
+            DialoguePlayerService.draw(dialoguePlayerState, mockedP5GraphicsContext);
+            expect(drawRectSpy).toBeCalled();
+            expect(drawRectSpy).toBeCalledWith(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        });
+
+        it('will not draw the background when it is not set', () => {
+            const dialogueWithoutBackgroundState = DialogueService.new({
+                id: "dialogue",
+                speakerText: "I'm saying something",
+            });
+
+            const dialoguePlayerState = DialoguePlayerService.new({
+                dialogue: dialogueWithoutBackgroundState
+            });
+
+            DialoguePlayerService.draw(dialoguePlayerState, mockedP5GraphicsContext);
+            expect(drawRectSpy).not.toBeCalled();
         });
     });
 });

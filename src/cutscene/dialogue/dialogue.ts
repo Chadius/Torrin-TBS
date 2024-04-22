@@ -10,6 +10,7 @@ export interface Dialogue {
     speakerPortraitResourceKey?: string;
     speakerText: string;
     speakerName: string;
+    backgroundColor?: [number, number, number];
 }
 
 export const DialogueService = {
@@ -20,6 +21,7 @@ export const DialogueService = {
               answers,
               speakerText,
               speakerName,
+              backgroundColor,
           }: {
         id: string;
         speakerPortraitResourceKey?: string;
@@ -27,6 +29,7 @@ export const DialogueService = {
         answers?: string[];
         speakerText: string;
         speakerName?: string;
+        backgroundColor?: [number, number, number];
     }): Dialogue => {
         return {
             type: CutsceneActionPlayerType.DIALOGUE,
@@ -40,6 +43,7 @@ export const DialogueService = {
                 : [],
             speakerName: speakerName,
             speakerText: speakerText,
+            backgroundColor,
         }
     },
     getResourceLocators: (state: Dialogue): ResourceLocator[] => {

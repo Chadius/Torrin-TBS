@@ -94,6 +94,7 @@ export const DialoguePlayerService = {
     },
     draw: (state: DialoguePlayerState, graphicsContext: GraphicsContext) => {
         graphicsContext.push();
+        drawBackground(state, graphicsContext);
 
         state.textBox?.draw(graphicsContext);
         state.speakerNameBox?.draw(graphicsContext);
@@ -207,3 +208,12 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
         });
     });
 }
+
+const drawBackground = (state: DialoguePlayerState, graphicsContext: GraphicsContext) => {
+    if (isValidValue(state.dialogue.backgroundColor)) {
+        graphicsContext.push();
+        graphicsContext.fill({hsb: state.dialogue.backgroundColor});
+        graphicsContext.rect(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        graphicsContext.pop();
+    }
+};

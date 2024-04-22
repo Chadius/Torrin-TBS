@@ -7,6 +7,7 @@ export interface SplashScreen {
     id: string;
     screenImageResourceKey: string;
     animationDuration?: number;
+    backgroundColor?: [number, number, number];
 }
 
 export const SplashScreenService = {
@@ -14,10 +15,12 @@ export const SplashScreenService = {
               id,
               screenImageResourceKey,
               animationDuration,
+              backgroundColor,
           }: {
         id: string;
         screenImageResourceKey: string;
         animationDuration?: number;
+        backgroundColor?: [number, number, number];
     }): SplashScreen => {
         return {
             type: CutsceneActionPlayerType.SPLASH_SCREEN,
@@ -26,6 +29,7 @@ export const SplashScreenService = {
             animationDuration: isValidValue(animationDuration) || animationDuration === 0
                 ? animationDuration
                 : 0,
+            backgroundColor,
         }
     },
     getResourceLocators: (state: SplashScreen): ResourceLocator[] => {

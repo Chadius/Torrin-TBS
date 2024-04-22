@@ -367,7 +367,8 @@
             "speakerName": "How to play",
             "speakerText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click (or Escape, Delete, Backspace)",
             "speakerPortraitResourceKey": "tutorial-confirm-cancel",
-            "animationDuration": 0
+            "animationDuration": 0,
+            "backgroundColor": [280,6,52]
           },
           {
             "type": "DIALOGUE",
@@ -375,7 +376,8 @@
             "speakerName": "How to play",
             "speakerText": "Click on Torrin and Sir Camil.\nSpend 3 Action Points to move or act.\nMore movement costs more Action Points.",
             "speakerPortraitResourceKey": "tutorial-action-points",
-            "animationDuration": 0
+            "animationDuration": 0,
+            "backgroundColor": [280,6,52]
           }
         ]
       },
@@ -454,14 +456,6 @@
             "id": "turn5_1",
             "speakerName": "Sir Camil",
             "speakerText": "Follow up attacks are less accurate.\nSometimes it's better to back away and let the enemy waste actions.",
-            "speakerPortraitResourceKey": "sir camil cutscene portrait",
-            "animationDuration": 0
-          },
-          {
-            "type": "DIALOGUE",
-            "id": "turn5_2",
-            "speakerName": "Sir Camil",
-            "speakerText": "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
