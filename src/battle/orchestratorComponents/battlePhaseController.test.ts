@@ -265,7 +265,7 @@ describe('BattlePhaseController', () => {
             });
         }
 
-        it('pans the camera to the first player when it is the player phase and the player is offscreen', () => {
+        it('pans the camera to the first player when it is the player phase and the player is not near the middle of the screen', () => {
             const state = initializeState({
                 squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
@@ -308,7 +308,7 @@ describe('BattlePhaseController', () => {
             messageSpy.mockRestore();
         });
 
-        it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {
+        it('does not pan the camera to the first player when it is the player phase and the player is near the center of the screen', () => {
             const state = initializeState({
                 squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,

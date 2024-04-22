@@ -246,7 +246,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 mapDatum.mapLocation.r,
                 ...state.battleOrchestratorState.battleState.camera.getCoordinates()
             );
-            if (GraphicsConfig.isCoordinateOnScreen(...squaddieScreenLocation)) {
+            if (GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(...squaddieScreenLocation)) {
                 return;
             }
 
