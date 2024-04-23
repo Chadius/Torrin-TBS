@@ -46,7 +46,12 @@ describe('Title Screen', () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
-        titleScreen.mouseClicked(gameEngineState, MouseButton.ACCEPT, ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT - 1);
+        titleScreen.mouseClicked(
+            gameEngineState,
+            MouseButton.ACCEPT,
+            RectAreaService.centerX(titleScreen.startNewGameButton.readyLabel.textBox.area),
+            RectAreaService.centerY(titleScreen.startNewGameButton.readyLabel.textBox.area)
+        );
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -120,7 +125,7 @@ describe('Title Screen', () => {
 
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
-        expect(textSpy).toBeCalledWith("Click here to Play Demo", expect.anything(), expect.anything(), expect.anything(), expect.anything());
+        expect(textSpy).toBeCalledWith("START: click here / press enter", expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
 
     it('will gather resources once upon startup', () => {
@@ -141,14 +146,17 @@ describe('Title Screen', () => {
     });
 
     describe('user clicks the load button', () => {
-        beforeEach(() => {
-        });
         it('will begin the loading process when the user clicks the button', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
             const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
-            titleScreen.mouseClicked(gameEngineState, MouseButton.ACCEPT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+            titleScreen.mouseClicked(
+                gameEngineState,
+                MouseButton.ACCEPT,
+                RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area),
+                RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area)
+            );
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
             expect(loadGame).toBeCalled();
 
