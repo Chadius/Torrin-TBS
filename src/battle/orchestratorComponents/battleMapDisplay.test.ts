@@ -45,6 +45,7 @@ describe('battleMapDisplay', () => {
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     camera,
                 })
@@ -79,6 +80,7 @@ describe('battleMapDisplay', () => {
                         }),
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                             camera,
                             missionMap: new MissionMap({
                                 terrainTileMap: new TerrainTileMap({
@@ -142,6 +144,7 @@ describe('battleMapDisplay', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     camera,
                 })
             });
@@ -237,6 +240,7 @@ describe('battleMapDisplay', () => {
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 camera,
             })
         });
@@ -307,6 +311,7 @@ describe('battleMapDisplay', () => {
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 camera,
             })
         });

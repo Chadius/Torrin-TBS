@@ -214,7 +214,8 @@ describe("Orchestration Utils", () => {
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: new BattleOrchestratorState({
                     battleState: BattleStateService.defaultBattleState({
-                        missionId: "missionId"
+                        missionId: "missionId",
+                        campaignId: "test campaign",
                     }),
                     battleHUD: BattleHUDService.new({}),
                     numberGenerator: undefined,
@@ -342,7 +343,8 @@ describe("Orchestration Utils", () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         }),
-                        missionId: "mission"
+                        missionId: "mission",
+                        campaignId: "test campaign",
                     })
                 })
             });
@@ -533,6 +535,7 @@ describe("Orchestration Utils", () => {
                             turnCount: 0,
                         }),
                         missionId: "mission",
+                        campaignId: "test campaign",
                         missionMap,
                     })
                 })

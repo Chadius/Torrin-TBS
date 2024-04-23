@@ -138,6 +138,7 @@ const newOrchestratorState = ({
 }): BattleOrchestratorState => {
     return new BattleOrchestratorState({
         battleState: battleState ?? BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
             battlePhaseState: {
                 turnCount: 0,

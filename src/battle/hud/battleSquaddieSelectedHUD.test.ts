@@ -137,6 +137,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -180,6 +181,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -218,7 +220,9 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
 
                 battleState: BattleStateService.newBattleState({
+
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     teams: [team],
@@ -257,6 +261,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     teams: [team],
@@ -302,6 +307,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -344,6 +350,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -385,6 +392,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -418,6 +426,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -458,6 +467,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -490,6 +500,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                         actionsThisRound: ActionsThisRoundService.new({
@@ -551,6 +562,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -588,6 +600,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -606,6 +619,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -646,6 +660,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -682,6 +697,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: battleCamera,
                     }),
@@ -744,6 +760,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera: battleCamera,
                     }),
@@ -908,6 +925,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                             missionMap,
                             camera: new BattleCamera(0, 0),
                             battlePhaseState: {

@@ -125,6 +125,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
 
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     recording: battleEventRecording,
                     actionsThisRound: monkMeditatesInstruction,
@@ -158,6 +159,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     actionsThisRound: monkMeditatesInstruction,
                     recording: battleEventRecording,
                 }),
@@ -182,6 +184,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     actionsThisRound: monkMeditatesInstruction,
                     recording: battleEventRecording,
                 }),

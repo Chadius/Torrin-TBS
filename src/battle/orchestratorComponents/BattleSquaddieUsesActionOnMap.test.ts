@@ -57,6 +57,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     actionsThisRound: ActionsThisRoundService.new({
                         battleSquaddieId: "dynamic_squaddie",

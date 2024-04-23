@@ -7,8 +7,8 @@ import {BattleStateService} from "../battle/orchestrator/battleState";
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-
             battleState: BattleStateService.newBattleState({
+                campaignId: "test campaign",
                 missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -28,6 +28,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
             }),
 
         });
@@ -43,6 +44,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
                     turnCount: 5
@@ -73,6 +75,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionStatistics: {
                         ...MissionStatisticsHandler.new(),
                         timeElapsedInMilliseconds: secondsPassed * 1000 + milliseconds,
@@ -103,6 +106,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     damageDealtByPlayerTeam: 9001,
@@ -121,6 +125,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     damageTakenByPlayerTeam: 42,
@@ -139,6 +144,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     healingReceivedByPlayerTeam: 1024,

@@ -136,6 +136,7 @@ export const BattleStateService = {
 }
 
 interface BattleStateConstructorParameters {
+    campaignId: string;
     missionId: string;
     cutsceneCollection?: MissionCutsceneCollection;
     cutsceneTriggers?: CutsceneTrigger[];
@@ -154,6 +155,7 @@ interface BattleStateConstructorParameters {
 }
 
 const newBattleState = ({
+                            campaignId,
                             missionId,
                             objectives,
                             cutsceneCollection,

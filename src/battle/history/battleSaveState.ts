@@ -21,6 +21,7 @@ export type InBattleAttributesAndTurn = {
 };
 
 export interface BattleSaveState {
+    campaignId: string;
     saveVersion: number;
     missionId: string;
     battlePhaseState: {
@@ -101,9 +102,10 @@ export const BattleSaveStateService = {
     parseJsonIntoBattleSaveStateData: (dataString: string): BattleSaveState => {
         return parseJsonIntoBattleSaveStateData(dataString);
     },
-    newUsingBattleOrchestratorState: ({missionId, battleOrchestratorState, saveVersion, repository}: {
+    newUsingBattleOrchestratorState: ({missionId, campaignId, battleOrchestratorState, saveVersion, repository}: {
         battleOrchestratorState: BattleOrchestratorState;
         missionId: string,
+        campaignId: string,
         saveVersion: number,
         repository: ObjectRepository,
     }): BattleSaveState => {
@@ -121,6 +123,7 @@ export const BattleSaveStateService = {
         });
 
         return {
+            campaignId,
             saveVersion: saveVersion,
             missionId: missionId,
             battlePhaseState: {
@@ -161,6 +164,7 @@ const parseJsonIntoBattleSaveStateData = (dataString: string): BattleSaveState =
 
 export const DefaultBattleSaveState = (): BattleSaveState => {
     return {
+        campaignId: "",
         saveVersion: SAVE_VERSION,
         missionId: "",
         battlePhaseState: {

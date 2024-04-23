@@ -36,6 +36,7 @@ describe('File Access HUD', () => {
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -211,10 +212,12 @@ describe('File Access HUD', () => {
                 LoadSaveStateService.applicationCompletesLoad(
                     fileState.loadSaveState,
                     BattleSaveStateService.newUsingBattleOrchestratorState({
+                        campaignId: "test campaign",
                         missionId: "test",
                         saveVersion: SAVE_VERSION,
                         battleOrchestratorState: BattleOrchestratorStateService.new({
                             battleState: BattleStateService.new({
+                                campaignId: "test campaign",
                                 missionId: "missionId",
                                 battlePhaseState: {
                                     currentAffiliation: BattlePhase.PLAYER,

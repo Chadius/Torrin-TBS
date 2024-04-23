@@ -249,6 +249,7 @@ describe('BattleSquaddieSelector', () => {
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     battlePhaseState,
                     teams,
@@ -297,6 +298,7 @@ describe('BattleSquaddieSelector', () => {
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     battlePhaseState,
                     teams,
                     camera,
@@ -332,6 +334,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -451,6 +454,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera,
                         battlePhaseState,
@@ -592,6 +596,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -635,6 +640,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -720,6 +726,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -830,6 +837,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera,
                         battlePhaseState,
@@ -936,6 +944,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -997,6 +1006,7 @@ describe('BattleSquaddieSelector', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -1068,6 +1078,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         camera,
                         battlePhaseState,
@@ -1164,6 +1175,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         battlePhaseState,
                         missionMap,
                         camera: new BattleCamera(),
@@ -1190,6 +1202,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         battlePhaseState,
                         missionMap,
                         camera: new BattleCamera(),
@@ -1242,6 +1255,7 @@ describe('BattleSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         battlePhaseState,
                         missionMap,
                         camera: new BattleCamera(),

@@ -14,11 +14,12 @@ describe('Load SaveState', () => {
     beforeEach(() => {
         saveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
+            campaignId: "test campaign",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     camera: new BattleCamera(100, 200),
                     missionMap: NullMissionMap(),
                     battlePhaseState: {

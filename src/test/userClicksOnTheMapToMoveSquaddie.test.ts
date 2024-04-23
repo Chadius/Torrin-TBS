@@ -259,6 +259,7 @@ const getGameEngineState = ({
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap,
                 camera: new BattleCamera(0, 0),
                 teams,

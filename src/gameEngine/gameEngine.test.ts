@@ -16,6 +16,7 @@ import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import * as DataLoader from "../dataLoader/dataLoader";
 import {SaveSaveStateService} from "../dataLoader/saveSaveState";
 import {MessageBoardMessageType} from "../message/messageBoardMessage";
+import {CampaignService} from "../campaign/campaign";
 
 const resourceLocators: ResourceLocator[] = [
     {
@@ -167,6 +168,9 @@ describe('Game Engine', () => {
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             expect(loadFileIntoFormatSpy).toBeCalled();
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.gameEngineState.campaign = CampaignService.new({
+                id: "default",
+            });
             SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.fileState.saveSaveState);
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
             newGameEngine.gameEngineState.repository = ObjectRepositoryService.new();
@@ -188,6 +192,9 @@ describe('Game Engine', () => {
             });
             await newGameEngine.setup({graphicsContext: mockedP5GraphicsContext, campaignId: "default"});
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.gameEngineState.campaign = CampaignService.new({
+                id: "default",
+            });
             SaveSaveStateService.userRequestsSave(newGameEngine.gameEngineState.fileState.saveSaveState);
             const saveSpy = jest.spyOn(BattleSaveStateService, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");

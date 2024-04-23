@@ -157,6 +157,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
                     recording: battleEventRecording,
                 }),
@@ -180,9 +181,9 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
                     recording: battleEventRecording,
                 }),
@@ -218,6 +219,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
                     recording: battleEventRecording,
                 }),

@@ -193,6 +193,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap,
                 recording: battleEventRecording,
                 actionsThisRound,
@@ -275,6 +276,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap,
                 actionsThisRound,
                 recording: battleEventRecording,

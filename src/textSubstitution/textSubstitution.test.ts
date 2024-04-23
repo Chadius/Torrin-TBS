@@ -12,6 +12,7 @@ describe("TextSubstitution", () => {
         const state = BattleOrchestratorStateService.newOrchestratorState({
 
             battleState: BattleStateService.newBattleState({
+                campaignId: "test campaign",
                 missionId: "test mission",
             }),
         });

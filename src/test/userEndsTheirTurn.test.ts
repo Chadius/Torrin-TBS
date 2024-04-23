@@ -284,6 +284,7 @@ describe('User ends their turn', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         missionMap,
                         battlePhaseState: {
                             currentAffiliation: BattlePhase.PLAYER,
@@ -377,6 +378,7 @@ const getGameEngineState = ({
         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap,
                 camera: new BattleCamera(0, 0),
                 teams,

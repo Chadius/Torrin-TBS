@@ -119,6 +119,7 @@ describe('BattlePhaseController', () => {
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
 
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     battlePhaseState: {
                         currentAffiliation: BattlePhase.UNKNOWN,
@@ -160,6 +161,7 @@ describe('BattlePhaseController', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
@@ -198,6 +200,7 @@ describe('BattlePhaseController', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
@@ -246,6 +249,7 @@ describe('BattlePhaseController', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     teams,
                     missionMap,
                     camera,
@@ -378,6 +382,7 @@ describe('BattlePhaseController', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
@@ -424,6 +429,7 @@ describe('BattlePhaseController', () => {
 
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                         }),
                     })
             }));
@@ -447,6 +453,7 @@ describe('BattlePhaseController', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     battlePhaseState: phase,
                     teams,
                     missionMap: new MissionMap({
@@ -507,6 +514,7 @@ describe('BattlePhaseController', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         teams,
                         missionMap: new MissionMap({
                             terrainTileMap: new TerrainTileMap({
@@ -544,6 +552,7 @@ describe('BattlePhaseController', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         teams,
                         missionMap: new MissionMap({
                             terrainTileMap: new TerrainTileMap({

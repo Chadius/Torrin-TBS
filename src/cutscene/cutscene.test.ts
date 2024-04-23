@@ -503,6 +503,7 @@ describe('Cutscene', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
 
             battleState: BattleStateService.newBattleState({
+                campaignId: "test campaign",
                 missionId: "test mission",
             }),
         });

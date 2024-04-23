@@ -180,6 +180,7 @@ describe('calculator', () => {
                         numberGenerator,
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                             missionMap,
                             missionStatistics,
                             actionsThisRound,
@@ -311,6 +312,7 @@ describe('calculator', () => {
 
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
+                                campaignId: "test campaign",
                                 missionMap,
                                 actionsThisRound,
                             }),
@@ -365,6 +367,7 @@ describe('calculator', () => {
 
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
+                                campaignId: "test campaign",
                                 missionMap,
                                 missionStatistics,
                                 actionsThisRound,
@@ -493,6 +496,7 @@ describe('calculator', () => {
                             numberGenerator,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
+                                campaignId: "test campaign",
                                 missionMap,
                                 actionsThisRound,
                                 missionStatistics: MissionStatisticsHandler.new(),

@@ -152,6 +152,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap,
                     missionCompletionStatus: {
                         "player objective id": {

@@ -180,6 +180,7 @@ describe('BattleSquaddieTarget', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: battleMap,
                     actionsThisRound,
                     recording: {history: []},
@@ -355,6 +356,7 @@ describe('BattleSquaddieTarget', () => {
                         battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     }),
                     battleState: BattleStateService.newBattleState({
+                        campaignId: "test campaign",
                         missionId: "test mission",
                         missionMap: battleMap,
                         actionsThisRound,
@@ -596,6 +598,7 @@ describe('BattleSquaddieTarget', () => {
                         battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     }),
                     battleState: BattleStateService.newBattleState({
+                        campaignId: "test campaign",
                         missionId: "test mission",
                         missionMap: battleMap,
                         actionsThisRound,

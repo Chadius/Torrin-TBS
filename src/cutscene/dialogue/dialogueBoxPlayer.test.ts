@@ -129,6 +129,7 @@ describe('dialogue box player', () => {
             const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     battlePhaseState: {
                         currentAffiliation: BattlePhase.UNKNOWN,
                         turnCount: 5

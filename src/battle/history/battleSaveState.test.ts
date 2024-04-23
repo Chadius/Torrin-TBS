@@ -9,7 +9,6 @@ import {Recording, RecordingService} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent, BattleEventService} from "./battleEvent";
-import {Trait} from "../../trait/traitStatusStorage";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
@@ -29,7 +28,6 @@ import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus"
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateService} from "../orchestrator/battleState";
-import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ProcessedActionService} from "../../action/processed/processedAction";
@@ -51,23 +49,6 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        const action: ActionTemplate = ActionTemplateService.new({
-            id: "att",
-            name: "attack",
-            actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    traits: {
-                        booleanTraits: {
-                            [Trait.ATTACK]: true,
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                        }
-                    },
-                    maximumRange: 1,
-                    minimumRange: 0,
-                })
-            ]
-        });
-
         eventRecording0 = {history: []};
 
         firstBattleEvent = BattleEventService.new({
@@ -206,11 +187,20 @@ describe("BattleSaveState", () => {
         expect(saveState.missionId).toBe("123-a");
     });
 
+    it('Records the campaign Id', () => {
+        const saveState: BattleSaveState = {
+            ...DefaultBattleSaveState(),
+            campaignId: "the campaign id",
+        };
+        expect(saveState.campaignId).toBe("the campaign id");
+    });
+
     it("Can read the camera and create a similar one", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 camera: new BattleCamera(100, 200),
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
@@ -221,6 +211,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -234,6 +225,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -257,6 +249,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.PLAYER,
@@ -266,6 +259,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -277,6 +271,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -336,6 +331,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 recording: eventRecording0,
                 battlePhaseState: {
@@ -346,6 +342,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -357,6 +354,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -389,6 +387,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: missionMap,
                 battlePhaseState: {
                     turnCount: 0,
@@ -398,6 +397,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -409,6 +409,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 2 - x "]
@@ -454,6 +455,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionStatistics,
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
@@ -464,6 +466,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -477,6 +480,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -497,6 +501,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -506,6 +511,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -517,6 +523,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -545,6 +552,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 teams,
                 battlePhaseState: {
@@ -555,6 +563,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -566,6 +575,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -614,6 +624,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 teamStrategiesById,
                 battlePhaseState: {
@@ -624,6 +635,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -635,6 +647,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -671,6 +684,7 @@ describe("BattleSaveState", () => {
         const originalOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
 
             battleState: BattleStateService.defaultBattleState({
+                campaignId: "test campaign",
                 missionId: "test",
                 missionCompletionStatus,
             }),
@@ -680,6 +694,7 @@ describe("BattleSaveState", () => {
             battleOrchestratorState: originalOrchestratorState,
             repository: originalSquaddieRepository,
             missionId: "test mission",
+            campaignId: "test campaign",
             saveVersion: 9001
         });
 
@@ -689,6 +704,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
             }),
         })
@@ -719,6 +735,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 cutsceneTriggers: triggers,
                 battlePhaseState: {
@@ -729,6 +746,7 @@ describe("BattleSaveState", () => {
         });
 
         const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            campaignId: "test campaign",
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -740,6 +758,7 @@ describe("BattleSaveState", () => {
 
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -776,6 +795,7 @@ describe("BattleSaveState", () => {
             }
 
             saveData = {
+                campaignId: "test campaign",
                 saveVersion: 90210,
                 missionId: "the mission",
                 battlePhaseState: {
@@ -862,6 +882,7 @@ describe("BattleSaveState", () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 2 - x "]
@@ -963,6 +984,7 @@ describe("BattleSaveState", () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     camera: new BattleCamera(100, 200),
                     battlePhaseState: {
                         currentAffiliation: BattlePhase.PLAYER,
@@ -980,12 +1002,14 @@ describe("BattleSaveState", () => {
 
 
             const newSaveData: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+                campaignId: "This campaign",
                 saveVersion: 9001,
                 missionId: "This mission",
                 battleOrchestratorState,
                 repository: originalSquaddieRepository,
             });
 
+            expect(newSaveData.campaignId).toBe("This campaign");
             expect(newSaveData.missionId).toBe("This mission");
             expect(newSaveData.camera.xCoordinate).toBe(100);
             expect(newSaveData.camera.yCoordinate).toBe(200);
@@ -1052,6 +1076,7 @@ describe("BattleSaveState", () => {
                 battleOrchestratorState: undefined,
                 squaddieRepository: ObjectRepositoryService.new(),
                 battleSaveState: BattleSaveStateService.newUsingBattleOrchestratorState({
+                    campaignId: "test campaign",
                     missionId: "missionId",
                     saveVersion: 0,
                     repository: ObjectRepositoryService.new(),
@@ -1059,6 +1084,7 @@ describe("BattleSaveState", () => {
 
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                             camera: new BattleCamera(100, 200),
                             missionMap: NullMissionMap(),
                             battlePhaseState: {

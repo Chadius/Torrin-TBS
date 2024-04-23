@@ -46,6 +46,7 @@ describe('Mission Objective', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionCompletionStatus: {
                         "test objective": {
                             isComplete: undefined,
@@ -113,6 +114,7 @@ describe('Mission Objective', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionCompletionStatus: {
                         "test objective": {
                             isComplete: undefined,
@@ -181,6 +183,7 @@ describe('Mission Objective', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionCompletionStatus: {
                         "test objective": {
                             isComplete: undefined,
@@ -233,6 +236,7 @@ describe('Mission Objective', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionCompletionStatus: {
                         "test objective": {
                             isComplete: true,
@@ -286,6 +290,7 @@ describe('Mission Objective', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionCompletionStatus: {
                         "test objective": {
                             isComplete: undefined,

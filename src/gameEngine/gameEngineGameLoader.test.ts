@@ -44,9 +44,10 @@ describe('GameEngineGameLoader', () => {
     let resourceHandler: ResourceHandler;
     let squaddieRepository: ObjectRepository;
     let playerArmy: PlayerArmy;
+    const campaignId = "coolCampaign";
 
     beforeEach(() => {
-        loader = new GameEngineGameLoader("coolCampaign");
+        loader = new GameEngineGameLoader(campaignId);
 
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
@@ -60,6 +61,7 @@ describe('GameEngineGameLoader', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "",
+                    campaignId,
                 }),
             }),
         });
@@ -192,6 +194,10 @@ describe('GameEngineGameLoader', () => {
             expect(state.battleOrchestratorState.battleState.missionId).toEqual(missionData.id);
         });
 
+        it('campaign id', () => {
+            expect(state.campaign.id).toEqual(campaignFileData.id);
+        });
+
         it('mission map', () => {
             expect(state.battleOrchestratorState.battleState.missionMap.terrainTileMap).toEqual(loader.missionLoaderContext.missionMap.terrainTileMap);
         });
@@ -265,7 +271,7 @@ describe('GameEngineGameLoader', () => {
         let currentState: GameEngineState;
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader("coolCampaign");
+            loader = new GameEngineGameLoader(campaignId);
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
@@ -309,6 +315,7 @@ describe('GameEngineGameLoader', () => {
                             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                         }),
                         battleState: BattleStateService.newBattleState({
+                            campaignId: campaignFileData.id,
                             missionId: "test mission",
                             camera: new BattleCamera(100, 200),
                             missionMap: NullMissionMap(),
@@ -459,7 +466,7 @@ describe('GameEngineGameLoader', () => {
         let currentState: GameEngineState;
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader("coolCampaign");
+            loader = new GameEngineGameLoader(campaignId);
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
@@ -619,9 +626,9 @@ describe('GameEngineGameLoader', () => {
         }
 
         it('will persist the campaign loading context by default', () => {
-            expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual("coolCampaign");
+            expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(campaignId);
             loader.reset(state);
-            expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual("coolCampaign");
+            expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(campaignId);
         });
 
         it('will load battle resources again but nothing else', async () => {

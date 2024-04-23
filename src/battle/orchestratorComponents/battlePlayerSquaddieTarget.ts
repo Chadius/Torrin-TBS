@@ -442,7 +442,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         intentMessages.push(...[
             "",
-            "CONFIRM: Click here",
+            "CONFIRM: Left Mouse Button",
             "CANCEL: Right Mouse Button",
         ]);
 

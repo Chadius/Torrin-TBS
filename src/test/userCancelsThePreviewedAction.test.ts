@@ -366,6 +366,7 @@ const getGameEngineState = ({
         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
+                campaignId: "test campaign",
                 camera: new BattleCamera(0, 0),
                 battlePhaseState: BattlePhaseStateService.new({
                     currentAffiliation: BattlePhase.PLAYER,

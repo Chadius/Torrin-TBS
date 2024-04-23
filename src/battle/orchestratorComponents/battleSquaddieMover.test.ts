@@ -126,6 +126,7 @@ describe('BattleSquaddieMover', () => {
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
@@ -181,6 +182,7 @@ describe('BattleSquaddieMover', () => {
                 }),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: map,
                     searchPath: movePath,
                     actionsThisRound,

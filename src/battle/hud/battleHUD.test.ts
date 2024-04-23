@@ -36,6 +36,7 @@ describe('Battle HUD', () => {
                             turnCount: 0,
                         },
                         missionId: "missionId",
+                        campaignId: "test campaign",
                     }),
                 }),
             });

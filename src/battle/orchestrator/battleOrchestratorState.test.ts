@@ -62,6 +62,7 @@ describe('orchestratorState', () => {
 
     beforeEach(() => {
         validBattleState = BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -177,6 +178,7 @@ describe('orchestratorState', () => {
 
         const cloned: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateService.newBattleState({
+                campaignId: "test campaign",
                 missionId: "test mission",
             }),
             battleHUD: BattleHUDService.new({
@@ -305,6 +307,7 @@ describe('orchestratorState', () => {
                 resourceHandler: mockResourceHandler(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
+                        campaignId: "test campaign",
                         missionId: "the mission",
                         actionsThisRound,
                     }),

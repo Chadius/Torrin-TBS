@@ -43,6 +43,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             })
@@ -63,6 +64,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             })
@@ -87,6 +89,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             })
@@ -111,6 +114,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             }),
@@ -143,6 +147,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             })
@@ -172,6 +177,7 @@ describe('BattleCutscenePlayer', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     cutsceneCollection
                 })
             })

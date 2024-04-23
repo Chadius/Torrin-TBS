@@ -57,6 +57,7 @@ describe('Mission Cutscene Service', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -97,6 +98,7 @@ describe('Mission Cutscene Service', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -130,6 +132,7 @@ describe('Mission Cutscene Service', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -180,6 +183,7 @@ describe('Mission Cutscene Service', () => {
 
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
+                    campaignId: "test campaign",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]

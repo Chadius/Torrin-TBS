@@ -226,6 +226,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         battlePhaseState,
                         camera,
                         missionMap,
@@ -288,6 +289,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         battlePhaseState,
                         missionMap,
                         recording: {history: []},
@@ -361,6 +363,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
+                            campaignId: "test campaign",
                             battlePhaseState,
                             missionMap,
                             recording: {history: []},
@@ -445,6 +448,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
+                        campaignId: "test campaign",
                         recording: {history: []},
                         battlePhaseState,
                         camera,
@@ -504,6 +508,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
+                                campaignId: "test campaign",
                                 battlePhaseState,
                                 camera,
                                 missionMap,

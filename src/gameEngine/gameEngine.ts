@@ -243,6 +243,7 @@ export class GameEngine {
         const saveData: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             saveVersion: SAVE_VERSION,
             missionId: this.gameEngineState.battleOrchestratorState.battleState.missionId,
+            campaignId: this.gameEngineState.campaign.id,
             battleOrchestratorState: this.gameEngineState.battleOrchestratorState,
             repository: this.gameEngineState.repository,
         });

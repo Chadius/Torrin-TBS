@@ -16,6 +16,7 @@ import {BattleSquaddieService} from "../battleSquaddie";
 describe('Battle State', () => {
     it('overrides team strategy for non-player teams', () => {
         const state: BattleState = BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
             teams: [
                 {
@@ -147,6 +148,7 @@ describe('Battle State', () => {
 
     it('can clone existing objects', () => {
         let originalBattleState: BattleState = BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -206,6 +208,7 @@ describe('Battle State', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleState: BattleState = BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -258,6 +261,7 @@ describe('Battle State', () => {
         expect(BattleStateService.isValid(originalBattleState)).toBeTruthy();
 
         const cloned: BattleState = BattleStateService.newBattleState({
+            campaignId: "test campaign",
             missionId: "test mission",
         });
         BattleStateService.update(cloned, originalBattleState);
@@ -342,6 +346,7 @@ describe('Battle State', () => {
             };
 
             battleState = BattleStateService.new({
+                campaignId: "test campaign",
                 missionId: "mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
