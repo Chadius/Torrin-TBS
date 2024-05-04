@@ -26,6 +26,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
@@ -140,8 +141,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         }
     }
 
-    reset(state: GameEngineState) {
+    reset(gameEngineState: GameEngineState) {
         this.resetInternalState();
+
+        PlayerBattleActionBuilderStateService.setAnimationCompleted({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            animationCompleted: true
+        });
     }
 
     private setupActionAnimation(state: GameEngineState) {

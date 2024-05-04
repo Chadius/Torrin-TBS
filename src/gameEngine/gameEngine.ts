@@ -28,6 +28,7 @@ import {FileState, FileStateService} from "./fileState";
 import {MessageBoard} from "../message/messageBoard";
 import {BattleHUDListener} from "../battle/hud/battleHUD";
 import {MessageBoardMessageType} from "../message/messageBoardMessage";
+import {PlayerHudController} from "../battle/orchestratorComponents/playerHudController";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -136,6 +137,7 @@ export class GameEngine {
             phaseController: new BattlePhaseController(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
             squaddieUsesActionOnSquaddie: new BattleSquaddieUsesActionOnSquaddie(),
+            playerHudController: new PlayerHudController(),
         });
 
         await this.lazyLoadResourceHandler({graphicsContext, campaignId});

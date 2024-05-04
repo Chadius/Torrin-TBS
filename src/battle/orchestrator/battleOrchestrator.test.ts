@@ -46,6 +46,7 @@ import {DecidedActionService} from "../../action/decided/decidedAction";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 import {BattleHUDService} from "../hud/battleHUD";
+import {PlayerHudController} from "../orchestratorComponents/playerHudController";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -56,6 +57,7 @@ describe('Battle Orchestrator', () => {
         squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
+        playerHudController: PlayerHudController;
         playerSquaddieTarget: BattlePlayerSquaddieTarget;
         initializeBattle: InitializeBattle;
 
@@ -74,6 +76,7 @@ describe('Battle Orchestrator', () => {
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
     let mockPhaseController: BattlePhaseController;
+    let mockPlayerHudController: PlayerHudController;
     let defaultBattleOrchestrator: DefaultBattleOrchestrator;
     let mockHud: BattleSquaddieSelectedHUD;
 
@@ -167,6 +170,18 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
         mockPhaseController.draw = jest.fn();
 
+        mockPlayerHudController = new (<new () => PlayerHudController>PlayerHudController)() as jest.Mocked<PlayerHudController>;
+        mockPlayerHudController.recommendStateChanges = jest.fn();
+        mockPlayerHudController.reset = jest.fn();
+        mockPlayerHudController.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
+            displayMap: false,
+            scrollCamera: false,
+        }));
+        mockPlayerHudController.mouseEventHappened = jest.fn();
+        mockPlayerHudController.keyEventHappened = jest.fn();
+        mockPlayerHudController.hasCompleted = jest.fn().mockReturnValue(true);
+        mockPlayerHudController.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
+
         mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
     }
@@ -217,6 +232,7 @@ describe('Battle Orchestrator', () => {
                 playerSquaddieTarget: mockPlayerSquaddieTarget,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
+                playerHudController: mockPlayerHudController,
             },
             ...overrides
         });
@@ -392,20 +408,20 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
 
-    it('will transition from phase controller to squaddie selector mode', () => {
+    it('will transition from phase controller to player HUD', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController);
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(mockPlayerSquaddieSelector.update).toBeCalledTimes(1);
-        expect(mockPlayerSquaddieSelector.hasCompleted).toBeCalledTimes(1);
+        expect(mockPlayerHudController.recommendStateChanges).toBeCalledTimes(1);
+        expect(mockPlayerHudController.reset).toBeCalledTimes(1);
     });
 
-    it('will move from squaddie selector mode to squaddie move mode', () => {
+    it('will move from squaddie selector mode to player HUD controller', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
@@ -438,11 +454,11 @@ describe('Battle Orchestrator', () => {
         });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
-        expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController);
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(mockSquaddieMover.update).toBeCalledTimes(1);
-        expect(mockSquaddieMover.hasCompleted).toBeCalledTimes(1);
+        expect(mockPlayerHudController.recommendStateChanges).toBeCalledTimes(1);
+        expect(mockPlayerHudController.reset).toBeCalledTimes(1);
     });
 
     it('will move from squaddie move mode to phase controller mode', () => {
@@ -491,13 +507,14 @@ describe('Battle Orchestrator', () => {
                 if (
                     modeStr === BattleOrchestratorMode.UNKNOWN
                     || modeStr === BattleOrchestratorMode.INITIALIZED
+                    || modeStr === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
                 ) {
                     continue;
                 }
 
-                const mode: BattleOrchestratorMode = modeStr as Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED>;
+                const mode: BattleOrchestratorMode = modeStr as Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED | BattleOrchestratorMode.PLAYER_HUD_CONTROLLER>;
                 it(`using the ${mode} mode will use the expected component`, () => {
-                    const tests: { [mode in Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED>]: BattleOrchestratorComponent } = {
+                    const tests: { [mode in Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED | BattleOrchestratorMode.PLAYER_HUD_CONTROLLER>]: BattleOrchestratorComponent } = {
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
                         [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR]: mockPlayerSquaddieSelector,
@@ -937,8 +954,8 @@ describe('Battle Orchestrator', () => {
             orchestrator.update(state, mockedP5GraphicsContext);
             expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
 
-            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
+            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
+            expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController);
             jest.spyOn(Date, "now").mockReturnValue(0);
             orchestrator.update(state, mockedP5GraphicsContext);
             expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);

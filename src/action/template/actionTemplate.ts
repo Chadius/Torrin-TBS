@@ -3,6 +3,12 @@ import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {ActionEffectSquaddieTemplate, ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
 
+export enum ActionDecisionType {
+    TARGET_SQUADDIE = "TARGET_SQUADDIE",
+    ACTOR_SELECTION = "ACTOR_SELECTION",
+    ACTION_SELECTION = "ACTION_SELECTION",
+}
+
 export interface ActionTemplate {
     id: string;
     name: string;
@@ -110,6 +116,9 @@ export const ActionTemplateService = {
             Math.min(...minimumRanges),
             Math.max(...maximumRanges),
         ];
+    },
+    getRequiredDecisionTypes: (actionTemplate: ActionTemplate): ActionDecisionType[] => {
+        return [ActionDecisionType.TARGET_SQUADDIE];
     }
 }
 

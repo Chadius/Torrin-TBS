@@ -207,9 +207,9 @@ describe("user clicks on the map to move", () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
         });
 
-        it('Squaddie Selector suggests the Squaddie Mover phase next', () => {
+        it('Squaddie Selector suggests the Player HUD Controller phase next', () => {
             const recommendation = selector.recommendStateChanges(gameEngineState);
-            expect(recommendation.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
+            expect(recommendation.nextMode).toEqual(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
         });
     });
 

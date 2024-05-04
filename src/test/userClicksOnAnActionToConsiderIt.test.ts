@@ -169,7 +169,7 @@ describe('user clicks on an action to consider it', () => {
         );
     });
 
-    it('Squaddie Selector is Complete and recommends Targeting phase', () => {
+    it('Squaddie Selector is Complete and recommends Player HUD Controller phase', () => {
         selectorClicksOnSquaddie(selector, gameEngineState);
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -181,7 +181,7 @@ describe('user clicks on an action to consider it', () => {
         expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
 
         const recommendation = selector.recommendStateChanges(gameEngineState);
-        expect(recommendation.nextMode).toEqual(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
+        expect(recommendation.nextMode).toEqual(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
     });
 
     it('Squaddie Target should tell Map to highlight targetable squares', () => {

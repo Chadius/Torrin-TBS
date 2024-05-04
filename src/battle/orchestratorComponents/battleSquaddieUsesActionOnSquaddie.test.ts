@@ -44,6 +44,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {CampaignService} from "../../campaign/campaign";
 import {BattleHUDService} from "../hud/battleHUD";
 import {MouseButton} from "../../utils/mouseConfig";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -216,9 +217,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         return gameEngineState;
     };
 
-    function usePowerAttackLongswordAndReturnState({missionMap}: {
+    const usePowerAttackLongswordAndReturnState = ({missionMap}: {
         missionMap?: MissionMap
-    }): GameEngineState {
+    }): GameEngineState => {
         const results: SquaddieSquaddieResults = SquaddieSquaddieResultsService.sanitize({
             actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
             actingSquaddieModifiers: {},
@@ -298,7 +299,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         SquaddieTurnService.spendActionPoints(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction.actionPoints);
         return gameEngineState;
-    }
+    };
 
     it('hides dead squaddies after the action animates', () => {
         const missionMap: MissionMap = new MissionMap({
@@ -322,9 +323,30 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.battleSquaddieId)).toBeTruthy();
     });
 
+    it('clears the action builder when the action finishes animating', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+        })
+
+        const actionBuilderSpy: jest.SpyInstance = jest.spyOn(OrchestratorUtilities, "resetActionBuilderIfActionIsComplete");
+        const gameEngineState = usePowerAttackLongswordAndReturnState({missionMap});
+        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1;
+
+        jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
+
+        squaddieUsesActionOnSquaddie.update(gameEngineState, mockedP5GraphicsContext);
+        expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
+
+        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState);
+        squaddieUsesActionOnSquaddie.reset(gameEngineState);
+
+        expect(actionBuilderSpy).toBeCalledWith(gameEngineState);
+        expect(PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeFalsy();
+    });
+
     it('resets squaddie currently acting when it runs out of actions and finishes acting', () => {
-        let orchestratorUtilsSpy: jest.SpyInstance;
-        orchestratorUtilsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
+        const orchestratorUtilsSpy: jest.SpyInstance = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
 
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
@@ -343,6 +365,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState);
         expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState);
         expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+
         animatorSpy.mockRestore();
         orchestratorUtilsSpy.mockRestore();
     });

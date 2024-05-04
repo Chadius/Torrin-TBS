@@ -204,7 +204,7 @@ describe('User cancels the previewed action', () => {
                                                                                                                                  }) => {
             action();
             const recommendedInfo = targeting.recommendStateChanges(gameEngineState);
-            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
         });

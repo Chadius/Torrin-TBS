@@ -25,6 +25,7 @@ import {
 import {isValidValue} from "../../utils/validityCheck";
 import {ObjectRepository} from "../objectRepository";
 import {ActionsThisRound} from "../history/actionsThisRound";
+import {PlayerBattleActionBuilderState} from "../actionBuilder/playerBattleActionBuilderState";
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -44,6 +45,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
     actionsThisRound: ActionsThisRound;
+    playerBattleActionBuilderState: PlayerBattleActionBuilderState;
 }
 
 export const BattleStateService = {
@@ -193,6 +195,7 @@ const newBattleState = ({
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
+        playerBattleActionBuilderState: undefined,
     };
 };
 

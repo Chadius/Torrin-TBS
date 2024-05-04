@@ -31,6 +31,7 @@ import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedAc
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {MouseButton} from "../../utils/mouseConfig";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -216,7 +217,6 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
@@ -232,5 +232,38 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.FINISHED_SHOWING_RESULTS);
         animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
+    });
+
+    it('will set the action builder animation to true when it resets', () => {
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: knightHitsThiefWithLongswordInstructionInProgress,
+                    recording: battleEventRecording,
+                }),
+            })
+        });
+
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+        PlayerBattleActionBuilderStateService.setActor({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+        });
+        PlayerBattleActionBuilderStateService.addAction({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            actionTemplate: longswordActionTemplate
+        });
+        PlayerBattleActionBuilderStateService.setConfirmedTarget({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            targetLocation: {q: 0, r: 1},
+        });
+
+        animator.reset(gameEngineState);
+
+        expect(PlayerBattleActionBuilderStateService.isAnimationComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeTruthy();
     });
 });

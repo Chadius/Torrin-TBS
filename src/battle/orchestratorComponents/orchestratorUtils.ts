@@ -10,32 +10,14 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {isValidValue} from "../../utils/validityCheck";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
-import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {BattlePhase} from "./battlePhaseTracker";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
         return isSquaddieCurrentlyTakingATurn(state);
-    },
-    getNextModeBasedOnProcessedActionEffect: (processedActionEffect: ProcessedActionEffect): BattleOrchestratorMode => {
-        if (!isValidValue(processedActionEffect)) {
-            return undefined;
-        }
-
-        switch (processedActionEffect.type) {
-            case ActionEffectType.SQUADDIE:
-                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
-            case ActionEffectType.MOVEMENT:
-                return BattleOrchestratorMode.SQUADDIE_MOVER;
-            case ActionEffectType.END_TURN:
-                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
-            default:
-                return undefined;
-        }
     },
     drawSquaddieReachBasedOnSquaddieTurnAndAffiliation: (state: GameEngineState) => {
         return drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
@@ -45,6 +27,12 @@ export const OrchestratorUtilities = {
     },
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState);
+    },
+    resetActionBuilderIfActionIsComplete: (gameEngineState: GameEngineState): void => {
+        if (!PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)) {
+            return;
+        }
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = undefined;
     },
     clearActionsThisRoundIfSquaddieCannotAct: (gameEngineState: GameEngineState) => {
         if (!

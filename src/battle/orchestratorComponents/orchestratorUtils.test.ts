@@ -12,29 +12,13 @@ import {ArmyAttributesService} from "../../squaddie/armyAttributes";
 import {SquaddieIdService} from "../../squaddie/id";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../orchestrator/battleState";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {
-    ProcessedActionSquaddieEffect,
-    ProcessedActionSquaddieEffectService
-} from "../../action/processed/processedActionSquaddieEffect";
-import {
-    ProcessedActionMovementEffect,
-    ProcessedActionMovementEffectService
-} from "../../action/processed/processedActionMovementEffect";
+import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {
     DecidedActionMovementEffect,
     DecidedActionMovementEffectService
 } from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
-import {
-    ProcessedActionEndTurnEffect,
-    ProcessedActionEndTurnEffectService
-} from "../../action/processed/processedActionEndTurnEffect";
-import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
-import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
-import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
-import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
@@ -46,6 +30,10 @@ import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
 import {BattleHUDService} from "../hud/battleHUD";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate;
@@ -53,9 +41,6 @@ describe("Orchestration Utils", () => {
     let squaddieRepository: ObjectRepository;
     let map: MissionMap;
     let camera: BattleCamera;
-    let movementActionEffect: ProcessedActionMovementEffect;
-    let squaddieActionEffect: ProcessedActionSquaddieEffect;
-    let endTurnActionEffect: ProcessedActionEndTurnEffect;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
@@ -85,27 +70,6 @@ describe("Orchestration Utils", () => {
         );
 
         camera = new BattleCamera();
-
-        movementActionEffect = ProcessedActionMovementEffectService.new({
-            decidedActionEffect: DecidedActionMovementEffectService.new({
-                destination: {q: 0, r: 2},
-                template: ActionEffectMovementTemplateService.new({}),
-            })
-        });
-
-        squaddieActionEffect = ProcessedActionSquaddieEffectService.new({
-            decidedActionEffect: DecidedActionSquaddieEffectService.new({
-                target: {q: 0, r: 2},
-                template: ActionEffectSquaddieTemplateService.new({}),
-            }),
-            results: undefined,
-        });
-
-        endTurnActionEffect = ProcessedActionEndTurnEffectService.new({
-            decidedActionEffect: DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({})
-            })
-        });
     });
 
     it('can return the squaddie and information at a given location on the screen', () => {
@@ -290,21 +254,6 @@ describe("Orchestration Utils", () => {
         });
     });
 
-    describe('getNextModeBasedOnProcessedActionEffect', () => {
-        it('will recommend moving a squaddie if the next action effect is movement type', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(movementActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
-        });
-        it('will recommend using an action effect on a squaddie if the next action effect is squaddie type', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(squaddieActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
-        });
-        it('will recommend acting on the map if the next action effect is end turn', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(endTurnActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
-        });
-        it('will return undefined if there is no action effect', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(undefined)).toBeUndefined();
-        });
-    });
-
     describe('can the actionsThisRound squaddie act', () => {
         let repository: ObjectRepository;
         let battleSquaddie: BattleSquaddie;
@@ -410,6 +359,74 @@ describe("Orchestration Utils", () => {
 
                 OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
                 expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+            });
+        });
+
+        describe('resetActionBuilderIfSquaddieCompletedTheirTurn', () => {
+            let singleTargetAction: ActionTemplate;
+
+            beforeEach(() => {
+                singleTargetAction = ActionTemplateService.new({
+                    id: "single target",
+                    name: "single target",
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            damageDescriptions: {[DamageType.BODY]: 2},
+                            traits: TraitStatusStorageService.newUsingTraitValues({
+                                TARGETS_FOE: true
+                            })
+                        })
+                    ],
+                })
+            })
+
+            it('will not throw an error if there is no ActionBuilderState', () => {
+                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = undefined;
+
+                expect(() => OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState)).not.toThrow();
+            });
+            it('will not clear if the action has not completed yet', () => {
+                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+                PlayerBattleActionBuilderStateService.setActor({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    battleSquaddieId: "battle squaddie"
+                });
+                PlayerBattleActionBuilderStateService.addAction({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    actionTemplate: singleTargetAction,
+                });
+                PlayerBattleActionBuilderStateService.setConfirmedTarget({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    targetLocation: {q: 0, r: 1}
+                });
+                const expectedActionBuilderState = {...gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState};
+                expect(PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeFalsy();
+
+                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
+                expect(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState).toEqual(expectedActionBuilderState);
+            });
+            it('will clear if the action has finished', () => {
+                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+                PlayerBattleActionBuilderStateService.setActor({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    battleSquaddieId: "battle squaddie"
+                });
+                PlayerBattleActionBuilderStateService.addAction({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    actionTemplate: singleTargetAction,
+                });
+                PlayerBattleActionBuilderStateService.setConfirmedTarget({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    targetLocation: {q: 0, r: 1}
+                });
+                PlayerBattleActionBuilderStateService.setAnimationCompleted({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    animationCompleted: true
+                });
+                expect(PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeTruthy();
+
+                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
+                expect(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState).toBeUndefined();
             });
         });
 

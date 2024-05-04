@@ -12,8 +12,11 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {ActionComponentCalculator} from "../actionBuilder/actionComponentCalculator";
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500;
+
 
 export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponent {
     animationCompleteStartTime?: number;
@@ -23,7 +26,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     hasCompleted(state: GameEngineState): boolean {
-        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTION_COMPLETED_WAIT_TIME_MS;
+        return animationTimeHasExpired(this.animationCompleteStartTime);
     }
 
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
@@ -44,8 +47,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
         ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(gameEngineState);
-        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
-        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        const nextMode = ActionComponentCalculator.getNextModeBasedOnActionsThisRound(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
@@ -56,29 +58,37 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
         }
     }
 
-    reset(state: GameEngineState): void {
+    reset(gameEngineState: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        state.battleOrchestratorState.battleState.actionsThisRound = undefined;
+        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
-        if (this.animationCompleteStartTime === undefined) {
-            const battleSquaddieId = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
-            const {
-                battleSquaddie,
-                squaddieTemplate
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
-
-            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
-                battleSquaddie,
-                squaddieTemplate,
-                missionMap: state.battleOrchestratorState.battleState.missionMap,
-                repository: state.repository,
-                campaign: state.campaign,
-            });
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
-
-            this.animationCompleteStartTime = Date.now();
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+        if (this.animationCompleteStartTime !== undefined) {
+            if (animationTimeHasExpired(this.animationCompleteStartTime)) {
+                PlayerBattleActionBuilderStateService.setAnimationCompleted({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    animationCompleted: true
+                });
+            }
+            return;
         }
+
+        const battleSquaddieId = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+        const {
+            battleSquaddie,
+            squaddieTemplate
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(gameEngineState.repository, battleSquaddieId));
+        DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+            battleSquaddie,
+            squaddieTemplate,
+            missionMap: gameEngineState.battleOrchestratorState.battleState.missionMap,
+            repository: gameEngineState.repository,
+            campaign: gameEngineState.campaign,
+        });
+        DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, gameEngineState.repository);
+        this.animationCompleteStartTime = Date.now();
     }
 }
+
+const animationTimeHasExpired = (animationCompleteStartTime: number) => animationCompleteStartTime !== undefined && (Date.now() - animationCompleteStartTime) >= ACTION_COMPLETED_WAIT_TIME_MS;

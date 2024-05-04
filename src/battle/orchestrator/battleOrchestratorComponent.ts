@@ -34,17 +34,17 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void;
 
-    uiControlSettings(state: GameEngineState): UIControlSettings;
+    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings;
 
-    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void;
+    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void;
 
-    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void;
+    keyEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentKeyEvent): void;
 
-    hasCompleted(state: GameEngineState): boolean;
+    hasCompleted(gameEngineState: GameEngineState): boolean;
 
-    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined;
+    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined;
 
-    reset(state: GameEngineState): void;
+    reset(gameEngineState: GameEngineState): void;
 }

@@ -232,10 +232,10 @@ describe('User ends their turn', () => {
             expect(highlightTileSpy).toBeCalled();
         });
 
-        it('Mode switches to MapAction phase', () => {
+        it('Mode switches to player HUD controller', () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
             const changes = selector.recommendStateChanges(gameEngineState);
-            expect(changes.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+            expect(changes.nextMode).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
         });
 
         it('It adds an event showing the processed action', () => {
@@ -312,7 +312,8 @@ describe('User ends their turn', () => {
                     }),
                 }),
                 campaign: CampaignService.default({}),
-            })
+            });
+            BattleSquaddieService.endTurn(playerBattleSquaddie);
             tintSpy = jest.spyOn(DrawSquaddieUtilities, "tintSquaddieMapIconIfTheyCannotAct");
 
             jest.spyOn(Date, 'now').mockImplementation(() => 0);

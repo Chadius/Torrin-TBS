@@ -29,6 +29,7 @@ import {CampaignService} from "../../campaign/campaign";
 import {BattleHUDService} from "../hud/battleHUD";
 import {BattlePhase} from "./battlePhaseTracker";
 import {OrchestratorUtilities} from "./orchestratorUtils";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -198,7 +199,7 @@ describe('BattleSquaddieMover', () => {
         describe(' when the squaddie currently acting runs out of actions and finishes moving', () => {
             let mover: BattleSquaddieMover;
             let gameEngineState: GameEngineState;
-            let orchestratorUtilsSpy: jest.SpyInstance;
+            let clearActionsSpy: jest.SpyInstance;
 
             beforeEach(() => {
                 map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
@@ -240,7 +241,7 @@ describe('BattleSquaddieMover', () => {
                 player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
 
                 mover = new BattleSquaddieMover();
-                orchestratorUtilsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
+                clearActionsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
 
                 jest.spyOn(Date, 'now').mockImplementation(() => 1);
                 mover.update(gameEngineState, mockedP5GraphicsContext);
@@ -249,7 +250,7 @@ describe('BattleSquaddieMover', () => {
             });
 
             afterEach(() => {
-                orchestratorUtilsSpy.mockRestore();
+                clearActionsSpy.mockRestore();
             });
 
             it('hides the HUD', () => {
@@ -260,62 +261,99 @@ describe('BattleSquaddieMover', () => {
             it('clear the expected actions', () => {
                 mover.reset(gameEngineState);
                 mover.recommendStateChanges(gameEngineState);
-                expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState);
+                expect(clearActionsSpy).toBeCalledWith(gameEngineState);
                 expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
             });
         });
 
-        it('should open the HUD if the squaddie turn has actions remaining', () => {
-            map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
+        describe('squaddie has action points remaining after moving', () => {
+            let mover: BattleSquaddieMover;
+            let gameEngineState: GameEngineState;
+            let dateSpy: jest.SpyInstance;
 
-            const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
-                destination: {q: 1, r: 1},
-                template: ActionEffectMovementTemplateService.new({}),
-            });
-            const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
+            beforeEach(() => {
+                map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
+
+                const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                    destination: {q: 1, r: 1},
+                    template: ActionEffectMovementTemplateService.new({}),
+                });
+                const processedAction = ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        battleSquaddieId: "player_1",
+                        actionPointCost: 1,
+                        actionTemplateName: "Move",
+                        actionEffects: [decidedActionMovementEffect],
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionMovementEffectService.new({
+                            decidedActionEffect: decidedActionMovementEffect,
+                        })
+                    ]
+                });
+                const actionsThisRound = ActionsThisRoundService.new({
                     battleSquaddieId: "player_1",
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [decidedActionMovementEffect],
-                }),
-                processedActionEffects: [
-                    ProcessedActionMovementEffectService.new({
-                        decidedActionEffect: decidedActionMovementEffect,
-                    })
-                ]
-            });
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "player_1",
-                startingLocation: {q: 0, r: 0},
-                processedActions: [processedAction],
+                    startingLocation: {q: 0, r: 0},
+                    processedActions: [processedAction],
+                });
+
+                let mockResourceHandler = mocks.mockResourceHandler();
+                mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+                gameEngineState = GameEngineStateService.new({
+                    battleOrchestratorState: setupSquaddie({
+                        squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                        actionsThisRound,
+                    }),
+                    resourceHandler: mockResourceHandler,
+                    repository: squaddieRepo,
+                    campaign: CampaignService.default({}),
+                });
+                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+                PlayerBattleActionBuilderStateService.setActor({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    battleSquaddieId: "player_1",
+                });
+                PlayerBattleActionBuilderStateService.addAction({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    movement: true,
+                });
+                PlayerBattleActionBuilderStateService.setConfirmedTarget({
+                    actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+                    targetLocation: {q: 0, r: 0},
+                });
+
+                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                    battleId: "player_1",
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state: gameEngineState,
+                });
+
+                mover = new BattleSquaddieMover();
+                dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => 1);
+                mover.update(gameEngineState, mockedP5GraphicsContext);
+                dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
+                mover.update(gameEngineState, mockedP5GraphicsContext);
             });
 
-            let mockResourceHandler = mocks.mockResourceHandler();
-            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
-            const state: GameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: setupSquaddie({
-                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                    actionsThisRound,
-                }),
-                resourceHandler: mockResourceHandler,
-                repository: squaddieRepo,
-                campaign: CampaignService.default({}),
+            afterEach(() => {
+                dateSpy.mockRestore();
             });
 
-            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                battleId: "player_1",
-                repositionWindow: {mouseX: 0, mouseY: 0},
-                state: state,
+            it('should open the HUD if the squaddie turn has actions remaining', () => {
+                mover.reset(gameEngineState);
+                expect(gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
             });
 
-            const mover: BattleSquaddieMover = new BattleSquaddieMover();
-            jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mockedP5GraphicsContext);
-            jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mockedP5GraphicsContext);
-            mover.reset(state);
-            expect(state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            it('should tell the action builder the animation is complete and check if it needs to be reset', () => {
+                expect(PlayerBattleActionBuilderStateService.isAnimationComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeTruthy();
+                const actionBuilderSpy = jest.spyOn(OrchestratorUtilities, "resetActionBuilderIfActionIsComplete");
+
+                mover.reset(gameEngineState);
+
+                expect(actionBuilderSpy).toBeCalledWith(gameEngineState);
+                expect(PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeFalsy();
+                actionBuilderSpy.mockRestore();
+            });
         });
 
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {

@@ -281,7 +281,7 @@ describe('User Selects Target and Confirms', () => {
                                                                                      }) => {
             action();
             const battleOrchestratorChanges = targeting.recommendStateChanges(gameEngineState);
-            expect(battleOrchestratorChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE)
+            expect(battleOrchestratorChanges.nextMode).toEqual(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER)
         });
     });
 

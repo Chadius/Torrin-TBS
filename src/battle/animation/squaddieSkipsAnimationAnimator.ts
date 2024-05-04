@@ -12,6 +12,7 @@ import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionResultTextService} from "./actionResultTextService";
 import {RecordingService} from "../history/recording";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -33,8 +34,12 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    reset(state: GameEngineState): void {
+    reset(gameEngineState: GameEngineState): void {
         this.resetInternalState();
+        PlayerBattleActionBuilderStateService.setAnimationCompleted({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            animationCompleted: true
+        });
     }
 
     start(state: GameEngineState): void {

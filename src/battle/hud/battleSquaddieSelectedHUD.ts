@@ -335,7 +335,6 @@ export class BattleSquaddieSelectedHUD {
         }
 
         this.maybeCreateInvalidCommandWarningTextBox(warningText, undefined);
-
     }
 
     checkForActionButtonClick(

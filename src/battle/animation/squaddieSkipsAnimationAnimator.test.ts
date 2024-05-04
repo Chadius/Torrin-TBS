@@ -29,6 +29,7 @@ import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedAc
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {MouseButton} from "../../utils/mouseConfig";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -205,5 +206,38 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
+    });
+
+    it('will set the action builder animation to true when it resets', () => {
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
+            }),
+            repository: squaddieRepository,
+        });
+
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+        PlayerBattleActionBuilderStateService.setActor({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            battleSquaddieId: monkBattleSquaddieId,
+        });
+        PlayerBattleActionBuilderStateService.addAction({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            actionTemplate: monkKoanAction,
+        });
+        PlayerBattleActionBuilderStateService.setConfirmedTarget({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            targetLocation: {q: 0, r: 0},
+        });
+
+        animator.reset(gameEngineState);
+
+        expect(PlayerBattleActionBuilderStateService.isAnimationComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeTruthy();
     });
 });

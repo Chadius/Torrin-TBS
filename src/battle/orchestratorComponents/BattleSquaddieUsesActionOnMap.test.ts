@@ -1,13 +1,11 @@
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {OrchestratorUtilities} from "./orchestratorUtils";
@@ -16,20 +14,19 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: ObjectRepository;
-    let squaddieTemplateBase: SquaddieTemplate;
-    let battleSquaddieBase: BattleSquaddie;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let dateSpy: jest.SpyInstance;
+    let mapAction: BattleSquaddieUsesActionOnMap;
+    let gameEngineState: GameEngineState;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = ObjectRepositoryService.new();
-        ({
-            squaddieTemplate: squaddieTemplateBase,
-            battleSquaddie: battleSquaddieBase,
-        } = CreateNewSquaddieAndAddToRepository({
+        CreateNewSquaddieAndAddToRepository({
             name: "Torrin",
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
@@ -45,14 +42,13 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 armorClass: 0,
                 maxHitPoints: 0,
             },
-        }));
-    });
+        });
 
-    it('can wait half a second before ending turn', () => {
-        const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
+        dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: GameEngineState = GameEngineStateService.new({
+        mapAction = new BattleSquaddieUsesActionOnMap();
+
+        gameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
@@ -78,21 +74,95 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 }),
             })
         })
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+        PlayerBattleActionBuilderStateService.setActor({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            battleSquaddieId: "dynamic_squaddie",
+        });
+        PlayerBattleActionBuilderStateService.addAction({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            endTurn: true,
+        });
+        PlayerBattleActionBuilderStateService.setConfirmedTarget({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            targetLocation: {q: 0, r: 1},
+        });
 
-        mapAction.update(state, mockedP5GraphicsContext);
+    });
+
+    afterEach(() => {
+        dateSpy.mockRestore();
+    });
+
+    it('can wait half a second before ending turn', () => {
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
         expect(mapAction.animationCompleteStartTime).not.toBeUndefined();
-        expect(mapAction.hasCompleted(state)).toBeFalsy();
-        jest.spyOn(Date, 'now').mockImplementation(() => 500);
+        expect(mapAction.hasCompleted(gameEngineState)).toBeFalsy();
+        dateSpy.mockImplementation(() => 500);
 
-        mapAction.update(state, mockedP5GraphicsContext);
-        expect(mapAction.hasCompleted(state)).toBeTruthy();
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
+        expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy();
 
-        const stateChanges = mapAction.recommendStateChanges(state);
+        const stateChanges = mapAction.recommendStateChanges(gameEngineState);
         expect(stateChanges.nextMode).toBeUndefined();
         expect(stateChanges.displayMap).toBeTruthy();
 
-        mapAction.reset(state);
+        mapAction.reset(gameEngineState);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+    });
+
+    it('sets the next mode as undefined', () => {
+        dateSpy.mockImplementation(() => 500);
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
+
+        const stateChanges = mapAction.recommendStateChanges(gameEngineState);
+        expect(stateChanges.nextMode).toBeUndefined();
+        expect(stateChanges.displayMap).toBeTruthy();
+
+        mapAction.reset(gameEngineState);
+        expect(mapAction.animationCompleteStartTime).toBeUndefined();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+    });
+
+    it('sets the animation as complete', () => {
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
+        dateSpy.mockImplementation(() => 500);
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
+        expect(PlayerBattleActionBuilderStateService.isAnimationComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeTruthy();
+    });
+
+    it('displays the map', () => {
+        dateSpy.mockImplementation(() => 500);
+        mapAction.update(gameEngineState, mockedP5GraphicsContext);
+
+        const stateChanges = mapAction.recommendStateChanges(gameEngineState);
+        expect(stateChanges.displayMap).toBeTruthy();
+    });
+
+    describe('reset the component', () => {
+        let actionBuilderSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+            actionBuilderSpy = jest.spyOn(OrchestratorUtilities, "resetActionBuilderIfActionIsComplete");
+            mapAction.update(gameEngineState, mockedP5GraphicsContext);
+            dateSpy.mockImplementation(() => 500);
+            mapAction.update(gameEngineState, mockedP5GraphicsContext);
+            mapAction.recommendStateChanges(gameEngineState);
+            mapAction.reset(gameEngineState);
+        });
+
+        it('clears internal animation timer', () => {
+            expect(mapAction.animationCompleteStartTime).toBeUndefined();
+        });
+
+        it('knows no squaddie is currently taking a turn', () => {
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
+        });
+
+        it('resets the action builder', () => {
+            expect(actionBuilderSpy).toBeCalledWith(gameEngineState);
+            expect(PlayerBattleActionBuilderStateService.isActionComplete(gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)).toBeFalsy();
+        });
     });
 });

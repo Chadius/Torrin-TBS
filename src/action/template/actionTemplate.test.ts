@@ -1,4 +1,4 @@
-import {ActionTemplateService} from "./actionTemplate";
+import {ActionDecisionType, ActionTemplateService} from "./actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
@@ -164,6 +164,25 @@ describe('ActionTemplate', () => {
 
             const ranges = ActionTemplateService.getActionTemplateRange(swordAndArtillery);
             expect(ranges).toEqual([0, 6]);
+        });
+    });
+
+    describe('actionDecisions', () => {
+        it('defaults to requiring a targeted squaddie', () => {
+            const bow = ActionTemplateService.new({
+                id: "bow",
+                name: "bow",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 1,
+                        maximumRange: 3,
+                    }),
+                ]
+            });
+
+            const requiredDecisions: ActionDecisionType[] = ActionTemplateService.getRequiredDecisionTypes(bow);
+
+            expect(requiredDecisions).toEqual([ActionDecisionType.TARGET_SQUADDIE]);
         });
     });
 });

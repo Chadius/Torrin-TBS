@@ -45,6 +45,7 @@ import {ProcessedActionSquaddieEffectService} from "../../action/processed/proce
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MouseButton} from "../../utils/mouseConfig";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -128,19 +129,16 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(state);
-        if (this.cancelAbility) {
+        if (
+            this.cancelAbility
+            || this.hasConfirmedAction
+        ) {
             return {
                 displayMap: true,
-                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
+                nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
             }
         }
 
-        if (this.hasConfirmedAction) {
-            return {
-                displayMap: true,
-                nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
-            }
-        }
         return undefined;
     }
 
@@ -255,8 +253,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         OrchestratorUtilities.highlightSquaddieRange(gameEngineState, battleSquaddieToHighlightId);
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
 
+        PlayerBattleActionBuilderStateService.removeAction({actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState})
+
         if (gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound = undefined;
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = undefined;
         }
     }
 
@@ -401,6 +402,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         });
         this.hasSelectedValidTarget = true;
         this.validTargetLocation = clickedLocation;
+
+        PlayerBattleActionBuilderStateService.setConsideredTarget({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            targetLocation: clickedLocation,
+        })
     }
 
     private drawConfirmWindow(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -478,11 +484,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         LabelService.draw(buttonBackground, graphicsContext);
     }
 
-    private confirmTargetSelection(state: GameEngineState) {
-        let actionsThisRound = state.battleOrchestratorState.battleState.actionsThisRound;
+    private confirmTargetSelection(gameEngineState: GameEngineState) {
+        let actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
+                gameEngineState.repository,
                 actionsThisRound.battleSquaddieId
             )
         );
@@ -494,7 +500,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         SquaddieTurnService.spendActionPoints(actingBattleSquaddie.squaddieTurn, actionTemplate.actionPoints);
-        state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
 
         const decidedAction = createDecidedAction(actionsThisRound, actionTemplate, firstActionEffectTemplate, this.validTargetLocation);
         const processedAction = ProcessedActionService.new({
@@ -503,11 +509,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         actionsThisRound.processedActions.push(processedAction);
 
         let results: SquaddieSquaddieResults = ActionCalculator.calculateResults({
-            state,
+            state: gameEngineState,
             actingBattleSquaddie,
             validTargetLocation: this.validTargetLocation,
-            actionsThisRound: state.battleOrchestratorState.battleState.actionsThisRound,
-            actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
+            actionsThisRound: gameEngineState.battleOrchestratorState.battleState.actionsThisRound,
+            actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
         });
         processedAction.processedActionEffects.push(
             ProcessedActionSquaddieEffectService.new({
@@ -515,7 +521,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 results,
             })
         )
-        addEventToRecording(processedAction, results, state);
+        addEventToRecording(processedAction, results, gameEngineState);
+
+        PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+        })
 
         this.hasConfirmedAction = true;
     }

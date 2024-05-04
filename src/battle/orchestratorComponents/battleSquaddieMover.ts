@@ -14,6 +14,8 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {ActionComponentCalculator} from "../actionBuilder/actionComponentCalculator";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -59,8 +61,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(gameEngineState);
-        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
-        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        const nextMode = ActionComponentCalculator.getNextModeBasedOnActionsThisRound(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
@@ -74,6 +75,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     reset(gameEngineState: GameEngineState) {
         gameEngineState.battleOrchestratorState.battleState.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
+        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
     }
 
     private updateWhileAnimationIsInProgress(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -97,15 +99,19 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
     }
 
-    private updateWhenAnimationCompletes(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private updateWhenAnimationCompletes(gameEngineState: GameEngineState, graphicsContext: GraphicsContext) {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
         ));
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
-        updateIconAndMapBasedOnWhetherSquaddieCanAct(state, battleSquaddie, squaddieTemplate, graphicsContext);
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        updateIconAndMapBasedOnWhetherSquaddieCanAct(gameEngineState, battleSquaddie, squaddieTemplate, graphicsContext);
+        PlayerBattleActionBuilderStateService.setAnimationCompleted({
+            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            animationCompleted: true
+        });
     }
 }
 

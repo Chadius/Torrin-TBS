@@ -23,6 +23,7 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {ActionComponentCalculator} from "../actionBuilder/actionComponentCalculator";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -78,8 +79,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(gameEngineState);
-        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
-        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        const nextMode = ActionComponentCalculator.getNextModeBasedOnActionsThisRound(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
@@ -94,6 +94,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this.squaddieActionAnimator.reset(gameEngineState);
         this._squaddieActionAnimator = undefined;
         this.resetInternalState();
+        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
     }
 
     update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
