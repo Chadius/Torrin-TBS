@@ -41,7 +41,7 @@ Players didn't notice the Multiple Attack Penalty. There's too much text already
 It's hard to experiment when you can't undo decisions like moving into range. Players are just learning the system, it would be good to let them undo decisions.
 
 ## First mission needs training wheels (scaffolding)
-I need a smoother experience for newcomers. They need to have the freedom to explore the rules without getting overwhelemed.
+I need a smoother experience for newcomers. They need to have the freedom to explore the rules without getting overwhelmed.
 
 ### Mitigations
 - First enemy will always miss
