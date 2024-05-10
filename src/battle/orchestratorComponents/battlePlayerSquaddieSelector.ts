@@ -234,17 +234,21 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private openHUDIfSquaddieWasSelected(gameEngineState: GameEngineState) {
-        if (
-            this.selectedBattleSquaddieId === ""
-            && OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
-        ) {
-            this.selectedBattleSquaddieId = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
-            gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                battleId: this.selectedBattleSquaddieId,
-                state: gameEngineState,
-            });
+        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+            return;
         }
+
+        if (this.selectedBattleSquaddieId !== "") {
+            return;
+        }
+
+        this.selectedBattleSquaddieId = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+        this.highlightSquaddieOnMap(gameEngineState, this.selectedBattleSquaddieId);
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = PlayerBattleActionBuilderStateService.new({});
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            battleId: this.selectedBattleSquaddieId,
+            state: gameEngineState,
+        });
     }
 
     private maybeReactToPlayerSelectedAction(state: GameEngineState) {
@@ -333,6 +337,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             ? gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
             : squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
 
+        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+            this.highlightSquaddieOnMap(gameEngineState, battleSquaddieToHighlightId);
+        }
+
         if (
             !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
             && this.selectedBattleSquaddieId != battleSquaddieToHighlightId
@@ -352,8 +360,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 gameEngineState: gameEngineState
             });
         }
-
-        this.highlightSquaddieOnMap(gameEngineState, battleSquaddieToHighlightId);
     }
 
     private highlightSquaddieOnMap = (state: GameEngineState, battleSquaddieToHighlightId: string) => {
