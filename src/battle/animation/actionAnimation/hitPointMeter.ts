@@ -1,4 +1,4 @@
-import {TextBox, TextBoxHelper} from "../../../ui/textBox";
+import {TextBox, TextBoxService} from "../../../ui/textBox";
 import {RectAreaService} from "../../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../../ui/rectangle";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
@@ -100,12 +100,12 @@ export class HitPointMeter {
     }
 
     private drawHitPointsText(graphicsContext: GraphicsContext) {
-        TextBoxHelper.draw(this.currentHitPointsTextBox, graphicsContext);
-        TextBoxHelper.draw(this.maxHitPointsTextBox, graphicsContext);
+        TextBoxService.draw(this.currentHitPointsTextBox, graphicsContext);
+        TextBoxService.draw(this.maxHitPointsTextBox, graphicsContext);
     }
 
     private createCurrentHitPointTextBox(currentHitPoints: number) {
-        this.currentHitPointsTextBox = TextBoxHelper.new({
+        this.currentHitPointsTextBox = TextBoxService.new({
             text: currentHitPoints.toString(),
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
@@ -119,7 +119,7 @@ export class HitPointMeter {
     }
 
     private createMaxHitPointTextBox() {
-        this.maxHitPointsTextBox = TextBoxHelper.new({
+        this.maxHitPointsTextBox = TextBoxService.new({
             text: `/${this.maxHitPoints}`,
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,

@@ -7,7 +7,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
-import {TextBoxHelper} from "../../ui/textBox";
+import {TextBoxService} from "../../ui/textBox";
 import {GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelService} from "../../ui/label";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER, WINDOW_SPACING1,} from "../../ui/constants";
@@ -124,7 +124,7 @@ export class BattleSquaddieSelectedHUD {
         this.selectedBattleSquaddieId = battleId;
 
         if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
-            TextBoxHelper.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
+            TextBoxService.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
         }
 
         const {
@@ -197,7 +197,7 @@ export class BattleSquaddieSelectedHUD {
         this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state);
         if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
-            TextBoxHelper.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
+            TextBoxService.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
         }
         if (this.shouldDrawNextButton(state)) {
             LabelService.draw(this.nextSquaddieButton, graphicsContext);
@@ -436,7 +436,7 @@ export class BattleSquaddieSelectedHUD {
             this.affiliateIcon.draw(graphicsContext);
         }
 
-        TextBoxHelper.draw(this.graphicsObjects.textBoxes.SQUADDIE_ID, graphicsContext);
+        TextBoxService.draw(this.graphicsObjects.textBoxes.SQUADDIE_ID, graphicsContext);
     }
 
     private drawActionPoints(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -447,7 +447,7 @@ export class BattleSquaddieSelectedHUD {
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
-        TextBoxHelper.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.ACTION_POINTS], graphicsContext);
+        TextBoxService.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.ACTION_POINTS], graphicsContext);
         graphicsContext.pop();
 
         const barFillColor = {
@@ -481,7 +481,7 @@ export class BattleSquaddieSelectedHUD {
         const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
-        TextBoxHelper.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.HIT_POINTS], graphicsContext);
+        TextBoxService.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.HIT_POINTS], graphicsContext);
         graphicsContext.pop();
 
         const barFillColor = {
@@ -544,11 +544,11 @@ export class BattleSquaddieSelectedHUD {
     private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration: number | undefined) {
         if (
             this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
-            || TextBoxHelper.isDone(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)
+            || TextBoxService.isDone(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)
             || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== differentSquaddieWarningText
         ) {
             this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX =
-                TextBoxHelper.new({
+                TextBoxService.new({
                         text: differentSquaddieWarningText,
                         textSize: 24,
                         fontColor: [0, 0, 192],
@@ -565,7 +565,7 @@ export class BattleSquaddieSelectedHUD {
 
     private generateSquaddieIdText(squaddieTemplate: SquaddieTemplate) {
         this.graphicsObjects.textBoxes.SQUADDIE_ID =
-            TextBoxHelper.new({
+            TextBoxService.new({
                 text: squaddieTemplate.squaddieId.name,
                 textSize: 24,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 10, 192],
@@ -685,7 +685,7 @@ export class BattleSquaddieSelectedHUD {
                                 graphicsContext: GraphicsContext,
                             }
     ) {
-        const textBox = TextBoxHelper.new({
+        const textBox = TextBoxService.new({
             text,
             textSize,
             fontColor,
@@ -696,7 +696,7 @@ export class BattleSquaddieSelectedHUD {
             })
         });
 
-        TextBoxHelper.draw(textBox, graphicsContext);
+        TextBoxService.draw(textBox, graphicsContext);
 
         const iconAttempt = state.resourceHandler.getResource(iconResourceKey);
         const iconImage = new ImageUI({
@@ -776,7 +776,7 @@ export class BattleSquaddieSelectedHUD {
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
         this.graphicsObjects.textBoxes.ACTION_POINTS =
-            TextBoxHelper.new({
+            TextBoxService.new({
                 text: `Actions: ${actionPointsRemaining}`,
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 96],
@@ -793,7 +793,7 @@ export class BattleSquaddieSelectedHUD {
         const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
 
         this.graphicsObjects.textBoxes.HIT_POINTS =
-            TextBoxHelper.new({
+            TextBoxService.new({
                 text: `HP: ${currentHitPoints} / ${maxHitPoints}`,
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 128],

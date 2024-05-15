@@ -50,6 +50,7 @@ import {KeyButtonName} from "../../utils/keyboardConfig";
 import {BattleHUDService} from "../hud/battleHUD";
 import {MouseButton} from "../../utils/mouseConfig";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -932,6 +933,7 @@ describe('BattleSquaddieSelector', () => {
         let gameEngineState: GameEngineState;
         let startingMouseX: number;
         let startingMouseY: number;
+        let messageSpy: jest.SpyInstance;
 
         beforeEach(() => {
             missionMap = new MissionMap({
@@ -1038,6 +1040,8 @@ describe('BattleSquaddieSelector', () => {
             });
 
             expect(selectSquaddieAndDrawWindowSpy.mock.calls[0][0].battleId).toEqual(playerSoldierBattleSquaddie.battleSquaddieId);
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
         });
 
         it('ignores movement commands issued to other squaddies', () => {
@@ -1091,6 +1095,22 @@ describe('BattleSquaddieSelector', () => {
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy();
         });
+
+        it('sends a message indicating which squaddie is still acting', () => {
+            const location = gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(interruptBattleSquaddie.battleSquaddieId);
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState: gameEngineState,
+                q: location.mapLocation.q,
+                r: location.mapLocation.r,
+                camera
+            });
+
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
+                gameEngineState,
+            })
+        })
     });
 
     it('will send key pressed events to the HUD', () => {

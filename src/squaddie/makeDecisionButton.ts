@@ -2,7 +2,7 @@ import {RectArea, RectAreaService} from "../ui/rectArea";
 import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {TextBox, TextBoxHelper} from "../ui/textBox";
+import {TextBox, TextBoxService} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
@@ -96,7 +96,7 @@ export class MakeDecisionButton {
         }
 
         let actionDescription = this.actionTemplate.name;
-        const buttonTextBox: TextBox = TextBoxHelper.new({
+        const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),
                 top: RectAreaService.bottom(this.buttonIcon.area) + DECISION_BUTTON_LAYOUT_COLORS.templateNameTextTopMargin,
@@ -107,7 +107,7 @@ export class MakeDecisionButton {
             text: actionDescription,
             textSize: DECISION_BUTTON_LAYOUT_COLORS.templateNameTextSize,
         });
-        TextBoxHelper.draw(buttonTextBox, graphicsContext);
+        TextBoxService.draw(buttonTextBox, graphicsContext);
 
         let infoTextTop = RectAreaService.bottom(buttonTextBox.area) + DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin;
         if (this.shouldDrawActionPoints()) {
@@ -156,7 +156,7 @@ export class MakeDecisionButton {
     }
 
     drawInfoTextBox = (graphicsContext: GraphicsContext, top: number, text: string) => {
-        const buttonTextBox: TextBox = TextBoxHelper.new({
+        const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),
                 top: top,
@@ -167,7 +167,7 @@ export class MakeDecisionButton {
             text,
             textSize: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize,
         });
-        TextBoxHelper.draw(buttonTextBox, graphicsContext);
+        TextBoxService.draw(buttonTextBox, graphicsContext);
     }
 
     createButtonGraphic(resourceHandler: ResourceHandler) {

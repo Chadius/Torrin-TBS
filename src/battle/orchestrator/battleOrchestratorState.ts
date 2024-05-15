@@ -8,7 +8,7 @@ import {getValidValueOrDefault} from "../../utils/validityCheck";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {BattleHUDState, BattleHUDStateService} from "../hud/battleHUDState";
 import {FileAccessHUDService} from "../hud/fileAccessHUD";
-import {BattleHUD, BattleHUDService} from "../hud/battleHUD";
+import {BattleHUD, BattleHUDService, PopupWindowType} from "../hud/battleHUD";
 
 
 export class BattleOrchestratorState {
@@ -68,6 +68,9 @@ export class BattleOrchestratorState {
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
             battleSquaddieSelectedHUD: other.battleHUD.battleSquaddieSelectedHUD,
             fileAccessHUD: FileAccessHUDService.new({}),
+            popupWindows: {
+                [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined
+            }
         });
         this.numberGenerator = other.numberGenerator.clone();
     }

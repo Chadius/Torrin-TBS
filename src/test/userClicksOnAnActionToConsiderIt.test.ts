@@ -25,7 +25,7 @@ import {CampaignService} from "../campaign/campaign";
 import {MakeDecisionButton} from "../squaddie/makeDecisionButton";
 import {RectAreaService} from "../ui/rectArea";
 import {SquaddieTurnService} from "../squaddie/turn";
-import {TextBoxHelper} from "../ui/textBox";
+import {TextBoxService} from "../ui/textBox";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
 import {OrchestratorComponentMouseEventType} from "../battle/orchestrator/battleOrchestratorComponent";
@@ -142,7 +142,7 @@ describe('user clicks on an action to consider it', () => {
             mouseButton: MouseButton.ACCEPT,
         });
 
-        expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
+        expect(TextBoxService.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
         expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual("Need 2 action points");
         expect(battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()).toBeFalsy();
     });
@@ -156,7 +156,7 @@ describe('user clicks on an action to consider it', () => {
             mouseButton: MouseButton.ACCEPT,
         });
 
-        expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeTruthy();
+        expect(TextBoxService.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeTruthy();
         expect(battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()).toBeTruthy();
         expect(battleSquaddieSelectedHUD.getSquaddieSquaddieAction()).toEqual(attackAction);
         expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toEqual(

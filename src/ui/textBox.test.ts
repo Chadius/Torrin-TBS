@@ -1,4 +1,4 @@
-import {TextBox, TextBoxHelper} from "./textBox";
+import {TextBox, TextBoxService} from "./textBox";
 import {RectAreaService} from "./rectArea";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 
@@ -13,7 +13,7 @@ describe('Pop up text', () => {
 
     it('will try to draw the text for a given amount of time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const textBox: TextBox = TextBoxHelper.new({
+        const textBox: TextBox = TextBoxService.new({
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
@@ -26,17 +26,17 @@ describe('Pop up text', () => {
             duration: 1000,
         });
 
-        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
-        expect(TextBoxHelper.isDone(textBox,)).toBeFalsy();
+        TextBoxService.draw(textBox, mockedP5GraphicsContext);
+        expect(TextBoxService.isDone(textBox,)).toBeFalsy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
+        TextBoxService.draw(textBox, mockedP5GraphicsContext);
         expect(p5TextSpy).toBeCalledTimes(1);
-        expect(TextBoxHelper.isDone(textBox,)).toBeTruthy();
+        expect(TextBoxService.isDone(textBox,)).toBeTruthy();
     });
 
     it('will draw the text if there is no duration', () => {
-        const textBox: TextBox = TextBoxHelper.new({
+        const textBox: TextBox = TextBoxService.new({
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
@@ -51,11 +51,11 @@ describe('Pop up text', () => {
 
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
+        TextBoxService.draw(textBox, mockedP5GraphicsContext);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
+        TextBoxService.draw(textBox, mockedP5GraphicsContext);
         expect(p5TextSpy).toBeCalledTimes(2);
-        expect(TextBoxHelper.isDone(textBox,)).toBeFalsy();
+        expect(TextBoxService.isDone(textBox,)).toBeFalsy();
     });
 });

@@ -25,7 +25,7 @@ import {BattlePhaseState, BattlePhaseStateService} from "../battle/orchestratorC
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {CampaignService} from "../campaign/campaign";
 import {RectAreaService} from "../ui/rectArea";
-import {TextBoxHelper} from "../ui/textBox";
+import {TextBoxService} from "../ui/textBox";
 import {ActionsThisRound} from "../battle/history/actionsThisRound";
 import {MouseButton} from "../utils/mouseConfig";
 
@@ -270,7 +270,7 @@ describe('User clicks on a squaddie', () => {
             mouseButton: MouseButton.ACCEPT,
         });
 
-        expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
+        expect(TextBoxService.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
         expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual("Need 9001 action points");
     });
 
@@ -303,7 +303,7 @@ describe('User clicks on a squaddie', () => {
 
         battleSquaddieSelectedHUD.drawUncontrollableSquaddieWarning(gameEngineState);
 
-        expect(TextBoxHelper.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
+        expect(TextBoxService.isDone(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)).toBeFalsy();
         expect(battleSquaddieSelectedHUD.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text).toEqual(`You cannot control ${enemySquaddieTemplate.squaddieId.name}`);
     });
 });

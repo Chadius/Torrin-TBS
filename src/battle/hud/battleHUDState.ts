@@ -1,6 +1,7 @@
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
 
+
 export interface BattleHUDState {
     hudMode: BATTLE_HUD_MODE;
     hoveredBattleSquaddieId: string;
@@ -25,7 +26,7 @@ export const BattleHUDStateService = {
     },
     clone: (battleHUDState: BattleHUDState): BattleHUDState => {
         return newBattleHUDState({...battleHUDState});
-    }
+    },
 }
 
 const newBattleHUDState = ({

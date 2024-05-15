@@ -37,7 +37,6 @@ export class MessageBoard {
     sendMessage = (message: MessageBoardMessage) => {
         this.getListenersByMessageType(message.type).forEach(listener => listener.receiveMessage(message));
     }
-
     removeListenerById = (messageBoardListenerId: string) => {
         const indexToDelete = this.listeners.findIndex(listener => listener.id === messageBoardListenerId)
 

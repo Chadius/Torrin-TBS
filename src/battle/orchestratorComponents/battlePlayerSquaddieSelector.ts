@@ -51,6 +51,7 @@ import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestrator
 import {FileAccessHUDService} from "../hud/fileAccessHUD";
 import {MouseButton} from "../../utils/mouseConfig";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -333,32 +334,51 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private reactToSelectingSquaddieThenSelectingSquaddie(gameEngineState: GameEngineState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieLocation, mouseX: number, mouseY: number) {
-        const battleSquaddieToHighlightId: string = OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
-            ? gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
-            : squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
+        if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
+            this.reactToSelectingSquaddieThenSelectingSquaddieDuringTurn(gameEngineState, squaddieClickedOnInfoAndMapLocation, mouseX, mouseY)
+            return
+        }
+        this.reactToSelectingSquaddieThenSelectingSquaddieNotDuringTurn(gameEngineState, squaddieClickedOnInfoAndMapLocation, mouseX, mouseY)
+    }
 
-        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)) {
-            this.highlightSquaddieOnMap(gameEngineState, battleSquaddieToHighlightId);
+    private reactToSelectingSquaddieThenSelectingSquaddieNotDuringTurn(gameEngineState: GameEngineState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieLocation, mouseX: number, mouseY: number) {
+        const battleSquaddieToHighlightId: string = squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
+        const differentSquaddieWasSelected: boolean = this.selectedBattleSquaddieId != battleSquaddieToHighlightId
+
+        this.highlightSquaddieOnMap(gameEngineState, battleSquaddieToHighlightId);
+
+        if (!differentSquaddieWasSelected) {
+            return
         }
 
-        if (
-            !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
-            && this.selectedBattleSquaddieId != battleSquaddieToHighlightId
-        ) {
-            this.selectSquaddieAndOpenHUD(gameEngineState, squaddieClickedOnInfoAndMapLocation.battleSquaddieId, mouseX, mouseY);
+        this.selectSquaddieAndOpenHUD(gameEngineState, squaddieClickedOnInfoAndMapLocation.battleSquaddieId, mouseX, mouseY);
 
-            const {
-                squaddieTemplate,
-                battleSquaddie,
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleSquaddieToHighlightId
-            ));
-            addActorActionForPlayableSquaddie({
-                battleSquaddie,
-                squaddieTemplate,
-                gameEngineState: gameEngineState
-            });
+        const {
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieToHighlightId
+        ));
+        addActorActionForPlayableSquaddie({
+            battleSquaddie,
+            squaddieTemplate,
+            gameEngineState: gameEngineState
+        });
+    }
+
+    private reactToSelectingSquaddieThenSelectingSquaddieDuringTurn(gameEngineState: GameEngineState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieLocation, mouseX: number, mouseY: number) {
+        const battleSquaddieToHighlightId: string = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
+        const differentSquaddieWasSelected: boolean = battleSquaddieToHighlightId !== squaddieClickedOnInfoAndMapLocation.battleSquaddieId
+
+        if (
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
+            && differentSquaddieWasSelected
+        ) {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
+                gameEngineState
+            })
         }
     }
 

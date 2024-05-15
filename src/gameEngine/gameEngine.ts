@@ -212,6 +212,10 @@ export class GameEngine {
             battleHUDListener,
             MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
         );
+        this.gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN
+        )
     }
 
     private async lazyLoadResourceHandler({

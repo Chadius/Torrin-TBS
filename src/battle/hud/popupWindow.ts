@@ -1,0 +1,119 @@
+import {Label, LabelService} from "../../ui/label";
+import {RectAreaService} from "../../ui/rectArea";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {convertWorldCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {BattleCamera} from "../battleCamera";
+import {isValidValue} from "../../utils/validityCheck";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+
+export interface PopupWindow {
+    status: PopupWindowStatus
+    label: Label
+    worldLocation: {
+        x: number,
+        y: number
+    },
+    camera: BattleCamera,
+    setStatusInactiveTimestamp?: number
+}
+
+export enum PopupWindowStatus {
+    INACTIVE = "INACTIVE",
+    ACTIVE = "ACTIVE",
+}
+
+export const PopupWindowService = {
+    new: ({
+              status,
+              label,
+              camera,
+          }: {
+        status?: PopupWindowStatus
+        label?: Label
+        camera?: BattleCamera
+    }): PopupWindow => {
+        const labelToAdd = label ?? LabelService.new({
+            area: RectAreaService.new({left: 0, right: 100, top: 0, bottom: 100,}),
+            fontColor: [0, 0, 100],
+            textSize: 10,
+            text: "",
+            padding: 0
+        })
+
+        return {
+            status: status ?? PopupWindowStatus.INACTIVE,
+            label: labelToAdd,
+            worldLocation: {
+                x: RectAreaService.left(labelToAdd.rectangle.area),
+                y: RectAreaService.top(labelToAdd.rectangle.area)
+            },
+            camera
+        }
+    },
+    changeStatus: (popup: PopupWindow, status: PopupWindowStatus) => {
+        popup.status = status
+    },
+    setCamera: (popup: PopupWindow, camera: BattleCamera) => {
+        popup.camera = camera
+    },
+    draw: (popup: PopupWindow, graphicsContext: GraphicsContext) => {
+        if (
+            isValidValue(popup.setStatusInactiveTimestamp)
+            && Date.now() >= popup.setStatusInactiveTimestamp
+        ) {
+            popup.status = PopupWindowStatus.INACTIVE
+        }
+
+        if (popup.status !== PopupWindowStatus.ACTIVE) {
+            return;
+        }
+
+        if (isValidValue(popup.camera)) {
+            movePopupOnScreen(popup, popup.camera);
+        }
+        LabelService.draw(popup.label, graphicsContext)
+    },
+    setInactiveAfterTimeElapsed: (popup: PopupWindow, millisecondDelay: number) => {
+        popup.setStatusInactiveTimestamp = Date.now() + millisecondDelay
+    }
+}
+
+const conformXCoordinateToScreen = (left: number, popup: PopupWindow) => {
+    const width = RectAreaService.width(popup.label.rectangle.area);
+    if (left < 0) {
+        left = 0;
+    } else if (left + width >= ScreenDimensions.SCREEN_WIDTH) {
+        left = ScreenDimensions.SCREEN_WIDTH - width
+    }
+    return left;
+};
+
+const conformYCoordinateToScreen = (top: number, popup: PopupWindow) => {
+    const height = RectAreaService.height(popup.label.rectangle.area);
+    if (top < 0) {
+        top = 0;
+    } else if (top + height >= ScreenDimensions.SCREEN_HEIGHT) {
+        top = ScreenDimensions.SCREEN_HEIGHT - height
+    }
+    return top;
+};
+
+const movePopupOnScreen = (popup: PopupWindow, camera: BattleCamera) => {
+    const screenCoordinates = convertWorldCoordinatesToScreenCoordinates(
+        popup.worldLocation.x,
+        popup.worldLocation.y,
+        ...camera.getCoordinates()
+    );
+
+    const xCoordinate = conformXCoordinateToScreen(screenCoordinates[0], popup);
+    const yCoordinate = conformYCoordinateToScreen(screenCoordinates[1], popup);
+
+    const textBoxXOffset = RectAreaService.left(popup.label.textBox.area) - RectAreaService.left(popup.label.rectangle.area)
+    const textBoxYOffset = RectAreaService.top(popup.label.textBox.area) - RectAreaService.top(popup.label.rectangle.area)
+
+    RectAreaService.move(popup.label.rectangle.area, {left: xCoordinate, top: yCoordinate})
+    RectAreaService.move(popup.label.textBox.area, {
+        left: xCoordinate + textBoxXOffset,
+        top: yCoordinate + textBoxYOffset
+    })
+};

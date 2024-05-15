@@ -15,7 +15,7 @@ import {
 } from "../ui/constants";
 import {RectArea, RectAreaService} from "../ui/rectArea";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {TextBox, TextBoxHelper} from "../ui/textBox";
+import {TextBox, TextBoxService} from "../ui/textBox";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle, RectangleHelper} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
@@ -220,9 +220,9 @@ export class TitleScreen implements GameEngineComponent {
         RectangleHelper.draw(this.lazyLoadBackground(), graphicsContext);
         this.drawTitleBanner(graphicsContext);
 
-        TextBoxHelper.draw(this.lazyLoadTitle(), graphicsContext);
-        TextBoxHelper.draw(this.lazyLoadByLine(), graphicsContext);
-        TextBoxHelper.draw(this.lazyLoadGameDescription(), graphicsContext);
+        TextBoxService.draw(this.lazyLoadTitle(), graphicsContext);
+        TextBoxService.draw(this.lazyLoadByLine(), graphicsContext);
+        TextBoxService.draw(this.lazyLoadGameDescription(), graphicsContext);
 
         this.updateStartGameButton(graphicsContext).draw(graphicsContext);
         this.updateContinueGameButton(state, graphicsContext).draw(graphicsContext);
@@ -316,7 +316,7 @@ export class TitleScreen implements GameEngineComponent {
 
     private lazyLoadTitle() {
         if (this.titleText === undefined) {
-            this.titleText = TextBoxHelper.new({
+            this.titleText = TextBoxService.new({
                 area: RectAreaService.new({
                     startColumn: TitleScreenDesign.title.startColumn,
                     endColumn: TitleScreenDesign.title.endColumn,
@@ -335,7 +335,7 @@ export class TitleScreen implements GameEngineComponent {
 
     private lazyLoadGameDescription() {
         if (this.gameDescription === undefined) {
-            this.gameDescription = TextBoxHelper.new({
+            this.gameDescription = TextBoxService.new({
                 area: RectAreaService.new({
                     startColumn: TitleScreenDesign.gameDescription.startColumn,
                     endColumn: TitleScreenDesign.gameDescription.endColumn,
@@ -356,7 +356,7 @@ export class TitleScreen implements GameEngineComponent {
 
     private lazyLoadByLine() {
         if (!isValidValue(this.byLine)) {
-            this.byLine = TextBoxHelper.new({
+            this.byLine = TextBoxService.new({
                 area: RectAreaService.new({
                     startColumn: TitleScreenDesign.byLine.startColumn,
                     endColumn: TitleScreenDesign.byLine.endColumn,
@@ -610,7 +610,7 @@ export class TitleScreen implements GameEngineComponent {
             this.setSirCamilDescriptionText();
         }
 
-        TextBoxHelper.draw(this.sirCamilUIElements.descriptionText, graphicsContext);
+        TextBoxService.draw(this.sirCamilUIElements.descriptionText, graphicsContext);
 
         if (this.areResourcesLoaded() === false) {
             return;
@@ -654,7 +654,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setSirCamilDescriptionText() {
-        this.sirCamilUIElements.descriptionText = TextBoxHelper.new({
+        this.sirCamilUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.right(this.sirCamilUIElements.iconArea) + WINDOW_SPACING1,
                 top: this.sirCamilUIElements.iconArea.top,
@@ -677,7 +677,7 @@ export class TitleScreen implements GameEngineComponent {
         if (this.torrinUIElements.descriptionText === undefined) {
             this.setTorrinDescriptionText();
         }
-        TextBoxHelper.draw(this.torrinUIElements.descriptionText, graphicsContext);
+        TextBoxService.draw(this.torrinUIElements.descriptionText, graphicsContext);
 
         if (this.areResourcesLoaded() === false) {
             return;
@@ -710,7 +710,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setTorrinDescriptionText() {
-        this.torrinUIElements.descriptionText = TextBoxHelper.new({
+        this.torrinUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.right(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
                 top: this.torrinUIElements.iconArea.top,
@@ -743,7 +743,7 @@ export class TitleScreen implements GameEngineComponent {
         if (this.demonUIElements.descriptionText === undefined) {
             this.setDemonDescriptionText();
         }
-        TextBoxHelper.draw(this.demonUIElements.descriptionText, graphicsContext);
+        TextBoxService.draw(this.demonUIElements.descriptionText, graphicsContext);
 
         if (this.areResourcesLoaded() === false) {
             return;
@@ -759,7 +759,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setDemonDescriptionText() {
-        this.demonUIElements.descriptionText = TextBoxHelper.new({
+        this.demonUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.right(this.demonUIElements.iconArea) + WINDOW_SPACING1,
                 top: this.demonUIElements.iconArea.top,

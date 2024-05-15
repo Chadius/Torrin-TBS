@@ -31,6 +31,7 @@ import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {InitializeBattle} from "./initializeBattle";
 import {PlayerHudController} from "../orchestratorComponents/playerHudController";
+import {BattleHUDService} from "../hud/battleHUD";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -170,6 +171,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (this.uiControlSettings.displayBattleMap === true) {
             this.displayBattleMap(state, graphicsContext);
+            BattleHUDService.draw(state.battleOrchestratorState.battleHUD, graphicsContext)
         }
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {

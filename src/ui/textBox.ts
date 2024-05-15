@@ -26,7 +26,7 @@ export interface TextBox {
     text: string;
 }
 
-export const TextBoxHelper = {
+export const TextBoxService = {
     new: ({
               textSize,
               fontColor,

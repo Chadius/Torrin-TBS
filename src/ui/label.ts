@@ -1,5 +1,5 @@
 import {RectAreaService} from "./rectArea";
-import {TextBox, TextBoxArguments, TextBoxHelper} from "./textBox";
+import {TextBox, TextBoxArguments, TextBoxService} from "./textBox";
 import {Rectangle, RectangleArguments, RectangleHelper} from "./rectangle";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
@@ -21,7 +21,7 @@ export const LabelService = {
             margin: options.padding
         });
 
-        let textBox = TextBoxHelper.new({
+        let textBox = TextBoxService.new({
             ...options,
             ...{
                 area: textBoxWithPadding,
@@ -35,6 +35,6 @@ export const LabelService = {
     },
     draw: (label: Label, graphicsContext: GraphicsContext): void => {
         RectangleHelper.draw(label.rectangle, graphicsContext);
-        TextBoxHelper.draw(label.textBox, graphicsContext);
+        TextBoxService.draw(label.textBox, graphicsContext);
     }
 }

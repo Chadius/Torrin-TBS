@@ -4,11 +4,13 @@ export type MessageBoardMessage =
     MessageBoardMessageBase
     | MessageBoardMessageStartedPlayerPhase
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
+    | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
     STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
+    PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
 }
 
 export interface MessageBoardMessageBase {
@@ -23,5 +25,10 @@ export interface MessageBoardMessageStartedPlayerPhase {
 
 export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
     type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE;
+    gameEngineState: GameEngineState;
+}
+
+export interface MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn {
+    type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN;
     gameEngineState: GameEngineState;
 }
