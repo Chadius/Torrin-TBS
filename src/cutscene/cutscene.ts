@@ -13,6 +13,7 @@ import {SplashScreen, SplashScreenService} from "./splashScreen";
 import {SplashScreenPlayerService, SplashScreenPlayerState} from "./splashScreenPlayer";
 import {isValidValue} from "../utils/validityCheck";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
+import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -131,6 +132,39 @@ export const CutsceneService = {
             cutscene.fastForwardButton.draw(graphicsContext);
         }
     },
+    keyboardPressed(cutscene: Cutscene, keyCode: number, context: TextSubstitutionContext): void {
+        if (KeyWasPressed(KeyButtonName.CANCEL, keyCode)) {
+            toggleFastForwardAndUpdateFFButton(cutscene, cutscene.fastForwardButton)
+            return;
+        }
+
+        if (!KeyWasPressed(KeyButtonName.ACCEPT, keyCode)) {
+            return;
+        }
+
+        if (cutscene.currentDirection === undefined) {
+            gotoNextDirection(cutscene);
+            startDirection(cutscene, context);
+            return;
+        }
+
+        switch (cutscene.currentDirection.type) {
+            case CutsceneActionPlayerType.DIALOGUE:
+                DialoguePlayerService.keyPressed(
+                    cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as DialoguePlayerState,
+                    keyCode
+                )
+                break;
+            case CutsceneActionPlayerType.SPLASH_SCREEN:
+                SplashScreenPlayerService.keyPressed(
+                    cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as SplashScreenPlayerState,
+                    keyCode
+                )
+                break;
+        }
+
+        advanceToNextCutsceneDirectionIfFinished(cutscene, context);
+    },
     mouseMoved: (cutscene: Cutscene, mouseX: number, mouseY: number) => {
         if (cutscene.fastForwardButton.mouseMoved(mouseX, mouseY, this) === true) {
             return;
@@ -162,24 +196,7 @@ export const CutsceneService = {
                 break;
         }
 
-        let directionIsFinished: boolean = false;
-        switch (cutscene.currentDirection.type) {
-            case CutsceneActionPlayerType.DIALOGUE:
-                directionIsFinished = DialoguePlayerService.isFinished(
-                    cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as DialoguePlayerState,
-                )
-                break;
-            case CutsceneActionPlayerType.SPLASH_SCREEN:
-                directionIsFinished = SplashScreenPlayerService.isFinished(
-                    cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as SplashScreenPlayerState,
-                )
-                break;
-        }
-
-        if (directionIsFinished) {
-            gotoNextDirection(cutscene);
-            startDirection(cutscene, context);
-        }
+        advanceToNextCutsceneDirectionIfFinished(cutscene, context);
     },
     loadResources: (cutscene: Cutscene, resourceHandler: ResourceHandler) => {
         if (!isValidValue(resourceHandler)) {
@@ -311,7 +328,6 @@ const startDirection = (cutscene: Cutscene, context: TextSubstitutionContext): v
             case CutsceneActionPlayerType.SPLASH_SCREEN:
                 return SplashScreenPlayerService.start(
                     cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as SplashScreenPlayerState,
-                    context,
                 );
         }
     }
@@ -391,6 +407,17 @@ const getResourceLocators = (cutscene: Cutscene, direction: CutsceneDirection): 
             throw new Error(`Unknown cutscene direction type ${direction}`);
     }
 }
+
+const toggleFastForwardAndUpdateFFButton = (cutscene: Cutscene, button: Button) => {
+    toggleFastForwardMode(cutscene);
+    if (isFastForward(cutscene)) {
+        button.setStatus(ButtonStatus.ACTIVE);
+    } else {
+        button.setStatus(ButtonStatus.READY);
+    }
+    return;
+};
+
 const setUpFastForwardButton = (cutscene: Cutscene) => {
     cutscene.fastForwardPreviousTimeTick = undefined;
 
@@ -407,13 +434,8 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
     });
 
     const handler = (mouseX: number, mouseY: number, button: Button): {} => {
-        toggleFastForwardMode(cutscene);
-        if (isFastForward(cutscene)) {
-            button.setStatus(ButtonStatus.ACTIVE);
-        } else {
-            button.setStatus(ButtonStatus.READY);
-        }
-        return;
+        toggleFastForwardAndUpdateFFButton(cutscene, button);
+        return {}
     }
 
     cutscene.fastForwardButton = new Button({
@@ -507,3 +529,24 @@ const activateFastForwardMode = (cutscene: Cutscene): void => {
 const deactivateFastForwardMode = (cutscene: Cutscene): void => {
     cutscene.fastForwardPreviousTimeTick = undefined;
 }
+
+const advanceToNextCutsceneDirectionIfFinished = (cutscene: Cutscene, context: TextSubstitutionContext) => {
+    let directionIsFinished: boolean = false;
+    switch (cutscene.currentDirection.type) {
+        case CutsceneActionPlayerType.DIALOGUE:
+            directionIsFinished = DialoguePlayerService.isFinished(
+                cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as DialoguePlayerState,
+            )
+            break;
+        case CutsceneActionPlayerType.SPLASH_SCREEN:
+            directionIsFinished = SplashScreenPlayerService.isFinished(
+                cutscene.cutscenePlayerStateById[cutscene.currentDirection.id] as SplashScreenPlayerState,
+            )
+            break;
+    }
+
+    if (directionIsFinished) {
+        gotoNextDirection(cutscene);
+        startDirection(cutscene, context);
+    }
+};

@@ -1,29 +1,50 @@
-import {SplashScreenPlayerService} from "./splashScreenPlayer";
-import {SplashScreenService} from "./splashScreen";
+import {SplashScreenPlayerService, SplashScreenPlayerState} from "./splashScreenPlayer";
+import {SplashScreen, SplashScreenService} from "./splashScreen";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
+import {config} from "../configuration/config";
+import {KeyButtonName} from "../utils/keyboardConfig";
 
 describe('splash screen', () => {
-    it('should mark as finished if clicked', () => {
-        const titleScreenData = SplashScreenService.new({
-            id: "1",
-            screenImageResourceKey: "titleScreen",
-        });
+    describe('splash screen finishes', () => {
+        let titleScreenData: SplashScreen
+        let player: SplashScreenPlayerState
+        beforeEach(() => {
+            titleScreenData = SplashScreenService.new({
+                id: "1",
+                screenImageResourceKey: "titleScreen",
+            });
 
-        const player = SplashScreenPlayerService.new({
-            splashScreen: titleScreenData,
-        });
+            player = SplashScreenPlayerService.new({
+                splashScreen: titleScreenData,
+            });
+        })
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        SplashScreenPlayerService.start(player, {});
-        expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy();
-        expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy();
+        it('should mark as finished if clicked', () => {
+            const dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => 0);
+            SplashScreenPlayerService.start(player);
+            expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy();
+            expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy();
 
-        SplashScreenPlayerService.mouseClicked(player, 100, 100);
+            SplashScreenPlayerService.mouseClicked(player, 100, 100);
 
-        expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy();
-        expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy();
-    });
+            expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy();
+            expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy();
+            expect(dateSpy).toBeCalled()
+            dateSpy.mockRestore()
+        })
+
+        it('should mark as finished if accept key is pressed', () => {
+            SplashScreenPlayerService.start(player);
+            expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy();
+            expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy();
+
+            SplashScreenPlayerService.keyPressed(player, config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0])
+
+            expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy();
+            expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy();
+        })
+    })
 
     it('should ignore input until the animation Duration passes', () => {
         const titleScreenData = SplashScreenService.new({
@@ -37,7 +58,7 @@ describe('splash screen', () => {
         });
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        SplashScreenPlayerService.start(player, {});
+        SplashScreenPlayerService.start(player);
         expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy();
         expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy();
 

@@ -10,6 +10,8 @@ import {SplashScreen, SplashScreenService} from "./splashScreen";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
 import {MockedP5GraphicsContext, mockResourceHandler} from "../utils/test/mocks";
 import {RectAreaService} from "../ui/rectArea";
+import {config} from "../configuration/config";
+import {KeyButtonName} from "../utils/keyboardConfig";
 
 describe('Cutscene', () => {
     let splash1: SplashScreen;
@@ -91,6 +93,21 @@ describe('Cutscene', () => {
 
         expect(dinnerDate.currentDirection).toEqual(splash1);
         CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
+        expect(dinnerDate.currentDirection).toEqual(splash2);
+    });
+
+    it('should move to the next action when the keyboard presses accept', () => {
+        const dinnerDate: Cutscene = CutsceneService.new({
+            directions: [
+                splash1,
+                splash2
+            ]
+        });
+
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+
+        expect(dinnerDate.currentDirection).toEqual(splash1);
+        CutsceneService.keyboardPressed(dinnerDate, config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0], {})
         expect(dinnerDate.currentDirection).toEqual(splash2);
     });
 
@@ -304,6 +321,7 @@ describe('Cutscene', () => {
         let waiterGreets: Dialogue;
         let waiterHandsMenu: Dialogue;
         let waiterAsks: Dialogue;
+        let dinnerDate: Cutscene
 
         beforeEach(() => {
             waiterGreets = DialogueService.new({
@@ -327,16 +345,16 @@ describe('Cutscene', () => {
                 animationDuration: 100,
                 answers: ["Yes", "No"]
             });
-        });
 
-        it('should enter fast-forward mode when you click on the fast forward button', () => {
-            const dinnerDate = CutsceneService.new({
+            dinnerDate = CutsceneService.new({
                 directions: [
                     waiterGreets,
                     waiterHandsMenu
                 ],
-            });
+            })
+        });
 
+        it('should enter fast-forward mode when you click on the fast forward button', () => {
             CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             CutsceneService.mouseClicked(
                 dinnerDate,
@@ -347,14 +365,17 @@ describe('Cutscene', () => {
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy();
         });
 
-        it('should auto progress dialog messages when in fast-forward mode', () => {
-            const dinnerDate = CutsceneService.new({
-                directions: [
-                    waiterGreets,
-                    waiterHandsMenu
-                ],
-            });
+        it('should enter fast-forward mode when you press the cancel key', () => {
+            CutsceneService.start(dinnerDate, mockResourceHandler(), {})
+            CutsceneService.keyboardPressed(
+                dinnerDate,
+                config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                {}
+            )
+            expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()
+        });
 
+        it('should auto progress dialog messages when in fast-forward mode', () => {
             CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             CutsceneService.mouseClicked(
@@ -372,13 +393,6 @@ describe('Cutscene', () => {
         });
 
         it('should stop fast-forward mode if the dialog is on the last action', () => {
-            const dinnerDate = CutsceneService.new({
-                directions: [
-                    waiterGreets,
-                    waiterHandsMenu
-                ],
-            });
-
             CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy();

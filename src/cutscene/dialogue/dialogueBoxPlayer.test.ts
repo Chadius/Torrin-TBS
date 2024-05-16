@@ -9,30 +9,61 @@ import {BattleStateService} from "../../battle/orchestrator/battleState";
 import {Dialogue, DialogueService} from "./dialogue";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {config} from "../../configuration/config";
+import {KeyButtonName} from "../../utils/keyboardConfig";
 
 describe('dialogue box player', () => {
-    it('should wait for a certain amount of time before saying it is finished', () => {
-        const dialogue = DialogueService.new({
-            id: "1",
-            speakerName: "Doorman",
-            speakerText: "Welcome, come inside",
-            animationDuration: 500,
-            speakerPortraitResourceKey: "",
+    describe('dialog box without answers finishes', () => {
+        let dialogue: Dialogue;
+        let dialoguePlayerState: DialoguePlayerState;
+        beforeEach(() => {
+            dialogue = DialogueService.new({
+                id: "1",
+                speakerName: "Doorman",
+                speakerText: "Welcome, come inside",
+                animationDuration: 500,
+                speakerPortraitResourceKey: "",
+            });
+
+            dialoguePlayerState = DialoguePlayerService.new({
+                dialogue,
+            });
+        })
+
+        it('should wait for a certain amount of time before saying it is finished', () => {
+            const dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => 0);
+            DialoguePlayerService.start(dialoguePlayerState, {});
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeTruthy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeFalsy();
+
+            jest.spyOn(Date, 'now').mockImplementation(() => 501);
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeFalsy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeTruthy();
+
+            expect(dateSpy).toBeCalled()
+            dateSpy.mockRestore()
         });
 
-        const dialoguePlayerState = DialoguePlayerService.new({
-            dialogue,
-        });
+        it('should finish if the user clicks the mouse', () => {
+            DialoguePlayerService.start(dialoguePlayerState, {});
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeTruthy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeFalsy();
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        DialoguePlayerService.start(dialoguePlayerState, {});
-        expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeTruthy();
-        expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeFalsy();
+            DialoguePlayerService.mouseClicked(dialoguePlayerState, 0, 0)
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeFalsy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeTruthy();
+        })
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 501);
-        expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeFalsy();
-        expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeTruthy();
-    });
+        it('should finish if the user presses ACCEPT', () => {
+            DialoguePlayerService.start(dialoguePlayerState, {});
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeTruthy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeFalsy();
+
+            DialoguePlayerService.keyPressed(dialoguePlayerState, config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0])
+            expect(DialoguePlayerService.isAnimating(dialoguePlayerState)).toBeFalsy();
+            expect(DialoguePlayerService.isFinished(dialoguePlayerState)).toBeTruthy();
+        })
+    })
 
     describe('player needs to answer a question', () => {
         let dialogue: Dialogue;

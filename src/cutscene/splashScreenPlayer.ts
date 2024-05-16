@@ -3,7 +3,6 @@ import {ImageUI} from "../ui/imageUI";
 import {RectAreaService} from "../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 import {SplashScreen} from "./splashScreen";
 import {isValidValue} from "../utils/validityCheck";
 
@@ -35,31 +34,36 @@ export const SplashScreenPlayerService = {
             screenImage,
         }
     },
-    setImageResource: (state: SplashScreenPlayerState, image: GraphicImage) => {
-        setScreenImage(state, image);
+    setImageResource: (splashScreenPlayerState: SplashScreenPlayerState, image: GraphicImage) => {
+        setScreenImage(splashScreenPlayerState, image);
     },
-    start: (state: SplashScreenPlayerState, context: TextSubstitutionContext): void => {
-        state.dialogFinished = false;
-        state.startTime = Date.now();
+    start: (splashScreenPlayerState: SplashScreenPlayerState): void => {
+        splashScreenPlayerState.dialogFinished = false;
+        splashScreenPlayerState.startTime = Date.now();
     },
-    mouseClicked: (state: SplashScreenPlayerState, mouseX: number, mouseY: number) => {
-        if (isTimeExpired(state) && isAnimating(state)) {
-            state.dialogFinished = true;
+    mouseClicked: (splashScreenPlayerState: SplashScreenPlayerState, mouseX: number, mouseY: number) => {
+        if (isTimeExpired(splashScreenPlayerState) && isAnimating(splashScreenPlayerState)) {
+            splashScreenPlayerState.dialogFinished = true;
         }
     },
-    isFinished: (state: SplashScreenPlayerState): boolean => {
-        return !isAnimating(state) || state.dialogFinished;
+    isFinished: (splashScreenPlayerState: SplashScreenPlayerState): boolean => {
+        return !isAnimating(splashScreenPlayerState) || splashScreenPlayerState.dialogFinished;
     },
-    draw: (state: SplashScreenPlayerState, graphicsContext: GraphicsContext): void => {
-        drawBackground(state, graphicsContext);
+    draw: (splashScreenPlayerState: SplashScreenPlayerState, graphicsContext: GraphicsContext): void => {
+        drawBackground(splashScreenPlayerState, graphicsContext);
 
-        if (state.screenImage) {
-            state.screenImage.draw(graphicsContext);
+        if (splashScreenPlayerState.screenImage) {
+            splashScreenPlayerState.screenImage.draw(graphicsContext);
         }
     },
-    isAnimating: (state: SplashScreenPlayerState): boolean => {
-        return isAnimating(state);
+    isAnimating: (splashScreenPlayerState: SplashScreenPlayerState): boolean => {
+        return isAnimating(splashScreenPlayerState);
     },
+    keyPressed: (splashScreenPlayerState: SplashScreenPlayerState, keyCode: number) => {
+        if (isTimeExpired(splashScreenPlayerState) && isAnimating(splashScreenPlayerState)) {
+            splashScreenPlayerState.dialogFinished = true;
+        }
+    }
 }
 
 const isTimeExpired = (state: SplashScreenPlayerState): boolean => {

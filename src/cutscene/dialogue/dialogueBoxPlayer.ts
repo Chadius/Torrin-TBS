@@ -9,6 +9,7 @@ import {SubstituteText, TextSubstitutionContext} from "../../textSubstitution/te
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {Dialogue, DialogueService} from "./dialogue";
 import {isValidValue} from "../../utils/validityCheck";
+import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE;
@@ -106,6 +107,15 @@ export const DialoguePlayerService = {
     setImageResource: (state: DialoguePlayerState, image: GraphicImage) => {
         setPortrait(state, image);
     },
+    keyPressed: (dialoguePlayerState: DialoguePlayerState, keyCode: number) => {
+        if (
+            isAnimating(dialoguePlayerState)
+            && !DialogueService.asksUserForAnAnswer(dialoguePlayerState.dialogue)
+            && KeyWasPressed(KeyButtonName.ACCEPT, keyCode)
+        ) {
+            dialoguePlayerState.dialogFinished = true;
+        }
+    }
 }
 
 const setPortrait = (state: DialoguePlayerState, portrait: GraphicImage) => {

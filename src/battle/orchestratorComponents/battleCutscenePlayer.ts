@@ -2,6 +2,7 @@ import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
@@ -43,6 +44,10 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
+        if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
+            CutsceneService.keyboardPressed(this.currentCutscene, event.keyCode, {battleOrchestratorState: state.battleOrchestratorState})
+            return
+        }
     }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
