@@ -5,6 +5,8 @@ import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ImageUI} from "../../../ui/imageUI";
 import {GraphicImage, GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
+let defaultImage: ImageUI;
+
 export class SquaddieSprite {
     private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
     private readonly _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
@@ -83,10 +85,14 @@ export class SquaddieSprite {
     }
 
     private defaultEmptyImage(graphicsContext: GraphicsContext): ImageUI {
+        if (defaultImage) {
+            return defaultImage;
+        }
+
         const emptyImage: GraphicImage = graphicsContext.createImage(1, 1);
         emptyImage.loadPixels();
 
-        return new ImageUI({
+        defaultImage = new ImageUI({
             area: RectAreaService.new({
                 left: 0,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
@@ -95,5 +101,7 @@ export class SquaddieSprite {
             }),
             graphic: emptyImage,
         })
+
+        return defaultImage;
     }
 }
