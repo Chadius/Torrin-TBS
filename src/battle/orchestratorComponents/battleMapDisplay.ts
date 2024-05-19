@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {drawHexMap} from "../../hexMap/hexDrawingUtils";
+import {HexDrawingUtils} from "../../hexMap/hexDrawingUtils";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -25,7 +25,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         graphicsContext.background(50, 10, 20);
 
         if (gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
-            drawHexMap(graphicsContext, gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+            HexDrawingUtils.drawHexMap(graphicsContext, gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, gameEngineState.battleOrchestratorState.battleState.camera);
         }
 
         let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(gameEngineState);

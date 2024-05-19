@@ -1,16 +1,21 @@
 import {HexGridTile} from "./hexGrid";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {
+    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToWorldCoordinates,
-    convertWorldCoordinatesToMapCoordinates
+    convertWorldCoordinatesToMapCoordinates,
+    convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 import {MapLayer, MapLayerHelper} from "../missionMap/mapLayer";
 import {MouseButton} from "../utils/mouseConfig";
+import {BattleCamera} from "../battle/battleCamera";
+import {HEX_TILE_WIDTH} from "../graphicsConstants";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
-function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
+const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
     const newTiles: HexGridTile[] = [];
     movementCost.forEach((costString, qIndex) => {
         let rIndex = 0 - Math.floor(qIndex / 2);
@@ -25,10 +30,15 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
         while (costStringIndex < costString.length) {
             let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
             let movementCostType = convertStringToMovementCost(stringToConvert);
+            const worldLocation = convertMapCoordinatesToWorldCoordinates(qIndex, rIndex)
             newTiles.push({
                 q: qIndex,
                 r: rIndex,
                 terrainType: movementCostType,
+                worldLocation: {
+                    x: worldLocation[0],
+                    y: worldLocation[1],
+                }
             });
 
             rIndex += 1;
@@ -36,7 +46,7 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
         }
     });
     return newTiles;
-}
+};
 
 export type HighlightTileDescription = {
     tiles: HexCoordinate[],
@@ -249,5 +259,65 @@ export const TerrainTileMapService = {
             return undefined;
         }
         return tile.terrainType;
+    },
+    getWorldLocation: (terrainTileMap: TerrainTileMap, q: number, r: number): { x: number, y: number } => {
+        const dimensions = terrainTileMap.getDimensions();
+
+        if (
+            q < 0
+            || q > dimensions.numberOfRows
+            || r < 0
+            || r > dimensions.widthOfWidestRow
+        ) {
+            return {
+                x: undefined,
+                y: undefined
+            }
+        }
+
+        const tile = terrainTileMap.getTileAtLocation({q, r})
+        if (tile === undefined) {
+            return {
+                x: undefined,
+                y: undefined
+            }
+        }
+
+        return {
+            x: tile.worldLocation.x,
+            y: tile.worldLocation.y,
+        }
+    },
+    getWorldBoundingBox: (terrainTileMap: TerrainTileMap): { width: number, height: number } => {
+        const terrainTileMapDimensions = terrainTileMap.getDimensions()
+        const dimensionsConvertedToWorldWithBuffer = convertMapCoordinatesToWorldCoordinates(
+            terrainTileMapDimensions.numberOfRows + 1,
+            terrainTileMapDimensions.widthOfWidestRow + 1
+        )
+
+        return {
+            width: dimensionsConvertedToWorldWithBuffer[0],
+            height: dimensionsConvertedToWorldWithBuffer[1],
+        }
+    },
+    isTileOnScreen: (terrainTileMap: TerrainTileMap, q: number, r: number, camera: BattleCamera): boolean => {
+        const hexGridTile = terrainTileMap.getTileAtLocation({q, r})
+        const tileScreenCoordinates = convertWorldCoordinatesToScreenCoordinates(
+            hexGridTile.worldLocation.x,
+            hexGridTile.worldLocation.y,
+            ...camera.getCoordinates()
+        )
+
+        const horizontallyOnScreen = (
+            tileScreenCoordinates[0] + HEX_TILE_WIDTH >= 0
+            && tileScreenCoordinates[0] - HEX_TILE_WIDTH <= ScreenDimensions.SCREEN_WIDTH
+        )
+
+        const verticallyOnScreen = (
+            tileScreenCoordinates[1] + HEX_TILE_WIDTH >= 0
+            && tileScreenCoordinates[1] - HEX_TILE_WIDTH <= ScreenDimensions.SCREEN_HEIGHT
+        )
+
+        return horizontallyOnScreen && verticallyOnScreen
     }
 }

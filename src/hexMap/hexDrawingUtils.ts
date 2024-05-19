@@ -5,10 +5,11 @@ import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
-import {TerrainTileMap} from "./terrainTileMap";
+import {TerrainTileMap, TerrainTileMapService} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
+import {BattleCamera} from "../battle/battleCamera";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 
@@ -47,6 +48,7 @@ type HexTileDrawOptions = {
     pulseColor?: PulseBlendColor;
     resourceHandler?: ResourceHandler;
     overlayImageResourceKey?: string;
+    worldLocation?: { x: number, y: number };
 }
 
 export function drawHexTile(options: HexTileDrawOptions): void {
@@ -59,7 +61,8 @@ export function drawHexTile(options: HexTileDrawOptions): void {
         terrainType,
         pulseColor,
         resourceHandler,
-        overlayImageResourceKey
+        overlayImageResourceKey,
+        worldLocation
     } = options;
 
     // blendColor is an optional fill/blend color, an array of 4 numbers:
@@ -95,14 +98,18 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     graphicsContext.strokeWeight(1);
     graphicsContext.fill({hsb: fillColor})
 
-    // See Axial Coordinates in:
-    // https://www.redblobgames.com/grids/hexagons/
-    // r applies the vector (1, 0)
-    // q applies the vector (1/2, sqrt(3)/2)
-    let worldX = r + q * 0.5
-    let worldY = q * 0.866
+    if (worldLocation) {
+        drawHexShape(graphicsContext, worldLocation.x, worldLocation.y, cameraX, cameraY);
+    } else {
+        // See Axial Coordinates in:
+        // https://www.redblobgames.com/grids/hexagons/
+        // r applies the vector (1, 0)
+        // q applies the vector (1/2, sqrt(3)/2)
+        let worldX = (r + q * 0.5) * HEX_TILE_WIDTH
+        let worldY = q * 0.866 * HEX_TILE_WIDTH
 
-    drawHexShape(graphicsContext, worldX, worldY, cameraX, cameraY);
+        drawHexShape(graphicsContext, worldX, worldY, cameraX, cameraY);
+    }
 
     if (overlayImageResourceKey && resourceHandler) {
         const image = resourceHandler.getResource(overlayImageResourceKey);
@@ -124,9 +131,6 @@ export function drawHexTile(options: HexTileDrawOptions): void {
 }
 
 export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, worldY: number, cameraX: number, cameraY: number) {
-    worldX *= HEX_TILE_WIDTH;
-    worldY *= HEX_TILE_WIDTH;
-
     let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(worldX, worldY, cameraX, cameraY)
 
     graphicsContext.push();
@@ -163,42 +167,58 @@ export function drawOutlinedTile(
     graphicsContext.strokeWeight(2);
     graphicsContext.noFill();
 
-    let xPos = outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5
-    let yPos = outlineTileCoordinates.q * 0.866
+    let xPos = (outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5) * HEX_TILE_WIDTH
+    let yPos = (outlineTileCoordinates.q * 0.866) * HEX_TILE_WIDTH
     drawHexShape(graphicsContext, xPos, yPos, cameraX, cameraY);
     graphicsContext.pop();
 }
 
-export function drawHexMap(graphicsContext: GraphicsContext, map: TerrainTileMap, cameraX: number, cameraY: number): void {
-    map.tiles.forEach(
-        (tile) => {
-            const key = `${tile.q},${tile.r}`;
-            if (map.highlightedTiles[key]) {
+export const HexDrawingUtils = {
+    drawHexMap: (graphicsContext: GraphicsContext, map: TerrainTileMap, camera: BattleCamera) => {
+        const onScreenTiles = map.tiles.filter(tile => TerrainTileMapService.isTileOnScreen(map, tile.q, tile.r, camera))
+
+        const nonHighlightedTiles = onScreenTiles.filter(tile => {
+            const key = `${tile.q},${tile.r}`
+            return map.highlightedTiles[key] === undefined
+        })
+
+        const [cameraX, cameraY] = camera.getCoordinates()
+        nonHighlightedTiles.forEach(
+            tile => {
                 drawHexTile({
                     graphicsContext,
                     q: tile.q,
                     r: tile.r,
-                    cameraX,
-                    cameraY,
-                    terrainType: tile.terrainType,
-                    pulseColor: map.highlightedTiles[key].pulseColor,
-                    resourceHandler: map.resourceHandler,
-                    overlayImageResourceKey: map.highlightedTiles[key].name
-                });
-            } else {
-                drawHexTile({
-                    graphicsContext,
-                    q: tile.q,
-                    r: tile.r,
+                    worldLocation: tile.worldLocation,
                     terrainType: tile.terrainType,
                     cameraX,
                     cameraY,
                 });
             }
-        }
-    );
+        )
 
-    if (map.outlineTileCoordinates !== undefined) {
-        drawOutlinedTile(graphicsContext, map.outlineTileCoordinates, cameraX, cameraY);
+        const highlightedTiles = onScreenTiles.filter(tile => {
+            const key = `${tile.q},${tile.r}`
+            return !!(map.highlightedTiles[key])
+        })
+        highlightedTiles.forEach(tile => {
+            const key = `${tile.q},${tile.r}`
+            drawHexTile({
+                graphicsContext,
+                q: tile.q,
+                r: tile.r,
+                cameraX,
+                cameraY,
+                worldLocation: tile.worldLocation,
+                terrainType: tile.terrainType,
+                pulseColor: map.highlightedTiles[key].pulseColor,
+                resourceHandler: map.resourceHandler,
+                overlayImageResourceKey: map.highlightedTiles[key].name
+            })
+        })
+
+        if (map.outlineTileCoordinates !== undefined) {
+            drawOutlinedTile(graphicsContext, map.outlineTileCoordinates, cameraX, cameraY);
+        }
     }
 }

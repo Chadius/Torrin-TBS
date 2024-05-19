@@ -8,7 +8,8 @@ describe('HexGrid', () => {
                 {
                     q: 5.5,
                     r: 4.5,
-                    terrainType: HexGridMovementCost.singleMovement
+                    terrainType: HexGridMovementCost.singleMovement,
+                    worldLocation: {x: 3.5, y: 3.5},
                 }
             );
         }

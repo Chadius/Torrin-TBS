@@ -12,9 +12,9 @@ describe('Mission Map', () => {
     beforeEach(() => {
         map = new TerrainTileMap({
             tiles: [
-                {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement},
-                {q: 0, r: 0, terrainType: HexGridMovementCost.singleMovement},
-                {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement},
+                {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement, worldLocation: {x: 3.5, y: 3.5},},
+                {q: 0, r: 0, terrainType: HexGridMovementCost.singleMovement, worldLocation: {x: 3.5, y: 3.5},},
+                {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement, worldLocation: {x: 3.5, y: 3.5},},
             ]
         });
 
