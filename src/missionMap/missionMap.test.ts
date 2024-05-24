@@ -11,11 +11,7 @@ describe('Mission Map', () => {
     let torrinSquaddie: SquaddieId;
     beforeEach(() => {
         map = new TerrainTileMap({
-            tiles: [
-                {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement, worldLocation: {x: 3.5, y: 3.5},},
-                {q: 0, r: 0, terrainType: HexGridMovementCost.singleMovement, worldLocation: {x: 3.5, y: 3.5},},
-                {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement, worldLocation: {x: 3.5, y: 3.5},},
-            ]
+            movementCost: ["1 1 2 "]
         });
 
         torrinSquaddie = {
@@ -35,7 +31,7 @@ describe('Mission Map', () => {
             terrainTileMap: map
         })
 
-        missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 1});
+        missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 2});
 
         let {
             mapLocation: squaddieMapCoordinate,
@@ -43,7 +39,7 @@ describe('Mission Map', () => {
         } = missionMap.getSquaddieByBattleId("dynamic_squaddie_0");
         expect(squaddieTemplateId).toBe(torrinSquaddie.templateId);
         expect(squaddieMapCoordinate.q).toBe(0);
-        expect(squaddieMapCoordinate.r).toBe(1);
+        expect(squaddieMapCoordinate.r).toBe(2);
 
 
         (
@@ -54,7 +50,7 @@ describe('Mission Map', () => {
         );
         expect(squaddieTemplateId).toBe(torrinSquaddie.templateId);
         expect(squaddieMapCoordinate.q).toBe(0);
-        expect(squaddieMapCoordinate.r).toBe(1);
+        expect(squaddieMapCoordinate.r).toBe(2);
     });
 
     it('can add a squaddie without a location', () => {
@@ -95,20 +91,20 @@ describe('Mission Map', () => {
         let error: Error;
         error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {
             q: 0,
-            r: 1
+            r: 2
         });
         expect(error).toBeUndefined();
 
         error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", {
             q: 0,
-            r: 1
+            r: 2
         });
         expect(error).toEqual(expect.any(Error));
         expect((error as Error).message.includes("already occupied")).toBeTruthy();
 
         error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", {
             q: 0,
-            r: -1
+            r: 0
         });
         expect(error).toBeUndefined();
     });
@@ -149,19 +145,19 @@ describe('Mission Map', () => {
             terrainTileMap: map
         })
 
-        missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 1});
+        missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 2});
 
         const {
             mapLocation: squaddieMapCoordinate,
             squaddieTemplateId,
             battleSquaddieId,
-        } = missionMap.getSquaddieAtLocation({q: 0, r: 1});
+        } = missionMap.getSquaddieAtLocation({q: 0, r: 2});
         expect(squaddieTemplateId).toBe(torrinSquaddie.templateId);
         expect(battleSquaddieId).toBe("dynamic_squaddie_0");
         expect(squaddieMapCoordinate.q).toBe(0);
-        expect(squaddieMapCoordinate.r).toBe(1);
+        expect(squaddieMapCoordinate.r).toBe(2);
 
-        const noDatumFound = missionMap.getSquaddieAtLocation({q: 0, r: -1});
+        const noDatumFound = missionMap.getSquaddieAtLocation({q: 0, r: 0});
         expect(MissionMapSquaddieLocationHandler.isValid(noDatumFound)).toBeFalsy();
     });
 
@@ -171,13 +167,13 @@ describe('Mission Map', () => {
         });
 
         let hexMovementType: HexGridMovementCost;
-        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: 1});
+        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: 2});
         expect(hexMovementType).toBe(HexGridMovementCost.doubleMovement);
 
-        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: -1});
+        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: 0});
         expect(hexMovementType).toBe(HexGridMovementCost.singleMovement);
 
-        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: -5});
+        hexMovementType = missionMap.getHexGridMovementAtLocation({q: 0, r: -4});
         expect(hexMovementType).toBeUndefined();
     });
 
@@ -336,9 +332,9 @@ describe('Mission Map', () => {
             terrainTileMap: map
         })
 
-        missionMap.addSquaddie("static_0", "dynamic_0", {q: 0, r: 1});
-        missionMap.addSquaddie("static_0", "dynamic_1", {q: 0, r: 0});
-        missionMap.addSquaddie("static_1", "dynamic_2", {q: 0, r: -1});
+        missionMap.addSquaddie("static_0", "dynamic_0", {q: 0, r: 2});
+        missionMap.addSquaddie("static_0", "dynamic_1", {q: 0, r: 1});
+        missionMap.addSquaddie("static_1", "dynamic_2", {q: 0, r: 0});
 
         const actualSquaddieData: MissionMapSquaddieLocation[] = missionMap.getAllSquaddieData();
 
@@ -346,17 +342,17 @@ describe('Mission Map', () => {
         expect(actualSquaddieData).toContainEqual({
             squaddieTemplateId: "static_0",
             battleSquaddieId: "dynamic_0",
-            mapLocation: {q: 0, r: 1},
+            mapLocation: {q: 0, r: 2},
         });
         expect(actualSquaddieData).toContainEqual({
             squaddieTemplateId: "static_0",
             battleSquaddieId: "dynamic_1",
-            mapLocation: {q: 0, r: 0},
+            mapLocation: {q: 0, r: 1},
         });
         expect(actualSquaddieData).toContainEqual({
             squaddieTemplateId: "static_1",
             battleSquaddieId: "dynamic_2",
-            mapLocation: {q: 0, r: -1},
+            mapLocation: {q: 0, r: 0},
         });
     });
 

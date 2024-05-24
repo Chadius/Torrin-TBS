@@ -1,5 +1,4 @@
 import {TerrainTileMap, TerrainTileMapService} from "./terrainTileMap";
-import {HexGridTile} from "./hexGrid";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
@@ -9,19 +8,20 @@ import {convertMapCoordinatesToWorldCoordinates} from "./convertCoordinates";
 import {BattleCamera} from "../battle/battleCamera";
 
 describe('hexMap', () => {
-    describe('mouseClicks on the map', () => {
-        it('should select tiles in a hex pattern according to where the mouse clicked', function () {
-            const gridTiles: HexGridTile[] = [
-                {q: 0, r: 0, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-                {q: 0, r: 1, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-                {q: 0, r: 2, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-                {q: 0, r: -1, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-                {q: 1, r: 0, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-                {q: -1, r: 0, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-            ];
+    describe('mouseClicks on the map change the outlined tile', () => {
+        let hexGrid: TerrainTileMap
 
-            const hexGrid = new TerrainTileMap({tiles: gridTiles});
+        beforeEach(() => {
+            hexGrid = new TerrainTileMap({
+                movementCost: [
+                    "x - x ",
+                    " - - - ",
+                    "  x - x ",
+                ]
+            });
+        })
 
+        it('should clear the outlined tile when you click off map', () => {
             hexGrid.mouseClicked({
                 mouseX: -100,
                 mouseY: -100,
@@ -31,99 +31,69 @@ describe('hexMap', () => {
             });
 
             expect(hexGrid.outlineTileCoordinates).toBe(undefined);
+        })
 
-            hexGrid.mouseClicked({
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                cameraX: 0,
-                cameraY: 0,
-                mouseButton: MouseButton.ACCEPT
-            });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 0});
-
+        const tests = [
+            {q: 0, r: 0},
+            {q: 1, r: -0},
+            {q: 2, r: 0},
+            {q: 0, r: 1},
+            {q: 1, r: 1},
+            {q: 1, r: 1},
+            {q: 0, r: 2},
+            {q: 2, r: 1},
+            {q: 1, r: 2},
+            {q: 2, r: 2},
+        ]
+        it.each(tests)(`($q, $r): click on this region to select the tile`, ({
+                                                                                 q,
+                                                                                 r
+                                                                             }) => {
             hexGrid.mouseClicked({
                 mouseButton: MouseButton.ACCEPT,
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH * (r + (q * 0.5))),
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2 + (q * 0.866 * HEX_TILE_WIDTH),
                 cameraX: 0,
                 cameraY: 0
             });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 1});
 
-            hexGrid.mouseClicked({
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + (2 * HEX_TILE_WIDTH),
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                cameraX: 0,
-                cameraY: 0
-            });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 2});
-
-            hexGrid.mouseClicked({
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 - HEX_TILE_WIDTH,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                cameraX: 0,
-                cameraY: 0
-            });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: -1});
-
-            hexGrid.mouseClicked({
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH / 2),
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2 + (HEX_TILE_WIDTH / 2),
-                cameraX: 0,
-                cameraY: 0
-            });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 1, r: 0});
-
-            hexGrid.mouseClicked({
-                mouseButton: MouseButton.ACCEPT,
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2 - (HEX_TILE_WIDTH / 2),
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2 - (HEX_TILE_WIDTH / 2),
-                cameraX: 0,
-                cameraY: 0
-            });
-            expect(hexGrid.outlineTileCoordinates).toMatchObject({q: -1, r: -0});
-        });
-    });
+            expect(hexGrid.outlineTileCoordinates).toEqual(expect.objectContaining({q, r}))
+        })
+    })
     it('can note which tiles are at which locations', () => {
-        const gridTiles: HexGridTile[] = [
-            {q: 0, r: 0, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-            {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement, worldLocation: {x: 0, y: 0}},
-            {q: 0, r: 2, terrainType: HexGridMovementCost.wall, worldLocation: {x: 0, y: 0}},
-            {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement, worldLocation: {x: 0, y: 0}},
-            {q: 1, r: 0, terrainType: HexGridMovementCost.doubleMovement, worldLocation: {x: 0, y: 0}},
-            {q: -1, r: 0, terrainType: HexGridMovementCost.pit, worldLocation: {x: 0, y: 0}},
-        ];
-
-        const hexGrid = new TerrainTileMap({tiles: gridTiles});
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 0, r: 0})).toBe(HexGridMovementCost.pit);
-        expect(hexGrid.getTileTerrainTypeAtLocation({
-            q: 0,
-            r: 1
-        })).toBe(HexGridMovementCost.doubleMovement);
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 0, r: 2})).toBe(HexGridMovementCost.wall);
-        expect(hexGrid.getTileTerrainTypeAtLocation({
-            q: 0,
-            r: -1
-        })).toBe(HexGridMovementCost.singleMovement);
+        const hexGrid = new TerrainTileMap({
+            movementCost: [
+                "x - x x ",
+                " 1 - 2 x ",
+                "  x 2 x x ",
+            ]
+        })
+        expect(hexGrid.getTileTerrainTypeAtLocation({q: 1, r: 1})).toBe(HexGridMovementCost.pit);
         expect(hexGrid.getTileTerrainTypeAtLocation({
             q: 1,
-            r: 0
+            r: 2
         })).toBe(HexGridMovementCost.doubleMovement);
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: -1, r: 0})).toBe(HexGridMovementCost.pit);
+        expect(hexGrid.getTileTerrainTypeAtLocation({q: 1, r: 3})).toBe(HexGridMovementCost.wall);
+        expect(hexGrid.getTileTerrainTypeAtLocation({
+            q: 1,
+            r: 0,
+        })).toBe(HexGridMovementCost.singleMovement);
+        expect(hexGrid.getTileTerrainTypeAtLocation({
+            q: 2,
+            r: 1
+        })).toBe(HexGridMovementCost.doubleMovement);
+        expect(hexGrid.getTileTerrainTypeAtLocation({q: 0, r: 1})).toBe(HexGridMovementCost.pit);
 
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 3, r: 3})).toBeUndefined();
+        expect(hexGrid.getTileTerrainTypeAtLocation({q: 4, r: 4})).toBeUndefined();
 
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 0})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 1})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 2})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: -1})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap({q: 1, r: 1})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap({q: 1, r: 2})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap({q: 1, r: 3})).toBeTruthy();
         expect(hexGrid.areCoordinatesOnMap({q: 1, r: 0})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: -1, r: 0})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap({q: 2, r: 1})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 1})).toBeTruthy();
 
-        expect(hexGrid.areCoordinatesOnMap({q: 3, r: 3})).toBeFalsy();
+        expect(hexGrid.areCoordinatesOnMap({q: 4, r: 4})).toBeFalsy();
 
         expect(hexGrid.areCoordinatesOnMap(undefined)).toBeFalsy();
     });

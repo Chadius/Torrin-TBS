@@ -59,19 +59,15 @@ export class TerrainTileMap {
     outlineTileCoordinates: HexCoordinate | undefined;
     resourceHandler: ResourceHandler;
 
-    constructor(options: {
-        tiles?: HexGridTile[];
+    constructor({
+                    movementCost,
+                    resourceHandler,
+                }: {
         movementCost?: string[];
         resourceHandler?: ResourceHandler;
     }) {
-        let tiles: HexGridTile[] = options.tiles;
-        let movementCost: string[] = options.movementCost;
-
-        if (tiles === undefined) {
-            tiles = convertMovementCostToTiles(movementCost);
-        }
-
-        const tilesSortedByRThenQ = [...tiles].sort((a, b) => {
+        let tiles: HexGridTile[] = convertMovementCostToTiles(movementCost)
+        this.tiles = [...tiles].sort((a, b) => {
             if (a.q < b.q) {
                 return -1;
             }
@@ -86,12 +82,10 @@ export class TerrainTileMap {
                 return 1;
             }
             return 0;
-        })
-
-        this.tiles = tilesSortedByRThenQ;
+        });
         this._highlightedTiles = {};
 
-        this.resourceHandler = options.resourceHandler;
+        this.resourceHandler = resourceHandler;
     }
 
     private _highlightedTiles: {
