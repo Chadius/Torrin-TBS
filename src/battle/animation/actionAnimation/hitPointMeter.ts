@@ -2,7 +2,7 @@ import {TextBox, TextBoxService} from "../../../ui/textBox";
 import {RectAreaService} from "../../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../../ui/rectangle";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
-import {WINDOW_SPACING1} from "../../../ui/constants";
+import {WINDOW_SPACING} from "../../../ui/constants";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export const HIT_POINT_METER_HP_WIDTH = 20;
@@ -135,7 +135,7 @@ export class HitPointMeter {
     private createMaxHitPointRect() {
         this.maxHitPointsRectangle = RectangleHelper.new({
             area: RectAreaService.new({
-                left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
+                left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING.SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
                 width: HIT_POINT_METER_HP_WIDTH * this.maxHitPoints,
@@ -149,7 +149,7 @@ export class HitPointMeter {
     private createCurrentHitPointRect(currentHitPoints: number) {
         this.currentHitPointsRectangle = RectangleHelper.new({
             area: RectAreaService.new({
-                left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
+                left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING.SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
                 width: HIT_POINT_METER_HP_WIDTH * currentHitPoints,

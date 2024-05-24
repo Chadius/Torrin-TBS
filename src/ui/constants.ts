@@ -1,10 +1,15 @@
-export const WINDOW_SPACING_PIXELS = 8;
-export const WINDOW_SPACING05 = WINDOW_SPACING_PIXELS / 2;
-export const WINDOW_SPACING1 = WINDOW_SPACING_PIXELS * 1;
-export const WINDOW_SPACING2 = WINDOW_SPACING_PIXELS * 2;
-export const WINDOW_SPACING4 = WINDOW_SPACING_PIXELS * 4;
+export enum WINDOW_SPACING {
+    SPACING1 = 8,
+    SPACING2 = 16,
+    SPACING4 = 32,
+}
 
-export const HORIZ_ALIGN_LEFT = "left";
-export const HORIZ_ALIGN_CENTER = "center";
-export const VERT_ALIGN_BASELINE = "alphabetic";
-export const VERT_ALIGN_CENTER = "center";
+export enum HORIZONTAL_ALIGN {
+    LEFT = "left",
+    CENTER = "center",
+}
+
+export enum VERTICAL_ALIGN {
+    BASELINE = "alphabetic",
+    CENTER = "center",
+}

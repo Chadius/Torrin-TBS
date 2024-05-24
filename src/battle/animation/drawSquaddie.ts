@@ -6,7 +6,7 @@ import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SquaddieService} from "../../squaddie/squaddieService";
@@ -169,7 +169,7 @@ const setImageToLocation = (
     xyCoords: [number, number]
 ) => {
     RectAreaService.move(mapIcon.area, {left: xyCoords[0], top: xyCoords[1]});
-    RectAreaService.align(mapIcon.area, {horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+    RectAreaService.align(mapIcon.area, {horizAlign: HORIZONTAL_ALIGN.CENTER, vertAlign: VERTICAL_ALIGN.CENTER});
 }
 
 const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {

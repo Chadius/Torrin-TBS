@@ -22,7 +22,7 @@ import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
 import {CutsceneService} from "../../cutscene/cutscene";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
@@ -249,8 +249,8 @@ const initializeSquaddieResources = ({
                     top: xyCoords[1],
                     width: image.width,
                     height: image.height,
-                    horizAlign: HORIZ_ALIGN_CENTER,
-                    vertAlign: VERT_ALIGN_CENTER
+                    horizAlign: HORIZONTAL_ALIGN.CENTER,
+                    vertAlign: VERTICAL_ALIGN.CENTER
                 })
             });
         }

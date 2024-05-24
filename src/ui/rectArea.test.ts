@@ -1,12 +1,5 @@
 import {HorizontalAnchor, RectArea, RectAreaService, VerticalAnchor} from "./rectArea";
-import {
-    HORIZ_ALIGN_CENTER,
-    VERT_ALIGN_CENTER,
-    WINDOW_SPACING05,
-    WINDOW_SPACING1,
-    WINDOW_SPACING2,
-    WINDOW_SPACING4
-} from "./constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "./constants";
 
 describe('RectArea', () => {
     describe('RectArea created from Position arguments', () => {
@@ -309,49 +302,49 @@ describe('RectArea', () => {
         it('Can apply all margins', () => {
             const rect = RectAreaService.new({
                 baseRectangle: baseRect,
-                margin: WINDOW_SPACING1
+                margin: WINDOW_SPACING.SPACING1
             });
 
-            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING1);
-            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING1);
-            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING1));
-            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING1 + WINDOW_SPACING1));
+            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING.SPACING1);
+            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING.SPACING1);
+            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING.SPACING1 + WINDOW_SPACING.SPACING1));
+            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING.SPACING1 + WINDOW_SPACING.SPACING1));
         });
 
         it('Can apply vertical and horizontal margins', () => {
             const rect = RectAreaService.new({
                 baseRectangle: baseRect,
-                margin: [WINDOW_SPACING1, WINDOW_SPACING2]
+                margin: [WINDOW_SPACING.SPACING1, WINDOW_SPACING.SPACING2]
             });
 
-            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING1);
-            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING2);
-            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING1));
-            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING2 + WINDOW_SPACING2));
+            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING.SPACING1);
+            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING.SPACING2);
+            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING.SPACING1 + WINDOW_SPACING.SPACING1));
+            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING.SPACING2 + WINDOW_SPACING.SPACING2));
         });
 
         it('Can apply top, horizontal, bottom margins', () => {
             const rect = RectAreaService.new({
                 baseRectangle: baseRect,
-                margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4]
+                margin: [WINDOW_SPACING.SPACING1, WINDOW_SPACING.SPACING2, WINDOW_SPACING.SPACING4]
             });
 
-            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING1);
-            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING2);
-            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING4));
-            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING2 + WINDOW_SPACING2));
+            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING.SPACING1);
+            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING.SPACING2);
+            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING.SPACING1 + WINDOW_SPACING.SPACING4));
+            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING.SPACING2 + WINDOW_SPACING.SPACING2));
         });
 
         it('Can apply top, right, bottom, left margins', () => {
             const rect = RectAreaService.new({
                 baseRectangle: baseRect,
-                margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4, WINDOW_SPACING05]
+                margin: [WINDOW_SPACING.SPACING1, WINDOW_SPACING.SPACING2, WINDOW_SPACING.SPACING4, WINDOW_SPACING.SPACING1]
             });
 
-            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING1);
-            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING05);
-            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING4));
-            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING2 + WINDOW_SPACING05));
+            expect(rect.top).toBe(baseRect.top + WINDOW_SPACING.SPACING1);
+            expect(rect.left).toBe(baseRect.left + WINDOW_SPACING.SPACING1);
+            expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING.SPACING1 + WINDOW_SPACING.SPACING4));
+            expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING.SPACING2 + WINDOW_SPACING.SPACING1));
         });
 
         it('Can apply zero margins', () => {
@@ -373,8 +366,8 @@ describe('RectArea', () => {
                 left: 10,
                 height: 30,
                 width: 20,
-                horizAlign: HORIZ_ALIGN_CENTER,
-                vertAlign: VERT_ALIGN_CENTER
+                horizAlign: HORIZONTAL_ALIGN.CENTER,
+                vertAlign: VERTICAL_ALIGN.CENTER
             });
 
             expect(RectAreaService.top(rect)).toBe(-15);

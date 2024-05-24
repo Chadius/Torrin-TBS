@@ -1,6 +1,6 @@
 import {ActionAnimationFontColor} from "./actionAnimationConstants";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../../ui/constants";
 import {Label, LabelService} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {
@@ -42,11 +42,11 @@ export class WeaponIcon {
         }
 
         RectAreaService.move(this.attackingLabel.rectangle.area, {
-            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
             top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
         });
         RectAreaService.move(this.attackingLabel.textBox.area, {
-            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
             top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
         });
         LabelService.draw(this.attackingLabel, graphicsContext);
@@ -69,15 +69,15 @@ export class WeaponIcon {
         this._attackingLabel = LabelService.new({
             padding: 0,
             area: RectAreaService.new({
-                left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+                left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
                 top: RectAreaService.centerY(actorImageArea),
-                height: WINDOW_SPACING2,
-                width: WINDOW_SPACING1 * 15,
+                height: WINDOW_SPACING.SPACING2,
+                width: WINDOW_SPACING.SPACING1 * 15,
             }),
             text: labelText,
-            textSize: WINDOW_SPACING2,
-            vertAlign: VERT_ALIGN_CENTER,
-            horizAlign: HORIZ_ALIGN_CENTER,
+            textSize: WINDOW_SPACING.SPACING2,
+            vertAlign: VERTICAL_ALIGN.CENTER,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         });

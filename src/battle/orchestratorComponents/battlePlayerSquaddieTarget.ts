@@ -1,4 +1,4 @@
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {RecordingService} from "../history/recording";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
@@ -475,8 +475,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
             text: buttonText,
             textSize: MESSAGE_TEXT_SIZE,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
             fontColor: [0, 0, 16],
             padding: [0, 0, 0, 0],
         });

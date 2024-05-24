@@ -1,6 +1,6 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class DialogueAnswerButton {
@@ -50,8 +50,8 @@ export class DialogueAnswerButton {
             text: this.answerText,
             textSize: 24,
             fontColor: dialogueBoxTextColor,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER
         })
     }
 }

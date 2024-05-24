@@ -10,7 +10,6 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {TextBoxService} from "../../ui/textBox";
 import {GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelService} from "../../ui/label";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER, WINDOW_SPACING1,} from "../../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
@@ -34,6 +33,7 @@ import {ActionTemplate} from "../../action/template/actionTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {MouseButton} from "../../utils/mouseConfig";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../ui/constants";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 const DECISION_BUTTON_LAYOUT = {
@@ -396,7 +396,7 @@ export class BattleSquaddieSelectedHUD {
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
                         anchorTop: VerticalAnchor.TOP,
-                        vertAlign: VERT_ALIGN_BASELINE,
+                        vertAlign: VERTICAL_ALIGN.BASELINE,
                         top: DECISION_BUTTON_LAYOUT.top,
                         left: leftSideOfRow + (horizontalButtonSpacePerIndex * index),
                         width: DECISION_BUTTON_LAYOUT.width,
@@ -714,7 +714,7 @@ export class BattleSquaddieSelectedHUD {
 
     private generateNextSquaddieButton(windowDimensions: RectArea) {
         const nextButtonArea = RectAreaService.new({
-            top: windowDimensions.top + WINDOW_SPACING1,
+            top: windowDimensions.top + WINDOW_SPACING.SPACING1,
             height: RectAreaService.height(windowDimensions) / 3,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 5,
@@ -727,9 +727,9 @@ export class BattleSquaddieSelectedHUD {
             fillColor: [10, 2, 192],
             fontColor: [20, 5, 16],
             area: nextButtonArea,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
-            padding: WINDOW_SPACING1,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
+            padding: WINDOW_SPACING.SPACING1,
         });
     }
 
@@ -781,9 +781,9 @@ export class BattleSquaddieSelectedHUD {
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 96],
                 area: RectAreaService.new({
-                    left: this.background.area.left + WINDOW_SPACING1,
+                    left: this.background.area.left + WINDOW_SPACING.SPACING1,
                     height: ActionPointsBarHeight,
-                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
+                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING.SPACING1,
                     top: this.background.area.top + ActionPointsTopOffset + (ActionPointsBarHeight - ActionPointsTextHeight),
                 })
             });
@@ -798,9 +798,9 @@ export class BattleSquaddieSelectedHUD {
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 128],
                 area: RectAreaService.new({
-                    left: this.background.area.left + WINDOW_SPACING1,
+                    left: this.background.area.left + WINDOW_SPACING.SPACING1,
                     height: HitPointsBarHeight,
-                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
+                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING.SPACING1,
                     top: this.background.area.top + HitPointsTopOffset + (HitPointsBarHeight - HitPointsTextHeight),
                 })
             });
@@ -822,7 +822,7 @@ export class BattleSquaddieSelectedHUD {
             startColumn: 5,
             endColumn: 5,
         });
-        RectAreaService.setBottom(endTurnButtonArea, RectAreaService.bottom(windowDimensions) - WINDOW_SPACING1);
+        RectAreaService.setBottom(endTurnButtonArea, RectAreaService.bottom(windowDimensions) - WINDOW_SPACING.SPACING1);
 
         this.endTurnButton = LabelService.new({
             text: "End Turn",
@@ -830,9 +830,9 @@ export class BattleSquaddieSelectedHUD {
             fillColor: [10, 2, 192],
             fontColor: [20, 5, 16],
             area: endTurnButtonArea,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
-            padding: WINDOW_SPACING1,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
+            padding: WINDOW_SPACING.SPACING1,
         });
     }
 

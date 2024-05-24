@@ -15,7 +15,7 @@ import {MissionMapService} from "../../missionMap/missionMap";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
-import {VERT_ALIGN_CENTER} from "../../ui/constants";
+import {VERTICAL_ALIGN} from "../../ui/constants";
 import * as p5 from "p5";
 import {HEX_TILE_WIDTH} from "../../graphicsConstants";
 import {ActionsThisRound} from "../history/actionsThisRound";
@@ -41,7 +41,7 @@ const differentSquaddieMidTurnPopupConstants: {
         textSize: 16,
         fontColor: [245, 20, 90],
         fillColor: [60, 40, 10],
-        vertAlign: VERT_ALIGN_CENTER,
+        vertAlign: VERTICAL_ALIGN.CENTER,
         padding: 8,
     },
     width: 150,

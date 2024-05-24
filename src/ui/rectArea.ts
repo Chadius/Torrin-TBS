@@ -1,5 +1,5 @@
 import * as p5 from "p5";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "./constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "./constants";
 import {isValidValue} from "../utils/validityCheck";
 
 export enum HorizontalAnchor {
@@ -470,7 +470,7 @@ const alignHorizontally = (rectArea: RectArea, params: Alignment): void => {
     }
 
     switch (params.horizAlign) {
-        case HORIZ_ALIGN_CENTER:
+        case HORIZONTAL_ALIGN.CENTER:
             rectArea.left -= rectArea.width / 2;
             break;
         default:
@@ -484,7 +484,7 @@ const alignVertically = (rectArea: RectArea, params: Alignment): void => {
     }
 
     switch (params.vertAlign) {
-        case VERT_ALIGN_CENTER:
+        case VERTICAL_ALIGN.CENTER:
             rectArea.top -= rectArea.height / 2;
             break;
         default:

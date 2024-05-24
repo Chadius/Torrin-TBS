@@ -13,7 +13,7 @@ import {TargetSprite} from "./actionAnimation/targetSprite";
 import {TargetTextWindow} from "./actionAnimation/targetTextWindow";
 import {HitPointMeter} from "./actionAnimation/hitPointMeter";
 import {GetHitPoints} from "../../squaddie/squaddieService";
-import {WINDOW_SPACING1} from "../../ui/constants";
+import {WINDOW_SPACING} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
@@ -185,7 +185,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
             squaddieRepository: state.repository,
             resourceHandler: state.resourceHandler,
-            startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING1,
+            startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING.SPACING1,
             squaddieResult: mostRecentResults.results,
         });
         this.weaponIcon.start();
@@ -266,7 +266,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             this._targetHitPointMeters[battleId] = new HitPointMeter({
                 currentHitPoints: displayedHitPointsBeforeChange,
                 maxHitPoints,
-                left: this._targetTextWindows[index].targetLabel.rectangle.area.left + WINDOW_SPACING1,
+                left: this._targetTextWindows[index].targetLabel.rectangle.area.left + WINDOW_SPACING.SPACING1,
                 top: this._targetTextWindows[index].targetLabel.rectangle.area.top + 100,
                 hue: HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation]
             });

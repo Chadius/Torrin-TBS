@@ -1,7 +1,7 @@
 import {RectAreaService} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
+import {WINDOW_SPACING} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelService} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
@@ -101,17 +101,17 @@ export class TargetTextWindow {
         ];
 
         this._targetLabel = LabelService.new({
-            padding: WINDOW_SPACING1,
+            padding: WINDOW_SPACING.SPACING1,
             area: RectAreaService.new({
                 startColumn: 6,
                 endColumn: 7,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                margin: [WINDOW_SPACING1, 0, 0, WINDOW_SPACING1],
+                margin: [WINDOW_SPACING.SPACING1, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: this.targetBeforeActionText,
-            textSize: WINDOW_SPACING2,
+            textSize: WINDOW_SPACING.SPACING2,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         });

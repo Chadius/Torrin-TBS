@@ -1,6 +1,6 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
-import {WINDOW_SPACING2, WINDOW_SPACING4} from "../../ui/constants";
+import {WINDOW_SPACING} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
@@ -29,19 +29,19 @@ export class DialogueTextBox {
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
         const dialogueBoxTop = this.screenDimensions[1] * 0.7;
         const dialogueBoxHeight = this.screenDimensions[1] * 0.3;
-        const dialogueBoxLeft = WINDOW_SPACING2;
+        const dialogueBoxLeft = WINDOW_SPACING.SPACING2;
 
         this.speakerTextLabel = LabelService.new({
-            padding: [WINDOW_SPACING4, WINDOW_SPACING2, 0, WINDOW_SPACING2],
+            padding: [WINDOW_SPACING.SPACING4, WINDOW_SPACING.SPACING2, 0, WINDOW_SPACING.SPACING2],
             area: RectAreaService.new({
                 left: dialogueBoxLeft,
-                top: dialogueBoxTop - WINDOW_SPACING2,
-                width: this.screenDimensions[0] - WINDOW_SPACING4,
+                top: dialogueBoxTop - WINDOW_SPACING.SPACING2,
+                width: this.screenDimensions[0] - WINDOW_SPACING.SPACING4,
                 height: dialogueBoxHeight
             }),
             fillColor: dialogueBoxBackgroundColor,
             text: this.speakerText,
-            textSize: WINDOW_SPACING4,
+            textSize: WINDOW_SPACING.SPACING4,
             fontColor: dialogueBoxTextColor
         });
     }

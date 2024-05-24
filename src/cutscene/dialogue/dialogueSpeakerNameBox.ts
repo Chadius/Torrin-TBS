@@ -1,6 +1,6 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
-import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE, WINDOW_SPACING2} from "../../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
@@ -29,14 +29,14 @@ export class DialogueSpeakerNameBox {
         const dialogueBoxTop = this.screenDimensions[1] * 0.7;
 
         const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
-        const speakerBoxTop = dialogueBoxTop - (2.5 * WINDOW_SPACING2);
-        const speakerBoxHeight = WINDOW_SPACING2 * 3;
-        const speakerBoxLeft = WINDOW_SPACING2 * 0.5;
+        const speakerBoxTop = dialogueBoxTop - (2.5 * WINDOW_SPACING.SPACING2);
+        const speakerBoxHeight = WINDOW_SPACING.SPACING2 * 3;
+        const speakerBoxLeft = WINDOW_SPACING.SPACING2 * 0.5;
 
         const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
 
         this.speakerNameLabel = LabelService.new({
-            padding: [WINDOW_SPACING2, 0, 0, WINDOW_SPACING2 * 0.5],
+            padding: [WINDOW_SPACING.SPACING2, 0, 0, WINDOW_SPACING.SPACING2 * 0.5],
             area: RectAreaService.new({
                 left: speakerBoxLeft,
                 top: speakerBoxTop,
@@ -47,8 +47,8 @@ export class DialogueSpeakerNameBox {
             text: this.speakerName,
             textSize: 24,
             fontColor: speakerBoxTextColor,
-            horizAlign: HORIZ_ALIGN_LEFT,
-            vertAlign: VERT_ALIGN_BASELINE,
+            horizAlign: HORIZONTAL_ALIGN.LEFT,
+            vertAlign: VERTICAL_ALIGN.BASELINE,
         });
     }
 }

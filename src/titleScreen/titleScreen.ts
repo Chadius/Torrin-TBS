@@ -5,14 +5,7 @@ import {GameEngineState} from "../gameEngine/gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {LabelService} from "../ui/label";
 import {Button, ButtonStatus} from "../ui/button";
-import {
-    HORIZ_ALIGN_CENTER,
-    HORIZ_ALIGN_LEFT,
-    VERT_ALIGN_CENTER,
-    WINDOW_SPACING1,
-    WINDOW_SPACING2,
-    WINDOW_SPACING4
-} from "../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../ui/constants";
 import {RectArea, RectAreaService} from "../ui/rectArea";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {TextBox, TextBoxService} from "../ui/textBox";
@@ -69,18 +62,18 @@ const TitleScreenDesign = {
         smallWindowWarning: "Window is too small",
         playGameMessage: "START: click here / press enter",
         buttonArea: {
-            left: WINDOW_SPACING4,
-            right: ScreenDimensions.SCREEN_WIDTH - WINDOW_SPACING4,
+            left: WINDOW_SPACING.SPACING4,
+            right: ScreenDimensions.SCREEN_WIDTH - WINDOW_SPACING.SPACING4,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.63,
             bottom: ScreenDimensions.SCREEN_HEIGHT * 0.85,
         }
     },
     continueGameButton: {
         buttonArea: {
-            left: ScreenDimensions.SCREEN_WIDTH * 0.74 - WINDOW_SPACING1,
-            right: ScreenDimensions.SCREEN_WIDTH - WINDOW_SPACING1,
+            left: ScreenDimensions.SCREEN_WIDTH * 0.74 - WINDOW_SPACING.SPACING1,
+            right: ScreenDimensions.SCREEN_WIDTH - WINDOW_SPACING.SPACING1,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.86,
-            bottom: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING1,
+            bottom: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
         }
     },
     demon: {
@@ -105,7 +98,7 @@ const TitleScreenDesign = {
         iconArea: {
             startColumn: 5,
             width: 100,
-            top: ScreenDimensions.SCREEN_HEIGHT * 0.13 + WINDOW_SPACING1 + 100,
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.13 + WINDOW_SPACING.SPACING1 + 100,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         },
         descriptionText: "Her friend, Sir Camil has a melee attack and more armor.",
@@ -282,8 +275,8 @@ export class TitleScreen implements GameEngineComponent {
         if (this.titleBanner === undefined) {
             this.titleBannerArea =
                 RectAreaService.new({
-                    left: WINDOW_SPACING1,
-                    top: WINDOW_SPACING1,
+                    left: WINDOW_SPACING.SPACING1,
+                    top: WINDOW_SPACING.SPACING1,
                     width: ScreenDimensions.SCREEN_WIDTH * 0.25,
                     height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
                 })
@@ -295,8 +288,8 @@ export class TitleScreen implements GameEngineComponent {
             let image: GraphicImage = this.resourceHandler.getResource(TitleScreenDesign.logo.iconImageResourceKey);
 
             this.titleBannerArea = RectAreaService.new({
-                left: WINDOW_SPACING1,
-                top: WINDOW_SPACING1,
+                left: WINDOW_SPACING.SPACING1,
+                top: WINDOW_SPACING.SPACING1,
                 height: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.logo.screenHeight,
                 width: ScaleImageWidth({
                     imageWidth: image.width,
@@ -323,10 +316,10 @@ export class TitleScreen implements GameEngineComponent {
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
                     top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.title.screenHeight,
-                    height: WINDOW_SPACING4,
+                    height: WINDOW_SPACING.SPACING4,
                 }),
                 text: "Torrin's Trial",
-                textSize: WINDOW_SPACING2,
+                textSize: WINDOW_SPACING.SPACING2,
                 fontColor: colors.backgroundText,
             })
         }
@@ -343,10 +336,10 @@ export class TitleScreen implements GameEngineComponent {
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
                     top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.gameDescription.screenHeightTop,
                     bottom: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.gameDescription.screenHeightBottom,
-                    margin: WINDOW_SPACING1,
+                    margin: WINDOW_SPACING.SPACING1,
                 }),
                 text: TitleScreenDesign.gameDescription.text,
-                textSize: WINDOW_SPACING4,
+                textSize: WINDOW_SPACING.SPACING4,
                 fontColor: colors.descriptionText,
             });
         }
@@ -363,10 +356,10 @@ export class TitleScreen implements GameEngineComponent {
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
                     top: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.byLine.screenHeight,
-                    bottom: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.byLine.screenHeight + WINDOW_SPACING4,
+                    bottom: ScreenDimensions.SCREEN_HEIGHT * TitleScreenDesign.byLine.screenHeight + WINDOW_SPACING.SPACING4,
                 }),
                 text: "by Chad Serrant",
-                textSize: WINDOW_SPACING2,
+                textSize: WINDOW_SPACING.SPACING2,
                 fontColor: colors.backgroundText,
             })
         }
@@ -384,7 +377,7 @@ export class TitleScreen implements GameEngineComponent {
         this.startNewGameButtonLabel = "";
         const playButtonHasBeenClicked: boolean = this.startNewGameButton && this.startNewGameButton.getStatus() === ButtonStatus.ACTIVE;
         let changePlayButtonLabel: boolean = false;
-        let buttonTextSize = WINDOW_SPACING4;
+        let buttonTextSize = WINDOW_SPACING.SPACING4;
         if (windowIsTooSmall) {
             buttonTextSize = buttonWidth / 35;
             this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
@@ -408,8 +401,8 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         const playButtonHorizontalAlignment = windowIsTooSmall
-            ? HORIZ_ALIGN_LEFT
-            : HORIZ_ALIGN_CENTER;
+            ? HORIZONTAL_ALIGN.LEFT
+            : HORIZONTAL_ALIGN.CENTER;
 
         if (this.startNewGameButton === undefined || changePlayButtonLabel) {
             this.startNewGameButton = new Button({
@@ -419,9 +412,9 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(TitleScreenDesign.startGameButton.buttonArea),
                     textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
-                    padding: WINDOW_SPACING1,
-                    horizAlign: HORIZ_ALIGN_CENTER,
-                    vertAlign: VERT_ALIGN_CENTER,
+                    padding: WINDOW_SPACING.SPACING1,
+                    horizAlign: HORIZONTAL_ALIGN.CENTER,
+                    vertAlign: VERTICAL_ALIGN.CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
                 readyLabel: LabelService.new({
@@ -430,9 +423,9 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(TitleScreenDesign.startGameButton.buttonArea),
                     textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
-                    padding: WINDOW_SPACING1,
+                    padding: WINDOW_SPACING.SPACING1,
                     horizAlign: playButtonHorizontalAlignment,
-                    vertAlign: VERT_ALIGN_CENTER,
+                    vertAlign: VERTICAL_ALIGN.CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
                 initialStatus: ButtonStatus.READY,
@@ -456,9 +449,9 @@ export class TitleScreen implements GameEngineComponent {
         if (changePlayButtonLabel) {
             this.continueGameButtonLabel = newButtonLabel;
         }
-        let buttonTextSize = WINDOW_SPACING2;
+        let buttonTextSize = WINDOW_SPACING.SPACING2;
 
-        const playButtonHorizontalAlignment = HORIZ_ALIGN_CENTER;
+        const playButtonHorizontalAlignment = HORIZONTAL_ALIGN.CENTER;
 
         if (this.continueGameButton === undefined || changePlayButtonLabel) {
             this.continueGameButton = new Button({
@@ -468,9 +461,9 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(TitleScreenDesign.continueGameButton.buttonArea),
                     textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
-                    padding: WINDOW_SPACING1,
-                    horizAlign: HORIZ_ALIGN_CENTER,
-                    vertAlign: VERT_ALIGN_CENTER,
+                    padding: WINDOW_SPACING.SPACING1,
+                    horizAlign: HORIZONTAL_ALIGN.CENTER,
+                    vertAlign: VERTICAL_ALIGN.CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
                 readyLabel: LabelService.new({
@@ -479,9 +472,9 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(TitleScreenDesign.continueGameButton.buttonArea),
                     textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
-                    padding: WINDOW_SPACING1,
+                    padding: WINDOW_SPACING.SPACING1,
                     horizAlign: playButtonHorizontalAlignment,
-                    vertAlign: VERT_ALIGN_CENTER,
+                    vertAlign: VERTICAL_ALIGN.CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
                 initialStatus: ButtonStatus.READY,
@@ -627,7 +620,7 @@ export class TitleScreen implements GameEngineComponent {
     private setSirCamilIconBasedOnImageAndTorrinImage(image: GraphicImage) {
         this.sirCamilUIElements.iconArea = RectAreaService.new({
             left: RectAreaService.left(this.sirCamilUIElements.iconArea),
-            top: RectAreaService.bottom(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
+            top: RectAreaService.bottom(this.torrinUIElements.iconArea) + WINDOW_SPACING.SPACING1,
             height: ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
@@ -656,16 +649,16 @@ export class TitleScreen implements GameEngineComponent {
     private setSirCamilDescriptionText() {
         this.sirCamilUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
-                left: RectAreaService.right(this.sirCamilUIElements.iconArea) + WINDOW_SPACING1,
+                left: RectAreaService.right(this.sirCamilUIElements.iconArea) + WINDOW_SPACING.SPACING1,
                 top: this.sirCamilUIElements.iconArea.top,
                 height: this.sirCamilUIElements.iconArea.height,
                 width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.sirCamilUIElements.iconArea),
-                margin: [0, 0, 0, WINDOW_SPACING1],
+                margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: TitleScreenDesign.sirCamil.descriptionText,
-            textSize: WINDOW_SPACING2,
+            textSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
-            vertAlign: VERT_ALIGN_CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         });
     }
 
@@ -712,15 +705,15 @@ export class TitleScreen implements GameEngineComponent {
     private setTorrinDescriptionText() {
         this.torrinUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
-                left: RectAreaService.right(this.torrinUIElements.iconArea) + WINDOW_SPACING1,
+                left: RectAreaService.right(this.torrinUIElements.iconArea) + WINDOW_SPACING.SPACING1,
                 top: this.torrinUIElements.iconArea.top,
                 height: this.torrinUIElements.iconArea.height,
-                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.torrinUIElements.iconArea) - WINDOW_SPACING2,
+                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.torrinUIElements.iconArea) - WINDOW_SPACING.SPACING2,
             }),
             text: TitleScreenDesign.torrin.descriptionText,
-            textSize: WINDOW_SPACING2,
+            textSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
-            vertAlign: VERT_ALIGN_CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         })
     }
 
@@ -761,16 +754,16 @@ export class TitleScreen implements GameEngineComponent {
     private setDemonDescriptionText() {
         this.demonUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
-                left: RectAreaService.right(this.demonUIElements.iconArea) + WINDOW_SPACING1,
+                left: RectAreaService.right(this.demonUIElements.iconArea) + WINDOW_SPACING.SPACING1,
                 top: this.demonUIElements.iconArea.top,
                 height: this.demonUIElements.iconArea.height,
                 width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.demonUIElements.iconArea),
-                margin: [0, 0, 0, WINDOW_SPACING1],
+                margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: TitleScreenDesign.demon.descriptionText,
-            textSize: WINDOW_SPACING2,
+            textSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
-            vertAlign: VERT_ALIGN_CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         });
     }
 
@@ -780,7 +773,7 @@ export class TitleScreen implements GameEngineComponent {
             endColumn: TitleScreenDesign.demon.iconArea.startColumn + 1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: RectAreaService.bottom(this.sirCamilUIElements.iconArea) + WINDOW_SPACING4,
+            top: RectAreaService.bottom(this.sirCamilUIElements.iconArea) + WINDOW_SPACING.SPACING4,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         });
     }

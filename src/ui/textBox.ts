@@ -1,6 +1,6 @@
 import {RectArea} from "./rectArea";
 import * as p5 from "p5";
-import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "./constants";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {isValidValue} from "../utils/validityCheck";
 
@@ -41,8 +41,8 @@ export const TextBoxService = {
             textSize: textSize,
             fontColor: fontColor,
             area: area,
-            horizAlign: horizAlign || HORIZ_ALIGN_LEFT,
-            vertAlign: vertAlign || VERT_ALIGN_BASELINE,
+            horizAlign: horizAlign || HORIZONTAL_ALIGN.LEFT,
+            vertAlign: vertAlign || VERTICAL_ALIGN.BASELINE,
             duration: duration,
             lastTimeDrawn: lastTimeDrawn || Date.now(),
             text: text,
@@ -67,7 +67,7 @@ export const TextBoxService = {
             textBox.area.width,
             textBox.area.height,
         );
-        graphicsContext.textAlign(HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE);
+        graphicsContext.textAlign(HORIZONTAL_ALIGN.LEFT, VERTICAL_ALIGN.BASELINE);
         graphicsContext.pop();
     },
     isDone: (textBox: TextBox): boolean => {

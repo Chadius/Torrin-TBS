@@ -1,7 +1,7 @@
 import {DialoguePlayerService, DialoguePlayerState} from "./dialogue/dialogueBoxPlayer";
 import {CutsceneDecisionTrigger, CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {CutsceneActionPlayerType} from "./cutsceneAction";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
+import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
 import {LabelService} from "../ui/label";
 import {RectAreaService} from "../ui/rectArea";
@@ -443,31 +443,31 @@ const setUpFastForwardButton = (cutscene: Cutscene) => {
             text: "Stop FF",
             fillColor: buttonDeactivateBackgroundColor,
             area: buttonArea,
-            textSize: WINDOW_SPACING4,
+            textSize: WINDOW_SPACING.SPACING4,
             fontColor: buttonTextColor,
-            padding: WINDOW_SPACING1,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING.SPACING1,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         }),
         readyLabel: LabelService.new({
             text: "Fast-forward",
             fillColor: buttonActivateBackgroundColor,
             area: buttonArea,
-            textSize: WINDOW_SPACING4,
+            textSize: WINDOW_SPACING.SPACING4,
             fontColor: buttonTextColor,
-            padding: WINDOW_SPACING1,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING.SPACING1,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         }),
         hoverLabel: LabelService.new({
             text: "Click to FF",
             fillColor: buttonActivateBackgroundColor,
             area: buttonArea,
-            textSize: WINDOW_SPACING4,
+            textSize: WINDOW_SPACING.SPACING4,
             fontColor: buttonTextColor,
-            padding: WINDOW_SPACING1,
-            horizAlign: HORIZ_ALIGN_CENTER,
-            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING.SPACING1,
+            horizAlign: HORIZONTAL_ALIGN.CENTER,
+            vertAlign: VERTICAL_ALIGN.CENTER,
         }),
         initialStatus: ButtonStatus.READY,
         onClickHandler(mouseX: number, mouseY: number, button: Button, caller: Cutscene): {} {
