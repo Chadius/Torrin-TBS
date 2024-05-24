@@ -6,8 +6,36 @@ import {MapLayer} from "../missionMap/mapLayer";
 import {MouseButton} from "../utils/mouseConfig";
 import {convertMapCoordinatesToWorldCoordinates} from "./convertCoordinates";
 import {BattleCamera} from "../battle/battleCamera";
+import {ResourceHandler} from "../resource/resourceHandler";
+import {MockedP5GraphicsContext, mockResourceHandler} from "../utils/test/mocks";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 describe('hexMap', () => {
+    describe('prerender a map image', () => {
+        let map: TerrainTileMap;
+        let resourceHandler: ResourceHandler;
+        let graphicsContext: GraphicsContext;
+        beforeEach(async () => {
+            graphicsContext = new MockedP5GraphicsContext();
+            resourceHandler = mockResourceHandler()
+            map = new TerrainTileMap({
+                movementCost: [
+                    "1 1 2 ",
+                    " - 1 x "
+                ],
+                resourceHandler
+            })
+        })
+        it('should try to create a background canvas', () => {
+
+        })
+        it('should render onto that canvas', () => {
+        })
+        it('should have an ImageUI available', () => {
+        })
+        it('should draw at the expected coordinates given a camera', () => {
+        })
+    })
     describe('mouseClicks on the map change the outlined tile', () => {
         let hexGrid: TerrainTileMap
 
