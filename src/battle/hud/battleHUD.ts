@@ -7,7 +7,7 @@ import {PopupWindow, PopupWindowService, PopupWindowStatus} from "./popupWindow"
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {BattleCamera} from "../battleCamera";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {LabelService} from "../../ui/label";
+import {LabelService, TextBoxMargin} from "../../ui/label";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -34,7 +34,7 @@ export interface BattleHUD {
 
 const differentSquaddieMidTurnPopupConstants: {
     width: number;
-    label: { fillColor: number[]; padding: number; textSize: number; vertAlign: p5.VERT_ALIGN; fontColor: number[] };
+    label: { fillColor: number[]; textSize: number; vertAlign: p5.VERT_ALIGN; fontColor: number[] } & TextBoxMargin;
     height: number
 } = {
     label: {
@@ -42,7 +42,7 @@ const differentSquaddieMidTurnPopupConstants: {
         fontColor: [245, 20, 90],
         fillColor: [60, 40, 10],
         vertAlign: VERTICAL_ALIGN.CENTER,
-        padding: 8,
+        textBoxMargin: 8,
     },
     width: 150,
     height: 80,

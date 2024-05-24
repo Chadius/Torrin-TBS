@@ -39,7 +39,7 @@ export class DialogueAnswerButton {
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
 
         this.answerLabel = LabelService.new({
-            padding: [this.buttonRect.height * 0.1, this.buttonRect.width * 0.1],
+            textBoxMargin: [this.buttonRect.height * 0.1, this.buttonRect.width * 0.1],
             area: RectAreaService.new({
                 left: this.buttonRect.left,
                 top: this.buttonRect.top,

@@ -478,7 +478,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
             fontColor: [0, 0, 16],
-            padding: [0, 0, 0, 0],
+            textBoxMargin: [0, 0, 0, 0],
         });
 
         LabelService.draw(buttonBackground, graphicsContext);

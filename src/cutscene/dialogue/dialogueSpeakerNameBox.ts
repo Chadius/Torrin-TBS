@@ -36,7 +36,7 @@ export class DialogueSpeakerNameBox {
         const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
 
         this.speakerNameLabel = LabelService.new({
-            padding: [WINDOW_SPACING.SPACING2, 0, 0, WINDOW_SPACING.SPACING2 * 0.5],
+            textBoxMargin: [WINDOW_SPACING.SPACING2, 0, 0, WINDOW_SPACING.SPACING2 * 0.5],
             area: RectAreaService.new({
                 left: speakerBoxLeft,
                 top: speakerBoxTop,

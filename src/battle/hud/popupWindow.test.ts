@@ -13,7 +13,7 @@ describe('PopUp', () => {
     beforeEach(() => {
         popup = PopupWindowService.new({
             label: LabelService.new({
-                padding: 0,
+                textBoxMargin: 0,
                 area: RectAreaService.new({
                     left: 200,
                     top: 300,
@@ -111,7 +111,7 @@ describe('PopUp', () => {
                                                       }) => {
             popup = PopupWindowService.new({
                 label: LabelService.new({
-                    padding: 0,
+                    textBoxMargin: 0,
                     area: RectAreaService.new({
                         left: worldX,
                         top: worldY,
@@ -142,7 +142,7 @@ describe('PopUp', () => {
         beforeEach(() => {
             popup = PopupWindowService.new({
                 label: LabelService.new({
-                    padding: 0,
+                    textBoxMargin: 0,
                     area: RectAreaService.new({
                         left: 0,
                         top: 0,

@@ -98,7 +98,7 @@ export class ActorTextWindow {
         ];
 
         this._actorLabel = LabelService.new({
-            padding: WINDOW_SPACING.SPACING1,
+            textBoxMargin: WINDOW_SPACING.SPACING1,
             area: RectAreaService.new({
                 startColumn: 4,
                 endColumn: 5,

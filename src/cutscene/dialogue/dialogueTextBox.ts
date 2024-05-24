@@ -32,7 +32,7 @@ export class DialogueTextBox {
         const dialogueBoxLeft = WINDOW_SPACING.SPACING2;
 
         this.speakerTextLabel = LabelService.new({
-            padding: [WINDOW_SPACING.SPACING4, WINDOW_SPACING.SPACING2, 0, WINDOW_SPACING.SPACING2],
+            textBoxMargin: [WINDOW_SPACING.SPACING4, WINDOW_SPACING.SPACING2, 0, WINDOW_SPACING.SPACING2],
             area: RectAreaService.new({
                 left: dialogueBoxLeft,
                 top: dialogueBoxTop - WINDOW_SPACING.SPACING2,

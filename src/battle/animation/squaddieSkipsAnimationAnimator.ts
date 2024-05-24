@@ -102,7 +102,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                 text: textToDraw,
                 textSize: 24,
                 fontColor: [0, 0, 16],
-                padding: [16, 0, 0, 16],
+                textBoxMargin: [16, 0, 0, 16],
             });
         }
 

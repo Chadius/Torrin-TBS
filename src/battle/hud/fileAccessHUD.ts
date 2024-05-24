@@ -260,7 +260,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         readyLabel: LabelService.new({
             area: loadButtonArea,
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -272,7 +272,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         activeLabel: LabelService.new({
             area: loadButtonArea,
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -284,7 +284,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         disabledLabel: LabelService.new({
             area: loadButtonArea,
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -296,7 +296,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         hoverLabel: LabelService.new({
             area: loadButtonArea,
             fontColor: FileAccessHUDDesign.LOAD_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.LOAD_BUTTON.PADDING,
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -321,7 +321,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         readyLabel: LabelService.new({
             area: saveButtonArea,
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -333,7 +333,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         activeLabel: LabelService.new({
             area: saveButtonArea,
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -345,7 +345,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         disabledLabel: LabelService.new({
             area: saveButtonArea,
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -357,7 +357,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
         hoverLabel: LabelService.new({
             area: saveButtonArea,
             fontColor: FileAccessHUDDesign.SAVE_BUTTON.FONT_COLOR,
-            padding: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
+            textBoxMargin: FileAccessHUDDesign.SAVE_BUTTON.PADDING,
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
@@ -385,7 +385,7 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
         area: messageLabelArea,
         noFill: FileAccessHUDDesign.MESSAGE_LABEL.RECTANGLE.noFill,
         noStroke: FileAccessHUDDesign.MESSAGE_LABEL.RECTANGLE.noStroke,
-        padding: FileAccessHUDDesign.MESSAGE_LABEL.PADDING,
+        textBoxMargin: FileAccessHUDDesign.MESSAGE_LABEL.PADDING,
         text: fileAccessHUD.message,
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,

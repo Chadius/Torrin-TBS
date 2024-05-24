@@ -108,7 +108,7 @@ describe('Battle HUD', () => {
                     textSize: 10,
                     fontColor: [0, 0, 100],
                     fillColor: [0, 0, 10],
-                    padding: 8,
+                    textBoxMargin: 8,
                 })
             })
 
@@ -143,7 +143,7 @@ describe('Battle HUD', () => {
                     textSize: 10,
                     fontColor: [0, 0, 100],
                     fillColor: [0, 0, 10],
-                    padding: 8,
+                    textBoxMargin: 8,
                 })
             })
 

@@ -37,7 +37,7 @@ export const PopupWindowService = {
             fontColor: [0, 0, 100],
             textSize: 10,
             text: "",
-            padding: 0
+            textBoxMargin: 0
         })
 
         return {

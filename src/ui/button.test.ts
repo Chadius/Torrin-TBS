@@ -7,7 +7,7 @@ describe('Button UI', () => {
         const button = new Button({
             readyLabel: LabelService.new({
                 area: undefined,
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "ready",
                 textSize: 8,
                 fontColor: [],
@@ -21,7 +21,7 @@ describe('Button UI', () => {
         const button = new Button({
             readyLabel: LabelService.new({
                 area: undefined,
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "should be active",
                 textSize: 8,
                 fontColor: [],
@@ -36,7 +36,7 @@ describe('Button UI', () => {
         const button = new Button({
             readyLabel: LabelService.new({
                 area: undefined,
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "active then ready",
                 textSize: 8,
                 fontColor: [],
@@ -61,7 +61,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -89,7 +89,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -101,7 +101,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "you are hovering over this",
                 textSize: 8,
                 fontColor: [],
@@ -130,7 +130,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "disabled",
                 textSize: 8,
                 fontColor: [],
@@ -157,7 +157,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -169,7 +169,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "you are hovering over this",
                 textSize: 8,
                 fontColor: [],
@@ -198,7 +198,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -224,7 +224,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -236,7 +236,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "you are hovering over this",
                 textSize: 8,
                 fontColor: [],
@@ -262,7 +262,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -274,7 +274,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "you are hovering over this",
                 textSize: 8,
                 fontColor: [],
@@ -299,7 +299,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "go button handler",
                 textSize: 8,
                 fontColor: [],
@@ -311,7 +311,7 @@ describe('Button UI', () => {
                     right: 100,
                     bottom: 150
                 }),
-                padding: undefined,
+                textBoxMargin: undefined,
                 text: "you are hovering over this",
                 textSize: 8,
                 fontColor: [],

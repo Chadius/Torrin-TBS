@@ -3,8 +3,8 @@ import {TextBox, TextBoxArguments, TextBoxService} from "./textBox";
 import {Rectangle, RectangleArguments, RectangleHelper} from "./rectangle";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
-export type Padding = {
-    padding: number | [number, number] | [number, number, number] | [number, number, number, number];
+export type TextBoxMargin = {
+    textBoxMargin: number | [number, number] | [number, number, number] | [number, number, number, number];
 }
 
 export interface Label {
@@ -13,18 +13,18 @@ export interface Label {
 }
 
 export const LabelService = {
-    new: (options: RectangleArguments & TextBoxArguments & Padding): Label => {
+    new: (options: RectangleArguments & TextBoxArguments & TextBoxMargin): Label => {
         let rectangle = RectangleHelper.new(options);
 
-        const textBoxWithPadding = RectAreaService.new({
+        const innerTextRect = RectAreaService.new({
             baseRectangle: options.area,
-            margin: options.padding
+            margin: options.textBoxMargin
         });
 
         let textBox = TextBoxService.new({
             ...options,
             ...{
-                area: textBoxWithPadding,
+                area: innerTextRect,
             }
         });
 

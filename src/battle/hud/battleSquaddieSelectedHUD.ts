@@ -729,7 +729,7 @@ export class BattleSquaddieSelectedHUD {
             area: nextButtonArea,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            padding: WINDOW_SPACING.SPACING1,
+            textBoxMargin: WINDOW_SPACING.SPACING1,
         });
     }
 
@@ -832,7 +832,7 @@ export class BattleSquaddieSelectedHUD {
             area: endTurnButtonArea,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            padding: WINDOW_SPACING.SPACING1,
+            textBoxMargin: WINDOW_SPACING.SPACING1,
         });
     }
 

@@ -67,7 +67,7 @@ export class WeaponIcon {
         }
 
         this._attackingLabel = LabelService.new({
-            padding: 0,
+            textBoxMargin: 0,
             area: RectAreaService.new({
                 left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
                 top: RectAreaService.centerY(actorImageArea),
