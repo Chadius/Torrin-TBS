@@ -12,7 +12,7 @@ import {SaveFile} from "../utils/fileHandling/saveFile";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
-import {BattleCameraHelper} from "../battle/battleCamera";
+import {BattleCameraService} from "../battle/battleCamera";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {Campaign, CampaignService} from "../campaign/campaign";
 import {isValidValue} from "../utils/validityCheck";
@@ -179,7 +179,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
         );
 
         battleOrchestratorState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
-        battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderContext.mapSettings.camera});
+        battleOrchestratorState.battleState.camera = BattleCameraService.clone({original: this.missionLoaderContext.mapSettings.camera});
 
         battleOrchestratorState.battleState.missionCompletionStatus = {};
         battleOrchestratorState.battleState.objectives = this.missionLoaderContext.objectives;

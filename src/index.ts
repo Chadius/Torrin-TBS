@@ -10,18 +10,18 @@ const CAMPAIGN_ID: string = "templeDefense";
 const mousePressedTracker: { [buttonName in string]: boolean } = {};
 
 export const sketch = (p: p5) => {
-    p.setup = async () => {
+    p.setup = () => {
         const canvas = p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
         p.colorMode("hsb", 360, 100, 100, 255)
         canvas.elt.addEventListener("contextmenu", (e: { preventDefault: () => any; }) => e.preventDefault())
 
         const p5GraphicsContext = new P5GraphicsContext({p});
         gameEngine = new GameEngine({graphicsContext: p5GraphicsContext, startupMode: StartupMode});
-        await gameEngine.setup({graphicsContext: p5GraphicsContext, campaignId: CAMPAIGN_ID});
+        gameEngine.setup({graphicsContext: p5GraphicsContext, campaignId: CAMPAIGN_ID}).then(r => {});
     }
 
     p.draw = () => {
-        gameEngine.draw();
+        gameEngine.draw().then(r => {});
     }
 
     p.keyPressed = () => {

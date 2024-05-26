@@ -13,9 +13,12 @@ export type PanningInformation = {
     respectConstraints: boolean,
 };
 
-export const BattleCameraHelper = {
+export const BattleCameraService = {
+    new: ({xCoordinate,yCoordinate}:{xCoordinate?: number,yCoordinate?: number}): BattleCamera => {
+        return new BattleCamera(xCoordinate, yCoordinate)
+    },
     clone: ({original}: { original: BattleCamera }): BattleCamera => {
-        const newCamera: BattleCamera = new BattleCamera(original.xCoord, original.yCoord);
+        const newCamera: BattleCamera = new BattleCamera(original.xCoordinate, original.yCoordinate);
         newCamera.setMapDimensionBoundaries(original.mapDimensionBoundaries.widthOfWidestRow, original.mapDimensionBoundaries.numberOfRows);
         newCamera.setXVelocity(original.xVelocity);
         newCamera.setYVelocity(original.yVelocity);
@@ -24,8 +27,8 @@ export const BattleCameraHelper = {
 }
 
 export class BattleCamera {
-    xCoord: number;
-    yCoord: number;
+    xCoordinate: number;
+    yCoordinate: number;
 
     xVelocity: number;
     yVelocity: number;
@@ -37,9 +40,9 @@ export class BattleCamera {
 
     panningInformation?: PanningInformation;
 
-    constructor(xCoord: number = 0, yCoord: number = 0) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+    constructor(xCoordinate: number = 0, yCoordinate: number = 0) {
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
 
         this.xVelocity = 0;
         this.yVelocity = 0;
@@ -54,11 +57,11 @@ export class BattleCamera {
     }
 
     getCoordinates(): [number, number] {
-        return [this.xCoord, this.yCoord];
+        return [this.xCoordinate, this.yCoordinate];
     }
 
     getCoordinatesAsObject(): { cameraX: number, cameraY: number } {
-        return {cameraX: this.xCoord, cameraY: this.yCoord};
+        return {cameraX: this.xCoordinate, cameraY: this.yCoordinate};
     }
 
     getVelocity(): [number, number] {
@@ -71,8 +74,8 @@ export class BattleCamera {
             return;
         }
 
-        this.xCoord += this.xVelocity;
-        this.yCoord += this.yVelocity;
+        this.xCoordinate += this.xVelocity;
+        this.yCoordinate += this.yVelocity;
         this.constrainCamera();
     }
 
@@ -86,8 +89,8 @@ export class BattleCamera {
 
         if (!this.mapDimensionBoundaries) {
             const topOfFirstRow: number = 0;
-            if (this.yCoord < topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2) {
-                this.yCoord = topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2;
+            if (this.yCoordinate < topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2) {
+                this.yCoordinate = topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2;
                 this.setYVelocity(0);
                 return;
             }
@@ -101,19 +104,19 @@ export class BattleCamera {
         } = this.getCameraBoundaries();
         const mapVerticallyFitsOnScreen = worldLocationOfStartOfFirstRow[1] >= 0 && worldLocationOfEndOfLastRow[1] <= ScreenDimensions.SCREEN_HEIGHT;
         if (mapVerticallyFitsOnScreen) {
-            this.yCoord = (worldLocationOfStartOfFirstRow[1] + worldLocationOfEndOfLastRow[1]) / 2;
+            this.yCoordinate = (worldLocationOfStartOfFirstRow[1] + worldLocationOfEndOfLastRow[1]) / 2;
             this.setYVelocity(0);
             return;
         }
 
-        if (this.yCoord < coordinateLimits.top) {
-            this.yCoord = coordinateLimits.top;
+        if (this.yCoordinate < coordinateLimits.top) {
+            this.yCoordinate = coordinateLimits.top;
             this.setYVelocity(0);
             return;
         }
 
-        if (this.yCoord > RectAreaService.bottom(coordinateLimits)) {
-            this.yCoord = RectAreaService.bottom(coordinateLimits);
+        if (this.yCoordinate > RectAreaService.bottom(coordinateLimits)) {
+            this.yCoordinate = RectAreaService.bottom(coordinateLimits);
             this.setYVelocity(0);
             return;
         }
@@ -131,19 +134,19 @@ export class BattleCamera {
         } = this.getCameraBoundaries();
         const doesMapFitHorizontallyOnScreen = worldLocationOfStartOfFirstRow[0] >= 0 && worldLocationOfEndOfLastRow[0] <= ScreenDimensions.SCREEN_WIDTH;
         if (doesMapFitHorizontallyOnScreen) {
-            this.xCoord = (worldLocationOfStartOfFirstRow[0] + worldLocationOfEndOfLastRow[0]) / 2;
+            this.xCoordinate = (worldLocationOfStartOfFirstRow[0] + worldLocationOfEndOfLastRow[0]) / 2;
             this.setXVelocity(0);
             return;
         }
 
-        if (this.xCoord < coordinateLimits.left) {
-            this.xCoord = coordinateLimits.left;
+        if (this.xCoordinate < coordinateLimits.left) {
+            this.xCoordinate = coordinateLimits.left;
             this.setXVelocity(0);
             return;
         }
 
-        if (this.xCoord > RectAreaService.right(coordinateLimits)) {
-            this.xCoord = RectAreaService.right(coordinateLimits);
+        if (this.xCoordinate > RectAreaService.right(coordinateLimits)) {
+            this.xCoordinate = RectAreaService.right(coordinateLimits);
             this.setXVelocity(0);
             return;
         }
@@ -188,8 +191,8 @@ export class BattleCamera {
         }
 
         this.panningInformation = {
-            xStartCoordinate: this.xCoord,
-            yStartCoordinate: this.yCoord,
+            xStartCoordinate: this.xCoordinate,
+            yStartCoordinate: this.yCoordinate,
             xDestination: xDestination,
             yDestination: yDestination,
             timeToPan: timeToPan,
@@ -213,8 +216,8 @@ export class BattleCamera {
         const timePassed: number = Date.now() - this.panningInformation.panStartTime;
 
         if (timePassed >= this.panningInformation.timeToPan) {
-            this.xCoord = this.panningInformation.xDestination;
-            this.yCoord = this.panningInformation.yDestination;
+            this.xCoordinate = this.panningInformation.xDestination;
+            this.yCoordinate = this.panningInformation.yDestination;
             if (this.panningInformation.respectConstraints) {
                 this.constrainCamera();
             }
@@ -223,12 +226,12 @@ export class BattleCamera {
             return;
         }
 
-        this.xCoord = (
+        this.xCoordinate = (
             this.panningInformation.xDestination
             - this.panningInformation.xStartCoordinate
         ) * (timePassed / this.panningInformation.timeToPan) + this.panningInformation.xStartCoordinate;
 
-        this.yCoord = (
+        this.yCoordinate = (
             this.panningInformation.yDestination
             - this.panningInformation.yStartCoordinate
         ) * (timePassed / this.panningInformation.timeToPan) + this.panningInformation.yStartCoordinate;

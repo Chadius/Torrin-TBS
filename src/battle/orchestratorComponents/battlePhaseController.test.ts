@@ -323,8 +323,8 @@ describe('BattlePhaseController', () => {
 
             const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(playerSquaddieTeam.battleSquaddieIds[0])
             const playerSquaddieLocation = convertMapCoordinatesToWorldCoordinates(datum.mapLocation.q, datum.mapLocation.r);
-            state.battleOrchestratorState.battleState.camera.xCoord = playerSquaddieLocation[0];
-            state.battleOrchestratorState.battleState.camera.yCoord = playerSquaddieLocation[1];
+            state.battleOrchestratorState.battleState.camera.xCoordinate = playerSquaddieLocation[0];
+            state.battleOrchestratorState.battleState.camera.yCoordinate = playerSquaddieLocation[1];
 
             battlePhaseController = new BattlePhaseController();
             const startTime = 0;

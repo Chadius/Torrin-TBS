@@ -18,7 +18,7 @@ export class P5GraphicsContext implements GraphicsContext {
         this.p.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
     }
 
-    createImage(height: number, width: number): GraphicImage {
+    createImage(width: number, height: number): GraphicImage {
         return this.p.createImage(width, height);
     }
 
@@ -33,7 +33,6 @@ export class P5GraphicsContext implements GraphicsContext {
 
         if (color) {
             this.p.fill(color);
-            return;
         }
     }
 
@@ -89,7 +88,6 @@ export class P5GraphicsContext implements GraphicsContext {
 
         if (color) {
             this.p.stroke(color);
-            return;
         }
     }
 
@@ -141,5 +139,9 @@ export class P5GraphicsContext implements GraphicsContext {
 
     windowWidth(): number {
         return this.p.windowWidth;
+    }
+
+    createGraphics(width: number, height: number): p5.Graphics {
+        return this.p.createGraphics(width, height);
     }
 }

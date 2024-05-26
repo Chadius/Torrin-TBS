@@ -51,7 +51,7 @@ type HexTileDrawOptions = {
     worldLocation?: { x: number, y: number };
 }
 
-export function drawHexTile(options: HexTileDrawOptions): void {
+const drawHexTile = (options: HexTileDrawOptions): void => {
     const {
         graphicsContext,
         q,
@@ -128,9 +128,9 @@ export function drawHexTile(options: HexTileDrawOptions): void {
 
         graphicsContext.pop();
     }
-}
+};
 
-export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, worldY: number, cameraX: number, cameraY: number) {
+const drawHexShape = (graphicsContext: GraphicsContext, worldX: number, worldY: number, cameraX: number, cameraY: number) => {
     let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(worldX, worldY, cameraX, cameraY)
 
     graphicsContext.push();
@@ -147,14 +147,14 @@ export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, w
     graphicsContext.endShape("close");
 
     graphicsContext.pop();
-}
+};
 
-export function drawOutlinedTile(
+const drawOutlinedTile = (
     graphicsContext: GraphicsContext,
     outlineTileCoordinates: HexCoordinate,
     cameraX: number,
     cameraY: number,
-): void {
+): void => {
     graphicsContext.push();
 
     const strokeColor = [
@@ -171,8 +171,9 @@ export function drawOutlinedTile(
     let yPos = (outlineTileCoordinates.q * 0.866) * HEX_TILE_WIDTH
     drawHexShape(graphicsContext, xPos, yPos, cameraX, cameraY);
     graphicsContext.pop();
-}
+};
 
+// TODO add tests to draw the actual map
 export const HexDrawingUtils = {
     drawHexMap: (graphicsContext: GraphicsContext, map: TerrainTileMap, camera: BattleCamera) => {
         const onScreenTiles = map.tiles.filter(tile => TerrainTileMapService.isTileOnScreen(map, tile.q, tile.r, camera))

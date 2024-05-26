@@ -37,6 +37,14 @@ jest.mock('p5', () => () => {
         vertex: jest.fn(),
         windowWidth: jest.fn().mockReturnValue(16 * 12),
         windowHeight: jest.fn().mockReturnValue(9 * 12),
+        createGraphics: jest.fn().mockImplementation((width: number, height: number) => {
+            return {
+                reset: jest.fn(),
+                remove: jest.fn(),
+                width,
+                height,
+            }
+        }),
     }
 });
 
@@ -93,7 +101,7 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
     }
 
-    createImage(height: number, width: number): GraphicImage {
+    createImage(width: number, height: number): GraphicImage {
         return this.mockedP5.createImage(width, height);
     }
 
@@ -198,6 +206,10 @@ export class MockedP5GraphicsContext implements GraphicsContext {
     windowWidth(): number {
         return this.mockedP5.windowWidth;
     }
+
+    createGraphics(width: number, height: number): p5.Graphics {
+        return this.mockedP5.createGraphics(width, height)
+    }
 }
 
 export class GraphicImageWithStringAsData implements GraphicImage {
@@ -216,5 +228,6 @@ export class GraphicImageWithStringAsData implements GraphicImage {
     }
 
     loadPixels(): void {
+        return
     }
 }

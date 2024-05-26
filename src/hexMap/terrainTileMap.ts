@@ -14,6 +14,10 @@ import {MouseButton} from "../utils/mouseConfig";
 import {BattleCamera} from "../battle/battleCamera";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {ImageUI} from "../ui/imageUI";
+import {RectAreaService} from "../ui/rectArea";
+import p5 from "p5";
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
     const newTiles: HexGridTile[] = [];
@@ -58,6 +62,7 @@ export class TerrainTileMap {
     tiles: HexGridTile[];
     outlineTileCoordinates: HexCoordinate | undefined;
     resourceHandler: ResourceHandler;
+    terrainImageUI: ImageUI;
 
     constructor({
                     movementCost,
@@ -313,5 +318,34 @@ export const TerrainTileMapService = {
         )
 
         return horizontallyOnScreen && verticallyOnScreen
+    },
+    createMapImage: ({resourceHandler, graphicsContext, map}: {
+        map: TerrainTileMap
+        graphicsContext: GraphicsContext
+        resourceHandler: ResourceHandler
+    }) => {
+        const imageDimensions = convertMapCoordinatesToWorldCoordinates(
+            map.getDimensions().numberOfRows + 2,
+            map.getDimensions().widthOfWidestRow + 2
+        )
+
+        const mapRenderCanvas: p5.Graphics = graphicsContext.createGraphics(imageDimensions[0], imageDimensions[1])
+
+        map.terrainImageUI = new ImageUI({
+            graphic: mapRenderCanvas,
+            area: RectAreaService.new({left: 0, top: 0, width: mapRenderCanvas.width, height: mapRenderCanvas.height}),
+        })
+    },
+    draw: ({map, graphicsContext, camera}: {
+        map: TerrainTileMap,
+        graphicsContext: GraphicsContext,
+        camera: BattleCamera
+    }) => {
+        const cameraLocation = camera.getCoordinates()
+        RectAreaService.move(map.terrainImageUI.area, {
+            left: ScreenDimensions.SCREEN_WIDTH / 2 - cameraLocation[0] - RectAreaService.centerX(map.terrainImageUI.area),
+            top: ScreenDimensions.SCREEN_HEIGHT / 2 - cameraLocation[1] - RectAreaService.centerY(map.terrainImageUI.area),
+        })
+        map.terrainImageUI.draw(graphicsContext)
     }
 }

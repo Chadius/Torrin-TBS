@@ -1,39 +1,67 @@
 import {TerrainTileMap, TerrainTileMapService} from "./terrainTileMap";
-import {HEX_TILE_WIDTH} from "../graphicsConstants";
+import {HEX_TILE_RADIUS, HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {MapLayer} from "../missionMap/mapLayer";
 import {MouseButton} from "../utils/mouseConfig";
 import {convertMapCoordinatesToWorldCoordinates} from "./convertCoordinates";
-import {BattleCamera} from "../battle/battleCamera";
+import {BattleCamera, BattleCameraService} from "../battle/battleCamera";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {MockedP5GraphicsContext, mockResourceHandler} from "../utils/test/mocks";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {ImageUI} from "../ui/imageUI";
+import {RectAreaService} from "../ui/rectArea";
 
 describe('hexMap', () => {
     describe('prerender a map image', () => {
-        let map: TerrainTileMap;
-        let resourceHandler: ResourceHandler;
-        let graphicsContext: GraphicsContext;
+        let map: TerrainTileMap
+        let resourceHandler: ResourceHandler
+        let graphicsContext: GraphicsContext
+        let createGraphicsSpy: jest.SpyInstance
         beforeEach(async () => {
             graphicsContext = new MockedP5GraphicsContext();
             resourceHandler = mockResourceHandler()
-            map = new TerrainTileMap({
+            map = TerrainTileMapService.new({
                 movementCost: [
                     "1 1 2 ",
                     " - 1 x "
                 ],
-                resourceHandler
             })
+
+            createGraphicsSpy = jest.spyOn(graphicsContext, "createGraphics")
+            TerrainTileMapService.createMapImage({map, graphicsContext, resourceHandler})
+        })
+        afterEach(() => {
+            createGraphicsSpy.mockRestore()
         })
         it('should try to create a background canvas', () => {
+            expect(createGraphicsSpy).toBeCalled()
+        })
+        // TODO add tests to draw the actual hex shapes onto the map
+        it('should create an ImageUI large enough to fit', () => {
+            let terrainImageUI: ImageUI = map.terrainImageUI
 
-        })
-        it('should render onto that canvas', () => {
-        })
-        it('should have an ImageUI available', () => {
+            const lowerRightCorner = convertMapCoordinatesToWorldCoordinates(map.getDimensions().numberOfRows + 2, map.getDimensions().widthOfWidestRow + 2)
+
+            expect(RectAreaService.width(terrainImageUI.area)).toBeCloseTo(lowerRightCorner[0])
+            expect(RectAreaService.height(terrainImageUI.area)).toBeCloseTo(lowerRightCorner[1])
         })
         it('should draw at the expected coordinates given a camera', () => {
+            let terrainImageUI: ImageUI = map.terrainImageUI
+            let drawSpy: jest.SpyInstance = jest.spyOn(terrainImageUI, "draw")
+
+            let centerAtQ1R1 = convertMapCoordinatesToWorldCoordinates(1,1)
+            let camera: BattleCamera = BattleCameraService.new({
+                xCoordinate: centerAtQ1R1[0],
+                yCoordinate: centerAtQ1R1[1],
+            })
+            TerrainTileMapService.draw({map, graphicsContext, camera})
+
+            expect(RectAreaService.centerX(terrainImageUI.area)).toBeCloseTo(ScreenDimensions.SCREEN_WIDTH / 2 - (3 * HEX_TILE_WIDTH / 2))
+            expect(RectAreaService.centerY(terrainImageUI.area)).toBeCloseTo(ScreenDimensions.SCREEN_HEIGHT / 2 - (3 * HEX_TILE_RADIUS / 2))
+
+            expect(drawSpy).toBeCalledWith(graphicsContext)
+            drawSpy.mockRestore()
         })
     })
     describe('mouseClicks on the map change the outlined tile', () => {
