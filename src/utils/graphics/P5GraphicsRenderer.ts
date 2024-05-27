@@ -112,11 +112,19 @@ export class P5GraphicsRenderer implements GraphicsRenderer {
         this.p.noFill();
     }
 
-    windowHeight(): number {
-        return this.p.windowHeight;
+    get height(): number {
+        return this.p.windowHeight
+    }
+
+    get width(): number {
+        return this.p.windowWidth
     }
 
     windowWidth(): number {
-        return this.p.windowWidth;
+        return this.p.windowWidth
+    }
+
+    windowHeight(): number {
+        return this.p.windowHeight
     }
 }

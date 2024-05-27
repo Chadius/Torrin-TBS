@@ -113,7 +113,7 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         this.mockedP5.line(x1, y1, x2, y2);
     }
 
-    loadImage(pathToImage: string, successCallback: () => {}, failureCallback: () => {}): void {
+    loadImage(pathToImage: string, successCallback: (loadedImage: p5.Image) => void, failureCallback: (failEvent: Event) => void): void {
         this.mockedP5.loadImage(pathToImage, successCallback, failureCallback);
     }
 
@@ -172,6 +172,13 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     vertex(x: number, y: number): void {
         this.mockedP5.vertex(x, y);
     }
+
+    get height(): number {
+        return this.mockedP5.windowHeight
+    }
+    get width(): number {
+        return this.mockedP5.windowWidth
+    }
 }
 
 export class MockedP5GraphicsRenderer extends MockedP5GraphicsBuffer implements GraphicsRenderer {
@@ -182,11 +189,22 @@ export class MockedP5GraphicsRenderer extends MockedP5GraphicsBuffer implements 
         this.mockedP5 = mockedP5();
     }
 
-    windowHeight(): number {
-        return this.mockedP5.windowHeight;
+    get p() {
+        return this.mockedP5
+    }
+
+    get height(): number {
+        return this.mockedP5.windowHeight
+    }
+    get width(): number {
+        return this.mockedP5.windowWidth
     }
 
     windowWidth(): number {
-        return this.mockedP5.windowWidth;
+        return this.mockedP5.windowWidth
+    }
+
+    windowHeight(): number {
+        return this.mockedP5.windowHeight
     }
 }

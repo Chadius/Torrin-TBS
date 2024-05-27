@@ -36,8 +36,8 @@ class P5ImageLoader implements ResourceTypeLoader {
     successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {};
     failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any;
 
-    constructor(graphicsContext: GraphicsRenderer) {
-        this.graphicsContext = graphicsContext as P5GraphicsRenderer;
+    constructor(graphicsContext: P5GraphicsRenderer) {
+        this.graphicsContext = graphicsContext;
     }
 
     setCallbacks(

@@ -7,6 +7,7 @@ export type ColorDescription = {
 export interface GraphicsRenderer extends GraphicsBuffer {
     windowWidth(): number;
     windowHeight(): number;
+    get p(): p5
 }
 
 export interface GraphicsBuffer {
@@ -16,7 +17,7 @@ export interface GraphicsBuffer {
     fill(hue: number, saturation: number, brightness: number): void
     image(data: p5.Image, left: number, top: number, width?: number, height?: number): void
     line(x1: number, y1: number, x2: number, y2: number): void
-    loadImage(pathToImage: string, successCallback: () => {}, failureCallback: () => {}): void
+    loadImage (pathToImage: string, successCallback: (loadedImage: p5.Image) => void, failureCallback: (failEvent: Event) => void): void
     noStroke(): void
     noTint(): void
     pop(): void
@@ -33,27 +34,6 @@ export interface GraphicsBuffer {
     vertex(x: number, y: number): void
     endShape(mode: string): void
     noFill(): void
+    get width(): number
+    get height(): number
 }
-
-// export interface GraphicImage {
-//     loadPixels(): void
-//     get width(): number
-//     get height(): number
-//     get(): GraphicImage
-//     set(x: number, y: number, a: number | number[] | object): void
-//     updatePixels(): void
-//     resize(width: number, height: number): void
-//     reset(): void
-//     copy(sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void
-//     mask(srcImage: GraphicImage): void
-//     filter(filterType: p5.FILTER_TYPE, filterParam?: number): void
-//     blend(sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number, blendMode: UNKNOWN_P5_CONSTANT): void
-//     save(filename: string, extension: string): void
-//     getCurrentFrame(): number
-//     setFrame(index: number): void
-//     numFrames(): number
-//     play(): void
-//     pause(): void
-//     delay(     d: number,     index?: number): void
-//     pixels: number[]
-// }

@@ -368,12 +368,12 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private updateStartGameButton(graphicsContext: GraphicsRenderer) {
-        const windowIsTooSmall: boolean = graphicsContext.windowWidth() < ScreenDimensions.SCREEN_WIDTH
-            || graphicsContext.windowHeight() < ScreenDimensions.SCREEN_HEIGHT;
+        const windowIsTooSmall: boolean = graphicsContext.width < ScreenDimensions.SCREEN_WIDTH
+            || graphicsContext.height < ScreenDimensions.SCREEN_HEIGHT;
 
-        const buttonWidth = graphicsContext.windowWidth() > ScreenDimensions.SCREEN_WIDTH
+        const buttonWidth = graphicsContext.width > ScreenDimensions.SCREEN_WIDTH
             ? ScreenDimensions.SCREEN_WIDTH
-            : graphicsContext.windowWidth();
+            : graphicsContext.width;
 
         this.startNewGameButtonLabel = "";
         const playButtonHasBeenClicked: boolean = this.startNewGameButton && this.startNewGameButton.getStatus() === ButtonStatus.ACTIVE;
@@ -381,7 +381,7 @@ export class TitleScreen implements GameEngineComponent {
         let buttonTextSize = WINDOW_SPACING.SPACING4;
         if (windowIsTooSmall) {
             buttonTextSize = buttonWidth / 35;
-            this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
+            this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.width}x${graphicsContext.height}`;
 
             const buttonTextMinimumSize = 18;
             if (buttonTextSize < buttonTextMinimumSize) {
