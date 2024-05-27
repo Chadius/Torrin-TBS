@@ -7,7 +7,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {MissionMap, MissionMapService} from "../missionMap/missionMap";
 import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -39,7 +39,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../battle/orchestrator/battleOrchestratorComponent";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DegreeOfSuccess} from "../battle/actionCalculator/degreeOfSuccess";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../battle/animation/squaddieTargetsOtherSquaddiesAnimatior";
@@ -68,7 +68,7 @@ describe('User Selects Target and Confirms', () => {
     let missionMap: MissionMap;
 
     let targeting: BattlePlayerSquaddieTarget;
-    let graphicsContext: MockedP5GraphicsContext;
+    let graphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new();
@@ -111,7 +111,8 @@ describe('User Selects Target and Confirms', () => {
         });
         ObjectRepositoryService.addBattleSquaddie(repository, player2BattleSquaddie);
 
-        resourceHandler = mocks.mockResourceHandler();
+        graphicsContext = new MockedP5GraphicsBuffer()
+        resourceHandler = mocks.mockResourceHandler(graphicsContext)
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
@@ -142,7 +143,6 @@ describe('User Selects Target and Confirms', () => {
         ObjectRepositoryService.addBattleSquaddie(repository, enemyBattleSquaddie);
 
         targeting = new BattlePlayerSquaddieTarget();
-        graphicsContext = new MockedP5GraphicsContext();
     });
 
     it('Clicking a target should show the confirmation window', () => {
@@ -516,7 +516,7 @@ const clickOnEnemy = ({
     targeting: BattlePlayerSquaddieTarget,
     repository: ObjectRepository,
     missionMap: MissionMap,
-    graphicsContext: GraphicsContext
+    graphicsContext: GraphicsBuffer
 }) => {
     const actionsThisRound = ActionsThisRoundService.new({
         battleSquaddieId: attackerBattleSquaddieId,

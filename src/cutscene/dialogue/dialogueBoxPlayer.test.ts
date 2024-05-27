@@ -4,13 +4,13 @@ import {
     BattleOrchestratorStateService
 } from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {BattleStateService} from "../../battle/orchestrator/battleState";
 import {Dialogue, DialogueService} from "./dialogue";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {config} from "../../configuration/config";
 import {KeyButtonName} from "../../utils/keyboardConfig";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 
 describe('dialogue box player', () => {
     describe('dialog box without answers finishes', () => {
@@ -141,7 +141,7 @@ describe('dialogue box player', () => {
 
     describe('text substitution', () => {
         let textSpy: jest.SpyInstance;
-        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+        let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
         let dialoguePlayerState: DialoguePlayerState;
 
         beforeEach(() => {
@@ -170,7 +170,7 @@ describe('dialogue box player', () => {
 
             DialoguePlayerService.start(dialoguePlayerState, {battleOrchestratorState: battleState});
 
-            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
             textSpy = jest.spyOn(mockedP5GraphicsContext, "text");
         });
 
@@ -212,10 +212,10 @@ describe('dialogue box player', () => {
 
     describe('backgroundColor', () => {
         let drawRectSpy: jest.SpyInstance;
-        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+        let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
         beforeEach(() => {
-            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
             drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect");
         });
 

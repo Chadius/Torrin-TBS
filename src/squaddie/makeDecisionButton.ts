@@ -3,7 +3,7 @@ import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {TextBox, TextBoxService} from "../ui/textBox";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {ButtonStatus} from "../ui/button";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
@@ -72,7 +72,7 @@ export class MakeDecisionButton {
         this._status = value;
     }
 
-    draw(graphicsContext: GraphicsContext) {
+    draw(graphicsContext: GraphicsBuffer) {
         this.buttonIcon.draw(graphicsContext);
 
         if (this.status === ButtonStatus.HOVER) {
@@ -125,7 +125,7 @@ export class MakeDecisionButton {
         }
     }
 
-    drawActionPoints(graphicsContext: GraphicsContext, top: number) {
+    drawActionPoints(graphicsContext: GraphicsBuffer, top: number) {
         this.drawInfoTextBox(
             graphicsContext,
             top,
@@ -133,7 +133,7 @@ export class MakeDecisionButton {
         );
     }
 
-    drawActionRange = (graphicsContext: GraphicsContext, top: number) => {
+    drawActionRange = (graphicsContext: GraphicsBuffer, top: number) => {
         const templateRange = ActionTemplateService.getActionTemplateRange(this.actionTemplate)
         const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0;
         const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0;
@@ -145,7 +145,7 @@ export class MakeDecisionButton {
         );
     };
 
-    drawActionTemplateEffect = (graphicsContext: GraphicsContext, top: number) => {
+    drawActionTemplateEffect = (graphicsContext: GraphicsBuffer, top: number) => {
         const {damageDescription, healingDescription} = this.getActionTemplateEffectDescriptions(this.actionTemplate);
 
         this.drawInfoTextBox(
@@ -155,7 +155,7 @@ export class MakeDecisionButton {
         );
     }
 
-    drawInfoTextBox = (graphicsContext: GraphicsContext, top: number, text: string) => {
+    drawInfoTextBox = (graphicsContext: GraphicsBuffer, top: number, text: string) => {
         const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),

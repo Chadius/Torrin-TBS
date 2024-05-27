@@ -1,6 +1,6 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {convertWorldCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleCamera} from "../battleCamera";
 import {isValidValue} from "../../utils/validityCheck";
@@ -56,7 +56,7 @@ export const PopupWindowService = {
     setCamera: (popup: PopupWindow, camera: BattleCamera) => {
         popup.camera = camera
     },
-    draw: (popup: PopupWindow, graphicsContext: GraphicsContext) => {
+    draw: (popup: PopupWindow, graphicsContext: GraphicsBuffer) => {
         if (
             isValidValue(popup.setStatusInactiveTimestamp)
             && Date.now() >= popup.setStatusInactiveTimestamp

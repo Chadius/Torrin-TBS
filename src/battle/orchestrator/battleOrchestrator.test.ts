@@ -14,7 +14,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
@@ -81,10 +81,10 @@ describe('Battle Orchestrator', () => {
     let mockHud: BattleSquaddieSelectedHUD;
 
     let nullState: GameEngineState;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     function setupMocks() {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
 
         mockInitializeBattle = new (<new () => InitializeBattle>InitializeBattle)() as jest.Mocked<InitializeBattle>;
         mockInitializeBattle.reset = jest.fn();

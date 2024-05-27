@@ -5,6 +5,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {CampaignService} from "../../campaign/campaign";
 import * as mocks from "../..//utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../..//utils/test/mocks";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleOrchestrator, BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
@@ -48,7 +49,7 @@ describe('PlayerHUDController', () => {
                     missionId: "missionId",
                 })
             }),
-            resourceHandler: mocks.mockResourceHandler(),
+            resourceHandler: mocks.mockResourceHandler(new MockedP5GraphicsBuffer()),
             repository,
             campaign: CampaignService.default({})
         })

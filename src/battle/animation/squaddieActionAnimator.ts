@@ -1,5 +1,5 @@
 import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export interface SquaddieActionAnimator {
@@ -9,7 +9,7 @@ export interface SquaddieActionAnimator {
 
     start(state: GameEngineState): void;
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
+    update(state: GameEngineState, graphics: GraphicsBuffer): void;
 
     reset(state: GameEngineState): void;
 }

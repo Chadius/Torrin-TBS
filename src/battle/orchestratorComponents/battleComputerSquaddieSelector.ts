@@ -17,7 +17,7 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GraphicsConfig} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -104,7 +104,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         });
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.repository);
         if (
             this.mostRecentDecision === undefined
@@ -496,7 +496,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 }
 
-const drawSquaddieAtInitialPositionAsCameraPans = (gameEngineState: GameEngineState, graphicsContext: GraphicsContext) => {
+const drawSquaddieAtInitialPositionAsCameraPans = (gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer) => {
     const startLocation = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.startingLocation;
     const battleSquaddieId = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
     const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(

@@ -1,6 +1,7 @@
 import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {ResourceHandler} from "../resource/resourceHandler";
 import * as mocks from "./../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "./../utils/test/mocks";
 import * as DataLoader from "../dataLoader/dataLoader";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
@@ -49,7 +50,7 @@ describe('GameEngineGameLoader', () => {
     beforeEach(() => {
         loader = new GameEngineGameLoader(campaignId);
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         squaddieRepository = ObjectRepositoryService.new();

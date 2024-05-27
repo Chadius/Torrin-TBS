@@ -8,7 +8,7 @@ import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchest
 import {RectangleHelper} from "../../ui/rectangle";
 import {RectAreaService} from "../../ui/rectArea";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleStateService} from "../orchestrator/battleState";
@@ -19,7 +19,7 @@ import {MouseButton} from "../../utils/mouseConfig";
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
         battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
@@ -28,7 +28,7 @@ describe('battleMapDisplay', () => {
 
         battleMapDisplay = new BattleMapDisplay();
 
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
     });
 
     it('will move the camera if the mouse is near the edge of the screen', () => {

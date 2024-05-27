@@ -15,7 +15,7 @@ import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceHandlerService} from "../resource/resourceHandler";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineGameLoader} from "./gameEngineGameLoader";
@@ -75,13 +75,13 @@ export const GameEngineStateService = {
 export class GameEngine {
     gameEngineState: GameEngineState;
     gameEngineGameLoader: GameEngineGameLoader;
-    private readonly graphicsContext: GraphicsContext;
+    graphicsBuffer: GraphicsBuffer;
 
-    constructor({graphicsContext, startupMode}: {
-        graphicsContext: GraphicsContext,
+    constructor({graphicsBuffer, startupMode}: {
+        graphicsBuffer: GraphicsBuffer,
         startupMode: GameModeEnum
     }) {
-        this.graphicsContext = graphicsContext;
+        this.graphicsBuffer = graphicsBuffer;
         this._currentMode = startupMode;
     }
 
@@ -122,8 +122,8 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    async setup({graphicsContext, campaignId}: {
-        graphicsContext: GraphicsContext,
+    async setup({graphicsBuffer, campaignId}: {
+        graphicsBuffer: GraphicsBuffer,
         campaignId: string,
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
@@ -140,7 +140,7 @@ export class GameEngine {
             playerHudController: new PlayerHudController(),
         });
 
-        await this.lazyLoadResourceHandler({graphicsContext, campaignId});
+        await this.lazyLoadResourceHandler({graphicsBuffer: graphicsBuffer, campaignId});
 
         this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
         this.gameEngineGameLoader = new GameEngineGameLoader(campaignId);
@@ -148,7 +148,7 @@ export class GameEngine {
     }
 
     async draw() {
-        await this.update({graphicsContext: this.graphicsContext});
+        await this.update({graphics: this.graphicsBuffer});
     }
 
     keyPressed(keyCode: number) {
@@ -163,13 +163,13 @@ export class GameEngine {
         this.component.mouseMoved(this.gameEngineState, mouseX, mouseY);
     }
 
-    async update({graphicsContext}: {
-        graphicsContext: GraphicsContext
+    async update({graphics}: {
+        graphics: GraphicsBuffer
     }) {
         if (!isValidValue(this.component)) {
             return;
         }
-        this.component.update(this.gameEngineState, graphicsContext);
+        this.component.update(this.gameEngineState, graphics);
 
         if (this.gameEngineState.fileState.saveSaveState.savingInProgress) {
             this.saveGameAndDownloadFile();
@@ -219,15 +219,15 @@ export class GameEngine {
     }
 
     private async lazyLoadResourceHandler({
-                                              graphicsContext,
+                                              graphicsBuffer,
                                               campaignId,
                                           }: {
-        graphicsContext: GraphicsContext,
+        graphicsBuffer: GraphicsBuffer,
         campaignId: string,
     }) {
         if (this.resourceHandler === undefined) {
             this._resourceHandler = ResourceHandlerService.new({
-                graphicsContext: graphicsContext,
+                graphics: graphicsBuffer,
                 resourceLocators: [],
                 imageLoader: undefined,
             });

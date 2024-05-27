@@ -18,7 +18,7 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
@@ -65,10 +65,10 @@ describe('BattleSquaddieTarget', () => {
     let bandageWoundsActionId: string = "bandage wounds";
     let gameEngineState: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         targetComponent = new BattlePlayerSquaddieTarget();
         squaddieRepo = ObjectRepositoryService.new();
         battleMap = new MissionMap({
@@ -170,7 +170,7 @@ describe('BattleSquaddieTarget', () => {
             previewedActionTemplateId: longswordActionId,
         });
 
-        mockResourceHandler = mocks.mockResourceHandler();
+        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         gameEngineState = GameEngineStateService.new({

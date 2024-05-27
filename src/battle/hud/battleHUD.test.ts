@@ -8,7 +8,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {FileAccessHUD, FileAccessHUDService} from "./fileAccessHUD";
 import {ButtonStatus} from "../../ui/button";
 import {PopupWindow, PopupWindowService} from "./popupWindow";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {SquaddieTemplateService} from "../../campaign/squaddieTemplate";
@@ -88,9 +88,9 @@ describe('Battle HUD', () => {
         });
     });
     describe('draw', () => {
-        let mockGraphicsContext: MockedP5GraphicsContext
+        let mockGraphicsContext: MockedP5GraphicsBuffer
         beforeEach(() => {
-            mockGraphicsContext = new MockedP5GraphicsContext();
+            mockGraphicsContext = new MockedP5GraphicsBuffer()
         })
         it('will draw popup windows if they are defined', () => {
             const drawSpy: jest.SpyInstance = jest.spyOn(PopupWindowService, "draw")

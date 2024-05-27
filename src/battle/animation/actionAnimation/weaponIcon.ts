@@ -2,7 +2,7 @@ import {ActionAnimationFontColor} from "./actionAnimationConstants";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
 import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../../ui/constants";
 import {Label, LabelService} from "../../../ui/label";
-import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -33,7 +33,7 @@ export class WeaponIcon {
          }:
              {
                  actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-                 graphicsContext: GraphicsContext,
+                 graphicsContext: GraphicsBuffer,
                  actorImageArea: RectArea,
              }
     ) {

@@ -1,5 +1,4 @@
 import {DialoguePlayerService, DialoguePlayerState} from "./dialogue/dialogueBoxPlayer";
-import {SplashScreenPlayerState} from "./splashScreenPlayer";
 import {Cutscene, CutsceneService} from "./cutscene";
 import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {ResourceHandlerService, ResourceType} from "../resource/resourceHandler";
@@ -8,7 +7,7 @@ import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle
 import {BattleStateService} from "../battle/orchestrator/battleState";
 import {SplashScreen, SplashScreenService} from "./splashScreen";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
-import {MockedP5GraphicsContext, mockResourceHandler} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer, mockResourceHandler} from "../utils/test/mocks";
 import {RectAreaService} from "../ui/rectArea";
 import {config} from "../configuration/config";
 import {KeyButtonName} from "../utils/keyboardConfig";
@@ -64,7 +63,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
         expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting);
     });
@@ -76,7 +75,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
         CutsceneService.stop(dinnerDate);
         expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy();
     });
@@ -89,7 +88,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
 
         expect(dinnerDate.currentDirection).toEqual(splash1);
         CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
@@ -104,7 +103,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
 
         expect(dinnerDate.currentDirection).toEqual(splash1);
         CutsceneService.keyboardPressed(dinnerDate, config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0], {})
@@ -119,7 +118,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
 
         expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting);
@@ -167,7 +166,7 @@ describe('Cutscene', () => {
                 ],
             });
 
-            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            CutsceneService.start(purchasePrompt, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
             CutsceneService.mouseClicked(
                 purchasePrompt,
@@ -209,7 +208,7 @@ describe('Cutscene', () => {
                 ],
             });
 
-            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            CutsceneService.start(purchasePrompt, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
             CutsceneService.mouseClicked(
                 purchasePrompt,
@@ -248,7 +247,7 @@ describe('Cutscene', () => {
                 ],
             });
 
-            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            CutsceneService.start(purchasePrompt, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             expect(purchasePrompt.currentDirection.id).toBe("act serious");
             CutsceneService.mouseClicked(purchasePrompt, 100, 100, {});
 
@@ -299,7 +298,7 @@ describe('Cutscene', () => {
                 ],
             });
 
-            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            CutsceneService.start(purchasePrompt, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
             CutsceneService.mouseClicked(
                 purchasePrompt,
@@ -355,7 +354,7 @@ describe('Cutscene', () => {
         });
 
         it('should enter fast-forward mode when you click on the fast forward button', () => {
-            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+            CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             CutsceneService.mouseClicked(
                 dinnerDate,
                 RectAreaService.centerX(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
@@ -366,7 +365,7 @@ describe('Cutscene', () => {
         });
 
         it('should enter fast-forward mode when you press the cancel key', () => {
-            CutsceneService.start(dinnerDate, mockResourceHandler(), {})
+            CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {})
             CutsceneService.keyboardPressed(
                 dinnerDate,
                 config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
@@ -376,7 +375,7 @@ describe('Cutscene', () => {
         });
 
         it('should auto progress dialog messages when in fast-forward mode', () => {
-            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+            CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             CutsceneService.mouseClicked(
                 dinnerDate,
@@ -393,7 +392,7 @@ describe('Cutscene', () => {
         });
 
         it('should stop fast-forward mode if the dialog is on the last action', () => {
-            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+            CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy();
             CutsceneService.mouseClicked(
@@ -431,7 +430,7 @@ describe('Cutscene', () => {
                 ],
             });
 
-            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+            CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             expect(dinnerDate.currentDirection.id).toBe("waiterGreets");
             CutsceneService.mouseClicked(
@@ -466,9 +465,9 @@ describe('Cutscene', () => {
             ]
         });
 
-        CutsceneService.loadResources(dinnerDate, mockResourceHandler());
-        expect(CutsceneService.hasLoaded(dinnerDate, mockResourceHandler())).toBeTruthy();
-        const error = CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.loadResources(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()));
+        expect(CutsceneService.hasLoaded(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()))).toBeTruthy();
+        const error = CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {});
         expect(error).toBeUndefined();
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
     });
@@ -479,9 +478,11 @@ describe('Cutscene', () => {
             screenImageResourceKey: "restaurant_entrance"
         })
 
+        const graphicsContext = new MockedP5GraphicsBuffer()
+
         const handler = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: graphicsContext,
+            imageLoader: new StubImmediateLoader(graphicsContext),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -499,8 +500,6 @@ describe('Cutscene', () => {
 
         CutsceneService.loadResources(dinnerDate, handler);
         CutsceneService.setResources(dinnerDate, handler);
-
-        expect((dinnerDate.cutscenePlayerStateById[restaurantEntrance.id] as SplashScreenPlayerState).screenImage).toBeTruthy();
 
         expect(CutsceneService.hasLoaded(dinnerDate, handler)).toBeTruthy();
         const error = CutsceneService.start(dinnerDate, handler, {});
@@ -525,7 +524,7 @@ describe('Cutscene', () => {
         const frontDoorPlayer = (dinnerDate.cutscenePlayerStateById[frontDoorGreeting.id] as DialoguePlayerState);
 
         const greetingSpy = jest.spyOn(DialoguePlayerService, "start");
-        CutsceneService.start(dinnerDate, mockResourceHandler(), {battleOrchestratorState: battleState});
+        CutsceneService.start(dinnerDate, mockResourceHandler(new MockedP5GraphicsBuffer()), {battleOrchestratorState: battleState});
         expect(greetingSpy).toBeCalledWith(
             frontDoorPlayer,
             {

@@ -4,7 +4,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
 import {RectAreaService} from "../../ui/rectArea";
-import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
+import {GraphicsBuffer, GraphicsRenderer} from "../graphics/graphicsRenderer";
 import {makeResult} from "../ResultOrError";
 
 jest.mock('p5', () => () => {
@@ -51,15 +51,15 @@ export const mockImageUI = () => {
     return imageUI;
 }
 
-export const mockResourceHandler = () => {
+export const mockResourceHandler = (graphics: GraphicsBuffer) => {
     const handler = new (
         <new (options: any) => ResourceHandler>ResourceHandler
     )({
-        imageLoader: new StubImmediateLoader(),
+        imageLoader: new StubImmediateLoader(graphics),
     }) as jest.Mocked<ResourceHandler>;
 
     handler.loadResources = jest.fn();
-    handler.getResource = jest.fn().mockReturnValue(makeResult(new GraphicImageWithStringAsData("data")));
+    handler.getResource = jest.fn().mockReturnValue(makeResult(graphics.createImage(1, 1)))
     handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true);
     return handler;
 }
@@ -74,11 +74,19 @@ export const battleSquaddieSelectedHUD = () => {
     return hud;
 }
 
-export class MockedP5GraphicsContext implements GraphicsContext {
+export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     mockedP5: p5;
 
     constructor() {
         this.mockedP5 = mockedP5();
+    }
+
+    get height(): number {
+        return this.mockedP5.windowHeight
+    }
+
+    get width(): number {
+        return this.mockedP5.windowWidth
     }
 
     background(hue: number, saturation: number, brightness: number): void {
@@ -93,7 +101,7 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
     }
 
-    createImage(height: number, width: number): GraphicImage {
+    createImage(height: number, width: number): p5.Image {
         return this.mockedP5.createImage(width, height);
     }
 
@@ -101,28 +109,19 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.endShape(mode as p5.END_MODE);
     }
 
-    fill({hsb, color}: {
-        hsb?: number[];
-        color?: string
-    }): void {
-        if (hsb) {
-            this.mockedP5.fill(hsb[0], hsb[1], hsb[2]);
-            return;
-        }
-        if (color) {
-            this.mockedP5.fill(color);
-        }
+    fill(hue: number, saturation: number, brightness: number): void {
+        this.mockedP5.fill(hue, saturation, brightness)
     }
 
-    image(data: GraphicImage, left: number, top: number, width?: number, height?: number): void {
-        this.mockedP5.image(data as p5.Image, left, top, width, height);
+    image(data: p5.Image, left: number, top: number, width?: number, height?: number): void {
+        this.mockedP5.image(data, left, top, width, height);
     }
 
     line(x1: number, y1: number, x2: number, y2: number): void {
         this.mockedP5.line(x1, y1, x2, y2);
     }
 
-    loadImage(pathToImage: string, successCallback: () => {}, failureCallback: () => {}): void {
+    loadImage(pathToImage: string, successCallback: (loadedImage: p5.Image) => void, failureCallback: (failEvent: Event) => void): void {
         this.mockedP5.loadImage(pathToImage, successCallback, failureCallback);
     }
 
@@ -150,17 +149,8 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.rect(left, top, width, height);
     }
 
-    stroke({hsb, color}: {
-        hsb?: number[];
-        color?: string
-    }): void {
-        if (hsb) {
-            this.mockedP5.stroke(hsb[0], hsb[1], hsb[2]);
-            return;
-        }
-        if (color) {
-            this.mockedP5.stroke(color);
-        }
+    stroke(hue: number, saturation: number, brightness: number): void {
+        this.mockedP5.stroke(hue, saturation, brightness)
     }
 
     strokeWeight(weight: number): void {
@@ -190,31 +180,33 @@ export class MockedP5GraphicsContext implements GraphicsContext {
     vertex(x: number, y: number): void {
         this.mockedP5.vertex(x, y);
     }
-
-    windowHeight(): number {
-        return this.mockedP5.windowHeight;
-    }
-
-    windowWidth(): number {
-        return this.mockedP5.windowWidth;
-    }
 }
 
-export class GraphicImageWithStringAsData implements GraphicImage {
-    data: string;
+export class MockedP5GraphicsRenderer extends MockedP5GraphicsBuffer implements GraphicsRenderer {
+    mockedP5: p5;
 
-    constructor(data: string) {
-        this.data = data;
+    constructor() {
+        super()
+        this.mockedP5 = mockedP5();
+    }
+
+    get p() {
+        return this.mockedP5
     }
 
     get height(): number {
-        return 1;
+        return this.mockedP5.windowHeight
     }
 
     get width(): number {
-        return 1;
+        return this.mockedP5.windowWidth
     }
 
-    loadPixels(): void {
+    windowWidth(): number {
+        return this.mockedP5.windowWidth
+    }
+
+    windowHeight(): number {
+        return this.mockedP5.windowHeight
     }
 }

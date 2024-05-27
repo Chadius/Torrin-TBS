@@ -6,7 +6,7 @@ import {Button, ButtonStatus} from "../ui/button";
 import {LabelService} from "../ui/label";
 import {RectAreaService} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
 import {SplashScreen, SplashScreenService} from "./splashScreen";
@@ -14,6 +14,7 @@ import {SplashScreenPlayerService, SplashScreenPlayerState} from "./splashScreen
 import {isValidValue} from "../utils/validityCheck";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
+import p5 from "p5";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -110,7 +111,7 @@ export const CutsceneService = {
             && cutscene.currentDirection === undefined
         );
     },
-    draw: (cutscene: Cutscene, graphicsContext: GraphicsContext) => {
+    draw: (cutscene: Cutscene, graphicsContext: GraphicsBuffer) => {
         if (cutscene.currentDirection !== undefined) {
             switch (cutscene.currentDirection.type) {
                 case CutsceneActionPlayerType.DIALOGUE:
@@ -236,7 +237,7 @@ export const CutsceneService = {
                 }
 
                 if (locator.type === ResourceType.IMAGE) {
-                    let foundImage: GraphicImage = resourceHandler.getResource(locator.key);
+                    let foundImage: p5.Image = resourceHandler.getResource(locator.key);
                     switch (cutscene.cutscenePlayerStateById[direction.id].type) {
                         case CutsceneActionPlayerType.DIALOGUE:
                             DialoguePlayerService.setImageResource(

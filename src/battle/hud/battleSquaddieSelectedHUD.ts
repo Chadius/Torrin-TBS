@@ -13,7 +13,7 @@ import {Label, LabelService} from "../../ui/label";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
-import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
@@ -34,6 +34,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {MouseButton} from "../../utils/mouseConfig";
 import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../ui/constants";
+import p5 from "p5";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 const DECISION_BUTTON_LAYOUT = {
@@ -56,22 +57,22 @@ const ActionPointsBarHeight = 20;
 const ActionPointsTextHeight = 20;
 const ActionPointsBarColors =
     {
-        strokeColor: {color: "#1f1f1f"},
-        foregroundFillColor: {color: "#dedede"},
-        backgroundFillColor: {color: "#1f1f1f"},
+        strokeColor: {hsb: [0, 0, 12]},
+        foregroundFillColor: {hsb: [0, 0, 87]},
+        backgroundFillColor: {hsb: [0, 0, 12]},
     };
 
 const HitPointsTopOffset = 70;
 const HitPointsBarHeight = 25;
 const HitPointsTextHeight = 20;
 const HitPointsBarColors = {
-    strokeColor: {color: "#1f1f1f"},
-    foregroundFillColor: {color: "#000000"},
-    backgroundFillColor: {color: "#1f1f1f"},
+    strokeColor: {hsb: [0, 0, 12]},
+    foregroundFillColor: {hsb: [0, 0, 0]},
+    backgroundFillColor: {hsb: [0, 0, 12]},
 };
 
-const getSquaddieTeamIconImage = (state: GameEngineState, battleSquaddie: BattleSquaddie): GraphicImage => {
-    let affiliateIconImage: GraphicImage = null;
+const getSquaddieTeamIconImage = (state: GameEngineState, battleSquaddie: BattleSquaddie): p5.Image => {
+    let affiliateIconImage: p5.Image = null;
 
     const team = state.battleOrchestratorState.battleState.teams
         .find(team => team.battleSquaddieIds.includes(battleSquaddie.battleSquaddieId));
@@ -185,7 +186,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedBattleSquaddieId;
     }
 
-    draw(state: GameEngineState, graphicsContext: GraphicsContext) {
+    draw(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -431,7 +432,7 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private drawSquaddieID(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawSquaddieID(state: BattleOrchestratorState, graphicsContext: GraphicsBuffer) {
         if (this.affiliateIcon) {
             this.affiliateIcon.draw(graphicsContext);
         }
@@ -439,7 +440,7 @@ export class BattleSquaddieSelectedHUD {
         TextBoxService.draw(this.graphicsObjects.textBoxes.SQUADDIE_ID, graphicsContext);
     }
 
-    private drawActionPoints(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawActionPoints(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         const {
             squaddieTemplate,
             battleSquaddie
@@ -473,7 +474,7 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private drawHitPoints(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawHitPoints(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         const {
             squaddieTemplate,
             battleSquaddie
@@ -507,7 +508,7 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private drawSquaddieActions(graphicsContext: GraphicsContext) {
+    private drawSquaddieActions(graphicsContext: GraphicsBuffer) {
         this.makeDecisionButtons.forEach((button) => {
             button.draw(graphicsContext)
         });
@@ -619,7 +620,7 @@ export class BattleSquaddieSelectedHUD {
         return ActionValidityCheck.IS_VALID
     }
 
-    private drawSquaddieAttributes(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawSquaddieAttributes(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         const {
             squaddieTemplate,
             battleSquaddie
@@ -682,7 +683,7 @@ export class BattleSquaddieSelectedHUD {
                                 text: string,
                                 baseRectangle: RectArea,
                                 state: GameEngineState,
-                                graphicsContext: GraphicsContext,
+                                graphicsContext: GraphicsBuffer,
                             }
     ) {
         const textBox = TextBoxService.new({
@@ -806,7 +807,7 @@ export class BattleSquaddieSelectedHUD {
             });
     }
 
-    private maybeDrawEndTurnButton(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private maybeDrawEndTurnButton(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         if (!this.shouldDrawEndTurnButton(state)) {
             return;
         }

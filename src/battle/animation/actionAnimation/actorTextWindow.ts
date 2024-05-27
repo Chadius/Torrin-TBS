@@ -6,7 +6,7 @@ import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelService} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";
-import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextService} from "../actionResultTextService";
@@ -70,7 +70,7 @@ export class ActorTextWindow {
         this.updateActorLabel({});
     }
 
-    draw(graphicsContext: GraphicsContext, timer: ActionTimer) {
+    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }

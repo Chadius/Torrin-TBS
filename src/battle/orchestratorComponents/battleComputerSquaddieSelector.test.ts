@@ -18,7 +18,6 @@ import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoord
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {DetermineNextDecisionService} from "../teamStrategy/determineNextDecision";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {
@@ -55,6 +54,7 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {BattleHUDService} from "../hud/battleHUD";
 import {MouseButton} from "../../utils/mouseConfig";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -63,7 +63,7 @@ describe('BattleComputerSquaddieSelector', () => {
     let enemyDemonBattleSquaddie: BattleSquaddie;
     let enemyDemonBattleSquaddie2: BattleSquaddie;
     let demonBiteAction: ActionTemplate;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     let battlePhaseState: BattlePhaseState;
     let teams: BattleSquaddieTeam[];
     let demonBiteActionDamage: number;
@@ -71,7 +71,7 @@ describe('BattleComputerSquaddieSelector', () => {
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
         squaddieRepo = ObjectRepositoryService.new();
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         teams = [];
     });
 

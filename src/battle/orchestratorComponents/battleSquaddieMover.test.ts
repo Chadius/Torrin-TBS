@@ -11,7 +11,7 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
@@ -38,10 +38,10 @@ describe('BattleSquaddieMover', () => {
     let enemy1Static: SquaddieTemplate;
     let enemy1Dynamic: BattleSquaddie;
     let map: MissionMap;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepo = ObjectRepositoryService.new();
         map = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -227,7 +227,7 @@ describe('BattleSquaddieMover', () => {
                     processedActions: [processedAction],
                 });
 
-                let mockResourceHandler = mocks.mockResourceHandler();
+                let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
                 mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
                 gameEngineState = GameEngineStateService.new({
@@ -297,7 +297,7 @@ describe('BattleSquaddieMover', () => {
                     processedActions: [processedAction],
                 });
 
-                let mockResourceHandler = mocks.mockResourceHandler();
+                let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
                 mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
                 gameEngineState = GameEngineStateService.new({
                     battleOrchestratorState: setupSquaddie({
@@ -382,7 +382,7 @@ describe('BattleSquaddieMover', () => {
                 processedActions: [processedAction],
             });
 
-            let mockResourceHandler = mocks.mockResourceHandler();
+            let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             const state: GameEngineState = GameEngineStateService.new({

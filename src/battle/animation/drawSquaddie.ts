@@ -10,7 +10,7 @@ import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SquaddieService} from "../../squaddie/squaddieService";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
@@ -115,8 +115,8 @@ export const DrawSquaddieUtilities = {
     tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
         return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
     },
-    drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
-        return drawSquaddieMapIconAtMapLocation(graphicsContext, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
+    drawSquaddieMapIconAtMapLocation: (graphics: GraphicsBuffer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+        return drawSquaddieMapIconAtMapLocation(graphics, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
     },
     moveSquaddieAlongPath: ({
                                 squaddieRepository,
@@ -153,15 +153,15 @@ const unTintSquaddieMapIcon = (repository: ObjectRepository, battleSquaddie: Bat
     }
 }
 
-const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawSquaddieMapIconAtMapLocation = (graphics: GraphicsBuffer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     setImageToLocation(mapIcon, xyCoords);
-    mapIcon.draw(graphicsContext);
+    mapIcon.draw(graphics);
     const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-    drawMapIconActionPointsBar(graphicsContext, squaddieTemplate, battleSquaddie, mapLocation, camera);
-    drawMapIconHitPointBar(graphicsContext, squaddieTemplate, battleSquaddie, mapLocation, camera);
+    drawMapIconActionPointsBar(graphics, squaddieTemplate, battleSquaddie, mapLocation, camera);
+    drawMapIconHitPointBar(graphics, squaddieTemplate, battleSquaddie, mapLocation, camera);
 }
 
 const setImageToLocation = (
@@ -172,7 +172,7 @@ const setImageToLocation = (
     RectAreaService.align(mapIcon.area, {horizAlign: HORIZONTAL_ALIGN.CENTER, vertAlign: VERTICAL_ALIGN.CENTER});
 }
 
-const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconActionPointsBar = (graphics: GraphicsBuffer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const {
         squaddieCanCurrentlyAct
     } = SquaddieService.canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
@@ -195,7 +195,7 @@ const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTe
     });
 
     drawMapIconBar({
-        graphicsContext,
+        graphics,
         amount: {
             current: actionPointsRemaining,
             max: DEFAULT_ACTION_POINTS_PER_TURN,
@@ -210,7 +210,7 @@ const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTe
     })
 }
 
-const drawMapIconHitPointBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconHitPointBar = (graphics: GraphicsBuffer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
 
     if (currentHitPoints >= maxHitPoints) {
@@ -230,7 +230,7 @@ const drawMapIconHitPointBar = (graphicsContext: GraphicsContext, squaddieTempla
     });
 
     drawMapIconBar({
-        graphicsContext,
+        graphics,
         amount: {
             current: currentHitPoints,
             max: maxHitPoints,
@@ -348,9 +348,9 @@ const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squa
     })
 }
 
-const drawMapIconBar = ({graphicsContext, amount, bar}:
+const drawMapIconBar = ({graphics, amount, bar}:
                             {
-                                graphicsContext: GraphicsContext,
+                                graphics: GraphicsBuffer,
                                 amount: {
                                     current: number,
                                     max: number
@@ -370,7 +370,7 @@ const drawMapIconBar = ({graphicsContext, amount, bar}:
         strokeColor: bar.strokeColor,
         strokeWeight: bar.strokeWeight,
     })
-    RectangleHelper.draw(background, graphicsContext);
+    RectangleHelper.draw(background, graphics);
 
     const foregroundWidth = bar.backgroundArea.width * amount.current / amount.max;
     const foregroundRectArea: RectArea = RectAreaService.new({
@@ -385,5 +385,5 @@ const drawMapIconBar = ({graphicsContext, amount, bar}:
         fillColor: bar.foregroundColor,
         noStroke: true,
     });
-    RectangleHelper.draw(foreground, graphicsContext);
+    RectangleHelper.draw(foreground, graphics);
 }

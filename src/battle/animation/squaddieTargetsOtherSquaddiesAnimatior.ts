@@ -17,7 +17,7 @@ import {WINDOW_SPACING} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {RecordingService} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
@@ -110,7 +110,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._targetHitPointMeters = {};
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext) {
+    update(state: GameEngineState, graphics: GraphicsBuffer): void {
         if (this.actionAnimationTimer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             this.setupActionAnimation(state);
             this.actionAnimationTimer.start();
@@ -124,7 +124,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             case ActionAnimationPhase.INITIALIZED:
             case ActionAnimationPhase.BEFORE_ACTION:
             case ActionAnimationPhase.DURING_ACTION:
-                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphics);
                 break;
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.TARGET_REACTS:
@@ -132,10 +132,10 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                     this.updateHitPointMeters(state.battleOrchestratorState);
                     this.startedShowingResults = true;
                 }
-                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphics);
                 break;
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphics);
                 this.sawResultAftermath = true;
                 break;
         }
@@ -273,7 +273,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         });
     }
 
-    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsBuffer) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
         const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleState.actionsThisRound);

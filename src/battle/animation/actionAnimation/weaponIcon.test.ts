@@ -1,6 +1,6 @@
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
 import {WeaponIcon} from "./weaponIcon";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
 import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
@@ -14,7 +14,7 @@ describe('weapon icon', () => {
     let helpingAction: ActionTemplate;
 
     let textSpy: jest.SpyInstance;
-    let mockedGraphicsContext: MockedP5GraphicsContext;
+    let mockedGraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
         hinderingAction = ActionTemplateService.new({
@@ -47,7 +47,7 @@ describe('weapon icon', () => {
             ]
         });
 
-        mockedGraphicsContext = new MockedP5GraphicsContext();
+        mockedGraphicsContext = new MockedP5GraphicsBuffer();
         textSpy = jest.spyOn(mockedGraphicsContext.mockedP5, "text").mockReturnValue(undefined);
     })
 

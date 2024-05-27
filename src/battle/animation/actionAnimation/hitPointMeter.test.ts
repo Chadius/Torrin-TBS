@@ -1,6 +1,6 @@
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
 import {HIT_POINT_METER_HP_WIDTH, HitPointMeter} from "./hitPointMeter";
+import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
 
 describe('Hit Point Meter', () => {
     let hitPointMeter: HitPointMeter;
@@ -8,7 +8,7 @@ describe('Hit Point Meter', () => {
     let textDrawSpy: jest.SpyInstance;
     let rectDrawSpy: jest.SpyInstance;
     let strokeSpy: jest.SpyInstance;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
         hue = 30;
@@ -20,7 +20,7 @@ describe('Hit Point Meter', () => {
             hue,
         });
 
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         textDrawSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         rectDrawSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "rect");
         strokeSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "stroke");

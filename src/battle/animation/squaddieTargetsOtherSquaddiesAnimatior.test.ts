@@ -9,7 +9,7 @@ import {
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
 import {Recording, RecordingService} from "../history/recording";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
@@ -51,10 +51,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let knightHitsThiefWithLongswordInstructionInProgress: ActionsThisRound;
     let knightHitsThiefWithLongswordEvent: BattleEvent;
 
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer();
         squaddieRepository = ObjectRepositoryService.new();
 
         ({
@@ -113,7 +113,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             ]
         });
 
-        mockResourceHandler = mocks.mockResourceHandler();
+        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         knightHitsThiefWithLongswordInstructionInProgress = ActionsThisRoundService.new({

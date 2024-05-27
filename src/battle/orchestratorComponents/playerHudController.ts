@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleStateService} from "../orchestrator/battleState";
 import {isValidValue} from "../../utils/validityCheck";
@@ -97,7 +97,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         return undefined;
     }
 
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
     }
 }
 

@@ -13,6 +13,7 @@ import {BattleStateService} from "../battle/orchestrator/battleState";
 import {BattleCamera} from "../battle/battleCamera";
 import {MakeDecisionButton} from "../squaddie/makeDecisionButton";
 import * as mocks from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {MissionMap, MissionMapService} from "../missionMap/missionMap";
@@ -82,7 +83,7 @@ describe('User clicks on a squaddie', () => {
 
         battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 

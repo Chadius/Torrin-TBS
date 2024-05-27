@@ -105,15 +105,27 @@ describe('hexMap', () => {
                 ]
             });
 
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 0})).toEqual(HexGridMovementCost.singleMovement);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 1})).toEqual(HexGridMovementCost.doubleMovement);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 2})).toEqual(HexGridMovementCost.pit);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 3})).toEqual(HexGridMovementCost.wall);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 4})).toEqual(HexGridMovementCost.singleMovement);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 5})).toEqual(HexGridMovementCost.doubleMovement);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 6})).toEqual(HexGridMovementCost.pit);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 7})).toEqual(HexGridMovementCost.wall);
-            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q : 0, r: 8})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 0
+            })).toEqual(HexGridMovementCost.singleMovement);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 1
+            })).toEqual(HexGridMovementCost.doubleMovement);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 2})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 3})).toEqual(HexGridMovementCost.wall);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 4
+            })).toEqual(HexGridMovementCost.singleMovement);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 5
+            })).toEqual(HexGridMovementCost.doubleMovement);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 6})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 7})).toEqual(HexGridMovementCost.wall);
+            expect(mapFromSingleLine.getTileTerrainTypeAtLocation({q: 0, r: 8})).toEqual(HexGridMovementCost.pit);
         });
 
         it('multiple rows use offsets to place the 0 tile', () => {
@@ -126,18 +138,36 @@ describe('hexMap', () => {
                 ]
             });
 
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:0, r:0})).toEqual(HexGridMovementCost.singleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:0, r:1})).toEqual(HexGridMovementCost.singleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:0, r:2})).toEqual(HexGridMovementCost.singleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:1, r:0})).toEqual(HexGridMovementCost.doubleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:1, r:1})).toEqual(HexGridMovementCost.doubleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:1, r:2})).toEqual(HexGridMovementCost.doubleMovement);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:2, r:0})).toEqual(HexGridMovementCost.pit);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:2, r:1})).toEqual(HexGridMovementCost.pit);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:2, r:2})).toEqual(HexGridMovementCost.pit);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:3, r:0})).toEqual(HexGridMovementCost.wall);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:3, r:1})).toEqual(HexGridMovementCost.wall);
-            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q:3, r:2})).toEqual(HexGridMovementCost.wall);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 0
+            })).toEqual(HexGridMovementCost.singleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 1
+            })).toEqual(HexGridMovementCost.singleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 0,
+                r: 2
+            })).toEqual(HexGridMovementCost.singleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 1,
+                r: 0
+            })).toEqual(HexGridMovementCost.doubleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 1,
+                r: 1
+            })).toEqual(HexGridMovementCost.doubleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({
+                q: 1,
+                r: 2
+            })).toEqual(HexGridMovementCost.doubleMovement);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 2, r: 0})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 2, r: 1})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 2, r: 2})).toEqual(HexGridMovementCost.pit);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 3, r: 0})).toEqual(HexGridMovementCost.wall);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 3, r: 1})).toEqual(HexGridMovementCost.wall);
+            expect(mapFromMultipleLines.getTileTerrainTypeAtLocation({q: 3, r: 2})).toEqual(HexGridMovementCost.wall);
         });
     });
 

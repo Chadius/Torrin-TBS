@@ -7,7 +7,7 @@ import {
 } from "./convertCoordinates";
 import {TerrainTileMap, TerrainTileMapService} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 import {BattleCamera} from "../battle/battleCamera";
 
@@ -39,7 +39,7 @@ export const HighlightPulseBlueColor: PulseBlendColor = {
 }
 
 type HexTileDrawOptions = {
-    graphicsContext: GraphicsContext,
+    graphicsContext: GraphicsBuffer,
     q: number;
     r: number;
     terrainType: HexGridMovementCost;
@@ -88,15 +88,9 @@ export function drawHexTile(options: HexTileDrawOptions): void {
         fillColor = appearanceFillColor;
     }
 
-    const strokeColor = [
-        fillColor[0],
-        10,
-        10
-    ];
-
-    graphicsContext.stroke({hsb: strokeColor});
+    graphicsContext.stroke(fillColor[0], 10, 10)
     graphicsContext.strokeWeight(1);
-    graphicsContext.fill({hsb: fillColor})
+    graphicsContext.fill(fillColor[0], fillColor[1], fillColor[2])
 
     if (worldLocation) {
         drawHexShape(graphicsContext, worldLocation.x, worldLocation.y, cameraX, cameraY);
@@ -130,7 +124,7 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     }
 }
 
-export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, worldY: number, cameraX: number, cameraY: number) {
+export function drawHexShape(graphicsContext: GraphicsBuffer, worldX: number, worldY: number, cameraX: number, cameraY: number) {
     let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(worldX, worldY, cameraX, cameraY)
 
     graphicsContext.push();
@@ -150,20 +144,17 @@ export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, w
 }
 
 export function drawOutlinedTile(
-    graphicsContext: GraphicsContext,
+    graphicsContext: GraphicsBuffer,
     outlineTileCoordinates: HexCoordinate,
     cameraX: number,
     cameraY: number,
 ): void {
     graphicsContext.push();
-
-    const strokeColor = [
+    graphicsContext.stroke(
         0,
         10,
         calculatePulseValueOverTime(50, 100, 2000)
-    ];
-
-    graphicsContext.stroke({hsb: strokeColor});
+    );
     graphicsContext.strokeWeight(2);
     graphicsContext.noFill();
 
@@ -174,7 +165,7 @@ export function drawOutlinedTile(
 }
 
 export const HexDrawingUtils = {
-    drawHexMap: (graphicsContext: GraphicsContext, map: TerrainTileMap, camera: BattleCamera) => {
+    drawHexMap: (graphicsContext: GraphicsBuffer, map: TerrainTileMap, camera: BattleCamera) => {
         const onScreenTiles = map.tiles.filter(tile => TerrainTileMapService.isTileOnScreen(map, tile.q, tile.r, camera))
 
         const nonHighlightedTiles = onScreenTiles.filter(tile => {

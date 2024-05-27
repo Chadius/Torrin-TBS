@@ -14,7 +14,7 @@ import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
-import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {RectAreaService} from "../../../ui/rectArea";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
 import {
@@ -95,7 +95,7 @@ export class TargetSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
+    draw(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
@@ -158,7 +158,7 @@ export class TargetSprite {
         }
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate) {
+    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
@@ -169,7 +169,7 @@ export class TargetSprite {
         return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
+    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext, actionEffectSquaddieTemplateService);
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;

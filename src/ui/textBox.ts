@@ -1,7 +1,7 @@
 import {RectArea} from "./rectArea";
 import * as p5 from "p5";
 import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "./constants";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {isValidValue} from "../utils/validityCheck";
 
 export type TextBoxArguments = {
@@ -48,27 +48,27 @@ export const TextBoxService = {
             text: text,
         }
     },
-    draw: (textBox: TextBox, graphicsContext: GraphicsContext): void => {
+    draw: (textBox: TextBox, graphics: GraphicsBuffer): void => {
         if (isDone(textBox)) {
             return;
         }
 
-        graphicsContext.push();
-        graphicsContext.textSize(textBox.textSize);
-        graphicsContext.fill({hsb: textBox.fontColor});
-        graphicsContext.textAlign(
+        graphics.push();
+        graphics.textSize(textBox.textSize);
+        graphics.fill(textBox.fontColor[0], textBox.fontColor[1], textBox.fontColor[2],)
+        graphics.textAlign(
             textBox.horizAlign,
             textBox.vertAlign
         );
-        graphicsContext.text(
+        graphics.text(
             textBox.text,
             textBox.area.left,
             textBox.area.top,
             textBox.area.width,
             textBox.area.height,
         );
-        graphicsContext.textAlign(HORIZONTAL_ALIGN.LEFT, VERTICAL_ALIGN.BASELINE);
-        graphicsContext.pop();
+        graphics.textAlign(HORIZONTAL_ALIGN.LEFT, VERTICAL_ALIGN.BASELINE);
+        graphics.pop();
     },
     isDone: (textBox: TextBox): boolean => {
         return isDone(textBox);

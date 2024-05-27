@@ -1,13 +1,13 @@
 import {TextBox, TextBoxService} from "./textBox";
 import {RectAreaService} from "./rectArea";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 
 describe('Pop up text', () => {
     let p5TextSpy: jest.SpyInstance;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         p5TextSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text").mockReturnValue(undefined);
     });
 

@@ -23,7 +23,7 @@ import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -60,12 +60,12 @@ describe('BattleSquaddieSelector', () => {
     let enemyDemonStatic: SquaddieTemplate;
     let enemyDemonDynamic: BattleSquaddie;
     let demonBiteAction: ActionTemplate;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     let teams: BattleSquaddieTeam[];
     let playerSoldierBattleSquaddie: BattleSquaddie;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         selector = new BattlePlayerSquaddieSelector();
         squaddieRepo = ObjectRepositoryService.new();
         missionMap = new MissionMap({
@@ -330,7 +330,7 @@ describe('BattleSquaddieSelector', () => {
             const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
@@ -402,7 +402,7 @@ describe('BattleSquaddieSelector', () => {
             mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(false);
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: mockHud
@@ -548,7 +548,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         const setUpGameEngineState = (missionMap: MissionMap, battlePhaseState: BattlePhaseState) => {
-            let mockResourceHandler = mocks.mockResourceHandler();
+            let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             gameEngineState = GameEngineStateService.new({
@@ -747,7 +747,7 @@ describe('BattleSquaddieSelector', () => {
             mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false);
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: mockHud
@@ -862,7 +862,7 @@ describe('BattleSquaddieSelector', () => {
             mockHud.getSquaddieSquaddieAction = jest.fn().mockReturnValue(longswordAction);
 
             gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: mockHud
@@ -988,7 +988,7 @@ describe('BattleSquaddieSelector', () => {
                 ]
             });
 
-            let mockResourceHandler = mocks.mockResourceHandler();
+            let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             mockHud = new BattleSquaddieSelectedHUD();
@@ -1184,7 +1184,7 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mocks.mockResourceHandler(),
+            resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
@@ -1249,7 +1249,7 @@ describe('BattleSquaddieSelector', () => {
             BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_1"]);
             MissionMapService.addSquaddie(missionMap, "player_soldier", "player_soldier_1", {q: 0, r: 2});
 
-            let mockResourceHandler = mocks.mockResourceHandler();
+            let mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
             camera = new BattleCamera();
 
@@ -1373,7 +1373,7 @@ describe('BattleSquaddieSelector', () => {
         it('changes the HUD when the key is pressed and not in production', () => {
             battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
             const gameEngineState: GameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: hud
@@ -1400,7 +1400,7 @@ describe('BattleSquaddieSelector', () => {
         it('ignores change HUD command when it is not the player turn', () => {
             battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
             const gameEngineState: GameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: hud
@@ -1453,7 +1453,7 @@ describe('BattleSquaddieSelector', () => {
                 ]
             });
             const gameEngineState: GameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(),
+                resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleHUD: BattleHUDService.new({
                         battleSquaddieSelectedHUD: hud

@@ -1,12 +1,12 @@
 import {RectArea} from "../../ui/rectArea";
-import {ColorDescription, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {ColorDescription, GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export const DrawBattleHUD = {
     drawHorizontalDividedBar: ({graphicsContext, drawArea, currentAmount, maxAmount, colors, strokeWeight}: {
         currentAmount: number,
         maxAmount: number,
         drawArea: RectArea,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsBuffer,
         colors: {
             strokeColor: ColorDescription,
             foregroundFillColor: ColorDescription,
@@ -22,7 +22,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
     currentAmount: number,
     maxAmount: number,
     drawArea: RectArea,
-    graphicsContext: GraphicsContext,
+    graphicsContext: GraphicsBuffer,
     colors: {
         strokeColor: ColorDescription,
         foregroundFillColor: ColorDescription,
@@ -32,7 +32,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
 }) => {
     const drawContainerOutline = ({graphicsContext, drawArea, colors, strokeWeight}: {
         drawArea: RectArea,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsBuffer,
         colors: {
             strokeColor: ColorDescription,
             foregroundFillColor: ColorDescription,
@@ -40,8 +40,8 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
         },
         strokeWeight: number
     }) => {
-        graphicsContext.stroke(colors.strokeColor);
-        graphicsContext.fill(colors.backgroundFillColor);
+        graphicsContext.stroke(colors.strokeColor.hsb[0], colors.strokeColor.hsb[1], colors.strokeColor.hsb[2],);
+        graphicsContext.fill(colors.backgroundFillColor.hsb[0], colors.backgroundFillColor.hsb[1], colors.backgroundFillColor.hsb[2],);
         graphicsContext.strokeWeight(strokeWeight);
         graphicsContext.rect(drawArea.left, drawArea.top, drawArea.width, drawArea.height);
     }
@@ -50,7 +50,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
         currentAmount: number,
         maxAmount: number,
         drawArea: RectArea,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsBuffer,
         colors: {
             strokeColor: ColorDescription,
             foregroundFillColor: ColorDescription,
@@ -58,7 +58,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
         }
     }) => {
         graphicsContext.noStroke();
-        graphicsContext.fill(colors.foregroundFillColor);
+        graphicsContext.fill(colors.foregroundFillColor.hsb[0], colors.foregroundFillColor.hsb[1], colors.foregroundFillColor.hsb[2],);
         const width: number = currentAmount * drawArea.width / maxAmount;
         graphicsContext.rect(drawArea.left, drawArea.top, width, drawArea.height);
     }
@@ -67,7 +67,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
         currentAmount: number,
         maxAmount: number,
         drawArea: RectArea,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsBuffer,
         colors: {
             strokeColor: ColorDescription,
             foregroundFillColor: ColorDescription,
@@ -76,7 +76,7 @@ const drawHorizontalDividedBar = ({graphicsContext, drawArea, currentAmount, max
         strokeWeight: number
     }) => {
         graphicsContext.noStroke();
-        graphicsContext.fill(colors.backgroundFillColor);
+        graphicsContext.fill(colors.backgroundFillColor.hsb[0], colors.backgroundFillColor.hsb[1], colors.backgroundFillColor.hsb[2],);
         for (let i = 1; i < currentAmount; i++) {
             const horizontalOffsetFromLeft: number = i * drawArea.width / maxAmount;
             graphicsContext.rect(

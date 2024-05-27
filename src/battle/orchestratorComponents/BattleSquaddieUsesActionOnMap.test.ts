@@ -4,7 +4,6 @@ import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
@@ -15,16 +14,17 @@ import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedAct
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: ObjectRepository;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     let dateSpy: jest.SpyInstance;
     let mapAction: BattleSquaddieUsesActionOnMap;
     let gameEngineState: GameEngineState;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepository = ObjectRepositoryService.new();
         CreateNewSquaddieAndAddToRepository({
             name: "Torrin",

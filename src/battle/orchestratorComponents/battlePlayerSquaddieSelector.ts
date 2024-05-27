@@ -17,7 +17,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {BattleSquaddieSelectorService} from "./battleSquaddieSelectorUtils";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -189,7 +189,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         });
     }
 
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (!this.playerCanControlAnySquaddiesOnTheCurrentTeam(gameEngineState)) {
             return;
         }

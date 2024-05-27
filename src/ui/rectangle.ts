@@ -1,5 +1,5 @@
 import {RectArea} from "./rectArea";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {isValidValue} from "../utils/validityCheck";
 
 type RequiredOptions = {
@@ -51,29 +51,29 @@ export const RectangleHelper = {
             noFill: noFill,
         }
     },
-    draw: (rectangle: Rectangle, graphicsContext: GraphicsContext): void => {
-        graphicsContext.push();
+    draw: (rectangle: Rectangle, graphics: GraphicsBuffer): void => {
+        graphics.push();
         if (isValidValue(rectangle.fillColor)) {
-            graphicsContext.fill({hsb: rectangle.fillColor});
+            graphics.fill(rectangle.fillColor[0], rectangle.fillColor[1], rectangle.fillColor[2],);
         }
         if (isValidValue(rectangle.strokeColor)) {
-            graphicsContext.stroke({hsb: rectangle.strokeColor});
+            graphics.stroke(rectangle.strokeColor[0], rectangle.strokeColor[1], rectangle.strokeColor[2],);
         }
         if (isValidValue(rectangle.strokeWeight)) {
-            graphicsContext.strokeWeight(rectangle.strokeWeight);
+            graphics.strokeWeight(rectangle.strokeWeight);
         }
         if (rectangle.noFill) {
-            graphicsContext.noFill();
+            graphics.noFill();
         }
         if (rectangle.noStroke) {
-            graphicsContext.noStroke();
+            graphics.noStroke();
         }
-        graphicsContext.rect(
+        graphics.rect(
             rectangle.area.left,
             rectangle.area.top,
             rectangle.area.width,
             rectangle.area.height,
         );
-        graphicsContext.pop();
+        graphics.pop();
     }
 }

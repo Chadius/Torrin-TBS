@@ -1,14 +1,14 @@
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineState} from "./gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 export type GameEngineChanges = {
     nextMode?: GameModeEnum;
 }
 
 export interface GameEngineComponent {
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void;
 
     keyPressed(state: GameEngineState, keyCode: number): void;
 

@@ -1,9 +1,9 @@
 import {SplashScreenPlayerService, SplashScreenPlayerState} from "./splashScreenPlayer";
 import {SplashScreen, SplashScreenService} from "./splashScreen";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {config} from "../configuration/config";
 import {KeyButtonName} from "../utils/keyboardConfig";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 
 describe('splash screen', () => {
     describe('splash screen finishes', () => {
@@ -75,10 +75,10 @@ describe('splash screen', () => {
 
     describe('backgroundColor', () => {
         let drawRectSpy: jest.SpyInstance;
-        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+        let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
         beforeEach(() => {
-            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
             drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect");
         });
 

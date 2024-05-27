@@ -2,7 +2,7 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {Recording, RecordingService} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
@@ -44,10 +44,11 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let battleEventRecording: Recording;
 
     let animator: SquaddieSkipsAnimationAnimator;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockResourceHandler = mocks.mockResourceHandler();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer();
+        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         monkKoanAction = ActionTemplateService.new({
@@ -117,7 +118,6 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         RecordingService.addEvent(battleEventRecording, monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     it('will create a text window with the action results', () => {

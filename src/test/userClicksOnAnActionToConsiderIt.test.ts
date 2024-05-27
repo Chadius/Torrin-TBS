@@ -9,7 +9,7 @@ import {BattleSquaddie, BattleSquaddieService} from "../battle/battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battle/battleSquaddieTeam";
 import {BattleSquaddieSelectedHUD} from "../battle/hud/battleSquaddieSelectedHUD";
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {MissionMap, MissionMapService} from "../missionMap/missionMap";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
@@ -93,7 +93,7 @@ describe('user clicks on an action to consider it', () => {
 
         battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
@@ -196,7 +196,7 @@ describe('user clicks on an action to consider it', () => {
         selector.reset(gameEngineState);
 
         const targeting = new BattlePlayerSquaddieTarget();
-        const graphicsContext = new MockedP5GraphicsContext();
+        const graphicsContext = new MockedP5GraphicsBuffer();
         const highlightSpy = jest.spyOn(gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, "highlightTiles");
         targeting.update(gameEngineState, graphicsContext);
 

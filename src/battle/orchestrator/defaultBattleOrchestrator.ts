@@ -5,7 +5,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
@@ -30,6 +30,6 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         return undefined;
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
     }
 }

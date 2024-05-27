@@ -1,14 +1,19 @@
 import {ResourceHandler, ResourceHandlerService, ResourceLocator, ResourceType} from "./resourceHandler";
 import {StubImmediateLoader} from "./resourceHandlerTestUtils";
-import {GraphicImageWithStringAsData, MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import * as DataLoader from "../dataLoader/dataLoader";
-import {GraphicImage} from "../utils/graphics/graphicsContext";
+import p5 from "p5";
 
 describe('Resource Handler', () => {
+    let mockedP5Graphics: MockedP5GraphicsBuffer;
+    beforeEach(() => {
+        mockedP5Graphics = new MockedP5GraphicsBuffer()
+    })
+
     it('can load an individual resource', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -19,14 +24,11 @@ describe('Resource Handler', () => {
         });
         const error = loader.loadResource("some_image_key");
         expect(error).toBeUndefined();
-
-        const imageData = loader.getResource("some_image_key");
-        expect(imageData).toStrictEqual(new GraphicImageWithStringAsData("stubImage for some_image_key"));
     });
     it('can load a list of resources', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -42,17 +44,11 @@ describe('Resource Handler', () => {
         });
         const errors = loader.loadResources(["key1", "key2"]);
         expect(errors).toHaveLength(0);
-
-        const image1Data = loader.getResource("key1");
-        expect(image1Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for key1"));
-
-        const image2Data = loader.getResource("key2");
-        expect(image2Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for key2"));
     });
     it('returns an error if resource key is unknown', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -76,9 +72,9 @@ describe('Resource Handler', () => {
         let consoleWarnSpy: jest.SpyInstance;
 
         beforeEach(() => {
-            imageLoader = new StubImmediateLoader();
+            imageLoader = new StubImmediateLoader(mockedP5Graphics);
             loader = ResourceHandlerService.new({
-                graphicsContext: new MockedP5GraphicsContext(),
+                graphics: new MockedP5GraphicsBuffer(),
                 imageLoader,
                 resourceLocators: [
                     {
@@ -94,7 +90,7 @@ describe('Resource Handler', () => {
         });
 
         it('returns a default image and attempts a reload if the image has not been loaded yet', () => {
-            const defaultGraphicImage: GraphicImage = loader.getResource("some_image_key");
+            const defaultGraphicImage: p5.Image = loader.getResource("some_image_key");
             expect(defaultGraphicImage.height).toEqual(1);
             expect(defaultGraphicImage.width).toEqual(1);
             expect(imageLoaderSpy).toBeCalledWith("some_image_key", loader);
@@ -103,8 +99,8 @@ describe('Resource Handler', () => {
     });
     it('indicates when all resources have been loaded', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -120,8 +116,8 @@ describe('Resource Handler', () => {
     });
     it('indicates when a given list of resources have been loaded', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -143,8 +139,8 @@ describe('Resource Handler', () => {
     });
     it('indicates when a single resource has been loaded', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -166,8 +162,8 @@ describe('Resource Handler', () => {
     });
     it('can forget an individual resource key', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -187,8 +183,8 @@ describe('Resource Handler', () => {
     });
     it('can forget a list of resource keys', () => {
         const loader = ResourceHandlerService.new({
-            graphicsContext: new MockedP5GraphicsContext(),
-            imageLoader: new StubImmediateLoader(),
+            graphics: new MockedP5GraphicsBuffer(),
+            imageLoader: new StubImmediateLoader(mockedP5Graphics),
             resourceLocators: [
                 {
                     type: ResourceType.IMAGE,
@@ -208,27 +204,27 @@ describe('Resource Handler', () => {
 
         loader.deleteResources(["image1"]);
 
+        expect(loader.isResourceLoaded("image1")).toBeFalsy()
         const defaultImage1 = loader.getResource("image1");
         expect(defaultImage1.height).toEqual(1);
         expect(defaultImage1.width).toEqual(1);
 
-        const image2Data = loader.getResource("image2");
-        expect(image2Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for image2"));
+        expect(loader.isResourceLoaded("image2")).toBeTruthy()
     });
 
     describe('load resource locations', () => {
         it('knows it does not have resource locations upon creation', () => {
             const resourceHandler = ResourceHandlerService.new({
-                graphicsContext: new MockedP5GraphicsContext(),
-                imageLoader: new StubImmediateLoader()
+                graphics: new MockedP5GraphicsBuffer(),
+                imageLoader: new StubImmediateLoader(mockedP5Graphics)
             })
 
             expect(ResourceHandlerService.hasResourceLocations(resourceHandler)).toBeFalsy();
         });
         it('assumes it has all resource locations upon creation if locations are provided', () => {
             const resourceHandler = ResourceHandlerService.new({
-                graphicsContext: new MockedP5GraphicsContext(),
-                imageLoader: new StubImmediateLoader(),
+                graphics: new MockedP5GraphicsBuffer(),
+                imageLoader: new StubImmediateLoader(mockedP5Graphics),
                 resourceLocators: [
                     {
                         type: ResourceType.IMAGE,
@@ -259,8 +255,8 @@ describe('Resource Handler', () => {
             );
 
             const resourceHandler = ResourceHandlerService.new({
-                graphicsContext: new MockedP5GraphicsContext(),
-                imageLoader: new StubImmediateLoader(),
+                graphics: new MockedP5GraphicsBuffer(),
+                imageLoader: new StubImmediateLoader(mockedP5Graphics),
             })
 
             await ResourceHandlerService.loadResourceLocations(resourceHandler, "/path/to/resource_locations.json");

@@ -1,6 +1,6 @@
 import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {MouseButton} from "../../utils/mouseConfig";
 
@@ -34,7 +34,7 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void;
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void;
 
     uiControlSettings(gameEngineState: GameEngineState): UIControlSettings;
 

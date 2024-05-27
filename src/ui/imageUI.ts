@@ -1,5 +1,6 @@
 import {RectArea} from "./rectArea";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
+import p5 from "p5";
 
 export const ScaleImageWidth = ({
                                     imageWidth,
@@ -26,7 +27,7 @@ export const ScaleImageHeight = ({
 }
 
 export class ImageUI {
-    graphic: GraphicImage;
+    graphic: p5.Image;
     area: RectArea;
     tintColor: number[];
 
@@ -34,7 +35,7 @@ export class ImageUI {
                     graphic,
                     area,
                 }: {
-        graphic: GraphicImage;
+        graphic: p5.Image;
         area: RectArea;
     }) {
         this.graphic = graphic;
@@ -42,7 +43,7 @@ export class ImageUI {
         this.tintColor = [];
     }
 
-    draw(graphicsContext: GraphicsContext) {
+    draw(graphicsContext: GraphicsBuffer) {
         if (this.tintColor) {
             graphicsContext.tint(
                 this.tintColor[0],

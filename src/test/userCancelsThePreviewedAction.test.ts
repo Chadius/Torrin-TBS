@@ -13,7 +13,7 @@ import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {SquaddieIdService} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {BattlePhaseStateService} from "../battle/orchestratorComponents/battlePhaseController";
@@ -53,7 +53,7 @@ describe('User cancels the previewed action', () => {
     let missionMap: MissionMap;
 
     let targeting: BattlePlayerSquaddieTarget;
-    let graphicsContext: MockedP5GraphicsContext;
+    let graphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new();
@@ -88,7 +88,8 @@ describe('User cancels the previewed action', () => {
         });
         ObjectRepositoryService.addBattleSquaddie(repository, playerBattleSquaddie);
 
-        resourceHandler = mocks.mockResourceHandler();
+        graphicsContext = new MockedP5GraphicsBuffer();
+        resourceHandler = mocks.mockResourceHandler(graphicsContext);
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
@@ -103,7 +104,6 @@ describe('User cancels the previewed action', () => {
         });
 
         targeting = new BattlePlayerSquaddieTarget();
-        graphicsContext = new MockedP5GraphicsContext();
     });
 
     describe('when the user cancels after selecting an action', () => {

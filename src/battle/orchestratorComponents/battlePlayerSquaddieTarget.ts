@@ -14,7 +14,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -112,7 +112,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (!this.hasHighlightedTargetRange) {
             return this.highlightTargetRange(state);
         }
@@ -311,7 +311,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.highlightedTargetRange = [...actionRange];
     }
 
-    private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsBuffer) {
         const cancelAbilityButtonText = "CONFIRM: Click on the target.     CANCEL: Click here.";
         this.drawButton(
             RectAreaService.new({
@@ -409,7 +409,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         })
     }
 
-    private drawConfirmWindow(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawConfirmWindow(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         this.drawButton(
             RectAreaService.new({
                 left: 0,
@@ -466,7 +466,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
     }
 
-    private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsContext) {
+    private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsBuffer) {
         const buttonBackground = LabelService.new({
             area,
             fillColor: [0, 0, 60],

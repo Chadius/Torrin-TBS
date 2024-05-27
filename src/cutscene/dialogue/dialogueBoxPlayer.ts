@@ -4,12 +4,13 @@ import {DialogueTextBox} from "./dialogueTextBox";
 import {DialogueSpeakerNameBox} from "./dialogueSpeakerNameBox";
 import {DialogueSpeakerImage} from "./dialogueSpeakerImage";
 import {DialogueAnswerButton} from "./dialogueAnswerButton";
-import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SubstituteText, TextSubstitutionContext} from "../../textSubstitution/textSubstitution";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {Dialogue, DialogueService} from "./dialogue";
 import {isValidValue} from "../../utils/validityCheck";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
+import p5 from "p5";
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE;
@@ -22,7 +23,7 @@ export interface DialoguePlayerState {
     answerButtons: DialogueAnswerButton[];
     textBox: DialogueTextBox;
     speakerNameBox: DialogueSpeakerNameBox;
-    speakerPortrait: GraphicImage;
+    speakerPortrait: p5.Image;
     speakerImage: DialogueSpeakerImage;
 }
 
@@ -45,7 +46,7 @@ export const DialoguePlayerService = {
         answerButtons?: DialogueAnswerButton[];
         textBox?: DialogueTextBox;
         speakerNameBox?: DialogueSpeakerNameBox;
-        speakerPortrait?: GraphicImage;
+        speakerPortrait?: p5.Image;
         speakerImage?: DialogueSpeakerImage;
     }): DialoguePlayerState => {
         return {
@@ -93,7 +94,7 @@ export const DialoguePlayerService = {
             state.dialogFinished = true;
         }
     },
-    draw: (state: DialoguePlayerState, graphicsContext: GraphicsContext) => {
+    draw: (state: DialoguePlayerState, graphicsContext: GraphicsBuffer) => {
         graphicsContext.push();
         drawBackground(state, graphicsContext);
 
@@ -104,7 +105,7 @@ export const DialoguePlayerService = {
 
         graphicsContext.pop();
     },
-    setImageResource: (state: DialoguePlayerState, image: GraphicImage) => {
+    setImageResource: (state: DialoguePlayerState, image: p5.Image) => {
         setPortrait(state, image);
     },
     keyPressed: (dialoguePlayerState: DialoguePlayerState, keyCode: number) => {
@@ -118,7 +119,7 @@ export const DialoguePlayerService = {
     }
 }
 
-const setPortrait = (state: DialoguePlayerState, portrait: GraphicImage) => {
+const setPortrait = (state: DialoguePlayerState, portrait: p5.Image) => {
     state.speakerPortrait = portrait;
     setSpeakerUI(state);
 }
@@ -219,10 +220,10 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
     });
 }
 
-const drawBackground = (state: DialoguePlayerState, graphicsContext: GraphicsContext) => {
+const drawBackground = (state: DialoguePlayerState, graphicsContext: GraphicsBuffer) => {
     if (isValidValue(state.dialogue.backgroundColor)) {
         graphicsContext.push();
-        graphicsContext.fill({hsb: state.dialogue.backgroundColor});
+        graphicsContext.fill(state.dialogue.backgroundColor[0], state.dialogue.backgroundColor[1], state.dialogue.backgroundColor[2],);
         graphicsContext.rect(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
         graphicsContext.pop();
     }

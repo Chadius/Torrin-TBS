@@ -1,13 +1,13 @@
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {LabelService} from "../../ui/label";
 import {PopupWindow, PopupWindowService, PopupWindowStatus} from "./popupWindow";
 import {BattleCamera} from "../battleCamera";
 
 describe('PopUp', () => {
     let popup: PopupWindow;
-    let graphicsContext: MockedP5GraphicsContext;
+    let graphicsContext: MockedP5GraphicsBuffer
     let drawRectSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -26,7 +26,7 @@ describe('PopUp', () => {
             })
         })
 
-        graphicsContext = new MockedP5GraphicsContext();
+        graphicsContext = new MockedP5GraphicsBuffer();
 
         drawRectSpy = jest.spyOn(graphicsContext, "rect");
     })
@@ -136,7 +136,7 @@ describe('PopUp', () => {
     });
     describe('set popup to Inactive after timer expires', () => {
         let popup: PopupWindow;
-        let graphicsContext: MockedP5GraphicsContext;
+        let graphicsContext: MockedP5GraphicsBuffer
         let dateSpy: jest.SpyInstance;
 
         beforeEach(() => {
@@ -156,7 +156,7 @@ describe('PopUp', () => {
                 camera: new BattleCamera()
             })
             PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
-            graphicsContext = new MockedP5GraphicsContext()
+            graphicsContext = new MockedP5GraphicsBuffer()
             dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
         })
 

@@ -1,5 +1,6 @@
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionFileFormat, NpcTeam, NpcTeamMissionDeployment} from "../../dataLoader/missionLoader";
 import * as DataLoader from "../../dataLoader/dataLoader";
@@ -32,7 +33,7 @@ describe('Mission Loader', () => {
     let playerArmy: PlayerArmy;
 
     beforeEach(() => {
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.loadResources = jest.fn();
         resourceHandler.loadResource = jest.fn();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);

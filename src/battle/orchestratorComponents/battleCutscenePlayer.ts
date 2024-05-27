@@ -8,7 +8,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {isValidValue} from "../../utils/validityCheck";
 
@@ -57,7 +57,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (!isValidValue(this.currentCutscene)) {
             return;
         }

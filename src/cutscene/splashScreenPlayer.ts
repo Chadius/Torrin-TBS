@@ -1,10 +1,11 @@
 import {CutsceneActionPlayerType} from "./cutsceneAction";
 import {ImageUI} from "../ui/imageUI";
 import {RectAreaService} from "../ui/rectArea";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {SplashScreen} from "./splashScreen";
 import {isValidValue} from "../utils/validityCheck";
+import p5 from "p5";
 
 export interface SplashScreenPlayerState {
     type: CutsceneActionPlayerType.SPLASH_SCREEN;
@@ -34,7 +35,7 @@ export const SplashScreenPlayerService = {
             screenImage,
         }
     },
-    setImageResource: (splashScreenPlayerState: SplashScreenPlayerState, image: GraphicImage) => {
+    setImageResource: (splashScreenPlayerState: SplashScreenPlayerState, image: p5.Image) => {
         setScreenImage(splashScreenPlayerState, image);
     },
     start: (splashScreenPlayerState: SplashScreenPlayerState): void => {
@@ -49,7 +50,7 @@ export const SplashScreenPlayerService = {
     isFinished: (splashScreenPlayerState: SplashScreenPlayerState): boolean => {
         return !isAnimating(splashScreenPlayerState) || splashScreenPlayerState.dialogFinished;
     },
-    draw: (splashScreenPlayerState: SplashScreenPlayerState, graphicsContext: GraphicsContext): void => {
+    draw: (splashScreenPlayerState: SplashScreenPlayerState, graphicsContext: GraphicsBuffer): void => {
         drawBackground(splashScreenPlayerState, graphicsContext);
 
         if (splashScreenPlayerState.screenImage) {
@@ -77,7 +78,7 @@ const isAnimating = (state: SplashScreenPlayerState): boolean => {
     return !state.dialogFinished;
 };
 
-const setScreenImage = (state: SplashScreenPlayerState, splashImage: GraphicImage) => {
+const setScreenImage = (state: SplashScreenPlayerState, splashImage: p5.Image) => {
     state.screenImage = new ImageUI({
         graphic: splashImage,
         area: RectAreaService.new({
@@ -89,10 +90,10 @@ const setScreenImage = (state: SplashScreenPlayerState, splashImage: GraphicImag
     });
 }
 
-const drawBackground = (state: SplashScreenPlayerState, graphicsContext: GraphicsContext) => {
+const drawBackground = (state: SplashScreenPlayerState, graphicsContext: GraphicsBuffer) => {
     if (isValidValue(state.splashScreen.backgroundColor)) {
         graphicsContext.push();
-        graphicsContext.fill({hsb: state.splashScreen.backgroundColor});
+        graphicsContext.fill(state.splashScreen.backgroundColor[0], state.splashScreen.backgroundColor[1], state.splashScreen.backgroundColor[2],);
         graphicsContext.rect(0, 0, ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
         graphicsContext.pop();
     }

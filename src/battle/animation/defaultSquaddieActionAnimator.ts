@@ -1,6 +1,6 @@
 import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 
@@ -22,6 +22,6 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     start(state: GameEngineState): void {
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphics: GraphicsBuffer): void {
     }
 }

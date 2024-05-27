@@ -11,7 +11,7 @@ import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {SquaddieIdService} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {BattlePhaseState, BattlePhaseStateService} from "../battle/orchestratorComponents/battlePhaseController";
@@ -41,7 +41,7 @@ import {
 } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {ProcessedActionEndTurnEffectService} from "../action/processed/processedActionEndTurnEffect";
 import {ProcessedActionService} from "../action/processed/processedAction";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleEventService} from "../battle/history/battleEvent";
 import {MouseButton} from "../utils/mouseConfig";
@@ -100,8 +100,9 @@ describe('User ends their turn', () => {
 
         battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer())
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
         missionMap = new MissionMap({
@@ -267,7 +268,7 @@ describe('User ends their turn', () => {
 
     describe('When MapAction phase completes', () => {
         let mapAction: BattleSquaddieUsesActionOnMap;
-        let graphicsContext: GraphicsContext;
+        let graphicsContext: GraphicsBuffer;
         let decidedActionEndTurnEffect: DecidedActionEndTurnEffect;
         let tintSpy: jest.SpyInstance;
         let orchestratorUtilsSpy: jest.SpyInstance;
@@ -276,7 +277,7 @@ describe('User ends their turn', () => {
             decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
                 template: ActionEffectEndTurnTemplateService.new({})
             });
-            graphicsContext = new MockedP5GraphicsContext();
+            graphicsContext = new MockedP5GraphicsBuffer()
             mapAction = new BattleSquaddieUsesActionOnMap();
             gameEngineState = GameEngineStateService.new({
                 repository: repository,

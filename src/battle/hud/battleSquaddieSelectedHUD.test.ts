@@ -16,7 +16,7 @@ import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestrator
 import {KeyButtonName} from "../../utils/keyboardConfig";
 import {config} from "../../configuration/config";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
@@ -53,7 +53,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
     let longswordAction: ActionTemplate;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -64,7 +64,9 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         squaddieRepository = ObjectRepositoryService.new();
 
-        resourceHandler = mocks.mockResourceHandler();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
+
+        resourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
@@ -124,7 +126,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         hud = new BattleSquaddieSelectedHUD();
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     describe('Player selects squaddie they can control', () => {

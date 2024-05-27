@@ -10,7 +10,7 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -33,13 +33,13 @@ describe('BattlePhaseController', () => {
     let resourceHandler: ResourceHandler;
     let diffTime: number;
     let state: GameEngineState;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     let teams: BattleSquaddieTeam[];
     let playerSquaddieTemplate: SquaddieTemplate;
     let playerBattleSquaddie: BattleSquaddie;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepo = ObjectRepositoryService.new();
 
         playerSquaddieTemplate = SquaddieTemplateService.new({

@@ -15,7 +15,7 @@ import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {Trait} from "../../trait/traitStatusStorage";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -97,7 +97,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         OrchestratorUtilities.resetActionBuilderIfActionIsComplete(gameEngineState);
     }
 
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
             this.setSquaddieActionAnimatorBasedOnAction(gameEngineState.battleOrchestratorState);
         }

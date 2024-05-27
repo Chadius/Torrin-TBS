@@ -5,7 +5,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -46,6 +46,6 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         return undefined;
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
     }
 }

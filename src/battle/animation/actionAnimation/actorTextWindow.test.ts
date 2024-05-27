@@ -4,7 +4,7 @@ import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorag
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {ATTACK_MODIFIER} from "../../modifierConstants";
@@ -12,14 +12,14 @@ import {ActionEffectSquaddieTemplateService} from "../../../action/template/acti
 import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
 
 describe('ActorTextWindow', () => {
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     let mockedActionTimer: ActionTimer;
 
     let actorTemplate: SquaddieTemplate;
     let attackThatUsesAttackRoll: ActionTemplate;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         mockedActionTimer = new ActionTimer();
 
         actorTemplate = SquaddieTemplateService.new({

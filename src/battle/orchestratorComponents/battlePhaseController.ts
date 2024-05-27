@@ -16,7 +16,7 @@ import {RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GraphicsConfig, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {
     convertMapCoordinatesToScreenCoordinates,
@@ -30,6 +30,7 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {SquaddieService} from "../../squaddie/squaddieService";
+import p5 from "p5";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -51,9 +52,9 @@ export const BattlePhaseStateService = {
 };
 
 export class BattlePhaseController implements BattleOrchestratorComponent {
-    bannerImage: GraphicImage;
+    bannerImage: p5.Image;
     bannerImageUI: ImageUI;
-    affiliationImage: GraphicImage;
+    affiliationImage: p5.Image;
     affiliationImageUI: ImageUI;
     bannerDisplayAnimationStartTime?: number;
     newBannerShown: boolean;
@@ -93,7 +94,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (!this.newBannerShown
             && state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
             && BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.repository)
@@ -195,7 +196,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         });
     }
 
-    draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    draw(state: BattleOrchestratorState, graphicsContext: GraphicsBuffer): void {
         if (this.bannerImageUI) {
             this.bannerImageUI.draw(graphicsContext);
             this.affiliationImageUI.draw(graphicsContext);

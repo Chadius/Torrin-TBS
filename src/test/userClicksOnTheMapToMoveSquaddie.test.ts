@@ -8,7 +8,7 @@ import {MissionMap, MissionMapService} from "../missionMap/missionMap";
 import {SquaddieIdService} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {GameEngineState, GameEngineStateService} from "../gameEngine/gameEngine";
@@ -30,7 +30,7 @@ import {DecidedActionMovementEffectService} from "../action/decided/decidedActio
 import {ActionEffectMovementTemplateService} from "../action/template/actionEffectMovementTemplate";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattleSquaddieMover} from "../battle/orchestratorComponents/battleSquaddieMover";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleHUDService} from "../battle/hud/battleHUD";
 import {MouseButton} from "../utils/mouseConfig";
@@ -83,7 +83,7 @@ describe("user clicks on the map to move", () => {
 
         battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
@@ -215,13 +215,13 @@ describe("user clicks on the map to move", () => {
 
     describe('Squaddie Mover knows to move over', () => {
         let mover: BattleSquaddieMover;
-        let graphicsContext: GraphicsContext;
+        let graphicsContext: GraphicsBuffer;
         let moveSquaddieAlongPathSpy: SpyInstance;
 
         beforeEach(() => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 3);
             mover = new BattleSquaddieMover();
-            graphicsContext = new MockedP5GraphicsContext();
+            graphicsContext = new MockedP5GraphicsBuffer()
             moveSquaddieAlongPathSpy = jest.spyOn(DrawSquaddieUtilities, "moveSquaddieAlongPath");
         });
 

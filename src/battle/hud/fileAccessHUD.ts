@@ -10,7 +10,7 @@ import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {FileState} from "../../gameEngine/fileState";
 
 export enum FileAccessHUDMessage {
@@ -181,7 +181,7 @@ export const FileAccessHUDService = {
     updateStatusMessage: (fileAccessHUD: FileAccessHUD, fileState: FileState): string => {
         return updateStatusMessage(fileAccessHUD, fileState);
     },
-    draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsContext) => {
+    draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsBuffer) => {
         fileAccessHUD.loadButton.draw(graphicsContext);
         fileAccessHUD.saveButton.draw(graphicsContext);
         if (isValidValue(fileAccessHUD.messageLabel.textBox.text)) {

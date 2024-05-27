@@ -13,10 +13,11 @@ import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle, RectangleHelper} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {isValidValue} from "../utils/validityCheck";
+import p5 from "p5";
 
 enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -165,7 +166,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.menuSelection === TitleScreenMenuSelection.NEW_GAME;
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (this.startLoadingResources === false) {
             this.loadResourcesFromHandler();
         }
@@ -209,7 +210,7 @@ export class TitleScreen implements GameEngineComponent {
         LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState);
     }
 
-    private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private draw(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         RectangleHelper.draw(this.lazyLoadBackground(), graphicsContext);
         this.drawTitleBanner(graphicsContext);
 
@@ -271,7 +272,7 @@ export class TitleScreen implements GameEngineComponent {
         this.errorDuringLoadingDisplayStartTimestamp = undefined;
     }
 
-    private drawTitleBanner(graphicsContext: GraphicsContext) {
+    private drawTitleBanner(graphicsContext: GraphicsBuffer) {
         if (this.titleBanner === undefined) {
             this.titleBannerArea =
                 RectAreaService.new({
@@ -285,7 +286,7 @@ export class TitleScreen implements GameEngineComponent {
                 return;
             }
 
-            let image: GraphicImage = this.resourceHandler.getResource(TitleScreenDesign.logo.iconImageResourceKey);
+            let image: p5.Image = this.resourceHandler.getResource(TitleScreenDesign.logo.iconImageResourceKey);
 
             this.titleBannerArea = RectAreaService.new({
                 left: WINDOW_SPACING.SPACING1,
@@ -366,13 +367,13 @@ export class TitleScreen implements GameEngineComponent {
         return this.byLine;
     }
 
-    private updateStartGameButton(graphicsContext: GraphicsContext) {
-        const windowIsTooSmall: boolean = graphicsContext.windowWidth() < ScreenDimensions.SCREEN_WIDTH
-            || graphicsContext.windowHeight() < ScreenDimensions.SCREEN_HEIGHT;
+    private updateStartGameButton(graphicsContext: GraphicsBuffer) {
+        const windowIsTooSmall: boolean = graphicsContext.width < ScreenDimensions.SCREEN_WIDTH
+            || graphicsContext.height < ScreenDimensions.SCREEN_HEIGHT;
 
-        const buttonWidth = graphicsContext.windowWidth() > ScreenDimensions.SCREEN_WIDTH
+        const buttonWidth = graphicsContext.width > ScreenDimensions.SCREEN_WIDTH
             ? ScreenDimensions.SCREEN_WIDTH
-            : graphicsContext.windowWidth();
+            : graphicsContext.width;
 
         this.startNewGameButtonLabel = "";
         const playButtonHasBeenClicked: boolean = this.startNewGameButton && this.startNewGameButton.getStatus() === ButtonStatus.ACTIVE;
@@ -380,7 +381,7 @@ export class TitleScreen implements GameEngineComponent {
         let buttonTextSize = WINDOW_SPACING.SPACING4;
         if (windowIsTooSmall) {
             buttonTextSize = buttonWidth / 35;
-            this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
+            this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.width}x${graphicsContext.height}`;
 
             const buttonTextMinimumSize = 18;
             if (buttonTextSize < buttonTextMinimumSize) {
@@ -442,7 +443,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.startNewGameButton;
     }
 
-    private updateContinueGameButton(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private updateContinueGameButton(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         const newButtonLabel = this.getNewButtonLabel(state);
 
         let changePlayButtonLabel: boolean = (newButtonLabel !== this.continueGameButtonLabel);
@@ -588,13 +589,13 @@ export class TitleScreen implements GameEngineComponent {
         return this.resourceHandler.areAllResourcesLoaded(resourceKeys);
     }
 
-    private drawCharacterIntroductions(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawCharacterIntroductions(state: GameEngineState, graphicsContext: GraphicsBuffer) {
         this.drawTorrinCharacterIntroduction(graphicsContext);
         this.drawSirCamilCharacterIntroduction(graphicsContext);
         this.drawDemonCharacterIntroduction(graphicsContext);
     }
 
-    private drawSirCamilCharacterIntroduction(graphicsContext: GraphicsContext) {
+    private drawSirCamilCharacterIntroduction(graphicsContext: GraphicsBuffer) {
         if (this.sirCamilUIElements.icon === undefined) {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
         }
@@ -610,14 +611,14 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         if (this.sirCamilUIElements.icon === undefined) {
-            let image: GraphicImage = this.resourceHandler.getResource("sir camil cutscene portrait");
+            let image: p5.Image = this.resourceHandler.getResource("sir camil cutscene portrait");
             this.setSirCamilIconBasedOnImageAndTorrinImage(image);
             this.setSirCamilDescriptionText();
         }
         this.sirCamilUIElements.icon.draw(graphicsContext);
     }
 
-    private setSirCamilIconBasedOnImageAndTorrinImage(image: GraphicImage) {
+    private setSirCamilIconBasedOnImageAndTorrinImage(image: p5.Image) {
         this.sirCamilUIElements.iconArea = RectAreaService.new({
             left: RectAreaService.left(this.sirCamilUIElements.iconArea),
             top: RectAreaService.bottom(this.torrinUIElements.iconArea) + WINDOW_SPACING.SPACING1,
@@ -662,7 +663,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private drawTorrinCharacterIntroduction(graphicsContext: GraphicsContext) {
+    private drawTorrinCharacterIntroduction(graphicsContext: GraphicsBuffer) {
         if (this.torrinUIElements.icon === undefined) {
             this.createPlaceholderTorrinIconArea();
         }
@@ -677,14 +678,14 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         if (this.torrinUIElements.icon === undefined) {
-            let image: GraphicImage = this.resourceHandler.getResource("young torrin cutscene portrait");
+            let image: p5.Image = this.resourceHandler.getResource("young torrin cutscene portrait");
             this.setTorrinIconBasedOnImage(image);
             this.setTorrinDescriptionText();
         }
         this.torrinUIElements.icon.draw(graphicsContext);
     }
 
-    private setTorrinIconBasedOnImage(image: GraphicImage) {
+    private setTorrinIconBasedOnImage(image: p5.Image) {
         this.torrinUIElements.iconArea = RectAreaService.new({
             left: this.torrinUIElements.iconArea.left,
             top: this.torrinUIElements.iconArea.top,
@@ -728,7 +729,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private drawDemonCharacterIntroduction(graphicsContext: GraphicsContext) {
+    private drawDemonCharacterIntroduction(graphicsContext: GraphicsBuffer) {
         if (!isValidValue(this.demonUIElements.icon)) {
             this.createDemonPlaceholderIconAreaUnderSirCamil();
         }
@@ -743,7 +744,7 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         if (!isValidValue(this.demonUIElements.icon)) {
-            let image: GraphicImage = this.resourceHandler.getResource(TitleScreenDesign.demon.iconImageResourceKey);
+            let image: p5.Image = this.resourceHandler.getResource(TitleScreenDesign.demon.iconImageResourceKey);
             this.setDemonIconBasedOnImage(image);
             this.setDemonDescriptionText();
         }
@@ -778,7 +779,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private setDemonIconBasedOnImage(image: GraphicImage) {
+    private setDemonIconBasedOnImage(image: p5.Image) {
         this.demonUIElements.iconArea = RectAreaService.new({
             left: this.demonUIElements.iconArea.left,
             top: this.demonUIElements.iconArea.top,

@@ -7,7 +7,7 @@ import {Label, LabelService} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
-import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {ActionResultTextService} from "../actionResultTextService";
 import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
@@ -68,7 +68,7 @@ export class TargetTextWindow {
         this.createActorTextBox();
     }
 
-    draw(graphicsContext: GraphicsContext, timer: ActionTimer) {
+    draw(graphicsContext: GraphicsBuffer, timer: ActionTimer) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }

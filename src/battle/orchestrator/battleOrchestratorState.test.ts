@@ -51,7 +51,7 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieIdService} from "../../squaddie/id";
 import {BattleSquaddieService} from "../battleSquaddie";
-import {mockResourceHandler} from "../../utils/test/mocks";
+import {MockedP5GraphicsBuffer, mockResourceHandler} from "../../utils/test/mocks";
 import {CampaignService} from "../../campaign/campaign";
 import {BATTLE_HUD_MODE} from "../../configuration/config";
 import {BattleHUDStateService} from "../hud/battleHUDState";
@@ -304,7 +304,7 @@ describe('orchestratorState', () => {
             ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie);
 
             return GameEngineStateService.new({
-                resourceHandler: mockResourceHandler(),
+                resourceHandler: mockResourceHandler(new MockedP5GraphicsBuffer()),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         campaignId: "test campaign",

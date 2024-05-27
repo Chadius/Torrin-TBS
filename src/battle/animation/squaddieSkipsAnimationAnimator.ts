@@ -6,7 +6,7 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
@@ -46,9 +46,9 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         this.maybeInitializeAnimationTimer();
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphics: GraphicsBuffer): void {
         this.maybeInitializeAnimationTimer();
-        this.draw(state, graphicsContext);
+        this.draw(state, graphics);
     }
 
     private resetInternalState() {
@@ -63,7 +63,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawActionDescription(state: GameEngineState, graphics: GraphicsBuffer) {
         if (this.outputTextDisplay === undefined) {
             const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound);
             const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
@@ -106,10 +106,10 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             });
         }
 
-        LabelService.draw(this.outputTextDisplay, graphicsContext);
+        LabelService.draw(this.outputTextDisplay, graphics);
     }
 
-    private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
-        this.drawActionDescription(state, graphicsContext);
+    private draw(state: GameEngineState, graphics: GraphicsBuffer) {
+        this.drawActionDescription(state, graphics);
     }
 }

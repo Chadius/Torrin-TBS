@@ -1,7 +1,7 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class DialogueAnswerButton {
     answerText: string;
@@ -21,7 +21,7 @@ export class DialogueAnswerButton {
         this.createUIObjects();
     }
 
-    draw(graphicsContext: GraphicsContext) {
+    draw(graphicsContext: GraphicsBuffer) {
         LabelService.draw(this.answerLabel, graphicsContext);
     }
 

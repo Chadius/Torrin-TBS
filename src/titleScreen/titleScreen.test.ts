@@ -1,5 +1,5 @@
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 import {TitleScreen} from "./titleScreen";
 import {TitleScreenState} from "./titleScreenState";
 import {GameModeEnum} from "../utils/startupConfig";
@@ -20,13 +20,13 @@ describe('Title Screen', () => {
     let titleScreen: TitleScreen;
     let titleScreenState: TitleScreenState
     let mockResourceHandler: ResourceHandler;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
-        mockResourceHandler = mocks.mockResourceHandler();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
+        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
@@ -61,8 +61,8 @@ describe('Title Screen', () => {
     });
 
     it('will declare itself complete when the user presses the enter key', () => {
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
@@ -91,8 +91,8 @@ describe('Title Screen', () => {
 
     it('will update the start game button if the window is too small', () => {
         const [mockedWidth, mockedHeight] = [ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT / 2];
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(mockedHeight);
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         titleScreen.reset(gameEngineState);
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -103,8 +103,8 @@ describe('Title Screen', () => {
 
     it('will say the window is too small if the window is too small', () => {
         const [mockedWidth, mockedHeight] = [1, 1];
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(mockedHeight);
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         titleScreen.reset(gameEngineState);
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -115,13 +115,13 @@ describe('Title Screen', () => {
 
     it('will reset the screen size warning if the window is restored', () => {
         const [mockedWidth, mockedHeight] = [1, 1];
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(mockedHeight);
         titleScreen.reset(gameEngineState);
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
 
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
 
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -130,8 +130,8 @@ describe('Title Screen', () => {
 
     it('will gather resources once upon startup', () => {
         const [mockedWidth, mockedHeight] = [1, 1];
-        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
-        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        jest.spyOn(mockedP5GraphicsContext, 'width', "get").mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'height', "get").mockReturnValue(mockedHeight);
 
         mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         const isResourceLoadedMock = jest.spyOn(mockResourceHandler, "isResourceLoaded");

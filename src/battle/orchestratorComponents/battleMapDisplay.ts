@@ -10,7 +10,7 @@ import {HexDrawingUtils} from "../../hexMap/hexDrawingUtils";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaService} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -21,7 +21,7 @@ import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {FileAccessHUDService} from "../hud/fileAccessHUD";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(gameEngineState: GameEngineState, graphicsContext: GraphicsContext): void {
+    draw(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
         graphicsContext.background(50, 10, 20);
 
         if (gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
@@ -131,7 +131,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         this.draw(state, graphicsContext);
     }
 
@@ -142,7 +142,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     reset(state: GameEngineState) {
     }
 
-    private drawSquaddieMapIcons(state: GameEngineState, graphicsContext: GraphicsContext, battleSquaddieIdsToOmit: string[]) {
+    private drawSquaddieMapIcons(state: GameEngineState, graphicsContext: GraphicsBuffer, battleSquaddieIdsToOmit: string[]) {
         ObjectRepositoryService.getBattleSquaddieIterator(state.repository)
             .filter((info) =>
                 info.battleSquaddieId in state.repository.imageUIByBattleSquaddieId

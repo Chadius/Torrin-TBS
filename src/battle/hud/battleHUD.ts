@@ -4,7 +4,7 @@ import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MessageBoardListener} from "../../message/messageBoardListener";
 import {MessageBoardMessage, MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {PopupWindow, PopupWindowService, PopupWindowStatus} from "./popupWindow";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleCamera} from "../battleCamera";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {LabelService, TextBoxMargin} from "../../ui/label";
@@ -64,7 +64,7 @@ export const BattleHUDService = {
             }
         }
     },
-    draw: (battleHUD: BattleHUD, graphicsContext: GraphicsContext) => {
+    draw: (battleHUD: BattleHUD, graphicsContext: GraphicsBuffer) => {
         Object.values(battleHUD.popupWindows)
             .filter(isValidValue)
             .forEach(popupWindow => {

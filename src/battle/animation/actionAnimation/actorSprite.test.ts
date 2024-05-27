@@ -4,7 +4,7 @@ import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {ActorSprite} from "./actorSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
+import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
@@ -18,7 +18,7 @@ import {
 describe('Actor Sprite', () => {
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
     const battleSquaddieId = "actor0";
 
     let hinderingAction: ActionTemplate;
@@ -43,7 +43,7 @@ describe('Actor Sprite', () => {
 
         timer = new ActionTimer();
         timer.start();
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsBuffer();
 
         hinderingAction = ActionTemplateService.new({
             id: "hindering",
