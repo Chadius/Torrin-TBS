@@ -1,27 +1,28 @@
 import {RectAreaService} from "../../ui/rectArea";
 import {WINDOW_SPACING} from "../../ui/constants";
 import {ImageUI} from "../../ui/imageUI";
-import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../utils/graphics/graphicsRenderer";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import p5 from "p5";
 
 type Options = {
-    speakerPortrait: GraphicImage;
+    speakerPortrait: p5.Image;
 }
 
 export class DialogueSpeakerImage {
-    speakerPortrait: GraphicImage;
+    speakerPortrait: p5.Image;
     speakerImage: ImageUI;
 
     constructor({
                     speakerPortrait,
                 }: {
-        speakerPortrait?: GraphicImage;
+        speakerPortrait?: p5.Image;
     }) {
         this.speakerPortrait = speakerPortrait;
         this.createUIObjects();
     }
 
-    draw(graphicsContext: GraphicsContext) {
+    draw(graphicsContext: GraphicsRenderer) {
         this.speakerImage.draw(graphicsContext);
     }
 

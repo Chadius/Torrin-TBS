@@ -17,7 +17,7 @@ import {WINDOW_SPACING} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../utils/graphics/graphicsRenderer";
 import {RecordingService} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
@@ -110,7 +110,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._targetHitPointMeters = {};
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext) {
+    update(state: GameEngineState, graphicsContext: GraphicsRenderer) {
         if (this.actionAnimationTimer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             this.setupActionAnimation(state);
             this.actionAnimationTimer.start();
@@ -273,7 +273,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         });
     }
 
-    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsRenderer) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
         const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleState.actionsThisRound);

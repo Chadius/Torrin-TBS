@@ -1,7 +1,7 @@
 import {RectAreaService} from "./rectArea";
 import {TextBox, TextBoxArguments, TextBoxService} from "./textBox";
 import {Rectangle, RectangleArguments, RectangleHelper} from "./rectangle";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../utils/graphics/graphicsRenderer";
 
 export type TextBoxMargin = {
     textBoxMargin: number | [number, number] | [number, number, number] | [number, number, number, number];
@@ -33,7 +33,7 @@ export const LabelService = {
             rectangle,
         };
     },
-    draw: (label: Label, graphicsContext: GraphicsContext): void => {
+    draw: (label: Label, graphicsContext: GraphicsRenderer): void => {
         RectangleHelper.draw(label.rectangle, graphicsContext);
         TextBoxService.draw(label.textBox, graphicsContext);
     }

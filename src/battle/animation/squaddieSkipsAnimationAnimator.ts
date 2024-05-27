@@ -6,7 +6,7 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
@@ -46,7 +46,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         this.maybeInitializeAnimationTimer();
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsRenderer): void {
         this.maybeInitializeAnimationTimer();
         this.draw(state, graphicsContext);
     }
@@ -63,7 +63,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsRenderer) {
         if (this.outputTextDisplay === undefined) {
             const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound);
             const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
@@ -109,7 +109,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         LabelService.draw(this.outputTextDisplay, graphicsContext);
     }
 
-    private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private draw(state: GameEngineState, graphicsContext: GraphicsRenderer) {
         this.drawActionDescription(state, graphicsContext);
     }
 }

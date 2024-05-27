@@ -18,6 +18,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {CutsceneActionPlayerType} from "../../cutscene/cutsceneAction";
 import {Dialogue} from "../../cutscene/dialogue/dialogue";
 import {SplashScreen} from "../../cutscene/splashScreen";
+import {MockedP5GraphicsBuffer} from "../../utils/test/mocks";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -32,7 +33,7 @@ describe('Mission Loader', () => {
     let playerArmy: PlayerArmy;
 
     beforeEach(() => {
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.loadResources = jest.fn();
         resourceHandler.loadResource = jest.fn();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);

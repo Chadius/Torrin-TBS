@@ -2,8 +2,9 @@ import p5 from 'p5';
 import {ScreenDimensions} from "./utils/graphics/graphicsConfig";
 import {GameEngine} from "./gameEngine/gameEngine";
 import {StartupMode} from "./utils/startupConfig";
-import {P5GraphicsContext} from "./utils/graphics/P5GraphicsContext";
+import {P5GraphicsRenderer} from "./utils/graphics/P5GraphicsRenderer";
 import {GetMouseButton, MouseButton} from "./utils/mouseConfig";
+import {GraphicsBuffer} from "./utils/graphics/graphicsRenderer";
 
 let gameEngine: GameEngine;
 const CAMPAIGN_ID: string = "templeDefense";
@@ -12,13 +13,14 @@ const mousePressedTracker: { [buttonName in string]: boolean } = {};
 export const sketch = (p: p5) => {
     p.setup = () => {
         const canvas: p5.Renderer = p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        const graphicsBuffer = p.createGraphics(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT)
         p.colorMode("hsb", 360, 100, 100, 255)
         p.frameRate(60)
         canvas.elt.addEventListener("contextmenu", (e: { preventDefault: () => any; }) => e.preventDefault())
 
-        const p5GraphicsContext = new P5GraphicsContext({p});
+        const p5GraphicsContext = new P5GraphicsRenderer({p});
         gameEngine = new GameEngine({graphicsContext: p5GraphicsContext, startupMode: StartupMode});
-        gameEngine.setup({graphicsContext: p5GraphicsContext, campaignId: CAMPAIGN_ID}).then(() => {})
+        gameEngine.setup({graphicsContext: p5GraphicsContext, graphicsBuffer, campaignId: CAMPAIGN_ID}).then(() => {})
     }
 
     p.draw = () => {

@@ -1,5 +1,5 @@
 import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsRenderer} from "../utils/test/mocks";
 import {TitleScreen} from "./titleScreen";
 import {TitleScreenState} from "./titleScreenState";
 import {GameModeEnum} from "../utils/startupConfig";
@@ -20,13 +20,13 @@ describe('Title Screen', () => {
     let titleScreen: TitleScreen;
     let titleScreenState: TitleScreenState
     let mockResourceHandler: ResourceHandler;
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
         jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
         jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
-        mockResourceHandler = mocks.mockResourceHandler();
+        mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext);
         mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));

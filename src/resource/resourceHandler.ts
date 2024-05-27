@@ -1,6 +1,6 @@
 import p5 from "p5";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
-import {P5GraphicsContext} from "../utils/graphics/P5GraphicsContext";
+import {GraphicsRenderer} from "../utils/graphics/graphicsRenderer";
+import {P5GraphicsRenderer} from "../utils/graphics/P5GraphicsRenderer";
 import {LoadFileIntoFormat} from "../dataLoader/dataLoader";
 
 export enum ResourceType {
@@ -15,10 +15,10 @@ export type ResourceLocator = {
 
 type ImageResource = {
     locator: ResourceLocator;
-    image: GraphicImage;
+    image: p5.Image;
 }
 
-const createPlaceholderImage = (graphicsContext: GraphicsContext): GraphicImage => {
+const createPlaceholderImage = (graphicsContext: GraphicsRenderer): p5.Image => {
     return graphicsContext.createImage(1, 1,);
 }
 
@@ -26,22 +26,22 @@ export interface ResourceTypeLoader {
     loadResource(resourceKey: string, handler: ResourceHandler): void;
 
     setCallbacks(
-        successCallback: (key: string, handler: ResourceHandler, resource: GraphicImage) => {},
+        successCallback: (key: string, handler: ResourceHandler, resource: p5.Image) => {},
         failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
     ): void;
 }
 
-class p5ImageLoader implements ResourceTypeLoader {
-    graphicsContext: P5GraphicsContext;
+class P5ImageLoader implements ResourceTypeLoader {
+    graphicsContext: P5GraphicsRenderer;
     successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {};
     failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any;
 
-    constructor(graphicsContext: GraphicsContext) {
-        this.graphicsContext = graphicsContext as P5GraphicsContext;
+    constructor(graphicsContext: GraphicsRenderer) {
+        this.graphicsContext = graphicsContext as P5GraphicsRenderer;
     }
 
     setCallbacks(
-        successCallback: (resourceKey: string, handler: ResourceHandler, image: GraphicImage) => {},
+        successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {},
         failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
     ) {
         this.successCallback = successCallback;
@@ -80,15 +80,15 @@ export class ResourceHandler {
     imagesByKey: {
         [key: string]: ImageResource
     };
-    graphicsContext: GraphicsContext;
+    graphicsContext: GraphicsRenderer;
 
     constructor({resourceLocators, imageLoader, graphicsContext}: {
         resourceLocators: ResourceLocator[],
         imageLoader?: ResourceTypeLoader,
-        graphicsContext?: GraphicsContext,
+        graphicsContext?: GraphicsRenderer,
     }) {
         this.graphicsContext = graphicsContext;
-        this.imageLoader = imageLoader || new p5ImageLoader(
+        this.imageLoader = imageLoader || new P5ImageLoader(
             graphicsContext
         );
         this.imageLoader.setCallbacks(
@@ -130,7 +130,7 @@ export class ResourceHandler {
         return undefined;
     }
 
-    getResource(resourceKey: string): GraphicImage {
+    getResource(resourceKey: string): p5.Image {
         const resourceType = this.resourcesByKey[resourceKey].type;
 
         if (resourceType === ResourceType.IMAGE) {
@@ -145,7 +145,7 @@ export class ResourceHandler {
         return undefined;
     }
 
-    imageSuccessCallback(resourceKey: string, resourceHandler: ResourceHandler, loadedImage: GraphicImage): any {
+    imageSuccessCallback(resourceKey: string, resourceHandler: ResourceHandler, loadedImage: p5.Image): any {
         resourceHandler.imagesByKey[resourceKey] = {
             locator: resourceHandler.resourcesByKey[resourceKey],
             image: loadedImage
@@ -167,10 +167,7 @@ export class ResourceHandler {
         if (
             resourceType === ResourceType.IMAGE
         ) {
-            return (
-                this.imagesByKey[resourceKey]
-                && this.imagesByKey[resourceKey].image
-            ) !== undefined;
+            return this.imagesByKey[resourceKey]?.image !== undefined
         }
 
         return false;
@@ -207,7 +204,7 @@ export const ResourceHandlerService = {
     new: ({imageLoader, resourceLocators, graphicsContext}: {
         imageLoader: ResourceTypeLoader,
         resourceLocators?: ResourceLocator[],
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
     }): ResourceHandler => {
         return new ResourceHandler({
             imageLoader,

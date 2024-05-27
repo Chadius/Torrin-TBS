@@ -18,7 +18,6 @@ import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
@@ -30,6 +29,7 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
+import p5 from "p5";
 
 export interface MissionLoaderCompletionProgress {
     started: boolean;
@@ -235,7 +235,7 @@ const initializeSquaddieResources = ({
         const {battleSquaddie, battleSquaddieId} = info;
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
 
-        let image: GraphicImage = resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey);
+        let image: p5.Image = resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey);
         const datum = missionLoaderContext.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
         if (datum.mapLocation !== undefined) {

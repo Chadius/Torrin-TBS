@@ -28,6 +28,7 @@ import {RectAreaService} from "../ui/rectArea";
 import {TextBoxService} from "../ui/textBox";
 import {ActionsThisRound} from "../battle/history/actionsThisRound";
 import {MouseButton} from "../utils/mouseConfig";
+import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
 
 describe('User clicks on a squaddie', () => {
     let repository: ObjectRepository;
@@ -82,7 +83,7 @@ describe('User clicks on a squaddie', () => {
 
         battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
 
-        resourceHandler = mocks.mockResourceHandler();
+        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 

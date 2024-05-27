@@ -15,7 +15,7 @@ import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceHandlerService} from "../resource/resourceHandler";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsBuffer, GraphicsRenderer} from "../utils/graphics/graphicsRenderer";
 import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineGameLoader} from "./gameEngineGameLoader";
@@ -75,10 +75,10 @@ export const GameEngineStateService = {
 export class GameEngine {
     gameEngineState: GameEngineState;
     gameEngineGameLoader: GameEngineGameLoader;
-    private readonly graphicsContext: GraphicsContext;
+    private readonly graphicsContext: GraphicsRenderer;
 
     constructor({graphicsContext, startupMode}: {
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
         startupMode: GameModeEnum
     }) {
         this.graphicsContext = graphicsContext;
@@ -122,8 +122,9 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    async setup({graphicsContext, campaignId}: {
-        graphicsContext: GraphicsContext,
+    async setup({graphicsContext, graphicsBuffer, campaignId}: {
+        graphicsContext: GraphicsRenderer,
+        graphicsBuffer: GraphicsBuffer,
         campaignId: string,
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
@@ -164,7 +165,7 @@ export class GameEngine {
     }
 
     async update({graphicsContext}: {
-        graphicsContext: GraphicsContext
+        graphicsContext: GraphicsRenderer
     }) {
         if (!isValidValue(this.component)) {
             return;
@@ -222,7 +223,7 @@ export class GameEngine {
                                               graphicsContext,
                                               campaignId,
                                           }: {
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
         campaignId: string,
     }) {
         if (this.resourceHandler === undefined) {

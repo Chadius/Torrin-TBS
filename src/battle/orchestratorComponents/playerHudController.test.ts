@@ -20,6 +20,7 @@ import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 import {BattlePhase} from "./battlePhaseTracker";
+import {MockedP5GraphicsBuffer} from "../..//utils/test/mocks";
 
 describe('PlayerHUDController', () => {
     let gameEngineState: GameEngineState;
@@ -48,7 +49,7 @@ describe('PlayerHUDController', () => {
                     missionId: "missionId",
                 })
             }),
-            resourceHandler: mocks.mockResourceHandler(),
+            resourceHandler: mocks.mockResourceHandler(new MockedP5GraphicsBuffer()),
             repository,
             campaign: CampaignService.default({})
         })

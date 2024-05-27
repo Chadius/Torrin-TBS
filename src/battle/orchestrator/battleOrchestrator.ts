@@ -25,7 +25,7 @@ import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../utils/graphics/graphicsRenderer";
 import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
@@ -164,7 +164,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this.mode;
     }
 
-    public update(state: GameEngineState, graphicsContext: GraphicsContext) {
+    public update(state: GameEngineState, graphicsContext: GraphicsRenderer) {
         if (state.fileState.loadSaveState.userRequestedLoad) {
             return;
         }
@@ -225,7 +225,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public updateComponent(state: GameEngineState, currentComponent: BattleOrchestratorComponent, graphicsContext: GraphicsContext, defaultNextMode: BattleOrchestratorMode) {
+    public updateComponent(state: GameEngineState, currentComponent: BattleOrchestratorComponent, graphicsContext: GraphicsRenderer, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, graphicsContext);
         const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
         this.uiControlSettings.update(newUIControlSettingsChanges);
@@ -369,7 +369,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         return undefined;
     }
 
-    private displayBattleMap(state: GameEngineState, graphicsContext: GraphicsContext) {
+    private displayBattleMap(state: GameEngineState, graphicsContext: GraphicsRenderer) {
         this.mapDisplay.update(state, graphicsContext);
     }
 

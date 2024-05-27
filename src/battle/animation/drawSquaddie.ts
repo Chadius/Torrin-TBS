@@ -10,7 +10,7 @@ import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SquaddieService} from "../../squaddie/squaddieService";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
@@ -115,7 +115,7 @@ export const DrawSquaddieUtilities = {
     tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
         return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
     },
-    drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+    drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsRenderer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
         return drawSquaddieMapIconAtMapLocation(graphicsContext, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
     },
     moveSquaddieAlongPath: ({
@@ -153,7 +153,7 @@ const unTintSquaddieMapIcon = (repository: ObjectRepository, battleSquaddie: Bat
     }
 }
 
-const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsRenderer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
@@ -172,7 +172,7 @@ const setImageToLocation = (
     RectAreaService.align(mapIcon.area, {horizAlign: HORIZONTAL_ALIGN.CENTER, vertAlign: VERTICAL_ALIGN.CENTER});
 }
 
-const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconActionPointsBar = (graphicsContext: GraphicsRenderer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const {
         squaddieCanCurrentlyAct
     } = SquaddieService.canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
@@ -210,7 +210,7 @@ const drawMapIconActionPointsBar = (graphicsContext: GraphicsContext, squaddieTe
     })
 }
 
-const drawMapIconHitPointBar = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawMapIconHitPointBar = (graphicsContext: GraphicsRenderer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
 
     if (currentHitPoints >= maxHitPoints) {
@@ -350,7 +350,7 @@ const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squa
 
 const drawMapIconBar = ({graphicsContext, amount, bar}:
                             {
-                                graphicsContext: GraphicsContext,
+                                graphicsContext: GraphicsRenderer,
                                 amount: {
                                     current: number,
                                     max: number

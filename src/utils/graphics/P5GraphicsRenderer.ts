@@ -1,7 +1,7 @@
-import {GraphicImage, GraphicsContext} from "./graphicsContext";
+import {GraphicsRenderer} from "./graphicsRenderer";
 import p5 from "p5";
 
-export class P5GraphicsContext implements GraphicsContext {
+export class P5GraphicsRenderer implements GraphicsRenderer {
     p: p5;
 
     constructor({p}: {
@@ -18,27 +18,15 @@ export class P5GraphicsContext implements GraphicsContext {
         this.p.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
     }
 
-    createImage(height: number, width: number): GraphicImage {
+    createImage(height: number, width: number): p5.Image {
         return this.p.createImage(width, height);
     }
 
-    fill({hsb, color}: {
-        hsb?: number[];
-        color?: string
-    }): void {
-        if (hsb) {
-            this.p.fill(hsb);
-            return;
-        }
-
-        if (color) {
-            this.p.fill(color);
-            return;
-        }
+    fill(hue: number, saturation: number, brightness: number): void {
+        this.p.fill(hue, saturation, brightness)
     }
 
-    image(data: GraphicImage, left: number, top: number, width?: number, height?: number): void {
-        const img = data as p5.Image;
+    image(img: p5.Image, left: number, top: number, width?: number, height?: number): void {
         if (width !== undefined && height !== undefined) {
             this.p.image(img, left, top, width, height);
             return;
@@ -50,7 +38,7 @@ export class P5GraphicsContext implements GraphicsContext {
         this.p.line(x1, y1, x2, y2);
     }
 
-    loadImage(pathToImage: string, successCallback: (loadedImage: GraphicImage) => void, failureCallback: (failEvent: Event) => void): void {
+    loadImage(pathToImage: string, successCallback: (loadedImage: p5.Image) => void, failureCallback: (failEvent: Event) => void): void {
         this.p.loadImage(
             pathToImage,
             successCallback,
@@ -78,19 +66,8 @@ export class P5GraphicsContext implements GraphicsContext {
         this.p.rect(left, top, width, height);
     }
 
-    stroke({hsb, color}: {
-        hsb?: number[];
-        color?: string
-    }): void {
-        if (hsb) {
-            this.p.stroke(hsb);
-            return;
-        }
-
-        if (color) {
-            this.p.stroke(color);
-            return;
-        }
+    stroke(hue: number, saturation: number, brightness: number): void {
+        this.p.stroke(hue, saturation, brightness)
     }
 
     strokeWeight(weight: number): void {

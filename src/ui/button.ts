@@ -1,5 +1,5 @@
 import {Label, LabelService} from "./label";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../utils/graphics/graphicsRenderer";
 import {RectAreaService} from "./rectArea";
 
 type RequiredOptions = {
@@ -93,7 +93,7 @@ export class Button {
         return this.buttonStatus;
     }
 
-    draw(graphicsContext: GraphicsContext) {
+    draw(graphicsContext: GraphicsRenderer) {
         LabelService.draw(this.getCurrentLabel(), graphicsContext);
     }
 

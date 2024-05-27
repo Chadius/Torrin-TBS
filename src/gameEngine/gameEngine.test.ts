@@ -1,4 +1,4 @@
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {MockedP5GraphicsRenderer} from "../utils/test/mocks";
 import {GameEngine} from "./gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MouseButton} from "../utils/mouseConfig";
@@ -32,11 +32,11 @@ const resourceLocators: ResourceLocator[] = [
 ];
 
 describe('Game Engine', () => {
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
     let loadFileIntoFormatSpy: jest.SpyInstance;
 
     beforeEach(() => {
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
         loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(
             resourceLocators
         );

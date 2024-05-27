@@ -1,7 +1,7 @@
 import {RectArea} from "./rectArea";
 import * as p5 from "p5";
 import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "./constants";
-import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../utils/graphics/graphicsRenderer";
 import {isValidValue} from "../utils/validityCheck";
 
 export type TextBoxArguments = {
@@ -48,14 +48,14 @@ export const TextBoxService = {
             text: text,
         }
     },
-    draw: (textBox: TextBox, graphicsContext: GraphicsContext): void => {
+    draw: (textBox: TextBox, graphicsContext: GraphicsRenderer): void => {
         if (isDone(textBox)) {
             return;
         }
 
         graphicsContext.push();
         graphicsContext.textSize(textBox.textSize);
-        graphicsContext.fill({hsb: textBox.fontColor});
+        graphicsContext.fill(textBox.fontColor[0],textBox.fontColor[1],textBox.fontColor[2],)
         graphicsContext.textAlign(
             textBox.horizAlign,
             textBox.vertAlign

@@ -6,7 +6,7 @@ import {TargetSprite} from "./targetSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
+import {MockedP5GraphicsRenderer} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
@@ -31,7 +31,7 @@ describe('Target Sprite', () => {
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
     const battleSquaddieId = "target0";
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -111,7 +111,7 @@ describe('Target Sprite', () => {
         timer = new ActionTimer();
         timer.start();
 
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
     });
 
 

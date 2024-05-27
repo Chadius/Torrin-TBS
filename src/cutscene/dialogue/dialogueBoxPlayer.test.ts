@@ -4,7 +4,7 @@ import {
     BattleOrchestratorStateService
 } from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsRenderer} from "../../utils/test/mocks";
 import {BattleStateService} from "../../battle/orchestrator/battleState";
 import {Dialogue, DialogueService} from "./dialogue";
 import {RectAreaService} from "../../ui/rectArea";
@@ -141,7 +141,7 @@ describe('dialogue box player', () => {
 
     describe('text substitution', () => {
         let textSpy: jest.SpyInstance;
-        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+        let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
         let dialoguePlayerState: DialoguePlayerState;
 
         beforeEach(() => {
@@ -170,7 +170,7 @@ describe('dialogue box player', () => {
 
             DialoguePlayerService.start(dialoguePlayerState, {battleOrchestratorState: battleState});
 
-            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
             textSpy = jest.spyOn(mockedP5GraphicsContext, "text");
         });
 
@@ -212,10 +212,10 @@ describe('dialogue box player', () => {
 
     describe('backgroundColor', () => {
         let drawRectSpy: jest.SpyInstance;
-        let mockedP5GraphicsContext: MockedP5GraphicsContext;
+        let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
 
         beforeEach(() => {
-            mockedP5GraphicsContext = new MockedP5GraphicsContext();
+            mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
             drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect");
         });
 

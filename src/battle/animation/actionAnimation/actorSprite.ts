@@ -11,7 +11,7 @@ import {ResourceHandler} from "../../../resource/resourceHandler";
 import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {GraphicsRenderer} from "../../../utils/graphics/graphicsRenderer";
 import {RectAreaService} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
@@ -83,7 +83,7 @@ export class ActorSprite {
 
     draw({timer, graphicsContext, actionEffectSquaddieTemplate,}: {
         timer: ActionTimer,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
@@ -97,7 +97,7 @@ export class ActorSprite {
 
     getSquaddieImageBasedOnTimer(
         timer: ActionTimer,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
         action: ActionEffectSquaddieTemplate,
     ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
@@ -140,7 +140,7 @@ export class ActorSprite {
 
     private drawActorSprite(
         timer: ActionTimer,
-        graphicsContext: GraphicsContext,
+        graphicsContext: GraphicsRenderer,
         action: ActionEffectSquaddieTemplate,
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(

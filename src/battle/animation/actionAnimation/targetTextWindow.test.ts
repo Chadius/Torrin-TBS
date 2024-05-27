@@ -8,7 +8,7 @@ import {SquaddieTurnService} from "../../../squaddie/turn";
 import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
-import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
+import {MockedP5GraphicsRenderer} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
@@ -19,7 +19,7 @@ import {
 } from "../../../action/template/actionEffectSquaddieTemplate";
 
 describe('TargetTextWindow', () => {
-    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let mockedP5GraphicsContext: MockedP5GraphicsRenderer;
     let mockedActionTimer: ActionTimer;
 
     let targetWindow: TargetTextWindow;
@@ -92,7 +92,7 @@ describe('TargetTextWindow', () => {
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         }
 
-        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        mockedP5GraphicsContext = new MockedP5GraphicsRenderer();
         mockedActionTimer = new ActionTimer();
 
         targetWindow = new TargetTextWindow();
