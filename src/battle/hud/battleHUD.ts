@@ -4,7 +4,6 @@ import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MessageBoardListener} from "../../message/messageBoardListener";
 import {MessageBoardMessage, MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {PopupWindow, PopupWindowService, PopupWindowStatus} from "./popupWindow";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleCamera} from "../battleCamera";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {LabelService, TextBoxMargin} from "../../ui/label";
@@ -19,6 +18,7 @@ import {VERTICAL_ALIGN} from "../../ui/constants";
 import * as p5 from "p5";
 import {HEX_TILE_WIDTH} from "../../graphicsConstants";
 import {ActionsThisRound} from "../history/actionsThisRound";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",

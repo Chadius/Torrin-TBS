@@ -8,9 +8,9 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {isValidValue} from "../../utils/validityCheck";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor() {

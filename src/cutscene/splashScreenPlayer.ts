@@ -1,11 +1,11 @@
 import {CutsceneActionPlayerType} from "./cutsceneAction";
 import {ImageUI} from "../ui/imageUI";
 import {RectAreaService} from "../ui/rectArea";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {SplashScreen} from "./splashScreen";
 import {isValidValue} from "../utils/validityCheck";
 import p5 from "p5";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 export interface SplashScreenPlayerState {
     type: CutsceneActionPlayerType.SPLASH_SCREEN;

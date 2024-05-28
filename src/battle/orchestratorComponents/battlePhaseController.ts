@@ -16,7 +16,6 @@ import {RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GraphicsConfig, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {
     convertMapCoordinatesToScreenCoordinates,
@@ -31,6 +30,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import p5 from "p5";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export const BANNER_ANIMATION_TIME = 2000;
 

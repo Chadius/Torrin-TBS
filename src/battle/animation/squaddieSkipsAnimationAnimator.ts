@@ -6,13 +6,13 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionResultTextService} from "./actionResultTextService";
 import {RecordingService} from "../history/recording";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 

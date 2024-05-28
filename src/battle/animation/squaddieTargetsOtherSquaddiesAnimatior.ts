@@ -17,7 +17,6 @@ import {WINDOW_SPACING} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {RecordingService} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
@@ -27,6 +26,7 @@ import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;

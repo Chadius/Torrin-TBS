@@ -17,7 +17,6 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GraphicsConfig} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -55,6 +54,7 @@ import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBatt
 import {DecidedActionSquaddieEffect} from "../../action/decided/decidedActionSquaddieEffect";
 import {ActionComponentCalculator} from "../actionBuilder/actionComponentCalculator";
 import {ActionTemplate} from "../../action/template/actionTemplate";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;

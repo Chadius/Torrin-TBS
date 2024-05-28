@@ -12,7 +12,8 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
     "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
-    "devserve": "rsync --recursive assets/toDist/* dist/assets && npm run dev && npm run serve"
+    "devserve": "npm run copy-assets && npm run dev && npm run serve",
+    "copy-assets": "rsync --recursive assets/toDist/* dist/assets"
   },
   "author": "",
   "license": "ISC",

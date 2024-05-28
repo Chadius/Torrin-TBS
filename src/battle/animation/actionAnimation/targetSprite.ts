@@ -14,13 +14,13 @@ import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {RectAreaService} from "../../../ui/rectArea";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
 } from "../../../action/template/actionEffectSquaddieTemplate";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 
 export class TargetSprite {
     constructor() {

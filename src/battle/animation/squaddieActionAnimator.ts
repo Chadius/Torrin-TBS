@@ -1,6 +1,6 @@
 import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export interface SquaddieActionAnimator {
     hasCompleted(state: GameEngineState): boolean;

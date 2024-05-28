@@ -17,7 +17,6 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {BattleSquaddieSelectorService} from "./battleSquaddieSelectorUtils";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -52,6 +51,7 @@ import {FileAccessHUDService} from "../hud/fileAccessHUD";
 import {MouseButton} from "../../utils/mouseConfig";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
 import {MessageBoardMessageType} from "../../message/messageBoardMessage";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;

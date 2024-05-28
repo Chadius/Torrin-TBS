@@ -13,11 +13,11 @@ import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle, RectangleHelper} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 import {isValidValue} from "../utils/validityCheck";
 import p5 from "p5";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 enum TitleScreenMenuSelection {
     NONE = "NONE",

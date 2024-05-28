@@ -1,3 +1,5 @@
+import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
+
 export enum MissionMapMovementIconKey {
     MOVE_1_ACTION = "MOVE_1_ACTION",
     MOVE_2_ACTIONS = "MOVE_2_ACTIONS",
@@ -16,11 +18,17 @@ export enum ActionEffectSquaddieTemplateButtonIconKey {
     UNKNOWN = "UNKNOWN",
 }
 
+export interface MapTilesResources {
+    resourceKeys: string[],
+    defaultByTerrainCost: { [cost in HexGridMovementCost]: string },
+}
+
 export interface CampaignResources {
     missionMapMovementIconResourceKeys: { [movementIcon in MissionMapMovementIconKey]: string }
     missionMapAttackIconResourceKeys: { [attackIcon in MissionMapAttackIconKey]: string }
     missionAttributeIconResourceKeys: { [attributeIconKey in MissionAttributeIconKey]: string }
     actionEffectSquaddieTemplateButtonIcons: { [iconKey in ActionEffectSquaddieTemplateButtonIconKey]: string }
+    mapTiles: MapTilesResources
 }
 
 export const CampaignResourcesService = {
@@ -39,6 +47,21 @@ export const CampaignResourcesService = {
             },
             actionEffectSquaddieTemplateButtonIcons: {
                 [ActionEffectSquaddieTemplateButtonIconKey.UNKNOWN]: "decision-button-unknown"
+            },
+            mapTiles: {
+                resourceKeys: [
+                    "map-tiles-basic-floor",
+                    "map-tiles-basic-pit",
+                    "map-tiles-basic-wall",
+                    "map-tiles-basic-water",
+                    "map-tiles-basic-sand"
+                ],
+                defaultByTerrainCost: {
+                    [HexGridMovementCost.singleMovement]: "map-tiles-basic-floor",
+                    [HexGridMovementCost.doubleMovement]: "map-tiles-basic-sand",
+                    [HexGridMovementCost.pit]: "map-tiles-basic-water",
+                    [HexGridMovementCost.wall]: "map-tiles-basic-wall",
+                }
             }
         }
     },
@@ -57,6 +80,21 @@ export const CampaignResourcesService = {
             },
             actionEffectSquaddieTemplateButtonIcons: {
                 [ActionEffectSquaddieTemplateButtonIconKey.UNKNOWN]: "decision-button-unknown"
+            },
+            mapTiles: {
+                resourceKeys: [
+                    "map-tiles-basic-floor",
+                    "map-tiles-basic-pit",
+                    "map-tiles-basic-wall",
+                    "map-tiles-basic-water",
+                    "map-tiles-basic-sand"
+                ],
+                defaultByTerrainCost: {
+                    [HexGridMovementCost.singleMovement]: "map-tiles-basic-floor",
+                    [HexGridMovementCost.doubleMovement]: "map-tiles-basic-sand",
+                    [HexGridMovementCost.pit]: "map-tiles-basic-water",
+                    [HexGridMovementCost.wall]: "map-tiles-basic-wall",
+                }
             }
         }
     },

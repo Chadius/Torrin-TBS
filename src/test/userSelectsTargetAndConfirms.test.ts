@@ -39,7 +39,6 @@ import {
     OrchestratorComponentMouseEventType
 } from "../battle/orchestrator/battleOrchestratorComponent";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DegreeOfSuccess} from "../battle/actionCalculator/degreeOfSuccess";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../battle/animation/squaddieTargetsOtherSquaddiesAnimatior";
@@ -50,6 +49,7 @@ import {DecidedActionService} from "../action/decided/decidedAction";
 import {MouseButton} from "../utils/mouseConfig";
 import {config} from "../configuration/config";
 import {KeyButtonName} from "../utils/keyboardConfig";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 describe('User Selects Target and Confirms', () => {
     let repository: ObjectRepository;

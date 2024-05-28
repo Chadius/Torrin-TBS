@@ -1,6 +1,6 @@
 import {RectArea} from "./rectArea";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import p5 from "p5";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 export const ScaleImageWidth = ({
                                     imageWidth,

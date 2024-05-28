@@ -6,12 +6,12 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleStateService} from "../orchestrator/battleState";
 import {isValidValue} from "../../utils/validityCheck";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {

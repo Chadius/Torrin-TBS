@@ -1,8 +1,8 @@
 export enum HexGridMovementCost {
-    singleMovement = 1,
-    doubleMovement,
-    pit,
-    wall,
+    singleMovement = "singleMovement",
+    doubleMovement = "doubleMovement",
+    pit = "pit",
+    wall = "wall",
 }
 
 export const convertStringToMovementCost = (text: string): HexGridMovementCost => {

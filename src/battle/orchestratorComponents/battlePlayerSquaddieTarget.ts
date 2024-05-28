@@ -14,7 +14,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -46,6 +45,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MouseButton} from "../../utils/mouseConfig";
 import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
 import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;

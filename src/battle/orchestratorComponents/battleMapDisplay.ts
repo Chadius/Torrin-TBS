@@ -10,7 +10,6 @@ import {HexDrawingUtils} from "../../hexMap/hexDrawingUtils";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaService} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -19,24 +18,30 @@ import {isValidValue} from "../../utils/validityCheck";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {FileAccessHUDService} from "../hud/fileAccessHUD";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
-        graphicsContext.background(50, 10, 20);
+    draw(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
+        graphics.background(50, 10, 20);
 
         if (gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
-            HexDrawingUtils.drawHexMap(graphicsContext, gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap, gameEngineState.battleOrchestratorState.battleState.camera);
+            HexDrawingUtils.drawHexMap({
+                graphics,
+                map: gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap,
+                camera: gameEngineState.battleOrchestratorState.battleState.camera,
+                resourceHandler: gameEngineState.resourceHandler
+            })
         }
 
         let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(gameEngineState);
-        this.drawSquaddieMapIcons(gameEngineState, graphicsContext, battleSquaddieIdsToOmit);
+        this.drawSquaddieMapIcons(gameEngineState, graphics, battleSquaddieIdsToOmit);
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera();
 
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(gameEngineState, graphicsContext);
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(gameEngineState, graphics);
 
         FileAccessHUDService.updateBasedOnGameEngineState(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState);
         FileAccessHUDService.updateStatusMessage(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, gameEngineState.fileState);
-        FileAccessHUDService.draw(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, graphicsContext);
+        FileAccessHUDService.draw(gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD, graphics);
     }
 
     hasCompleted(state: GameEngineState): boolean {

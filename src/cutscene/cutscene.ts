@@ -6,7 +6,6 @@ import {Button, ButtonStatus} from "../ui/button";
 import {LabelService} from "../ui/label";
 import {RectAreaService} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 import {Dialogue, DialogueService} from "./dialogue/dialogue";
 import {SplashScreen, SplashScreenService} from "./splashScreen";
@@ -15,6 +14,7 @@ import {isValidValue} from "../utils/validityCheck";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import p5 from "p5";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 

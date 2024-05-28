@@ -4,8 +4,8 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
 import {RectAreaService} from "../../ui/rectArea";
-import {GraphicsBuffer, GraphicsRenderer} from "../graphics/graphicsRenderer";
 import {makeResult} from "../ResultOrError";
+import {GraphicsBuffer, GraphicsRenderer} from "../graphics/graphicsRenderer";
 
 jest.mock('p5', () => () => {
     return {

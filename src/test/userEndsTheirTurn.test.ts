@@ -41,10 +41,10 @@ import {
 } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {ProcessedActionEndTurnEffectService} from "../action/processed/processedActionEndTurnEffect";
 import {ProcessedActionService} from "../action/processed/processedAction";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleEventService} from "../battle/history/battleEvent";
 import {MouseButton} from "../utils/mouseConfig";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 describe('User ends their turn', () => {
     let repository: ObjectRepository;

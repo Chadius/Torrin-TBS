@@ -11,7 +11,6 @@ import {ResourceHandler} from "../../../resource/resourceHandler";
 import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import {RectAreaService} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
@@ -19,6 +18,7 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
 } from "../../../action/template/actionEffectSquaddieTemplate";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;

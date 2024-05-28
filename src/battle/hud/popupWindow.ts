@@ -1,10 +1,10 @@
 import {Label, LabelService} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {convertWorldCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {BattleCamera} from "../battleCamera";
 import {isValidValue} from "../../utils/validityCheck";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export interface PopupWindow {
     status: PopupWindowStatus

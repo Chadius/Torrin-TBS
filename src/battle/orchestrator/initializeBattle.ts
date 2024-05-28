@@ -5,7 +5,6 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -13,6 +12,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {FindTeamsOfAffiliation} from "../orchestratorComponents/battlePhaseTracker";
 import {ObjectRepositoryService} from "../objectRepository";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {

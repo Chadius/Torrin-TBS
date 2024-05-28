@@ -3,8 +3,8 @@ import {SquaddieEmotion} from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ImageUI} from "../../../ui/imageUI";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 import p5 from "p5";
+import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
 
 let defaultImage: ImageUI;
 

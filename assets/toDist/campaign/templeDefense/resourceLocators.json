@@ -268,5 +268,30 @@
     "type": "IMAGE",
     "path": "assets/decisions/decision-button-bow-64.png",
     "key": "decision-button-bow"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapTiles/basic/floor.png",
+    "key": "map-tiles-basic-floor"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapTiles/basic/pit.png",
+    "key": "map-tiles-basic-pit"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapTiles/basic/sand.png",
+    "key": "map-tiles-basic-sand"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapTiles/basic/wall.png",
+    "key": "map-tiles-basic-wall"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapTiles/basic/water.png",
+    "key": "map-tiles-basic-water"
   }
 ]

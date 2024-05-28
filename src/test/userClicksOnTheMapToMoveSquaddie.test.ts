@@ -30,10 +30,10 @@ import {DecidedActionMovementEffectService} from "../action/decided/decidedActio
 import {ActionEffectMovementTemplateService} from "../action/template/actionEffectMovementTemplate";
 import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattleSquaddieMover} from "../battle/orchestratorComponents/battleSquaddieMover";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleHUDService} from "../battle/hud/battleHUD";
 import {MouseButton} from "../utils/mouseConfig";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import SpyInstance = jest.SpyInstance;
 
 describe("user clicks on the map to move", () => {

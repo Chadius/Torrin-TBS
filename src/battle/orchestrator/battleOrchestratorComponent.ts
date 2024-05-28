@@ -1,8 +1,8 @@
 import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {MouseButton} from "../../utils/mouseConfig";
+import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,

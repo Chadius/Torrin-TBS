@@ -15,7 +15,6 @@ import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceHandlerService} from "../resource/resourceHandler";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineGameLoader} from "./gameEngineGameLoader";
@@ -29,6 +28,7 @@ import {MessageBoard} from "../message/messageBoard";
 import {BattleHUDListener} from "../battle/hud/battleHUD";
 import {MessageBoardMessageType} from "../message/messageBoardMessage";
 import {PlayerHudController} from "../battle/orchestratorComponents/playerHudController";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;

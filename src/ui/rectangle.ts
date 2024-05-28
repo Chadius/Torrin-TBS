@@ -1,6 +1,6 @@
 import {RectArea} from "./rectArea";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {isValidValue} from "../utils/validityCheck";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 type RequiredOptions = {
     area: RectArea;

@@ -3,12 +3,12 @@ import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {TextBox, TextBoxService} from "../ui/textBox";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {ButtonStatus} from "../ui/button";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {ImageUI} from "../ui/imageUI";
 import {ResourceHandler} from "../resource/resourceHandler";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     strokeSaturation: 50,

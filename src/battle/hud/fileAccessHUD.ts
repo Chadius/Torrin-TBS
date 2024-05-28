@@ -52,7 +52,7 @@ export const FileAccessHUDDesign = {
         FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING.SPACING1,
         TEXT: "Load",
-        TEXT_SIZE: 16
+        TEXT_SIZE: 14
     },
     SAVE_BUTTON: {
         AREA: {
@@ -85,7 +85,7 @@ export const FileAccessHUDDesign = {
         FONT_COLOR: [20, 5, 16],
         PADDING: WINDOW_SPACING.SPACING1,
         TEXT: "Save",
-        TEXT_SIZE: 16
+        TEXT_SIZE: 14
     },
     MESSAGE_LABEL: {
         AREA: {

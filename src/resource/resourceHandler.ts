@@ -1,6 +1,6 @@
 import p5 from "p5";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 import {LoadFileIntoFormat} from "../dataLoader/dataLoader";
+import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
 
 export enum ResourceType {
     IMAGE = "IMAGE",
@@ -222,6 +222,9 @@ export const ResourceHandlerService = {
             console.error("Error while loading mission from file");
             console.error(e);
         }
+    },
+    getResource: (resourceHandler: ResourceHandler, resourceKey: string): p5.Image => {
+        return resourceHandler.getResource(resourceKey)
     }
 }
 
