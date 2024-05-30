@@ -6,8 +6,11 @@ export enum SquaddieAffiliation {
     NONE = "NONE",
 }
 
-export const FriendlyAffiliationsByAffiliation
-    : { [first in SquaddieAffiliation]: { [second in SquaddieAffiliation]?: boolean } } = {
+export const FriendlyAffiliationsByAffiliation: {
+    [first in SquaddieAffiliation]: {
+        [second in SquaddieAffiliation]?: boolean
+    }
+} = {
     UNKNOWN: {},
     PLAYER: {
         PLAYER: true,

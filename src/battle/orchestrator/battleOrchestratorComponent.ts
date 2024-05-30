@@ -1,8 +1,8 @@
-import {BattleOrchestratorMode} from "./battleOrchestrator";
-import {UIControlSettings} from "./uiControlSettings";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {MouseButton} from "../../utils/mouseConfig";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+import { BattleOrchestratorMode } from "./battleOrchestrator"
+import { UIControlSettings } from "./uiControlSettings"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { MouseButton } from "../../utils/mouseConfig"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -11,10 +11,10 @@ export enum OrchestratorComponentMouseEventType {
 }
 
 export type OrchestratorComponentMouseEvent = {
-    eventType: OrchestratorComponentMouseEventType;
-    mouseX: number;
-    mouseY: number;
-    mouseButton: MouseButton;
+    eventType: OrchestratorComponentMouseEventType
+    mouseX: number
+    mouseY: number
+    mouseButton: MouseButton
 }
 
 export enum OrchestratorComponentKeyEventType {
@@ -23,28 +23,39 @@ export enum OrchestratorComponentKeyEventType {
 }
 
 export type OrchestratorComponentKeyEvent = {
-    eventType: OrchestratorComponentKeyEventType;
-    keyCode: number;
+    eventType: OrchestratorComponentKeyEventType
+    keyCode: number
 }
 
 export type BattleOrchestratorChanges = {
-    displayMap?: boolean;
-    nextMode?: BattleOrchestratorMode;
-    checkMissionObjectives?: boolean;
+    displayMap?: boolean
+    nextMode?: BattleOrchestratorMode
+    checkMissionObjectives?: boolean
 }
 
 export interface BattleOrchestratorComponent {
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void;
+    update(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ): void
 
-    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings;
+    uiControlSettings(gameEngineState: GameEngineState): UIControlSettings
 
-    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void;
+    mouseEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentMouseEvent
+    ): void
 
-    keyEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentKeyEvent): void;
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentKeyEvent
+    ): void
 
-    hasCompleted(gameEngineState: GameEngineState): boolean;
+    hasCompleted(gameEngineState: GameEngineState): boolean
 
-    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined;
+    recommendStateChanges(
+        gameEngineState: GameEngineState
+    ): BattleOrchestratorChanges | undefined
 
-    reset(gameEngineState: GameEngineState): void;
+    reset(gameEngineState: GameEngineState): void
 }

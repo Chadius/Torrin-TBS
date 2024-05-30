@@ -1,26 +1,33 @@
-import * as mc from "./missionCondition";
-import {MissionCondition, MissionConditionType} from "./missionCondition";
-import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {MissionRewardType} from "./missionReward";
-import {MissionObjectiveHelper} from "./missionObjective";
-import {BattleStateService} from "../orchestrator/battleState";
-import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import * as mc from "./missionCondition"
+import { MissionCondition, MissionConditionType } from "./missionCondition"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { MissionRewardType } from "./missionReward"
+import { MissionObjectiveHelper } from "./missionObjective"
+import { BattleStateService } from "../orchestrator/battleState"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
 
-describe('Mission Objective', () => {
+describe("Mission Objective", () => {
     const mockMissionConditionChecks = (stubReturnValues: {
         [key: string]: boolean | undefined
     }) => {
         jest.spyOn(mc, "MissionShouldBeComplete").mockImplementation(
-            (missionCondition: MissionCondition, state: GameEngineState, _: string): boolean => {
-                return stubReturnValues[missionCondition.id];
+            (
+                missionCondition: MissionCondition,
+                state: GameEngineState,
+                _: string
+            ): boolean => {
+                return stubReturnValues[missionCondition.id]
             }
-        );
+        )
     }
 
-    it('is complete when some of the conditions are complete', () => {
+    it("is complete when some of the conditions are complete", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
             conditions: [
                 {
@@ -37,50 +44,54 @@ describe('Mission Objective', () => {
                 },
             ],
             numberOfRequiredConditionsToComplete: 2,
-        });
+        })
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionCompletionStatus: {
-                        "test objective": {
-                            isComplete: undefined,
-                            conditions: {
-                                "test0": true,
-                                "test1": undefined,
-                                "test2": undefined,
-                            }
-                        }
-                    }
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionCompletionStatus: {
+                            "test objective": {
+                                isComplete: undefined,
+                                conditions: {
+                                    test0: true,
+                                    test1: undefined,
+                                    test2: undefined,
+                                },
+                            },
+                        },
+                    }),
                 }),
-            })
-        });
+        })
 
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": undefined,
-            "test2": undefined,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
+            test0: true,
+            test1: undefined,
+            test2: undefined,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeFalsy()
 
-        jest.clearAllMocks();
+        jest.clearAllMocks()
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": true,
-            "test2": undefined,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
-    });
+            test0: true,
+            test1: true,
+            test2: undefined,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeTruthy()
+    })
 
-    it('is can use ALL to indicate all conditions need to be complete', () => {
+    it("is can use ALL to indicate all conditions need to be complete", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
             conditions: [
                 {
@@ -96,61 +107,71 @@ describe('Mission Objective', () => {
                     id: "test2",
                 },
             ],
-            numberOfRequiredConditionsToComplete: "all"
-        });
+            numberOfRequiredConditionsToComplete: "all",
+        })
 
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": undefined,
-            "test2": undefined,
-        });
-        expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
-        expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
+            test0: true,
+            test1: undefined,
+            test2: undefined,
+        })
+        expect(objective.numberOfRequiredConditionsToComplete).toBe(3)
+        expect(
+            MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(
+                objective
+            )
+        ).toBeTruthy()
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionCompletionStatus: {
-                        "test objective": {
-                            isComplete: undefined,
-                            conditions: {
-                                "test0": true,
-                                "test1": undefined,
-                                "test2": undefined,
-                            }
-                        }
-                    }
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionCompletionStatus: {
+                            "test objective": {
+                                isComplete: undefined,
+                                conditions: {
+                                    test0: true,
+                                    test1: undefined,
+                                    test2: undefined,
+                                },
+                            },
+                        },
+                    }),
                 }),
-            })
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeFalsy()
 
-        jest.clearAllMocks();
+        jest.clearAllMocks()
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": true,
-            "test2": undefined,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
+            test0: true,
+            test1: true,
+            test2: undefined,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeFalsy()
 
-        jest.clearAllMocks();
+        jest.clearAllMocks()
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": true,
-            "test2": true,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
-    });
+            test0: true,
+            test1: true,
+            test2: true,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeTruthy()
+    })
 
-    it('will default to all conditions required when an amount is not given', () => {
+    it("will default to all conditions required when an amount is not given", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             numberOfRequiredConditionsToComplete: "ALL",
             hasGivenReward: false,
             conditions: [
@@ -167,51 +188,59 @@ describe('Mission Objective', () => {
                     id: "test2",
                 },
             ],
-        });
+        })
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": undefined,
-            "test2": undefined,
-        });
-        expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
-        expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
+            test0: true,
+            test1: undefined,
+            test2: undefined,
+        })
+        expect(objective.numberOfRequiredConditionsToComplete).toBe(3)
+        expect(
+            MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(
+                objective
+            )
+        ).toBeTruthy()
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionCompletionStatus: {
-                        "test objective": {
-                            isComplete: undefined,
-                            conditions: {
-                                "test0": true,
-                                "test1": undefined,
-                                "test2": undefined,
-                            }
-                        }
-                    }
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionCompletionStatus: {
+                            "test objective": {
+                                isComplete: undefined,
+                                conditions: {
+                                    test0: true,
+                                    test1: undefined,
+                                    test2: undefined,
+                                },
+                            },
+                        },
+                    }),
                 }),
-            })
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeFalsy()
 
-        jest.clearAllMocks();
+        jest.clearAllMocks()
         mockMissionConditionChecks({
-            "test0": true,
-            "test1": true,
-            "test2": true,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
-    });
+            test0: true,
+            test1: true,
+            test2: true,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeTruthy()
+    })
 
-    it('is complete if it was already completed', () => {
+    it("is complete if it was already completed", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
             conditions: [
                 {
@@ -228,78 +257,82 @@ describe('Mission Objective', () => {
                 },
             ],
             numberOfRequiredConditionsToComplete: "ALL",
-        });
+        })
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionCompletionStatus: {
-                        "test objective": {
-                            isComplete: true,
-                            conditions: {
-                                "test0": false,
-                                "test1": false,
-                                "test2": false,
-                            }
-                        }
-                    }
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionCompletionStatus: {
+                            "test objective": {
+                                isComplete: true,
+                                conditions: {
+                                    test0: false,
+                                    test1: false,
+                                    test2: false,
+                                },
+                            },
+                        },
+                    }),
                 }),
-            })
-        });
-        jest.clearAllMocks();
+        })
+        jest.clearAllMocks()
         mockMissionConditionChecks({
-            "test0": false,
-            "test1": false,
-            "test2": false,
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
-    });
+            test0: false,
+            test1: false,
+            test2: false,
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeTruthy()
+    })
 
-    it('knows if it gave a reward', () => {
+    it("knows if it gave a reward", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             numberOfRequiredConditionsToComplete: 0,
             hasGivenReward: false,
             conditions: [],
-        });
+        })
 
-        expect(objective.hasGivenReward).toBeFalsy();
-        objective.hasGivenReward = true;
-        expect(objective.hasGivenReward).toBeTruthy();
-    });
+        expect(objective.hasGivenReward).toBeFalsy()
+        objective.hasGivenReward = true
+        expect(objective.hasGivenReward).toBeTruthy()
+    })
 
-    it('is complete if there are no conditions', () => {
+    it("is complete if there are no conditions", () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: {rewardType: MissionRewardType.VICTORY},
+            reward: { rewardType: MissionRewardType.VICTORY },
             hasGivenReward: false,
             numberOfRequiredConditionsToComplete: 0,
             conditions: [],
-        });
-        expect(objective.numberOfRequiredConditionsToComplete).toBe(0);
+        })
+        expect(objective.numberOfRequiredConditionsToComplete).toBe(0)
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionCompletionStatus: {
-                        "test objective": {
-                            isComplete: undefined,
-                            conditions: {}
-                        }
-                    }
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionCompletionStatus: {
+                            "test objective": {
+                                isComplete: undefined,
+                                conditions: {},
+                            },
+                        },
+                    }),
                 }),
-            })
-        });
-        expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
-    });
-});
+        })
+        expect(
+            MissionObjectiveHelper.shouldBeComplete(objective, state)
+        ).toBeTruthy()
+    })
+})

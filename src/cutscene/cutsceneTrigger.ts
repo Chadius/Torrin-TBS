@@ -5,15 +5,15 @@ export enum TriggeringEvent {
 }
 
 export interface CutsceneTrigger {
-    triggeringEvent: TriggeringEvent;
-    systemReactedToTrigger: boolean;
-    cutsceneId: string;
+    triggeringEvent: TriggeringEvent
+    systemReactedToTrigger: boolean
+    cutsceneId: string
 
-    turn?: number;
+    turn?: number
 }
 
 export class MissionDefeatCutsceneTrigger implements CutsceneTrigger {
-    public readonly triggeringEvent: TriggeringEvent.MISSION_DEFEAT;
-    public systemReactedToTrigger: boolean;
-    public cutsceneId: string;
+    public readonly triggeringEvent: TriggeringEvent.MISSION_DEFEAT
+    public systemReactedToTrigger: boolean
+    public cutsceneId: string
 }

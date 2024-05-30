@@ -1,59 +1,74 @@
-import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddie} from "../battleSquaddie";
-import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {SearchResult, SearchResultsService} from "../../hexMap/pathfinder/searchResults/searchResult";
-import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
+import { MissionMap } from "../../missionMap/missionMap"
+import { BattleSquaddie } from "../battleSquaddie"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import {
+    FriendlyAffiliationsByAffiliation,
+    SquaddieAffiliation,
+} from "../../squaddie/squaddieAffiliation"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    GetTargetingShapeGenerator,
+    TargetingShape,
+} from "./targetingShapeGenerator"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import {
+    MissionMapSquaddieLocation,
+    MissionMapSquaddieLocationHandler,
+} from "../../missionMap/squaddieLocation"
+import {
+    SearchResult,
+    SearchResultsService,
+} from "../../hexMap/pathfinder/searchResults/searchResult"
+import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 
 export class TargetingResults {
     constructor() {
-        this._locationsInRange = [];
-        this._battleSquaddieIdsInRange = [];
+        this._locationsInRange = []
+        this._battleSquaddieIdsInRange = []
     }
 
-    private _locationsInRange: HexCoordinate[];
+    private _locationsInRange: HexCoordinate[]
 
     get locationsInRange(): HexCoordinate[] {
-        return this._locationsInRange;
+        return this._locationsInRange
     }
 
-    private _battleSquaddieIdsInRange: string[];
+    private _battleSquaddieIdsInRange: string[]
 
     get battleSquaddieIdsInRange(): string[] {
-        return this._battleSquaddieIdsInRange;
+        return this._battleSquaddieIdsInRange
     }
 
     addLocationsInRange(hexCoordinates: HexCoordinate[]) {
-        this._locationsInRange = [...this._locationsInRange, ...hexCoordinates];
+        this._locationsInRange = [...this._locationsInRange, ...hexCoordinates]
     }
 
     addBattleSquaddieIdsInRange(battleIds: string[]) {
-        this._battleSquaddieIdsInRange = [...this._battleSquaddieIdsInRange, ...battleIds];
+        this._battleSquaddieIdsInRange = [
+            ...this._battleSquaddieIdsInRange,
+            ...battleIds,
+        ]
     }
 }
 
 export const TargetingResultsService = {
     findValidTargets: ({
-                           map,
-                           actingSquaddieTemplate,
-                           actingBattleSquaddie,
-                           squaddieRepository,
-                           sourceTiles,
-                           actionEffectSquaddieTemplate,
-                       }: {
-        map: MissionMap,
-        actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
-        actingSquaddieTemplate: SquaddieTemplate,
-        actingBattleSquaddie: BattleSquaddie,
-        squaddieRepository: ObjectRepository,
-        sourceTiles?: HexCoordinate[],
+        map,
+        actingSquaddieTemplate,
+        actingBattleSquaddie,
+        squaddieRepository,
+        sourceTiles,
+        actionEffectSquaddieTemplate,
+    }: {
+        map: MissionMap
+        actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate
+        actingSquaddieTemplate: SquaddieTemplate
+        actingBattleSquaddie: BattleSquaddie
+        squaddieRepository: ObjectRepository
+        sourceTiles?: HexCoordinate[]
     }): TargetingResults => {
         return findValidTargets({
             map,
@@ -63,58 +78,72 @@ export const TargetingResultsService = {
             sourceTiles,
             actionEffectSquaddieTemplate,
         })
-    }
+    },
 }
 
 const findValidTargets = ({
-                              map,
-                              actingSquaddieTemplate,
-                              actingBattleSquaddie,
-                              squaddieRepository,
-                              sourceTiles,
-                              actionEffectSquaddieTemplate,
-                          }: {
-    map: MissionMap,
-    actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
-    actingSquaddieTemplate: SquaddieTemplate,
-    actingBattleSquaddie: BattleSquaddie,
-    squaddieRepository: ObjectRepository,
-    sourceTiles?: HexCoordinate[],
+    map,
+    actingSquaddieTemplate,
+    actingBattleSquaddie,
+    squaddieRepository,
+    sourceTiles,
+    actionEffectSquaddieTemplate,
+}: {
+    map: MissionMap
+    actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate
+    actingSquaddieTemplate: SquaddieTemplate
+    actingBattleSquaddie: BattleSquaddie
+    squaddieRepository: ObjectRepository
+    sourceTiles?: HexCoordinate[]
 }): TargetingResults => {
-
-    const squaddieInfo = map.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId)
-    const invalidSourceTiles = (sourceTiles === undefined || sourceTiles.length === 0);
-    const invalidSquaddieLocation = (squaddieInfo === undefined || squaddieInfo.mapLocation === undefined)
+    const squaddieInfo = map.getSquaddieByBattleId(
+        actingBattleSquaddie.battleSquaddieId
+    )
+    const invalidSourceTiles =
+        sourceTiles === undefined || sourceTiles.length === 0
+    const invalidSquaddieLocation =
+        squaddieInfo === undefined || squaddieInfo.mapLocation === undefined
     if (invalidSourceTiles && invalidSquaddieLocation) {
-        return new TargetingResults();
+        return new TargetingResults()
     }
 
     const allLocationsInRange: SearchResult = PathfinderHelper.search({
         searchParameters: SearchParametersHelper.new({
-            startLocations: sourceTiles && sourceTiles.length > 0 ? sourceTiles : [squaddieInfo.mapLocation],
+            startLocations:
+                sourceTiles && sourceTiles.length > 0
+                    ? sourceTiles
+                    : [squaddieInfo.mapLocation],
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,
             minimumDistanceMoved: actionEffectSquaddieTemplate.minimumRange,
             maximumDistanceMoved: actionEffectSquaddieTemplate.maximumRange,
-            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+            shapeGenerator: getResultOrThrowError(
+                GetTargetingShapeGenerator(TargetingShape.SNAKE)
+            ),
             movementPerAction: undefined,
             canPassOverPits: false,
             canPassThroughWalls: false,
         }),
         missionMap: map,
         repository: squaddieRepository,
-    });
+    })
 
-    const results = new TargetingResults();
+    const results = new TargetingResults()
     results.addLocationsInRange(
         SearchResultsService.getStoppableLocations(allLocationsInRange)
-    );
+    )
 
-    addValidTargetsToResult(results, actingSquaddieTemplate, SearchResultsService.getStoppableLocations(allLocationsInRange), map, squaddieRepository);
+    addValidTargetsToResult(
+        results,
+        actingSquaddieTemplate,
+        SearchResultsService.getStoppableLocations(allLocationsInRange),
+        map,
+        squaddieRepository
+    )
 
-    return results;
-};
+    return results
+}
 
 function addValidTargetsToResult(
     targetingResults: TargetingResults,
@@ -123,24 +152,32 @@ function addValidTargetsToResult(
     map: MissionMap,
     squaddieRepository: ObjectRepository
 ) {
-    const actingAffiliation: SquaddieAffiliation = actingSquaddieTemplate.squaddieId.affiliation;
-    const validBattleSquaddieIds: string[] = tilesInRange.map((tile) => {
-        const mapData: MissionMapSquaddieLocation = map.getSquaddieAtLocation(tile);
-        if (!MissionMapSquaddieLocationHandler.isValid(mapData)) {
-            return undefined;
-        }
-        const {
-            squaddieTemplate,
-            battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, mapData.battleSquaddieId));
+    const actingAffiliation: SquaddieAffiliation =
+        actingSquaddieTemplate.squaddieId.affiliation
+    const validBattleSquaddieIds: string[] = tilesInRange
+        .map((tile) => {
+            const mapData: MissionMapSquaddieLocation =
+                map.getSquaddieAtLocation(tile)
+            if (!MissionMapSquaddieLocationHandler.isValid(mapData)) {
+                return undefined
+            }
+            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    squaddieRepository,
+                    mapData.battleSquaddieId
+                )
+            )
 
-        const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[actingAffiliation];
-        if (friendlyAffiliations[squaddieTemplate.squaddieId.affiliation]) {
-            return undefined;
-        }
+            const friendlyAffiliations: {
+                [friendlyAffiliation in SquaddieAffiliation]?: boolean
+            } = FriendlyAffiliationsByAffiliation[actingAffiliation]
+            if (friendlyAffiliations[squaddieTemplate.squaddieId.affiliation]) {
+                return undefined
+            }
 
-        return battleSquaddie.battleSquaddieId;
-    }).filter(x => x);
+            return battleSquaddie.battleSquaddieId
+        })
+        .filter((x) => x)
 
-    targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds);
+    targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
 }

@@ -4,5 +4,5 @@ export enum MissionRewardType {
 }
 
 export interface MissionReward {
-    rewardType: MissionRewardType;
+    rewardType: MissionRewardType
 }

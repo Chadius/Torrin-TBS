@@ -1,3 +1,3 @@
 export interface CostReportable {
-    getTotalMovementCost(): number;
+    getTotalMovementCost(): number
 }

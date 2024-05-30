@@ -1,33 +1,33 @@
 export class PriorityQueue<T> {
-    items: T[];
-    comparison: (a: T, b: T) => number;
+    items: T[]
+    comparison: (a: T, b: T) => number
 
     constructor(comparison: (a: T, b: T) => number) {
-        this.items = [];
-        this.comparison = comparison;
+        this.items = []
+        this.comparison = comparison
     }
 
     isEmpty(): boolean {
-        return this.items.length < 1;
+        return this.items.length < 1
     }
 
     enqueue(item: T): void {
-        this.items.push(item);
-        this.items.sort(this.comparison);
+        this.items.push(item)
+        this.items.sort(this.comparison)
     }
 
     peek(): T | undefined {
         if (this.items.length > 0) {
-            return this.items[0];
+            return this.items[0]
         }
-        return undefined;
+        return undefined
     }
 
     dequeue(): T | undefined {
-        const next: T = this.peek();
+        const next: T = this.peek()
         if (this.items.length > 0) {
-            this.items.shift();
+            this.items.shift()
         }
-        return next;
+        return next
     }
 }

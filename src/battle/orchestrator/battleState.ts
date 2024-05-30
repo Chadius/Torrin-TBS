@@ -1,31 +1,37 @@
 import {
     BattleCompletionStatus,
     MissionObjectivesAndCutscenes,
-    MissionObjectivesAndCutscenesHelper
-} from "./missionObjectivesAndCutscenes";
-import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
-import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
-import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {BattleCamera} from "../battleCamera";
-import {Recording} from "../history/recording";
-import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
-import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-import {MissionCutsceneCollection} from "./missionCutsceneCollection";
-import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
-import {MissionObjective} from "../missionResult/missionObjective";
-import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
+    MissionObjectivesAndCutscenesHelper,
+} from "./missionObjectivesAndCutscenes"
+import { MissionMap } from "../../missionMap/missionMap"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "../battleSquaddieTeam"
+import { TeamStrategy } from "../teamStrategy/teamStrategy"
+import { BattlePhaseState } from "../orchestratorComponents/battlePhaseController"
+import { SearchPath } from "../../hexMap/pathfinder/searchPath"
+import { BattleCamera } from "../battleCamera"
+import { Recording } from "../history/recording"
+import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
+import {
+    MissionStatistics,
+    MissionStatisticsHandler,
+} from "../missionStatistics/missionStatistics"
+import { MissionCutsceneCollection } from "./missionCutsceneCollection"
+import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
+import { MissionObjective } from "../missionResult/missionObjective"
+import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
     BattlePhase,
     ConvertBattlePhaseToSquaddieAffiliation,
-    FindTeamsOfAffiliation
-} from "../orchestratorComponents/battlePhaseTracker";
-import {isValidValue} from "../../utils/validityCheck";
-import {ObjectRepository} from "../objectRepository";
-import {ActionsThisRound} from "../history/actionsThisRound";
-import {PlayerBattleActionBuilderState} from "../actionBuilder/playerBattleActionBuilderState";
+    FindTeamsOfAffiliation,
+} from "../orchestratorComponents/battlePhaseTracker"
+import { isValidValue } from "../../utils/validityCheck"
+import { ObjectRepository } from "../objectRepository"
+import { ActionsThisRound } from "../history/actionsThisRound"
+import { PlayerBattleActionBuilderState } from "../actionBuilder/playerBattleActionBuilderState"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -34,69 +40,83 @@ export enum BattleStateValidityMissingComponent {
 }
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
-    missionId: string;
-    missionMap: MissionMap;
-    teams: BattleSquaddieTeam[];
-    teamStrategiesById: { [key: string]: TeamStrategy[] };
-    battlePhaseState: BattlePhaseState;
-    squaddieMovePath?: SearchPath;
-    camera: BattleCamera;
-    recording: Recording;
-    missionCompletionStatus: MissionCompletionStatus;
-    missionStatistics: MissionStatistics;
-    actionsThisRound: ActionsThisRound;
-    playerBattleActionBuilderState: PlayerBattleActionBuilderState;
+    missionId: string
+    missionMap: MissionMap
+    teams: BattleSquaddieTeam[]
+    teamStrategiesById: { [key: string]: TeamStrategy[] }
+    battlePhaseState: BattlePhaseState
+    squaddieMovePath?: SearchPath
+    camera: BattleCamera
+    recording: Recording
+    missionCompletionStatus: MissionCompletionStatus
+    missionStatistics: MissionStatistics
+    actionsThisRound: ActionsThisRound
+    playerBattleActionBuilderState: PlayerBattleActionBuilderState
 }
 
 export const BattleStateService = {
     new: (params: BattleStateConstructorParameters): BattleState => {
-        return newBattleState(params);
+        return newBattleState(params)
     },
     newBattleState: (params: BattleStateConstructorParameters): BattleState => {
-        return newBattleState(params);
+        return newBattleState(params)
     },
     isValid: (battleState: BattleState): boolean => {
         if (!battleState) {
-            return false;
+            return false
         }
-        const missingComponents = getMissingComponents(battleState);
+        const missingComponents = getMissingComponents(battleState)
         return (
-            missingComponents.length === 0
-            || (
-                missingComponents.length === 1
-                && missingComponents.includes(BattleStateValidityMissingComponent.MISSION_OBJECTIVE)
-            )
-        );
+            missingComponents.length === 0 ||
+            (missingComponents.length === 1 &&
+                missingComponents.includes(
+                    BattleStateValidityMissingComponent.MISSION_OBJECTIVE
+                ))
+        )
     },
-    missingComponents: (battleState: BattleState): BattleStateValidityMissingComponent[] => {
-        return getMissingComponents(battleState);
+    missingComponents: (
+        battleState: BattleState
+    ): BattleStateValidityMissingComponent[] => {
+        return getMissingComponents(battleState)
     },
     isReadyToContinueMission: (battleState: BattleState): boolean => {
-        const missingComponents = getMissingComponents(battleState);
-        return missingComponents.length === 0;
+        const missingComponents = getMissingComponents(battleState)
+        return missingComponents.length === 0
     },
-    getCurrentTeam: (battleState: BattleState, squaddieRepository: ObjectRepository): BattleSquaddieTeam => {
+    getCurrentTeam: (
+        battleState: BattleState,
+        squaddieRepository: ObjectRepository
+    ): BattleSquaddieTeam => {
         if (
-            !isValidValue(battleState)
-            || !isValidValue(battleState.battlePhaseState)
+            !isValidValue(battleState) ||
+            !isValidValue(battleState.battlePhaseState)
         ) {
-            return undefined;
+            return undefined
         }
 
         const teamsOfAffiliation: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
             battleState.teams,
-            ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),
-        );
+            ConvertBattlePhaseToSquaddieAffiliation(
+                battleState.battlePhaseState.currentAffiliation
+            )
+        )
 
-        return teamsOfAffiliation.find(team => BattleSquaddieTeamService.hasAnActingSquaddie(team, squaddieRepository));
+        return teamsOfAffiliation.find((team) =>
+            BattleSquaddieTeamService.hasAnActingSquaddie(
+                team,
+                squaddieRepository
+            )
+        )
     },
     clone: (battleState: BattleState): BattleState => {
-        return {...battleState};
+        return { ...battleState }
     },
     update: (battleState: BattleState, other: BattleState): void => {
-        Object.assign(battleState, other);
+        Object.assign(battleState, other)
     },
-    defaultBattleState: (params: BattleStateConstructorParameters): BattleState => {
+    defaultBattleState: (
+        params: BattleStateConstructorParameters
+    ): BattleState => {
         const defaultParameters: BattleStateConstructorParameters = {
             ...{
                 missionId: "default mission id",
@@ -107,114 +127,129 @@ export const BattleStateService = {
                 },
             },
             ...params,
-        };
+        }
 
-        return newBattleState(defaultParameters);
+        return newBattleState(defaultParameters)
     },
-    getTeamsAndStrategiesByAffiliation: ({battleState, affiliation}: {
-        battleState: BattleState,
+    getTeamsAndStrategiesByAffiliation: ({
+        battleState,
+        affiliation,
+    }: {
+        battleState: BattleState
         affiliation: SquaddieAffiliation
-    }): {
-        teams: BattleSquaddieTeam[],
-        strategies: { [teamName: string]: TeamStrategy[] }
-    } | undefined => {
-        const foundTeams: BattleSquaddieTeam[] = battleState.teams.filter(team => team.affiliation === affiliation);
+    }):
+        | {
+              teams: BattleSquaddieTeam[]
+              strategies: { [teamName: string]: TeamStrategy[] }
+          }
+        | undefined => {
+        const foundTeams: BattleSquaddieTeam[] = battleState.teams.filter(
+            (team) => team.affiliation === affiliation
+        )
         const foundStrategies = Object.fromEntries(
-            Object.entries(battleState.teamStrategiesById).filter(([teamId, _]) => {
-                return foundTeams.some(team => team.id === teamId)
-            })
-        );
+            Object.entries(battleState.teamStrategiesById).filter(
+                ([teamId, _]) => {
+                    return foundTeams.some((team) => team.id === teamId)
+                }
+            )
+        )
 
-        const noTeamsFound: boolean = foundTeams.length === 0;
+        const noTeamsFound: boolean = foundTeams.length === 0
         if (noTeamsFound && affiliation === SquaddieAffiliation.PLAYER) {
-            return undefined;
+            return undefined
         }
 
         return {
             teams: foundTeams,
             strategies: foundStrategies,
-        };
-    }
+        }
+    },
 }
 
 interface BattleStateConstructorParameters {
-    campaignId: string;
-    missionId: string;
-    cutsceneCollection?: MissionCutsceneCollection;
-    cutsceneTriggers?: CutsceneTrigger[];
-    objectives?: MissionObjective[];
-    missionMap?: MissionMap;
-    camera?: BattleCamera;
-    battlePhaseState?: BattlePhaseState;
-    recording?: Recording;
-    teams?: BattleSquaddieTeam[];
-    teamStrategiesById?: { [key: string]: TeamStrategy[] };
-    missionCompletionStatus?: MissionCompletionStatus;
-    missionStatistics?: MissionStatistics;
-    searchPath?: SearchPath;
-    battleCompletionStatus?: BattleCompletionStatus;
-    actionsThisRound?: ActionsThisRound;
+    campaignId: string
+    missionId: string
+    cutsceneCollection?: MissionCutsceneCollection
+    cutsceneTriggers?: CutsceneTrigger[]
+    objectives?: MissionObjective[]
+    missionMap?: MissionMap
+    camera?: BattleCamera
+    battlePhaseState?: BattlePhaseState
+    recording?: Recording
+    teams?: BattleSquaddieTeam[]
+    teamStrategiesById?: { [key: string]: TeamStrategy[] }
+    missionCompletionStatus?: MissionCompletionStatus
+    missionStatistics?: MissionStatistics
+    searchPath?: SearchPath
+    battleCompletionStatus?: BattleCompletionStatus
+    actionsThisRound?: ActionsThisRound
 }
 
 const newBattleState = ({
-                            campaignId,
-                            missionId,
-                            objectives,
-                            cutsceneCollection,
-                            cutsceneTriggers,
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            recording,
-                            missionStatistics,
-                            missionCompletionStatus,
-                            searchPath,
-                            battleCompletionStatus,
-                            teams,
-                            teamStrategiesById,
-                            actionsThisRound,
-                        }: BattleStateConstructorParameters): BattleState => {
-    const missionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
-        objectives,
-        cutsceneCollection,
-        cutsceneTriggers,
-        missionCompletionStatus,
-        battleCompletionStatus,
-    });
+    campaignId,
+    missionId,
+    objectives,
+    cutsceneCollection,
+    cutsceneTriggers,
+    missionMap,
+    camera,
+    battlePhaseState,
+    recording,
+    missionStatistics,
+    missionCompletionStatus,
+    searchPath,
+    battleCompletionStatus,
+    teams,
+    teamStrategiesById,
+    actionsThisRound,
+}: BattleStateConstructorParameters): BattleState => {
+    const missionObjectivesAndCutscenes =
+        MissionObjectivesAndCutscenesHelper.new({
+            objectives,
+            cutsceneCollection,
+            cutsceneTriggers,
+            missionCompletionStatus,
+            battleCompletionStatus,
+        })
 
     return {
         ...missionObjectivesAndCutscenes,
         missionId: missionId,
         missionMap: missionMap,
         teams: isValidValue(teams) ? [...teams] : [],
-        teamStrategiesById: isValidValue(teamStrategiesById) ? {...teamStrategiesById} : {},
+        teamStrategiesById: isValidValue(teamStrategiesById)
+            ? { ...teamStrategiesById }
+            : {},
         battlePhaseState: battlePhaseState,
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
-        recording: recording || {history: []},
+        recording: recording || { history: [] },
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
+        battleCompletionStatus:
+            battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
         playerBattleActionBuilderState: undefined,
-    };
-};
+    }
+}
 
-const getMissingComponents = (battleState: BattleState): BattleStateValidityMissingComponent[] => {
+const getMissingComponents = (
+    battleState: BattleState
+): BattleStateValidityMissingComponent[] => {
     const expectedComponents = {
-        [BattleStateValidityMissingComponent.MISSION_MAP]: isValidValue(battleState.missionMap),
-        [BattleStateValidityMissingComponent.TEAMS]: (
-            isValidValue(battleState.teams)
-            && battleState.teams.length > 0
-            && isValidValue(battleState.teamStrategiesById)
+        [BattleStateValidityMissingComponent.MISSION_MAP]: isValidValue(
+            battleState.missionMap
         ),
-        [BattleStateValidityMissingComponent.MISSION_OBJECTIVE]: (
-            isValidValue(battleState.objectives)
-            && battleState.objectives.length > 0
-            && battleState.objectives[0].conditions.length > 0
-        ),
+        [BattleStateValidityMissingComponent.TEAMS]:
+            isValidValue(battleState.teams) &&
+            battleState.teams.length > 0 &&
+            isValidValue(battleState.teamStrategiesById),
+        [BattleStateValidityMissingComponent.MISSION_OBJECTIVE]:
+            isValidValue(battleState.objectives) &&
+            battleState.objectives.length > 0 &&
+            battleState.objectives[0].conditions.length > 0,
     }
 
     return Object.keys(expectedComponents)
         .map((str) => str as BattleStateValidityMissingComponent)
-        .filter((component) => expectedComponents[component] === false);
+        .filter((component) => expectedComponents[component] === false)
 }

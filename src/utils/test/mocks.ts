@@ -1,13 +1,13 @@
-import p5 from "p5";
-import {ImageUI} from "../../ui/imageUI";
-import {ResourceHandler} from "../../resource/resourceHandler";
-import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
-import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
-import {RectAreaService} from "../../ui/rectArea";
-import {makeResult} from "../ResultOrError";
-import {GraphicsBuffer, GraphicsRenderer} from "../graphics/graphicsRenderer";
+import p5 from "p5"
+import { ImageUI } from "../../ui/imageUI"
+import { ResourceHandler } from "../../resource/resourceHandler"
+import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
+import { BattleSquaddieSelectedHUD } from "../../battle/hud/battleSquaddieSelectedHUD"
+import { RectAreaService } from "../../ui/rectArea"
+import { makeResult } from "../ResultOrError"
+import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
 
-jest.mock('p5', () => () => {
+jest.mock("p5", () => () => {
     return {
         background: jest.fn(),
         colorMode: jest.fn(),
@@ -38,47 +38,58 @@ jest.mock('p5', () => () => {
         windowWidth: jest.fn().mockReturnValue(16 * 12),
         windowHeight: jest.fn().mockReturnValue(9 * 12),
     }
-});
+})
 
 export const mockedP5 = () => {
-    return new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
+    return new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>
 }
 
 export const mockImageUI = () => {
-    const imageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
-    imageUI.area = RectAreaService.new({left: 10, right: 20, top: 10, bottom: 20});
-    imageUI.draw = jest.fn();
-    return imageUI;
+    const imageUI = new (<new (options: any) => ImageUI>ImageUI)(
+        {}
+    ) as jest.Mocked<ImageUI>
+    imageUI.area = RectAreaService.new({
+        left: 10,
+        right: 20,
+        top: 10,
+        bottom: 20,
+    })
+    imageUI.draw = jest.fn()
+    return imageUI
 }
 
 export const mockResourceHandler = (graphics: GraphicsBuffer) => {
-    const handler = new (
-        <new (options: any) => ResourceHandler>ResourceHandler
-    )({
+    const handler = new (<new (options: any) => ResourceHandler>(
+        ResourceHandler
+    ))({
         imageLoader: new StubImmediateLoader(graphics),
-    }) as jest.Mocked<ResourceHandler>;
+    }) as jest.Mocked<ResourceHandler>
 
-    handler.loadResources = jest.fn();
-    handler.getResource = jest.fn().mockReturnValue(makeResult(graphics.createImage(1, 1)))
-    handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true);
-    return handler;
+    handler.loadResources = jest.fn()
+    handler.getResource = jest
+        .fn()
+        .mockReturnValue(makeResult(graphics.createImage(1, 1)))
+    handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true)
+    return handler
 }
 
 export const battleSquaddieSelectedHUD = () => {
-    const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-    hud.draw = jest.fn();
-    hud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false);
-    hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-    hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
-    hud.mouseClicked = jest.fn();
-    return hud;
+    const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>(
+        BattleSquaddieSelectedHUD
+    ))({}) as jest.Mocked<BattleSquaddieSelectedHUD>
+    hud.draw = jest.fn()
+    hud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false)
+    hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true)
+    hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true)
+    hud.mouseClicked = jest.fn()
+    return hud
 }
 
 export class MockedP5GraphicsBuffer implements GraphicsBuffer {
-    mockedP5: p5;
+    mockedP5: p5
 
     constructor() {
-        this.mockedP5 = mockedP5();
+        this.mockedP5 = mockedP5()
     }
 
     get height(): number {
@@ -90,63 +101,85 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     }
 
     background(hue: number, saturation: number, brightness: number): void {
-        this.mockedP5.background(hue, saturation, brightness);
+        this.mockedP5.background(hue, saturation, brightness)
     }
 
     beginShape(): void {
-        this.mockedP5.beginShape();
+        this.mockedP5.beginShape()
     }
 
-    colorMode(modeKey: string, hueMaximumValue: number, saturationMaximumValue: number, brightnessMaximumValue: number, alphaMaximumValue: number): void {
-        this.mockedP5.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
+    colorMode(
+        modeKey: string,
+        hueMaximumValue: number,
+        saturationMaximumValue: number,
+        brightnessMaximumValue: number,
+        alphaMaximumValue: number
+    ): void {
+        this.mockedP5.colorMode(
+            modeKey,
+            hueMaximumValue,
+            saturationMaximumValue,
+            brightnessMaximumValue,
+            alphaMaximumValue
+        )
     }
 
     createImage(height: number, width: number): p5.Image {
-        return this.mockedP5.createImage(width, height);
+        return this.mockedP5.createImage(width, height)
     }
 
     endShape(mode: string): void {
-        this.mockedP5.endShape(mode as p5.END_MODE);
+        this.mockedP5.endShape(mode as p5.END_MODE)
     }
 
     fill(hue: number, saturation: number, brightness: number): void {
         this.mockedP5.fill(hue, saturation, brightness)
     }
 
-    image(data: p5.Image, left: number, top: number, width?: number, height?: number): void {
-        this.mockedP5.image(data, left, top, width, height);
+    image(
+        data: p5.Image,
+        left: number,
+        top: number,
+        width?: number,
+        height?: number
+    ): void {
+        this.mockedP5.image(data, left, top, width, height)
     }
 
     line(x1: number, y1: number, x2: number, y2: number): void {
-        this.mockedP5.line(x1, y1, x2, y2);
+        this.mockedP5.line(x1, y1, x2, y2)
     }
 
-    loadImage(pathToImage: string, successCallback: (loadedImage: p5.Image) => void, failureCallback: (failEvent: Event) => void): void {
-        this.mockedP5.loadImage(pathToImage, successCallback, failureCallback);
+    loadImage(
+        pathToImage: string,
+        successCallback: (loadedImage: p5.Image) => void,
+        failureCallback: (failEvent: Event) => void
+    ): void {
+        this.mockedP5.loadImage(pathToImage, successCallback, failureCallback)
     }
 
     noFill(): void {
-        this.mockedP5.noFill();
+        this.mockedP5.noFill()
     }
 
     noStroke(): void {
-        this.mockedP5.noStroke();
+        this.mockedP5.noStroke()
     }
 
     noTint(): void {
-        this.mockedP5.noTint();
+        this.mockedP5.noTint()
     }
 
     pop(): void {
-        this.mockedP5.pop();
+        this.mockedP5.pop()
     }
 
     push(): void {
-        this.mockedP5.push();
+        this.mockedP5.push()
     }
 
     rect(left: number, top: number, width: number, height: number): void {
-        this.mockedP5.rect(left, top, width, height);
+        this.mockedP5.rect(left, top, width, height)
     }
 
     stroke(hue: number, saturation: number, brightness: number): void {
@@ -154,40 +187,51 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
     }
 
     strokeWeight(weight: number): void {
-        this.mockedP5.strokeWeight(weight);
+        this.mockedP5.strokeWeight(weight)
     }
 
     text(text: string, x1: number, y1: number, x2: number, y2: number): void {
-        this.mockedP5.text(text, x1, y1, x2, y2);
+        this.mockedP5.text(text, x1, y1, x2, y2)
     }
 
     textAlign(horizontalAlignment: string, verticalAlignment: string): void {
-        this.mockedP5.textAlign(horizontalAlignment as p5.HORIZ_ALIGN, verticalAlignment as p5.VERT_ALIGN);
+        this.mockedP5.textAlign(
+            horizontalAlignment as p5.HORIZ_ALIGN,
+            verticalAlignment as p5.VERT_ALIGN
+        )
     }
 
     textSize(size: number): void {
-        this.mockedP5.textSize(size);
+        this.mockedP5.textSize(size)
     }
 
-    tint(hue: number, saturation: number, brightness: number, alpha: number): void {
-        this.mockedP5.tint(hue, saturation, brightness, alpha);
+    tint(
+        hue: number,
+        saturation: number,
+        brightness: number,
+        alpha: number
+    ): void {
+        this.mockedP5.tint(hue, saturation, brightness, alpha)
     }
 
     translate(x: number, y: number): void {
-        this.mockedP5.translate(x, y);
+        this.mockedP5.translate(x, y)
     }
 
     vertex(x: number, y: number): void {
-        this.mockedP5.vertex(x, y);
+        this.mockedP5.vertex(x, y)
     }
 }
 
-export class MockedP5GraphicsRenderer extends MockedP5GraphicsBuffer implements GraphicsRenderer {
-    mockedP5: p5;
+export class MockedP5GraphicsRenderer
+    extends MockedP5GraphicsBuffer
+    implements GraphicsRenderer
+{
+    mockedP5: p5
 
     constructor() {
         super()
-        this.mockedP5 = mockedP5();
+        this.mockedP5 = mockedP5()
     }
 
     get p() {

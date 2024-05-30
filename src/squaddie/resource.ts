@@ -1,36 +1,38 @@
-import {SquaddieEmotion} from "../battle/animation/actionAnimation/actionAnimationConstants";
-import {isValidValue} from "../utils/validityCheck";
+import { SquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
+import { isValidValue } from "../utils/validityCheck"
 
 export interface SquaddieResource {
-    mapIconResourceKey: string;
-    actionSpritesByEmotion: { [key in SquaddieEmotion]?: string };
+    mapIconResourceKey: string
+    actionSpritesByEmotion: { [key in SquaddieEmotion]?: string }
 }
 
 export const SquaddieResourceService = {
     new: ({
-              mapIconResourceKey,
-              actionSpritesByEmotion,
-          }: {
-        mapIconResourceKey?: string,
-        actionSpritesByEmotion?: { [key in SquaddieEmotion]?: string },
+        mapIconResourceKey,
+        actionSpritesByEmotion,
+    }: {
+        mapIconResourceKey?: string
+        actionSpritesByEmotion?: { [key in SquaddieEmotion]?: string }
     }) => {
         return sanitize({
             mapIconResourceKey,
             actionSpritesByEmotion,
-        });
+        })
     },
     sanitize: (data: SquaddieResource): SquaddieResource => {
-        return sanitize(data);
+        return sanitize(data)
     },
     getResourceKeys: (resource: SquaddieResource): string[] => {
-        let resourceKeys: string[] = [];
-        resourceKeys.push(resource.mapIconResourceKey);
-        resourceKeys.push(...Object.values(resource.actionSpritesByEmotion));
-        return resourceKeys;
-    }
+        let resourceKeys: string[] = []
+        resourceKeys.push(resource.mapIconResourceKey)
+        resourceKeys.push(...Object.values(resource.actionSpritesByEmotion))
+        return resourceKeys
+    },
 }
 
 const sanitize = (data: SquaddieResource) => {
-    data.actionSpritesByEmotion = isValidValue(data.actionSpritesByEmotion) ? data.actionSpritesByEmotion : {};
-    return data;
+    data.actionSpritesByEmotion = isValidValue(data.actionSpritesByEmotion)
+        ? data.actionSpritesByEmotion
+        : {}
+    return data
 }

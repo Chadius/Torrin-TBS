@@ -1,7 +1,11 @@
-import {BlendColor, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
+import {
+    BlendColor,
+    PulseBlendColor,
+    pulseBlendColorToBlendColor,
+} from "./colorUtils"
 
-describe('PulseBlendColor to BlendColor', () => {
-    test('Should return blended color', () => {
+describe("PulseBlendColor to BlendColor", () => {
+    test("Should return blended color", () => {
         const pulseBlendColor: PulseBlendColor = {
             hue: 100,
             saturation: 50,
@@ -32,13 +36,19 @@ describe('PulseBlendColor to BlendColor', () => {
             pulseBlendColor.highAlpha,
         ]
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 250); // peak value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(highBlendColor);
+        jest.spyOn(Date, "now").mockImplementation(() => 250) // peak value
+        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
+            highBlendColor
+        )
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 0); // base value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(baseBlendColor);
+        jest.spyOn(Date, "now").mockImplementation(() => 0) // base value
+        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
+            baseBlendColor
+        )
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 750); // valley value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(lowBlendColor);
-    });
-});
+        jest.spyOn(Date, "now").mockImplementation(() => 750) // valley value
+        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
+            lowBlendColor
+        )
+    })
+})

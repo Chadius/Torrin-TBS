@@ -1,20 +1,26 @@
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
-import {SubstituteTextUsingBattleOrchestraState} from "./BattleOrchestratorStateSubstitution";
+import { BattleOrchestratorState } from "../battle/orchestrator/battleOrchestratorState"
+import { SubstituteTextUsingBattleOrchestraState } from "./BattleOrchestratorStateSubstitution"
 
 export type TextSubstitution = {
-    name: string,
-    token: string,
-    description: string,
+    name: string
+    token: string
+    description: string
 }
 
 export type TextSubstitutionContext = {
-    battleOrchestratorState?: BattleOrchestratorState,
+    battleOrchestratorState?: BattleOrchestratorState
 }
 
-export const SubstituteText = (input: string, context: TextSubstitutionContext) => {
+export const SubstituteText = (
+    input: string,
+    context: TextSubstitutionContext
+) => {
     if (context.battleOrchestratorState) {
-        input = SubstituteTextUsingBattleOrchestraState(input, context.battleOrchestratorState);
+        input = SubstituteTextUsingBattleOrchestraState(
+            input,
+            context.battleOrchestratorState
+        )
     }
 
-    return input;
+    return input
 }

@@ -1,11 +1,13 @@
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {makeError, makeResult, ResultOrError} from "../../utils/ResultOrError";
-import {SnakeShapeGenerator} from "./snakeShapeGenerator";
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { makeError, makeResult, ResultOrError } from "../../utils/ResultOrError"
+import { SnakeShapeGenerator } from "./snakeShapeGenerator"
 
 export interface TargetingShapeGenerator {
-    getShape(): TargetingShape;
+    getShape(): TargetingShape
 
-    createNeighboringHexCoordinates(hexCoordinate: HexCoordinate): HexCoordinate[];
+    createNeighboringHexCoordinates(
+        hexCoordinate: HexCoordinate
+    ): HexCoordinate[]
 }
 
 export enum TargetingShape {
@@ -18,11 +20,17 @@ const TargetingShapeToName: { [value in TargetingShape]: string } = {
     [TargetingShape.SNAKE]: "Snake",
 }
 
-export const GetTargetingShapeGenerator = (shape: TargetingShape): ResultOrError<TargetingShapeGenerator, Error> => {
+export const GetTargetingShapeGenerator = (
+    shape: TargetingShape
+): ResultOrError<TargetingShapeGenerator, Error> => {
     switch (shape) {
         case TargetingShape.SNAKE:
-            return makeResult(new SnakeShapeGenerator());
+            return makeResult(new SnakeShapeGenerator())
         default:
-            return makeError(new Error(`Unexpected shape generator: ${TargetingShapeToName[shape]}`));
+            return makeError(
+                new Error(
+                    `Unexpected shape generator: ${TargetingShapeToName[shape]}`
+                )
+            )
     }
 }

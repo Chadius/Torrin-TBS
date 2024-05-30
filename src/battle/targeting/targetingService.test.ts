@@ -1,26 +1,32 @@
-import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddie} from "../battleSquaddie";
-import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
-import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {TargetingResults, TargetingResultsService} from "./targetingService";
+import { MissionMap } from "../../missionMap/missionMap"
+import { BattleSquaddie } from "../battleSquaddie"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
+import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { TargetingResults, TargetingResultsService } from "./targetingService"
 
-import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import { NewHexCoordinateFromNumberPair } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 import {
     ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../action/template/actionEffectSquaddieTemplate";
+    ActionEffectSquaddieTemplateService,
+} from "../../action/template/actionEffectSquaddieTemplate"
 
-describe('Targeting Service', () => {
-    let longswordAction: ActionTemplate;
-    let sirCamilSquaddieTemplate: SquaddieTemplate;
-    let sirCamilBattleSquaddie: BattleSquaddie;
-    let squaddieRepo: ObjectRepository;
+describe("Targeting Service", () => {
+    let longswordAction: ActionTemplate
+    let sirCamilSquaddieTemplate: SquaddieTemplate
+    let sirCamilBattleSquaddie: BattleSquaddie
+    let squaddieRepo: ObjectRepository
 
     beforeEach(() => {
         longswordAction = ActionTemplateService.new({
@@ -34,12 +40,12 @@ describe('Targeting Service', () => {
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
-                })
-            ]
-        });
+                }),
+            ],
+        })
 
-        squaddieRepo = ObjectRepositoryService.new();
-        ({
+        squaddieRepo = ObjectRepositoryService.new()
+        ;({
             squaddieTemplate: sirCamilSquaddieTemplate,
             battleSquaddie: sirCamilBattleSquaddie,
         } = CreateNewSquaddieAndAddToRepository({
@@ -48,79 +54,69 @@ describe('Targeting Service', () => {
             battleId: "Sir Camil 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-        }));
-    });
+        }))
+    })
 
-    it('will indicate which locations to highlight', () => {
+    it("will indicate which locations to highlight", () => {
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 ",
-                    " 1 1 1 ",
-                    "  1 1 1 ",
-                ]
-            })
-        });
+                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+            }),
+        })
 
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            {q: 1, r: 1},
-        );
+            { q: 1, r: 1 }
+        )
 
-        const results: TargetingResults = TargetingResultsService.findValidTargets({
-            map: battleMap,
-            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            actingSquaddieTemplate: sirCamilSquaddieTemplate,
-            actingBattleSquaddie: sirCamilBattleSquaddie,
-            squaddieRepository: squaddieRepo,
-        });
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: longswordAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: sirCamilSquaddieTemplate,
+                actingBattleSquaddie: sirCamilBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
 
-        expect(results.locationsInRange).toHaveLength(6);
+        expect(results.locationsInRange).toHaveLength(6)
         expect(results.locationsInRange).toEqual(
-            expect.arrayContaining(
-                CreateNewNeighboringCoordinates(1, 1)
-            )
-        );
-    });
+            expect.arrayContaining(CreateNewNeighboringCoordinates(1, 1))
+        )
+    })
 
-    it('will highlight nothing if the acting squaddie is not on the map', () => {
+    it("will highlight nothing if the acting squaddie is not on the map", () => {
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 ",
-                    " 1 1 1 ",
-                    "  1 1 1 ",
-                ]
-            })
-        });
+                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+            }),
+        })
 
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId,
-        );
+            sirCamilBattleSquaddie.battleSquaddieId
+        )
 
-        const results: TargetingResults = TargetingResultsService.findValidTargets({
-            map: battleMap,
-            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            actingSquaddieTemplate: sirCamilSquaddieTemplate,
-            actingBattleSquaddie: sirCamilBattleSquaddie,
-            squaddieRepository: squaddieRepo,
-        });
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: longswordAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: sirCamilSquaddieTemplate,
+                actingBattleSquaddie: sirCamilBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
 
-        expect(results.locationsInRange).toHaveLength(0);
-    });
+        expect(results.locationsInRange).toHaveLength(0)
+    })
 
-    it('will respect walls and ranged attacks', () => {
+    it("will respect walls and ranged attacks", () => {
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 1 ",
-                    " 1 1 x 1 ",
-                    "  1 1 1 x ",
-                ]
-            })
-        });
+                movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
+            }),
+        })
 
         let longbowAction = ActionTemplateService.new({
             name: "longbow",
@@ -133,11 +129,11 @@ describe('Targeting Service', () => {
                     }),
                     minimumRange: 2,
                     maximumRange: 3,
-                })
-            ]
-        });
+                }),
+            ],
+        })
 
-        squaddieRepo = ObjectRepositoryService.new();
+        squaddieRepo = ObjectRepositoryService.new()
         let {
             squaddieTemplate: archerSquaddieTemplate,
             battleSquaddie: archerBattleSquaddie,
@@ -148,45 +144,51 @@ describe('Targeting Service', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             actionTemplates: [longbowAction],
             squaddieRepository: squaddieRepo,
-        });
+        })
 
         battleMap.addSquaddie(
             archerSquaddieTemplate.squaddieId.templateId,
             archerBattleSquaddie.battleSquaddieId,
-            {q: 1, r: 1},
-        );
+            { q: 1, r: 1 }
+        )
 
-        const results: TargetingResults = TargetingResultsService.findValidTargets({
-            map: battleMap,
-            actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            actingSquaddieTemplate: archerSquaddieTemplate,
-            actingBattleSquaddie: archerBattleSquaddie,
-            squaddieRepository: squaddieRepo,
-        });
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: longbowAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: archerSquaddieTemplate,
+                actingBattleSquaddie: archerBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
 
-        expect(results.locationsInRange).toHaveLength(4);
-        expect(results.locationsInRange).toContainEqual(NewHexCoordinateFromNumberPair([0, 0]));
-        expect(results.locationsInRange).toContainEqual(NewHexCoordinateFromNumberPair([0, 3]));
-        expect(results.locationsInRange).toContainEqual(NewHexCoordinateFromNumberPair([1, 3]));
-        expect(results.locationsInRange).toContainEqual(NewHexCoordinateFromNumberPair([2, 2]));
-    });
+        expect(results.locationsInRange).toHaveLength(4)
+        expect(results.locationsInRange).toContainEqual(
+            NewHexCoordinateFromNumberPair([0, 0])
+        )
+        expect(results.locationsInRange).toContainEqual(
+            NewHexCoordinateFromNumberPair([0, 3])
+        )
+        expect(results.locationsInRange).toContainEqual(
+            NewHexCoordinateFromNumberPair([1, 3])
+        )
+        expect(results.locationsInRange).toContainEqual(
+            NewHexCoordinateFromNumberPair([2, 2])
+        )
+    })
 
-    it('will highlight unfriendly squaddies if they are in range', () => {
+    it("will highlight unfriendly squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 1 ",
-                    " 1 1 x 1 ",
-                    "  1 1 1 x ",
-                ]
-            })
-        });
+                movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
+            }),
+        })
 
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            {q: 1, r: 1},
-        );
+            { q: 1, r: 1 }
+        )
 
         let {
             squaddieTemplate: playerTeamStatic,
@@ -197,13 +199,13 @@ describe('Targeting Service', () => {
             battleId: "Player 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-        });
+        })
 
         battleMap.addSquaddie(
             playerTeamStatic.squaddieId.templateId,
             playerTeamDynamic.battleSquaddieId,
-            {q: 1, r: 0},
-        );
+            { q: 1, r: 0 }
+        )
 
         let {
             squaddieTemplate: enemyTeamStatic,
@@ -214,13 +216,13 @@ describe('Targeting Service', () => {
             battleId: "enemy 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
-        });
+        })
 
         battleMap.addSquaddie(
             enemyTeamStatic.squaddieId.templateId,
             enemyTeamDynamic.battleSquaddieId,
-            {q: 2, r: 1},
-        );
+            { q: 2, r: 1 }
+        )
 
         let {
             squaddieTemplate: enemyFarAwayTeamStatic,
@@ -231,27 +233,31 @@ describe('Targeting Service', () => {
             battleId: "enemy far away 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
-        });
+        })
 
         battleMap.addSquaddie(
             enemyFarAwayTeamStatic.squaddieId.templateId,
             enemyFarAwayTeamDynamic.battleSquaddieId,
-            {q: 0, r: 3},
-        );
+            { q: 0, r: 3 }
+        )
 
-        const results: TargetingResults = TargetingResultsService.findValidTargets({
-            map: battleMap,
-            actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            actingSquaddieTemplate: sirCamilSquaddieTemplate,
-            actingBattleSquaddie: sirCamilBattleSquaddie,
-            squaddieRepository: squaddieRepo,
-        });
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: longswordAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: sirCamilSquaddieTemplate,
+                actingBattleSquaddie: sirCamilBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
 
-        expect(results.battleSquaddieIdsInRange).toHaveLength(1);
-        expect(results.battleSquaddieIdsInRange).toContain(enemyTeamDynamic.battleSquaddieId);
-    });
+        expect(results.battleSquaddieIdsInRange).toHaveLength(1)
+        expect(results.battleSquaddieIdsInRange).toContain(
+            enemyTeamDynamic.battleSquaddieId
+        )
+    })
 
-    it('will ignore terrain costs when targeting', () => {
+    it("will ignore terrain costs when targeting", () => {
         let longbowAction: ActionTemplate = ActionTemplateService.new({
             name: "longbow",
             id: "longbow",
@@ -263,37 +269,37 @@ describe('Targeting Service', () => {
                     }),
                     minimumRange: 1,
                     maximumRange: 3,
-                })
-            ]
-        });
+                }),
+            ],
+        })
 
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "2 2 2 2 ",
-                ]
-            })
-        });
+                movementCost: ["2 2 2 2 "],
+            }),
+        })
 
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            {q: 0, r: 0},
-        );
+            { q: 0, r: 0 }
+        )
 
-        const results: TargetingResults = TargetingResultsService.findValidTargets({
-            map: battleMap,
-            actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            actingSquaddieTemplate: sirCamilSquaddieTemplate,
-            actingBattleSquaddie: sirCamilBattleSquaddie,
-            squaddieRepository: squaddieRepo,
-        });
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: longbowAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: sirCamilSquaddieTemplate,
+                actingBattleSquaddie: sirCamilBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
 
-        expect(results.locationsInRange).toHaveLength(3);
+        expect(results.locationsInRange).toHaveLength(3)
         expect(results.locationsInRange).toStrictEqual([
-            {q: 0, r: 1},
-            {q: 0, r: 2},
-            {q: 0, r: 3},
-        ]);
-    });
-});
+            { q: 0, r: 1 },
+            { q: 0, r: 2 },
+            { q: 0, r: 3 },
+        ])
+    })
+})

@@ -1,35 +1,44 @@
-import {TargetTextWindow} from "./targetTextWindow";
-import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
-import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorage";
-import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
-import {BattleSquaddie, BattleSquaddieService} from "../../battleSquaddie";
-import {SquaddieTurnService} from "../../../squaddie/turn";
-import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
-import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
-import {ActionAnimationPhase} from "./actionAnimationConstants";
-import {ActionTimer} from "./actionTimer";
-import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
-import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
+import { TargetTextWindow } from "./targetTextWindow"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../../campaign/squaddieTemplate"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
+import { DefaultArmyAttributes } from "../../../squaddie/armyAttributes"
+import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
+import { SquaddieTurnService } from "../../../squaddie/turn"
+import { InBattleAttributesHandler } from "../../stats/inBattleAttributes"
+import { ActionResultPerSquaddie } from "../../history/actionResultPerSquaddie"
+import { ActionAnimationPhase } from "./actionAnimationConstants"
+import { ActionTimer } from "./actionTimer"
+import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { DegreeOfSuccess } from "../../actionCalculator/degreeOfSuccess"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../action/template/actionTemplate"
 import {
     ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../action/template/actionEffectSquaddieTemplate";
-import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
+    ActionEffectSquaddieTemplateService,
+} from "../../../action/template/actionEffectSquaddieTemplate"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 
-describe('TargetTextWindow', () => {
-    let mockedP5GraphicsContext: MockedP5GraphicsBuffer;
-    let mockedActionTimer: ActionTimer;
+describe("TargetTextWindow", () => {
+    let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let mockedActionTimer: ActionTimer
 
-    let targetWindow: TargetTextWindow;
-    let targetSquaddie: SquaddieTemplate;
-    let targetBattle: BattleSquaddie;
-    let targetResultTakenDamage: ActionResultPerSquaddie;
-    let targetResultHealingReceived: ActionResultPerSquaddie;
+    let targetWindow: TargetTextWindow
+    let targetSquaddie: SquaddieTemplate
+    let targetBattle: BattleSquaddie
+    let targetResultTakenDamage: ActionResultPerSquaddie
+    let targetResultHealingReceived: ActionResultPerSquaddie
 
-    let attackAction: ActionTemplate;
-    let healingAction: ActionTemplate;
+    let attackAction: ActionTemplate
+    let healingAction: ActionTemplate
 
     beforeEach(() => {
         attackAction = ActionTemplateService.new({
@@ -43,10 +52,10 @@ describe('TargetTextWindow', () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGETS_FOE]: true,
-                    })
-                })
-            ]
-        });
+                    }),
+                }),
+            ],
+        })
 
         healingAction = ActionTemplateService.new({
             id: "heal",
@@ -61,9 +70,9 @@ describe('TargetTextWindow', () => {
                         [Trait.TARGETS_SELF]: true,
                         [Trait.TARGETS_ALLIES]: true,
                     }),
-                })
-            ]
-        });
+                }),
+            ],
+        })
 
         targetSquaddie = SquaddieTemplateService.new({
             squaddieId: {
@@ -71,13 +80,13 @@ describe('TargetTextWindow', () => {
                 affiliation: SquaddieAffiliation.UNKNOWN,
                 resources: {
                     actionSpritesByEmotion: {},
-                    mapIconResourceKey: ""
+                    mapIconResourceKey: "",
                 },
                 templateId: "targetTemplateId",
                 traits: TraitStatusStorageService.newUsingTraitValues({}),
             },
             attributes: DefaultArmyAttributes(),
-        });
+        })
 
         targetBattle = BattleSquaddieService.new({
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
@@ -93,60 +102,74 @@ describe('TargetTextWindow', () => {
         }
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockedActionTimer = new ActionTimer();
+        mockedActionTimer = new ActionTimer()
 
-        targetWindow = new TargetTextWindow();
-    });
+        targetWindow = new TargetTextWindow()
+    })
 
-    it('shows the target name', () => {
+    it("shows the target name", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(targetSquaddie.squaddieId.name);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(
+            targetSquaddie.squaddieId.name
+        )
+    })
 
-    it('shows the target armor if the attack deals body damage', () => {
+    it("shows the target armor if the attack deals body damage", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(
+            `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+        )
+    })
 
-    it('does not show the target armor if the action heals', () => {
+    it("does not show the target armor if the action heals", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            actionEffectSquaddieTemplate: healingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: healingAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        expect(targetWindow.targetLabel.textBox.text).not.toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).not.toContain(
+            `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+        )
+    })
 
-    it('shows the damage taken', () => {
+    it("shows the damage taken", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(
+            `${targetResultTakenDamage.damageTaken} damage`
+        )
+    })
 
-    it('shows if critical damage was taken', () => {
+    it("shows if critical damage was taken", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
@@ -154,18 +177,23 @@ describe('TargetTextWindow', () => {
                 ...targetResultTakenDamage,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
             },
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL HIT!`);
-        expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL HIT!`)
+        expect(targetWindow.targetLabel.textBox.text).toContain(
+            `${targetResultTakenDamage.damageTaken} damage`
+        )
+    })
 
-    it('shows a critical miss', () => {
+    it("shows a critical miss", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
@@ -174,55 +202,66 @@ describe('TargetTextWindow', () => {
                 damageTaken: 0,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
             },
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL MISS!!`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(
+            `CRITICAL MISS!!`
+        )
+    })
 
-    it('shows if the actor missed', () => {
+    it("shows if the actor missed", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageTaken: 0,
                 healingReceived: 0,
             },
-        });
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`MISS`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(`MISS`)
+    })
 
-    it('shows if the actor hit but dealt 0 damage', () => {
+    it("shows if the actor hit but dealt 0 damage", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            actionEffectSquaddieTemplate: attackAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageTaken: 0,
                 healingReceived: 0,
             },
-        });
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toContain(`NO DAMAGE`);
-    });
+        expect(targetWindow.targetLabel.textBox.text).toContain(`NO DAMAGE`)
+    })
 
-    it('shows the healing received', () => {
+    it("shows the healing received", () => {
         targetResultHealingReceived = {
             healingReceived: 2,
             damageTaken: 0,
@@ -233,13 +272,18 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            actionEffectSquaddieTemplate: healingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        });
+            actionEffectSquaddieTemplate: healingAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+        })
 
-        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
-        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
-        expect(timerSpy).toBeCalled();
+        const timerSpy = jest
+            .spyOn(mockedActionTimer, "currentPhase", "get")
+            .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer)
+        expect(timerSpy).toBeCalled()
 
-        expect(targetWindow.targetLabel.textBox.text).toBe(`${targetSquaddie.squaddieId.name}\n${targetResultTakenDamage.damageTaken} healed`);
-    });
-});
+        expect(targetWindow.targetLabel.textBox.text).toBe(
+            `${targetSquaddie.squaddieId.name}\n${targetResultTakenDamage.damageTaken} healed`
+        )
+    })
+})

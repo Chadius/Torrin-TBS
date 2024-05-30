@@ -1,27 +1,29 @@
-import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
-import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
+import { OrchestratorComponentMouseEvent } from "../orchestrator/battleOrchestratorComponent"
+import { SquaddieActionAnimator } from "./squaddieActionAnimator"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     hasCompleted(state: GameEngineState): boolean {
-        return true;
+        return true
     }
 
-    mouseEventHappened(state: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void {
-    }
+    mouseEventHappened(
+        state: GameEngineState,
+        mouseEvent: OrchestratorComponentMouseEvent
+    ): void {}
 
     reset(gameEngineState: GameEngineState): void {
         PlayerBattleActionBuilderStateService.setAnimationCompleted({
-            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
-            animationCompleted: true
-        });
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            animationCompleted: true,
+        })
     }
 
-    start(state: GameEngineState): void {
-    }
+    start(state: GameEngineState): void {}
 
-    update(state: GameEngineState, graphics: GraphicsBuffer): void {
-    }
+    update(state: GameEngineState, graphics: GraphicsBuffer): void {}
 }

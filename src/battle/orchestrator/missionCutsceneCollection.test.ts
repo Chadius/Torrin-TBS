@@ -1,13 +1,13 @@
-import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
+import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection,
-    MissionCutsceneCollectionHelper
-} from "./missionCutsceneCollection";
-import {DialogueService} from "../../cutscene/dialogue/dialogue";
+    MissionCutsceneCollectionHelper,
+} from "./missionCutsceneCollection"
+import { DialogueService } from "../../cutscene/dialogue/dialogue"
 
-describe('MissionCutsceneCollection', () => {
-    let dinnerDate: Cutscene;
+describe("MissionCutsceneCollection", () => {
+    let dinnerDate: Cutscene
     beforeEach(() => {
         dinnerDate = CutsceneService.new({
             directions: [
@@ -18,19 +18,27 @@ describe('MissionCutsceneCollection', () => {
                     speakerPortraitResourceKey: undefined,
                     animationDuration: 0,
                 }),
-            ]
-        });
-    });
+            ],
+        })
+    })
 
-    it('creates a default victory cutscene if it does not exist', () => {
-        const cutsceneCollectionWithNoDefaultVictoryCutscene: MissionCutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
-        expect(DEFAULT_VICTORY_CUTSCENE_ID in cutsceneCollectionWithNoDefaultVictoryCutscene.cutsceneById).toBeTruthy();
+    it("creates a default victory cutscene if it does not exist", () => {
+        const cutsceneCollectionWithNoDefaultVictoryCutscene: MissionCutsceneCollection =
+            MissionCutsceneCollectionHelper.new({ cutsceneById: {} })
+        expect(
+            DEFAULT_VICTORY_CUTSCENE_ID in
+                cutsceneCollectionWithNoDefaultVictoryCutscene.cutsceneById
+        ).toBeTruthy()
 
-        const cutsceneCollectionWithVictoryCutscene: MissionCutsceneCollection = MissionCutsceneCollectionHelper.new({
-            cutsceneById: {
-                [DEFAULT_VICTORY_CUTSCENE_ID]: dinnerDate
-            }
-        });
-        expect(DEFAULT_VICTORY_CUTSCENE_ID in cutsceneCollectionWithVictoryCutscene.cutsceneById).toBeTruthy();
-    });
-});
+        const cutsceneCollectionWithVictoryCutscene: MissionCutsceneCollection =
+            MissionCutsceneCollectionHelper.new({
+                cutsceneById: {
+                    [DEFAULT_VICTORY_CUTSCENE_ID]: dinnerDate,
+                },
+            })
+        expect(
+            DEFAULT_VICTORY_CUTSCENE_ID in
+                cutsceneCollectionWithVictoryCutscene.cutsceneById
+        ).toBeTruthy()
+    })
+})

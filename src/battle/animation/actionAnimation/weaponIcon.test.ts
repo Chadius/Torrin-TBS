@@ -1,20 +1,23 @@
-import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
-import {MockedP5GraphicsBuffer} from "../../../utils/test/mocks";
-import {WeaponIcon} from "./weaponIcon";
-import {RectArea, RectAreaService} from "../../../ui/rectArea";
-import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
+import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { WeaponIcon } from "./weaponIcon"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../action/template/actionTemplate"
 import {
     ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../action/template/actionEffectSquaddieTemplate";
+    ActionEffectSquaddieTemplateService,
+} from "../../../action/template/actionEffectSquaddieTemplate"
 
-describe('weapon icon', () => {
-    let hinderingAction: ActionTemplate;
-    let helpingAction: ActionTemplate;
+describe("weapon icon", () => {
+    let hinderingAction: ActionTemplate
+    let helpingAction: ActionTemplate
 
-    let textSpy: jest.SpyInstance;
-    let mockedGraphicsContext: MockedP5GraphicsBuffer;
+    let textSpy: jest.SpyInstance
+    let mockedGraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         hinderingAction = ActionTemplateService.new({
@@ -26,11 +29,11 @@ describe('weapon icon', () => {
                         [DamageType.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        ATTACK: true
+                        ATTACK: true,
                     }),
-                })
+                }),
             ],
-        });
+        })
 
         helpingAction = ActionTemplateService.new({
             id: "helping",
@@ -41,59 +44,65 @@ describe('weapon icon', () => {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        HEALING: true
+                        HEALING: true,
                     }),
-                })
-            ]
-        });
+                }),
+            ],
+        })
 
-        mockedGraphicsContext = new MockedP5GraphicsBuffer();
-        textSpy = jest.spyOn(mockedGraphicsContext.mockedP5, "text").mockReturnValue(undefined);
+        mockedGraphicsContext = new MockedP5GraphicsBuffer()
+        textSpy = jest
+            .spyOn(mockedGraphicsContext.mockedP5, "text")
+            .mockReturnValue(undefined)
     })
 
-    it('shows the phrase Attacking! when using a hindering ability', () => {
-        const icon: WeaponIcon = new WeaponIcon();
+    it("shows the phrase Attacking! when using a hindering ability", () => {
+        const icon: WeaponIcon = new WeaponIcon()
         const area: RectArea = RectAreaService.new({
             left: 0,
             top: 0,
             width: 100,
             height: 20,
-        });
+        })
         icon.draw({
-            actionEffectSquaddieTemplate: hinderingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            actionEffectSquaddieTemplate: hinderingAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
-        });
+        })
 
-        expect(textSpy).toBeCalled();
-        expect(textSpy).toBeCalledWith(expect.stringMatching(`Attacking!`),
+        expect(textSpy).toBeCalled()
+        expect(textSpy).toBeCalledWith(
+            expect.stringMatching(`Attacking!`),
             expect.anything(),
             expect.anything(),
             expect.anything(),
             expect.anything()
-        );
-    });
+        )
+    })
 
-    it('shows the phrase Helping... when using a helping ability', () => {
-        const icon: WeaponIcon = new WeaponIcon();
+    it("shows the phrase Helping... when using a helping ability", () => {
+        const icon: WeaponIcon = new WeaponIcon()
         const area: RectArea = RectAreaService.new({
             left: 0,
             top: 0,
             width: 100,
             height: 20,
-        });
+        })
         icon.draw({
-            actionEffectSquaddieTemplate: helpingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            actionEffectSquaddieTemplate: helpingAction
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
-        });
+        })
 
-        expect(textSpy).toBeCalled();
-        expect(textSpy).toBeCalledWith(expect.stringMatching(`Helping...`),
+        expect(textSpy).toBeCalled()
+        expect(textSpy).toBeCalledWith(
+            expect.stringMatching(`Helping...`),
             expect.anything(),
             expect.anything(),
             expect.anything(),
             expect.anything()
-        );
-    });
-});
+        )
+    })
+})

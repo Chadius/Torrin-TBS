@@ -1,9 +1,9 @@
-import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 export interface MissionMapSquaddieLocation {
-    battleSquaddieId: string;
-    squaddieTemplateId: string;
-    mapLocation: HexCoordinate;
+    battleSquaddieId: string
+    squaddieTemplateId: string
+    mapLocation: HexCoordinate
 }
 
 export const MissionMapSquaddieLocationHandler = {
@@ -12,9 +12,12 @@ export const MissionMapSquaddieLocationHandler = {
             squaddieTemplateId: datum.squaddieTemplateId,
             battleSquaddieId: datum.battleSquaddieId,
             mapLocation: datum.mapLocation,
-        };
+        }
     },
     isValid: (data: MissionMapSquaddieLocation): boolean => {
-        return data.battleSquaddieId !== undefined && data.squaddieTemplateId !== undefined;
-    }
+        return (
+            data.battleSquaddieId !== undefined &&
+            data.squaddieTemplateId !== undefined
+        )
+    },
 }

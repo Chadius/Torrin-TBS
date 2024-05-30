@@ -2,37 +2,47 @@ import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
-    OrchestratorComponentMouseEvent
-} from "../orchestrator/battleOrchestratorComponent";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {BattleStateService} from "../orchestrator/battleState";
-import {isValidValue} from "../../utils/validityCheck";
-import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
-import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+    OrchestratorComponentMouseEvent,
+} from "../orchestrator/battleOrchestratorComponent"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleStateService } from "../orchestrator/battleState"
+import { isValidValue } from "../../utils/validityCheck"
+import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {
-        return true;
+        return true
     }
 
-    keyEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentKeyEvent): void {
-    }
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentKeyEvent
+    ): void {}
 
-    mouseEventHappened(gameEngineState: GameEngineState, event: OrchestratorComponentMouseEvent): void {
-    }
+    mouseEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentMouseEvent
+    ): void {}
 
-    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
-        const actionBuilderState = gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState;
+    recommendStateChanges(
+        gameEngineState: GameEngineState
+    ): BattleOrchestratorChanges | undefined {
+        const actionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState
 
         if (
-            !playerCanControlAtLeastOneSquaddie(gameEngineState)
-            && (
-                PlayerBattleActionBuilderStateService.isActionBuilderStateNotSet(actionBuilderState)
-                || PlayerBattleActionBuilderStateService.isActionComplete(actionBuilderState)
-            )
+            !playerCanControlAtLeastOneSquaddie(gameEngineState) &&
+            (PlayerBattleActionBuilderStateService.isActionBuilderStateNotSet(
+                actionBuilderState
+            ) ||
+                PlayerBattleActionBuilderStateService.isActionComplete(
+                    actionBuilderState
+                ))
         ) {
             return {
                 displayMap: true,
@@ -41,8 +51,12 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         }
 
         if (
-            !PlayerBattleActionBuilderStateService.isActorSet(actionBuilderState)
-            || !PlayerBattleActionBuilderStateService.isActionSet(actionBuilderState)
+            !PlayerBattleActionBuilderStateService.isActorSet(
+                actionBuilderState
+            ) ||
+            !PlayerBattleActionBuilderStateService.isActionSet(
+                actionBuilderState
+            )
         ) {
             return {
                 displayMap: true,
@@ -65,10 +79,15 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         }
 
         if (isValidValue(actionBuilderState.action.actionTemplate)) {
-            if (PlayerBattleActionBuilderStateService.isTargetConfirmed(actionBuilderState)) {
+            if (
+                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    actionBuilderState
+                )
+            ) {
                 return {
                     displayMap: true,
-                    nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
+                    nextMode:
+                        BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
                 }
             }
 
@@ -87,24 +106,37 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     reset(gameEngineState: GameEngineState): void {
         if (
             PlayerBattleActionBuilderStateService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState)
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState
+            )
         ) {
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = undefined;
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                undefined
         }
     }
 
     uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {
-        return undefined;
+        return undefined
     }
 
-    update(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer): void {
-    }
+    update(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ): void {}
 }
 
-const playerCanControlAtLeastOneSquaddie = (gameEngineState: GameEngineState): boolean => {
-    const currentTeam = BattleStateService.getCurrentTeam(gameEngineState.battleOrchestratorState.battleState, gameEngineState.repository);
+const playerCanControlAtLeastOneSquaddie = (
+    gameEngineState: GameEngineState
+): boolean => {
+    const currentTeam = BattleStateService.getCurrentTeam(
+        gameEngineState.battleOrchestratorState.battleState,
+        gameEngineState.repository
+    )
     if (!isValidValue(currentTeam)) {
-        return false;
+        return false
     }
-    return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, gameEngineState.repository);
+    return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
+        currentTeam,
+        gameEngineState.repository
+    )
 }

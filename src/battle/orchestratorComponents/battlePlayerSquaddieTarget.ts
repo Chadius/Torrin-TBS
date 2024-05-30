@@ -1,106 +1,123 @@
-import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
-import {RecordingService} from "../history/recording";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryService} from "../objectRepository";
-import {ATTACK_MODIFIER} from "../modifierConstants";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
+import { RecordingService } from "../history/recording"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { ObjectRepositoryService } from "../objectRepository"
+import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventType
-} from "../orchestrator/battleOrchestratorComponent";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {TargetingResultsService} from "../targeting/targetingService";
-import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {RectArea, RectAreaService} from "../../ui/rectArea";
-import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {OrchestratorUtilities} from "./orchestratorUtils";
-import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
-import {Trait} from "../../trait/traitStatusStorage";
-import {LabelService} from "../../ui/label";
-import {ActionCalculator} from "../actionCalculator/calculator";
-import {BattleEvent, BattleEventService} from "../history/battleEvent";
-import {isValidValue} from "../../utils/validityCheck";
-import {ActionEffectType} from "../../action/template/actionEffectTemplate";
-import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
-import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
-import {ActionResultTextService} from "../animation/actionResultTextService";
-import {ActionTemplate} from "../../action/template/actionTemplate";
-import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
-import {DecidedActionService} from "../../action/decided/decidedAction";
+    OrchestratorComponentMouseEventType,
+} from "../orchestrator/battleOrchestratorComponent"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { UIControlSettings } from "../orchestrator/uiControlSettings"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { TargetingResultsService } from "../targeting/targetingService"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
+import { convertScreenCoordinatesToMapCoordinates } from "../../hexMap/convertCoordinates"
+import { OrchestratorUtilities } from "./orchestratorUtils"
+import { FriendlyAffiliationsByAffiliation } from "../../squaddie/squaddieAffiliation"
+import { Trait } from "../../trait/traitStatusStorage"
+import { LabelService } from "../../ui/label"
+import { ActionCalculator } from "../actionCalculator/calculator"
+import { BattleEvent, BattleEventService } from "../history/battleEvent"
+import { isValidValue } from "../../utils/validityCheck"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../history/actionsThisRound"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionResultTextService } from "../animation/actionResultTextService"
+import { ActionTemplate } from "../../action/template/actionTemplate"
+import {
+    ProcessedAction,
+    ProcessedActionService,
+} from "../../action/processed/processedAction"
+import { DecidedActionService } from "../../action/decided/decidedAction"
 import {
     DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService
-} from "../../action/decided/decidedActionSquaddieEffect";
-import {SquaddieTurnService} from "../../squaddie/turn";
-import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {MouseButton} from "../../utils/mouseConfig";
-import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
-import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+    DecidedActionSquaddieEffectService,
+} from "../../action/decided/decidedActionSquaddieEffect"
+import { SquaddieTurnService } from "../../squaddie/turn"
+import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import { MouseButton } from "../../utils/mouseConfig"
+import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
-const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
-const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
-const MESSAGE_TEXT_SIZE = 24;
+const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
+const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
+const MESSAGE_TEXT_SIZE = 24
 
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
-    hasSelectedValidTarget: boolean;
-    private cancelAbility: boolean;
-    private hasConfirmedAction: boolean;
-    private validTargetLocation?: HexCoordinate;
-    private highlightedTargetRange: HexCoordinate[];
+    hasSelectedValidTarget: boolean
+    private cancelAbility: boolean
+    private hasConfirmedAction: boolean
+    private validTargetLocation?: HexCoordinate
+    private highlightedTargetRange: HexCoordinate[]
 
     constructor() {
-        this.resetObject();
+        this.resetObject()
     }
 
     private get hasHighlightedTargetRange(): boolean {
-        return this.highlightedTargetRange.length > 0;
+        return this.highlightedTargetRange.length > 0
     }
 
     hasCompleted(state: GameEngineState): boolean {
-        const userWantsADifferentAbility: boolean = this.cancelAbility === true;
-        const userConfirmedTarget: boolean = this.hasConfirmedAction === true;
-        return userWantsADifferentAbility || userConfirmedTarget;
+        const userWantsADifferentAbility: boolean = this.cancelAbility === true
+        const userConfirmedTarget: boolean = this.hasConfirmedAction === true
+        return userWantsADifferentAbility || userConfirmedTarget
     }
 
-    mouseEventHappened(gameEngineState: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void {
-        if (mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED) {
-            return;
+    mouseEventHappened(
+        gameEngineState: GameEngineState,
+        mouseEvent: OrchestratorComponentMouseEvent
+    ): void {
+        if (
+            mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED
+        ) {
+            return
         }
 
         if (!this.hasSelectedValidTarget) {
-            this.waitingForValidTarget({gameEngineState, mouseEvent});
-            return;
+            this.waitingForValidTarget({ gameEngineState, mouseEvent })
+            return
         }
 
         if (!this.hasConfirmedAction) {
-            this.waitingForConfirmation({gameEngineState, mouseEvent});
-            return;
+            this.waitingForConfirmation({ gameEngineState, mouseEvent })
+            return
         }
     }
 
-    keyEventHappened(gameEngineState: GameEngineState, keyboardEvent: OrchestratorComponentKeyEvent): void {
-        if (keyboardEvent.eventType !== OrchestratorComponentKeyEventType.PRESSED) {
-            return;
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        keyboardEvent: OrchestratorComponentKeyEvent
+    ): void {
+        if (
+            keyboardEvent.eventType !==
+            OrchestratorComponentKeyEventType.PRESSED
+        ) {
+            return
         }
 
         if (!this.hasSelectedValidTarget) {
-            this.waitingForValidTarget({gameEngineState, keyboardEvent});
-            return;
+            this.waitingForValidTarget({ gameEngineState, keyboardEvent })
+            return
         }
 
         if (!this.hasConfirmedAction) {
-            this.waitingForConfirmation({gameEngineState, keyboardEvent});
-            return;
+            this.waitingForConfirmation({ gameEngineState, keyboardEvent })
+            return
         }
     }
 
@@ -109,102 +126,138 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             scrollCamera: !this.shouldDrawConfirmWindow(),
             displayMap: true,
             pauseTimer: false,
-        });
+        })
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
         if (!this.hasHighlightedTargetRange) {
-            return this.highlightTargetRange(state);
+            return this.highlightTargetRange(state)
         }
 
         if (!this.hasSelectedValidTarget) {
-            this.drawCancelAbilityButton(state.battleOrchestratorState, graphicsContext);
+            this.drawCancelAbilityButton(
+                state.battleOrchestratorState,
+                graphicsContext
+            )
         }
 
         if (this.hasSelectedValidTarget && !this.hasConfirmedAction) {
-            this.drawConfirmWindow(state, graphicsContext);
+            this.drawConfirmWindow(state, graphicsContext)
         }
-        return;
+        return
     }
 
-    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(state);
-        if (
-            this.cancelAbility
-            || this.hasConfirmedAction
-        ) {
+    recommendStateChanges(
+        state: GameEngineState
+    ): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(
+            state
+        )
+        if (this.cancelAbility || this.hasConfirmedAction) {
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
             }
         }
 
-        return undefined;
+        return undefined
     }
 
     reset(state: GameEngineState) {
-        this.resetObject();
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        this.resetObject()
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
     }
 
     shouldDrawConfirmWindow(): boolean {
-        return this.hasSelectedValidTarget === true;
+        return this.hasSelectedValidTarget === true
     }
 
-    private waitingForConfirmation({gameEngineState, mouseEvent, keyboardEvent}: {
-        gameEngineState: GameEngineState,
-        mouseEvent?: OrchestratorComponentMouseEvent,
-        keyboardEvent?: OrchestratorComponentKeyEvent,
-    }) {
-        if (this.didUserCancelActionConfirmation({gameEngineState, mouseEvent, keyboardEvent})) {
-            this.hasSelectedValidTarget = false;
-            return;
-        }
-
-        if (!this.didUserConfirmActionConfirmation({gameEngineState, mouseEvent, keyboardEvent})) {
-            return;
-        }
-
-        this.confirmTargetSelection(gameEngineState);
-    }
-
-    private didUserConfirmActionConfirmation({gameEngineState, mouseEvent, keyboardEvent}: {
-        gameEngineState: GameEngineState,
-        mouseEvent?: OrchestratorComponentMouseEvent,
-        keyboardEvent?: OrchestratorComponentKeyEvent,
+    private waitingForConfirmation({
+        gameEngineState,
+        mouseEvent,
+        keyboardEvent,
+    }: {
+        gameEngineState: GameEngineState
+        mouseEvent?: OrchestratorComponentMouseEvent
+        keyboardEvent?: OrchestratorComponentKeyEvent
     }) {
         if (
-            isValidValue(mouseEvent)
-            && mouseEvent.mouseButton !== MouseButton.ACCEPT
+            this.didUserCancelActionConfirmation({
+                gameEngineState,
+                mouseEvent,
+                keyboardEvent,
+            })
         ) {
-            return false;
+            this.hasSelectedValidTarget = false
+            return
         }
+
         if (
-            isValidValue(keyboardEvent)
-            && KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) !== true
+            !this.didUserConfirmActionConfirmation({
+                gameEngineState,
+                mouseEvent,
+                keyboardEvent,
+            })
         ) {
-            return false;
+            return
         }
-        return true;
+
+        this.confirmTargetSelection(gameEngineState)
     }
 
-    private waitingForValidTarget = ({gameEngineState, mouseEvent, keyboardEvent}: {
-        gameEngineState: GameEngineState,
-        mouseEvent?: OrchestratorComponentMouseEvent,
-        keyboardEvent?: OrchestratorComponentKeyEvent,
+    private didUserConfirmActionConfirmation({
+        gameEngineState,
+        mouseEvent,
+        keyboardEvent,
+    }: {
+        gameEngineState: GameEngineState
+        mouseEvent?: OrchestratorComponentMouseEvent
+        keyboardEvent?: OrchestratorComponentKeyEvent
+    }) {
+        if (
+            isValidValue(mouseEvent) &&
+            mouseEvent.mouseButton !== MouseButton.ACCEPT
+        ) {
+            return false
+        }
+        if (
+            isValidValue(keyboardEvent) &&
+            KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) !== true
+        ) {
+            return false
+        }
+        return true
+    }
+
+    private waitingForValidTarget = ({
+        gameEngineState,
+        mouseEvent,
+        keyboardEvent,
+    }: {
+        gameEngineState: GameEngineState
+        mouseEvent?: OrchestratorComponentMouseEvent
+        keyboardEvent?: OrchestratorComponentKeyEvent
     }) => {
-        if (this.didUserCancelTargetLocation({gameEngineState, mouseEvent, keyboardEvent})) {
-            this.cancelTargetSelection(gameEngineState);
-            return;
+        if (
+            this.didUserCancelTargetLocation({
+                gameEngineState,
+                mouseEvent,
+                keyboardEvent,
+            })
+        ) {
+            this.cancelTargetSelection(gameEngineState)
+            return
         }
 
         if (!isValidValue(mouseEvent)) {
-            return;
+            return
         }
 
-        const mouseClickedAccept: boolean = isValidValue(mouseEvent) && mouseEvent.mouseButton === MouseButton.ACCEPT;
+        const mouseClickedAccept: boolean =
+            isValidValue(mouseEvent) &&
+            mouseEvent.mouseButton === MouseButton.ACCEPT
         if (!mouseClickedAccept) {
-            return;
+            return
         }
 
         this.tryToSelectValidTarget({
@@ -212,82 +265,116 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             mouseY: mouseEvent.mouseY,
             gameEngineState,
             mouseButton: mouseEvent.mouseButton,
-        });
-    };
-
-    private didUserCancelActionConfirmation = ({gameEngineState, mouseEvent, keyboardEvent}: {
-        gameEngineState: GameEngineState,
-        mouseEvent?: OrchestratorComponentMouseEvent,
-        keyboardEvent?: OrchestratorComponentKeyEvent,
-    }): boolean => {
-        if (isValidValue(mouseEvent)) {
-            return mouseEvent.mouseButton === MouseButton.CANCEL
-                || mouseEvent.mouseY > BUTTON_TOP;
-        }
-        if (isValidValue(keyboardEvent)) {
-            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode);
-        }
-        return false;
+        })
     }
 
-    private didUserCancelTargetLocation = ({gameEngineState, mouseEvent, keyboardEvent}: {
-        gameEngineState: GameEngineState,
-        mouseEvent?: OrchestratorComponentMouseEvent,
-        keyboardEvent?: OrchestratorComponentKeyEvent,
+    private didUserCancelActionConfirmation = ({
+        gameEngineState,
+        mouseEvent,
+        keyboardEvent,
+    }: {
+        gameEngineState: GameEngineState
+        mouseEvent?: OrchestratorComponentMouseEvent
+        keyboardEvent?: OrchestratorComponentKeyEvent
     }): boolean => {
         if (isValidValue(mouseEvent)) {
-            return mouseEvent.mouseButton === MouseButton.CANCEL
-                || mouseEvent.mouseY > BUTTON_TOP;
+            return (
+                mouseEvent.mouseButton === MouseButton.CANCEL ||
+                mouseEvent.mouseY > BUTTON_TOP
+            )
         }
         if (isValidValue(keyboardEvent)) {
-            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode);
+            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
         }
-        return false;
+        return false
     }
 
-    private cancelTargetSelection = (gameEngineState: GameEngineState): void => {
-        this.cancelAbility = true;
+    private didUserCancelTargetLocation = ({
+        gameEngineState,
+        mouseEvent,
+        keyboardEvent,
+    }: {
+        gameEngineState: GameEngineState
+        mouseEvent?: OrchestratorComponentMouseEvent
+        keyboardEvent?: OrchestratorComponentKeyEvent
+    }): boolean => {
+        if (isValidValue(mouseEvent)) {
+            return (
+                mouseEvent.mouseButton === MouseButton.CANCEL ||
+                mouseEvent.mouseY > BUTTON_TOP
+            )
+        }
+        if (isValidValue(keyboardEvent)) {
+            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
+        }
+        return false
+    }
 
-        const battleSquaddieToHighlightId: string = gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+    private cancelTargetSelection = (
+        gameEngineState: GameEngineState
+    ): void => {
+        this.cancelAbility = true
 
-        OrchestratorUtilities.highlightSquaddieRange(gameEngineState, battleSquaddieToHighlightId);
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+        const battleSquaddieToHighlightId: string =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId
 
-        PlayerBattleActionBuilderStateService.removeAction({actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState})
+        OrchestratorUtilities.highlightSquaddieRange(
+            gameEngineState,
+            battleSquaddieToHighlightId
+        )
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
+            undefined
 
-        if (gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound = undefined;
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState = undefined;
+        PlayerBattleActionBuilderStateService.removeAction({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+        })
+
+        if (
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .processedActions.length === 0
+        ) {
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                undefined
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                undefined
         }
     }
 
     private resetObject() {
-        this.hasConfirmedAction = false;
-        this.highlightedTargetRange = [];
-        this.cancelAbility = false;
-        this.hasSelectedValidTarget = false;
-        this.validTargetLocation = undefined;
+        this.hasConfirmedAction = false
+        this.highlightedTargetRange = []
+        this.cancelAbility = false
+        this.hasSelectedValidTarget = false
+        this.validTargetLocation = undefined
     }
 
     private highlightTargetRange(state: GameEngineState) {
-        const {
-            squaddieTemplate,
-            battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
-            state.repository,
-            state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
-        ));
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                state.repository,
+                state.battleOrchestratorState.battleState.actionsThisRound
+                    .battleSquaddieId
+            )
+        )
 
-        const previewedActionTemplateId = state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId;
-        const previewedActionTemplate = squaddieTemplate.actionTemplates.find(template => template.id === previewedActionTemplateId);
+        const previewedActionTemplateId =
+            state.battleOrchestratorState.battleState.actionsThisRound
+                .previewedActionTemplateId
+        const previewedActionTemplate = squaddieTemplate.actionTemplates.find(
+            (template) => template.id === previewedActionTemplateId
+        )
 
         if (!isValidValue(previewedActionTemplate)) {
-            return;
+            return
         }
 
-        const actionEffectSquaddieTemplate = previewedActionTemplate.actionEffectTemplates[0];
+        const actionEffectSquaddieTemplate =
+            previewedActionTemplate.actionEffectTemplates[0]
         if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
-            return;
+            return
         }
 
         const targetingResults = TargetingResultsService.findValidTargets({
@@ -297,22 +384,27 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             actingBattleSquaddie: battleSquaddie,
             squaddieRepository: state.repository,
         })
-        const actionRange: HexCoordinate[] = targetingResults.locationsInRange;
+        const actionRange: HexCoordinate[] = targetingResults.locationsInRange
 
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles([
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+            [
                 {
                     tiles: actionRange,
                     pulseColor: HighlightPulseRedColor,
-                    overlayImageResourceName: "map icon attack 1 action"
-                }
+                    overlayImageResourceName: "map icon attack 1 action",
+                },
             ]
-        );
-        this.highlightedTargetRange = [...actionRange];
+        )
+        this.highlightedTargetRange = [...actionRange]
     }
 
-    private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsBuffer) {
-        const cancelAbilityButtonText = "CONFIRM: Click on the target.     CANCEL: Click here.";
+    private drawCancelAbilityButton(
+        state: BattleOrchestratorState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        const cancelAbilityButtonText =
+            "CONFIRM: Click on the target.     CANCEL: Click here."
         this.drawButton(
             RectAreaService.new({
                 left: 0,
@@ -321,33 +413,39 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             cancelAbilityButtonText,
-            graphicsContext,
-        );
+            graphicsContext
+        )
     }
 
     private tryToSelectValidTarget({
-                                       mouseX, mouseY, mouseButton, gameEngineState,
-                                   }:
-                                       {
-                                           mouseX: number,
-                                           mouseY: number,
-                                           mouseButton: MouseButton,
-                                           gameEngineState: GameEngineState
-                                       }) {
-        const coordinates = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+        mouseX,
+        mouseY,
+        mouseButton,
+        gameEngineState,
+    }: {
+        mouseX: number
+        mouseY: number
+        mouseButton: MouseButton
+        gameEngineState: GameEngineState
+    }) {
+        const coordinates = convertScreenCoordinatesToMapCoordinates(
+            mouseX,
+            mouseY,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        )
 
         const clickedLocation: HexCoordinate = {
             q: coordinates[0],
             r: coordinates[1],
-        };
+        }
 
-        if (!
-            this.highlightedTargetRange.some(
-                tile =>
+        if (
+            !this.highlightedTargetRange.some(
+                (tile) =>
                     tile.q === clickedLocation.q && tile.r === clickedLocation.r
             )
         ) {
-            return;
+            return
         }
 
         const {
@@ -359,57 +457,85 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
             map: gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieRepository: gameEngineState.repository,
-        });
+        })
 
         if (targetSquaddieTemplate === undefined) {
-            return;
+            return
         }
 
-        const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
+        const {
+            squaddieTemplate: actingSquaddieTemplate,
+            battleSquaddie: actingBattleSquaddie,
+        } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.battleSquaddieId
             )
-        );
+        )
 
-        const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
+        const actorAndTargetAreFriends: boolean =
+            FriendlyAffiliationsByAffiliation[
+                actingSquaddieTemplate.squaddieId.affiliation
+            ][targetSquaddieTemplate.squaddieId.affiliation]
 
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
+            (template) =>
+                template.id ===
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.previewedActionTemplateId
+        )
 
         if (!isValidValue(actionTemplate)) {
-            return;
+            return
         }
 
         const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
         if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-            return;
+            return
         }
 
-        if (actorAndTargetAreFriends && actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
-            return;
+        if (
+            actorAndTargetAreFriends &&
+            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !==
+                true
+        ) {
+            return
         }
-        if (!actorAndTargetAreFriends && actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] === true) {
-            return;
+        if (
+            !actorAndTargetAreFriends &&
+            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] ===
+                true
+        ) {
+            return
         }
 
-        const cameraCoordinates = gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates();
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked({
-            mouseX,
-            mouseY,
-            mouseButton,
-            cameraX: cameraCoordinates[0],
-            cameraY: cameraCoordinates[1],
-        });
-        this.hasSelectedValidTarget = true;
-        this.validTargetLocation = clickedLocation;
+        const cameraCoordinates =
+            gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
+            {
+                mouseX,
+                mouseY,
+                mouseButton,
+                cameraX: cameraCoordinates[0],
+                cameraY: cameraCoordinates[1],
+            }
+        )
+        this.hasSelectedValidTarget = true
+        this.validTargetLocation = clickedLocation
 
         PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
             targetLocation: clickedLocation,
         })
     }
 
-    private drawConfirmWindow(state: GameEngineState, graphicsContext: GraphicsBuffer) {
+    private drawConfirmWindow(
+        state: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
         this.drawButton(
             RectAreaService.new({
                 left: 0,
@@ -418,55 +544,60 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             "CANCEL: Click here.",
-            graphicsContext,
-        );
-
-        let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
-        let {multipleAttackPenalty} = ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
-            state.battleOrchestratorState.battleState.actionsThisRound
+            graphicsContext
         )
+
+        let actingSquaddieModifiers: {
+            [modifier in ATTACK_MODIFIER]?: number
+        } = {}
+        let { multipleAttackPenalty } =
+            ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
+                state.battleOrchestratorState.battleState.actionsThisRound
+            )
         if (multipleAttackPenalty !== 0) {
-            actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
+            actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
+                multipleAttackPenalty
         }
 
-        const {
-            found,
-            actionTemplate,
-            actionEffectSquaddieTemplate
-        } = getActionEffectSquaddieTemplate({gameEngineState: state});
+        const { found, actionTemplate, actionEffectSquaddieTemplate } =
+            getActionEffectSquaddieTemplate({ gameEngineState: state })
         if (!found) {
-            return;
+            return
         }
 
         const intentMessages = ActionResultTextService.outputIntentForTextOnly({
             currentActionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
             actionTemplate,
-            actingBattleSquaddieId: state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+            actingBattleSquaddieId:
+                state.battleOrchestratorState.battleState.actionsThisRound
+                    .battleSquaddieId,
             squaddieRepository: state.repository,
             actingSquaddieModifiers,
-        });
+        })
 
-        intentMessages.push(...[
-            "",
-            "CONFIRM: Left Mouse Button",
-            "CANCEL: Right Mouse Button",
-        ]);
+        intentMessages.push(
+            ...["", "CONFIRM: Left Mouse Button", "CANCEL: Right Mouse Button"]
+        )
 
-        const messageToShow = intentMessages.join("\n");
+        const messageToShow = intentMessages.join("\n")
 
         this.drawButton(
             RectAreaService.new({
                 left: ScreenDimensions.SCREEN_WIDTH / 12,
                 top: ScreenDimensions.SCREEN_HEIGHT / 2,
                 width: BUTTON_MIDDLE_DIVIDER,
-                height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2)
+                height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2),
             }),
             messageToShow,
-            graphicsContext,
-        );
+            graphicsContext
+        )
     }
 
-    private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsBuffer) {
+    private drawButton(
+        area: RectArea,
+        buttonText: string,
+        graphicsContext: GraphicsBuffer
+    ) {
         const buttonBackground = LabelService.new({
             area,
             fillColor: [0, 0, 60],
@@ -479,80 +610,114 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             vertAlign: VERTICAL_ALIGN.CENTER,
             fontColor: [0, 0, 16],
             textBoxMargin: [0, 0, 0, 0],
-        });
+        })
 
-        LabelService.draw(buttonBackground, graphicsContext);
+        LabelService.draw(buttonBackground, graphicsContext)
     }
 
     private confirmTargetSelection(gameEngineState: GameEngineState) {
-        let actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
-        const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
+        let actionsThisRound =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        const {
+            squaddieTemplate: actingSquaddieTemplate,
+            battleSquaddie: actingBattleSquaddie,
+        } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 actionsThisRound.battleSquaddieId
             )
-        );
+        )
 
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === actionsThisRound.previewedActionTemplateId);
-        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0];
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
+            (template) =>
+                template.id === actionsThisRound.previewedActionTemplateId
+        )
+        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0]
         if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-            return;
+            return
         }
 
-        SquaddieTurnService.spendActionPoints(actingBattleSquaddie.squaddieTurn, actionTemplate.actionPoints);
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+        SquaddieTurnService.spendActionPoints(
+            actingBattleSquaddie.squaddieTurn,
+            actionTemplate.actionPoints
+        )
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
+            undefined
 
-        const decidedAction = createDecidedAction(actionsThisRound, actionTemplate, firstActionEffectTemplate, this.validTargetLocation);
+        const decidedAction = createDecidedAction(
+            actionsThisRound,
+            actionTemplate,
+            firstActionEffectTemplate,
+            this.validTargetLocation
+        )
         const processedAction = ProcessedActionService.new({
-            decidedAction
-        });
-        actionsThisRound.processedActions.push(processedAction);
+            decidedAction,
+        })
+        actionsThisRound.processedActions.push(processedAction)
 
-        let results: SquaddieSquaddieResults = ActionCalculator.calculateResults({
-            state: gameEngineState,
-            actingBattleSquaddie,
-            validTargetLocation: this.validTargetLocation,
-            actionsThisRound: gameEngineState.battleOrchestratorState.battleState.actionsThisRound,
-            actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
-        });
+        let results: SquaddieSquaddieResults =
+            ActionCalculator.calculateResults({
+                state: gameEngineState,
+                actingBattleSquaddie,
+                validTargetLocation: this.validTargetLocation,
+                actionsThisRound:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound,
+                actionEffect:
+                    ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound
+                    ).decidedActionEffect,
+            })
         processedAction.processedActionEffects.push(
             ProcessedActionSquaddieEffectService.new({
-                decidedActionEffect: decidedAction.actionEffects.find(actionEffect => actionEffect.type === ActionEffectType.SQUADDIE) as DecidedActionSquaddieEffect,
+                decidedActionEffect: decidedAction.actionEffects.find(
+                    (actionEffect) =>
+                        actionEffect.type === ActionEffectType.SQUADDIE
+                ) as DecidedActionSquaddieEffect,
                 results,
             })
         )
-        addEventToRecording(processedAction, results, gameEngineState);
+        addEventToRecording(processedAction, results, gameEngineState)
 
         PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget({
-            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
         })
 
-        this.hasConfirmedAction = true;
+        this.hasConfirmedAction = true
     }
 }
 
 const getActionEffectSquaddieTemplate = ({
-                                             gameEngineState
-                                         }: {
+    gameEngineState,
+}: {
     gameEngineState: GameEngineState
 }): {
-    found: boolean,
-    actionTemplate: ActionTemplate,
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+    found: boolean
+    actionTemplate: ActionTemplate
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
 } => {
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(
+    const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId
         )
-    );
-    const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
+    )
+    const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
+        (template) =>
+            template.id ===
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .previewedActionTemplateId
+    )
     if (!isValidValue(actionTemplate)) {
         return {
             found: false,
             actionTemplate,
             actionEffectSquaddieTemplate: undefined,
-        };
+        }
     }
 
     const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
@@ -561,17 +726,22 @@ const getActionEffectSquaddieTemplate = ({
             found: false,
             actionTemplate,
             actionEffectSquaddieTemplate: undefined,
-        };
+        }
     }
 
     return {
         found: true,
         actionTemplate,
-        actionEffectSquaddieTemplate: actionEffectTemplate
+        actionEffectSquaddieTemplate: actionEffectTemplate,
     }
 }
 
-const createDecidedAction = (actionsThisRound: ActionsThisRound, actionTemplate: ActionTemplate, firstActionEffectTemplate: ActionEffectSquaddieTemplate, targetLocation: HexCoordinate) => {
+const createDecidedAction = (
+    actionsThisRound: ActionsThisRound,
+    actionTemplate: ActionTemplate,
+    firstActionEffectTemplate: ActionEffectSquaddieTemplate,
+    targetLocation: HexCoordinate
+) => {
     return DecidedActionService.new({
         battleSquaddieId: actionsThisRound.battleSquaddieId,
         actionTemplateName: actionTemplate.name,
@@ -581,15 +751,22 @@ const createDecidedAction = (actionsThisRound: ActionsThisRound, actionTemplate:
             DecidedActionSquaddieEffectService.new({
                 template: firstActionEffectTemplate,
                 target: targetLocation,
-            })
-        ]
-    });
-};
+            }),
+        ],
+    })
+}
 
-const addEventToRecording = (processedAction: ProcessedAction, results: SquaddieSquaddieResults, state: GameEngineState) => {
+const addEventToRecording = (
+    processedAction: ProcessedAction,
+    results: SquaddieSquaddieResults,
+    state: GameEngineState
+) => {
     const newEvent: BattleEvent = BattleEventService.new({
         processedAction,
         results,
-    });
-    RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, newEvent);
-};
+    })
+    RecordingService.addEvent(
+        state.battleOrchestratorState.battleState.recording,
+        newEvent
+    )
+}

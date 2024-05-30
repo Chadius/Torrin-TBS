@@ -1,7 +1,7 @@
-import {GraphicsConfig, ScreenDimensions} from "./graphicsConfig";
+import { GraphicsConfig, ScreenDimensions } from "./graphicsConfig"
 
-describe('graphics config', () => {
-    describe('isCoordinateOnScreen', () => {
+describe("graphics config", () => {
+    describe("isCoordinateOnScreen", () => {
         const coordinateTests = [
             {
                 expected: true,
@@ -45,15 +45,16 @@ describe('graphics config', () => {
             },
         ]
 
-        it.each(coordinateTests)(`isCoordinateOnScreen test is $expected coordinates ($x, $y) `, ({
-                                                                                                      expected,
-                                                                                                      x,
-                                                                                                      y,
-                                                                                                  }) => {
-            expect(GraphicsConfig.isCoordinateOnScreen(x, y)).toEqual(expected);
-        });
-    });
-    describe('isCoordinateWithinMiddleThirdOfScreen', () => {
+        it.each(coordinateTests)(
+            `isCoordinateOnScreen test is $expected coordinates ($x, $y) `,
+            ({ expected, x, y }) => {
+                expect(GraphicsConfig.isCoordinateOnScreen(x, y)).toEqual(
+                    expected
+                )
+            }
+        )
+    })
+    describe("isCoordinateWithinMiddleThirdOfScreen", () => {
         const coordinateTests = [
             {
                 expected: true,
@@ -102,12 +103,13 @@ describe('graphics config', () => {
             },
         ]
 
-        it.each(coordinateTests)(`isCoordinateWithinMiddleThirdOfScreen test is $expected coordinates ($x, $y) `, ({
-                                                                                                                       expected,
-                                                                                                                       x,
-                                                                                                                       y,
-                                                                                                                   }) => {
-            expect(GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(x, y)).toEqual(expected);
-        });
-    });
-});
+        it.each(coordinateTests)(
+            `isCoordinateWithinMiddleThirdOfScreen test is $expected coordinates ($x, $y) `,
+            ({ expected, x, y }) => {
+                expect(
+                    GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(x, y)
+                ).toEqual(expected)
+            }
+        )
+    })
+})

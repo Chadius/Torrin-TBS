@@ -1,36 +1,40 @@
 {
-  "name": "2022-10-14-torrin-demo",
-  "version": "1.0.0",
-  "description": "",
-  "private": "true",
-  "source": "src/index.html",
-  "scripts": {
-    "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
-    "serve": "webpack serve --open",
-    "test": "ENV=development jest",
-    "tsc": "./node_modules/.bin/tsc --allowSyntheticDefaultImports -t es6 src/*.ts",
-    "build": "webpack --mode production",
-    "dev": "webpack --mode development",
-    "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
-    "devserve": "npm run copy-assets && npm run dev && npm run serve",
-    "copy-assets": "mkdir -p dist/assets && rsync --recursive assets/toDist/* dist/assets"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "p5": "^1.4.2"
-  },
-  "devDependencies": {
-    "@types/jest": "^29.2.2",
-    "@types/p5": "^1.4.3",
-    "html-webpack-plugin": "^5.5.3",
-    "jest": "^29.2.2",
-    "ts-jest": "^29.0.3",
-    "ts-loader": "^9.4.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.5",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1"
-  }
+    "name": "2022-10-14-torrin-demo",
+    "version": "1.0.0",
+    "description": "",
+    "private": "true",
+    "source": "src/index.html",
+    "scripts": {
+        "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
+        "serve": "webpack serve --open",
+        "test": "ENV=development jest",
+        "tsc": "./node_modules/.bin/tsc --allowSyntheticDefaultImports -t es6 src/*.ts",
+        "build": "webpack --mode production",
+        "dev": "webpack --mode development",
+        "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
+        "devserve": "npm run copy-assets && npm run dev && npm run serve",
+        "copy-assets": "mkdir -p dist/assets && rsync --recursive assets/toDist/* dist/assets",
+        "format-check": "prettier --config .prettierrc.yaml --check .",
+        "format-fix": "prettier --config .prettierrc.yaml --write ."
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "p5": "^1.4.2"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.2.2",
+        "@types/p5": "^1.4.3",
+        "html-webpack-plugin": "^5.5.3",
+        "jest": "^29.2.2",
+        "prettier": "3.2.5",
+        "prettier-ts": "1.17.1-2",
+        "ts-jest": "^29.0.3",
+        "ts-loader": "^9.4.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5",
+        "webpack": "^5.74.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-dev-server": "^4.11.1"
+    }
 }

@@ -1,8 +1,9 @@
-import {MissionMap} from "../../missionMap/missionMap";
-import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import { MissionMap } from "../../missionMap/missionMap"
+import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 
-export const NullMissionMap = () => new MissionMap({
-    terrainTileMap: new TerrainTileMap({
-        movementCost: ["1 "]
+export const NullMissionMap = () =>
+    new MissionMap({
+        terrainTileMap: new TerrainTileMap({
+            movementCost: ["1 "],
+        }),
     })
-})

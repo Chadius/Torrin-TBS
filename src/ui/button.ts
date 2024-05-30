@@ -1,21 +1,31 @@
-import {Label, LabelService} from "./label";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
-import {RectAreaService} from "./rectArea";
+import { Label, LabelService } from "./label"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { RectAreaService } from "./rectArea"
 
 type RequiredOptions = {
-    readyLabel: Label;
+    readyLabel: Label
 }
 
 type Options = {
-    activeLabel: Label;
-    disabledLabel: Label;
-    hoverLabel: Label;
-    onClickHandler: (mouseX: number, mouseY: number, button: Button, caller: any) => {}
-    onMoveHandler: (mouseX: number, mouseY: number, button: Button, caller: any) => {}
-    initialStatus: ButtonStatus;
+    activeLabel: Label
+    disabledLabel: Label
+    hoverLabel: Label
+    onClickHandler: (
+        mouseX: number,
+        mouseY: number,
+        button: Button,
+        caller: any
+    ) => {}
+    onMoveHandler: (
+        mouseX: number,
+        mouseY: number,
+        button: Button,
+        caller: any
+    ) => {}
+    initialStatus: ButtonStatus
 }
 
-export type ButtonArguments = RequiredOptions & Partial<Options>;
+export type ButtonArguments = RequiredOptions & Partial<Options>
 
 export enum ButtonStatus {
     READY = "READY",
@@ -25,76 +35,84 @@ export enum ButtonStatus {
 }
 
 export class Button {
-    readyLabel: Label;
-    activeLabel: Label;
-    disabledLabel: Label;
-    hoverLabel: Label;
-    onClickHandler: (mouseX: number, mouseY: number, button: Button, caller: any) => {}
-    onMoveHandler: (mouseX: number, mouseY: number, button: Button, caller: any) => {}
-    buttonStatus: ButtonStatus;
+    readyLabel: Label
+    activeLabel: Label
+    disabledLabel: Label
+    hoverLabel: Label
+    onClickHandler: (
+        mouseX: number,
+        mouseY: number,
+        button: Button,
+        caller: any
+    ) => {}
+    onMoveHandler: (
+        mouseX: number,
+        mouseY: number,
+        button: Button,
+        caller: any
+    ) => {}
+    buttonStatus: ButtonStatus
 
     constructor(options: ButtonArguments) {
-        this.readyLabel = options.readyLabel;
-        this.activeLabel = options.activeLabel;
-        this.disabledLabel = options.disabledLabel;
-        this.hoverLabel = options.hoverLabel;
-        this.onClickHandler = options.onClickHandler;
-        this.onMoveHandler = options.onMoveHandler;
+        this.readyLabel = options.readyLabel
+        this.activeLabel = options.activeLabel
+        this.disabledLabel = options.disabledLabel
+        this.hoverLabel = options.hoverLabel
+        this.onClickHandler = options.onClickHandler
+        this.onMoveHandler = options.onMoveHandler
 
-        this.buttonStatus = options.initialStatus || ButtonStatus.READY;
+        this.buttonStatus = options.initialStatus || ButtonStatus.READY
     }
 
     mouseClicked(mouseX: number, mouseY: number, caller: any): boolean {
         if (
-            (
-                this.getStatus() === ButtonStatus.READY
-                || this.getStatus() === ButtonStatus.ACTIVE
-                || this.getStatus() === ButtonStatus.HOVER
-            ) &&
+            (this.getStatus() === ButtonStatus.READY ||
+                this.getStatus() === ButtonStatus.ACTIVE ||
+                this.getStatus() === ButtonStatus.HOVER) &&
             this.isMouseOnButton(mouseX, mouseY)
         ) {
-            this.onClickHandler(mouseX, mouseY, this, caller);
-            return true;
+            this.onClickHandler(mouseX, mouseY, this, caller)
+            return true
         }
-        return false;
+        return false
     }
 
     mouseMoved(mouseX: number, mouseY: number, caller: any): boolean {
         if (!this.hoverLabel) {
-            return false;
+            return false
         }
 
         if (
-            this.getStatus() === ButtonStatus.READY
-            && this.isMouseOnButton(mouseX, mouseY)
+            this.getStatus() === ButtonStatus.READY &&
+            this.isMouseOnButton(mouseX, mouseY)
         ) {
-            this.setStatus(ButtonStatus.HOVER);
+            this.setStatus(ButtonStatus.HOVER)
             if (this.onMoveHandler) {
-                this.onMoveHandler(mouseX, mouseY, this, caller);
+                this.onMoveHandler(mouseX, mouseY, this, caller)
             }
-            return true;
+            return true
         }
 
         if (
-            this.getStatus() === ButtonStatus.HOVER
-            && !this.isMouseOnButton(mouseX, mouseY)
+            this.getStatus() === ButtonStatus.HOVER &&
+            !this.isMouseOnButton(mouseX, mouseY)
         ) {
-            this.setStatus(ButtonStatus.READY);
+            this.setStatus(ButtonStatus.READY)
         }
 
-        return false;
+        return false
     }
 
     setStatus(status: ButtonStatus): void {
-        this.buttonStatus = status;
+        this.buttonStatus = status
     }
 
     getStatus(): ButtonStatus {
-        return this.buttonStatus;
+        return this.buttonStatus
     }
 
     draw(graphicsContext: GraphicsBuffer) {
-        LabelService.draw(this.getCurrentLabel(), graphicsContext);
+        LabelService.draw(this.getCurrentLabel(), graphicsContext)
     }
 
     private getCurrentLabel(): Label {
@@ -105,11 +123,11 @@ export class Button {
             [ButtonStatus.HOVER]: this.hoverLabel,
         }
 
-        return labelByStatus[this.getStatus()];
+        return labelByStatus[this.getStatus()]
     }
 
     private isMouseOnButton(mouseX: number, mouseY: number): boolean {
-        const label = this.getCurrentLabel();
-        return RectAreaService.isInside(label.rectangle.area, mouseX, mouseY);
+        const label = this.getCurrentLabel()
+        return RectAreaService.isInside(label.rectangle.area, mouseX, mouseY)
     }
 }

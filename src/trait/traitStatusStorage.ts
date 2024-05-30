@@ -30,8 +30,8 @@ export enum TraitCategory {
 
 const traitInformation: {
     [key in Trait]: {
-        description: string,
-        categories: TraitCategory[],
+        description: string
+        categories: TraitCategory[]
     }
 } = {
     [Trait.UNKNOWN]: {
@@ -39,7 +39,8 @@ const traitInformation: {
         categories: [TraitCategory.UNKNOWN],
     },
     [Trait.ATTACK]: {
-        description: "Damage and negatively affect the target. Subject to a multiple attack penalty over repeated use.",
+        description:
+            "Damage and negatively affect the target. Subject to a multiple attack penalty over repeated use.",
         categories: [TraitCategory.ACTION],
     },
     [Trait.NO_MULTIPLE_ATTACK_PENALTY]: {
@@ -55,19 +56,23 @@ const traitInformation: {
         categories: [TraitCategory.ACTION],
     },
     [Trait.HUMANOID]: {
-        description: "Creatures have two legs, two arms to manipulate tools and have bilateral symmetry.",
+        description:
+            "Creatures have two legs, two arms to manipulate tools and have bilateral symmetry.",
         categories: [TraitCategory.CREATURE],
     },
     [Trait.MONSU]: {
-        description: "Water djinn, able to manipulate primal forces and thirst.",
+        description:
+            "Water djinn, able to manipulate primal forces and thirst.",
         categories: [TraitCategory.CREATURE],
     },
     [Trait.TERRAN]: {
-        description: "Earth djinn, creatures of sand and stone. Skilled builders.",
+        description:
+            "Earth djinn, creatures of sand and stone. Skilled builders.",
         categories: [TraitCategory.CREATURE],
     },
     [Trait.DEMON]: {
-        description: "Demons are an almost extinct race who feast on the sins of mortals.",
+        description:
+            "Demons are an almost extinct race who feast on the sins of mortals.",
         categories: [TraitCategory.CREATURE],
     },
     [Trait.CROSS_OVER_PITS]: {
@@ -84,7 +89,7 @@ const traitInformation: {
     },
     [Trait.SKIP_ANIMATION]: {
         description: "Action does not require animation",
-        categories: [TraitCategory.ACTION, TraitCategory.ANIMATION]
+        categories: [TraitCategory.ACTION, TraitCategory.ANIMATION],
     },
     [Trait.TARGETS_SELF]: {
         description: "The acting Squaddie can target themself.",
@@ -113,55 +118,73 @@ const traitInformation: {
 }
 
 export interface TraitStatusStorage {
-    booleanTraits: { [key in Trait]?: boolean };
+    booleanTraits: { [key in Trait]?: boolean }
 }
 
 export const TraitStatusStorageService = {
-    newUsingTraitValues: (initialTraitValues?: { [key in Trait]?: boolean }): TraitStatusStorage => {
+    newUsingTraitValues: (initialTraitValues?: {
+        [key in Trait]?: boolean
+    }): TraitStatusStorage => {
         const newStorage: TraitStatusStorage = {
-            booleanTraits: {}
-        };
+            booleanTraits: {},
+        }
         if (initialTraitValues === undefined) {
-            return newStorage;
+            return newStorage
         }
 
         Object.entries(initialTraitValues).forEach(([traitName, value]) => {
-            const trait: Trait = Trait[traitName as keyof typeof Trait];
+            const trait: Trait = Trait[traitName as keyof typeof Trait]
             if (trait && trait !== Trait.UNKNOWN) {
-                setStatus(newStorage, trait, value);
+                setStatus(newStorage, trait, value)
             }
         })
-        return newStorage;
+        return newStorage
     },
     clone: (original: TraitStatusStorage): TraitStatusStorage => {
-        return clone(original);
+        return clone(original)
     },
     getStatus: (data: TraitStatusStorage, trait: Trait): boolean => {
-        return data.booleanTraits[trait];
+        return data.booleanTraits[trait]
     },
-    setStatus: (data: TraitStatusStorage, trait: Trait, value: boolean): void => {
-        setStatus(data, trait, value);
+    setStatus: (
+        data: TraitStatusStorage,
+        trait: Trait,
+        value: boolean
+    ): void => {
+        setStatus(data, trait, value)
     },
-    filterCategory(data: TraitStatusStorage, category: TraitCategory): TraitStatusStorage {
+    filterCategory(
+        data: TraitStatusStorage,
+        category: TraitCategory
+    ): TraitStatusStorage {
         return clone({
             ...data,
             booleanTraits: Object.fromEntries(
                 Object.keys(data.booleanTraits)
                     .filter((traitName: Trait) =>
-                        traitInformation[traitName].categories.includes(category)
+                        traitInformation[traitName].categories.includes(
+                            category
+                        )
                     )
-                    .map((traitName: Trait) => [traitName, data.booleanTraits[traitName]])
-            )
-        });
-    }
+                    .map((traitName: Trait) => [
+                        traitName,
+                        data.booleanTraits[traitName],
+                    ])
+            ),
+        })
+    },
 }
 
-const setStatus = (data: TraitStatusStorage, trait: Trait, value: boolean): void => {
-    data.booleanTraits[trait] = value;
-};
+const setStatus = (
+    data: TraitStatusStorage,
+    trait: Trait,
+    value: boolean
+): void => {
+    data.booleanTraits[trait] = value
+}
 
 const clone = (original: TraitStatusStorage): TraitStatusStorage => {
     return {
-        booleanTraits: {...original.booleanTraits}
-    };
-};
+        booleanTraits: { ...original.booleanTraits },
+    }
+}

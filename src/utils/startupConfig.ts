@@ -1,4 +1,4 @@
-import {config} from "../configuration/config";
+import { config } from "../configuration/config"
 
 export enum GameModeEnum {
     UNKNOWN = "UNKNOWN",
@@ -7,4 +7,4 @@ export enum GameModeEnum {
     LOADING_BATTLE = "LOADING_BATTLE",
 }
 
-export const StartupMode = config.STARTUP_MODE as GameModeEnum;
+export const StartupMode = config.STARTUP_MODE as GameModeEnum

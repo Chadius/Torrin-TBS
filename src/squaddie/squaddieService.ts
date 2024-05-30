@@ -1,23 +1,26 @@
-import {BattleSquaddie} from "../battle/battleSquaddie";
-import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
-import {InBattleAttributesHandler} from "../battle/stats/inBattleAttributes";
-import {SearchPath} from "../hexMap/pathfinder/searchPath";
-import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
-import {getResultOrThrowError} from "../utils/ResultOrError";
-import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
+import { BattleSquaddie } from "../battle/battleSquaddie"
+import { SquaddieAffiliation } from "./squaddieAffiliation"
+import { SquaddieTemplate } from "../campaign/squaddieTemplate"
+import { InBattleAttributesHandler } from "../battle/stats/inBattleAttributes"
+import { SearchPath } from "../hexMap/pathfinder/searchPath"
+import { LocationTraveled } from "../hexMap/pathfinder/locationTraveled"
+import { getResultOrThrowError } from "../utils/ResultOrError"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../battle/objectRepository"
 
 export const SquaddieService = {
     dealDamageToTheSquaddie: ({
-                                  squaddieTemplate,
-                                  battleSquaddie,
-                                  damage,
-                                  damageType,
-                              }: {
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
-        damage: number,
-        damageType: DamageType,
+        squaddieTemplate,
+        battleSquaddie,
+        damage,
+        damageType,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+        damage: number
+        damageType: DamageType
     }): {
         damageTaken: number
     } => {
@@ -26,93 +29,113 @@ export const SquaddieService = {
             battleSquaddie,
             damage,
             damageType,
-        });
+        })
     },
     getNumberOfActionPoints: ({
-                                  squaddieTemplate,
-                                  battleSquaddie,
-                              }: {
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
     }): {
         actionPointsRemaining: number
     } => {
-        return GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+        return GetNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
     },
-    searchPathLocationsByNumberOfMovementActions: ({searchPath, battleSquaddieId, repository}: {
-        searchPath: SearchPath,
-        battleSquaddieId: string,
-        repository: ObjectRepository,
+    searchPathLocationsByNumberOfMovementActions: ({
+        searchPath,
+        battleSquaddieId,
+        repository,
+    }: {
+        searchPath: SearchPath
+        battleSquaddieId: string
+        repository: ObjectRepository
     }): { [movementActions: number]: LocationTraveled[] } => {
-        const locationsByMoveAction: { [movementActions: number]: LocationTraveled[] } = {};
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId))
-        searchPath.locationsTraveled.forEach(locationDescription => {
-            let numberOfMovementActions: number = Math.ceil(locationDescription.cumulativeMovementCost / squaddieTemplate.attributes.movement.movementPerAction);
-            locationsByMoveAction[numberOfMovementActions] ||= [];
-            locationsByMoveAction[numberOfMovementActions].push(locationDescription);
+        const locationsByMoveAction: {
+            [movementActions: number]: LocationTraveled[]
+        } = {}
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                repository,
+                battleSquaddieId
+            )
+        )
+        searchPath.locationsTraveled.forEach((locationDescription) => {
+            let numberOfMovementActions: number = Math.ceil(
+                locationDescription.cumulativeMovementCost /
+                    squaddieTemplate.attributes.movement.movementPerAction
+            )
+            locationsByMoveAction[numberOfMovementActions] ||= []
+            locationsByMoveAction[numberOfMovementActions].push(
+                locationDescription
+            )
         })
-        return locationsByMoveAction;
+        return locationsByMoveAction
     },
     getHitPoints: ({
-                       squaddieTemplate,
-                       battleSquaddie,
-                   }: {
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
     }): {
-        currentHitPoints: number,
+        currentHitPoints: number
         maxHitPoints: number
     } => {
-        return GetHitPoints({squaddieTemplate, battleSquaddie});
+        return GetHitPoints({ squaddieTemplate, battleSquaddie })
     },
     canSquaddieActRightNow: ({
-                                 squaddieTemplate,
-                                 battleSquaddie,
-                             }: {
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
     }): {
-        canAct: boolean,
-        hasActionPointsRemaining: boolean,
-        isDead: boolean,
+        canAct: boolean
+        hasActionPointsRemaining: boolean
+        isDead: boolean
     } => {
-        return canSquaddieActRightNow({squaddieTemplate, battleSquaddie});
+        return canSquaddieActRightNow({ squaddieTemplate, battleSquaddie })
     },
     canPlayerControlSquaddieRightNow: ({
-                                           squaddieTemplate,
-                                           battleSquaddie,
-                                       }: {
-        squaddieTemplate: SquaddieTemplate,
-        battleSquaddie: BattleSquaddie,
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
     }): {
-        squaddieHasThePlayerControlledAffiliation: boolean,
-        squaddieCanCurrentlyAct: boolean,
-        playerCanControlThisSquaddieRightNow: boolean,
+        squaddieHasThePlayerControlledAffiliation: boolean
+        squaddieCanCurrentlyAct: boolean
+        playerCanControlThisSquaddieRightNow: boolean
     } => {
-        return canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
-    }
+        return canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
+    },
 }
 
 export const GetNumberOfActionPoints = ({
-                                            squaddieTemplate,
-                                            battleSquaddie,
-                                        }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
 }): {
     actionPointsRemaining: number
 } => {
     return {
-        actionPointsRemaining: battleSquaddie.squaddieTurn.remainingActionPoints,
+        actionPointsRemaining:
+            battleSquaddie.squaddieTurn.remainingActionPoints,
     }
 }
 
 export const GetArmorClass = ({
-                                  squaddieTemplate,
-                                  battleSquaddie,
-                              }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
 }): {
     normalArmorClass: number
 } => {
@@ -122,13 +145,13 @@ export const GetArmorClass = ({
 }
 
 export const GetHitPoints = ({
-                                 squaddieTemplate,
-                                 battleSquaddie,
-                             }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
 }): {
-    currentHitPoints: number,
+    currentHitPoints: number
     maxHitPoints: number
 } => {
     return {
@@ -150,23 +173,23 @@ export enum HealingType {
 }
 
 export const DealDamageToTheSquaddie = ({
-                                            squaddieTemplate,
-                                            battleSquaddie,
-                                            damage,
-                                            damageType,
-                                        }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
-    damage: number,
-    damageType: DamageType,
+    squaddieTemplate,
+    battleSquaddie,
+    damage,
+    damageType,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
+    damage: number
+    damageType: DamageType
 }): {
     damageTaken: number
 } => {
     const actualHitPointLoss: number = InBattleAttributesHandler.takeDamage(
         battleSquaddie.inBattleAttributes,
         damage,
-        damageType,
-    );
+        damageType
+    )
 
     return {
         damageTaken: actualHitPointLoss,
@@ -174,22 +197,22 @@ export const DealDamageToTheSquaddie = ({
 }
 
 export const GiveHealingToTheSquaddie = ({
-                                             squaddieTemplate,
-                                             battleSquaddie,
-                                             healingAmount,
-                                             healingType: HealingType,
-                                         }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
-    healingAmount: number,
+    squaddieTemplate,
+    battleSquaddie,
+    healingAmount,
     healingType: HealingType,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
+    healingAmount: number
+    healingType: HealingType
 }): {
     healingReceived: number
 } => {
     const actualHitPointGain: number = InBattleAttributesHandler.receiveHealing(
         battleSquaddie.inBattleAttributes,
         healingAmount
-    );
+    )
 
     return {
         healingReceived: actualHitPointGain,
@@ -197,64 +220,76 @@ export const GiveHealingToTheSquaddie = ({
 }
 
 const canPlayerControlSquaddieRightNow = ({
-                                              squaddieTemplate,
-                                              battleSquaddie,
-                                          }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
 }): {
-    squaddieHasThePlayerControlledAffiliation: boolean,
-    squaddieCanCurrentlyAct: boolean,
-    playerCanControlThisSquaddieRightNow: boolean,
+    squaddieHasThePlayerControlledAffiliation: boolean
+    squaddieCanCurrentlyAct: boolean
+    playerCanControlThisSquaddieRightNow: boolean
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({squaddieTemplate, battleSquaddie});
-
-    let {
-        actionPointsRemaining
-    } = GetNumberOfActionPoints({
+    const squaddieIsAlive = IsSquaddieAlive({
         squaddieTemplate,
         battleSquaddie,
-    });
+    })
 
-    const playerControlledAffiliation: boolean = squaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
-    const squaddieCanCurrentlyAct: boolean = actionPointsRemaining > 0 && squaddieIsAlive
+    let { actionPointsRemaining } = GetNumberOfActionPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+
+    const playerControlledAffiliation: boolean =
+        squaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
+    const squaddieCanCurrentlyAct: boolean =
+        actionPointsRemaining > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,
         squaddieCanCurrentlyAct,
-        playerCanControlThisSquaddieRightNow: playerControlledAffiliation && squaddieCanCurrentlyAct,
+        playerCanControlThisSquaddieRightNow:
+            playerControlledAffiliation && squaddieCanCurrentlyAct,
     }
 }
 
-export const IsSquaddieAlive = ({squaddieTemplate, battleSquaddie}: {
-    squaddieTemplate: SquaddieTemplate;
+export const IsSquaddieAlive = ({
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 }): boolean => {
-    const {currentHitPoints} = GetHitPoints({squaddieTemplate, battleSquaddie});
-    return currentHitPoints > 0;
+    const { currentHitPoints } = GetHitPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+    return currentHitPoints > 0
 }
 
 const canSquaddieActRightNow = ({
-                                    squaddieTemplate,
-                                    battleSquaddie,
-                                }: {
-    squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
+    squaddieTemplate,
+    battleSquaddie,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
 }): {
-    canAct: boolean,
-    hasActionPointsRemaining: boolean,
-    isDead: boolean,
+    canAct: boolean
+    hasActionPointsRemaining: boolean
+    isDead: boolean
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({squaddieTemplate, battleSquaddie});
-
-    let {
-        actionPointsRemaining
-    } = GetNumberOfActionPoints({
+    const squaddieIsAlive = IsSquaddieAlive({
         squaddieTemplate,
         battleSquaddie,
-    });
+    })
 
-    const hasActionPointsRemaining: boolean = squaddieIsAlive && actionPointsRemaining > 0;
+    let { actionPointsRemaining } = GetNumberOfActionPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+
+    const hasActionPointsRemaining: boolean =
+        squaddieIsAlive && actionPointsRemaining > 0
 
     return {
         canAct: hasActionPointsRemaining,

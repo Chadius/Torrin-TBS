@@ -1,90 +1,118 @@
 import {
     OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventType
-} from "../orchestrator/battleOrchestratorComponent";
-import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {Label, LabelService} from "../../ui/label";
-import {RectAreaService} from "../../ui/rectArea";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ActionsThisRoundService} from "../history/actionsThisRound";
-import {ActionEffectType} from "../../action/template/actionEffectTemplate";
-import {ActionResultTextService} from "./actionResultTextService";
-import {RecordingService} from "../history/recording";
-import {PlayerBattleActionBuilderStateService} from "../actionBuilder/playerBattleActionBuilderState";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+    OrchestratorComponentMouseEventType,
+} from "../orchestrator/battleOrchestratorComponent"
+import { SquaddieActionAnimator } from "./squaddieActionAnimator"
+import { Label, LabelService } from "../../ui/label"
+import { RectAreaService } from "../../ui/rectArea"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { ActionsThisRoundService } from "../history/actionsThisRound"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { ActionResultTextService } from "./actionResultTextService"
+import { RecordingService } from "../history/recording"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
-export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
+export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
 export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
-    outputTextDisplay: Label;
-    outputTextStrings: string[];
-    private animationCompleteStartTime: number;
-    private userCanceledAction: boolean;
+    outputTextDisplay: Label
+    outputTextStrings: string[]
+    private animationCompleteStartTime: number
+    private userCanceledAction: boolean
 
     hasCompleted(state: GameEngineState): boolean {
-        const userWaited: boolean = this.animationCompleteStartTime !== undefined
-            && Date.now() - this.animationCompleteStartTime >= ANIMATE_TEXT_WINDOW_WAIT_TIME;
-        return userWaited || this.userCanceledAction;
+        const userWaited: boolean =
+            this.animationCompleteStartTime !== undefined &&
+            Date.now() - this.animationCompleteStartTime >=
+                ANIMATE_TEXT_WINDOW_WAIT_TIME
+        return userWaited || this.userCanceledAction
     }
 
-    mouseEventHappened(state: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void {
-        if (mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.userCanceledAction = true;
+    mouseEventHappened(
+        state: GameEngineState,
+        mouseEvent: OrchestratorComponentMouseEvent
+    ): void {
+        if (
+            mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED
+        ) {
+            this.userCanceledAction = true
         }
     }
 
     reset(gameEngineState: GameEngineState): void {
-        this.resetInternalState();
+        this.resetInternalState()
         PlayerBattleActionBuilderStateService.setAnimationCompleted({
-            actionBuilderState: gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState,
-            animationCompleted: true
-        });
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            animationCompleted: true,
+        })
     }
 
     start(state: GameEngineState): void {
-        this.maybeInitializeAnimationTimer();
+        this.maybeInitializeAnimationTimer()
     }
 
     update(state: GameEngineState, graphics: GraphicsBuffer): void {
-        this.maybeInitializeAnimationTimer();
-        this.draw(state, graphics);
+        this.maybeInitializeAnimationTimer()
+        this.draw(state, graphics)
     }
 
     private resetInternalState() {
-        this.outputTextDisplay = undefined;
-        this.animationCompleteStartTime = undefined;
-        this.userCanceledAction = false;
+        this.outputTextDisplay = undefined
+        this.animationCompleteStartTime = undefined
+        this.userCanceledAction = false
     }
 
     private maybeInitializeAnimationTimer() {
         if (this.animationCompleteStartTime === undefined) {
-            this.animationCompleteStartTime = Date.now();
+            this.animationCompleteStartTime = Date.now()
         }
     }
 
-    private drawActionDescription(state: GameEngineState, graphics: GraphicsBuffer) {
+    private drawActionDescription(
+        state: GameEngineState,
+        graphics: GraphicsBuffer
+    ) {
         if (this.outputTextDisplay === undefined) {
-            const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-            const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-            if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
-                return;
+            const processedActionToShow =
+                ActionsThisRoundService.getProcessedActionToShow(
+                    state.battleOrchestratorState.battleState.actionsThisRound
+                )
+            const processedActionEffectToShow =
+                ActionsThisRoundService.getProcessedActionEffectToShow(
+                    state.battleOrchestratorState.battleState.actionsThisRound
+                )
+            if (
+                processedActionEffectToShow.type !== ActionEffectType.SQUADDIE
+            ) {
+                return
             }
 
-            if (processedActionEffectToShow.decidedActionEffect.type !== ActionEffectType.SQUADDIE) {
-                return;
+            if (
+                processedActionEffectToShow.decidedActionEffect.type !==
+                ActionEffectType.SQUADDIE
+            ) {
+                return
             }
-            const currentActionEffectSquaddieTemplate = processedActionEffectToShow.decidedActionEffect.template;
+            const currentActionEffectSquaddieTemplate =
+                processedActionEffectToShow.decidedActionEffect.template
 
-            this.outputTextStrings = [];
-            this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
-                squaddieRepository: state.repository,
-                actionTemplateName: processedActionToShow.decidedAction.actionTemplateName,
-                currentActionEffectSquaddieTemplate,
-                result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
-            });
+            this.outputTextStrings = []
+            this.outputTextStrings =
+                ActionResultTextService.outputResultForTextOnly({
+                    squaddieRepository: state.repository,
+                    actionTemplateName:
+                        processedActionToShow.decidedAction.actionTemplateName,
+                    currentActionEffectSquaddieTemplate,
+                    result: RecordingService.mostRecentEvent(
+                        state.battleOrchestratorState.battleState.recording
+                    ).results,
+                })
 
-            const textToDraw = this.outputTextStrings.join("\n");
+            const textToDraw = this.outputTextStrings.join("\n")
 
             this.outputTextDisplay = LabelService.new({
                 area: RectAreaService.new({
@@ -103,13 +131,13 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                 textSize: 24,
                 fontColor: [0, 0, 16],
                 textBoxMargin: [16, 0, 0, 16],
-            });
+            })
         }
 
-        LabelService.draw(this.outputTextDisplay, graphics);
+        LabelService.draw(this.outputTextDisplay, graphics)
     }
 
     private draw(state: GameEngineState, graphics: GraphicsBuffer) {
-        this.drawActionDescription(state, graphics);
+        this.drawActionDescription(state, graphics)
     }
 }

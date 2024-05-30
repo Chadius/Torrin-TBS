@@ -1,41 +1,65 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
-import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionRewardType} from "../missionResult/missionReward";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {GameEngineState} from "../../gameEngine/gameEngine";
+import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
+import {
+    CutsceneTrigger,
+    TriggeringEvent,
+} from "../../cutscene/cutsceneTrigger"
+import {
+    MissionObjective,
+    MissionObjectiveHelper,
+} from "../missionResult/missionObjective"
+import { MissionRewardType } from "../missionResult/missionReward"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { GameEngineState } from "../../gameEngine/gameEngine"
 
-
-function getMissionObjectivesByRewardType(completedObjectives: MissionObjective[], rewardType: MissionRewardType) {
-    return completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === rewardType);
+function getMissionObjectivesByRewardType(
+    completedObjectives: MissionObjective[],
+    rewardType: MissionRewardType
+) {
+    return completedObjectives.find(
+        (objective: MissionObjective) =>
+            objective.reward.rewardType === rewardType
+    )
 }
 
-function findMissionObjectiveCutscenes(defeatObjective: MissionObjective, state: BattleOrchestratorState, victoryObjective: MissionObjective) {
-    let cutsceneId: string = "";
-    let cutsceneTrigger: CutsceneTrigger = undefined;
+function findMissionObjectiveCutscenes(
+    defeatObjective: MissionObjective,
+    state: BattleOrchestratorState,
+    victoryObjective: MissionObjective
+) {
+    let cutsceneId: string = ""
+    let cutsceneTrigger: CutsceneTrigger = undefined
     if (defeatObjective) {
-        cutsceneTrigger = state.battleState.cutsceneTriggers.find((trigger) => trigger.triggeringEvent === TriggeringEvent.MISSION_DEFEAT);
-        cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger);
+        cutsceneTrigger = state.battleState.cutsceneTriggers.find(
+            (trigger) =>
+                trigger.triggeringEvent === TriggeringEvent.MISSION_DEFEAT
+        )
+        cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger)
     } else if (victoryObjective) {
-        cutsceneTrigger = state.battleState.cutsceneTriggers.find((trigger) => trigger.triggeringEvent === TriggeringEvent.MISSION_VICTORY);
-        cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger);
+        cutsceneTrigger = state.battleState.cutsceneTriggers.find(
+            (trigger) =>
+                trigger.triggeringEvent === TriggeringEvent.MISSION_VICTORY
+        )
+        cutsceneId = getCutsceneIdIfTriggerIsValid(cutsceneTrigger)
     }
-    return {cutsceneId, cutsceneTrigger};
+    return { cutsceneId, cutsceneTrigger }
 }
 
-function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: BattleOrchestratorState, cutsceneTriggersToReactTo: CutsceneTrigger[]) {
+function addStartOfTurnTriggers(
+    turnObjectives: CutsceneTrigger[],
+    state: BattleOrchestratorState,
+    cutsceneTriggersToReactTo: CutsceneTrigger[]
+) {
     const turnTriggersToReactTo = turnObjectives.filter((trigger) => {
         if (trigger.triggeringEvent !== TriggeringEvent.START_OF_TURN) {
-            return false;
+            return false
         }
         if (state.battleState.battlePhaseState.turnCount !== trigger.turn) {
-            return false;
+            return false
         }
-        return isTriggerReadyToReact(trigger);
-    });
-    cutsceneTriggersToReactTo.push(...turnTriggersToReactTo);
+        return isTriggerReadyToReact(trigger)
+    })
+    cutsceneTriggersToReactTo.push(...turnTriggersToReactTo)
 }
-
 
 export const GetCutsceneTriggersToActivate = (
     state: GameEngineState,
@@ -45,57 +69,79 @@ export const GetCutsceneTriggersToActivate = (
         BattleOrchestratorMode.SQUADDIE_MOVER,
         BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
         BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
-    ];
+    ]
 
     const startOfPhaseModes = [
         BattleOrchestratorMode.INITIALIZED,
         BattleOrchestratorMode.PHASE_CONTROLLER,
-    ];
+    ]
 
-    const cutsceneTriggersToReactTo: CutsceneTrigger[] = [];
+    const cutsceneTriggersToReactTo: CutsceneTrigger[] = []
 
-    let cutsceneId: string = "";
-    let cutsceneTrigger: CutsceneTrigger = undefined;
+    let cutsceneId: string = ""
+    let cutsceneTrigger: CutsceneTrigger = undefined
 
-    if (squaddieActionCompleteModes.includes(battleOrchestratorModeThatJustCompleted)) {
-        const completedObjectives = state.battleOrchestratorState.battleState.objectives.filter((objective: MissionObjective) =>
-            MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
-        );
+    if (
+        squaddieActionCompleteModes.includes(
+            battleOrchestratorModeThatJustCompleted
+        )
+    ) {
+        const completedObjectives =
+            state.battleOrchestratorState.battleState.objectives.filter(
+                (objective: MissionObjective) =>
+                    MissionObjectiveHelper.shouldBeComplete(objective, state) &&
+                    !objective.hasGivenReward
+            )
 
-        const victoryObjective = getMissionObjectivesByRewardType(completedObjectives, MissionRewardType.VICTORY);
-        const defeatObjective = getMissionObjectivesByRewardType(completedObjectives, MissionRewardType.DEFEAT);
+        const victoryObjective = getMissionObjectivesByRewardType(
+            completedObjectives,
+            MissionRewardType.VICTORY
+        )
+        const defeatObjective = getMissionObjectivesByRewardType(
+            completedObjectives,
+            MissionRewardType.DEFEAT
+        )
 
-        ({
-            cutsceneId,
-            cutsceneTrigger
-        } = findMissionObjectiveCutscenes(defeatObjective, state.battleOrchestratorState, victoryObjective));
+        ;({ cutsceneId, cutsceneTrigger } = findMissionObjectiveCutscenes(
+            defeatObjective,
+            state.battleOrchestratorState,
+            victoryObjective
+        ))
     }
 
     if (cutsceneId !== "" && cutsceneTrigger) {
-        cutsceneTriggersToReactTo.push(cutsceneTrigger);
-        return cutsceneTriggersToReactTo;
+        cutsceneTriggersToReactTo.push(cutsceneTrigger)
+        return cutsceneTriggersToReactTo
     }
 
     if (startOfPhaseModes.includes(battleOrchestratorModeThatJustCompleted)) {
-        const turnObjectives = state.battleOrchestratorState.battleState.cutsceneTriggers.filter((trigger) => trigger.triggeringEvent === TriggeringEvent.START_OF_TURN);
-        addStartOfTurnTriggers(turnObjectives, state.battleOrchestratorState, cutsceneTriggersToReactTo);
+        const turnObjectives =
+            state.battleOrchestratorState.battleState.cutsceneTriggers.filter(
+                (trigger) =>
+                    trigger.triggeringEvent === TriggeringEvent.START_OF_TURN
+            )
+        addStartOfTurnTriggers(
+            turnObjectives,
+            state.battleOrchestratorState,
+            cutsceneTriggersToReactTo
+        )
     }
 
-    return cutsceneTriggersToReactTo;
+    return cutsceneTriggersToReactTo
 }
 
 function isTriggerReadyToReact(cutsceneTrigger: CutsceneTrigger) {
     if (cutsceneTrigger === undefined) {
-        return false;
+        return false
     }
 
-    return cutsceneTrigger.systemReactedToTrigger === false;
+    return cutsceneTrigger.systemReactedToTrigger === false
 }
 
 function getCutsceneIdIfTriggerIsValid(cutsceneTrigger: CutsceneTrigger) {
     if (!isTriggerReadyToReact(cutsceneTrigger)) {
-        return "";
+        return ""
     }
 
-    return cutsceneTrigger.cutsceneId;
+    return cutsceneTrigger.cutsceneId
 }

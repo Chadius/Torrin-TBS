@@ -1,63 +1,81 @@
-import {RectAreaService} from "../../../ui/rectArea";
-import {SquaddieEmotion} from "./actionAnimationConstants";
-import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
-import {ResourceHandler} from "../../../resource/resourceHandler";
-import {ImageUI} from "../../../ui/imageUI";
-import p5 from "p5";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
+import { RectAreaService } from "../../../ui/rectArea"
+import { SquaddieEmotion } from "./actionAnimationConstants"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { ImageUI } from "../../../ui/imageUI"
+import p5 from "p5"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
-let defaultImage: ImageUI;
+let defaultImage: ImageUI
 
 export class SquaddieSprite {
-    private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
-    private readonly _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
-    private readonly _resourceHandler: ResourceHandler;
+    private readonly _actionSpritesByEmotion: {
+        [key in SquaddieEmotion]?: ImageUI
+    }
+    private readonly _actionSpritesResourceKeysByEmotion: {
+        [key in SquaddieEmotion]?: string
+    }
+    private readonly _resourceHandler: ResourceHandler
 
-    constructor({resourceHandler, actionSpritesResourceKeysByEmotion}: {
-        resourceHandler: ResourceHandler,
-        actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string }
+    constructor({
+        resourceHandler,
+        actionSpritesResourceKeysByEmotion,
+    }: {
+        resourceHandler: ResourceHandler
+        actionSpritesResourceKeysByEmotion: {
+            [key in SquaddieEmotion]?: string
+        }
     }) {
-        this._resourceHandler = resourceHandler;
-        this._actionSpritesResourceKeysByEmotion = actionSpritesResourceKeysByEmotion;
-        this._actionSpritesByEmotion = {};
+        this._resourceHandler = resourceHandler
+        this._actionSpritesResourceKeysByEmotion =
+            actionSpritesResourceKeysByEmotion
+        this._actionSpritesByEmotion = {}
     }
 
     get actionSpritesByEmotion(): { [key in SquaddieEmotion]?: ImageUI } {
-        return this._actionSpritesByEmotion;
+        return this._actionSpritesByEmotion
     }
 
-    get actionSpritesResourceKeysByEmotion(): { [key in SquaddieEmotion]?: string } {
-        return this._actionSpritesResourceKeysByEmotion;
+    get actionSpritesResourceKeysByEmotion(): {
+        [key in SquaddieEmotion]?: string
+    } {
+        return this._actionSpritesResourceKeysByEmotion
     }
 
-    private _createdImages: boolean;
+    private _createdImages: boolean
 
     get createdImages(): boolean {
-        return this._createdImages;
+        return this._createdImages
     }
 
     get resourceHandler(): ResourceHandler {
-        return this._resourceHandler;
+        return this._resourceHandler
     }
 
     public beginLoadingActorImages() {
-        this.resourceHandler.loadResources(Object.values(this.actionSpritesResourceKeysByEmotion));
+        this.resourceHandler.loadResources(
+            Object.values(this.actionSpritesResourceKeysByEmotion)
+        )
     }
 
     public createActorImagesWithLoadedData(): {
         justCreatedImages: boolean
     } {
-        if (this.resourceHandler.areAllResourcesLoaded(Object.values(this.actionSpritesResourceKeysByEmotion)) !== true) {
-            return {justCreatedImages: false};
+        if (
+            this.resourceHandler.areAllResourcesLoaded(
+                Object.values(this.actionSpritesResourceKeysByEmotion)
+            ) !== true
+        ) {
+            return { justCreatedImages: false }
         }
         if (this.createdImages) {
-            return {justCreatedImages: false};
+            return { justCreatedImages: false }
         }
 
         for (let emotionStr in this.actionSpritesResourceKeysByEmotion) {
-            const emotion = emotionStr as SquaddieEmotion;
-            const resourceKey = this.actionSpritesResourceKeysByEmotion[emotion];
-            const image = this.resourceHandler.getResource(resourceKey);
+            const emotion = emotionStr as SquaddieEmotion
+            const resourceKey = this.actionSpritesResourceKeysByEmotion[emotion]
+            const image = this.resourceHandler.getResource(resourceKey)
             this.actionSpritesByEmotion[emotion] = new ImageUI({
                 graphic: image,
                 area: RectAreaService.new({
@@ -65,33 +83,36 @@ export class SquaddieSprite {
                     top: 0,
                     width: image.width,
                     height: image.height,
-                })
+                }),
             })
         }
 
-        this._createdImages = true;
-        return {justCreatedImages: true};
+        this._createdImages = true
+        return { justCreatedImages: true }
     }
 
-    public getSpriteBasedOnEmotion(emotion: SquaddieEmotion, graphicsContext: GraphicsBuffer): ImageUI {
+    public getSpriteBasedOnEmotion(
+        emotion: SquaddieEmotion,
+        graphicsContext: GraphicsBuffer
+    ): ImageUI {
         if (emotion in this.actionSpritesByEmotion) {
-            return this.actionSpritesByEmotion[emotion];
+            return this.actionSpritesByEmotion[emotion]
         }
 
         if (SquaddieEmotion.NEUTRAL in this.actionSpritesByEmotion) {
-            return this.actionSpritesByEmotion[SquaddieEmotion.NEUTRAL];
+            return this.actionSpritesByEmotion[SquaddieEmotion.NEUTRAL]
         }
 
-        return this.defaultEmptyImage(graphicsContext);
+        return this.defaultEmptyImage(graphicsContext)
     }
 
     private defaultEmptyImage(graphicsContext: GraphicsBuffer): ImageUI {
         if (defaultImage) {
-            return defaultImage;
+            return defaultImage
         }
 
-        const emptyImage: p5.Image = graphicsContext.createImage(1, 1);
-        emptyImage.loadPixels();
+        const emptyImage: p5.Image = graphicsContext.createImage(1, 1)
+        emptyImage.loadPixels()
 
         defaultImage = new ImageUI({
             area: RectAreaService.new({
@@ -103,6 +124,6 @@ export class SquaddieSprite {
             graphic: emptyImage,
         })
 
-        return defaultImage;
+        return defaultImage
     }
 }

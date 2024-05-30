@@ -1,7 +1,7 @@
-import {GameEngineState} from "../gameEngine/gameEngine";
+import { GameEngineState } from "../gameEngine/gameEngine"
 
 export type MessageBoardMessage =
-    MessageBoardMessageBase
+    | MessageBoardMessageBase
     | MessageBoardMessageStartedPlayerPhase
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
     | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
@@ -14,21 +14,21 @@ export enum MessageBoardMessageType {
 }
 
 export interface MessageBoardMessageBase {
-    type: MessageBoardMessageType.BASE;
-    message: string;
+    type: MessageBoardMessageType.BASE
+    message: string
 }
 
 export interface MessageBoardMessageStartedPlayerPhase {
-    type: MessageBoardMessageType.STARTED_PLAYER_PHASE;
-    gameEngineState: GameEngineState;
+    type: MessageBoardMessageType.STARTED_PLAYER_PHASE
+    gameEngineState: GameEngineState
 }
 
 export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
-    type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE;
-    gameEngineState: GameEngineState;
+    type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
+    gameEngineState: GameEngineState
 }
 
 export interface MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn {
-    type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN;
-    gameEngineState: GameEngineState;
+    type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN
+    gameEngineState: GameEngineState
 }

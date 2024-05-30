@@ -1,75 +1,86 @@
-import {ActionAnimationFontColor} from "./actionAnimationConstants";
-import {RectArea, RectAreaService} from "../../../ui/rectArea";
-import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../../ui/constants";
-import {Label, LabelService} from "../../../ui/label";
+import { ActionAnimationFontColor } from "./actionAnimationConstants"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import {
+    HORIZONTAL_ALIGN,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../../ui/constants"
+import { Label, LabelService } from "../../../ui/label"
 import {
     ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../action/template/actionEffectSquaddieTemplate";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
+    ActionEffectSquaddieTemplateService,
+} from "../../../action/template/actionEffectSquaddieTemplate"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
 export class WeaponIcon {
     constructor() {
-        this.reset();
+        this.reset()
     }
 
-    private _attackingLabel: Label;
+    private _attackingLabel: Label
 
     get attackingLabel(): Label {
-        return this._attackingLabel;
+        return this._attackingLabel
     }
 
     reset() {
-        this._attackingLabel = undefined;
+        this._attackingLabel = undefined
     }
 
-    start() {
-    }
+    start() {}
 
     draw({
-             actionEffectSquaddieTemplate,
-             graphicsContext,
-             actorImageArea,
-         }:
-             {
-                 actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-                 graphicsContext: GraphicsBuffer,
-                 actorImageArea: RectArea,
-             }
-    ) {
+        actionEffectSquaddieTemplate,
+        graphicsContext,
+        actorImageArea,
+    }: {
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        graphicsContext: GraphicsBuffer
+        actorImageArea: RectArea
+    }) {
         if (this.attackingLabel === undefined) {
-            this.lazyLoadAttackingTextBox(actionEffectSquaddieTemplate, actorImageArea);
+            this.lazyLoadAttackingTextBox(
+                actionEffectSquaddieTemplate,
+                actorImageArea
+            )
         }
 
         RectAreaService.move(this.attackingLabel.rectangle.area, {
-            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
-            top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
-        });
+            left:
+                RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
+            top:
+                RectAreaService.centerY(actorImageArea) -
+                this.attackingLabel.rectangle.area.height / 2,
+        })
         RectAreaService.move(this.attackingLabel.textBox.area, {
-            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
-            top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
-        });
-        LabelService.draw(this.attackingLabel, graphicsContext);
+            left:
+                RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
+            top:
+                RectAreaService.centerY(actorImageArea) -
+                this.attackingLabel.rectangle.area.height / 2,
+        })
+        LabelService.draw(this.attackingLabel, graphicsContext)
     }
 
-    private lazyLoadAttackingTextBox(action: ActionEffectSquaddieTemplate, actorImageArea: RectArea) {
-        const labelBackgroundColor = [
-            0,
-            10,
-            80
-        ];
+    private lazyLoadAttackingTextBox(
+        action: ActionEffectSquaddieTemplate,
+        actorImageArea: RectArea
+    ) {
+        const labelBackgroundColor = [0, 10, 80]
 
-        let labelText: string = "(Using)";
+        let labelText: string = "(Using)"
         if (ActionEffectSquaddieTemplateService.isHindering(action)) {
-            labelText = "Attacking!";
+            labelText = "Attacking!"
         } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
-            labelText = "Helping...";
+            labelText = "Helping..."
         }
 
         this._attackingLabel = LabelService.new({
             textBoxMargin: 0,
             area: RectAreaService.new({
-                left: RectAreaService.right(actorImageArea) + WINDOW_SPACING.SPACING1,
+                left:
+                    RectAreaService.right(actorImageArea) +
+                    WINDOW_SPACING.SPACING1,
                 top: RectAreaService.centerY(actorImageArea),
                 height: WINDOW_SPACING.SPACING2,
                 width: WINDOW_SPACING.SPACING1 * 15,
@@ -80,6 +91,6 @@ export class WeaponIcon {
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
-        });
+        })
     }
 }

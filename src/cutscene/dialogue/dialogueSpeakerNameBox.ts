@@ -1,47 +1,59 @@
-import {Label, LabelService} from "../../ui/label";
-import {RectAreaService} from "../../ui/rectArea";
-import {HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING} from "../../ui/constants";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+import { Label, LabelService } from "../../ui/label"
+import { RectAreaService } from "../../ui/rectArea"
+import {
+    HORIZONTAL_ALIGN,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../ui/constants"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 type Options = {
-    name: string;
-    screenDimensions: [number, number];
+    name: string
+    screenDimensions: [number, number]
 }
 
 export class DialogueSpeakerNameBox {
-    speakerName: string;
-    speakerNameLabel: Label;
+    speakerName: string
+    speakerNameLabel: Label
     screenDimensions: [number, number]
 
     constructor(options: Partial<Options>) {
-        this.speakerName = options.name;
-        this.screenDimensions = options.screenDimensions || [0, 0];
+        this.speakerName = options.name
+        this.screenDimensions = options.screenDimensions || [0, 0]
 
-        this.createUIObjects();
+        this.createUIObjects()
     }
 
     draw(graphicsContext: GraphicsBuffer) {
-        LabelService.draw(this.speakerNameLabel, graphicsContext);
+        LabelService.draw(this.speakerNameLabel, graphicsContext)
     }
 
     private createUIObjects() {
-        const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
-        const dialogueBoxTop = this.screenDimensions[1] * 0.7;
+        const dialogueBoxBackgroundColor: [number, number, number] = [
+            200, 10, 50,
+        ]
+        const dialogueBoxTop = this.screenDimensions[1] * 0.7
 
-        const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
-        const speakerBoxTop = dialogueBoxTop - (2.5 * WINDOW_SPACING.SPACING2);
-        const speakerBoxHeight = WINDOW_SPACING.SPACING2 * 3;
-        const speakerBoxLeft = WINDOW_SPACING.SPACING2 * 0.5;
+        const speakerBackgroundColor: [number, number, number] =
+            dialogueBoxBackgroundColor
+        const speakerBoxTop = dialogueBoxTop - 2.5 * WINDOW_SPACING.SPACING2
+        const speakerBoxHeight = WINDOW_SPACING.SPACING2 * 3
+        const speakerBoxLeft = WINDOW_SPACING.SPACING2 * 0.5
 
-        const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
+        const speakerBoxTextColor: [number, number, number] = [0, 0, 0]
 
         this.speakerNameLabel = LabelService.new({
-            textBoxMargin: [WINDOW_SPACING.SPACING2, 0, 0, WINDOW_SPACING.SPACING2 * 0.5],
+            textBoxMargin: [
+                WINDOW_SPACING.SPACING2,
+                0,
+                0,
+                WINDOW_SPACING.SPACING2 * 0.5,
+            ],
             area: RectAreaService.new({
                 left: speakerBoxLeft,
                 top: speakerBoxTop,
                 width: this.screenDimensions[0] * 0.3,
-                height: speakerBoxHeight
+                height: speakerBoxHeight,
             }),
             fillColor: speakerBackgroundColor,
             text: this.speakerName,
@@ -49,6 +61,6 @@ export class DialogueSpeakerNameBox {
             fontColor: speakerBoxTextColor,
             horizAlign: HORIZONTAL_ALIGN.LEFT,
             vertAlign: VERTICAL_ALIGN.BASELINE,
-        });
+        })
     }
 }

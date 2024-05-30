@@ -1,113 +1,135 @@
-import p5 from "p5";
-import {LoadFileIntoFormat} from "../dataLoader/dataLoader";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
+import p5 from "p5"
+import { LoadFileIntoFormat } from "../dataLoader/dataLoader"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export enum ResourceType {
     IMAGE = "IMAGE",
 }
 
 export type ResourceLocator = {
-    key: string;
-    path?: string;
-    type: ResourceType;
+    key: string
+    path?: string
+    type: ResourceType
 }
 
 type ImageResource = {
-    locator: ResourceLocator;
-    image: p5.Image;
+    locator: ResourceLocator
+    image: p5.Image
 }
 
 const createPlaceholderImage = (graphicsContext: GraphicsBuffer): p5.Image => {
-    return graphicsContext.createImage(1, 1,)
+    return graphicsContext.createImage(1, 1)
 }
 
 export interface ResourceTypeLoader {
-    loadResource(resourceKey: string, handler: ResourceHandler): void;
+    loadResource(resourceKey: string, handler: ResourceHandler): void
 
     setCallbacks(
-        successCallback: (key: string, handler: ResourceHandler, resource: p5.Image) => {},
-        failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
-    ): void;
+        successCallback: (
+            key: string,
+            handler: ResourceHandler,
+            resource: p5.Image
+        ) => {},
+        failureCallback?: (
+            key: string,
+            handler: ResourceHandler,
+            p1: Event
+        ) => any
+    ): void
 }
 
 class P5ImageLoader implements ResourceTypeLoader {
-    graphicsBuffer: GraphicsBuffer;
-    successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {};
-    failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any;
+    graphicsBuffer: GraphicsBuffer
+    successCallback: (
+        resourceKey: string,
+        handler: ResourceHandler,
+        image: p5.Image
+    ) => {}
+    failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any
 
     constructor(graphicsBuffer: GraphicsBuffer) {
-        this.graphicsBuffer = graphicsBuffer;
+        this.graphicsBuffer = graphicsBuffer
     }
 
     setCallbacks(
-        successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {},
-        failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
+        successCallback: (
+            resourceKey: string,
+            handler: ResourceHandler,
+            image: p5.Image
+        ) => {},
+        failureCallback?: (
+            key: string,
+            handler: ResourceHandler,
+            p1: Event
+        ) => any
     ) {
-        this.successCallback = successCallback;
-        this.failureCallback = failureCallback;
+        this.successCallback = successCallback
+        this.failureCallback = failureCallback
     }
 
     loadResource(resourceKey: string, handler: ResourceHandler): void {
         if (!handler.getResourceLocator(resourceKey)) {
-            return;
+            return
         }
 
         if (handler.isResourceLoaded(resourceKey)) {
-            return;
+            return
         }
 
-        const path = handler.getResourceLocator(resourceKey).path;
-        const loader = this;
+        const path = handler.getResourceLocator(resourceKey).path
+        const loader = this
         this.graphicsBuffer.loadImage(
             path,
             (loadedImage: p5.Image) => {
-                loader.successCallback(resourceKey, handler, loadedImage);
+                loader.successCallback(resourceKey, handler, loadedImage)
             },
             (p1: Event) => {
-                loader.failureCallback(resourceKey, handler, p1);
+                loader.failureCallback(resourceKey, handler, p1)
             }
-        );
+        )
     }
 }
 
 export class ResourceHandler {
-    imageLoader: ResourceTypeLoader;
+    imageLoader: ResourceTypeLoader
     resourcesByKey: {
         [key: string]: ResourceLocator
-    };
+    }
 
     imagesByKey: {
         [key: string]: ImageResource
-    };
-    graphicsContext: GraphicsBuffer;
+    }
+    graphicsContext: GraphicsBuffer
 
-    constructor({resourceLocators, imageLoader, graphics}: {
-        resourceLocators: ResourceLocator[],
-        imageLoader?: ResourceTypeLoader,
-        graphics?: GraphicsBuffer,
+    constructor({
+        resourceLocators,
+        imageLoader,
+        graphics,
+    }: {
+        resourceLocators: ResourceLocator[]
+        imageLoader?: ResourceTypeLoader
+        graphics?: GraphicsBuffer
     }) {
-        this.graphicsContext = graphics;
-        this.imageLoader = imageLoader || new P5ImageLoader(
-            graphics
-        );
+        this.graphicsContext = graphics
+        this.imageLoader = imageLoader || new P5ImageLoader(graphics)
         this.imageLoader.setCallbacks(
             this.imageSuccessCallback,
             (key, handler, p1) => {
-                console.log(`Failed to load ${key}`);
+                console.log(`Failed to load ${key}`)
             }
         )
 
-        const resourceList = resourceLocators ? [...resourceLocators] : [];
-        this.resourcesByKey = {};
-        addResourceLocators(this, resourceList);
-        this.imagesByKey = {};
+        const resourceList = resourceLocators ? [...resourceLocators] : []
+        this.resourcesByKey = {}
+        addResourceLocators(this, resourceList)
+        this.imagesByKey = {}
     }
 
     loadResources(resourceKeys: string[]): Error[] {
         const errors = resourceKeys.map((key) => {
-            return this.loadResource(key);
+            return this.loadResource(key)
         })
-        return errors.filter(x => x);
+        return errors.filter((x) => x)
     }
 
     loadResource(resourceKey: string): Error | undefined {
@@ -115,61 +137,67 @@ export class ResourceHandler {
             [ResourceType.IMAGE]: this.imageLoader,
         }
 
-        const resource = this.resourcesByKey[resourceKey];
+        const resource = this.resourcesByKey[resourceKey]
         if (!resource) {
-            return new Error(`resource key does not exist: ${resourceKey}`);
+            return new Error(`resource key does not exist: ${resourceKey}`)
         }
 
-        const resourceLoader = resourceLoadersByType[resource.type];
+        const resourceLoader = resourceLoadersByType[resource.type]
         if (!resourceLoader) {
-            return new Error(`no loader exists for resource type: ${resource.type}`);
+            return new Error(
+                `no loader exists for resource type: ${resource.type}`
+            )
         }
 
-        resourceLoader.loadResource(resourceKey, this);
-        return undefined;
+        resourceLoader.loadResource(resourceKey, this)
+        return undefined
     }
 
     getResource(resourceKey: string): p5.Image {
-        const resourceType = this.resourcesByKey[resourceKey].type;
+        const resourceType = this.resourcesByKey[resourceKey].type
 
         if (resourceType === ResourceType.IMAGE) {
             if (!this.imagesByKey[resourceKey]) {
-                console.warn(`getResource: "${resourceKey}" was not loaded, will retry and return placeholder image`);
-                this.loadResource(resourceKey);
-                return createPlaceholderImage(this.graphicsContext);
+                console.warn(
+                    `getResource: "${resourceKey}" was not loaded, will retry and return placeholder image`
+                )
+                this.loadResource(resourceKey)
+                return createPlaceholderImage(this.graphicsContext)
             }
-            return this.imagesByKey[resourceKey].image;
+            return this.imagesByKey[resourceKey].image
         }
 
-        return undefined;
+        return undefined
     }
 
-    imageSuccessCallback(resourceKey: string, resourceHandler: ResourceHandler, loadedImage: p5.Image): any {
+    imageSuccessCallback(
+        resourceKey: string,
+        resourceHandler: ResourceHandler,
+        loadedImage: p5.Image
+    ): any {
         resourceHandler.imagesByKey[resourceKey] = {
             locator: resourceHandler.resourcesByKey[resourceKey],
-            image: loadedImage
-        };
+            image: loadedImage,
+        }
     }
 
     areAllResourcesLoaded(keysToCheck?: string[]): boolean {
-        let keys = keysToCheck || Object.keys(this.resourcesByKey);
-        return keys.every(this.isResourceLoaded);
+        let keys = keysToCheck || Object.keys(this.resourcesByKey)
+        return keys.every(this.isResourceLoaded)
     }
 
     isResourceLoaded = (resourceKey: string): boolean => {
         if (this.resourcesByKey[resourceKey] === undefined) {
-            console.error(`isResourceLoaded: ${resourceKey} not defined.`);
-            return false;
+            console.error(`isResourceLoaded: ${resourceKey} not defined.`)
+            return false
         }
-        const resourceType = this.resourcesByKey[resourceKey].type;
+        const resourceType = this.resourcesByKey[resourceKey].type
 
-        if (
-            resourceType === ResourceType.IMAGE
-        ) {
+        if (resourceType === ResourceType.IMAGE) {
             return this.imagesByKey[resourceKey]?.image !== undefined
         }
 
-        return false;
+        return false
     }
 
     deleteResource(resourceKey: string) {
@@ -177,33 +205,37 @@ export class ResourceHandler {
             [ResourceType.IMAGE]: this.imagesByKey,
         }
 
-        const resource = this.resourcesByKey[resourceKey];
+        const resource = this.resourcesByKey[resourceKey]
         if (!resource) {
-            return;
+            return
         }
 
-        const typeStorage = storageLocationByType[resource.type];
+        const typeStorage = storageLocationByType[resource.type]
         if (!typeStorage) {
-            return;
+            return
         }
 
-        delete typeStorage[resourceKey];
+        delete typeStorage[resourceKey]
     }
 
     deleteResources(resourceKeys: string[]) {
-        resourceKeys.forEach(key => this.deleteResource(key));
+        resourceKeys.forEach((key) => this.deleteResource(key))
     }
 
     getResourceLocator(key: string): ResourceLocator {
-        return this.resourcesByKey[key];
+        return this.resourcesByKey[key]
     }
 }
 
 export const ResourceHandlerService = {
-    new: ({imageLoader, resourceLocators, graphics}: {
-        imageLoader: ResourceTypeLoader,
-        resourceLocators?: ResourceLocator[],
-        graphics: GraphicsBuffer,
+    new: ({
+        imageLoader,
+        resourceLocators,
+        graphics,
+    }: {
+        imageLoader: ResourceTypeLoader
+        resourceLocators?: ResourceLocator[]
+        graphics: GraphicsBuffer
     }): ResourceHandler => {
         return new ResourceHandler({
             imageLoader,
@@ -212,24 +244,34 @@ export const ResourceHandlerService = {
         })
     },
     hasResourceLocations: (resourceHandler: ResourceHandler): boolean => {
-        return Object.values(resourceHandler.resourcesByKey).length > 0;
+        return Object.values(resourceHandler.resourcesByKey).length > 0
     },
-    loadResourceLocations: async (resourceHandler: ResourceHandler, filename: string) => {
+    loadResourceLocations: async (
+        resourceHandler: ResourceHandler,
+        filename: string
+    ) => {
         try {
-            const resourceLocators: ResourceLocator[] = await LoadFileIntoFormat<ResourceLocator[]>(filename);
-            addResourceLocators(resourceHandler, resourceLocators);
+            const resourceLocators: ResourceLocator[] =
+                await LoadFileIntoFormat<ResourceLocator[]>(filename)
+            addResourceLocators(resourceHandler, resourceLocators)
         } catch (e) {
-            console.error("Error while loading mission from file");
-            console.error(e);
+            console.error("Error while loading mission from file")
+            console.error(e)
         }
     },
-    getResource: (resourceHandler: ResourceHandler, resourceKey: string): p5.Image => {
+    getResource: (
+        resourceHandler: ResourceHandler,
+        resourceKey: string
+    ): p5.Image => {
         return resourceHandler.getResource(resourceKey)
-    }
+    },
 }
 
-const addResourceLocators = (resourceHandler: ResourceHandler, resourceList: ResourceLocator[]) => {
+const addResourceLocators = (
+    resourceHandler: ResourceHandler,
+    resourceList: ResourceLocator[]
+) => {
     resourceList.forEach((res) => {
-        resourceHandler.resourcesByKey[res.key] = res;
+        resourceHandler.resourcesByKey[res.key] = res
     })
-};
+}

@@ -1,8 +1,8 @@
-import {ProcessedActionSquaddieEffect} from "./processedActionSquaddieEffect";
-import {ProcessedActionMovementEffect} from "./processedActionMovementEffect";
-import {ProcessedActionEndTurnEffect} from "./processedActionEndTurnEffect";
+import { ProcessedActionSquaddieEffect } from "./processedActionSquaddieEffect"
+import { ProcessedActionMovementEffect } from "./processedActionMovementEffect"
+import { ProcessedActionEndTurnEffect } from "./processedActionEndTurnEffect"
 
 export type ProcessedActionEffect =
-    ProcessedActionSquaddieEffect
+    | ProcessedActionSquaddieEffect
     | ProcessedActionMovementEffect
-    | ProcessedActionEndTurnEffect;
+    | ProcessedActionEndTurnEffect

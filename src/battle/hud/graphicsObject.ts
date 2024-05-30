@@ -1,4 +1,4 @@
-import {TextBox} from "../../ui/textBox";
+import { TextBox } from "../../ui/textBox"
 
 export enum BattleHUDGraphicsObjectTextBoxTypes {
     ACTION_POINTS = "ACTION_POINTS",
@@ -9,7 +9,7 @@ export enum BattleHUDGraphicsObjectTextBoxTypes {
 
 export interface BattleHUDGraphicsObject {
     textBoxes: {
-        [textBoxType in BattleHUDGraphicsObjectTextBoxTypes]?: TextBox;
+        [textBoxType in BattleHUDGraphicsObjectTextBoxTypes]?: TextBox
     }
 }
 
@@ -18,12 +18,16 @@ export const BattleHUDGraphicsObjectsHelper = {
         return {
             textBoxes: {
                 [BattleHUDGraphicsObjectTextBoxTypes.ACTION_POINTS]: undefined,
-            }
+            },
         }
     },
-    lazySetTextBox: (objects: BattleHUDGraphicsObject, boxType: BattleHUDGraphicsObjectTextBoxTypes, textBox: TextBox) => {
+    lazySetTextBox: (
+        objects: BattleHUDGraphicsObject,
+        boxType: BattleHUDGraphicsObjectTextBoxTypes,
+        textBox: TextBox
+    ) => {
         if (objects.textBoxes[boxType] === undefined) {
-            objects.textBoxes[boxType] = textBox;
+            objects.textBoxes[boxType] = textBox
         }
     },
-};
+}

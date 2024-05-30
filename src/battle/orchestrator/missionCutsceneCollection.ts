@@ -1,7 +1,7 @@
-import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
+import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 
-export const DEFAULT_VICTORY_CUTSCENE_ID = "default_victory";
-export const DEFAULT_DEFEAT_CUTSCENE_ID = "default_defeat";
+export const DEFAULT_VICTORY_CUTSCENE_ID = "default_victory"
+export const DEFAULT_DEFEAT_CUTSCENE_ID = "default_defeat"
 
 export interface MissionCutsceneCollection {
     cutsceneById: {
@@ -11,19 +11,19 @@ export interface MissionCutsceneCollection {
 
 export const MissionCutsceneCollectionHelper = {
     new: ({
-              cutsceneById,
-          }: {
-              cutsceneById: {
-                  [id: string]: Cutscene
-              },
-          }
-    ): MissionCutsceneCollection => {
+        cutsceneById,
+    }: {
+        cutsceneById: {
+            [id: string]: Cutscene
+        }
+    }): MissionCutsceneCollection => {
         const newCollection: MissionCutsceneCollection = {
             cutsceneById,
         }
         if (!(DEFAULT_VICTORY_CUTSCENE_ID in newCollection.cutsceneById)) {
-            newCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID] = CutsceneService.new({});
+            newCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID] =
+                CutsceneService.new({})
         }
-        return newCollection;
-    }
-};
+        return newCollection
+    },
+}

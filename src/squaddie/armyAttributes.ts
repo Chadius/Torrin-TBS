@@ -1,49 +1,52 @@
-import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementService} from "./movement";
-import {isValidValue} from "../utils/validityCheck";
+import {
+    CreateNewSquaddieMovementWithTraits,
+    SquaddieMovement,
+    SquaddieMovementService,
+} from "./movement"
+import { isValidValue } from "../utils/validityCheck"
 
 export interface ArmyAttributes {
-    maxHitPoints: number;
-    armorClass: number;
-    movement: SquaddieMovement;
+    maxHitPoints: number
+    armorClass: number
+    movement: SquaddieMovement
 }
 
 export const ArmyAttributesService = {
-    new: ({movement}: { movement?: SquaddieMovement }): ArmyAttributes => {
+    new: ({ movement }: { movement?: SquaddieMovement }): ArmyAttributes => {
         const attributes = {
             ...DefaultArmyAttributes(),
-            movement
+            movement,
         }
-        return sanitize(attributes);
-
+        return sanitize(attributes)
     },
     default: (): ArmyAttributes => {
-        return DefaultArmyAttributes();
+        return DefaultArmyAttributes()
     },
     sanitize: (data: ArmyAttributes): ArmyAttributes => {
-        return sanitize(data);
-    }
+        return sanitize(data)
+    },
 }
 
 export const DefaultArmyAttributes = (): ArmyAttributes => {
     return {
-        movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+        movement: CreateNewSquaddieMovementWithTraits({ movementPerAction: 2 }),
         armorClass: 0,
         maxHitPoints: 5,
     }
 }
 
 const sanitize = (data: ArmyAttributes): ArmyAttributes => {
-    const defaultAttributes = DefaultArmyAttributes();
+    const defaultAttributes = DefaultArmyAttributes()
     if (!isValidValue(data.movement)) {
-        data.movement = defaultAttributes.movement;
+        data.movement = defaultAttributes.movement
     }
-    SquaddieMovementService.sanitize(data.movement);
+    SquaddieMovementService.sanitize(data.movement)
 
     if (!isValidValue(data.maxHitPoints) || data.maxHitPoints <= 0) {
-        data.maxHitPoints = defaultAttributes.maxHitPoints;
+        data.maxHitPoints = defaultAttributes.maxHitPoints
     }
     if (!isValidValue(data.armorClass)) {
-        data.armorClass = defaultAttributes.armorClass;
+        data.armorClass = defaultAttributes.armorClass
     }
-    return data;
+    return data
 }

@@ -1,68 +1,89 @@
-import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
-import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battle/battleSquaddieTeam";
-import {SquaddieTemplate, SquaddieTemplateService} from "../campaign/squaddieTemplate";
-import {BattleSquaddie, BattleSquaddieService} from "../battle/battleSquaddie";
-import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
-import {BattleSquaddieSelectedHUD} from "../battle/hud/battleSquaddieSelectedHUD";
-import {ResourceHandler} from "../resource/resourceHandler";
-import {MissionMap, MissionMapService} from "../missionMap/missionMap";
-import {ActionEffectSquaddieTemplateService} from "../action/template/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
-import {SquaddieIdService} from "../squaddie/id";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import * as mocks from "../utils/test/mocks";
-import {MockedP5GraphicsBuffer} from "../utils/test/mocks";
-import {makeResult} from "../utils/ResultOrError";
-import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {BattlePhaseState, BattlePhaseStateService} from "../battle/orchestratorComponents/battlePhaseController";
-import {ActionsThisRound, ActionsThisRoundService} from "../battle/history/actionsThisRound";
-import {GameEngineState, GameEngineStateService} from "../gameEngine/gameEngine";
-import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
-import {BattleStateService} from "../battle/orchestrator/battleState";
-import {BattleCamera} from "../battle/battleCamera";
-import {CampaignService} from "../campaign/campaign";
-import {RectAreaService} from "../ui/rectArea";
-import {DecidedActionService} from "../action/decided/decidedAction";
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../battle/objectRepository"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "../battle/battleSquaddieTeam"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../campaign/squaddieTemplate"
+import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../action/template/actionTemplate"
+import { BattleSquaddieSelectedHUD } from "../battle/hud/battleSquaddieSelectedHUD"
+import { ResourceHandler } from "../resource/resourceHandler"
+import { MissionMap, MissionMapService } from "../missionMap/missionMap"
+import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
+import { SquaddieIdService } from "../squaddie/id"
+import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import * as mocks from "../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import { makeResult } from "../utils/ResultOrError"
+import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import {
+    BattlePhaseState,
+    BattlePhaseStateService,
+} from "../battle/orchestratorComponents/battlePhaseController"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../battle/history/actionsThisRound"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../battle/orchestrator/battleState"
+import { BattleCamera } from "../battle/battleCamera"
+import { CampaignService } from "../campaign/campaign"
+import { RectAreaService } from "../ui/rectArea"
+import { DecidedActionService } from "../action/decided/decidedAction"
 import {
     DecidedActionEndTurnEffect,
-    DecidedActionEndTurnEffectService
-} from "../action/decided/decidedActionEndTurnEffect";
-import {ActionEffectEndTurnTemplateService} from "../action/template/actionEffectEndTurnTemplate";
-import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
-import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
-import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
-import {OrchestratorComponentMouseEventType} from "../battle/orchestrator/battleOrchestratorComponent";
-import {SquaddieTurnService} from "../squaddie/turn";
-import {OrchestratorUtilities} from "../battle/orchestratorComponents/orchestratorUtils";
-import {BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
+    DecidedActionEndTurnEffectService,
+} from "../action/decided/decidedActionEndTurnEffect"
+import { ActionEffectEndTurnTemplateService } from "../action/template/actionEffectEndTurnTemplate"
+import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
+import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
+import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
+import { SquaddieTurnService } from "../squaddie/turn"
+import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
+import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import {
     ACTION_COMPLETED_WAIT_TIME_MS,
-    BattleSquaddieUsesActionOnMap
-} from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap";
-import {ProcessedActionEndTurnEffectService} from "../action/processed/processedActionEndTurnEffect";
-import {ProcessedActionService} from "../action/processed/processedAction";
-import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
-import {BattleEventService} from "../battle/history/battleEvent";
-import {MouseButton} from "../utils/mouseConfig";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
+    BattleSquaddieUsesActionOnMap,
+} from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap"
+import { ProcessedActionEndTurnEffectService } from "../action/processed/processedActionEndTurnEffect"
+import { ProcessedActionService } from "../action/processed/processedAction"
+import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
+import { BattleEventService } from "../battle/history/battleEvent"
+import { MouseButton } from "../utils/mouseConfig"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
-describe('User ends their turn', () => {
-    let repository: ObjectRepository;
-    let gameEngineState: GameEngineState;
+describe("User ends their turn", () => {
+    let repository: ObjectRepository
+    let gameEngineState: GameEngineState
 
-    let playerTeam: BattleSquaddieTeam;
-    let playerSquaddieTemplate: SquaddieTemplate;
-    let playerBattleSquaddie: BattleSquaddie;
+    let playerTeam: BattleSquaddieTeam
+    let playerSquaddieTemplate: SquaddieTemplate
+    let playerBattleSquaddie: BattleSquaddie
 
-    let attackAction: ActionTemplate;
+    let attackAction: ActionTemplate
 
-    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
+    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
 
-    let resourceHandler: ResourceHandler;
-    let missionMap: MissionMap;
+    let resourceHandler: ResourceHandler
+    let missionMap: MissionMap
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new();
+        repository = ObjectRepositoryService.new()
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
@@ -70,10 +91,10 @@ describe('User ends their turn', () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                    })
-                })
-            ]
-        });
+                    }),
+                }),
+            ],
+        })
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -82,38 +103,58 @@ describe('User ends their turn', () => {
                 templateId: "player",
             }),
             actionTemplates: [attackAction],
-        });
-        ObjectRepositoryService.addSquaddieTemplate(repository, playerSquaddieTemplate);
+        })
+        ObjectRepositoryService.addSquaddieTemplate(
+            repository,
+            playerSquaddieTemplate
+        )
 
         playerBattleSquaddie = BattleSquaddieService.new({
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: "player 0",
-        });
-        ObjectRepositoryService.addBattleSquaddie(repository, playerBattleSquaddie);
+        })
+        ObjectRepositoryService.addBattleSquaddie(
+            repository,
+            playerBattleSquaddie
+        )
 
         playerTeam = BattleSquaddieTeamService.new({
             name: "player team",
             id: "player",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
-        });
+        })
 
-        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
+        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
 
-        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer());
-        resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
-        resourceHandler = mocks.mockResourceHandler(new MockedP5GraphicsBuffer())
-        resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
+        resourceHandler = mocks.mockResourceHandler(
+            new MockedP5GraphicsBuffer()
+        )
+        resourceHandler.areAllResourcesLoaded = jest
+            .fn()
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+        resourceHandler = mocks.mockResourceHandler(
+            new MockedP5GraphicsBuffer()
+        )
+        resourceHandler.getResource = jest
+            .fn()
+            .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
-            })
-        });
-        MissionMapService.addSquaddie(missionMap, playerSquaddieTemplate.squaddieId.templateId, playerBattleSquaddie.battleSquaddieId, {
-            q: 0,
-            r: 0
-        });
+                movementCost: ["1 1 "],
+            }),
+        })
+        MissionMapService.addSquaddie(
+            missionMap,
+            playerSquaddieTemplate.squaddieId.templateId,
+            playerBattleSquaddie.battleSquaddieId,
+            {
+                q: 0,
+                r: 0,
+            }
+        )
 
         gameEngineState = getGameEngineState({
             resourceHandler,
@@ -124,287 +165,359 @@ describe('User ends their turn', () => {
                 currentAffiliation: BattlePhase.PLAYER,
                 turnCount: 0,
             }),
-        });
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
+        })
+        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD =
+            battleSquaddieSelectedHUD
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
             battleSquaddieSelectedHUD,
             gameEngineState,
-        });
-    });
+        })
+    })
 
-    it('HUD knows the user selected end turn', () => {
+    it("HUD knows the user selected end turn", () => {
         battleSquaddieSelectedHUD.mouseClicked({
-            mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
-            mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+            mouseX: RectAreaService.centerX(
+                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+            ),
+            mouseY: RectAreaService.centerY(
+                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+            ),
             gameEngineState,
             mouseButton: MouseButton.ACCEPT,
-        });
+        })
 
-        expect(battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()).toBeTruthy();
-        expect(battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()).toBeFalsy();
-    });
+        expect(
+            battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()
+        ).toBeTruthy()
+        expect(
+            battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()
+        ).toBeFalsy()
+    })
 
-    it('EndTurn adds a ProcessedAction to end the turn', () => {
-        const selector = new BattlePlayerSquaddieSelector();
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+    it("EndTurn adds a ProcessedAction to end the turn", () => {
+        const selector = new BattlePlayerSquaddieSelector()
+        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+            0,
+            0,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        )
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
             mouseButton: MouseButton.ACCEPT,
-        });
+        })
 
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+        expect(
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        ).toBeUndefined()
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
-            mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+            mouseX: RectAreaService.centerX(
+                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+            ),
+            mouseY: RectAreaService.centerY(
+                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+            ),
             mouseButton: MouseButton.ACCEPT,
-        });
+        })
 
-        const actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
-        expect(actionsThisRound.processedActions).toHaveLength(1);
+        const actionsThisRound =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        expect(actionsThisRound.processedActions).toHaveLength(1)
 
-        const processedAction = actionsThisRound.processedActions[0];
+        const processedAction = actionsThisRound.processedActions[0]
 
-        const decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
-            template: ActionEffectEndTurnTemplateService.new({})
-        });
-        expect(processedAction.processedActionEffects).toHaveLength(1);
+        const decidedActionEndTurnEffect =
+            DecidedActionEndTurnEffectService.new({
+                template: ActionEffectEndTurnTemplateService.new({}),
+            })
+        expect(processedAction.processedActionEffects).toHaveLength(1)
         expect(processedAction.processedActionEffects[0]).toEqual(
             ProcessedActionEndTurnEffectService.new({
                 decidedActionEffect: decidedActionEndTurnEffect,
             })
-        );
+        )
         expect(processedAction.decidedAction).toEqual(
             DecidedActionService.new({
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 actionTemplateName: "End Turn",
-                actionEffects: [
-                    decidedActionEndTurnEffect
-                ]
+                actionEffects: [decidedActionEndTurnEffect],
             })
-        );
-    });
+        )
+    })
 
-    describe('player squaddie selector reacts to ending the turn', () => {
-        let selector: BattlePlayerSquaddieSelector;
-        let highlightTileSpy: jest.SpyInstance;
+    describe("player squaddie selector reacts to ending the turn", () => {
+        let selector: BattlePlayerSquaddieSelector
+        let highlightTileSpy: jest.SpyInstance
 
         beforeEach(() => {
-            highlightTileSpy = jest.spyOn(missionMap.terrainTileMap, "stopHighlightingTiles");
-            selector = new BattlePlayerSquaddieSelector();
-            let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates());
+            highlightTileSpy = jest.spyOn(
+                missionMap.terrainTileMap,
+                "stopHighlightingTiles"
+            )
+            selector = new BattlePlayerSquaddieSelector()
+            let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+                0,
+                0,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+            )
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
                 mouseY,
                 mouseButton: MouseButton.ACCEPT,
-            });
+            })
 
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: RectAreaService.centerX(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
-                mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
+                mouseX: RectAreaService.centerX(
+                    battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                ),
+                mouseY: RectAreaService.centerY(
+                    battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                ),
                 mouseButton: MouseButton.ACCEPT,
-            });
-        });
-
-        afterEach(() => {
-            highlightTileSpy.mockClear();
+            })
         })
 
-        it('Selector has completed and HUD is no longer drawn', () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
-            selector.reset(gameEngineState);
-            expect(battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-        });
+        afterEach(() => {
+            highlightTileSpy.mockClear()
+        })
 
-        it('ends the squaddie turn', () => {
-            expect(playerBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(0);
-            expect(SquaddieTurnService.hasActionPointsRemaining(playerBattleSquaddie.squaddieTurn)).toBeFalsy();
-            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeTruthy();
-        });
+        it("Selector has completed and HUD is no longer drawn", () => {
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+            selector.reset(gameEngineState)
+            expect(battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy()
+        })
 
-        it('tells the map to stop highlighting tiles', () => {
-            expect(highlightTileSpy).toBeCalled();
-        });
+        it("ends the squaddie turn", () => {
+            expect(
+                playerBattleSquaddie.squaddieTurn.remainingActionPoints
+            ).toEqual(0)
+            expect(
+                SquaddieTurnService.hasActionPointsRemaining(
+                    playerBattleSquaddie.squaddieTurn
+                )
+            ).toBeFalsy()
+            expect(
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                    gameEngineState
+                )
+            ).toBeTruthy()
+        })
 
-        it('Mode switches to player HUD controller', () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy();
-            const changes = selector.recommendStateChanges(gameEngineState);
-            expect(changes.nextMode).toBe(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER);
-        });
+        it("tells the map to stop highlighting tiles", () => {
+            expect(highlightTileSpy).toBeCalled()
+        })
 
-        it('It adds an event showing the processed action', () => {
-            const decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({})
-            });
+        it("Mode switches to player HUD controller", () => {
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+            const changes = selector.recommendStateChanges(gameEngineState)
+            expect(changes.nextMode).toBe(
+                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+            )
+        })
 
-            expect(gameEngineState.battleOrchestratorState.battleState.recording.history).toContainEqual(
+        it("It adds an event showing the processed action", () => {
+            const decidedActionEndTurnEffect =
+                DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.recording
+                    .history
+            ).toContainEqual(
                 BattleEventService.new({
                     processedAction: ProcessedActionService.new({
                         decidedAction: DecidedActionService.new({
-                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                            battleSquaddieId:
+                                playerBattleSquaddie.battleSquaddieId,
                             actionTemplateName: "End Turn",
-                            actionEffects: [
-                                decidedActionEndTurnEffect
-                            ]
+                            actionEffects: [decidedActionEndTurnEffect],
                         }),
                         processedActionEffects: [
                             ProcessedActionEndTurnEffectService.new({
                                 decidedActionEffect: decidedActionEndTurnEffect,
-                            })
-                        ]
+                            }),
+                        ],
                     }),
                     results: undefined,
-                }),
-            );
-        });
-    });
+                })
+            )
+        })
+    })
 
-    describe('When MapAction phase completes', () => {
-        let mapAction: BattleSquaddieUsesActionOnMap;
-        let graphicsContext: GraphicsBuffer;
-        let decidedActionEndTurnEffect: DecidedActionEndTurnEffect;
-        let tintSpy: jest.SpyInstance;
-        let orchestratorUtilsSpy: jest.SpyInstance;
+    describe("When MapAction phase completes", () => {
+        let mapAction: BattleSquaddieUsesActionOnMap
+        let graphicsContext: GraphicsBuffer
+        let decidedActionEndTurnEffect: DecidedActionEndTurnEffect
+        let tintSpy: jest.SpyInstance
+        let orchestratorUtilsSpy: jest.SpyInstance
 
         beforeEach(() => {
             decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({})
-            });
+                template: ActionEffectEndTurnTemplateService.new({}),
+            })
             graphicsContext = new MockedP5GraphicsBuffer()
-            mapAction = new BattleSquaddieUsesActionOnMap();
+            mapAction = new BattleSquaddieUsesActionOnMap()
             gameEngineState = GameEngineStateService.new({
                 repository: repository,
                 resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
-                            turnCount: 0,
-                        },
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                            startingLocation: {q: 0, r: 0},
-                            processedActions: [
-                                ProcessedActionService.new({
-                                    decidedAction: DecidedActionService.new({
-                                        battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                                        actionEffects: [
-                                            decidedActionEndTurnEffect
-                                        ]
+                battleOrchestratorState:
+                    BattleOrchestratorStateService.newOrchestratorState({
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            campaignId: "test campaign",
+                            missionMap,
+                            battlePhaseState: {
+                                currentAffiliation: BattlePhase.PLAYER,
+                                turnCount: 0,
+                            },
+                            actionsThisRound: ActionsThisRoundService.new({
+                                battleSquaddieId:
+                                    playerBattleSquaddie.battleSquaddieId,
+                                startingLocation: { q: 0, r: 0 },
+                                processedActions: [
+                                    ProcessedActionService.new({
+                                        decidedAction: DecidedActionService.new(
+                                            {
+                                                battleSquaddieId:
+                                                    playerBattleSquaddie.battleSquaddieId,
+                                                actionEffects: [
+                                                    decidedActionEndTurnEffect,
+                                                ],
+                                            }
+                                        ),
+                                        processedActionEffects: [
+                                            ProcessedActionEndTurnEffectService.new(
+                                                {
+                                                    decidedActionEffect:
+                                                        decidedActionEndTurnEffect,
+                                                }
+                                            ),
+                                        ],
                                     }),
-                                    processedActionEffects: [
-                                        ProcessedActionEndTurnEffectService.new({
-                                            decidedActionEffect: decidedActionEndTurnEffect,
-                                        })
-                                    ]
-                                })
-                            ]
+                                ],
+                            }),
                         }),
                     }),
-                }),
                 campaign: CampaignService.default({}),
-            });
-            BattleSquaddieService.endTurn(playerBattleSquaddie);
-            tintSpy = jest.spyOn(DrawSquaddieUtilities, "tintSquaddieMapIconIfTheyCannotAct");
+            })
+            BattleSquaddieService.endTurn(playerBattleSquaddie)
+            tintSpy = jest.spyOn(
+                DrawSquaddieUtilities,
+                "tintSquaddieMapIconIfTheyCannotAct"
+            )
 
-            jest.spyOn(Date, 'now').mockImplementation(() => 0);
-            mapAction.update(gameEngineState, graphicsContext);
-            jest.spyOn(Date, 'now').mockImplementation(() => ACTION_COMPLETED_WAIT_TIME_MS + 1);
-            mapAction.update(gameEngineState, graphicsContext);
+            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            mapAction.update(gameEngineState, graphicsContext)
+            jest.spyOn(Date, "now").mockImplementation(
+                () => ACTION_COMPLETED_WAIT_TIME_MS + 1
+            )
+            mapAction.update(gameEngineState, graphicsContext)
 
-            orchestratorUtilsSpy = jest.spyOn(OrchestratorUtilities, "clearActionsThisRoundIfSquaddieCannotAct");
-        });
+            orchestratorUtilsSpy = jest.spyOn(
+                OrchestratorUtilities,
+                "clearActionsThisRoundIfSquaddieCannotAct"
+            )
+        })
 
         afterEach(() => {
-            tintSpy.mockRestore();
-            orchestratorUtilsSpy.mockRestore();
-        });
+            tintSpy.mockRestore()
+            orchestratorUtilsSpy.mockRestore()
+        })
 
-        it('component is completed', () => {
-            expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy();
-        });
-        it('It iterates to the next processed action to show', () => {
-            let nextAction = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
+        it("component is completed", () => {
+            expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
+        })
+        it("It iterates to the next processed action to show", () => {
+            let nextAction =
+                ActionsThisRoundService.getProcessedActionEffectToShow(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
+                )
             expect(nextAction).toEqual(
                 ProcessedActionEndTurnEffectService.new({
                     decidedActionEffect: decidedActionEndTurnEffect,
                 })
-            );
-            mapAction.recommendStateChanges(gameEngineState);
-            mapAction.reset(gameEngineState);
-            nextAction = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
-            expect(nextAction).toBeUndefined();
-        });
-        it('It clears ActionsThisRound when there are no more actions to process', () => {
-            mapAction.recommendStateChanges(gameEngineState);
-            mapAction.reset(gameEngineState);
-            expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
-        });
-        it('The squaddie is grayed out since it is out of actions', () => {
-            expect(tintSpy).toBeCalled();
-        });
-        it('checks to see if it should generate a message to alert another player squaddie can act', () => {
-            mapAction.recommendStateChanges(gameEngineState);
-            expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState);
-        });
-    });
-});
+            )
+            mapAction.recommendStateChanges(gameEngineState)
+            mapAction.reset(gameEngineState)
+            nextAction = ActionsThisRoundService.getProcessedActionEffectToShow(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            )
+            expect(nextAction).toBeUndefined()
+        })
+        it("It clears ActionsThisRound when there are no more actions to process", () => {
+            mapAction.recommendStateChanges(gameEngineState)
+            mapAction.reset(gameEngineState)
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            ).toBeUndefined()
+        })
+        it("The squaddie is grayed out since it is out of actions", () => {
+            expect(tintSpy).toBeCalled()
+        })
+        it("checks to see if it should generate a message to alert another player squaddie can act", () => {
+            mapAction.recommendStateChanges(gameEngineState)
+            expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState)
+        })
+    })
+})
 
 const getGameEngineState = ({
-                                resourceHandler,
-                                missionMap,
-                                repository,
-                                teams,
-                                battlePhaseState,
-                                actionsThisRound,
-                            }: {
-    resourceHandler: ResourceHandler,
-    missionMap: MissionMap,
-    repository: ObjectRepository,
-    teams: BattleSquaddieTeam[],
-    battlePhaseState: BattlePhaseState,
-    actionsThisRound?: ActionsThisRound,
+    resourceHandler,
+    missionMap,
+    repository,
+    teams,
+    battlePhaseState,
+    actionsThisRound,
+}: {
+    resourceHandler: ResourceHandler
+    missionMap: MissionMap
+    repository: ObjectRepository
+    teams: BattleSquaddieTeam[]
+    battlePhaseState: BattlePhaseState
+    actionsThisRound?: ActionsThisRound
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
-        battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                campaignId: "test campaign",
-                missionMap,
-                camera: new BattleCamera(0, 0),
-                teams,
-                battlePhaseState,
-                actionsThisRound,
+        battleOrchestratorState:
+            BattleOrchestratorStateService.newOrchestratorState({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    camera: new BattleCamera(0, 0),
+                    teams,
+                    battlePhaseState,
+                    actionsThisRound,
+                }),
             }),
-        }),
         repository,
         campaign: CampaignService.default({}),
-    });
+    })
 }
 
 const selectSquaddieForTheHUD = ({
-                                     battleSquaddie,
-                                     battleSquaddieSelectedHUD,
-                                     gameEngineState,
-                                 }: {
-    battleSquaddie: BattleSquaddie,
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
-    gameEngineState: GameEngineState,
+    battleSquaddie,
+    battleSquaddieSelectedHUD,
+    gameEngineState,
+}: {
+    battleSquaddie: BattleSquaddie
+    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
+    gameEngineState: GameEngineState
 }) => {
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddie.battleSquaddieId,
         state: gameEngineState,
-        repositionWindow: {mouseX: 0, mouseY: 0},
-    });
+        repositionWindow: { mouseX: 0, mouseY: 0 },
+    })
 }

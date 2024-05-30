@@ -1,23 +1,32 @@
-import {BattleSquaddie} from "../battleSquaddie";
-import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
-import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
-import {RectArea, RectAreaService} from "../../ui/rectArea";
-import {Rectangle, RectangleHelper} from "../../ui/rectangle";
-import {BattleCamera} from "../battleCamera";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {HORIZONTAL_ALIGN, VERTICAL_ALIGN} from "../../ui/constants";
-import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
-import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
-import {SquaddieService} from "../../squaddie/squaddieService";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {ImageUI} from "../../ui/imageUI";
-import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
-import {MapHighlightHelper} from "./mapHighlight";
-import {Campaign} from "../../campaign/campaign";
-import {DEFAULT_ACTION_POINTS_PER_TURN} from "../../squaddie/turn";
+import { BattleSquaddie } from "../battleSquaddie"
+import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
+import {
+    HEX_TILE_WIDTH,
+    HUE_BY_SQUADDIE_AFFILIATION,
+} from "../../graphicsConstants"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
+import { Rectangle, RectangleHelper } from "../../ui/rectangle"
+import { BattleCamera } from "../battleCamera"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
+import {
+    SearchPath,
+    SearchPathHelper,
+} from "../../hexMap/pathfinder/searchPath"
+import {
+    getSquaddiePositionAlongPath,
+    TIME_TO_MOVE,
+} from "./squaddieMoveAnimationUtils"
+import { SquaddieService } from "../../squaddie/squaddieService"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { ImageUI } from "../../ui/imageUI"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MapHighlightHelper } from "./mapHighlight"
+import { Campaign } from "../../campaign/campaign"
+import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../squaddie/turn"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -42,67 +51,94 @@ const MAP_ICON_CONSTANTS = {
         foregroundFillColor: [0, 70, 70],
         backgroundFillColor: [0, 0, 12],
     },
-};
+}
 
 export const DrawSquaddieUtilities = {
-    hasMovementAnimationFinished: (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
-        return hasMovementAnimationFinished(timeMovementStarted, squaddieMovePath);
+    hasMovementAnimationFinished: (
+        timeMovementStarted: number,
+        squaddieMovePath: SearchPath
+    ) => {
+        return hasMovementAnimationFinished(
+            timeMovementStarted,
+            squaddieMovePath
+        )
     },
     tintSquaddieMapIcon: ({
-                              repository,
-                              battleSquaddieId,
-                          }: {
-        repository: ObjectRepository,
+        repository,
+        battleSquaddieId,
+    }: {
+        repository: ObjectRepository
         battleSquaddieId: string
     }) => {
-        const {
-            battleSquaddie,
-            squaddieTemplate
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
-        return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie);
+        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                repository,
+                battleSquaddieId
+            )
+        )
+        return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie)
     },
-    highlightSquaddieRange: ({missionMap, battleSquaddieId, repository, campaign}: {
-        missionMap: MissionMap,
-        battleSquaddieId: string,
-        repository: ObjectRepository,
-        campaign: Campaign,
+    highlightSquaddieRange: ({
+        missionMap,
+        battleSquaddieId,
+        repository,
+        campaign,
+    }: {
+        missionMap: MissionMap
+        battleSquaddieId: string
+        repository: ObjectRepository
+        campaign: Campaign
     }) => {
-        const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId);
-        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-            repository: repository,
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
             missionMap,
-            battleSquaddieId,
-            startLocation: mapLocation,
-            campaignResources: campaign.resources,
-        })
-        missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+            battleSquaddieId
+        )
+        const squaddieReachHighlightedOnMap =
+            MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                repository: repository,
+                missionMap,
+                battleSquaddieId,
+                startLocation: mapLocation,
+                campaignResources: campaign.resources,
+            })
+        missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap)
     },
     updateSquaddieIconLocation: ({
-                                     repository,
-                                     battleSquaddieId,
-                                     destination,
-                                     camera,
-                                 }: {
-        repository: ObjectRepository,
-        battleSquaddieId: string,
-        destination: HexCoordinate,
+        repository,
+        battleSquaddieId,
+        destination,
+        camera,
+    }: {
+        repository: ObjectRepository
+        battleSquaddieId: string
+        destination: HexCoordinate
         camera: BattleCamera
     }) => {
-        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
-        return updateSquaddieIconLocation(repository, battleSquaddie, destination, camera);
+        const { battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                repository,
+                battleSquaddieId
+            )
+        )
+        return updateSquaddieIconLocation(
+            repository,
+            battleSquaddie,
+            destination,
+            camera
+        )
     },
     highlightPlayableSquaddieReachIfTheyCanAct: ({
-                                                     battleSquaddie,
-                                                     squaddieTemplate,
-                                                     missionMap,
-                                                     repository,
-                                                     campaign,
-                                                 }: {
-        battleSquaddie: BattleSquaddie,
-        squaddieTemplate: SquaddieTemplate,
-        missionMap: MissionMap,
-        repository: ObjectRepository,
-        campaign: Campaign,
+        battleSquaddie,
+        squaddieTemplate,
+        missionMap,
+        repository,
+        campaign,
+    }: {
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+        missionMap: MissionMap
+        repository: ObjectRepository
+        campaign: Campaign
     }) => {
         return highlightPlayableSquaddieReachIfTheyCanAct({
             battleSquaddie,
@@ -110,89 +146,190 @@ export const DrawSquaddieUtilities = {
             missionMap,
             repository,
             campaign,
-        });
+        })
     },
-    tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
-        return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
+    tintSquaddieMapIconIfTheyCannotAct: (
+        battleSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate,
+        repository: ObjectRepository
+    ) => {
+        return tintSquaddieMapIconIfTheyCannotAct(
+            battleSquaddie,
+            squaddieTemplate,
+            repository
+        )
     },
-    drawSquaddieMapIconAtMapLocation: (graphics: GraphicsBuffer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
-        return drawSquaddieMapIconAtMapLocation(graphics, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
-    },
-    moveSquaddieAlongPath: ({
-                                squaddieRepository,
-                                battleSquaddie,
-                                timeMovementStarted,
-                                squaddieMovePath,
-                                camera,
-                            }: {
+    drawSquaddieMapIconAtMapLocation: (
+        graphics: GraphicsBuffer,
         squaddieRepository: ObjectRepository,
         battleSquaddie: BattleSquaddie,
-        timeMovementStarted: number,
-        squaddieMovePath: SearchPath,
+        battleSquaddieId: string,
+        mapLocation: HexCoordinate,
+        camera: BattleCamera
+    ) => {
+        return drawSquaddieMapIconAtMapLocation(
+            graphics,
+            squaddieRepository,
+            battleSquaddie,
+            battleSquaddieId,
+            mapLocation,
+            camera
+        )
+    },
+    moveSquaddieAlongPath: ({
+        squaddieRepository,
+        battleSquaddie,
+        timeMovementStarted,
+        squaddieMovePath,
+        camera,
+    }: {
+        squaddieRepository: ObjectRepository
+        battleSquaddie: BattleSquaddie
+        timeMovementStarted: number
+        squaddieMovePath: SearchPath
         camera: BattleCamera
     }) => {
-        return moveSquaddieAlongPath(squaddieRepository, battleSquaddie, timeMovementStarted, squaddieMovePath, camera);
+        return moveSquaddieAlongPath(
+            squaddieRepository,
+            battleSquaddie,
+            timeMovementStarted,
+            squaddieMovePath,
+            camera
+        )
     },
-    unTintSquaddieMapIcon: (repository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
-        return unTintSquaddieMapIcon(repository, battleSquaddie);
+    unTintSquaddieMapIcon: (
+        repository: ObjectRepository,
+        battleSquaddie: BattleSquaddie
+    ) => {
+        return unTintSquaddieMapIcon(repository, battleSquaddie)
     },
 }
 
-const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
-    const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
-    const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-    if (mapIcon) {
-        mapIcon.setTint(squaddieAffiliationHue, 50, 50, 192);
-    }
-}
-
-const unTintSquaddieMapIcon = (repository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
-    const mapIcon = repository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-    if (mapIcon) {
-        mapIcon.removeTint();
-    }
-}
-
-const drawSquaddieMapIconAtMapLocation = (graphics: GraphicsBuffer, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
-    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
-    const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-    setImageToLocation(mapIcon, xyCoords);
-    mapIcon.draw(graphics);
-    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-    drawMapIconActionPointsBar(graphics, squaddieTemplate, battleSquaddie, mapLocation, camera);
-    drawMapIconHitPointBar(graphics, squaddieTemplate, battleSquaddie, mapLocation, camera);
-}
-
-const setImageToLocation = (
-    mapIcon: ImageUI,
-    xyCoords: [number, number]
+const tintSquaddieMapIcon = (
+    squaddieRepository: ObjectRepository,
+    squaddieTemplate: SquaddieTemplate,
+    battleSquaddie: BattleSquaddie
 ) => {
-    RectAreaService.move(mapIcon.area, {left: xyCoords[0], top: xyCoords[1]});
-    RectAreaService.align(mapIcon.area, {horizAlign: HORIZONTAL_ALIGN.CENTER, vertAlign: VERTICAL_ALIGN.CENTER});
+    const squaddieAffiliationHue: number =
+        HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
+    const mapIcon =
+        squaddieRepository.imageUIByBattleSquaddieId[
+            battleSquaddie.battleSquaddieId
+        ]
+    if (mapIcon) {
+        mapIcon.setTint(squaddieAffiliationHue, 50, 50, 192)
+    }
 }
 
-const drawMapIconActionPointsBar = (graphics: GraphicsBuffer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
-    const {
-        squaddieCanCurrentlyAct
-    } = SquaddieService.canPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
+const unTintSquaddieMapIcon = (
+    repository: ObjectRepository,
+    battleSquaddie: BattleSquaddie
+) => {
+    const mapIcon =
+        repository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId]
+    if (mapIcon) {
+        mapIcon.removeTint()
+    }
+}
+
+const drawSquaddieMapIconAtMapLocation = (
+    graphics: GraphicsBuffer,
+    squaddieRepository: ObjectRepository,
+    battleSquaddie: BattleSquaddie,
+    battleSquaddieId: string,
+    mapLocation: HexCoordinate,
+    camera: BattleCamera
+) => {
+    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+        mapLocation.q,
+        mapLocation.r,
+        ...camera.getCoordinates()
+    )
+    const mapIcon =
+        squaddieRepository.imageUIByBattleSquaddieId[
+            battleSquaddie.battleSquaddieId
+        ]
+    setImageToLocation(mapIcon, xyCoords)
+    mapIcon.draw(graphics)
+    const { squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            squaddieRepository,
+            battleSquaddieId
+        )
+    )
+    drawMapIconActionPointsBar(
+        graphics,
+        squaddieTemplate,
+        battleSquaddie,
+        mapLocation,
+        camera
+    )
+    drawMapIconHitPointBar(
+        graphics,
+        squaddieTemplate,
+        battleSquaddie,
+        mapLocation,
+        camera
+    )
+}
+
+const setImageToLocation = (mapIcon: ImageUI, xyCoords: [number, number]) => {
+    RectAreaService.move(mapIcon.area, { left: xyCoords[0], top: xyCoords[1] })
+    RectAreaService.align(mapIcon.area, {
+        horizAlign: HORIZONTAL_ALIGN.CENTER,
+        vertAlign: VERTICAL_ALIGN.CENTER,
+    })
+}
+
+const drawMapIconActionPointsBar = (
+    graphics: GraphicsBuffer,
+    squaddieTemplate: SquaddieTemplate,
+    battleSquaddie: BattleSquaddie,
+    mapLocation: HexCoordinate,
+    camera: BattleCamera
+) => {
+    const { squaddieCanCurrentlyAct } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
     if (!squaddieCanCurrentlyAct) {
-        return;
+        return
     }
 
-    const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
     if (actionPointsRemaining >= DEFAULT_ACTION_POINTS_PER_TURN) {
-        return;
+        return
     }
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
+        mapLocation.q,
+        mapLocation.r,
+        ...camera.getCoordinates()
+    )
 
     const backgroundArea: RectArea = RectAreaService.new({
-        left: xyCoords[0] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.left / 20),
-        top: xyCoords[1] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.top / 20),
-        width: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.width / 20,
-        height: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.height / 20,
-    });
+        left:
+            xyCoords[0] +
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.left) /
+                20,
+        top:
+            xyCoords[1] +
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.top) /
+                20,
+        width:
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.width) /
+            20,
+        height:
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.height) /
+            20,
+    })
 
     drawMapIconBar({
         graphics,
@@ -203,31 +340,60 @@ const drawMapIconActionPointsBar = (graphics: GraphicsBuffer, squaddieTemplate: 
         bar: {
             backgroundArea,
             strokeWeight: 1,
-            backgroundColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.backgroundFillColor,
+            backgroundColor:
+                MAP_ICON_CONSTANTS.ActionPointsBarColors.backgroundFillColor,
             strokeColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.strokeColor,
-            foregroundColor: MAP_ICON_CONSTANTS.ActionPointsBarColors.foregroundFillColor,
-        }
+            foregroundColor:
+                MAP_ICON_CONSTANTS.ActionPointsBarColors.foregroundFillColor,
+        },
     })
 }
 
-const drawMapIconHitPointBar = (graphics: GraphicsBuffer, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
-    const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
+const drawMapIconHitPointBar = (
+    graphics: GraphicsBuffer,
+    squaddieTemplate: SquaddieTemplate,
+    battleSquaddie: BattleSquaddie,
+    mapLocation: HexCoordinate,
+    camera: BattleCamera
+) => {
+    const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
 
     if (currentHitPoints >= maxHitPoints) {
-        return;
+        return
     }
 
-    const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
+    const squaddieAffiliationHue: number =
+        HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
 
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
+        mapLocation.q,
+        mapLocation.r,
+        ...camera.getCoordinates()
+    )
 
     const backgroundArea: RectArea = RectAreaService.new({
-        left: xyCoords[0] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.left / 20),
-        top: xyCoords[1] + (HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.top / 20),
-        width: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.width / 20,
-        height: HEX_TILE_WIDTH * MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.height / 20,
-    });
+        left:
+            xyCoords[0] +
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.left) /
+                20,
+        top:
+            xyCoords[1] +
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.top) /
+                20,
+        width:
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.width) /
+            20,
+        height:
+            (HEX_TILE_WIDTH *
+                MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.height) /
+            20,
+    })
 
     drawMapIconBar({
         graphics,
@@ -238,7 +404,8 @@ const drawMapIconHitPointBar = (graphics: GraphicsBuffer, squaddieTemplate: Squa
         bar: {
             backgroundArea,
             strokeWeight: 1,
-            backgroundColor: MAP_ICON_CONSTANTS.HitPointsBarColors.backgroundFillColor,
+            backgroundColor:
+                MAP_ICON_CONSTANTS.HitPointsBarColors.backgroundFillColor,
             strokeColor: [
                 squaddieAffiliationHue,
                 MAP_ICON_CONSTANTS.HitPointsBarColors.strokeColor[1],
@@ -249,77 +416,96 @@ const drawMapIconHitPointBar = (graphics: GraphicsBuffer, squaddieTemplate: Squa
                 MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[1],
                 MAP_ICON_CONSTANTS.HitPointsBarColors.foregroundFillColor[2],
             ],
-        }
+        },
     })
 }
 
-const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, destination: HexCoordinate, camera: BattleCamera) => {
+const updateSquaddieIconLocation = (
+    squaddieRepository: ObjectRepository,
+    battleSquaddie: BattleSquaddie,
+    destination: HexCoordinate,
+    camera: BattleCamera
+) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         destination.q,
         destination.r,
         ...camera.getCoordinates()
-    );
-    const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-    setImageToLocation(mapIcon, xyCoords);
+    )
+    const mapIcon =
+        squaddieRepository.imageUIByBattleSquaddieId[
+            battleSquaddie.battleSquaddieId
+        ]
+    setImageToLocation(mapIcon, xyCoords)
 }
 
-const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
+const hasMovementAnimationFinished = (
+    timeMovementStarted: number,
+    squaddieMovePath: SearchPath
+) => {
     if (SearchPathHelper.getLocations(squaddieMovePath).length <= 1) {
-        return true;
+        return true
     }
 
     if (timeMovementStarted === undefined) {
-        return true;
+        return true
     }
 
-    const timePassed = Date.now() - timeMovementStarted;
-    return timePassed >= TIME_TO_MOVE;
+    const timePassed = Date.now() - timeMovementStarted
+    return timePassed >= TIME_TO_MOVE
 }
 
-export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
-    const timePassed = Date.now() - timeMovementStarted;
-    const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-        SearchPathHelper.getLocations(squaddieMovePath).map(tile => tile.hexCoordinate),
-        timePassed,
-        TIME_TO_MOVE,
-        camera,
-    )
-    const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-    if (mapIcon) {
-        setImageToLocation(mapIcon, squaddieDrawCoordinates);
-    }
-}
-
-const highlightPlayableSquaddieReachIfTheyCanAct = (
-    {
-        battleSquaddie,
-        squaddieTemplate,
-        missionMap,
-        repository,
-        campaign,
-    }: {
-        battleSquaddie: BattleSquaddie,
-        squaddieTemplate: SquaddieTemplate,
-        missionMap: MissionMap,
-        repository: ObjectRepository,
-        campaign: Campaign,
-    }
+export const moveSquaddieAlongPath = (
+    squaddieRepository: ObjectRepository,
+    battleSquaddie: BattleSquaddie,
+    timeMovementStarted: number,
+    squaddieMovePath: SearchPath,
+    camera: BattleCamera
 ) => {
-    let {
-        canAct,
-    } = SquaddieService.canSquaddieActRightNow({
+    const timePassed = Date.now() - timeMovementStarted
+    const squaddieDrawCoordinates: [number, number] =
+        getSquaddiePositionAlongPath(
+            SearchPathHelper.getLocations(squaddieMovePath).map(
+                (tile) => tile.hexCoordinate
+            ),
+            timePassed,
+            TIME_TO_MOVE,
+            camera
+        )
+    const mapIcon =
+        squaddieRepository.imageUIByBattleSquaddieId[
+            battleSquaddie.battleSquaddieId
+        ]
+    if (mapIcon) {
+        setImageToLocation(mapIcon, squaddieDrawCoordinates)
+    }
+}
+
+const highlightPlayableSquaddieReachIfTheyCanAct = ({
+    battleSquaddie,
+    squaddieTemplate,
+    missionMap,
+    repository,
+    campaign,
+}: {
+    battleSquaddie: BattleSquaddie
+    squaddieTemplate: SquaddieTemplate
+    missionMap: MissionMap
+    repository: ObjectRepository
+    campaign: Campaign
+}) => {
+    let { canAct } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate,
         battleSquaddie,
-    });
+    })
 
-    let {squaddieHasThePlayerControlledAffiliation} =
+    let { squaddieHasThePlayerControlledAffiliation } =
         SquaddieService.canPlayerControlSquaddieRightNow({
             squaddieTemplate,
             battleSquaddie,
-        });
+        })
 
     if (!canAct || !squaddieHasThePlayerControlledAffiliation) {
-        return;
+        return
     }
 
     DrawSquaddieUtilities.highlightSquaddieRange({
@@ -327,19 +513,21 @@ const highlightPlayableSquaddieReachIfTheyCanAct = (
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: repository,
         campaign,
-    });
+    })
 }
 
-const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
-    let {
-        canAct,
-    } = SquaddieService.canSquaddieActRightNow({
+const tintSquaddieMapIconIfTheyCannotAct = (
+    battleSquaddie: BattleSquaddie,
+    squaddieTemplate: SquaddieTemplate,
+    repository: ObjectRepository
+) => {
+    let { canAct } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate,
         battleSquaddie,
-    });
+    })
 
     if (canAct) {
-        return;
+        return
     }
 
     DrawSquaddieUtilities.tintSquaddieMapIcon({
@@ -348,42 +536,45 @@ const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squa
     })
 }
 
-const drawMapIconBar = ({graphics, amount, bar}:
-                            {
-                                graphics: GraphicsBuffer,
-                                amount: {
-                                    current: number,
-                                    max: number
-                                },
-                                bar: {
-                                    backgroundArea: RectArea,
-                                    strokeWeight: number,
-                                    backgroundColor: number[],
-                                    strokeColor: number[],
-                                    foregroundColor: number[],
-                                }
-                            }
-) => {
+const drawMapIconBar = ({
+    graphics,
+    amount,
+    bar,
+}: {
+    graphics: GraphicsBuffer
+    amount: {
+        current: number
+        max: number
+    }
+    bar: {
+        backgroundArea: RectArea
+        strokeWeight: number
+        backgroundColor: number[]
+        strokeColor: number[]
+        foregroundColor: number[]
+    }
+}) => {
     const background: Rectangle = RectangleHelper.new({
         area: bar.backgroundArea,
         fillColor: bar.backgroundColor,
         strokeColor: bar.strokeColor,
         strokeWeight: bar.strokeWeight,
     })
-    RectangleHelper.draw(background, graphics);
+    RectangleHelper.draw(background, graphics)
 
-    const foregroundWidth = bar.backgroundArea.width * amount.current / amount.max;
+    const foregroundWidth =
+        (bar.backgroundArea.width * amount.current) / amount.max
     const foregroundRectArea: RectArea = RectAreaService.new({
         top: RectAreaService.top(bar.backgroundArea),
         left: RectAreaService.left(bar.backgroundArea),
         bottom: RectAreaService.bottom(bar.backgroundArea),
         width: foregroundWidth,
-    });
+    })
 
     const foreground: Rectangle = RectangleHelper.new({
         area: foregroundRectArea,
         fillColor: bar.foregroundColor,
         noStroke: true,
-    });
-    RectangleHelper.draw(foreground, graphics);
+    })
+    RectangleHelper.draw(foreground, graphics)
 }

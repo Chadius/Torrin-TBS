@@ -1,40 +1,52 @@
-import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
-import {FileAccessHUD, FileAccessHUDService} from "./fileAccessHUD";
-import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
-import {MessageBoardListener} from "../../message/messageBoardListener";
-import {MessageBoardMessage, MessageBoardMessageType} from "../../message/messageBoardMessage";
-import {PopupWindow, PopupWindowService, PopupWindowStatus} from "./popupWindow";
-import {BattleCamera} from "../battleCamera";
-import {GameEngineState} from "../../gameEngine/gameEngine";
-import {LabelService, TextBoxMargin} from "../../ui/label";
-import {RectArea, RectAreaService} from "../../ui/rectArea";
-import {ObjectRepositoryService} from "../objectRepository";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {MissionMapService} from "../../missionMap/missionMap";
-import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
-import {VERTICAL_ALIGN} from "../../ui/constants";
-import * as p5 from "p5";
-import {HEX_TILE_WIDTH} from "../../graphicsConstants";
-import {ActionsThisRound} from "../history/actionsThisRound";
-import {GraphicsBuffer} from "../../utils/graphics/graphicsRenderer";
+import { BattleSquaddieSelectedHUD } from "./battleSquaddieSelectedHUD"
+import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
+import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
+import { MessageBoardListener } from "../../message/messageBoardListener"
+import {
+    MessageBoardMessage,
+    MessageBoardMessageType,
+} from "../../message/messageBoardMessage"
+import {
+    PopupWindow,
+    PopupWindowService,
+    PopupWindowStatus,
+} from "./popupWindow"
+import { BattleCamera } from "../battleCamera"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { LabelService, TextBoxMargin } from "../../ui/label"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
+import { ObjectRepositoryService } from "../objectRepository"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { MissionMapService } from "../../missionMap/missionMap"
+import { convertMapCoordinatesToWorldCoordinates } from "../../hexMap/convertCoordinates"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
+import { VERTICAL_ALIGN } from "../../ui/constants"
+import * as p5 from "p5"
+import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { ActionsThisRound } from "../history/actionsThisRound"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
 }
 
 export interface BattleHUD {
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    fileAccessHUD: FileAccessHUD;
+    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
+    fileAccessHUD: FileAccessHUD
     popupWindows: {
-        [key in PopupWindowType]: PopupWindow;
+        [key in PopupWindowType]: PopupWindow
     }
 }
 
 const differentSquaddieMidTurnPopupConstants: {
-    width: number;
-    label: { fillColor: number[]; textSize: number; vertAlign: p5.VERT_ALIGN; fontColor: number[] } & TextBoxMargin;
+    width: number
+    label: {
+        fillColor: number[]
+        textSize: number
+        vertAlign: p5.VERT_ALIGN
+        fontColor: number[]
+    } & TextBoxMargin
     height: number
 } = {
     label: {
@@ -50,74 +62,103 @@ const differentSquaddieMidTurnPopupConstants: {
 
 export const BattleHUDService = {
     new: ({
-              fileAccessHUD,
-              battleSquaddieSelectedHUD,
-          }: {
-        fileAccessHUD?: FileAccessHUD,
+        fileAccessHUD,
+        battleSquaddieSelectedHUD,
+    }: {
+        fileAccessHUD?: FileAccessHUD
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD
     }): BattleHUD => {
         return {
-            fileAccessHUD: getValidValueOrDefault(fileAccessHUD, FileAccessHUDService.new({})),
+            fileAccessHUD: getValidValueOrDefault(
+                fileAccessHUD,
+                FileAccessHUDService.new({})
+            ),
             battleSquaddieSelectedHUD,
             popupWindows: {
-                [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined
-            }
+                [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
+            },
         }
     },
     draw: (battleHUD: BattleHUD, graphicsContext: GraphicsBuffer) => {
         Object.values(battleHUD.popupWindows)
             .filter(isValidValue)
-            .forEach(popupWindow => {
+            .forEach((popupWindow) => {
                 PopupWindowService.draw(popupWindow, graphicsContext)
             })
     },
-    setPopupWindow: (battleHUD: BattleHUD, popupWindow: PopupWindow, popupWindowType: PopupWindowType) => {
+    setPopupWindow: (
+        battleHUD: BattleHUD,
+        popupWindow: PopupWindow,
+        popupWindowType: PopupWindowType
+    ) => {
         battleHUD.popupWindows[popupWindowType] = popupWindow
     },
-    createPlayerSelectsDifferentSquaddieMidTurnPopup: (battleHUD: BattleHUD, gameEngineState: GameEngineState) => {
-        let {
-            popupText,
-            labelArea,
-            camera
-        } = calculateMidTurnPopup(gameEngineState.battleOrchestratorState.battleState.actionsThisRound, gameEngineState);
+    createPlayerSelectsDifferentSquaddieMidTurnPopup: (
+        battleHUD: BattleHUD,
+        gameEngineState: GameEngineState
+    ) => {
+        let { popupText, labelArea, camera } = calculateMidTurnPopup(
+            gameEngineState.battleOrchestratorState.battleState
+                .actionsThisRound,
+            gameEngineState
+        )
 
         const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
             label: LabelService.new({
                 area: labelArea,
                 text: popupText,
-                ...differentSquaddieMidTurnPopupConstants.label
+                ...differentSquaddieMidTurnPopupConstants.label,
             }),
             camera,
         })
-        PopupWindowService.changeStatus(differentSquaddiePopup, PopupWindowStatus.ACTIVE)
-        PopupWindowService.setInactiveAfterTimeElapsed(differentSquaddiePopup, 2000)
+        PopupWindowService.changeStatus(
+            differentSquaddiePopup,
+            PopupWindowStatus.ACTIVE
+        )
+        PopupWindowService.setInactiveAfterTimeElapsed(
+            differentSquaddiePopup,
+            2000
+        )
 
-        BattleHUDService.setPopupWindow(battleHUD, differentSquaddiePopup, PopupWindowType.DIFFERENT_SQUADDIE_TURN)
-    }
+        BattleHUDService.setPopupWindow(
+            battleHUD,
+            differentSquaddiePopup,
+            PopupWindowType.DIFFERENT_SQUADDIE_TURN
+        )
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
-    messageBoardListenerId: string;
+    messageBoardListenerId: string
 
     constructor(messageBoardListenerId: string) {
-        this.messageBoardListenerId = messageBoardListenerId;
+        this.messageBoardListenerId = messageBoardListenerId
     }
 
     receiveMessage(message: MessageBoardMessage): void {
         switch (message.type) {
             case MessageBoardMessageType.STARTED_PLAYER_PHASE:
             case MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE:
-                FileAccessHUDService.enableButtons(message.gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD)
-                break;
+                FileAccessHUDService.enableButtons(
+                    message.gameEngineState.battleOrchestratorState.battleHUD
+                        .fileAccessHUD
+                )
+                break
             case MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN:
-                BattleHUDService.createPlayerSelectsDifferentSquaddieMidTurnPopup(message.gameEngineState.battleOrchestratorState.battleHUD, message.gameEngineState)
-                break;
+                BattleHUDService.createPlayerSelectsDifferentSquaddieMidTurnPopup(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message.gameEngineState
+                )
+                break
         }
     }
 }
 
-const calculateMidTurnPopup = (actionsThisRound: ActionsThisRound, gameEngineState: GameEngineState) => {
-    let popupText: string = `PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN but there is no actor`;
+const calculateMidTurnPopup = (
+    actionsThisRound: ActionsThisRound,
+    gameEngineState: GameEngineState
+) => {
+    let popupText: string = `PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN but there is no actor`
     let camera: BattleCamera = undefined
 
     let left = Math.round(Math.random() * ScreenDimensions.SCREEN_WIDTH)
@@ -129,26 +170,33 @@ const calculateMidTurnPopup = (actionsThisRound: ActionsThisRound, gameEngineSta
         height: differentSquaddieMidTurnPopupConstants.height,
     })
 
-    if (!(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState))) {
-        return {popupText, labelArea, camera};
+    if (
+        !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)
+    ) {
+        return { popupText, labelArea, camera }
     }
 
-    const {squaddieTemplate, battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
-        gameEngineState.repository,
-        actionsThisRound.battleSquaddieId
-    ))
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            actionsThisRound.battleSquaddieId
+        )
+    )
 
     popupText = `${squaddieTemplate.squaddieId.name}\n is not done yet`
 
-    const {mapLocation} = MissionMapService.getByBattleSquaddieId(
+    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         actionsThisRound.battleSquaddieId
     )
 
     if (isValidValue(mapLocation)) {
-        [left, top] = convertMapCoordinatesToWorldCoordinates(mapLocation.q, mapLocation.r)
-        left -= differentSquaddieMidTurnPopupConstants.width / 2;
-        top += HEX_TILE_WIDTH;
+        ;[left, top] = convertMapCoordinatesToWorldCoordinates(
+            mapLocation.q,
+            mapLocation.r
+        )
+        left -= differentSquaddieMidTurnPopupConstants.width / 2
+        top += HEX_TILE_WIDTH
 
         labelArea = RectAreaService.new({
             left,
@@ -158,5 +206,5 @@ const calculateMidTurnPopup = (actionsThisRound: ActionsThisRound, gameEngineSta
         })
         camera = gameEngineState.battleOrchestratorState.battleState.camera
     }
-    return {popupText, labelArea, camera};
-};
+    return { popupText, labelArea, camera }
+}

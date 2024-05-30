@@ -1,4 +1,4 @@
-import {config} from "../configuration/config";
+import { config } from "../configuration/config"
 
 export enum KeyButtonName {
     UNKNOWN = "UNKNOWN",
@@ -8,7 +8,10 @@ export enum KeyButtonName {
     CANCEL = "CANCEL",
 }
 
-export const KeyWasPressed = (desiredKey: KeyButtonName, keyCode: number): boolean => {
+export const KeyWasPressed = (
+    desiredKey: KeyButtonName,
+    keyCode: number
+): boolean => {
     const KeyboardShortcuts: { [key in KeyButtonName]?: number[] } = {
         NEXT_SQUADDIE: config.KEYBOARD_SHORTCUTS["NEXT_SQUADDIE"],
         ACCEPT: config.KEYBOARD_SHORTCUTS["ACCEPT"],
@@ -16,5 +19,8 @@ export const KeyWasPressed = (desiredKey: KeyButtonName, keyCode: number): boole
         CANCEL: config.KEYBOARD_SHORTCUTS["CANCEL"],
     }
 
-    return KeyboardShortcuts[desiredKey] !== undefined && KeyboardShortcuts[desiredKey].includes(keyCode);
+    return (
+        KeyboardShortcuts[desiredKey] !== undefined &&
+        KeyboardShortcuts[desiredKey].includes(keyCode)
+    )
 }

@@ -1,8 +1,8 @@
 export interface MissionCompletionStatus {
     [missionObjectiveId: string]: {
-        isComplete: boolean;
+        isComplete: boolean
         conditions: {
-            [missionConditionId: string]: boolean;
+            [missionConditionId: string]: boolean
         }
     }
 }

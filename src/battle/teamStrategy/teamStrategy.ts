@@ -1,4 +1,4 @@
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
 export enum TeamStrategyType {
     END_TURN = "END_TURN",
@@ -7,11 +7,11 @@ export enum TeamStrategyType {
 }
 
 export interface TeamStrategyOptions {
-    desiredBattleSquaddieId?: string;
-    desiredAffiliation?: SquaddieAffiliation;
+    desiredBattleSquaddieId?: string
+    desiredAffiliation?: SquaddieAffiliation
 }
 
 export interface TeamStrategy {
-    type: TeamStrategyType;
-    options: TeamStrategyOptions;
+    type: TeamStrategyType
+    options: TeamStrategyOptions
 }

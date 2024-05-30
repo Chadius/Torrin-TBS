@@ -4,217 +4,304 @@ import {
     ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase,
     SquaddieEmotion,
-    TimeElapsedSinceAnimationStarted
-} from "./actionAnimationConstants";
-import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
-import {ActionTimer} from "./actionTimer";
-import {ResourceHandler} from "../../../resource/resourceHandler";
-import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "../../history/actionResultPerSquaddie";
-import {SquaddieSprite} from "./squaddieSprite";
-import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
-import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
-import {RectAreaService} from "../../../ui/rectArea";
-import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
+    TimeElapsedSinceAnimationStarted,
+} from "./actionAnimationConstants"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { ActionTimer } from "./actionTimer"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import {
+    ActionResultPerSquaddie,
+    ActionResultPerSquaddieService,
+} from "../../history/actionResultPerSquaddie"
+import { SquaddieSprite } from "./squaddieSprite"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { IsSquaddieAlive } from "../../../squaddie/squaddieService"
+import { RectAreaService } from "../../../ui/rectArea"
+import {
+    DegreeOfSuccess,
+    DegreeOfSuccessService,
+} from "../../actionCalculator/degreeOfSuccess"
 import {
     ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../action/template/actionEffectSquaddieTemplate";
-import {GraphicsBuffer} from "../../../utils/graphics/graphicsRenderer";
+    ActionEffectSquaddieTemplateService,
+} from "../../../action/template/actionEffectSquaddieTemplate"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
 export class TargetSprite {
-    constructor() {
+    constructor() {}
 
-    }
-
-    private _startingPosition: number;
+    private _startingPosition: number
 
     get startingPosition(): number {
-        return this._startingPosition;
+        return this._startingPosition
     }
 
-    private _sprite: SquaddieSprite;
+    private _sprite: SquaddieSprite
 
     get sprite(): SquaddieSprite {
-        return this._sprite;
+        return this._sprite
     }
 
-    private _battleSquaddieId: string;
+    private _battleSquaddieId: string
 
     get battleSquaddieId(): string {
-        return this._battleSquaddieId;
+        return this._battleSquaddieId
     }
 
-    private _squaddieRepository: ObjectRepository;
+    private _squaddieRepository: ObjectRepository
 
     get squaddieRepository(): ObjectRepository {
-        return this._squaddieRepository;
+        return this._squaddieRepository
     }
 
-    private _actionResult: ActionResultPerSquaddie;
+    private _actionResult: ActionResultPerSquaddie
 
     get actionResult(): ActionResultPerSquaddie {
-        return this._actionResult;
+        return this._actionResult
     }
 
     reset() {
-        this._sprite = undefined;
-        this._battleSquaddieId = undefined;
-        this._squaddieRepository = undefined;
-        this._actionResult = undefined;
+        this._sprite = undefined
+        this._battleSquaddieId = undefined
+        this._squaddieRepository = undefined
+        this._actionResult = undefined
     }
 
     start({
-              targetBattleSquaddieId,
-              squaddieRepository,
-              actionEffectSquaddieTemplate,
-              result,
-              startingPosition,
-              resourceHandler
-          }: {
-        targetBattleSquaddieId: string,
-        squaddieRepository: ObjectRepository,
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-        result: ActionResultPerSquaddie,
-        startingPosition: number,
-        resourceHandler: ResourceHandler,
+        targetBattleSquaddieId,
+        squaddieRepository,
+        actionEffectSquaddieTemplate,
+        result,
+        startingPosition,
+        resourceHandler,
+    }: {
+        targetBattleSquaddieId: string
+        squaddieRepository: ObjectRepository
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        result: ActionResultPerSquaddie
+        startingPosition: number
+        resourceHandler: ResourceHandler
     }) {
-        this.reset();
+        this.reset()
 
-        this._startingPosition = startingPosition;
-        this._squaddieRepository = squaddieRepository;
-        this._battleSquaddieId = targetBattleSquaddieId;
-        this._actionResult = result;
+        this._startingPosition = startingPosition
+        this._squaddieRepository = squaddieRepository
+        this._battleSquaddieId = targetBattleSquaddieId
+        this._actionResult = result
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                this.squaddieRepository,
+                this.battleSquaddieId
+            )
+        )
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
-            actionSpritesResourceKeysByEmotion: {...squaddieTemplate.squaddieId.resources.actionSpritesByEmotion},
-        });
-        this.sprite.beginLoadingActorImages();
+            actionSpritesResourceKeysByEmotion: {
+                ...squaddieTemplate.squaddieId.resources.actionSpritesByEmotion,
+            },
+        })
+        this.sprite.beginLoadingActorImages()
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
+    draw(
+        timer: ActionTimer,
+        graphicsContext: GraphicsBuffer,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+        result: ActionResultPerSquaddie
+    ) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
-            return;
+            return
         }
 
-        const justCreatedSpritesStatue = this.sprite.createActorImagesWithLoadedData();
+        const justCreatedSpritesStatue =
+            this.sprite.createActorImagesWithLoadedData()
         if (justCreatedSpritesStatue.justCreatedImages) {
-            this._startingPosition -= this.sprite.getSpriteBasedOnEmotion(SquaddieEmotion.NEUTRAL, graphicsContext).area.width;
+            this._startingPosition -= this.sprite.getSpriteBasedOnEmotion(
+                SquaddieEmotion.NEUTRAL,
+                graphicsContext
+            ).area.width
         }
 
-        this.drawActorSprite(timer, graphicsContext, actionEffectSquaddieTemplate, result);
+        this.drawActorSprite(
+            timer,
+            graphicsContext,
+            actionEffectSquaddieTemplate,
+            result
+        )
     }
 
     public getSquaddieEmotion({
-                                  timer,
-                                  battleSquaddieId,
-                                  squaddieRepository,
-                                  result,
-                                  actionEffectSquaddieTemplateService,
-                              }: {
-        timer: ActionTimer,
-        battleSquaddieId: string,
-        squaddieRepository: ObjectRepository,
-        result: ActionResultPerSquaddie,
-        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
+        timer,
+        battleSquaddieId,
+        squaddieRepository,
+        result,
+        actionEffectSquaddieTemplateService,
+    }: {
+        timer: ActionTimer
+        battleSquaddieId: string
+        squaddieRepository: ObjectRepository
+        result: ActionResultPerSquaddie
+        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
-                if (ActionEffectSquaddieTemplateService.isHindering(actionEffectSquaddieTemplateService)) {
-                    return SquaddieEmotion.TARGETED;
+                if (
+                    ActionEffectSquaddieTemplateService.isHindering(
+                        actionEffectSquaddieTemplateService
+                    )
+                ) {
+                    return SquaddieEmotion.TARGETED
                 }
-                return SquaddieEmotion.NEUTRAL;
+                return SquaddieEmotion.NEUTRAL
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                const {
+                const { squaddieTemplate, battleSquaddie } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            squaddieRepository,
+                            battleSquaddieId
+                        )
+                    )
+                const stillAlive = IsSquaddieAlive({
                     squaddieTemplate,
-                    battleSquaddie
-                } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-                const stillAlive = IsSquaddieAlive({squaddieTemplate, battleSquaddie});
+                    battleSquaddie,
+                })
                 if (!stillAlive) {
-                    return SquaddieEmotion.DEAD;
-                }
-
-                if (!DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess)) {
-                    return SquaddieEmotion.NEUTRAL;
+                    return SquaddieEmotion.DEAD
                 }
 
                 if (
-                    !ActionResultPerSquaddieService.isSquaddieHindered(result)
-                    && !ActionResultPerSquaddieService.isSquaddieHelped(result)
+                    !DegreeOfSuccessService.atLeastSuccessful(
+                        result.actorDegreeOfSuccess
+                    )
                 ) {
-                    return SquaddieEmotion.NEUTRAL;
-                } else if (ActionResultPerSquaddieService.isSquaddieHindered(result)) {
-                    return SquaddieEmotion.DAMAGED;
+                    return SquaddieEmotion.NEUTRAL
+                }
+
+                if (
+                    !ActionResultPerSquaddieService.isSquaddieHindered(
+                        result
+                    ) &&
+                    !ActionResultPerSquaddieService.isSquaddieHelped(result)
+                ) {
+                    return SquaddieEmotion.NEUTRAL
+                } else if (
+                    ActionResultPerSquaddieService.isSquaddieHindered(result)
+                ) {
+                    return SquaddieEmotion.DAMAGED
                 } else {
-                    return SquaddieEmotion.THANKFUL;
+                    return SquaddieEmotion.THANKFUL
                 }
             default:
-                return SquaddieEmotion.NEUTRAL;
+                return SquaddieEmotion.NEUTRAL
         }
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate) {
+    getSquaddieImageBasedOnTimer(
+        timer: ActionTimer,
+        graphicsContext: GraphicsBuffer,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
             battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository,
             actionEffectSquaddieTemplateService: actionEffectSquaddieTemplate,
-        });
-        return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
+        })
+        return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext)
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsBuffer, actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
-        let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext, actionEffectSquaddieTemplateService);
-        let horizontalDistance: number = 0;
-        let verticalDistance: number = 0;
+    private drawActorSprite(
+        timer: ActionTimer,
+        graphicsContext: GraphicsBuffer,
+        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
+        result: ActionResultPerSquaddie
+    ) {
+        let spriteToDraw = this.getSquaddieImageBasedOnTimer(
+            timer,
+            graphicsContext,
+            actionEffectSquaddieTemplateService
+        )
+        let horizontalDistance: number = 0
+        let verticalDistance: number = 0
 
         const emotion = this.getSquaddieEmotion({
             timer,
             battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository,
             result,
-            actionEffectSquaddieTemplateService: actionEffectSquaddieTemplateService,
-        });
+            actionEffectSquaddieTemplateService:
+                actionEffectSquaddieTemplateService,
+        })
 
-        if ([ActionAnimationPhase.BEFORE_ACTION,
-            ActionAnimationPhase.DURING_ACTION,
-        ].includes(timer.currentPhase)) {
-            ({
-                horizontalDistance,
-                verticalDistance
-            } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
-        } else if (ActionEffectSquaddieTemplateService.isHindering(actionEffectSquaddieTemplateService)) {
-            if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
-                ({
-                    horizontalDistance,
-                    verticalDistance
-                } = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
-            } else if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken === 0) {
-                ({
-                    horizontalDistance,
-                    verticalDistance
-                } = this.getSpritePositionTargetReactsAndNoDamage(timer, emotion));
+        if (
+            [
+                ActionAnimationPhase.BEFORE_ACTION,
+                ActionAnimationPhase.DURING_ACTION,
+            ].includes(timer.currentPhase)
+        ) {
+            ;({ horizontalDistance, verticalDistance } =
+                this.getSpritePositionBeforeActionAndDuringAction(
+                    timer,
+                    emotion
+                ))
+        } else if (
+            ActionEffectSquaddieTemplateService.isHindering(
+                actionEffectSquaddieTemplateService
+            )
+        ) {
+            if (
+                DegreeOfSuccessService.atLeastSuccessful(
+                    result.actorDegreeOfSuccess
+                ) &&
+                result.damageTaken > 0
+            ) {
+                ;({ horizontalDistance, verticalDistance } =
+                    this.getSpritePositionTargetReactsAndTakesDamage(
+                        timer,
+                        emotion
+                    ))
+            } else if (
+                DegreeOfSuccessService.atLeastSuccessful(
+                    result.actorDegreeOfSuccess
+                ) &&
+                result.damageTaken === 0
+            ) {
+                ;({ horizontalDistance, verticalDistance } =
+                    this.getSpritePositionTargetReactsAndNoDamage(
+                        timer,
+                        emotion
+                    ))
             }
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
-                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndMisses(timer));
+                ;({ horizontalDistance, verticalDistance } =
+                    this.getSpritePositionTargetReactsAndMisses(timer))
             }
         }
 
         RectAreaService.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
-            top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height + verticalDistance,
-        });
-        spriteToDraw.draw(graphicsContext);
+            top:
+                ScreenDimensions.SCREEN_HEIGHT * 0.33 -
+                spriteToDraw.area.height +
+                verticalDistance,
+        })
+        spriteToDraw.draw(graphicsContext)
     }
 
-    private getSpritePositionBeforeActionAndDuringAction(timer: ActionTimer, emotion: SquaddieEmotion): {
-        horizontalDistance: number;
+    private getSpritePositionBeforeActionAndDuringAction(
+        timer: ActionTimer,
+        emotion: SquaddieEmotion
+    ): {
+        horizontalDistance: number
         verticalDistance: number
     } {
         return {
@@ -223,38 +310,60 @@ export class TargetSprite {
         }
     }
 
-    private getSpritePositionTargetReactsAndTakesDamage(timer: ActionTimer, emotion: SquaddieEmotion): {
-        horizontalDistance: number;
+    private getSpritePositionTargetReactsAndTakesDamage(
+        timer: ActionTimer,
+        emotion: SquaddieEmotion
+    ): {
+        horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
 
-        let horizontalDistance: number = 0;
-        let verticalDistance: number = 0;
-        let maximumHorizontalDistance: number = ScreenDimensions.SCREEN_WIDTH / 12;
-        let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion.NEUTRAL ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 8 : ScreenDimensions.SCREEN_HEIGHT / 24;
+        let horizontalDistance: number = 0
+        let verticalDistance: number = 0
+        let maximumHorizontalDistance: number =
+            ScreenDimensions.SCREEN_WIDTH / 12
+        let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion
+            .NEUTRAL
+            ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 8
+            : ScreenDimensions.SCREEN_HEIGHT / 24
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime = timeElapsed - (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME);
-                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
+                const attackTime =
+                    timeElapsed -
+                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
+                        ACTION_ANIMATION_ACTION_TIME)
+                if (
+                    attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
+                ) {
                     horizontalDistance =
-                        maximumHorizontalDistance * (attackTime / ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME);
+                        maximumHorizontalDistance *
+                        (attackTime /
+                            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME)
                 } else {
-                    horizontalDistance = maximumHorizontalDistance;
+                    horizontalDistance = maximumHorizontalDistance
                 }
 
-                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME && emotion !== SquaddieEmotion.DEAD) {
-                    const angle = (attackTime / ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) * 2 * Math.PI;
-                    verticalDistance = Math.sin(angle) * maximumVerticalDistance;
+                if (
+                    attackTime <
+                        ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME &&
+                    emotion !== SquaddieEmotion.DEAD
+                ) {
+                    const angle =
+                        (attackTime /
+                            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) *
+                        2 *
+                        Math.PI
+                    verticalDistance = Math.sin(angle) * maximumVerticalDistance
                 } else {
-                    verticalDistance = 0;
+                    verticalDistance = 0
                 }
-                break;
+                break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = maximumHorizontalDistance;
-                verticalDistance = 0;
-                break;
+                horizontalDistance = maximumHorizontalDistance
+                verticalDistance = 0
+                break
         }
 
         return {
@@ -263,28 +372,41 @@ export class TargetSprite {
         }
     }
 
-    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer, emotion: SquaddieEmotion): {
-        horizontalDistance: number;
+    private getSpritePositionTargetReactsAndNoDamage(
+        timer: ActionTimer,
+        emotion: SquaddieEmotion
+    ): {
+        horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
 
-        let horizontalDistance: number = 0;
-        let maximumHorizontalDistance: number = ScreenDimensions.SCREEN_WIDTH / 24;
+        let horizontalDistance: number = 0
+        let maximumHorizontalDistance: number =
+            ScreenDimensions.SCREEN_WIDTH / 24
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime = timeElapsed - (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME);
-                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10) {
+                const attackTime =
+                    timeElapsed -
+                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
+                        ACTION_ANIMATION_ACTION_TIME)
+                if (
+                    attackTime <
+                    ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10
+                ) {
                     horizontalDistance =
-                        maximumHorizontalDistance * (attackTime / (ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10));
+                        maximumHorizontalDistance *
+                        (attackTime /
+                            (ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME /
+                                10))
                 } else {
-                    horizontalDistance = maximumHorizontalDistance;
+                    horizontalDistance = maximumHorizontalDistance
                 }
-                break;
+                break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = maximumHorizontalDistance;
-                break;
+                horizontalDistance = maximumHorizontalDistance
+                break
         }
 
         return {
@@ -294,27 +416,37 @@ export class TargetSprite {
     }
 
     private getSpritePositionTargetReactsAndMisses(timer: ActionTimer): {
-        horizontalDistance: number,
+        horizontalDistance: number
         verticalDistance: number
     } {
-        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
+        const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
 
-        let horizontalDistance: number = 0;
-        let maximumHorizontalDistance: number = ScreenDimensions.SCREEN_WIDTH / 24;
+        let horizontalDistance: number = 0
+        let maximumHorizontalDistance: number =
+            ScreenDimensions.SCREEN_WIDTH / 24
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime = timeElapsed - (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME);
-                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
-                    const angle = (attackTime / ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) * Math.PI;
-                    horizontalDistance = Math.sin(angle) * maximumHorizontalDistance;
+                const attackTime =
+                    timeElapsed -
+                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
+                        ACTION_ANIMATION_ACTION_TIME)
+                if (
+                    attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
+                ) {
+                    const angle =
+                        (attackTime /
+                            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) *
+                        Math.PI
+                    horizontalDistance =
+                        Math.sin(angle) * maximumHorizontalDistance
                 } else {
-                    horizontalDistance = 0;
+                    horizontalDistance = 0
                 }
-                break;
+                break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = 0;
-                break;
+                horizontalDistance = 0
+                break
         }
 
         return {

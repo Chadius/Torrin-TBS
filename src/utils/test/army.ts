@@ -1,87 +1,96 @@
-import {PlayerArmy} from "../../campaign/playerArmy";
-import {SquaddieEmotion} from "../../battle/animation/actionAnimation/actionAnimationConstants";
-import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {ActionTemplateService} from "../../action/template/actionTemplate";
-import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import { PlayerArmy } from "../../campaign/playerArmy"
+import { SquaddieEmotion } from "../../battle/animation/actionAnimation/actionAnimationConstants"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
-        "squaddieTemplates": [
+        squaddieTemplates: [
             {
-                "squaddieId": {
-                    "templateId": "player_young_torrin",
-                    "name": "Torrin",
-                    "resources": {
-                        "mapIconResourceKey": "map icon young torrin",
-                        "actionSpritesByEmotion": {
-                            [SquaddieEmotion.NEUTRAL]: "combat-young-torrin-neutral",
-                            [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
-                            [SquaddieEmotion.TARGETED]: "combat-young-torrin-targeted",
-                            [SquaddieEmotion.DAMAGED]: "combat-young-torrin-damaged",
+                squaddieId: {
+                    templateId: "player_young_torrin",
+                    name: "Torrin",
+                    resources: {
+                        mapIconResourceKey: "map icon young torrin",
+                        actionSpritesByEmotion: {
+                            [SquaddieEmotion.NEUTRAL]:
+                                "combat-young-torrin-neutral",
+                            [SquaddieEmotion.ATTACK]:
+                                "combat-young-torrin-attack",
+                            [SquaddieEmotion.TARGETED]:
+                                "combat-young-torrin-targeted",
+                            [SquaddieEmotion.DAMAGED]:
+                                "combat-young-torrin-damaged",
                             [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
-                            [SquaddieEmotion.ASSISTING]: "combat-young-torrin-assisting",
-                            [SquaddieEmotion.THANKFUL]: "combat-young-torrin-thankful",
+                            [SquaddieEmotion.ASSISTING]:
+                                "combat-young-torrin-assisting",
+                            [SquaddieEmotion.THANKFUL]:
+                                "combat-young-torrin-thankful",
                         },
                     },
-                    "traits": TraitStatusStorageService.newUsingTraitValues({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
-                        [Trait.MONSU]: true
+                        [Trait.MONSU]: true,
                     }),
-                    "affiliation": SquaddieAffiliation.PLAYER,
+                    affiliation: SquaddieAffiliation.PLAYER,
                 },
-                "attributes": {
-                    "maxHitPoints": 3,
-                    "armorClass": 6,
-                    "movement": CreateNewSquaddieMovementWithTraits({
-                        "movementPerAction": 2,
-                        "traits": TraitStatusStorageService.newUsingTraitValues(),
+                attributes: {
+                    maxHitPoints: 3,
+                    armorClass: 6,
+                    movement: CreateNewSquaddieMovementWithTraits({
+                        movementPerAction: 2,
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
-                "actionTemplates": [
+                actionTemplates: [
                     ActionTemplateService.new({
-                        "name": "water cannon",
-                        "id": "torrin_water_cannon",
-                        "actionEffectTemplates": [
+                        name: "water cannon",
+                        id: "torrin_water_cannon",
+                        actionEffectTemplates: [
                             ActionEffectSquaddieTemplateService.new({
-                                "minimumRange": 0,
-                                "maximumRange": 2,
-                                "traits": {
-                                    "booleanTraits": {
-                                        "ATTACK": true
-                                    }
+                                minimumRange: 0,
+                                maximumRange: 2,
+                                traits: {
+                                    booleanTraits: {
+                                        ATTACK: true,
+                                    },
                                 },
-                                "damageDescriptions": {
-                                    "BODY": 2
+                                damageDescriptions: {
+                                    BODY: 2,
                                 },
-                                "buttonIconResourceKey": "decision-button-bow",
-                            })
+                                buttonIconResourceKey: "decision-button-bow",
+                            }),
                         ],
-                        "buttonIconResourceKey": "decision-button-bow",
+                        buttonIconResourceKey: "decision-button-bow",
                     }),
                     ActionTemplateService.new({
-                        "name": "healing touch",
-                        "id": "young_torrin_healing_touch",
-                        "actionPoints": 2,
-                        "actionEffectTemplates": [
+                        name: "healing touch",
+                        id: "young_torrin_healing_touch",
+                        actionPoints: 2,
+                        actionEffectTemplates: [
                             ActionEffectSquaddieTemplateService.new({
-                                "minimumRange": 0,
-                                "maximumRange": 1,
-                                "traits": {
-                                    "booleanTraits": {
-                                        "ALWAYS_SUCCEEDS": true,
-                                        "TARGETS_ALLIES": true,
-                                        "HEALING": true
-                                    }
+                                minimumRange: 0,
+                                maximumRange: 1,
+                                traits: {
+                                    booleanTraits: {
+                                        ALWAYS_SUCCEEDS: true,
+                                        TARGETS_ALLIES: true,
+                                        HEALING: true,
+                                    },
                                 },
-                                "healingDescriptions": {
-                                    "LOST_HIT_POINTS": 2
-                                }
-                            })
+                                healingDescriptions: {
+                                    LOST_HIT_POINTS: 2,
+                                },
+                            }),
                         ],
-                        "buttonIconResourceKey": "decision-button-heart",
-                    })
+                        buttonIconResourceKey: "decision-button-heart",
+                    }),
                 ],
             },
             {
@@ -99,13 +108,18 @@ export const TestArmyPlayerData = () => {
                     resources: {
                         mapIconResourceKey: "map icon sir camil",
                         actionSpritesByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "combat-sir-camil-neutral",
+                            [SquaddieEmotion.NEUTRAL]:
+                                "combat-sir-camil-neutral",
                             [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
-                            [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
-                            [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
+                            [SquaddieEmotion.TARGETED]:
+                                "combat-sir-camil-targeted",
+                            [SquaddieEmotion.DAMAGED]:
+                                "combat-sir-camil-damaged",
                             [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
-                            [SquaddieEmotion.ASSISTING]: "combat-sir-camil-assisting",
-                            [SquaddieEmotion.THANKFUL]: "combat-sir-camil-thankful",
+                            [SquaddieEmotion.ASSISTING]:
+                                "combat-sir-camil-assisting",
+                            [SquaddieEmotion.THANKFUL]:
+                                "combat-sir-camil-thankful",
                         },
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
@@ -113,32 +127,32 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                "actionTemplates": [
+                actionTemplates: [
                     ActionTemplateService.new({
-                        "name": "longsword",
-                        "id": "sir_camil_longsword",
-                        "actionEffectTemplates": [
+                        name: "longsword",
+                        id: "sir_camil_longsword",
+                        actionEffectTemplates: [
                             ActionEffectSquaddieTemplateService.new({
-                                "minimumRange": 0,
-                                "maximumRange": 1,
-                                "traits": {
-                                    "booleanTraits": {
-                                        "ATTACK": true
-                                    }
+                                minimumRange: 0,
+                                maximumRange: 1,
+                                traits: {
+                                    booleanTraits: {
+                                        ATTACK: true,
+                                    },
                                 },
-                                "damageDescriptions": {
-                                    "BODY": 2
-                                }
-                            })
+                                damageDescriptions: {
+                                    BODY: 2,
+                                },
+                            }),
                         ],
-                        "buttonIconResourceKey": "decision-button-sword",
-                    })
+                        buttonIconResourceKey: "decision-button-sword",
+                    }),
                 ],
             },
-        ]
-    };
+        ],
+    }
 
     return {
-        playerArmy
+        playerArmy,
     }
 }

@@ -1,79 +1,90 @@
-import {SquaddieTurn, SquaddieTurnService} from "../squaddie/turn";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
-import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import { SquaddieTurn, SquaddieTurnService } from "../squaddie/turn"
+import { ArmyAttributes } from "../squaddie/armyAttributes"
+import {
+    InBattleAttributes,
+    InBattleAttributesHandler,
+} from "./stats/inBattleAttributes"
+import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 
 export interface BattleSquaddie {
-    squaddieTurn: SquaddieTurn;
-    inBattleAttributes: InBattleAttributes;
-    battleSquaddieId: string;
-    squaddieTemplateId: string;
+    squaddieTurn: SquaddieTurn
+    inBattleAttributes: InBattleAttributes
+    battleSquaddieId: string
+    squaddieTemplateId: string
 }
 
 export interface BattleSquaddieConstructorParams {
-    squaddieTemplateId?: string,
-    squaddieTemplate?: SquaddieTemplate,
-    battleSquaddieId: string,
-    squaddieTurn?: SquaddieTurn,
-    inBattleAttributes?: InBattleAttributes,
+    squaddieTemplateId?: string
+    squaddieTemplate?: SquaddieTemplate
+    battleSquaddieId: string
+    squaddieTurn?: SquaddieTurn
+    inBattleAttributes?: InBattleAttributes
 }
 
 export const BattleSquaddieService = {
     new: (params: BattleSquaddieConstructorParams): BattleSquaddie => {
-        return newBattleSquaddie(params);
+        return newBattleSquaddie(params)
     },
-    newBattleSquaddie: (params: BattleSquaddieConstructorParams): BattleSquaddie => {
-        return newBattleSquaddie(params);
+    newBattleSquaddie: (
+        params: BattleSquaddieConstructorParams
+    ): BattleSquaddie => {
+        return newBattleSquaddie(params)
     },
     assertBattleSquaddie: (data: BattleSquaddie): void => {
-        assertBattleSquaddie(data);
+        assertBattleSquaddie(data)
     },
     canStillActThisRound: (data: BattleSquaddie): boolean => {
-        return SquaddieTurnService.hasActionPointsRemaining(data.squaddieTurn);
+        return SquaddieTurnService.hasActionPointsRemaining(data.squaddieTurn)
     },
     beginNewRound: (data: BattleSquaddie) => {
-        return SquaddieTurnService.beginNewRound(data.squaddieTurn);
+        return SquaddieTurnService.beginNewRound(data.squaddieTurn)
     },
     endTurn: (data: BattleSquaddie) => {
-        return SquaddieTurnService.endTurn(data.squaddieTurn);
+        return SquaddieTurnService.endTurn(data.squaddieTurn)
     },
-    initializeInBattleAttributes: (data: BattleSquaddie, attributes: ArmyAttributes): void => {
-        data.inBattleAttributes = InBattleAttributesHandler.new(attributes);
+    initializeInBattleAttributes: (
+        data: BattleSquaddie,
+        attributes: ArmyAttributes
+    ): void => {
+        data.inBattleAttributes = InBattleAttributesHandler.new(attributes)
     },
-};
+}
 
 const newBattleSquaddie = ({
-                               battleSquaddieId,
-                               squaddieTurn,
-                               squaddieTemplate,
-                               squaddieTemplateId,
-                               inBattleAttributes,
-                           }: BattleSquaddieConstructorParams
-): BattleSquaddie => {
+    battleSquaddieId,
+    squaddieTurn,
+    squaddieTemplate,
+    squaddieTemplateId,
+    inBattleAttributes,
+}: BattleSquaddieConstructorParams): BattleSquaddie => {
     let newBattleSquaddie: BattleSquaddie = {
         battleSquaddieId,
         squaddieTurn: squaddieTurn || SquaddieTurnService.new(),
         squaddieTemplateId,
         inBattleAttributes: InBattleAttributesHandler.new(),
-    };
+    }
 
     if (squaddieTemplate) {
-        newFromSquaddieTemplate(newBattleSquaddie, squaddieTemplate);
+        newFromSquaddieTemplate(newBattleSquaddie, squaddieTemplate)
     }
     if (inBattleAttributes) {
-        newBattleSquaddie.inBattleAttributes = inBattleAttributes;
+        newBattleSquaddie.inBattleAttributes = inBattleAttributes
     }
 
-    assertBattleSquaddie(newBattleSquaddie);
-    return newBattleSquaddie;
-};
-
-const assertBattleSquaddie = (data: BattleSquaddie): void => {
-    if (!data.battleSquaddieId) throw new Error("Battle Squaddie has no Id");
-    if (!data.squaddieTemplateId) throw new Error("Battle Squaddie has no Squaddie Template Id");
+    assertBattleSquaddie(newBattleSquaddie)
+    return newBattleSquaddie
 }
 
-const newFromSquaddieTemplate = (data: BattleSquaddie, template: SquaddieTemplate): void => {
-    data.squaddieTemplateId = template.squaddieId.templateId;
-    data.inBattleAttributes = InBattleAttributesHandler.new(template.attributes);
+const assertBattleSquaddie = (data: BattleSquaddie): void => {
+    if (!data.battleSquaddieId) throw new Error("Battle Squaddie has no Id")
+    if (!data.squaddieTemplateId)
+        throw new Error("Battle Squaddie has no Squaddie Template Id")
+}
+
+const newFromSquaddieTemplate = (
+    data: BattleSquaddie,
+    template: SquaddieTemplate
+): void => {
+    data.squaddieTemplateId = template.squaddieId.templateId
+    data.inBattleAttributes = InBattleAttributesHandler.new(template.attributes)
 }

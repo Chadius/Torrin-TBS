@@ -1,13 +1,17 @@
-export const ACTION_ANIMATION_BEFORE_ACTION_TIME = 500;
-export const ACTION_ANIMATION_ACTION_TIME = 500;
-export const ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME = 500;
-export const ACTION_ANIMATION_SHOW_RESULTS_TIME = 2000;
-export const ActionAnimationFontColor = [0, 5, 10];
+export const ACTION_ANIMATION_BEFORE_ACTION_TIME = 500
+export const ACTION_ANIMATION_ACTION_TIME = 500
+export const ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME = 500
+export const ACTION_ANIMATION_SHOW_RESULTS_TIME = 2000
+export const ActionAnimationFontColor = [0, 5, 10]
 
-export const TimeElapsedSinceAnimationStarted = (animationStartTime: number) => Math.min(
-    Date.now() - animationStartTime,
-    (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + ACTION_ANIMATION_SHOW_RESULTS_TIME)
-);
+export const TimeElapsedSinceAnimationStarted = (animationStartTime: number) =>
+    Math.min(
+        Date.now() - animationStartTime,
+        ACTION_ANIMATION_BEFORE_ACTION_TIME +
+            ACTION_ANIMATION_ACTION_TIME +
+            ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME +
+            ACTION_ANIMATION_SHOW_RESULTS_TIME
+    )
 
 export enum ActionAnimationPhase {
     INITIALIZED = "INITIALIZED",

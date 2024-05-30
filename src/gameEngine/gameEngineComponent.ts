@@ -1,24 +1,29 @@
-import {MouseButton} from "../utils/mouseConfig";
-import {GameEngineState} from "./gameEngine";
-import {GameModeEnum} from "../utils/startupConfig";
-import {GraphicsBuffer} from "../utils/graphics/graphicsRenderer";
+import { MouseButton } from "../utils/mouseConfig"
+import { GameEngineState } from "./gameEngine"
+import { GameModeEnum } from "../utils/startupConfig"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export type GameEngineChanges = {
-    nextMode?: GameModeEnum;
+    nextMode?: GameModeEnum
 }
 
 export interface GameEngineComponent {
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void;
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void
 
-    keyPressed(state: GameEngineState, keyCode: number): void;
+    keyPressed(state: GameEngineState, keyCode: number): void
 
-    mouseClicked(state: GameEngineState, mouseButton: MouseButton, mouseX: number, mouseY: number): void;
+    mouseClicked(
+        state: GameEngineState,
+        mouseButton: MouseButton,
+        mouseX: number,
+        mouseY: number
+    ): void
 
-    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void;
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void
 
-    hasCompleted(state: GameEngineState): boolean;
+    hasCompleted(state: GameEngineState): boolean
 
-    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined;
+    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined
 
-    reset(state: GameEngineState): void;
+    reset(state: GameEngineState): void
 }
