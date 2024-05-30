@@ -13,7 +13,7 @@
     "dev": "webpack --mode development",
     "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
     "devserve": "npm run copy-assets && npm run dev && npm run serve",
-    "copy-assets": "rsync --recursive assets/toDist/* dist/assets"
+    "copy-assets": "mkdir -p dist/assets && rsync --recursive assets/toDist/* dist/assets"
   },
   "author": "",
   "license": "ISC",
