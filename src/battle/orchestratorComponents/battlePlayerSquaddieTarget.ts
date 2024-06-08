@@ -657,7 +657,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         let results: SquaddieSquaddieResults =
             ActionCalculator.calculateResults({
-                state: gameEngineState,
+                gameEngineState: gameEngineState,
                 actingBattleSquaddie,
                 validTargetLocation: this.validTargetLocation,
                 actionsThisRound:

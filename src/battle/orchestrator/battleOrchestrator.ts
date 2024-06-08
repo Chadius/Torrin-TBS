@@ -34,7 +34,7 @@ import { MissionRewardType } from "../missionResult/missionReward"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { GameModeEnum } from "../../utils/startupConfig"
 import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
-import { GetCutsceneTriggersToActivate } from "../cutscene/missionCutsceneService"
+import { FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat } from "../cutscene/missionCutsceneService"
 import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
@@ -402,12 +402,32 @@ export class BattleOrchestrator implements GameEngineComponent {
         currentComponent: BattleOrchestratorComponent,
         defaultNextMode: BattleOrchestratorMode
     ) {
+        if (state.battleOrchestratorState.cutsceneIdsToPlay.length > 0) {
+            const nextCutsceneId =
+                state.battleOrchestratorState.cutsceneIdsToPlay[0]
+            this.cutscenePlayer.startCutscene(nextCutsceneId, state)
+
+            const nextCutscene =
+                state.battleOrchestratorState.battleState.cutsceneTriggers.find(
+                    (trigger) => trigger.cutsceneId === nextCutsceneId
+                )
+            if (nextCutscene) {
+                nextCutscene.systemReactedToTrigger = true
+            }
+            this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
+
+            state.battleOrchestratorState.cutsceneIdsToPlay =
+                state.battleOrchestratorState.cutsceneIdsToPlay.slice(1)
+            return
+        }
+
         const orchestrationChanges: BattleOrchestratorChanges =
             currentComponent.recommendStateChanges(state)
-        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(
-            state,
-            this.mode
-        )
+        let cutsceneTriggersToActivate =
+            FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                state,
+                this.mode
+            )
 
         if (orchestrationChanges.checkMissionObjectives === true) {
             let completionStatus: BattleCompletionStatus =

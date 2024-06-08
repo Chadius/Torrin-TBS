@@ -44,6 +44,7 @@ import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -248,17 +249,23 @@ export class GameEngine {
         const battleHUDListener: BattleHUDListener = new BattleHUDListener(
             "battleHUDListener"
         )
-        this.gameEngineState.messageBoard.addListener(
-            battleHUDListener,
-            MessageBoardMessageType.STARTED_PLAYER_PHASE
+        ;[
+            MessageBoardMessageType.STARTED_PLAYER_PHASE,
+            MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
+            MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                messageBoardMessageType
+            )
+        })
+
+        const cutsceneMessageListener = new CutsceneMessageListener(
+            "cutsceneMessageListener"
         )
         this.gameEngineState.messageBoard.addListener(
-            battleHUDListener,
-            MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
-        )
-        this.gameEngineState.messageBoard.addListener(
-            battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN
+            cutsceneMessageListener,
+            MessageBoardMessageType.SQUADDIE_IS_INJURED
         )
     }
 

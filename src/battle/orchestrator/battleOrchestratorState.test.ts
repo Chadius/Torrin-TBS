@@ -68,6 +68,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { BATTLE_HUD_MODE } from "../../configuration/config"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { BattleHUDService } from "../hud/battleHUD"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 
 describe("orchestratorState", () => {
     let validBattleState: BattleState
@@ -285,7 +286,13 @@ describe("orchestratorState", () => {
             squaddieProcessedActionSquaddieEffect =
                 ProcessedActionSquaddieEffectService.new({
                     decidedActionEffect: squaddieDecidedActionSquaddieEffect,
-                    results: undefined,
+                    results: SquaddieSquaddieResultsService.new({
+                        targetedBattleSquaddieIds: [],
+                        actingBattleSquaddieId: "",
+                        actingSquaddieModifiers: undefined,
+                        actingSquaddieRoll: undefined,
+                        resultPerTarget: {},
+                    }),
                 })
             squaddieProcessedAction = ProcessedActionService.new({
                 decidedAction: DecidedActionService.new({

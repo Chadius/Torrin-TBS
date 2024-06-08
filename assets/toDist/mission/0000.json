@@ -292,6 +292,18 @@
         "systemReactedToTrigger": false,
         "cutsceneId": "turn5",
         "turn": 5
+      },
+      {
+        "triggeringEvent": "SQUADDIE_IS_INJURED",
+        "systemReactedToTrigger": false,
+        "cutsceneId": "torrin_is_injured",
+        "battleSquaddieIdsToCheckForInjury": ["player_young_torrin"]
+      },
+      {
+        "triggeringEvent": "SQUADDIE_IS_INJURED",
+        "systemReactedToTrigger": false,
+        "cutsceneId": "sir_camil_is_injured",
+        "battleSquaddieIdsToCheckForInjury": ["player_sir_camil"]
       }
     ],
     "cutsceneById": {
@@ -457,6 +469,46 @@
             "speakerName": "Sir Camil",
             "speakerText": "Follow up attacks are less accurate.\nSometimes it's better to back away and let the enemy waste actions.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          }
+        ]
+      },
+      "torrin_is_injured": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "torrin_is_injured_0",
+            "speakerName": "Torrin",
+            "speakerText": "Ow!\nI should heal myself.",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "torrin_is_injured_1",
+            "speakerName": "Torrin",
+            "speakerText": "I can use Healing Touch on myself.\nIt costs 2 action points.",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "animationDuration": 0
+          }
+        ]
+      },
+      "sir_camil_is_injured": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "sir_camil_is_injured_0",
+            "speakerName": "Sir Camil",
+            "speakerText": "Those demons bite hard.\nTorrin, can you help me?",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "sir_camil_is_injured_1",
+            "speakerName": "Torrin",
+            "speakerText": "I can use Healing Touch if you're next to me!\nIt costs 2 action points.\nIf I heal you I can't do much else.",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }
         ]

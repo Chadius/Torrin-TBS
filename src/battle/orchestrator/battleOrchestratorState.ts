@@ -15,17 +15,20 @@ export class BattleOrchestratorState {
     numberGenerator: NumberGeneratorStrategy
     battleState: BattleState
     battleHUDState: BattleHUDState
+    cutsceneIdsToPlay: string[]
 
     constructor({
         numberGenerator,
         battleState,
         battleHUDState,
         battleHUD,
+        cutsceneIdsToPlay,
     }: {
         numberGenerator: NumberGeneratorStrategy
         battleState: BattleState
         battleHUDState?: BattleHUDState
         battleHUD?: BattleHUD
+        cutsceneIdsToPlay?: string[]
     }) {
         this.battleState = battleState
         this.battleHUD = getValidValueOrDefault(
@@ -37,6 +40,7 @@ export class BattleOrchestratorState {
             battleHUDState,
             BattleHUDStateService.new({})
         )
+        this.cutsceneIdsToPlay = cutsceneIdsToPlay || []
     }
 
     get isValid(): boolean {
@@ -99,17 +103,20 @@ export const BattleOrchestratorStateService = {
         battleState,
         battleHUDState,
         battleHUD,
+        cutsceneIdsToPlay,
     }: {
         numberGenerator?: NumberGeneratorStrategy
         battleState?: BattleState
         battleHUDState?: BattleHUDState
         battleHUD?: BattleHUD
+        cutsceneIdsToPlay?: string[]
     }): BattleOrchestratorState => {
         return newOrchestratorState({
             numberGenerator,
             battleState,
             battleHUDState,
-            battleHUD: battleHUD,
+            battleHUD,
+            cutsceneIdsToPlay,
         })
     },
     new: ({
@@ -153,11 +160,13 @@ const newOrchestratorState = ({
     battleState,
     battleHUDState,
     battleHUD,
+    cutsceneIdsToPlay,
 }: {
     numberGenerator?: NumberGeneratorStrategy
     battleState?: BattleState
     battleHUDState?: BattleHUDState
     battleHUD?: BattleHUD
+    cutsceneIdsToPlay?: string[]
 }): BattleOrchestratorState => {
     return new BattleOrchestratorState({
         battleState:
@@ -179,5 +188,6 @@ const newOrchestratorState = ({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             })
         ),
+        cutsceneIdsToPlay,
     })
 }

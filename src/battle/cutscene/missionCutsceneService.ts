@@ -1,6 +1,7 @@
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import {
     CutsceneTrigger,
+    SquaddieIsInjuredTrigger,
     TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
 import {
@@ -10,6 +11,15 @@ import {
 import { MissionRewardType } from "../missionResult/missionReward"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import { MessageBoardListener } from "../../message/messageBoardListener"
+import {
+    MessageBoardMessage,
+    MessageBoardMessageType,
+} from "../../message/messageBoardMessage"
+import { ActionsThisRoundService } from "../history/actionsThisRound"
+import { ProcessedActionEffect } from "../../action/processed/processedActionEffect"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 
 function getMissionObjectivesByRewardType(
     completedObjectives: MissionObjective[],
@@ -61,7 +71,7 @@ function addStartOfTurnTriggers(
     cutsceneTriggersToReactTo.push(...turnTriggersToReactTo)
 }
 
-export const GetCutsceneTriggersToActivate = (
+export const FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat = (
     state: GameEngineState,
     battleOrchestratorModeThatJustCompleted: BattleOrchestratorMode
 ): CutsceneTrigger[] => {
@@ -144,4 +154,100 @@ function getCutsceneIdIfTriggerIsValid(cutsceneTrigger: CutsceneTrigger) {
     }
 
     return cutsceneTrigger.cutsceneId
+}
+
+export const MissionCutsceneService = {
+    FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat: (
+        state: GameEngineState,
+        battleOrchestratorModeThatJustCompleted: BattleOrchestratorMode
+    ): CutsceneTrigger[] => {
+        return FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+            state,
+            battleOrchestratorModeThatJustCompleted
+        )
+    },
+    FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction: ({
+        gameEngineState,
+        squaddieSquaddieResult,
+    }: {
+        gameEngineState: GameEngineState
+        squaddieSquaddieResult: SquaddieSquaddieResults
+    }): CutsceneTrigger[] => {
+        const triggerIsInjury = (trigger: SquaddieIsInjuredTrigger): boolean =>
+            trigger.triggeringEvent === TriggeringEvent.SQUADDIE_IS_INJURED
+
+        const injuryTriggers =
+            gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers
+                .filter(triggerIsInjury)
+                .map((trigger) => trigger as SquaddieIsInjuredTrigger)
+
+        const injuredBattleSquaddieIds =
+            squaddieSquaddieResult.targetedBattleSquaddieIds.filter(
+                (id) =>
+                    squaddieSquaddieResult.resultPerTarget[id]?.damageTaken > 0
+            )
+
+        const triggerHasBattleSquaddieId = (
+            trigger: SquaddieIsInjuredTrigger
+        ): boolean =>
+            trigger.battleSquaddieIdsToCheckForInjury.some((id) =>
+                injuredBattleSquaddieIds.includes(id)
+            )
+
+        const triggerIsAfterMinimumTurns = (
+            trigger: SquaddieIsInjuredTrigger
+        ): boolean =>
+            trigger.minimumTurns === undefined ||
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+                .turnCount >= trigger.minimumTurns
+
+        const triggerIsBeforeMaximumTurns = (
+            trigger: SquaddieIsInjuredTrigger
+        ): boolean =>
+            trigger.maximumTurns === undefined ||
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+                .turnCount <= trigger.maximumTurns
+
+        return injuryTriggers
+            .filter(triggerIsBeforeMaximumTurns)
+            .filter(triggerIsAfterMinimumTurns)
+            .filter(triggerHasBattleSquaddieId)
+    },
+}
+
+export class CutsceneMessageListener implements MessageBoardListener {
+    messageBoardListenerId: string
+
+    constructor(messageBoardListenerId: string) {
+        this.messageBoardListenerId = messageBoardListenerId
+    }
+
+    receiveMessage(message: MessageBoardMessage): void {
+        switch (message.type) {
+            case MessageBoardMessageType.SQUADDIE_IS_INJURED:
+                let result: SquaddieSquaddieResults
+                const actionEffectToShow: ProcessedActionEffect =
+                    ActionsThisRoundService.getProcessedActionEffectToShow(
+                        message.gameEngineState.battleOrchestratorState
+                            .battleState.actionsThisRound
+                    )
+                if (actionEffectToShow.type === ActionEffectType.SQUADDIE) {
+                    result = actionEffectToShow.results
+                }
+
+                const cutsceneTriggers =
+                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: message.gameEngineState,
+                            squaddieSquaddieResult: result,
+                        }
+                    )
+
+                message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay =
+                    message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay.concat(
+                        ...cutsceneTriggers.map((trigger) => trigger.cutsceneId)
+                    )
+                break
+        }
+    }
 }

@@ -571,7 +571,7 @@ export class BattleComputerSquaddieSelector
                     break
                 case ActionEffectType.SQUADDIE:
                     results = ActionCalculator.calculateResults({
-                        state: gameEngineState,
+                        gameEngineState: gameEngineState,
                         actingBattleSquaddie: battleSquaddie,
                         validTargetLocation: decidedActionEffect.target,
                         actionsThisRound:

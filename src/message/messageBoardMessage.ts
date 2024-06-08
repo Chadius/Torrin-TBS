@@ -5,12 +5,14 @@ export type MessageBoardMessage =
     | MessageBoardMessageStartedPlayerPhase
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
     | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
+    | MessageBoardMessageSquaddieIsInjured
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
     STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
     PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
+    SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
 }
 
 export interface MessageBoardMessageBase {
@@ -31,4 +33,10 @@ export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
 export interface MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn {
     type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN
     gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageSquaddieIsInjured {
+    type: MessageBoardMessageType.SQUADDIE_IS_INJURED
+    gameEngineState: GameEngineState
+    battleSquaddieIdsThatWereInjured: string[]
 }

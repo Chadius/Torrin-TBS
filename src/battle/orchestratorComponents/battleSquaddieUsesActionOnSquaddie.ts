@@ -24,6 +24,7 @@ import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -89,6 +90,8 @@ export class BattleSquaddieUsesActionOnSquaddie
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
+        generateMessagesBasedOnSquaddieSquaddieResults(gameEngineState)
+
         ActionsThisRoundService.nextProcessedActionEffectToShow(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         )
@@ -229,5 +232,30 @@ export class BattleSquaddieUsesActionOnSquaddie
 
         this._squaddieActionAnimator =
             this.squaddieTargetsOtherSquaddiesAnimator
+    }
+}
+
+const generateMessagesBasedOnSquaddieSquaddieResults = (
+    gameEngineState: GameEngineState
+) => {
+    const actionEffectJustShown =
+        ActionsThisRoundService.getProcessedActionEffectToShow(
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        )
+    if (actionEffectJustShown?.type === ActionEffectType.SQUADDIE) {
+        const damagedBattleSquaddieIds: string[] =
+            actionEffectJustShown.results.targetedBattleSquaddieIds.filter(
+                (targetedBattleSquaddieId) =>
+                    actionEffectJustShown.results.resultPerTarget[
+                        targetedBattleSquaddieId
+                    ]?.damageTaken > 0
+            )
+        if (gameEngineState.messageBoard) {
+            gameEngineState.messageBoard.sendMessage({
+                gameEngineState,
+                type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
+                battleSquaddieIdsThatWereInjured: damagedBattleSquaddieIds,
+            })
+        }
     }
 }

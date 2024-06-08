@@ -34,7 +34,10 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
@@ -155,23 +158,26 @@ describe("calculator", () => {
             }))
     })
 
-    function dealBodyDamage({
+    const getActingBattleSquaddieIdForDealBodyDamage = ({
         actingBattleSquaddie,
-        validTargetLocation,
-        missionStatistics,
-        currentlySelectedAction,
-        numberGenerator,
     }: {
-        currentlySelectedAction: ActionTemplate
         actingBattleSquaddie?: BattleSquaddie
-        validTargetLocation?: HexCoordinate
-        missionStatistics?: MissionStatistics
-        numberGenerator?: NumberGeneratorStrategy
-    }) {
-        const battleSquaddieId = actingBattleSquaddie
+    }): string => {
+        return actingBattleSquaddie
             ? actingBattleSquaddie.battleSquaddieId
             : player1BattleSquaddie.battleSquaddieId
-        const actionsThisRound = ActionsThisRoundService.new({
+    }
+
+    const getActionsThisRoundForDealBodyDamage = ({
+        battleSquaddieId,
+        currentlySelectedAction,
+        validTargetLocation,
+    }: {
+        currentlySelectedAction: ActionTemplate
+        battleSquaddieId: string
+        validTargetLocation?: HexCoordinate
+    }) => {
+        return ActionsThisRoundService.new({
             battleSquaddieId: battleSquaddieId,
             startingLocation: { q: 1, r: 0 },
             processedActions: [
@@ -193,23 +199,64 @@ describe("calculator", () => {
             ],
             previewedActionTemplateId: currentlySelectedAction.id,
         })
+    }
+
+    const getGameEngineStateForDealBodyDamage = ({
+        missionStatistics,
+        numberGenerator,
+        actionsThisRound,
+    }: {
+        missionStatistics?: MissionStatistics
+        numberGenerator?: NumberGeneratorStrategy
+        actionsThisRound: ActionsThisRound
+    }) => {
+        return GameEngineStateService.new({
+            resourceHandler: undefined,
+            repository: squaddieRepository,
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    numberGenerator,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        missionStatistics,
+                        actionsThisRound,
+                    }),
+                }),
+        })
+    }
+
+    const dealBodyDamage = ({
+        actingBattleSquaddie,
+        validTargetLocation,
+        missionStatistics,
+        currentlySelectedAction,
+        numberGenerator,
+    }: {
+        currentlySelectedAction: ActionTemplate
+        actingBattleSquaddie?: BattleSquaddie
+        validTargetLocation?: HexCoordinate
+        missionStatistics?: MissionStatistics
+        numberGenerator?: NumberGeneratorStrategy
+    }) => {
+        const battleSquaddieId = getActingBattleSquaddieIdForDealBodyDamage({
+            actingBattleSquaddie,
+        })
+        const actionsThisRound = getActionsThisRoundForDealBodyDamage({
+            battleSquaddieId,
+            currentlySelectedAction,
+            validTargetLocation,
+        })
+
+        const gameEngineState = getGameEngineStateForDealBodyDamage({
+            actionsThisRound,
+            numberGenerator,
+            missionStatistics,
+        })
 
         return ActionCalculator.calculateResults({
-            state: GameEngineStateService.new({
-                resourceHandler: undefined,
-                repository: squaddieRepository,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        numberGenerator,
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            missionStatistics,
-                            actionsThisRound,
-                        }),
-                    }),
-            }),
+            gameEngineState,
             actionsThisRound,
             actionEffect:
                 ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
@@ -360,7 +407,7 @@ describe("calculator", () => {
             })
 
             const results = ActionCalculator.calculateResults({
-                state: GameEngineStateService.new({
+                gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
                     battleOrchestratorState:
                         BattleOrchestratorStateService.newOrchestratorState({
@@ -424,7 +471,7 @@ describe("calculator", () => {
             })
 
             ActionCalculator.calculateResults({
-                state: GameEngineStateService.new({
+                gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
                     battleOrchestratorState:
                         BattleOrchestratorStateService.newOrchestratorState({
@@ -609,7 +656,7 @@ describe("calculator", () => {
             })
 
             const results = ActionCalculator.calculateResults({
-                state: GameEngineStateService.new({
+                gameEngineState: GameEngineStateService.new({
                     repository: squaddieRepository,
                     resourceHandler: undefined,
                     battleOrchestratorState:

@@ -33,20 +33,20 @@ import { isValidValue } from "../../utils/validityCheck"
 
 export const ActionCalculator = {
     calculateResults: ({
-        state,
+        gameEngineState,
         actingBattleSquaddie,
         validTargetLocation,
         actionEffect,
         actionsThisRound,
     }: {
-        state: GameEngineState
+        gameEngineState: GameEngineState
         actingBattleSquaddie: BattleSquaddie
         validTargetLocation: HexCoordinate
         actionsThisRound: ActionsThisRound
         actionEffect: DecidedActionEffect
     }): SquaddieSquaddieResults => {
         return calculateResults({
-            state,
+            gameEngineState: gameEngineState,
             actingBattleSquaddie,
             validTargetLocation,
             actionsThisRound,
@@ -56,20 +56,20 @@ export const ActionCalculator = {
 }
 
 const calculateResults = ({
-    state,
+    gameEngineState,
     actingBattleSquaddie,
     validTargetLocation,
     actionsThisRound,
     actionEffect,
 }: {
-    state: GameEngineState
+    gameEngineState: GameEngineState
     actingBattleSquaddie: BattleSquaddie
     validTargetLocation: HexCoordinate
     actionsThisRound: ActionsThisRound
     actionEffect: DecidedActionEffect
 }): SquaddieSquaddieResults => {
     const { targetedBattleSquaddieIds } = getTargetedBattleSquaddieIds(
-        state.battleOrchestratorState,
+        gameEngineState.battleOrchestratorState,
         validTargetLocation
     )
 
@@ -77,7 +77,7 @@ const calculateResults = ({
     if (actionEffect && actionEffect.type === ActionEffectType.SQUADDIE) {
         actingSquaddieRoll = maybeMakeAttackRoll(
             actionEffect.template,
-            state.battleOrchestratorState
+            gameEngineState.battleOrchestratorState
         )
     }
     let { multipleAttackPenalty } =
@@ -99,7 +99,7 @@ const calculateResults = ({
             battleSquaddie: targetedBattleSquaddie,
         } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
+                gameEngineState.repository,
                 targetedBattleSquaddieId
             )
         )
@@ -112,7 +112,7 @@ const calculateResults = ({
 
         let { damageDealt, degreeOfSuccess } = calculateTotalDamageDealt({
             actionEffect: actionEffect,
-            state: state.battleOrchestratorState,
+            state: gameEngineState.battleOrchestratorState,
             actingBattleSquaddie,
             targetedSquaddieTemplate,
             targetedBattleSquaddie,
@@ -128,7 +128,7 @@ const calculateResults = ({
 
         maybeUpdateMissionStatistics(
             targetedSquaddieTemplate,
-            state,
+            gameEngineState,
             healingReceived,
             damageDealt,
             actingBattleSquaddie

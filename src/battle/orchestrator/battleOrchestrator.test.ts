@@ -423,6 +423,69 @@ describe("Battle Orchestrator", () => {
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBe("starting")
     })
 
+    it("recommends cutscene player until the cutscene player queue is empty", () => {
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
+            cutsceneById: {
+                cutscene0: CutsceneService.new({}),
+                cutscene1: CutsceneService.new({}),
+                cutscene2: CutsceneService.new({}),
+            },
+        })
+
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+        })
+
+        const stateWithCutscene: GameEngineState = GameEngineStateService.new({
+            resourceHandler: nullState.resourceHandler,
+            battleOrchestratorState:
+                BattleOrchestratorStateService.newOrchestratorState({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        cutsceneCollection,
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        },
+                    }),
+                    cutsceneIdsToPlay: ["cutscene0", "cutscene1"],
+                }),
+            repository: ObjectRepositoryService.new(),
+        })
+
+        const cutsceneSpy: jest.SpyInstance = jest.spyOn(
+            orchestrator.cutscenePlayer,
+            "startCutscene"
+        )
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
+        expect(orchestrator.getCurrentMode()).toBe(
+            BattleOrchestratorMode.CUTSCENE_PLAYER
+        )
+        expect(cutsceneSpy).toBeCalledTimes(1)
+        expect(cutsceneSpy).toBeCalledWith("cutscene0", stateWithCutscene)
+        expect(
+            stateWithCutscene.battleOrchestratorState.cutsceneIdsToPlay
+        ).toEqual(["cutscene1"])
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
+        expect(orchestrator.getCurrentMode()).toBe(
+            BattleOrchestratorMode.CUTSCENE_PLAYER
+        )
+        expect(cutsceneSpy).toBeCalledTimes(2)
+        expect(cutsceneSpy).toBeCalledWith("cutscene1", stateWithCutscene)
+        expect(
+            stateWithCutscene.battleOrchestratorState.cutsceneIdsToPlay
+        ).toHaveLength(0)
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
+        expect(orchestrator.getCurrentMode()).not.toBe(
+            BattleOrchestratorMode.CUTSCENE_PLAYER
+        )
+        expect(cutsceneSpy).toBeCalledTimes(2)
+    })
+
     it("skips the introductory cutscene if the game is loaded", () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {

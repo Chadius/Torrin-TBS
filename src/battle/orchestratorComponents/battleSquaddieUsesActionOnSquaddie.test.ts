@@ -60,6 +60,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let squaddieRepository: ObjectRepository
@@ -68,11 +69,13 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let targetStatic: SquaddieTemplate
     let targetDynamic: BattleSquaddie
     let powerAttackLongswordAction: ActionTemplate
+    let attackLongswordAction: ActionTemplate
     let monkKoanAction: ActionTemplate
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
     let mockResourceHandler: jest.Mocked<ResourceHandler>
     let battleEventRecording: Recording
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -130,6 +133,25 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: 9001,
+                    },
+                }),
+            ],
+        })
+
+        attackLongswordAction = ActionTemplateService.new({
+            name: "attack longsword",
+            id: "attackLongsword",
+            actionPoints: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    minimumRange: 1,
+                    maximumRange: 1,
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
                     },
                 }),
             ],
@@ -337,6 +359,109 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
             powerAttackLongswordAction.actionPoints
+        )
+        return gameEngineState
+    }
+
+    const useAttackActionAndReturnState = ({
+        missionMap,
+        actionTemplate,
+    }: {
+        missionMap?: MissionMap
+        actionTemplate: ActionTemplate
+    }): GameEngineState => {
+        const results: SquaddieSquaddieResults =
+            SquaddieSquaddieResultsService.sanitize({
+                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                actingSquaddieModifiers: {},
+                targetedBattleSquaddieIds: [
+                    targetDynamicSquaddieBattleSquaddieId,
+                ],
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
+                resultPerTarget: {
+                    [targetDynamicSquaddieBattleSquaddieId]: {
+                        damageTaken: 1,
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    },
+                },
+            })
+        const processedAction = ProcessedActionService.new({
+            decidedAction: undefined,
+            processedActionEffects: [
+                ProcessedActionSquaddieEffectService.new({
+                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
+                        {
+                            template: actionTemplate
+                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                            target: { q: 0, r: 0 },
+                        }
+                    ),
+                    results,
+                }),
+            ],
+        })
+
+        const actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+            startingLocation: { q: 0, r: 0 },
+            previewedActionTemplateId: actionTemplate.name,
+            processedActions: [processedAction],
+        })
+
+        const newEvent: BattleEvent = BattleEventService.new({
+            processedAction,
+            results,
+        })
+        RecordingService.addEvent(battleEventRecording, newEvent)
+
+        if (isValidValue(missionMap)) {
+            MissionMapService.addSquaddie(
+                missionMap,
+                squaddieTemplateBase.squaddieId.templateId,
+                battleSquaddieBase.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 0,
+                }
+            )
+        }
+
+        const battleOrchestratorState =
+            BattleOrchestratorStateService.newOrchestratorState({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    actionsThisRound,
+                    recording: battleEventRecording,
+                }),
+            })
+
+        const gameEngineState = GameEngineStateService.new({
+            battleOrchestratorState,
+            repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
+            campaign: CampaignService.default({}),
+        })
+
+        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
+            {
+                battleId: battleSquaddieBase.battleSquaddieId,
+                repositionWindow: { mouseX: 0, mouseY: 0 },
+                state: gameEngineState,
+            }
+        )
+
+        SquaddieTurnService.spendActionPoints(
+            battleSquaddieBase.squaddieTurn,
+            actionTemplate.actionPoints
         )
         return gameEngineState
     }
@@ -629,5 +754,27 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(
             squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy
         ).toBeCalled()
+    })
+
+    it("will generate message if the target was injured", () => {
+        const gameEngineState = useAttackActionAndReturnState({
+            actionTemplate: attackLongswordAction,
+        })
+        const messageBoardSendSpy: jest.SpyInstance = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
+
+        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+        squaddieUsesActionOnSquaddie.reset(gameEngineState)
+
+        expect(messageBoardSendSpy).toBeCalledWith({
+            type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
+            gameEngineState,
+            battleSquaddieIdsThatWereInjured: [
+                targetDynamicSquaddieBattleSquaddieId,
+            ],
+        })
+        messageBoardSendSpy.mockRestore()
     })
 })

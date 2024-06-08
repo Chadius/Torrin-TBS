@@ -11,11 +11,16 @@ import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
     MissionDefeatCutsceneTrigger,
+    SquaddieIsInjuredTrigger,
     TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
 import { BattleCompletionStatus } from "../orchestrator/missionObjectivesAndCutscenes"
 import { MissionVictoryCutsceneTrigger } from "./missionVictoryCutsceneTrigger"
-import { GetCutsceneTriggersToActivate } from "./missionCutsceneService"
+import {
+    CutsceneMessageListener,
+    FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat,
+    MissionCutsceneService,
+} from "./missionCutsceneService"
 import { MissionStartOfPhaseCutsceneTrigger } from "./missionStartOfPhaseCutsceneTrigger"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionConditionType } from "../missionResult/missionCondition"
@@ -26,6 +31,17 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
+import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import { ActionResultPerSquaddieService } from "../history/actionResultPerSquaddie"
+import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../history/actionsThisRound"
+import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import { ProcessedActionService } from "../../action/processed/processedAction"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -240,7 +256,11 @@ describe("Mission Cutscene Service", () => {
                         .battleCompletionStatus
                 ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
-                const info = GetCutsceneTriggersToActivate(victoryState, mode)
+                const info =
+                    FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                        victoryState,
+                        mode
+                    )
 
                 expect(missionObjectiveCompleteCheck).toBeCalled()
 
@@ -254,7 +274,7 @@ describe("Mission Cutscene Service", () => {
             victoryState.battleOrchestratorState.battleState
                 .battleCompletionStatus
         ).toBe(BattleCompletionStatus.IN_PROGRESS)
-        const info = GetCutsceneTriggersToActivate(
+        const info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             victoryState,
             BattleOrchestratorMode.CUTSCENE_PLAYER
         )
@@ -268,7 +288,7 @@ describe("Mission Cutscene Service", () => {
                 .battleCompletionStatus
         ).toBe(BattleCompletionStatus.IN_PROGRESS)
         victoryCutsceneTrigger.systemReactedToTrigger = true
-        const info = GetCutsceneTriggersToActivate(
+        const info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             victoryState,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
         )
@@ -285,7 +305,7 @@ describe("Mission Cutscene Service", () => {
                 .battleCompletionStatus
         ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
-        const info = GetCutsceneTriggersToActivate(
+        const info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             defeatState,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
         )
@@ -304,7 +324,7 @@ describe("Mission Cutscene Service", () => {
                 .battleCompletionStatus
         ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
-        const info = GetCutsceneTriggersToActivate(
+        const info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             defeatState,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
         )
@@ -315,13 +335,13 @@ describe("Mission Cutscene Service", () => {
     })
 
     it("will check for any introductory cutscenes during turn 0", () => {
-        let info = GetCutsceneTriggersToActivate(
+        let info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             turn0State,
             BattleOrchestratorMode.INITIALIZED
         )
         expect(info).toStrictEqual([turn0CutsceneTrigger])
 
-        let info2 = GetCutsceneTriggersToActivate(
+        let info2 = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             turn0State,
             BattleOrchestratorMode.PHASE_CONTROLLER
         )
@@ -329,11 +349,280 @@ describe("Mission Cutscene Service", () => {
     })
 
     it("will not check for any turn starting cutscenes mid turn", () => {
-        const info = GetCutsceneTriggersToActivate(
+        const info = FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
             turn0State,
             BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
         )
 
         expect(info).toHaveLength(0)
+    })
+
+    describe("CutsceneTriggers based on SquaddieSquaddieResults", () => {
+        let listener: CutsceneMessageListener
+        beforeEach(() => {
+            listener = new CutsceneMessageListener("cutsceneMessageListener")
+        })
+
+        describe("Squaddie Is Injured Cutscene Trigger", () => {
+            let targetWasInjuredResult: SquaddieSquaddieResults
+            let gameEngineStateWithInjuryCutscene: GameEngineState
+            let injuredCutsceneTrigger: SquaddieIsInjuredTrigger
+            const injuredCutsceneId = "injured"
+            const injuredBattleSquaddieId = "injured_battle_squaddie"
+
+            beforeEach(() => {
+                mockCutscene = CutsceneService.new({})
+                cutsceneCollection = MissionCutsceneCollectionHelper.new({
+                    cutsceneById: {
+                        [injuredCutsceneId]: mockCutscene,
+                    },
+                })
+
+                injuredCutsceneTrigger = {
+                    triggeringEvent: TriggeringEvent.SQUADDIE_IS_INJURED,
+                    cutsceneId: injuredCutsceneId,
+                    systemReactedToTrigger: false,
+                    battleSquaddieIdsToCheckForInjury: [
+                        injuredBattleSquaddieId,
+                    ],
+                }
+
+                targetWasInjuredResult = {
+                    actingBattleSquaddieId: "attacker",
+                    actingSquaddieModifiers: undefined,
+                    actingSquaddieRoll: undefined,
+                    resultPerTarget: {},
+                    targetedBattleSquaddieIds: [injuredBattleSquaddieId],
+                }
+
+                const actionsThisRound: ActionsThisRound =
+                    ActionsThisRoundService.new({
+                        battleSquaddieId:
+                            targetWasInjuredResult.actingBattleSquaddieId,
+                        startingLocation: { q: 0, r: 0 },
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: undefined,
+                                processedActionEffects: [
+                                    ProcessedActionSquaddieEffectService.new({
+                                        results: targetWasInjuredResult,
+                                        decidedActionEffect:
+                                            DecidedActionSquaddieEffectService.new(
+                                                {
+                                                    template: undefined,
+                                                    target: undefined,
+                                                }
+                                            ),
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+
+                gameEngineStateWithInjuryCutscene = GameEngineStateService.new({
+                    repository: undefined,
+                    resourceHandler: undefined,
+                    battleOrchestratorState:
+                        BattleOrchestratorStateService.newOrchestratorState({
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                missionMap: new MissionMap({
+                                    terrainTileMap: new TerrainTileMap({
+                                        movementCost: ["1 1 "],
+                                    }),
+                                }),
+                                cutsceneCollection,
+                                cutsceneTriggers: [],
+                                actionsThisRound,
+                            }),
+                        }),
+                })
+            })
+
+            it("will listen to a squaddie injured message", () => {
+                gameEngineStateWithInjuryCutscene.messageBoard.addListener(
+                    listener,
+                    MessageBoardMessageType.SQUADDIE_IS_INJURED
+                )
+
+                const finderSpy = jest.spyOn(
+                    MissionCutsceneService,
+                    "FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
+                )
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    injuredCutsceneTrigger
+                )
+                targetWasInjuredResult.resultPerTarget[
+                    injuredBattleSquaddieId
+                ] = ActionResultPerSquaddieService.new({
+                    damageTaken: 2,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+                gameEngineStateWithInjuryCutscene.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
+                    gameEngineState: gameEngineStateWithInjuryCutscene,
+                    battleSquaddieIdsThatWereInjured: [],
+                })
+                expect(finderSpy).toBeCalled()
+
+                expect(
+                    gameEngineStateWithInjuryCutscene.battleOrchestratorState
+                        .cutsceneIdsToPlay
+                ).toEqual([injuredCutsceneId])
+                finderSpy.mockRestore()
+            })
+
+            it("will fire the cutscene if it gets a squaddie is injured without a turn limit", () => {
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    injuredCutsceneTrigger
+                )
+
+                targetWasInjuredResult.resultPerTarget[
+                    injuredBattleSquaddieId
+                ] = ActionResultPerSquaddieService.new({
+                    damageTaken: 2,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+
+                expect(
+                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithInjuryCutscene,
+                            squaddieSquaddieResult: targetWasInjuredResult,
+                        }
+                    )
+                ).toEqual([injuredCutsceneTrigger])
+            })
+
+            it("will not fire the cutscene if the squaddie is not injured", () => {
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    injuredCutsceneTrigger
+                )
+
+                targetWasInjuredResult.resultPerTarget[
+                    injuredBattleSquaddieId
+                ] = ActionResultPerSquaddieService.new({
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+
+                expect(
+                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithInjuryCutscene,
+                            squaddieSquaddieResult: targetWasInjuredResult,
+                        }
+                    )
+                ).toHaveLength(0)
+            })
+
+            it("will not fire the cutscene if it gets a squaddie is injured event on a different squaddie", () => {
+                gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                    injuredCutsceneTrigger
+                )
+
+                targetWasInjuredResult.resultPerTarget[
+                    "different squaddie id"
+                ] = ActionResultPerSquaddieService.new({
+                    damageTaken: 2,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+
+                expect(
+                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                        {
+                            gameEngineState: gameEngineStateWithInjuryCutscene,
+                            squaddieSquaddieResult: targetWasInjuredResult,
+                        }
+                    )
+                ).toHaveLength(0)
+            })
+
+            describe("turn boundary", () => {
+                const tests = [
+                    {
+                        name: "will fire between turn boundary",
+                        minimumTurns: 2,
+                        maximumTurns: 5,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire after minimumTurns",
+                        minimumTurns: 2,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire before maximumTurns",
+                        maximumTurns: 5,
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "will fire if no turns are specified",
+                        turnCount: 4,
+                        expectsTriggers: true,
+                    },
+                    {
+                        name: "not fire before minimumTurns",
+                        minimumTurns: 2,
+                        turnCount: 1,
+                        expectsTriggers: false,
+                    },
+                    {
+                        name: "not fire after maximumTurns",
+                        maximumTurns: 5,
+                        turnCount: 8,
+                        expectsTriggers: false,
+                    },
+                ]
+
+                it.each(tests)(
+                    `$name`,
+                    ({
+                        name,
+                        minimumTurns,
+                        maximumTurns,
+                        turnCount,
+                        expectsTriggers,
+                    }) => {
+                        injuredCutsceneTrigger.minimumTurns = minimumTurns
+                        injuredCutsceneTrigger.maximumTurns = maximumTurns
+                        gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.battlePhaseState =
+                            {
+                                turnCount,
+                                currentAffiliation: BattlePhase.PLAYER,
+                            }
+
+                        gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
+                            injuredCutsceneTrigger
+                        )
+
+                        targetWasInjuredResult.resultPerTarget[
+                            injuredBattleSquaddieId
+                        ] = ActionResultPerSquaddieService.new({
+                            damageTaken: 2,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                        })
+
+                        const expectedTriggers = expectsTriggers
+                            ? [injuredCutsceneTrigger]
+                            : []
+
+                        expect(
+                            MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                                {
+                                    gameEngineState:
+                                        gameEngineStateWithInjuryCutscene,
+                                    squaddieSquaddieResult:
+                                        targetWasInjuredResult,
+                                }
+                            )
+                        ).toEqual(expectedTriggers)
+                    }
+                )
+            })
+        })
     })
 })
