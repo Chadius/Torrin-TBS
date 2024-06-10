@@ -131,7 +131,10 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     recommendStateChanges(state: GameEngineState): GameEngineChanges {
-        if (state.fileState.loadSaveState.userRequestedLoad) {
+        if (
+            state.fileState.loadSaveState.userRequestedLoad &&
+            !state.fileState.loadSaveState.applicationStartedLoad
+        ) {
             return {
                 nextMode: GameModeEnum.LOADING_BATTLE,
             }
@@ -174,7 +177,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public update(state: GameEngineState, graphicsContext: GraphicsBuffer) {
-        if (state.fileState.loadSaveState.userRequestedLoad) {
+        if (state.fileState.loadSaveState.applicationStartedLoad) {
             return
         }
 
@@ -369,7 +372,11 @@ export class BattleOrchestrator implements GameEngineComponent {
     hasCompleted(state: GameEngineState): boolean {
         return (
             this.battleComplete ||
-            state.fileState.loadSaveState.userRequestedLoad
+            (state.fileState.loadSaveState.userRequestedLoad &&
+                !(
+                    state.fileState.loadSaveState.applicationStartedLoad ||
+                    state.fileState.loadSaveState.applicationErroredWhileLoading
+                ))
         )
     }
 

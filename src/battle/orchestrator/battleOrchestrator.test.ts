@@ -1334,28 +1334,60 @@ describe("Battle Orchestrator", () => {
         }
     })
 
-    it("sets the completed flag if the user wants to load progress", () => {
-        const orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-        })
+    describe("Loading saved game", () => {
+        let gameEngineState: GameEngineState
+        let orchestrator: BattleOrchestrator
+        beforeEach(() => {
+            orchestrator = createOrchestrator({
+                initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+            })
 
-        const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler: undefined,
+                battleOrchestratorState:
+                    BattleOrchestratorStateService.newOrchestratorState({
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            campaignId: "test campaign",
+                        }),
                     }),
-                }),
-            repository: undefined,
+                repository: undefined,
+            })
+            LoadSaveStateService.userRequestsLoad(
+                gameEngineState.fileState.loadSaveState
+            )
         })
-        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState)
 
-        orchestrator.update(state, mockedP5GraphicsContext)
-        expect(orchestrator.hasCompleted(state)).toBeTruthy()
+        it("sets the completed flag if the user wants to load progress", () => {
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
+            expect(orchestrator.hasCompleted(gameEngineState)).toBeTruthy()
 
-        const changes = orchestrator.recommendStateChanges(state)
-        expect(changes.nextMode).toBe(GameModeEnum.LOADING_BATTLE)
+            const changes = orchestrator.recommendStateChanges(gameEngineState)
+            expect(changes.nextMode).toBe(GameModeEnum.LOADING_BATTLE)
+        })
+
+        it("does not set the completed flag if loading has started", () => {
+            LoadSaveStateService.userRequestsLoad(
+                gameEngineState.fileState.loadSaveState
+            )
+            LoadSaveStateService.applicationStartsLoad(
+                gameEngineState.fileState.loadSaveState
+            )
+
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
+            expect(orchestrator.hasCompleted(gameEngineState)).toBeFalsy()
+        })
+
+        it("does not set the completed flag if there is an error while loading", () => {
+            LoadSaveStateService.userRequestsLoad(
+                gameEngineState.fileState.loadSaveState
+            )
+            LoadSaveStateService.applicationErrorsWhileLoading(
+                gameEngineState.fileState.loadSaveState
+            )
+
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
+            expect(orchestrator.hasCompleted(gameEngineState)).toBeFalsy()
+        })
     })
 })

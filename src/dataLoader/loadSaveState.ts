@@ -1,5 +1,6 @@
 import { BattleSaveState } from "../battle/history/battleSaveState"
 import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
+import { SaveSaveState } from "./saveSaveState"
 
 export interface LoadSaveState {
     saveState: BattleSaveState
@@ -16,14 +17,14 @@ export const LoadSaveStateService = {
         applicationStartedLoad,
         applicationErroredWhileLoading,
         applicationCompletedLoad,
-        userLoadRequested,
+        userRequestedLoad,
         userCanceledLoad,
     }: {
         saveState?: BattleSaveState
         applicationStartedLoad?: boolean
         applicationErroredWhileLoading?: boolean
         applicationCompletedLoad?: boolean
-        userLoadRequested?: boolean
+        userRequestedLoad?: boolean
         userCanceledLoad?: boolean
     }): LoadSaveState => {
         return newLoadSaveState({
@@ -40,7 +41,7 @@ export const LoadSaveStateService = {
                 applicationCompletedLoad,
                 false
             ),
-            userRequestedLoad: getValidValueOrDefault(userLoadRequested, false),
+            userRequestedLoad: getValidValueOrDefault(userRequestedLoad, false),
             userCanceledLoad: getValidValueOrDefault(userCanceledLoad, false),
         })
     },
@@ -64,7 +65,6 @@ export const LoadSaveStateService = {
     applicationErrorsWhileLoading: (loadSaveState: LoadSaveState): void => {
         loadSaveState.applicationErroredWhileLoading = true
         loadSaveState.applicationStartedLoad = false
-        loadSaveState.userRequestedLoad = false
         loadSaveState.saveState = undefined
     },
     userCancelsLoad: (loadSaveState: LoadSaveState): void => {
@@ -90,6 +90,18 @@ export const LoadSaveStateService = {
         return newLoadSaveState({
             ...loadFlags,
         })
+    },
+    didUserRequestLoadAndLoadHasConcluded: (
+        loadSaveState: LoadSaveState
+    ): boolean => {
+        return (
+            loadSaveState.userRequestedLoad &&
+            (loadSaveState.applicationErroredWhileLoading ||
+                !loadSaveState.applicationCompletedLoad)
+        )
+    },
+    userFinishesRequestingLoad: (loadSaveState: LoadSaveState) => {
+        loadSaveState.userRequestedLoad = false
     },
 }
 

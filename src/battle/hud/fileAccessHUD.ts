@@ -9,7 +9,10 @@ import {
     WINDOW_SPACING,
 } from "../../ui/constants"
 import { isValidValue } from "../../utils/validityCheck"
-import { SaveSaveStateService } from "../../dataLoader/saveSaveState"
+import {
+    SaveSaveState,
+    SaveSaveStateService,
+} from "../../dataLoader/saveSaveState"
 import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
@@ -20,6 +23,7 @@ import { FileState } from "../../gameEngine/fileState"
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
     SAVE_FAILED = "Save Failed",
+    LOAD_FAILED = "Load Failed",
     SAVE_IN_PROGRESS = "Saving...",
 }
 
@@ -93,10 +97,10 @@ export const FileAccessHUDDesign = {
     },
     MESSAGE_LABEL: {
         AREA: {
-            startColumn: 9,
+            startColumn: 8,
             endColumn: 9,
             top: 10,
-            bottom: 50,
+            bottom: 60,
         },
         RECTANGLE: {
             noFill: true,
@@ -222,6 +226,15 @@ const updateStatusMessage = (
             ) {
                 SaveSaveStateService.userFinishesRequestingSave(
                     fileState.saveSaveState
+                )
+            }
+            if (
+                LoadSaveStateService.didUserRequestLoadAndLoadHasConcluded(
+                    fileState.loadSaveState
+                )
+            ) {
+                LoadSaveStateService.userFinishesRequestingLoad(
+                    fileState.loadSaveState
                 )
             }
             clearMessage(fileAccessHUD)
@@ -506,12 +519,16 @@ const calculateMessageToShow = (
         [FileAccessHUDMessage.SAVE_FAILED]:
             fileState.saveSaveState.userRequestedSave &&
             fileState.saveSaveState.errorDuringSaving,
+        [FileAccessHUDMessage.LOAD_FAILED]:
+            fileState.loadSaveState.userRequestedLoad &&
+            fileState.loadSaveState.applicationErroredWhileLoading,
     }
 
     const messagePriority = [
         FileAccessHUDMessage.SAVE_FAILED,
         FileAccessHUDMessage.SAVE_IN_PROGRESS,
         FileAccessHUDMessage.SAVE_SUCCESS,
+        FileAccessHUDMessage.LOAD_FAILED,
     ]
 
     return messagePriority.find((message) => messageChecks[message])

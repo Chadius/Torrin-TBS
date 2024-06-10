@@ -50,7 +50,7 @@ describe("Load SaveState", () => {
     describe("can have set fields", () => {
         it("userLoadRequested", () => {
             const loadFlags = LoadSaveStateService.new({
-                userLoadRequested: true,
+                userRequestedLoad: true,
             })
             expect(loadFlags.userRequestedLoad).toBeTruthy()
         })
@@ -103,6 +103,7 @@ describe("Load SaveState", () => {
 
     it("knows when the user has selected a file and process completed loading save state", () => {
         const loadFlags = LoadSaveStateService.new({
+            userRequestedLoad: true,
             applicationStartedLoad: true,
         })
         LoadSaveStateService.applicationCompletesLoad(loadFlags, saveState)
@@ -112,7 +113,9 @@ describe("Load SaveState", () => {
     })
 
     it("knows when the user has canceled a file", () => {
-        const loadFlags = LoadSaveStateService.new({})
+        const loadFlags = LoadSaveStateService.new({
+            userRequestedLoad: true,
+        })
         LoadSaveStateService.userCancelsLoad(loadFlags)
         expect(loadFlags.userCanceledLoad).toBeTruthy()
         expect(loadFlags.userRequestedLoad).toBeFalsy()
@@ -121,17 +124,19 @@ describe("Load SaveState", () => {
     })
 
     it("knows when the process has an error while loading a file", () => {
-        const loadFlags = LoadSaveStateService.new({})
+        const loadFlags = LoadSaveStateService.new({
+            userRequestedLoad: true,
+        })
         LoadSaveStateService.applicationErrorsWhileLoading(loadFlags)
         expect(loadFlags.applicationErroredWhileLoading).toBeTruthy()
         expect(loadFlags.applicationStartedLoad).toBeFalsy()
-        expect(loadFlags.userRequestedLoad).toBeFalsy()
+        expect(loadFlags.userRequestedLoad).toBeTruthy()
         expect(loadFlags.saveState).toBeUndefined()
     })
 
     it("can be reset", () => {
         const loadFlags = LoadSaveStateService.new({
-            userLoadRequested: true,
+            userRequestedLoad: true,
             applicationErroredWhileLoading: true,
             applicationStartedLoad: true,
             userCanceledLoad: true,
@@ -151,7 +156,7 @@ describe("Load SaveState", () => {
 
     it("can be cloned", () => {
         const loadFlags = LoadSaveStateService.new({
-            userLoadRequested: true,
+            userRequestedLoad: true,
             applicationErroredWhileLoading: true,
             applicationStartedLoad: true,
             userCanceledLoad: true,

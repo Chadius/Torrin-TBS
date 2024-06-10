@@ -1,7 +1,7 @@
 import { GameEngineGameLoader } from "./gameEngineGameLoader"
 import { ResourceHandler } from "../resource/resourceHandler"
 import * as mocks from "./../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "./../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import * as DataLoader from "../dataLoader/dataLoader"
 import {
     ObjectRepository,
@@ -148,6 +148,10 @@ describe("GameEngineGameLoader", () => {
             )
     })
 
+    afterEach(() => {
+        loadFileIntoFormatSpy.mockRestore()
+    })
+
     describe("loading the campaign", () => {
         it("loads the campaign first", async () => {
             await loader.update(state)
@@ -220,6 +224,23 @@ describe("GameEngineGameLoader", () => {
         it("knows it is not complete", () => {
             loader.update(state)
             expect(loader.hasCompleted(state)).toBeFalsy()
+        })
+
+        it("reports errors", async () => {
+            const consoleErrorSpy = jest
+                .spyOn(console, "error")
+                .mockImplementation(() => {})
+            loadFileIntoFormatSpy.mockRejectedValue("Error")
+            await loader.update(state)
+            expect(loader.errorFoundWhileLoading).toBeTruthy()
+            expect(consoleErrorSpy).toBeCalledWith(
+                expect.stringContaining("Error while loading campaign file")
+            )
+            expect(consoleErrorSpy).toBeCalledWith("Error")
+            expect(consoleErrorSpy).toBeCalledWith(
+                new Error("Loading campaign coolCampaign failed")
+            )
+            consoleErrorSpy.mockRestore()
         })
     })
 

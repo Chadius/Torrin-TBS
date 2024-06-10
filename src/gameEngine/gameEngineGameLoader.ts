@@ -59,7 +59,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             try {
                 await this.loadBattleSaveStateFromFile(state)
             } catch {
-                return
+                this.errorFoundWhileLoading = true
             }
 
             if (this.errorFoundWhileLoading) {
@@ -78,15 +78,20 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 await this.loadCampaignDataFromFile(
                     this.campaignLoaderContext.campaignIdToLoad,
                     state
-                ).then(async () => {
-                    await this.loadMissionDataFromFile(
-                        state.campaign,
-                        state,
-                        state.repository
-                    ).then(() => {
-                        this.finishedLoading = true
+                )
+                    .then(async () => {
+                        await this.loadMissionDataFromFile(
+                            state.campaign,
+                            state,
+                            state.repository
+                        ).then(() => {
+                            this.finishedLoading = true
+                        })
                     })
-                })
+                    .catch((err) => {
+                        this.errorFoundWhileLoading = true
+                        console.error(err)
+                    })
             }
             return
         }
@@ -146,6 +151,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
         state: GameEngineState
     ): GameEngineChanges | undefined {
         if (this.errorFoundWhileLoading) {
+            LoadSaveStateService.userFinishesRequestingLoad(
+                state.fileState.loadSaveState
+            )
             return {
                 nextMode:
                     state.modeThatInitiatedLoading !== GameModeEnum.UNKNOWN
@@ -288,6 +296,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
         const campaignData =
             await CampaignLoaderService.loadCampaignFromFile(campaignId)
+        if (!isValidValue(campaignData)) {
+            throw new Error(`Loading campaign ${campaignId} failed`)
+        }
+
         const campaignResources: CampaignResources = campaignData.resources
         state.resourceHandler.loadResources(
             Object.values(campaignResources.missionMapMovementIconResourceKeys)
@@ -372,6 +384,13 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
 
         if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
+            return
+        }
+
+        if (
+            gameEngineState.fileState.loadSaveState
+                .applicationErroredWhileLoading
+        ) {
             return
         }
 

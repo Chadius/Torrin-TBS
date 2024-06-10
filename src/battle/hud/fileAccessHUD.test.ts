@@ -424,6 +424,20 @@ describe("File Access HUD", () => {
                     ButtonStatus.READY
                 )
             })
+            it("generates a message indicating the Load failed for a period of time", () => {
+                const initialMessage: string =
+                    FileAccessHUDService.updateStatusMessage(
+                        fileAccessHUD,
+                        fileState
+                    )
+                expect(initialMessage).toEqual(FileAccessHUDMessage.LOAD_FAILED)
+                expect(fileAccessHUD.messageDisplayStartTime).toEqual(0)
+                expectNoMessageAfterDisplayDuration(
+                    dateSpy,
+                    fileState,
+                    fileAccessHUD
+                )
+            })
         })
     })
 })
