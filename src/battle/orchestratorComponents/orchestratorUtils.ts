@@ -1,10 +1,13 @@
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleCamera } from "../battleCamera"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { convertScreenCoordinatesToMapCoordinates } from "../../hexMap/convertCoordinates"
+import {
+    convertMapCoordinatesToScreenCoordinates,
+    convertScreenCoordinatesToMapCoordinates,
+} from "../../hexMap/convertCoordinates"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieLocationHandler } from "../../missionMap/squaddieLocation"
@@ -14,6 +17,7 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -244,6 +248,7 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
         !isSquaddieCurrentlyTakingATurn(state)
     ) {
         state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
+        state.battleOrchestratorState.battleHUDState.summaryHUDState = undefined
         return
     }
 
@@ -261,12 +266,32 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
             battleSquaddie,
         })
     if (playerCanControlThisSquaddieRightNow) {
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            state.battleOrchestratorState.battleState.missionMap,
+            battleSquaddie.battleSquaddieId
+        )
+
+        let mouseX: number = 0,
+            mouseY: number = 0
+        if (mapLocation) {
+            ;[mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+                mapLocation.q,
+                mapLocation.r,
+                ...state.battleOrchestratorState.battleState.camera.getCoordinates()
+            )
+            mouseX -= HEX_TILE_WIDTH
+        }
+
         state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
             {
                 battleId:
                     state.battleOrchestratorState.battleState.actionsThisRound
                         .battleSquaddieId,
-                state,
+                gameEngineState: state,
+                repositionWindow: {
+                    mouseX,
+                    mouseY,
+                },
             }
         )
     } else {

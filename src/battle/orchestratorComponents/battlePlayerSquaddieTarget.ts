@@ -52,6 +52,8 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -246,6 +248,53 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             })
         ) {
             this.cancelTargetSelection(gameEngineState)
+            let repositionWindow = {
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+            }
+            if (
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState?.playerCommandState?.playerCommandWindow
+            ) {
+                repositionWindow.mouseX =
+                    RectAreaService.left(
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState
+                            .playerCommandWindow.area
+                    ) + HEX_TILE_WIDTH
+                repositionWindow.mouseY =
+                    RectAreaService.top(
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState
+                            .playerCommandWindow.area
+                    ) - HEX_TILE_WIDTH
+            }
+
+            if (
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ) {
+                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                    SummaryHUDStateService.new({
+                        battleSquaddieId:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState.summaryHUDState
+                                .currentlyDisplayedBattleSquaddieId,
+                        mouseSelectionLocation: {
+                            x: repositionWindow.mouseX,
+                            y: repositionWindow.mouseY,
+                        },
+                    })
+
+                SummaryHUDStateService.update({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    objectRepository: gameEngineState.repository,
+                })
+            }
             return
         }
 

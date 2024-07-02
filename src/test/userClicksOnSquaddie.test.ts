@@ -15,7 +15,7 @@ import {
 } from "../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -43,8 +43,6 @@ import {
 } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import { RectAreaService } from "../ui/rectArea"
-import { TextBoxService } from "../ui/textBox"
 import { ActionsThisRound } from "../battle/history/actionsThisRound"
 import { MouseButton } from "../utils/mouseConfig"
 
@@ -140,24 +138,27 @@ describe("User clicks on a squaddie", () => {
         repository.squaddieTemplates[
             playerSquaddieTemplate.squaddieId.templateId
         ].actionTemplates.push(attackAction2)
+        const gameEngineState = getGameEngineState({
+            resourceHandler,
+            missionMap,
+            repository,
+            teams: [],
+            battlePhaseState: undefined,
+        })
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
             battleSquaddieSelectedHUD,
-            gameEngineState: getGameEngineState({
-                resourceHandler,
-                missionMap,
-                repository,
-                teams: [],
-                battlePhaseState: undefined,
-            }),
+            gameEngineState: gameEngineState,
         })
 
-        expect(battleSquaddieSelectedHUD.selectedBattleSquaddieId).toEqual(
-            playerBattleSquaddie.battleSquaddieId
-        )
+        expect(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.battleSquaddieId
+        ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
         const actionButtons: MakeDecisionButton[] =
-            battleSquaddieSelectedHUD.getUseActionButtons()
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.actionButtons
         expect(actionButtons).toHaveLength(2)
 
         expect(
@@ -293,121 +294,6 @@ describe("User clicks on a squaddie", () => {
         const battleState = gameEngineState.battleOrchestratorState.battleState
         expect(battleState.actionsThisRound).toBeUndefined()
     })
-
-    it("HUD presents a warning if the squaddie is out of actions", () => {
-        const actionCostIsTooHigh = ActionTemplateService.new({
-            id: "too many action points",
-            name: "too many action points",
-            actionPoints: 9001,
-            actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.ATTACK]: true,
-                    }),
-                }),
-            ],
-        })
-        repository.squaddieTemplates[
-            playerSquaddieTemplate.squaddieId.templateId
-        ].actionTemplates.push(actionCostIsTooHigh)
-        selectSquaddieForTheHUD({
-            battleSquaddie: playerBattleSquaddie,
-            battleSquaddieSelectedHUD,
-            gameEngineState: getGameEngineState({
-                resourceHandler,
-                missionMap,
-                repository,
-                teams: [],
-                battlePhaseState: undefined,
-            }),
-        })
-        const gameEngineState = getGameEngineState({
-            resourceHandler,
-            missionMap,
-            repository,
-            teams: [playerTeam],
-            battlePhaseState: BattlePhaseStateService.new({
-                currentAffiliation: BattlePhase.PLAYER,
-                turnCount: 0,
-            }),
-        })
-
-        const actionButtons: MakeDecisionButton[] =
-            battleSquaddieSelectedHUD.getUseActionButtons()
-
-        const actionButton = actionButtons.find((button) => {
-            return button.actionTemplate.id === actionCostIsTooHigh.id
-        })
-
-        battleSquaddieSelectedHUD.mouseClicked({
-            mouseX: RectAreaService.centerX(actionButton.buttonArea),
-            mouseY: RectAreaService.centerY(actionButton.buttonArea),
-            gameEngineState,
-            mouseButton: MouseButton.ACCEPT,
-        })
-
-        expect(
-            TextBoxService.isDone(
-                battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                    .INVALID_COMMAND_WARNING_TEXT_BOX
-            )
-        ).toBeFalsy()
-        expect(
-            battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                .INVALID_COMMAND_WARNING_TEXT_BOX.text
-        ).toEqual("Need 9001 action points")
-    })
-
-    it("HUD presents a warning if the squaddie’s affiliation does not match the Phase", () => {
-        const { enemyTeam, enemyBattleSquaddie, enemySquaddieTemplate } =
-            setupEnemyTeam({ attackAction, repository })
-
-        const gameEngineState = getGameEngineState({
-            resourceHandler,
-            missionMap,
-            repository,
-            teams: [playerTeam, enemyTeam],
-            battlePhaseState: BattlePhaseStateService.new({
-                currentAffiliation: BattlePhase.ENEMY,
-                turnCount: 0,
-            }),
-        })
-
-        MissionMapService.addSquaddie(
-            missionMap,
-            enemyBattleSquaddie.squaddieTemplateId,
-            enemyBattleSquaddie.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
-        )
-
-        selectSquaddieForTheHUD({
-            battleSquaddie: enemyBattleSquaddie,
-            battleSquaddieSelectedHUD,
-            gameEngineState,
-        })
-
-        expect(battleSquaddieSelectedHUD.selectedBattleSquaddieId).toEqual(
-            enemyBattleSquaddie.battleSquaddieId
-        )
-
-        battleSquaddieSelectedHUD.drawUncontrollableSquaddieWarning(
-            gameEngineState
-        )
-
-        expect(
-            TextBoxService.isDone(
-                battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                    .INVALID_COMMAND_WARNING_TEXT_BOX
-            )
-        ).toBeFalsy()
-        expect(
-            battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                .INVALID_COMMAND_WARNING_TEXT_BOX.text
-        ).toEqual(`You cannot control ${enemySquaddieTemplate.squaddieId.name}`)
-    })
 })
 
 const getGameEngineState = ({
@@ -455,7 +341,7 @@ const selectSquaddieForTheHUD = ({
 }) => {
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddie.battleSquaddieId,
-        state: gameEngineState,
+        gameEngineState: gameEngineState,
         repositionWindow: { mouseX: 0, mouseY: 0 },
     })
 }

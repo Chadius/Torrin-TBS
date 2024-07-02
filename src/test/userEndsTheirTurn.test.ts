@@ -15,7 +15,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../action/template/actionTemplate"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
@@ -78,6 +78,7 @@ describe("User ends their turn", () => {
     let attackAction: ActionTemplate
 
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
+    let selector: BattlePlayerSquaddieSelector
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
@@ -174,25 +175,218 @@ describe("User ends their turn", () => {
             battleSquaddieSelectedHUD,
             gameEngineState,
         })
+        selector = new BattlePlayerSquaddieSelector()
     })
 
-    it("HUD knows the user selected end turn", () => {
-        battleSquaddieSelectedHUD.mouseClicked({
+    it("HUD knows the user selected end turn (via battleSquaddieSelectedHUD buttons)", () => {
+        selector.mouseClicked({
             mouseX: RectAreaService.centerX(
-                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
             ),
             mouseY: RectAreaService.centerY(
-                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
             ),
             gameEngineState,
             mouseButton: MouseButton.ACCEPT,
         })
 
         expect(
-            battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.playerSelectedEndTurn
         ).toBeTruthy()
         expect(
-            battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.playerSelectedSquaddieAction
+        ).toBeFalsy()
+    })
+
+    it("EndTurn adds a ProcessedAction to end the turn (via battleSquaddieSelectedHUD buttons)", () => {
+        const selector = new BattlePlayerSquaddieSelector()
+        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+            0,
+            0,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        )
+        selector.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY,
+            mouseButton: MouseButton.ACCEPT,
+        })
+
+        expect(
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        ).toBeUndefined()
+
+        selector.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: RectAreaService.centerX(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseButton: MouseButton.ACCEPT,
+        })
+
+        const actionsThisRound =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        expect(actionsThisRound.processedActions).toHaveLength(1)
+
+        const processedAction = actionsThisRound.processedActions[0]
+
+        const decidedActionEndTurnEffect =
+            DecidedActionEndTurnEffectService.new({
+                template: ActionEffectEndTurnTemplateService.new({}),
+            })
+        expect(processedAction.processedActionEffects).toHaveLength(1)
+        expect(processedAction.processedActionEffects[0]).toEqual(
+            ProcessedActionEndTurnEffectService.new({
+                decidedActionEffect: decidedActionEndTurnEffect,
+            })
+        )
+        expect(processedAction.decidedAction).toEqual(
+            DecidedActionService.new({
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                actionTemplateName: "End Turn",
+                actionEffects: [decidedActionEndTurnEffect],
+            })
+        )
+    })
+
+    describe("player squaddie selector reacts to ending the turn (via battleSquaddieSelectedHUD buttons)", () => {
+        let selector: BattlePlayerSquaddieSelector
+        let highlightTileSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            highlightTileSpy = jest.spyOn(
+                missionMap.terrainTileMap,
+                "stopHighlightingTiles"
+            )
+            selector = new BattlePlayerSquaddieSelector()
+            let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+                0,
+                0,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+            )
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX,
+                mouseY,
+                mouseButton: MouseButton.ACCEPT,
+            })
+
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: RectAreaService.centerX(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState.endTurnButton
+                        .buttonArea
+                ),
+                mouseY: RectAreaService.centerY(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState.endTurnButton
+                        .buttonArea
+                ),
+                mouseButton: MouseButton.ACCEPT,
+            })
+        })
+
+        afterEach(() => {
+            highlightTileSpy.mockClear()
+        })
+
+        it("Selector has completed and HUD is no longer drawn", () => {
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+            selector.reset(gameEngineState)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
+            ).toBeFalsy()
+        })
+
+        it("ends the squaddie turn", () => {
+            expect(
+                playerBattleSquaddie.squaddieTurn.remainingActionPoints
+            ).toEqual(0)
+            expect(
+                SquaddieTurnService.hasActionPointsRemaining(
+                    playerBattleSquaddie.squaddieTurn
+                )
+            ).toBeFalsy()
+            expect(
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                    gameEngineState
+                )
+            ).toBeTruthy()
+        })
+
+        it("tells the map to stop highlighting tiles", () => {
+            expect(highlightTileSpy).toBeCalled()
+        })
+
+        it("Mode switches to player HUD controller", () => {
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+            const changes = selector.recommendStateChanges(gameEngineState)
+            expect(changes.nextMode).toBe(
+                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+            )
+        })
+
+        it("It adds an event showing the processed action", () => {
+            const decidedActionEndTurnEffect =
+                DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.recording
+                    .history
+            ).toContainEqual(
+                BattleEventService.new({
+                    processedAction: ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId:
+                                playerBattleSquaddie.battleSquaddieId,
+                            actionTemplateName: "End Turn",
+                            actionEffects: [decidedActionEndTurnEffect],
+                        }),
+                        processedActionEffects: [
+                            ProcessedActionEndTurnEffectService.new({
+                                decidedActionEffect: decidedActionEndTurnEffect,
+                            }),
+                        ],
+                    }),
+                    results: undefined,
+                })
+            )
+        })
+    })
+
+    it("HUD knows the user selected end turn", () => {
+        let summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        selector.mouseClicked({
+            mouseX: RectAreaService.centerX(
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            gameEngineState,
+            mouseButton: MouseButton.ACCEPT,
+        })
+
+        expect(
+            summaryHUDState.playerCommandState.playerSelectedEndTurn
+        ).toBeTruthy()
+        expect(
+            summaryHUDState.playerCommandState.playerSelectedSquaddieAction
         ).toBeFalsy()
     })
 
@@ -214,13 +408,16 @@ describe("User ends their turn", () => {
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         ).toBeUndefined()
 
+        let summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(
-                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
             ),
             mouseY: RectAreaService.centerY(
-                battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
             ),
             mouseButton: MouseButton.ACCEPT,
         })
@@ -272,13 +469,16 @@ describe("User ends their turn", () => {
                 mouseButton: MouseButton.ACCEPT,
             })
 
+            let summaryHUDState =
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: RectAreaService.centerX(
-                    battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
                 ),
                 mouseY: RectAreaService.centerY(
-                    battleSquaddieSelectedHUD.endTurnButton.rectangle.area
+                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
                 ),
                 mouseButton: MouseButton.ACCEPT,
             })
@@ -291,7 +491,10 @@ describe("User ends their turn", () => {
         it("Selector has completed and HUD is no longer drawn", () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             selector.reset(gameEngineState)
-            expect(battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
+            ).toBeFalsy()
         })
 
         it("ends the squaddie turn", () => {
@@ -517,7 +720,7 @@ const selectSquaddieForTheHUD = ({
 }) => {
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddie.battleSquaddieId,
-        state: gameEngineState,
+        gameEngineState: gameEngineState,
         repositionWindow: { mouseX: 0, mouseY: 0 },
     })
 }

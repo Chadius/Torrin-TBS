@@ -6,6 +6,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
     | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
     | MessageBoardMessageSquaddieIsInjured
+    | MessageBoardMessagePlayerSelectionIsInvalid
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -13,6 +14,7 @@ export enum MessageBoardMessageType {
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
     PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
+    PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
 }
 
 export interface MessageBoardMessageBase {
@@ -39,4 +41,14 @@ export interface MessageBoardMessageSquaddieIsInjured {
     type: MessageBoardMessageType.SQUADDIE_IS_INJURED
     gameEngineState: GameEngineState
     battleSquaddieIdsThatWereInjured: string[]
+}
+
+export interface MessageBoardMessagePlayerSelectionIsInvalid {
+    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+    gameEngineState: GameEngineState
+    reason: string
+    selectionLocation: {
+        x: number
+        y: number
+    }
 }

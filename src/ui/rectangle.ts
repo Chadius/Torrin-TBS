@@ -58,7 +58,8 @@ export const RectangleHelper = {
             graphics.fill(
                 rectangle.fillColor[0],
                 rectangle.fillColor[1],
-                rectangle.fillColor[2]
+                rectangle.fillColor[2],
+                rectangle.fillColor?.[3]
             )
         }
         if (isValidValue(rectangle.strokeColor)) {

@@ -19,10 +19,9 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battle/battleSquaddieTeam"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { makeResult } from "../utils/ResultOrError"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { TerrainTileMap } from "../hexMap/terrainTileMap"
 import {
@@ -46,7 +45,6 @@ import { CampaignService } from "../campaign/campaign"
 import { MakeDecisionButton } from "../squaddie/makeDecisionButton"
 import { RectAreaService } from "../ui/rectArea"
 import { SquaddieTurnService } from "../squaddie/turn"
-import { TextBoxService } from "../ui/textBox"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
 import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
@@ -129,7 +127,7 @@ describe("user clicks on an action to consider it", () => {
             .mockReturnValueOnce(true)
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -165,14 +163,15 @@ describe("user clicks on an action to consider it", () => {
             gameEngineState,
         })
 
-        attackButton = battleSquaddieSelectedHUD
-            .getUseActionButtons()
-            .find((button) => button.actionTemplate.id === attackAction.id)
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplate.id === attackAction.id
+            )
 
         selector = new BattlePlayerSquaddieSelector()
     })
 
-    it("If the action costs too many ActionPoints, HUD should give a warning and not select it", () => {
+    it("If the action costs too many ActionPoints, do not select it", () => {
         SquaddieTurnService.spendActionPoints(
             playerBattleSquaddie.squaddieTurn,
             2
@@ -182,25 +181,20 @@ describe("user clicks on an action to consider it", () => {
         ).toBeLessThan(attackButton.actionTemplate.actionPoints)
 
         selectorClicksOnSquaddie(selector, gameEngineState)
-        selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
+        selector.mouseClicked({
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
             mouseButton: MouseButton.ACCEPT,
+            gameEngineState,
         })
 
         expect(
-            TextBoxService.isDone(
-                battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                    .INVALID_COMMAND_WARNING_TEXT_BOX
-            )
-        ).toBeFalsy()
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.battleSquaddieId
+        ).toEqual(playerBattleSquaddie.battleSquaddieId)
         expect(
-            battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                .INVALID_COMMAND_WARNING_TEXT_BOX.text
-        ).toEqual("Need 2 action points")
-        expect(
-            battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.playerSelectedSquaddieAction
         ).toBeFalsy()
     })
 
@@ -212,19 +206,14 @@ describe("user clicks on an action to consider it", () => {
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
             mouseButton: MouseButton.ACCEPT,
         })
-
         expect(
-            TextBoxService.isDone(
-                battleSquaddieSelectedHUD.graphicsObjects.textBoxes
-                    .INVALID_COMMAND_WARNING_TEXT_BOX
-            )
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.playerSelectedSquaddieAction
         ).toBeTruthy()
         expect(
-            battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()
-        ).toBeTruthy()
-        expect(battleSquaddieSelectedHUD.getSquaddieSquaddieAction()).toEqual(
-            attackAction
-        )
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState.selectedActionTemplate
+        ).toEqual(attackAction)
         expect(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         ).toEqual(
@@ -324,7 +313,7 @@ const selectSquaddieForTheHUD = ({
 }) => {
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddie.battleSquaddieId,
-        state: gameEngineState,
+        gameEngineState: gameEngineState,
         repositionWindow: { mouseX: 0, mouseY: 0 },
     })
 }

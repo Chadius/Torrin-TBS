@@ -19,6 +19,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { SummaryHUDStateService } from "../hud/summaryHUD"
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
@@ -112,22 +113,25 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
 
         if (
-            state.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD() &&
-            state.battleHUD.battleSquaddieSelectedHUD.isMouseInsideHUD(
-                mouseX,
-                mouseY
-            )
+            state.battleHUDState.summaryHUDState?.showSummaryHUD &&
+            SummaryHUDStateService.isMouseHoveringOver({
+                summaryHUDState: state.battleHUDState.summaryHUDState,
+                mouseSelectionLocation: {
+                    x: mouseX,
+                    y: mouseY,
+                },
+            })
         ) {
             if (
                 mouseX <
-                state.battleHUD.battleSquaddieSelectedHUD.background.area.left
+                state.battleHUDState.summaryHUDState.summaryWindow.area.left
             ) {
                 state.battleState.camera.setXVelocity(-5)
             }
             if (
                 mouseX >
                 RectAreaService.right(
-                    state.battleHUD.battleSquaddieSelectedHUD.background.area
+                    state.battleHUDState.summaryHUDState.summaryWindow.area
                 )
             ) {
                 state.battleState.camera.setXVelocity(5)

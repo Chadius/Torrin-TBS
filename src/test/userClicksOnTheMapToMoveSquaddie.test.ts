@@ -11,7 +11,7 @@ import {
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
 import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { SquaddieIdService } from "../squaddie/id"
@@ -158,15 +158,17 @@ describe("user clicks on the map to move", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, -10, 9001)
             commonExpectations()
             expect(
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
-            ).toBeFalsy()
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
         })
 
         it("When user clicks out of range", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 4)
             commonExpectations()
             expect(
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
             ).toBeTruthy()
         })
 
@@ -174,7 +176,8 @@ describe("user clicks on the map to move", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 1, 0)
             commonExpectations()
             expect(
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
             ).toBeTruthy()
         })
 
@@ -197,11 +200,12 @@ describe("user clicks on the map to move", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 2)
             commonExpectations()
             expect(
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
             ).toBeTruthy()
             expect(
-                gameEngineState.battleOrchestratorState.battleHUD
-                    .battleSquaddieSelectedHUD.selectedBattleSquaddieId
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.battleSquaddieId
             ).toEqual(anotherPlayer.battleSquaddieId)
         })
 
@@ -374,7 +378,7 @@ const selectorAndHUDClickOnSquaddie = (
     })
     battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
         battleId: battleSquaddieId,
-        state: gameEngineState,
+        gameEngineState: gameEngineState,
         repositionWindow: { mouseX: 0, mouseY: 0 },
     })
 }

@@ -1,6 +1,6 @@
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { TitleScreen } from "./titleScreen"
+import { FILE_MESSAGE_DISPLAY_DURATION, TitleScreen } from "./titleScreen"
 import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
@@ -9,7 +9,6 @@ import { KeyButtonName } from "../utils/keyboardConfig"
 import { config } from "../configuration/config"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { makeResult } from "../utils/ResultOrError"
-import { FILE_MESSAGE_DISPLAY_DURATION } from "../battle/hud/battleSquaddieSelectedHUD"
 import { RectAreaService } from "../ui/rectArea"
 import {
     GameEngineState,

@@ -210,5 +210,12 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 )
             ).toBeFalsy()
         })
+
+        it("clears the HUD", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
+        })
     })
 })

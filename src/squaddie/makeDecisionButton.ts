@@ -14,11 +14,11 @@ import { ResourceHandler } from "../resource/resourceHandler"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
-    strokeSaturation: 50,
-    strokeBrightness: 100,
+    strokeSaturation: 85,
+    strokeBrightness: 50,
     strokeWeight: 4,
-    fillSaturation: 50,
-    fillBrightness: 100,
+    fillSaturation: 85,
+    fillBrightness: 50,
     fillAlpha: 127,
     templateNameTextTopMargin: 4,
     templateNameTextSize: 12,
@@ -77,7 +77,6 @@ export class MakeDecisionButton {
 
     draw(graphicsContext: GraphicsBuffer) {
         this.buttonIcon.draw(graphicsContext)
-
         if (this.status === ButtonStatus.HOVER) {
             const hoverOutline = RectangleHelper.new({
                 area: this.buttonArea,

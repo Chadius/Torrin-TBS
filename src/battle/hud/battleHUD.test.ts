@@ -29,6 +29,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -285,6 +286,52 @@ describe("Battle HUD", () => {
                 popup.label.textBox.text.includes(
                     `${squaddieTemplate.squaddieId.name}\n is not done yet`
                 )
+            ).toBeTruthy()
+        })
+        it("squaddie does not have enough action points to perform the action", () => {
+            const gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({}),
+                    battleState: BattleStateService.new({
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
+                        missionId: "missionId",
+                        campaignId: "test campaign",
+                    }),
+                }),
+                repository: ObjectRepositoryService.new(),
+            })
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+            )
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                gameEngineState,
+                reason: "Need 2 action points",
+                selectionLocation: {
+                    x: ScreenDimensions.SCREEN_WIDTH,
+                    y: ScreenDimensions.SCREEN_HEIGHT,
+                },
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUD.popupWindows[
+                    PopupWindowType.PLAYER_INVALID_SELECTION
+                ]
+            ).not.toBeUndefined()
+
+            const popup =
+                gameEngineState.battleOrchestratorState.battleHUD.popupWindows[
+                    PopupWindowType.PLAYER_INVALID_SELECTION
+                ]
+            expect(
+                popup.label.textBox.text.includes("Need 2 action points")
             ).toBeTruthy()
         })
     })

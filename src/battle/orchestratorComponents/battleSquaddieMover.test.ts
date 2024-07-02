@@ -21,7 +21,7 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -285,8 +285,9 @@ describe("BattleSquaddieMover", () => {
             it("hides the HUD", () => {
                 mover.reset(gameEngineState)
                 expect(
-                    gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
-                ).toBeFalsy()
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState
+                ).toBeUndefined()
             })
 
             it("clear the expected actions", () => {
@@ -372,7 +373,7 @@ describe("BattleSquaddieMover", () => {
                     {
                         battleId: "player_1",
                         repositionWindow: { mouseX: 0, mouseY: 0 },
-                        state: gameEngineState,
+                        gameEngineState: gameEngineState,
                     }
                 )
 
@@ -392,7 +393,8 @@ describe("BattleSquaddieMover", () => {
             it("should open the HUD if the squaddie turn has actions remaining", () => {
                 mover.reset(gameEngineState)
                 expect(
-                    gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.showSummaryHUD
                 ).toBeTruthy()
             })
 
@@ -419,70 +421,6 @@ describe("BattleSquaddieMover", () => {
                 ).toBeFalsy()
                 actionBuilderSpy.mockRestore()
             })
-        })
-
-        it("should not open the HUD if the squaddie turn is incomplete and is not controllable by the player", () => {
-            map.addSquaddie("enemy_1", "enemy_1", { q: 0, r: 0 })
-
-            const decidedActionMovementEffect =
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 1, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                })
-            const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: "enemy_1",
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [decidedActionMovementEffect],
-                }),
-                processedActionEffects: [
-                    ProcessedActionMovementEffectService.new({
-                        decidedActionEffect: decidedActionMovementEffect,
-                    }),
-                ],
-            })
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "enemy_1",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [processedAction],
-            })
-
-            let mockResourceHandler = mocks.mockResourceHandler(
-                mockedP5GraphicsContext
-            )
-            mockResourceHandler.getResource = jest
-                .fn()
-                .mockReturnValue(makeResult(null))
-
-            const state: GameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: setupSquaddie({
-                    squaddieAffiliation: SquaddieAffiliation.ENEMY,
-                    actionsThisRound,
-                }),
-                resourceHandler: mockResourceHandler,
-                repository: squaddieRepo,
-                campaign: CampaignService.default({}),
-            })
-
-            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-                {
-                    battleId: "enemy_1",
-                    repositionWindow: { mouseX: 0, mouseY: 0 },
-                    state: state,
-                }
-            )
-
-            const mover: BattleSquaddieMover = new BattleSquaddieMover()
-            jest.spyOn(Date, "now").mockImplementation(() => 1)
-            mover.update(state, mockedP5GraphicsContext)
-            jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
-            mover.update(state, mockedP5GraphicsContext)
-            mover.recommendStateChanges(state)
-            mover.reset(state)
-            expect(
-                state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
-            ).toBeFalsy()
         })
     })
 })

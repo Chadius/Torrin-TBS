@@ -1,10 +1,12 @@
 import { BATTLE_HUD_MODE } from "../../configuration/config"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
+import { SummaryHUDState } from "./summaryHUD"
 
 export interface BattleHUDState {
     hudMode: BATTLE_HUD_MODE
     hoveredBattleSquaddieId: string
     hoveredBattleSquaddieTimestamp: number
+    summaryHUDState: SummaryHUDState
 }
 
 export const BattleHUDStateService = {
@@ -12,15 +14,18 @@ export const BattleHUDStateService = {
         hudMode,
         hoveredBattleSquaddieId,
         hoveredBattleSquaddieTimestamp,
+        summaryHUDState,
     }: {
         hudMode?: BATTLE_HUD_MODE
         hoveredBattleSquaddieId?: string
         hoveredBattleSquaddieTimestamp?: number
+        summaryHUDState?: SummaryHUDState
     }): BattleHUDState => {
         return newBattleHUDState({
             hudMode,
             hoveredBattleSquaddieId,
             hoveredBattleSquaddieTimestamp,
+            summaryHUDState,
         })
     },
     clone: (battleHUDState: BattleHUDState): BattleHUDState => {
@@ -32,15 +37,18 @@ const newBattleHUDState = ({
     hudMode,
     hoveredBattleSquaddieId,
     hoveredBattleSquaddieTimestamp,
+    summaryHUDState,
 }: {
     hudMode?: BATTLE_HUD_MODE
     hoveredBattleSquaddieId?: string
     hoveredBattleSquaddieTimestamp?: number
+    summaryHUDState?: SummaryHUDState
 }): BattleHUDState => {
     return sanitize({
         hudMode,
         hoveredBattleSquaddieId,
         hoveredBattleSquaddieTimestamp,
+        summaryHUDState,
     })
 }
 
