@@ -23,6 +23,10 @@ import {
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { isValidValue } from "../../utils/validityCheck"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 
 export class TargetingResults {
     constructor() {
@@ -78,6 +82,11 @@ export const TargetingResultsService = {
             sourceTiles,
             actionEffectSquaddieTemplate,
         })
+    },
+    highlightTargetRange: (
+        gameEngineState: GameEngineState
+    ): HexCoordinate[] => {
+        return highlightTargetRange(gameEngineState)
     },
 }
 
@@ -180,4 +189,55 @@ function addValidTargetsToResult(
         .filter((x) => x)
 
     targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
+}
+
+// TODO write tests for this found in target
+const highlightTargetRange = (
+    gameEngineState: GameEngineState
+): HexCoordinate[] => {
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId
+        )
+    )
+
+    const previewedActionTemplateId =
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+            .previewedActionTemplateId
+    const previewedActionTemplate = squaddieTemplate.actionTemplates.find(
+        (template) => template.id === previewedActionTemplateId
+    )
+
+    if (!isValidValue(previewedActionTemplate)) {
+        return []
+    }
+
+    const actionEffectSquaddieTemplate =
+        previewedActionTemplate.actionEffectTemplates[0]
+    if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
+        return []
+    }
+
+    const targetingResults = TargetingResultsService.findValidTargets({
+        map: gameEngineState.battleOrchestratorState.battleState.missionMap,
+        actionEffectSquaddieTemplate,
+        actingSquaddieTemplate: squaddieTemplate,
+        actingBattleSquaddie: battleSquaddie,
+        squaddieRepository: gameEngineState.repository,
+    })
+    const actionRange: HexCoordinate[] = targetingResults.locationsInRange
+
+    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+        [
+            {
+                tiles: actionRange,
+                pulseColor: HighlightPulseRedColor,
+                overlayImageResourceName: "map icon attack 1 action",
+            },
+        ]
+    )
+    return actionRange
 }

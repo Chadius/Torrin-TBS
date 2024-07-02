@@ -44,7 +44,6 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
@@ -53,6 +52,7 @@ import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoord
 import { MouseButton } from "../utils/mouseConfig"
 import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -138,8 +138,8 @@ describe("User cancels the previewed action", () => {
     })
 
     describe("when the user cancels after selecting an action", () => {
-        let hexMapHighlightTilesSpy: jest.SpyInstance
         let orchestratorSpy: SpyInstance
+        let messageSpy: SpyInstance
 
         beforeEach(() => {
             gameEngineState = getGameEngineState({
@@ -155,6 +155,7 @@ describe("User cancels the previewed action", () => {
                 OrchestratorUtilities,
                 "generateMessagesIfThePlayerCanActWithANewSquaddie"
             )
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             MissionMapService.addSquaddie(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -167,11 +168,6 @@ describe("User cancels the previewed action", () => {
             )
 
             targeting.update(gameEngineState, graphicsContext)
-            hexMapHighlightTilesSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                "highlightTiles"
-            )
         })
         afterEach(() => {
             orchestratorSpy.mockRestore()
@@ -221,32 +217,13 @@ describe("User cancels the previewed action", () => {
         )
 
         it.each(cancelMethods)(
-            "highlights the map via $name",
+            "sends a message it was canceled $name",
             ({ name, action }) => {
                 action()
-                targeting.recommendStateChanges(gameEngineState)
-                expect(hexMapHighlightTilesSpy).toBeCalled()
-            }
-        )
-
-        it.each(cancelMethods)(
-            "If the user clicks cancel the target, clear the previewed power in ActionsThisRound via $name",
-            ({ name, action }) => {
-                action()
-                const recommendedInfo =
-                    targeting.recommendStateChanges(gameEngineState)
-                expect(recommendedInfo.nextMode).toBe(
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).toBeUndefined()
-                expect(
-                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                        gameEngineState
-                    )
-                ).toBeFalsy()
+                expect(messageSpy).toBeCalledWith({
+                    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                    gameEngineState,
+                })
             }
         )
 
@@ -266,7 +243,7 @@ describe("User cancels the previewed action", () => {
             actionsThisRound: ActionsThisRoundService.new({
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 startingLocation: { q: 0, r: 0 },
-                previewedActionTemplateId: attackAction.name,
+                previewedActionTemplateId: attackAction.id,
                 processedActions: [
                     ProcessedActionService.new({
                         decidedAction: undefined,

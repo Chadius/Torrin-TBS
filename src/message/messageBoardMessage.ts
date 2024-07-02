@@ -7,6 +7,8 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
     | MessageBoardMessageSquaddieIsInjured
     | MessageBoardMessagePlayerSelectionIsInvalid
+    | MessageBoardMessagePlayerCancelsTargetSelection
+    | MessageBoardMessagePlayerCancelsTargetConfirmation
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -15,6 +17,8 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
     PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
+    PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
+    PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
 }
 
 export interface MessageBoardMessageBase {
@@ -51,4 +55,14 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
         x: number
         y: number
     }
+}
+
+export interface MessageBoardMessagePlayerCancelsTargetSelection {
+    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
+    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
+    gameEngineState: GameEngineState
 }

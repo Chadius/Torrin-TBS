@@ -18,7 +18,6 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetingResultsService } from "../targeting/targetingService"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { convertScreenCoordinatesToMapCoordinates } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
@@ -54,6 +53,7 @@ import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBa
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -167,7 +167,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     reset(state: GameEngineState) {
         this.resetObject()
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
     }
 
     shouldDrawConfirmWindow(): boolean {
@@ -191,6 +190,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             })
         ) {
             this.hasSelectedValidTarget = false
+            this.highlightTargetRange(gameEngineState)
             return
         }
 
@@ -363,33 +363,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState
     ): void => {
         this.cancelAbility = true
-
-        const battleSquaddieToHighlightId: string =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
-
-        OrchestratorUtilities.highlightSquaddieRange(
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
             gameEngineState,
-            battleSquaddieToHighlightId
-        )
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
-            undefined
-
-        PlayerBattleActionBuilderStateService.removeAction({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
         })
-
-        if (
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions.length === 0
-        ) {
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-                undefined
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                undefined
-        }
     }
 
     private resetObject() {
@@ -401,50 +378,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(state: GameEngineState) {
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
-                state.battleOrchestratorState.battleState.actionsThisRound
-                    .battleSquaddieId
-            )
-        )
-
-        const previewedActionTemplateId =
-            state.battleOrchestratorState.battleState.actionsThisRound
-                .previewedActionTemplateId
-        const previewedActionTemplate = squaddieTemplate.actionTemplates.find(
-            (template) => template.id === previewedActionTemplateId
-        )
-
-        if (!isValidValue(previewedActionTemplate)) {
-            return
-        }
-
-        const actionEffectSquaddieTemplate =
-            previewedActionTemplate.actionEffectTemplates[0]
-        if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
-            return
-        }
-
-        const targetingResults = TargetingResultsService.findValidTargets({
-            map: state.battleOrchestratorState.battleState.missionMap,
-            actionEffectSquaddieTemplate,
-            actingSquaddieTemplate: squaddieTemplate,
-            actingBattleSquaddie: battleSquaddie,
-            squaddieRepository: state.repository,
-        })
-        const actionRange: HexCoordinate[] = targetingResults.locationsInRange
-
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
-            [
-                {
-                    tiles: actionRange,
-                    pulseColor: HighlightPulseRedColor,
-                    overlayImageResourceName: "map icon attack 1 action",
-                },
-            ]
-        )
+        const actionRange = TargetingResultsService.highlightTargetRange(state)
         this.highlightedTargetRange = [...actionRange]
     }
 
@@ -573,6 +507,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.hasSelectedValidTarget = true
         this.validTargetLocation = clickedLocation
 
+        // TODO This is a Message
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
         PlayerBattleActionBuilderStateService.setConsideredTarget({
             actionBuilderState:
                 gameEngineState.battleOrchestratorState.battleState

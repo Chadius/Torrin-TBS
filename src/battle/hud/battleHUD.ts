@@ -4,6 +4,8 @@ import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerCancelsTargetConfirmation,
+    MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
@@ -30,6 +32,9 @@ import * as p5 from "p5"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { TargetingResultsService } from "../targeting/targetingService"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
@@ -164,6 +169,57 @@ export const BattleHUDService = {
             PopupWindowType.PLAYER_INVALID_SELECTION
         )
     },
+    cancelTargetSelection: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerCancelsTargetSelection
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const battleSquaddieToHighlightId: string =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId
+
+        OrchestratorUtilities.highlightSquaddieRange(
+            gameEngineState,
+            battleSquaddieToHighlightId
+        )
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
+            undefined
+
+        PlayerBattleActionBuilderStateService.removeAction({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+        })
+
+        if (
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .processedActions.length === 0
+        ) {
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                undefined
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                undefined
+        }
+    },
+    cancelTargetConfirmation: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerCancelsTargetConfirmation
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const actionRange =
+            TargetingResultsService.highlightTargetRange(gameEngineState)
+
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+            [
+                {
+                    tiles: actionRange,
+                    pulseColor: HighlightPulseRedColor,
+                    overlayImageResourceName: "map icon attack 1 action",
+                },
+            ]
+        )
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -190,6 +246,18 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
                 BattleHUDService.createPlayerInvalidSelectionPopup(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
+                BattleHUDService.cancelTargetSelection(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION:
+                BattleHUDService.cancelTargetConfirmation(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )

@@ -10,7 +10,10 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { TargetingResults, TargetingResultsService } from "./targetingService"
 
-import { NewHexCoordinateFromNumberPair } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    HexCoordinate,
+    NewHexCoordinateFromNumberPair,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
@@ -21,6 +24,15 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../orchestrator/battleState"
+import { ActionsThisRoundService } from "../history/actionsThisRound"
+import { PulseBlendColor } from "../../hexMap/colorUtils"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -53,6 +65,7 @@ describe("Targeting Service", () => {
             templateId: "Sir Camil",
             battleId: "Sir Camil 0",
             affiliation: SquaddieAffiliation.PLAYER,
+            actionTemplates: [longswordAction],
             squaddieRepository: squaddieRepo,
         }))
     })
@@ -301,5 +314,68 @@ describe("Targeting Service", () => {
             { q: 0, r: 2 },
             { q: 0, r: 3 },
         ])
+    })
+
+    describe("highlightTargetRange using a gameEngineState", () => {
+        let gameEngineState: GameEngineState
+        let highlightRangeSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            const battleMap: MissionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+            battleMap.addSquaddie(
+                sirCamilSquaddieTemplate.squaddieId.templateId,
+                sirCamilBattleSquaddie.battleSquaddieId,
+                { q: 1, r: 1 }
+            )
+
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+                startingLocation: { q: 1, r: 1 },
+                previewedActionTemplateId: longswordAction.id,
+            })
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        missionMap: battleMap,
+                        campaignId: "test campaign",
+                        missionId: "test mission",
+                        actionsThisRound,
+                    }),
+                }),
+                repository: squaddieRepo,
+            })
+
+            highlightRangeSpy = jest.spyOn(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                "highlightTiles"
+            )
+        })
+
+        it("will return the tiles in range", () => {
+            const actionRange: HexCoordinate[] =
+                TargetingResultsService.highlightTargetRange(gameEngineState)
+            expect(actionRange).toHaveLength(6)
+            expect(actionRange).toEqual(
+                expect.arrayContaining(CreateNewNeighboringCoordinates(1, 1))
+            )
+        })
+
+        it("will highlight the tiles", () => {
+            const actionRange: HexCoordinate[] =
+                TargetingResultsService.highlightTargetRange(gameEngineState)
+            expect(highlightRangeSpy).toHaveBeenCalledWith([
+                {
+                    tiles: actionRange,
+                    pulseColor: HighlightPulseRedColor,
+                    overlayImageResourceName: "map icon attack 1 action",
+                },
+            ])
+        })
     })
 })

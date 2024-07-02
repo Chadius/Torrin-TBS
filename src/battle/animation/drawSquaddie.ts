@@ -27,6 +27,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MapHighlightHelper } from "./mapHighlight"
 import { Campaign } from "../../campaign/campaign"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../squaddie/turn"
+import { isValidValue } from "../../utils/validityCheck"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -442,6 +443,10 @@ const hasMovementAnimationFinished = (
     timeMovementStarted: number,
     squaddieMovePath: SearchPath
 ) => {
+    if (!isValidValue(squaddieMovePath)) {
+        return true
+    }
+
     if (SearchPathHelper.getLocations(squaddieMovePath).length <= 1) {
         return true
     }

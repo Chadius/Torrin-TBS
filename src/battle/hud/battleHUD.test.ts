@@ -18,18 +18,48 @@ import { PopupWindow, PopupWindowService } from "./popupWindow"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
-import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { BattleSquaddieService } from "../battleSquaddie"
-import { ObjectRepositoryService } from "../objectRepository"
-import { MissionMapService } from "../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
+import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
+import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService,
+} from "../../action/template/actionEffectSquaddieTemplate"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
+import { DamageType } from "../../squaddie/squaddieService"
+import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
+import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
+import { CampaignService } from "../../campaign/campaign"
+import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -333,6 +363,356 @@ describe("Battle HUD", () => {
             expect(
                 popup.label.textBox.text.includes("Need 2 action points")
             ).toBeTruthy()
+        })
+    })
+    describe("Player cancels target selection they were considering", () => {
+        let gameEngineState: GameEngineState
+        let battleHUDListener: BattleHUDListener
+        let squaddieTemplate: SquaddieTemplate
+        let battleSquaddie: BattleSquaddie
+        let longswordAction: ActionTemplate
+        let repository: ObjectRepository
+        let battleMap: MissionMap
+        let highlightRangeSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            repository = ObjectRepositoryService.new()
+            battleMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+            highlightRangeSpy = jest.spyOn(
+                DrawSquaddieUtilities,
+                "highlightSquaddieRange"
+            )
+
+            longswordAction = ActionTemplateService.new({
+                name: "longsword",
+                id: "longswordActionId",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                            [Trait.TARGET_ARMOR]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
+                        }),
+                        minimumRange: 1,
+                        maximumRange: 1,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            ;({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddie: battleSquaddie,
+            } = CreateNewSquaddieAndAddToRepository({
+                name: "PlayerSquaddie",
+                templateId: "squaddieTemplateId",
+                battleId: "battleSquaddieId",
+                affiliation: SquaddieAffiliation.PLAYER,
+                squaddieRepository: repository,
+                actionTemplates: [longswordAction],
+            }))
+            battleMap.addSquaddie(
+                squaddieTemplate.squaddieId.templateId,
+                battleSquaddie.battleSquaddieId,
+                { q: 1, r: 1 }
+            )
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+        })
+
+        afterEach(() => {
+            highlightRangeSpy.mockRestore()
+        })
+
+        const addActionsThisRoundThenCancelTargetSelection = (
+            actionsThisRound: ActionsThisRound
+        ) => {
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateService.newOrchestratorState({
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD:
+                                new BattleSquaddieSelectedHUD(),
+                        }),
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            campaignId: "test campaign",
+                            missionMap: battleMap,
+                            actionsThisRound,
+                            recording: { history: [] },
+                        }),
+                    }),
+                repository,
+                campaign: CampaignService.default({}),
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                PlayerBattleActionBuilderStateService.new({})
+            PlayerBattleActionBuilderStateService.setActor({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+
+            highlightRangeSpy = jest.spyOn(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                "highlightTiles"
+            )
+
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                gameEngineState,
+            })
+        }
+
+        describe("Cancel targeting the first action", () => {
+            beforeEach(() => {
+                addActionsThisRoundThenCancelTargetSelection(
+                    ActionsThisRoundService.new({
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 1, r: 1 },
+                        previewedActionTemplateId: longswordAction.id,
+                    })
+                )
+            })
+            it("it clear the actions this round to undefined ", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
+                ).toBeUndefined()
+            })
+            it("it knows the squaddie is not taking their turn", () => {
+                expect(
+                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                        gameEngineState
+                    )
+                ).toBeFalsy()
+            })
+            it("it does not have an action set in the player battle action builder", () => {
+                expect(
+                    PlayerBattleActionBuilderStateService.getAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeUndefined()
+            })
+            it("highlights the squaddie movement range", () => {
+                expect(highlightRangeSpy).toBeCalled()
+            })
+        })
+        describe("Cancel targeting on the second action", () => {
+            beforeEach(() => {
+                addActionsThisRoundThenCancelTargetSelection(
+                    ActionsThisRoundService.new({
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 0, r: 0 },
+                        previewedActionTemplateId: longswordAction.id,
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: undefined,
+                                processedActionEffects: [
+                                    ProcessedActionSquaddieEffectService.new({
+                                        decidedActionEffect:
+                                            DecidedActionSquaddieEffectService.new(
+                                                {
+                                                    template: longswordAction
+                                                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                                    target: { q: 0, r: 1 },
+                                                }
+                                            ),
+                                        results: undefined,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+                )
+            })
+            it("it keeps the existing battle squaddie in the actions this round ", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.battleSquaddieId
+                ).toEqual(battleSquaddie.battleSquaddieId)
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions
+                ).toHaveLength(1)
+            })
+            it("it knows the squaddie is still taking their turn", () => {
+                expect(
+                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                        gameEngineState
+                    )
+                ).toBeTruthy()
+            })
+            it("it has an actor in the player battle action builder", () => {
+                expect(
+                    PlayerBattleActionBuilderStateService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).battleSquaddieId
+                ).toEqual(battleSquaddie.battleSquaddieId)
+            })
+        })
+    })
+    describe("Player cancels target confirmation", () => {
+        let gameEngineState: GameEngineState
+        let battleHUDListener: BattleHUDListener
+        let squaddieTemplate: SquaddieTemplate
+        let battleSquaddie: BattleSquaddie
+        let longswordAction: ActionTemplate
+        let repository: ObjectRepository
+        let battleMap: MissionMap
+        let highlightRangeSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            repository = ObjectRepositoryService.new()
+            battleMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+            highlightRangeSpy = jest.spyOn(
+                DrawSquaddieUtilities,
+                "highlightSquaddieRange"
+            )
+
+            longswordAction = ActionTemplateService.new({
+                name: "longsword",
+                id: "longswordActionId",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                            [Trait.TARGET_ARMOR]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
+                        }),
+                        minimumRange: 1,
+                        maximumRange: 1,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            ;({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddie: battleSquaddie,
+            } = CreateNewSquaddieAndAddToRepository({
+                name: "PlayerSquaddie",
+                templateId: "squaddieTemplateId",
+                battleId: "battleSquaddieId",
+                affiliation: SquaddieAffiliation.PLAYER,
+                squaddieRepository: repository,
+                actionTemplates: [longswordAction],
+            }))
+            battleMap.addSquaddie(
+                squaddieTemplate.squaddieId.templateId,
+                battleSquaddie.battleSquaddieId,
+                { q: 1, r: 1 }
+            )
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                startingLocation: { q: 0, r: 0 },
+                previewedActionTemplateId: longswordAction.id,
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: undefined,
+                        processedActionEffects: [
+                            ProcessedActionSquaddieEffectService.new({
+                                decidedActionEffect:
+                                    DecidedActionSquaddieEffectService.new({
+                                        template: longswordAction
+                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                        target: { q: 0, r: 1 },
+                                    }),
+                                results: undefined,
+                            }),
+                        ],
+                    }),
+                ],
+            })
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateService.newOrchestratorState({
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD:
+                                new BattleSquaddieSelectedHUD(),
+                        }),
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            campaignId: "test campaign",
+                            missionMap: battleMap,
+                            actionsThisRound,
+                            recording: { history: [] },
+                        }),
+                    }),
+                repository,
+                campaign: CampaignService.default({}),
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                PlayerBattleActionBuilderStateService.new({})
+            PlayerBattleActionBuilderStateService.setActor({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+            PlayerBattleActionBuilderStateService.setConsideredTarget({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                targetLocation: { q: 0, r: 1 },
+            })
+
+            highlightRangeSpy = jest.spyOn(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                "highlightTiles"
+            )
+
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
+                gameEngineState,
+            })
+        })
+
+        afterEach(() => {
+            highlightRangeSpy.mockRestore()
+        })
+
+        it("keeps the previewed action", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.previewedActionTemplateId
+            ).toEqual(longswordAction.id)
+        })
+
+        it("highlights the range", () => {
+            expect(highlightRangeSpy).toBeCalled()
         })
     })
 })

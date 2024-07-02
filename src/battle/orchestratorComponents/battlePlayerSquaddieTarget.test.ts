@@ -60,6 +60,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("BattleSquaddieTarget", () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
@@ -79,6 +80,7 @@ describe("BattleSquaddieTarget", () => {
     let gameEngineState: GameEngineState
     let mockResourceHandler: jest.Mocked<ResourceHandler>
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let messageSpy: jest.SpyInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -223,6 +225,12 @@ describe("BattleSquaddieTarget", () => {
                     .playerBattleActionBuilderState,
             actionTemplate: longswordAction,
         })
+
+        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+    })
+
+    afterEach(() => {
+        messageSpy.mockRestore()
     })
 
     const clickOnThief = () => {
@@ -330,21 +338,10 @@ describe("BattleSquaddieTarget", () => {
                 expect(recommendedInfo.nextMode).toBe(
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
                 )
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).toBeUndefined()
-                expect(
-                    OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                        gameEngineState
-                    )
-                ).toBeFalsy()
-                expect(
-                    PlayerBattleActionBuilderStateService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeUndefined()
+                expect(messageSpy).toHaveBeenCalledWith({
+                    type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+                    gameEngineState,
+                })
             }
         )
     })
@@ -457,10 +454,6 @@ describe("BattleSquaddieTarget", () => {
 
             expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.previewedActionTemplateId
-            ).toEqual(longswordActionId)
         })
     })
 
