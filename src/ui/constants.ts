@@ -7,9 +7,11 @@ export enum WINDOW_SPACING {
 export enum HORIZONTAL_ALIGN {
     LEFT = "left",
     CENTER = "center",
+    RIGHT = "right",
 }
 
 export enum VERTICAL_ALIGN {
+    TOP = "top",
     BASELINE = "alphabetic",
     CENTER = "center",
 }

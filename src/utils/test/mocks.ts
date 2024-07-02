@@ -2,7 +2,7 @@ import p5 from "p5"
 import { ImageUI } from "../../ui/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
-import { BattleSquaddieSelectedHUD } from "../../battle/hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../../battle/hud/BattleSquaddieSelectedHUD"
 import { RectAreaService } from "../../ui/rectArea"
 import { makeResult } from "../ResultOrError"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
@@ -78,10 +78,6 @@ export const battleSquaddieSelectedHUD = () => {
         BattleSquaddieSelectedHUD
     ))({}) as jest.Mocked<BattleSquaddieSelectedHUD>
     hud.draw = jest.fn()
-    hud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false)
-    hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true)
-    hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true)
-    hud.mouseClicked = jest.fn()
     return hud
 }
 
@@ -132,8 +128,13 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         this.mockedP5.endShape(mode as p5.END_MODE)
     }
 
-    fill(hue: number, saturation: number, brightness: number): void {
-        this.mockedP5.fill(hue, saturation, brightness)
+    fill(
+        hue: number,
+        saturation: number,
+        brightness: number,
+        alpha?: number
+    ): void {
+        this.mockedP5.fill(hue, saturation, brightness, alpha)
     }
 
     image(

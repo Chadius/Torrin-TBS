@@ -1,9 +1,10 @@
-import { BattleSquaddieSelectedHUD } from "./battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -18,7 +19,10 @@ import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { convertMapCoordinatesToWorldCoordinates } from "../../hexMap/convertCoordinates"
+import {
+    convertMapCoordinatesToWorldCoordinates,
+    convertScreenCoordinatesToWorldCoordinates,
+} from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import { VERTICAL_ALIGN } from "../../ui/constants"
@@ -29,6 +33,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
+    PLAYER_INVALID_SELECTION = "PLAYER_INVALID_SELECTION",
 }
 
 export interface BattleHUD {
@@ -39,7 +44,7 @@ export interface BattleHUD {
     }
 }
 
-const differentSquaddieMidTurnPopupConstants: {
+const warningPopupConstants: {
     width: number
     label: {
         fillColor: number[]
@@ -76,6 +81,7 @@ export const BattleHUDService = {
             battleSquaddieSelectedHUD,
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
+                [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,
             },
         }
     },
@@ -107,7 +113,7 @@ export const BattleHUDService = {
             label: LabelService.new({
                 area: labelArea,
                 text: popupText,
-                ...differentSquaddieMidTurnPopupConstants.label,
+                ...warningPopupConstants.label,
             }),
             camera,
         })
@@ -124,6 +130,38 @@ export const BattleHUDService = {
             battleHUD,
             differentSquaddiePopup,
             PopupWindowType.DIFFERENT_SQUADDIE_TURN
+        )
+    },
+    createPlayerInvalidSelectionPopup: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerSelectionIsInvalid
+    ) => {
+        let gameEngineState = message.gameEngineState
+
+        let { popupText, labelArea, camera } =
+            calculatePlayerInvalidSelectionPopup(gameEngineState, message)
+
+        const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
+            label: LabelService.new({
+                area: labelArea,
+                text: popupText,
+                ...warningPopupConstants.label,
+            }),
+            camera,
+        })
+        PopupWindowService.changeStatus(
+            differentSquaddiePopup,
+            PopupWindowStatus.ACTIVE
+        )
+        PopupWindowService.setInactiveAfterTimeElapsed(
+            differentSquaddiePopup,
+            2000
+        )
+
+        BattleHUDService.setPopupWindow(
+            battleHUD,
+            differentSquaddiePopup,
+            PopupWindowType.PLAYER_INVALID_SELECTION
         )
     },
 }
@@ -150,6 +188,12 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.gameEngineState
                 )
                 break
+            case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
+                BattleHUDService.createPlayerInvalidSelectionPopup(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
         }
     }
 }
@@ -166,8 +210,8 @@ const calculateMidTurnPopup = (
     let labelArea: RectArea = RectAreaService.new({
         left,
         top,
-        width: differentSquaddieMidTurnPopupConstants.width,
-        height: differentSquaddieMidTurnPopupConstants.height,
+        width: warningPopupConstants.width,
+        height: warningPopupConstants.height,
     })
 
     if (
@@ -195,16 +239,41 @@ const calculateMidTurnPopup = (
             mapLocation.q,
             mapLocation.r
         )
-        left -= differentSquaddieMidTurnPopupConstants.width / 2
+        left -= warningPopupConstants.width / 2
         top += HEX_TILE_WIDTH
 
         labelArea = RectAreaService.new({
             left,
             top,
-            width: differentSquaddieMidTurnPopupConstants.width,
-            height: differentSquaddieMidTurnPopupConstants.height,
+            width: warningPopupConstants.width,
+            height: warningPopupConstants.height,
         })
         camera = gameEngineState.battleOrchestratorState.battleState.camera
     }
     return { popupText, labelArea, camera }
+}
+
+const calculatePlayerInvalidSelectionPopup = (
+    gameEngineState: GameEngineState,
+    message: MessageBoardMessagePlayerSelectionIsInvalid
+) => {
+    let [left, top] = convertScreenCoordinatesToWorldCoordinates(
+        message.selectionLocation.x,
+        message.selectionLocation.y,
+        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+    )
+    left -= warningPopupConstants.width / 2
+    top += HEX_TILE_WIDTH
+
+    let labelArea = RectAreaService.new({
+        left,
+        top,
+        width: warningPopupConstants.width,
+        height: warningPopupConstants.height,
+    })
+    return {
+        popupText: message.reason,
+        labelArea,
+        camera: gameEngineState.battleOrchestratorState.battleState.camera,
+    }
 }

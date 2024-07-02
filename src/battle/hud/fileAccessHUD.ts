@@ -9,10 +9,7 @@ import {
     WINDOW_SPACING,
 } from "../../ui/constants"
 import { isValidValue } from "../../utils/validityCheck"
-import {
-    SaveSaveState,
-    SaveSaveStateService,
-} from "../../dataLoader/saveSaveState"
+import { SaveSaveStateService } from "../../dataLoader/saveSaveState"
 import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"

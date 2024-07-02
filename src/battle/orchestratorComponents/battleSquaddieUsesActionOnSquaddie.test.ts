@@ -32,7 +32,7 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -254,7 +254,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             {
                 battleId: battleSquaddieBase.battleSquaddieId,
                 repositionWindow: { mouseX: 0, mouseY: 0 },
-                state: gameEngineState,
+                gameEngineState: gameEngineState,
             }
         )
         SquaddieTurnService.spendActionPoints(
@@ -352,7 +352,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             {
                 battleId: battleSquaddieBase.battleSquaddieId,
                 repositionWindow: { mouseX: 0, mouseY: 0 },
-                state: gameEngineState,
+                gameEngineState: gameEngineState,
             }
         )
 
@@ -455,7 +455,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             {
                 battleId: battleSquaddieBase.battleSquaddieId,
                 repositionWindow: { mouseX: 0, mouseY: 0 },
-                state: gameEngineState,
+                gameEngineState: gameEngineState,
             }
         )
 
@@ -599,6 +599,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
         expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState)
         expect(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        ).toBeUndefined()
+        expect(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         ).toBeUndefined()
 
@@ -611,7 +615,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
         })
 
-        const state = usePowerAttackLongswordAndReturnState({ missionMap })
+        const gameEngineState = usePowerAttackLongswordAndReturnState({
+            missionMap,
+        })
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
 
         jest.spyOn(
@@ -625,19 +631,25 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy()
-
-        squaddieUsesActionOnSquaddie.recommendStateChanges(state)
-        squaddieUsesActionOnSquaddie.reset(state)
         expect(
-            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.shouldDrawTheHUD()
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeTruthy()
+
+        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+        squaddieUsesActionOnSquaddie.reset(gameEngineState)
+        expect(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.showSummaryHUD
         ).toBeTruthy()
         expect(
-            state.battleOrchestratorState.battleState.actionsThisRound
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
                 .battleSquaddieId
         ).not.toBeUndefined()
     })

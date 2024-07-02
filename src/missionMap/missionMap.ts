@@ -11,6 +11,7 @@ import {
 } from "./squaddieDeployment"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { NullMissionMap } from "../utils/test/battleOrchestratorState"
+import { isValidValue } from "../utils/validityCheck"
 
 export const MissionMapService = {
     new: ({
@@ -39,6 +40,13 @@ export const MissionMapService = {
         missionMap: MissionMap,
         battleSquaddieId: string
     ): MissionMapSquaddieLocation => {
+        if (!isValidValue(missionMap)) {
+            return {
+                mapLocation: undefined,
+                squaddieTemplateId: undefined,
+                battleSquaddieId: undefined,
+            }
+        }
         return missionMap.getSquaddieByBattleId(battleSquaddieId)
     },
     updateBattleSquaddieLocation: (

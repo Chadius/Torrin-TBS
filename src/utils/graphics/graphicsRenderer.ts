@@ -25,7 +25,12 @@ export interface GraphicsBuffer {
 
     createImage(height: number, width: number): p5.Image
 
-    fill(hue: number, saturation: number, brightness: number): void
+    fill(
+        hue: number,
+        saturation: number,
+        brightness: number,
+        alpha?: number
+    ): void
 
     image(
         data: p5.Image,

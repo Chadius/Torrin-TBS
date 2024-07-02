@@ -104,6 +104,4 @@ export function createSearchPath(
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
         routeTilesByDistance
     )
-
-    state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.clearSelectedSquaddie()
 }

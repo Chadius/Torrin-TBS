@@ -1,4 +1,4 @@
-import { BattleSquaddieSelectedHUD } from "../hud/battleSquaddieSelectedHUD"
+import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { BattleState, BattleStateService } from "./battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
@@ -85,6 +85,7 @@ export class BattleOrchestratorState {
             fileAccessHUD: FileAccessHUDService.new({}),
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
+                [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,
             },
         })
         this.numberGenerator = other.numberGenerator.clone()
