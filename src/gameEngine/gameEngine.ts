@@ -256,6 +256,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
+            MessageBoardMessageType.PLAYER_ENDS_TURN,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

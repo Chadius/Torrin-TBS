@@ -9,6 +9,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectionIsInvalid
     | MessageBoardMessagePlayerCancelsTargetSelection
     | MessageBoardMessagePlayerCancelsTargetConfirmation
+    | MessageBoardMessagePlayerEndsTurn
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -19,6 +20,7 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
+    PLAYER_ENDS_TURN = "PLAYER_ENDS_TURN",
 }
 
 export interface MessageBoardMessageBase {
@@ -64,5 +66,10 @@ export interface MessageBoardMessagePlayerCancelsTargetSelection {
 
 export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerEndsTurn {
+    type: MessageBoardMessageType.PLAYER_ENDS_TURN
     gameEngineState: GameEngineState
 }

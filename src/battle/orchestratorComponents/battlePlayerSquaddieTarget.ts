@@ -507,7 +507,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.hasSelectedValidTarget = true
         this.validTargetLocation = clickedLocation
 
-        // TODO This is a Message
         gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
         PlayerBattleActionBuilderStateService.setConsideredTarget({
             actionBuilderState:

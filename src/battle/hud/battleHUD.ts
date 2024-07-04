@@ -6,6 +6,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
+    MessageBoardMessagePlayerEndsTurn,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
@@ -30,11 +31,23 @@ import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUti
 import { VERTICAL_ALIGN } from "../../ui/constants"
 import * as p5 from "p5"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
-import { ActionsThisRound } from "../history/actionsThisRound"
+import {
+    ActionsThisRound,
+    ActionsThisRoundService,
+} from "../history/actionsThisRound"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
+import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
+import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
+import { ProcessedActionService } from "../../action/processed/processedAction"
+import { DecidedActionService } from "../../action/decided/decidedAction"
+import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
+import { RecordingService } from "../history/recording"
+import { BattleEventService } from "../history/battleEvent"
+import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
@@ -220,6 +233,28 @@ export const BattleHUDService = {
             ]
         )
     },
+    endPlayerSquaddieTurn: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerEndsTurn
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const { battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.battleSquaddieId
+            )
+        )
+
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddie.battleSquaddieId
+        )
+
+        processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
+
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -258,6 +293,12 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION:
                 BattleHUDService.cancelTargetConfirmation(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_ENDS_TURN:
+                BattleHUDService.endPlayerSquaddieTurn(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )
@@ -344,4 +385,63 @@ const calculatePlayerInvalidSelectionPopup = (
         labelArea,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
     }
+}
+
+const processEndTurnAction = (
+    gameEngineState: GameEngineState,
+    battleSquaddie: BattleSquaddie,
+    mapLocation: HexCoordinate
+) => {
+    const decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
+        template: ActionEffectEndTurnTemplateService.new({}),
+    })
+    const processedAction = ProcessedActionService.new({
+        decidedAction: DecidedActionService.new({
+            actionTemplateName: "End Turn",
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            actionEffects: [decidedActionEndTurnEffect],
+        }),
+        processedActionEffects: [
+            ProcessedActionEndTurnEffectService.new({
+                decidedActionEffect: decidedActionEndTurnEffect,
+            }),
+        ],
+    })
+
+    ActionsThisRoundService.updateActionsThisRound({
+        state: gameEngineState,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        startingLocation: mapLocation,
+        processedAction,
+    })
+    gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+        PlayerBattleActionBuilderStateService.new({})
+    PlayerBattleActionBuilderStateService.setActor({
+        actionBuilderState:
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
+    PlayerBattleActionBuilderStateService.addAction({
+        actionBuilderState:
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState,
+        endTurn: true,
+    })
+    PlayerBattleActionBuilderStateService.setConfirmedTarget({
+        actionBuilderState:
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState,
+        targetLocation: mapLocation,
+    })
+
+    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    RecordingService.addEvent(
+        gameEngineState.battleOrchestratorState.battleState.recording,
+        BattleEventService.new({
+            processedAction,
+            results: undefined,
+        })
+    )
+    BattleSquaddieService.endTurn(battleSquaddie)
 }

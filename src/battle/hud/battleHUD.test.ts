@@ -60,6 +60,19 @@ import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
+import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
+import { DecidedActionService } from "../../action/decided/decidedAction"
+import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { BattleCamera } from "../battleCamera"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "../battleSquaddieTeam"
+import { SummaryHUDStateService } from "./summaryHUD"
+import { BattleHUDStateService } from "./battleHUDState"
+import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -713,6 +726,232 @@ describe("Battle HUD", () => {
 
         it("highlights the range", () => {
             expect(highlightRangeSpy).toBeCalled()
+        })
+    })
+    describe("Player ends their turn", () => {
+        let battleHUDListener: BattleHUDListener
+        let gameEngineState: GameEngineState
+        let missionMap: MissionMap
+        let repository: ObjectRepository
+        let playerSoldierBattleSquaddie: BattleSquaddie
+
+        beforeEach(() => {
+            repository = ObjectRepositoryService.new()
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+
+            const playerTeam: BattleSquaddieTeam = {
+                id: "playerTeamId",
+                name: "player controlled team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
+            }
+            let teams: BattleSquaddieTeam[] = []
+            teams.push(playerTeam)
+            ;({ battleSquaddie: playerSoldierBattleSquaddie } =
+                CreateNewSquaddieAndAddToRepository({
+                    name: "Player Soldier",
+                    templateId: "player_soldier",
+                    battleId: "player_soldier_0",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    squaddieRepository: repository,
+                }))
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_0",
+            ])
+
+            missionMap.addSquaddie("player_soldier", "player_soldier_0", {
+                q: 0,
+                r: 0,
+            })
+
+            const battlePhaseState = {
+                currentAffiliation: BattlePhase.PLAYER,
+                turnCount: 1,
+            }
+
+            const camera: BattleCamera = new BattleCamera()
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateService.newOrchestratorState({
+                        battleHUD: BattleHUDService.new({
+                            battleSquaddieSelectedHUD:
+                                new BattleSquaddieSelectedHUD(),
+                        }),
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            campaignId: "test campaign",
+                            missionMap,
+                            camera,
+                            battlePhaseState,
+                            teams,
+                            recording: { history: [] },
+                        }),
+                        battleHUDState: BattleHUDStateService.new({
+                            summaryHUDState: SummaryHUDStateService.new({
+                                battleSquaddieId:
+                                    playerSoldierBattleSquaddie.battleSquaddieId,
+                                mouseSelectionLocation: { x: 0, y: 0 },
+                            }),
+                        }),
+                    }),
+                repository,
+                campaign: CampaignService.default({}),
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                PlayerBattleActionBuilderStateService.new({})
+
+            PlayerBattleActionBuilderStateService.setActor({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+        })
+
+        it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
+            })
+
+            const decidedActionEndTurnEffect =
+                DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                })
+            const processedAction = ProcessedActionService.new({
+                decidedAction: DecidedActionService.new({
+                    actionPointCost: 1,
+                    battleSquaddieId: "player_soldier_0",
+                    actionTemplateName: "End Turn",
+                    actionEffects: [decidedActionEndTurnEffect],
+                }),
+                processedActionEffects: [
+                    ProcessedActionEndTurnEffectService.new({
+                        decidedActionEffect: decidedActionEndTurnEffect,
+                    }),
+                ],
+            })
+
+            expect(
+                ActionsThisRoundService.getProcessedActionToShow(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
+                ).processedActionEffects[0].type
+            ).toEqual(ActionEffectType.END_TURN)
+
+            const history =
+                gameEngineState.battleOrchestratorState.battleState.recording
+                    .history
+            expect(history).toHaveLength(1)
+            expect(history[0]).toStrictEqual({
+                results: undefined,
+                processedAction,
+            })
+            expect(
+                playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints
+            ).toEqual(0)
+        })
+
+        it("will add end turn to existing instruction", () => {
+            const decidedActionMovementEffect =
+                DecidedActionMovementEffectService.new({
+                    template: ActionEffectMovementTemplateService.new({}),
+                    destination: { q: 0, r: 1 },
+                })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: undefined,
+                    processedActions: [
+                        ProcessedActionService.new({
+                            decidedAction: DecidedActionService.new({
+                                actionPointCost: 1,
+                                battleSquaddieId:
+                                    playerSoldierBattleSquaddie.battleSquaddieId,
+                                actionTemplateName: "Move",
+                                actionEffects: [decidedActionMovementEffect],
+                            }),
+                            processedActionEffects: [],
+                        }),
+                    ],
+                })
+
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.processedActions
+            ).toHaveLength(2)
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.processedActions[1].processedActionEffects
+            ).toHaveLength(1)
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.processedActions[1]
+                    .processedActionEffects[0].type
+            ).toEqual(ActionEffectType.END_TURN)
+            expect(
+                ActionsThisRoundService.getProcessedActionEffectToShow(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
+                ).type
+            ).toEqual(ActionEffectType.END_TURN)
+        })
+
+        it("tells the Action Builder to set end turn", () => {
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
+            })
+
+            expect(
+                PlayerBattleActionBuilderStateService.isActionSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                ).endTurn
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getTarget(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                ).targetLocation
+            ).toEqual({
+                q: 0,
+                r: 0,
+            })
         })
     })
 })

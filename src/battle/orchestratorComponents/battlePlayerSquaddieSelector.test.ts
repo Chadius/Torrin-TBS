@@ -61,9 +61,6 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { BattlePhaseState } from "./battlePhaseController"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { BATTLE_HUD_MODE, config } from "../../configuration/config"
@@ -72,7 +69,6 @@ import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { RectAreaService } from "../../ui/rectArea"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import SpyInstance = jest.SpyInstance
@@ -719,109 +715,10 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    it("will add end turn to existing instruction", () => {
-        const battlePhaseState =
-            makeBattlePhaseTrackerWithPlayerTeam(missionMap)
-
-        const camera: BattleCamera = new BattleCamera()
-        const decidedActionMovementEffect =
-            DecidedActionMovementEffectService.new({
-                template: ActionEffectMovementTemplateService.new({}),
-                destination: { q: 0, r: 1 },
-            })
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            previewedActionTemplateId: undefined,
-            processedActions: [
-                ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        battleSquaddieId:
-                            playerSoldierBattleSquaddie.battleSquaddieId,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
-                    processedActionEffects: [],
-                }),
-            ],
-        })
-
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            resourceHandler: resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
-                }),
-            repository: squaddieRepo,
-            campaign: CampaignService.default({}),
-        })
-
-        clickOnMapCoordinate({
-            selector,
-            gameEngineState,
-            q: 0,
-            r: 0,
-            camera,
-        })
-        SummaryHUDStateService.update({
-            gameEngineState,
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            objectRepository: gameEngineState.repository,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        selector.mouseClicked({
-            mouseX: RectAreaService.centerX(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
-            ),
-            mouseY: RectAreaService.centerY(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
-            ),
-            mouseButton: MouseButton.ACCEPT,
-            gameEngineState,
-        })
-
-        selector.update(gameEngineState, mockedP5GraphicsContext)
-        expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions
-        ).toHaveLength(2)
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions[1].processedActionEffects
-        ).toHaveLength(1)
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions[1].processedActionEffects[0].type
-        ).toEqual(ActionEffectType.END_TURN)
-        expect(
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            ).type
-        ).toEqual(ActionEffectType.END_TURN)
-    })
-
     describe("player ends the squaddie turn", () => {
         let gameEngineState: GameEngineState
+        let messageSpy: jest.SpyInstance
+
         beforeEach(() => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
@@ -860,6 +757,8 @@ describe("BattleSquaddieSelector", () => {
                 camera,
             })
 
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
             selector.mouseClicked({
                 mouseX: RectAreaService.centerX(
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -876,87 +775,20 @@ describe("BattleSquaddieSelector", () => {
             })
         })
 
-        it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            const decidedActionEndTurnEffect =
-                DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({}),
-                })
-            const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionPointCost: 1,
-                    battleSquaddieId:
-                        playerSoldierBattleSquaddie.battleSquaddieId,
-                    actionTemplateName: "End Turn",
-                    actionEffects: [decidedActionEndTurnEffect],
-                }),
-                processedActionEffects: [
-                    ProcessedActionEndTurnEffectService.new({
-                        decidedActionEffect: decidedActionEndTurnEffect,
-                    }),
-                ],
-            })
-
-            expect(
-                ActionsThisRoundService.getProcessedActionToShow(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).processedActionEffects[0].type
-            ).toEqual(ActionEffectType.END_TURN)
-
-            const recommendation: BattleOrchestratorChanges =
-                selector.recommendStateChanges(gameEngineState)
-            expect(recommendation.nextMode).toBe(
-                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-            )
-
-            const history =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            expect(history).toHaveLength(1)
-            expect(history[0]).toStrictEqual({
-                results: undefined,
-                processedAction,
-            })
-            expect(
-                playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints
-            ).toEqual(0)
+        afterEach(() => {
+            messageSpy.mockRestore()
         })
 
-        it("tells the Action Builder to set end turn", () => {
-            expect(
-                PlayerBattleActionBuilderStateService.isActionSet(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).endTurn
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).targetLocation
-            ).toEqual({
-                q: 0,
-                r: 0,
+        it("sends a message to end the turn", () => {
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
             })
+        })
+
+        it("marks this component as complete", () => {
+            selector.update(gameEngineState, mockedP5GraphicsContext)
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
         })
     })
 

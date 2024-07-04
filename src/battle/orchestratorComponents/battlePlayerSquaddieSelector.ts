@@ -41,7 +41,7 @@ import {
 import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { MapHighlightHelper } from "../animation/mapHighlight"
-import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
+import { BattleSquaddie } from "../battleSquaddie"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import {
@@ -49,9 +49,6 @@ import {
     ProcessedActionService,
 } from "../../action/processed/processedAction"
 import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { RecordingService } from "../history/recording"
 import { BattleEventService } from "../history/battleEvent"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -870,22 +867,10 @@ export class BattlePlayerSquaddieSelector
             return
         }
 
-        const { battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.battleSquaddieId
-            )
-        )
-
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            battleSquaddie.battleSquaddieId
-        )
-
-        this.processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
-
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+            gameEngineState,
+        })
     }
 
     private playerSelectedSquaddieActionFromPlayerCommandWindow(
@@ -973,66 +958,6 @@ export class BattlePlayerSquaddieSelector
                     .playerBattleActionBuilderState,
             actionTemplate: newAction,
         })
-    }
-
-    private processEndTurnAction(
-        gameEngineState: GameEngineState,
-        battleSquaddie: BattleSquaddie,
-        mapLocation: HexCoordinate
-    ) {
-        const decidedActionEndTurnEffect =
-            DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({}),
-            })
-        const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                actionTemplateName: "End Turn",
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                actionEffects: [decidedActionEndTurnEffect],
-            }),
-            processedActionEffects: [
-                ProcessedActionEndTurnEffectService.new({
-                    decidedActionEffect: decidedActionEndTurnEffect,
-                }),
-            ],
-        })
-
-        ActionsThisRoundService.updateActionsThisRound({
-            state: gameEngineState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startingLocation: mapLocation,
-            processedAction,
-        })
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-        })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            endTurn: true,
-        })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: mapLocation,
-        })
-
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        RecordingService.addEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording,
-            BattleEventService.new({
-                processedAction,
-                results: undefined,
-            })
-        )
-        BattleSquaddieService.endTurn(battleSquaddie)
     }
 
     private createMovementProcessedAction({

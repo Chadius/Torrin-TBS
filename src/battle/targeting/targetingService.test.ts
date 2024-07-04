@@ -31,7 +31,6 @@ import {
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { PulseBlendColor } from "../../hexMap/colorUtils"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 
 describe("Targeting Service", () => {

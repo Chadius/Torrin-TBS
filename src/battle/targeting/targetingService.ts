@@ -191,7 +191,6 @@ function addValidTargetsToResult(
     targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
 }
 
-// TODO write tests for this found in target
 const highlightTargetRange = (
     gameEngineState: GameEngineState
 ): HexCoordinate[] => {
