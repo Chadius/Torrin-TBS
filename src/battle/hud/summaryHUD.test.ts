@@ -7,7 +7,7 @@ import {
 import { SummaryHUDState, SummaryHUDStateService } from "./summaryHUD"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
-import { RectAreaService } from "../../ui/rectArea"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import {
@@ -23,6 +23,7 @@ import {
 import { CampaignService } from "../../campaign/campaign"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ButtonStatus } from "../../ui/button"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -169,6 +170,132 @@ describe("summaryHUD", () => {
                     expect(rectSpy).toBeCalled()
                     fillSpy.mockRestore()
                     rectSpy.mockRestore()
+                }
+            )
+        })
+
+        describe("will draw a rectangle in the right corner based on squaddie controllability", () => {
+            const tests = [
+                {
+                    name: "player squaddie is controllable",
+                    battleSquaddieId: "player",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    location: "lower left corner",
+                    expectation: (summaryHUDWindowArea: RectArea) => {
+                        expect(summaryHUDWindowArea.left).toBeLessThanOrEqual(
+                            ScreenDimensions.SCREEN_WIDTH / 12
+                        )
+                        expect(
+                            RectAreaService.bottom(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_HEIGHT * 9) / 10
+                        )
+                    },
+                },
+                {
+                    name: "player squaddie is out of actions",
+                    battleSquaddieId: "player",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    location: "lower left corner",
+                    expectation: (summaryHUDWindowArea: RectArea) => {
+                        expect(summaryHUDWindowArea.left).toBeLessThanOrEqual(
+                            ScreenDimensions.SCREEN_WIDTH / 12
+                        )
+                        expect(
+                            RectAreaService.bottom(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_HEIGHT * 9) / 10
+                        )
+                    },
+                },
+                {
+                    name: "enemy squaddie is not controllable",
+                    battleSquaddieId: "enemy",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    location: "lower right corner",
+                    expectation: (summaryHUDWindowArea: RectArea) => {
+                        expect(
+                            RectAreaService.right(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_WIDTH * 11) / 12
+                        )
+                        expect(
+                            RectAreaService.bottom(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_HEIGHT * 9) / 10
+                        )
+                    },
+                },
+                {
+                    name: "ally squaddie is not controllable",
+                    battleSquaddieId: "ally",
+                    affiliation: SquaddieAffiliation.ALLY,
+                    location: "lower right corner",
+                    expectation: (summaryHUDWindowArea: RectArea) => {
+                        expect(
+                            RectAreaService.right(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_WIDTH * 11) / 12
+                        )
+                        expect(
+                            RectAreaService.bottom(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_HEIGHT * 9) / 10
+                        )
+                    },
+                },
+                {
+                    name: "squaddie without affiliation is not controllable",
+                    battleSquaddieId: "none",
+                    affiliation: SquaddieAffiliation.NONE,
+                    location: "lower right corner",
+                    expectation: (summaryHUDWindowArea: RectArea) => {
+                        expect(
+                            RectAreaService.right(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_WIDTH * 11) / 12
+                        )
+                        expect(
+                            RectAreaService.bottom(summaryHUDWindowArea)
+                        ).toBeGreaterThanOrEqual(
+                            (ScreenDimensions.SCREEN_HEIGHT * 9) / 10
+                        )
+                    },
+                },
+            ]
+
+            it.each(tests)(
+                `$name so it should appear in $location`,
+                ({
+                    name,
+                    affiliation,
+                    battleSquaddieId,
+                    location,
+                    expectation,
+                }) => {
+                    let gameEngineState = GameEngineStateService.new({
+                        resourceHandler,
+                        repository: objectRepository,
+                        campaign: CampaignService.default({}),
+                    })
+                    summaryHUDState = SummaryHUDStateService.new({
+                        battleSquaddieId,
+                        mouseSelectionLocation: { x: 0, y: 0 },
+                    })
+                    SummaryHUDStateService.update({
+                        summaryHUDState,
+                        objectRepository,
+                        gameEngineState,
+                        resourceHandler,
+                    })
+
+                    // SummaryHUDStateService.draw({
+                    //     summaryHUDState,
+                    //     graphicsBuffer,
+                    //     gameEngineState,
+                    // })
+
+                    expectation(summaryHUDState.summaryWindow.area)
                 }
             )
         })

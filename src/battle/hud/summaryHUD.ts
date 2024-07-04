@@ -30,10 +30,13 @@ import { TextBox, TextBoxService } from "../../ui/textBox"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 
 const SUMMARY_WINDOW_DISPLAY = {
-    leftSide: {
-        left: 0,
+    leftPanelPosition: {
         startColumn: 0,
         endColumn: 1,
+    },
+    rightPanelPosition: {
+        startColumn: 10,
+        endColumn: 11,
     },
     height: 100,
     color: {
@@ -411,20 +414,39 @@ const maybeRecreateUIElements = ({
         summaryHUDState.battleSquaddieId
     summaryHUDState.showSummaryHUD = true
 
-    const summaryWindowArea: RectArea = RectAreaService.new({
-        top: ScreenDimensions.SCREEN_HEIGHT - SUMMARY_WINDOW_DISPLAY.height,
-        startColumn: SUMMARY_WINDOW_DISPLAY.leftSide.startColumn,
-        endColumn: SUMMARY_WINDOW_DISPLAY.leftSide.endColumn,
-        screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        height: SUMMARY_WINDOW_DISPLAY.height,
-    })
-
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             summaryHUDState.battleSquaddieId
         )
     )
+
+    const {
+        squaddieHasThePlayerControlledAffiliation,
+        playerCanControlThisSquaddieRightNow,
+    } = SquaddieService.canPlayerControlSquaddieRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+
+    const startColumn =
+        squaddieHasThePlayerControlledAffiliation ||
+        playerCanControlThisSquaddieRightNow
+            ? SUMMARY_WINDOW_DISPLAY.leftPanelPosition.startColumn
+            : SUMMARY_WINDOW_DISPLAY.rightPanelPosition.startColumn
+    const endColumn =
+        squaddieHasThePlayerControlledAffiliation ||
+        playerCanControlThisSquaddieRightNow
+            ? SUMMARY_WINDOW_DISPLAY.leftPanelPosition.endColumn
+            : SUMMARY_WINDOW_DISPLAY.rightPanelPosition.endColumn
+
+    const summaryWindowArea: RectArea = RectAreaService.new({
+        top: ScreenDimensions.SCREEN_HEIGHT - SUMMARY_WINDOW_DISPLAY.height,
+        startColumn,
+        endColumn,
+        screenWidth: ScreenDimensions.SCREEN_WIDTH,
+        height: SUMMARY_WINDOW_DISPLAY.height,
+    })
 
     const summaryWindowColor = {
         hue: HUE_BY_SQUADDIE_AFFILIATION[
