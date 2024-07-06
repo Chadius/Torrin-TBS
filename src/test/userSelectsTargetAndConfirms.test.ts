@@ -65,6 +65,7 @@ import { MouseButton } from "../utils/mouseConfig"
 import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 
 describe("User Selects Target and Confirms", () => {
     let repository: ObjectRepository
@@ -195,7 +196,9 @@ describe("User Selects Target and Confirms", () => {
             repository,
             actionsThisRound: actionsThisRound,
             missionMap,
+            resourceHandler,
         })
+
         MissionMapService.addSquaddie(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             enemySquaddieTemplate.squaddieId.templateId,
@@ -264,6 +267,7 @@ describe("User Selects Target and Confirms", () => {
                 repository,
                 missionMap,
                 graphicsContext,
+                resourceHandler,
             }))
         })
 
@@ -367,6 +371,7 @@ describe("User Selects Target and Confirms", () => {
                 repository,
                 missionMap,
                 graphicsContext,
+                resourceHandler,
             }))
         })
 
@@ -480,6 +485,7 @@ describe("User Selects Target and Confirms", () => {
                 repository,
                 missionMap,
                 graphicsContext,
+                resourceHandler,
             }))
             clickOnConfirmTarget({ targeting, gameEngineState })
 
@@ -517,6 +523,7 @@ describe("User Selects Target and Confirms", () => {
                 repository,
                 missionMap,
                 graphicsContext,
+                resourceHandler,
             }))
             clickOnConfirmTarget({ targeting, gameEngineState })
 
@@ -544,12 +551,14 @@ const getGameEngineState = ({
     repository,
     actionsThisRound,
     missionMap,
+    resourceHandler,
 }: {
     repository: ObjectRepository
     actionsThisRound?: ActionsThisRound
     missionMap: MissionMap
+    resourceHandler: ResourceHandler
 }): GameEngineState => {
-    return GameEngineStateService.new({
+    const gameEngineState = GameEngineStateService.new({
         battleOrchestratorState:
             BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
@@ -565,8 +574,22 @@ const getGameEngineState = ({
                 }),
             }),
         repository,
+        resourceHandler,
         campaign: CampaignService.default({}),
     })
+
+    gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+        SummaryHUDStateService.new({ mouseSelectionLocation: { x: 0, y: 0 } })
+    SummaryHUDStateService.createCommandWindow({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        resourceHandler: gameEngineState.resourceHandler,
+        objectRepository: gameEngineState.repository,
+        gameEngineState,
+    })
+
+    return gameEngineState
 }
 
 const useActionTemplateOnLocation = ({
@@ -612,6 +635,7 @@ const clickOnEnemy = ({
     repository,
     missionMap,
     graphicsContext,
+    resourceHandler,
 }: {
     actionTemplate: ActionTemplate
     attackerBattleSquaddieId: string
@@ -621,6 +645,7 @@ const clickOnEnemy = ({
     repository: ObjectRepository
     missionMap: MissionMap
     graphicsContext: GraphicsBuffer
+    resourceHandler: ResourceHandler
 }) => {
     const actionsThisRound = ActionsThisRoundService.new({
         battleSquaddieId: attackerBattleSquaddieId,
@@ -631,6 +656,7 @@ const clickOnEnemy = ({
         repository,
         actionsThisRound: actionsThisRound,
         missionMap,
+        resourceHandler,
     })
     MissionMapService.addSquaddie(
         missionMap,

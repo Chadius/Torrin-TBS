@@ -15,6 +15,7 @@ import { BattleStateService } from "../orchestrator/battleState"
 import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
 import { ButtonStatus } from "../../ui/button"
 import { PopupWindow, PopupWindowService } from "./popupWindow"
+import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
@@ -777,6 +778,9 @@ describe("Battle HUD", () => {
             const camera: BattleCamera = new BattleCamera()
 
             gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    new MockedP5GraphicsBuffer()
+                ),
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
                         battleHUD: BattleHUDService.new({
@@ -794,8 +798,6 @@ describe("Battle HUD", () => {
                         }),
                         battleHUDState: BattleHUDStateService.new({
                             summaryHUDState: SummaryHUDStateService.new({
-                                battleSquaddieId:
-                                    playerSoldierBattleSquaddie.battleSquaddieId,
                                 mouseSelectionLocation: { x: 0, y: 0 },
                             }),
                         }),
@@ -812,6 +814,16 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            })
+
+            SummaryHUDStateService.setLeftSummaryPanel({
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: repository,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")

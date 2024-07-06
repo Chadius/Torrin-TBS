@@ -106,12 +106,14 @@ export const PlayerCommandStateService = {
         objectRepository,
         gameEngineState,
         resourceHandler,
+        battleSquaddieId,
     }: {
         playerCommandState: PlayerCommandState
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
         gameEngineState: GameEngineState
         resourceHandler: ResourceHandler
+        battleSquaddieId: string
     }) => {
         playerCommandState.playerCommandWindow = {
             area: getPlayerCommandWindowAreaBasedOnMouse(
@@ -129,7 +131,7 @@ export const PlayerCommandStateService = {
             gameEngineState,
             objectRepository,
             resourceHandler,
-            battleSquaddieId: summaryHUDState.battleSquaddieId,
+            battleSquaddieId,
         })
     },
     mouseClicked: ({
@@ -229,7 +231,7 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            summaryHUDState.battleSquaddieId
+            summaryHUDState.summaryPanelLeft.battleSquaddieId
         )
     )
 

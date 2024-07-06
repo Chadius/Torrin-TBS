@@ -60,6 +60,7 @@ import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { SummaryHUDStateService } from "../hud/summaryHUD"
 
 describe("BattleSquaddieTarget", () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
@@ -223,6 +224,20 @@ describe("BattleSquaddieTarget", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: longswordAction,
+        })
+
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+        SummaryHUDStateService.setLeftSummaryPanel({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleSquaddieId: knightDynamic.battleSquaddieId,
+            resourceHandler: gameEngineState.resourceHandler,
+            objectRepository: gameEngineState.repository,
+            gameEngineState,
         })
 
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -412,6 +427,21 @@ describe("BattleSquaddieTarget", () => {
             expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
+        it("should show the summary HUD with both selected targets", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
+            ).toBeTruthy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+            ).toEqual(knightDynamic.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.summaryPanelRight.battleSquaddieId
+            ).toEqual(thiefDynamic.battleSquaddieId)
+        })
+
         it("should consider the target for the action builder", () => {
             expect(
                 PlayerBattleActionBuilderStateService.isTargetConsidered(
@@ -481,6 +511,19 @@ describe("BattleSquaddieTarget", () => {
                         }),
                     }),
                 repository: squaddieRepo,
+            })
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new({
+                    mouseSelectionLocation: { x: 0, y: 0 },
+                })
+            SummaryHUDStateService.setLeftSummaryPanel({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: knightDynamic.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
             })
 
             targetComponent.update(gameEngineState, mockedP5GraphicsContext)

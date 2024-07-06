@@ -130,7 +130,7 @@ describe("BattleSquaddieSelectedHUD", () => {
         selector = new BattlePlayerSquaddieSelector()
     })
 
-    describe("Player selects squaddie they can control (and controls via HUD)", () => {
+    describe("Player selects squaddie they can control", () => {
         let gameEngineState: GameEngineState
 
         const setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie = ({
@@ -174,6 +174,13 @@ describe("BattleSquaddieSelectedHUD", () => {
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.playerCommandState.playerSelectedEndTurn
             ).toBeFalsy()
+        })
+
+        it("will show the summary window on the left side", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+            ).toEqual(playerBattleSquaddie.battleSquaddieId)
         })
 
         it("reports when an action button is clicked (via HUD)", () => {
@@ -395,6 +402,13 @@ describe("BattleSquaddieSelectedHUD", () => {
             ).toBeFalsy()
             hud.draw(gameEngineState, mockedP5GraphicsContext)
         })
+
+        it("will show the summary window on the right side", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.summaryPanelRight.battleSquaddieId
+            ).toEqual(enemySquaddieDynamic.battleSquaddieId)
+        })
     })
 
     describe("Next Squaddie button", () => {
@@ -456,7 +470,7 @@ describe("BattleSquaddieSelectedHUD", () => {
             expect(selectSpy).toHaveBeenCalled()
             expect([playerBattleSquaddieId, player2BattleSquaddieId]).toContain(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.currentlyDisplayedBattleSquaddieId
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
             )
             expect(battleCamera.isPanning()).toBeTruthy()
         })

@@ -107,6 +107,7 @@ export const SquaddieService = {
         squaddieHasThePlayerControlledAffiliation: boolean
         squaddieCanCurrentlyAct: boolean
         playerCanControlThisSquaddieRightNow: boolean
+        squaddieIsNormallyControllableByPlayer: boolean
     } => {
         return canPlayerControlSquaddieRightNow({
             squaddieTemplate,
@@ -229,6 +230,7 @@ const canPlayerControlSquaddieRightNow = ({
     squaddieHasThePlayerControlledAffiliation: boolean
     squaddieCanCurrentlyAct: boolean
     playerCanControlThisSquaddieRightNow: boolean
+    squaddieIsNormallyControllableByPlayer: boolean
 } => {
     const squaddieIsAlive = IsSquaddieAlive({
         squaddieTemplate,
@@ -250,6 +252,8 @@ const canPlayerControlSquaddieRightNow = ({
         squaddieCanCurrentlyAct,
         playerCanControlThisSquaddieRightNow:
             playerControlledAffiliation && squaddieCanCurrentlyAct,
+        squaddieIsNormallyControllableByPlayer:
+            playerControlledAffiliation && squaddieIsAlive,
     }
 }
 

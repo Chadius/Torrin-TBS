@@ -190,7 +190,7 @@ describe("user clicks on an action to consider it", () => {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.battleSquaddieId
+                .summaryHUDState.summaryPanelLeft.battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState

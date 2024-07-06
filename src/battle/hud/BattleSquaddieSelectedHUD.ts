@@ -34,7 +34,6 @@ export class BattleSquaddieSelectedHUD {
     }) {
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new({
-                battleSquaddieId: battleId,
                 mouseSelectionLocation: repositionWindow
                     ? {
                           x: repositionWindow.mouseX,
@@ -42,14 +41,48 @@ export class BattleSquaddieSelectedHUD {
                       }
                     : { x: 0, y: 0 },
             })
-        SummaryHUDStateService.update({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            objectRepository: gameEngineState.repository,
-            gameEngineState,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
+
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleId
+            )
+        )
+        const { squaddieIsNormallyControllableByPlayer } =
+            SquaddieService.canPlayerControlSquaddieRightNow({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+
+        if (squaddieIsNormallyControllableByPlayer) {
+            SummaryHUDStateService.setLeftSummaryPanel({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: battleId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+            SummaryHUDStateService.createCommandWindow({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+        } else {
+            SummaryHUDStateService.setRightSummaryPanel({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: battleId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+        }
     }
 
     draw(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer) {
@@ -100,9 +133,13 @@ export class BattleSquaddieSelectedHUD {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState
                 ) ||
+                !isValidValue(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.summaryPanelLeft
+                ) ||
                 id !==
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.battleSquaddieId
+                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
         )
 
         this.nextBattleSquaddieIds = this.nextBattleSquaddieIds.filter(

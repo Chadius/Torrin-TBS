@@ -11,7 +11,6 @@ import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { MissionMapSquaddieLocationHandler } from "../../missionMap/squaddieLocation"
-import { RectAreaService } from "../../ui/rectArea"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/validityCheck"
@@ -20,6 +19,13 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+
+const SCREEN_EDGES = {
+    left: [0.1, 0.04, 0.02],
+    top: [0.1, 0.04, 0.02],
+    right: [0.9, 0.96, 0.98],
+    bottom: [0.9, 0.96, 0.98],
+}
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
@@ -122,17 +128,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 },
             })
         ) {
-            if (
-                mouseX <
-                state.battleHUDState.summaryHUDState.summaryWindow.area.left
-            ) {
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
                 state.battleState.camera.setXVelocity(-5)
             }
             if (
                 mouseX >
-                RectAreaService.right(
-                    state.battleHUDState.summaryHUDState.summaryWindow.area
-                )
+                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]
             ) {
                 state.battleState.camera.setXVelocity(5)
             }
@@ -140,40 +141,58 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             return
         }
 
-        if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.1) {
+        if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[0]) {
             state.battleState.camera.setXVelocity(-1)
-            if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.04) {
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
                 state.battleState.camera.setXVelocity(-5)
             }
-            if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.02) {
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[2]) {
                 state.battleState.camera.setXVelocity(-10)
             }
-        } else if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.9) {
+        } else if (
+            mouseX >
+            ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[0]
+        ) {
             state.battleState.camera.setXVelocity(1)
-            if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.96) {
+            if (
+                mouseX >
+                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[1]
+            ) {
                 state.battleState.camera.setXVelocity(5)
             }
-            if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.98) {
+            if (
+                mouseX >
+                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]
+            ) {
                 state.battleState.camera.setXVelocity(10)
             }
         } else {
             state.battleState.camera.setXVelocity(0)
         }
 
-        if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.1) {
+        if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[0]) {
             state.battleState.camera.setYVelocity(-1)
-            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.04) {
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[1]) {
                 state.battleState.camera.setYVelocity(-5)
             }
-            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.02) {
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[2]) {
                 state.battleState.camera.setYVelocity(-10)
             }
-        } else if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.9) {
+        } else if (
+            mouseY >
+            ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[0]
+        ) {
             state.battleState.camera.setYVelocity(1)
-            if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.96) {
+            if (
+                mouseY >
+                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[1]
+            ) {
                 state.battleState.camera.setYVelocity(5)
             }
-            if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.98) {
+            if (
+                mouseY >
+                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[2]
+            ) {
                 state.battleState.camera.setYVelocity(10)
             }
         } else {

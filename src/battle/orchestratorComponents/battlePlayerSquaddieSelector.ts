@@ -252,12 +252,13 @@ export class BattlePlayerSquaddieSelector
 
                 if (
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.battleSquaddieId
+                        .summaryHUDState?.summaryPanelLeft
                 ) {
                     const squaddieInfo =
                         gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                             gameEngineState.battleOrchestratorState
-                                .battleHUDState.summaryHUDState.battleSquaddieId
+                                .battleHUDState.summaryHUDState.summaryPanelLeft
+                                .battleSquaddieId
                         )
                     if (
                         MissionMapSquaddieLocationHandler.isValid(
@@ -545,16 +546,32 @@ export class BattlePlayerSquaddieSelector
     ) {
         const battleSquaddieToHighlightId: string =
             squaddieClickedOnInfoAndMapLocation.battleSquaddieId
-        const differentSquaddieWasSelected: boolean =
+        const squaddieIsAlreadyDisplayedInTheLeftSummaryPanel: boolean =
+            isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState?.summaryPanelLeft
+            ) &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.battleSquaddieId != battleSquaddieToHighlightId
+                .summaryHUDState.summaryPanelLeft.battleSquaddieId ===
+                battleSquaddieToHighlightId
+        const squaddieIsAlreadyDisplayedInTheRightSummaryPanel: boolean =
+            isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState?.summaryPanelRight
+            ) &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.summaryPanelRight.battleSquaddieId ===
+                battleSquaddieToHighlightId
 
         this.highlightSquaddieOnMap(
             gameEngineState,
             battleSquaddieToHighlightId
         )
 
-        if (!differentSquaddieWasSelected) {
+        if (
+            squaddieIsAlreadyDisplayedInTheLeftSummaryPanel ||
+            squaddieIsAlreadyDisplayedInTheRightSummaryPanel
+        ) {
             return
         }
 
@@ -658,7 +675,7 @@ export class BattlePlayerSquaddieSelector
         }
         if (
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.battleSquaddieId === undefined
+                .summaryHUDState.summaryPanelLeft.battleSquaddieId === undefined
         ) {
             return
         }
@@ -667,7 +684,7 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.battleSquaddieId
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
             )
         )
 
@@ -850,7 +867,7 @@ export class BattlePlayerSquaddieSelector
             )
         const squaddieShownInHUD =
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.battleSquaddieId
+                .summaryHUDState?.summaryPanelLeft?.battleSquaddieId
 
         return (
             startOfANewSquaddieTurn ||
@@ -886,7 +903,7 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.battleSquaddieId
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
             )
         )
 

@@ -167,7 +167,6 @@ describe("playerCommandHUD", () => {
             `$mouseLocationDescription`,
             ({ mouseLocation, expectation }) => {
                 summaryHUDState = SummaryHUDStateService.new({
-                    battleSquaddieId: "player",
                     mouseSelectionLocation: {
                         x: mouseLocation[0],
                         y: mouseLocation[1],
@@ -178,12 +177,20 @@ describe("playerCommandHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default({}),
                 })
-                SummaryHUDStateService.update({
-                    objectRepository,
+                SummaryHUDStateService.setLeftSummaryPanel({
                     summaryHUDState,
-                    gameEngineState,
+                    battleSquaddieId: "player",
                     resourceHandler,
+                    objectRepository,
+                    gameEngineState,
                 })
+                SummaryHUDStateService.createCommandWindow({
+                    summaryHUDState,
+                    resourceHandler,
+                    objectRepository,
+                    gameEngineState,
+                })
+
                 SummaryHUDStateService.draw({
                     summaryHUDState,
                     graphicsBuffer,
@@ -199,18 +206,25 @@ describe("playerCommandHUD", () => {
 
     const selectPlayer = () => {
         summaryHUDState = SummaryHUDStateService.new({
-            battleSquaddieId: "player",
             mouseSelectionLocation: {
                 x: 0,
                 y: 0,
             },
         })
-        SummaryHUDStateService.update({
-            objectRepository,
+        SummaryHUDStateService.setLeftSummaryPanel({
             summaryHUDState,
-            gameEngineState,
+            battleSquaddieId: "player",
             resourceHandler,
+            objectRepository,
+            gameEngineState,
         })
+        SummaryHUDStateService.createCommandWindow({
+            summaryHUDState,
+            resourceHandler,
+            objectRepository,
+            gameEngineState,
+        })
+
         SummaryHUDStateService.draw({
             summaryHUDState,
             graphicsBuffer,

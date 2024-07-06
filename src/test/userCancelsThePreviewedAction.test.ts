@@ -53,6 +53,7 @@ import { MouseButton } from "../utils/mouseConfig"
 import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -144,6 +145,8 @@ describe("User cancels the previewed action", () => {
         beforeEach(() => {
             gameEngineState = getGameEngineState({
                 repository,
+                resourceHandler,
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 actionsThisRound: ActionsThisRoundService.new({
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: { q: 0, r: 0 },
@@ -235,11 +238,44 @@ describe("User cancels the previewed action", () => {
                 expect(orchestratorSpy).toBeCalledWith(gameEngineState)
             }
         )
+
+        it.each(cancelMethods)(
+            "Shows a summary window and a player command via $name",
+            ({ name, action }) => {
+                action()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState
+                ).toBeTruthy()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.showSummaryHUD
+                ).toBeTruthy()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.summaryPanelLeft
+                ).toBeTruthy()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                ).toEqual(playerBattleSquaddie.battleSquaddieId)
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.showPlayerCommand
+                ).toBeTruthy()
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.playerCommandState
+                ).toBeTruthy()
+            }
+        )
     })
 
     it("Ensure if this is the 2nd action the user cannot cancel their turn. via $name", () => {
         gameEngineState = getGameEngineState({
             repository,
+            resourceHandler,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
             actionsThisRound: ActionsThisRoundService.new({
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 startingLocation: { q: 0, r: 0 },
@@ -344,7 +380,9 @@ describe("User cancels the previewed action", () => {
 
         gameEngineState = getGameEngineState({
             repository,
+            resourceHandler,
             actionsThisRound: actionsThisRound,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         })
         MissionMapService.addSquaddie(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -399,11 +437,15 @@ describe("User cancels the previewed action", () => {
 const getGameEngineState = ({
     repository,
     actionsThisRound,
+    resourceHandler,
+    battleSquaddieId,
 }: {
     repository: ObjectRepository
     actionsThisRound?: ActionsThisRound
+    resourceHandler: ResourceHandler
+    battleSquaddieId: string
 }): GameEngineState => {
-    return GameEngineStateService.new({
+    const gameEngineState = GameEngineStateService.new({
         battleOrchestratorState:
             BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.newBattleState({
@@ -424,5 +466,28 @@ const getGameEngineState = ({
             }),
         repository,
         campaign: CampaignService.default({}),
+        resourceHandler,
     })
+
+    gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+        SummaryHUDStateService.new({ mouseSelectionLocation: { x: 0, y: 0 } })
+    SummaryHUDStateService.createCommandWindow({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        resourceHandler: gameEngineState.resourceHandler,
+        objectRepository: gameEngineState.repository,
+        gameEngineState,
+    })
+    SummaryHUDStateService.setLeftSummaryPanel({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        resourceHandler: gameEngineState.resourceHandler,
+        objectRepository: gameEngineState.repository,
+        gameEngineState,
+        battleSquaddieId,
+    })
+
+    return gameEngineState
 }

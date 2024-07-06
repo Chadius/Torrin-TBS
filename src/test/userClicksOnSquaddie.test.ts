@@ -153,7 +153,7 @@ describe("User clicks on a squaddie", () => {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.battleSquaddieId
+                .summaryHUDState.summaryPanelLeft.battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
         const actionButtons: MakeDecisionButton[] =

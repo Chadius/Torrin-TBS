@@ -236,6 +236,7 @@ describe("Squaddie Service", () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
+                squaddieIsNormallyControllableByPlayer,
             } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
@@ -244,6 +245,7 @@ describe("Squaddie Service", () => {
             expect(squaddieHasThePlayerControlledAffiliation).toBeTruthy()
             expect(squaddieCanCurrentlyAct).toBeTruthy()
             expect(playerCanControlThisSquaddieRightNow).toBeTruthy()
+            expect(squaddieIsNormallyControllableByPlayer).toBeTruthy()
         })
         it("checks when the player controlled squaddie has no actions", () => {
             SquaddieTurnService.spendActionPoints(
@@ -254,6 +256,7 @@ describe("Squaddie Service", () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
+                squaddieIsNormallyControllableByPlayer,
             } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
@@ -261,12 +264,14 @@ describe("Squaddie Service", () => {
             expect(squaddieHasThePlayerControlledAffiliation).toBeTruthy()
             expect(squaddieCanCurrentlyAct).toBeFalsy()
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy()
+            expect(squaddieIsNormallyControllableByPlayer).toBeTruthy()
         })
         it("checks when the enemy controlled squaddie has actions", () => {
             let {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
+                squaddieIsNormallyControllableByPlayer,
             } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: enemyStatic,
                 battleSquaddie: enemyDynamic,
@@ -274,6 +279,7 @@ describe("Squaddie Service", () => {
             expect(squaddieHasThePlayerControlledAffiliation).toBeFalsy()
             expect(squaddieCanCurrentlyAct).toBeTruthy()
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy()
+            expect(squaddieIsNormallyControllableByPlayer).toBeFalsy()
         })
         it("knows a squaddie without hit points cannot be controlled", () => {
             DealDamageToTheSquaddie({
@@ -289,6 +295,7 @@ describe("Squaddie Service", () => {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,
                 playerCanControlThisSquaddieRightNow,
+                squaddieIsNormallyControllableByPlayer,
             } = SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
@@ -297,6 +304,7 @@ describe("Squaddie Service", () => {
             expect(squaddieHasThePlayerControlledAffiliation).toBeTruthy()
             expect(squaddieCanCurrentlyAct).toBeFalsy()
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy()
+            expect(squaddieIsNormallyControllableByPlayer).toBeFalsy()
         })
     })
 })

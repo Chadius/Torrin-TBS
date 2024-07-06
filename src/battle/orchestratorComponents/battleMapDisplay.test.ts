@@ -8,7 +8,6 @@ import { BattleCamera } from "../battleCamera"
 import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
-import { RectAreaService } from "../../ui/rectArea"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMap } from "../../missionMap/missionMap"
@@ -233,7 +232,6 @@ describe("battleMapDisplay", () => {
             BattleOrchestratorStateService.newOrchestratorState({
                 battleHUDState: BattleHUDStateService.new({
                     summaryHUDState: SummaryHUDStateService.new({
-                        battleSquaddieId: "player",
                         mouseSelectionLocation: {
                             x: 0,
                             y: 0,
@@ -250,30 +248,18 @@ describe("battleMapDisplay", () => {
         stateWithOpenedHUD.battleState.camera.setXVelocity(0)
         stateWithOpenedHUD.battleState.camera.setYVelocity(0)
         stateWithOpenedHUD.battleHUDState.summaryHUDState.showSummaryHUD = true
-        stateWithOpenedHUD.battleHUDState.summaryHUDState.summaryWindow = {
-            area: RectAreaService.new({
-                left: 10,
-                top: ScreenDimensions.SCREEN_HEIGHT - 100,
-                width: 100,
-                height: 100,
-            }),
-            color: {
-                hue: 0,
-                brightness: 0,
-                saturation: 0,
-            },
-        }
-        stateWithOpenedHUD.battleHUDState.summaryHUDState.mouseSelectionLocation.y =
-            ScreenDimensions.SCREEN_HEIGHT
+        const mouseHoverSpy: jest.SpyInstance = jest
+            .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
+            .mockReturnValue(true)
+
         battleMapDisplay.moveCameraBasedOnMouseMovement(
             stateWithOpenedHUD,
-            RectAreaService.centerX(
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.summaryWindow
-                    .area
-            ),
+            ScreenDimensions.SCREEN_WIDTH / 2,
             ScreenDimensions.SCREEN_HEIGHT
         )
         expect(stateWithOpenedHUD.battleState.camera.getVelocity()[1]).toBe(0)
+        expect(mouseHoverSpy).toBeCalled()
+        mouseHoverSpy.mockRestore()
     })
 
     describe("will horizontally scroll the camera if the HUD is open but only at the extreme edge", () => {
@@ -298,25 +284,24 @@ describe("battleMapDisplay", () => {
                 cameraVelocityTest: (camera: BattleCamera) =>
                     camera.getVelocity()[0] < 0,
             },
-            // {
-            //     cameraDescription: "move right",
-            //     mouseX: ScreenDimensions.SCREEN_WIDTH,
-            //     cameraVelocityTest: (camera: BattleCamera) =>
-            //         camera.getVelocity()[0] > 0,
-            // },
-            // {
-            //     cameraDescription: "not move",
-            //     mouseX: 10,
-            //     cameraVelocityTest: (camera: BattleCamera) =>
-            //         camera.getVelocity()[0] === 0,
-            // },
+            {
+                cameraDescription: "move right",
+                mouseX: ScreenDimensions.SCREEN_WIDTH,
+                cameraVelocityTest: (camera: BattleCamera) =>
+                    camera.getVelocity()[0] > 0,
+            },
+            {
+                cameraDescription: "not move",
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
+                cameraVelocityTest: (camera: BattleCamera) =>
+                    camera.getVelocity()[0] === 0,
+            },
         ]
 
         const stateWithOpenedHUD =
             BattleOrchestratorStateService.newOrchestratorState({
                 battleHUDState: BattleHUDStateService.new({
                     summaryHUDState: SummaryHUDStateService.new({
-                        battleSquaddieId: "player",
                         mouseSelectionLocation: {
                             x: 0,
                             y: 0,
@@ -337,24 +322,13 @@ describe("battleMapDisplay", () => {
                 stateWithOpenedHUD.battleState.camera.setYVelocity(0)
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.showSummaryHUD =
                     true
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.summaryWindow =
-                    {
-                        area: RectAreaService.new({
-                            left: 10,
-                            top: ScreenDimensions.SCREEN_HEIGHT - 100,
-                            width: 100,
-                            height: 100,
-                        }),
-                        color: {
-                            hue: 0,
-                            brightness: 0,
-                            saturation: 0,
-                        },
-                    }
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.mouseSelectionLocation.y =
                     ScreenDimensions.SCREEN_HEIGHT
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.mouseSelectionLocation.x =
                     mouseX
+                const mouseHoverSpy: jest.SpyInstance = jest
+                    .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
+                    .mockReturnValue(true)
                 battleMapDisplay.moveCameraBasedOnMouseMovement(
                     stateWithOpenedHUD,
                     mouseX,
@@ -363,6 +337,8 @@ describe("battleMapDisplay", () => {
                 expect(
                     cameraVelocityTest(stateWithOpenedHUD.battleState.camera)
                 ).toBeTruthy()
+                expect(mouseHoverSpy).toBeCalled()
+                mouseHoverSpy.mockRestore()
             }
         )
     })

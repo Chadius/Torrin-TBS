@@ -274,19 +274,27 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
             ) {
+                const actingSquaddieBattleId =
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new({
-                        battleSquaddieId:
-                            gameEngineState.battleOrchestratorState
-                                .battleHUDState.summaryHUDState
-                                .currentlyDisplayedBattleSquaddieId,
                         mouseSelectionLocation: {
                             x: repositionWindow.mouseX,
                             y: repositionWindow.mouseY,
                         },
                     })
 
-                SummaryHUDStateService.update({
+                SummaryHUDStateService.setLeftSummaryPanel({
+                    battleSquaddieId: actingSquaddieBattleId,
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    objectRepository: gameEngineState.repository,
+                })
+                SummaryHUDStateService.createCommandWindow({
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState,
@@ -513,6 +521,16 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: clickedLocation,
+        })
+
+        SummaryHUDStateService.setRightSummaryPanel({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleSquaddieId: targetBattleSquaddie.battleSquaddieId,
+            gameEngineState,
+            objectRepository: gameEngineState.repository,
+            resourceHandler: gameEngineState.resourceHandler,
         })
     }
 

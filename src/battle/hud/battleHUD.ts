@@ -242,7 +242,7 @@ export const BattleHUDService = {
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.battleSquaddieId
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
             )
         )
 

@@ -205,7 +205,7 @@ describe("user clicks on the map to move", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.battleSquaddieId
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
             ).toEqual(anotherPlayer.battleSquaddieId)
         })
 
