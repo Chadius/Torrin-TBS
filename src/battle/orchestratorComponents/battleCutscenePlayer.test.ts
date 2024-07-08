@@ -44,14 +44,13 @@ describe("BattleCutscenePlayer", () => {
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
         })
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy()
@@ -65,14 +64,13 @@ describe("BattleCutscenePlayer", () => {
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
         })
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
@@ -90,14 +88,13 @@ describe("BattleCutscenePlayer", () => {
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
         })
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
@@ -115,14 +112,13 @@ describe("BattleCutscenePlayer", () => {
             },
         })
         const initialState: GameEngineState = GameEngineStateService.new({
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
             resourceHandler: undefined,
         })
 
@@ -148,14 +144,13 @@ describe("BattleCutscenePlayer", () => {
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
         const initialState: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
         })
 
         const shouldThrowError = () => {
@@ -178,14 +173,13 @@ describe("BattleCutscenePlayer", () => {
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
                 }),
+            }),
         })
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer()
 

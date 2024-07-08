@@ -392,44 +392,41 @@ describe("User ends their turn", () => {
             gameEngineState = GameEngineStateService.new({
                 repository: repository,
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            battlePhaseState: {
-                                currentAffiliation: BattlePhase.PLAYER,
-                                turnCount: 0,
-                            },
-                            actionsThisRound: ActionsThisRoundService.new({
-                                battleSquaddieId:
-                                    playerBattleSquaddie.battleSquaddieId,
-                                startingLocation: { q: 0, r: 0 },
-                                processedActions: [
-                                    ProcessedActionService.new({
-                                        decidedAction: DecidedActionService.new(
-                                            {
-                                                battleSquaddieId:
-                                                    playerBattleSquaddie.battleSquaddieId,
-                                                actionEffects: [
-                                                    decidedActionEndTurnEffect,
-                                                ],
-                                            }
-                                        ),
-                                        processedActionEffects: [
-                                            ProcessedActionEndTurnEffectService.new(
-                                                {
-                                                    decidedActionEffect:
-                                                        decidedActionEndTurnEffect,
-                                                }
-                                            ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
+                        actionsThisRound: ActionsThisRoundService.new({
+                            battleSquaddieId:
+                                playerBattleSquaddie.battleSquaddieId,
+                            startingLocation: { q: 0, r: 0 },
+                            processedActions: [
+                                ProcessedActionService.new({
+                                    decidedAction: DecidedActionService.new({
+                                        battleSquaddieId:
+                                            playerBattleSquaddie.battleSquaddieId,
+                                        actionEffects: [
+                                            decidedActionEndTurnEffect,
                                         ],
                                     }),
-                                ],
-                            }),
+                                    processedActionEffects: [
+                                        ProcessedActionEndTurnEffectService.new(
+                                            {
+                                                decidedActionEffect:
+                                                    decidedActionEndTurnEffect,
+                                            }
+                                        ),
+                                    ],
+                                }),
+                            ],
                         }),
                     }),
+                }),
                 campaign: CampaignService.default({}),
             })
             BattleSquaddieService.endTurn(playerBattleSquaddie)
@@ -513,18 +510,17 @@ const getGameEngineState = ({
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
-        battleOrchestratorState:
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap,
-                    camera: new BattleCamera(0, 0),
-                    teams,
-                    battlePhaseState,
-                    actionsThisRound,
-                }),
+        battleOrchestratorState: BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionMap,
+                camera: new BattleCamera(0, 0),
+                teams,
+                battlePhaseState,
+                actionsThisRound,
             }),
+        }),
         repository,
         campaign: CampaignService.default({}),
     })

@@ -230,7 +230,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         RecordingService.addEvent(battleEventRecording, newEvent)
 
         const battleOrchestratorState: BattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
+            BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
@@ -327,19 +327,18 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         }
 
-        const battleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap,
-                    actionsThisRound,
-                    recording: battleEventRecording,
-                }),
-            })
+        const battleOrchestratorState = BattleOrchestratorStateService.new({
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionMap,
+                actionsThisRound,
+                recording: battleEventRecording,
+            }),
+        })
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
@@ -430,19 +429,18 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         }
 
-        const battleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap,
-                    actionsThisRound,
-                    recording: battleEventRecording,
-                }),
-            })
+        const battleOrchestratorState = BattleOrchestratorStateService.new({
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            }),
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionMap,
+                actionsThisRound,
+                recording: battleEventRecording,
+            }),
+        })
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,

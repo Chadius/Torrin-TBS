@@ -152,41 +152,39 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
         state = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        missionCompletionStatus: {
-                            "player objective id": {
-                                isComplete: undefined,
-                                conditions: {
-                                    [conditionDefeatAllPlayers.id]: undefined,
-                                },
-                            },
-                            "enemy objective id": {
-                                isComplete: undefined,
-                                conditions: {
-                                    [conditionDefeatAllEnemies.id]: undefined,
-                                },
-                            },
-                            "ally objective id": {
-                                isComplete: undefined,
-                                conditions: {
-                                    [conditionDefeatAllAllies.id]: undefined,
-                                },
-                            },
-                            "no affiliation objective id": {
-                                isComplete: undefined,
-                                conditions: {
-                                    [conditionDefeatAllNoAffiliation.id]:
-                                        undefined,
-                                },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    missionCompletionStatus: {
+                        "player objective id": {
+                            isComplete: undefined,
+                            conditions: {
+                                [conditionDefeatAllPlayers.id]: undefined,
                             },
                         },
-                    }),
+                        "enemy objective id": {
+                            isComplete: undefined,
+                            conditions: {
+                                [conditionDefeatAllEnemies.id]: undefined,
+                            },
+                        },
+                        "ally objective id": {
+                            isComplete: undefined,
+                            conditions: {
+                                [conditionDefeatAllAllies.id]: undefined,
+                            },
+                        },
+                        "no affiliation objective id": {
+                            isComplete: undefined,
+                            conditions: {
+                                [conditionDefeatAllNoAffiliation.id]: undefined,
+                            },
+                        },
+                    },
                 }),
+            }),
         })
     })
 

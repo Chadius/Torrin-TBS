@@ -215,7 +215,7 @@ describe("dialogue box player", () => {
             })
 
             const battleState: BattleOrchestratorState =
-                BattleOrchestratorStateService.newOrchestratorState({
+                BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",

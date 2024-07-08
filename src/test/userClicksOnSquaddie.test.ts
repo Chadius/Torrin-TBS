@@ -313,18 +313,17 @@ const getGameEngineState = ({
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
-        battleOrchestratorState:
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap,
-                    camera: new BattleCamera(0, 0),
-                    teams,
-                    battlePhaseState,
-                    actionsThisRound,
-                }),
+        battleOrchestratorState: BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionMap,
+                camera: new BattleCamera(0, 0),
+                teams,
+                battlePhaseState,
+                actionsThisRound,
             }),
+        }),
         repository,
         campaign: CampaignService.default({}),
     })

@@ -142,17 +142,16 @@ describe("BattleSquaddieSelectedHUD", () => {
         }) => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: new BattleCamera(0, 0),
-                            teams,
-                            battlePhaseState,
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        teams,
+                        battlePhaseState,
                     }),
+                }),
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })
@@ -289,17 +288,16 @@ describe("BattleSquaddieSelectedHUD", () => {
         }) => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: new BattleCamera(0, 0),
-                            teams,
-                            battlePhaseState,
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        teams,
+                        battlePhaseState,
                     }),
+                }),
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })
@@ -375,15 +373,14 @@ describe("BattleSquaddieSelectedHUD", () => {
         beforeEach(() => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: new BattleCamera(0, 0),
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
                     }),
+                }),
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })
@@ -418,16 +415,15 @@ describe("BattleSquaddieSelectedHUD", () => {
         ) => {
             return GameEngineStateService.new({
                 resourceHandler: resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: battleCamera,
-                            actionsThisRound,
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: battleCamera,
+                        actionsThisRound,
                     }),
+                }),
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })

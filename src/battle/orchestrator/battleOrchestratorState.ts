@@ -67,7 +67,7 @@ export class BattleOrchestratorState {
     }
 
     public clone(): BattleOrchestratorState {
-        return BattleOrchestratorStateService.newOrchestratorState({
+        return BattleOrchestratorStateService.new({
             battleState: BattleStateService.clone(this.battleState),
             numberGenerator: this.numberGenerator
                 ? this.numberGenerator.clone()
@@ -99,7 +99,7 @@ export enum BattleOrchestratorStateValidityReason {
 }
 
 export const BattleOrchestratorStateService = {
-    newOrchestratorState: ({
+    new: ({
         numberGenerator,
         battleState,
         battleHUDState,
@@ -118,24 +118,6 @@ export const BattleOrchestratorStateService = {
             battleHUDState,
             battleHUD,
             cutsceneIdsToPlay,
-        })
-    },
-    new: ({
-        numberGenerator,
-        battleState,
-        battleHUDState,
-        battleHUD,
-    }: {
-        numberGenerator?: NumberGeneratorStrategy
-        battleState?: BattleState
-        battleHUDState?: BattleHUDState
-        battleHUD?: BattleHUD
-    }): BattleOrchestratorState => {
-        return newOrchestratorState({
-            numberGenerator,
-            battleState,
-            battleHUDState,
-            battleHUD,
         })
     },
     swapHUD: ({

@@ -19,19 +19,18 @@ describe("Load SaveState", () => {
             missionId: "test",
             campaignId: "test campaign",
             saveVersion: SAVE_VERSION,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        camera: new BattleCamera(100, 200),
-                        missionMap: NullMissionMap(),
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    camera: new BattleCamera(100, 200),
+                    missionMap: NullMissionMap(),
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
             repository: ObjectRepositoryService.new(),
         })
     })

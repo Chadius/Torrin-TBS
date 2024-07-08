@@ -329,7 +329,7 @@ const calculateMidTurnPopup = (
         return { popupText, labelArea, camera }
     }
 
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+    const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             actionsThisRound.battleSquaddieId

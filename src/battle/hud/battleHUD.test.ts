@@ -447,20 +447,19 @@ describe("Battle HUD", () => {
             actionsThisRound: ActionsThisRound
         ) => {
             gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap: battleMap,
-                            actionsThisRound,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap: battleMap,
+                        actionsThisRound,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository,
                 campaign: CampaignService.default({}),
             })
@@ -663,20 +662,19 @@ describe("Battle HUD", () => {
                 ],
             })
             gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap: battleMap,
-                            actionsThisRound,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap: battleMap,
+                        actionsThisRound,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository,
                 campaign: CampaignService.default({}),
             })
@@ -781,27 +779,26 @@ describe("Battle HUD", () => {
                 resourceHandler: mocks.mockResourceHandler(
                     new MockedP5GraphicsBuffer()
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
-                        battleHUDState: BattleHUDStateService.new({
-                            summaryHUDState: SummaryHUDStateService.new({
-                                mouseSelectionLocation: { x: 0, y: 0 },
-                            }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new({
+                            mouseSelectionLocation: { x: 0, y: 0 },
                         }),
                     }),
+                }),
                 repository,
                 campaign: CampaignService.default({}),
             })

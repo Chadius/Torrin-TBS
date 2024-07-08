@@ -338,10 +338,13 @@ export class GameEngineGameLoader implements GameEngineComponent {
         state.campaign = campaignData
     }
 
-    private resetBattleOrchestratorState(state: BattleOrchestratorState) {
-        state.copyOtherOrchestratorState(
-            BattleOrchestratorStateService.newOrchestratorState({})
+    private resetBattleOrchestratorState(
+        battleOrchestratorState: BattleOrchestratorState
+    ) {
+        battleOrchestratorState.copyOtherOrchestratorState(
+            BattleOrchestratorStateService.new({})
         )
+        battleOrchestratorState.battleHUDState.summaryHUDState = undefined
     }
 
     private resetInternalFields() {

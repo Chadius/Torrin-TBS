@@ -343,17 +343,16 @@ describe("Orchestration Utils", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.new({
-                            battlePhaseState: BattlePhaseStateService.new({
-                                currentAffiliation: BattlePhase.PLAYER,
-                                turnCount: 0,
-                            }),
-                            missionId: "mission",
-                            campaignId: "test campaign",
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
                         }),
+                        missionId: "mission",
+                        campaignId: "test campaign",
                     }),
+                }),
             })
 
             actionsThisRound = ActionsThisRoundService.new({
@@ -727,18 +726,17 @@ describe("Orchestration Utils", () => {
 
             gameEngineState = GameEngineStateService.new({
                 repository,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.new({
-                            battlePhaseState: BattlePhaseStateService.new({
-                                currentAffiliation,
-                                turnCount: 0,
-                            }),
-                            missionId: "mission",
-                            campaignId: "test campaign",
-                            missionMap,
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation,
+                            turnCount: 0,
                         }),
+                        missionId: "mission",
+                        campaignId: "test campaign",
+                        missionMap,
                     }),
+                }),
             })
             messageBoardSpy = jest.spyOn(
                 gameEngineState.messageBoard,

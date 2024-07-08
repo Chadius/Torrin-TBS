@@ -49,23 +49,22 @@ describe("Mission Objective", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionCompletionStatus: {
-                            "test objective": {
-                                isComplete: undefined,
-                                conditions: {
-                                    test0: true,
-                                    test1: undefined,
-                                    test2: undefined,
-                                },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                test0: true,
+                                test1: undefined,
+                                test2: undefined,
                             },
                         },
-                    }),
+                    },
                 }),
+            }),
         })
 
         mockMissionConditionChecks({
@@ -125,23 +124,22 @@ describe("Mission Objective", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionCompletionStatus: {
-                            "test objective": {
-                                isComplete: undefined,
-                                conditions: {
-                                    test0: true,
-                                    test1: undefined,
-                                    test2: undefined,
-                                },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                test0: true,
+                                test1: undefined,
+                                test2: undefined,
                             },
                         },
-                    }),
+                    },
                 }),
+            }),
         })
         expect(
             MissionObjectiveHelper.shouldBeComplete(objective, state)
@@ -204,23 +202,22 @@ describe("Mission Objective", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionCompletionStatus: {
-                            "test objective": {
-                                isComplete: undefined,
-                                conditions: {
-                                    test0: true,
-                                    test1: undefined,
-                                    test2: undefined,
-                                },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                test0: true,
+                                test1: undefined,
+                                test2: undefined,
                             },
                         },
-                    }),
+                    },
                 }),
+            }),
         })
         expect(
             MissionObjectiveHelper.shouldBeComplete(objective, state)
@@ -261,23 +258,22 @@ describe("Mission Objective", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionCompletionStatus: {
-                            "test objective": {
-                                isComplete: true,
-                                conditions: {
-                                    test0: false,
-                                    test1: false,
-                                    test2: false,
-                                },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: true,
+                            conditions: {
+                                test0: false,
+                                test1: false,
+                                test2: false,
                             },
                         },
-                    }),
+                    },
                 }),
+            }),
         })
         jest.clearAllMocks()
         mockMissionConditionChecks({
@@ -317,19 +313,18 @@ describe("Mission Objective", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionCompletionStatus: {
-                            "test objective": {
-                                isComplete: undefined,
-                                conditions: {},
-                            },
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {},
                         },
-                    }),
+                    },
                 }),
+            }),
         })
         expect(
             MissionObjectiveHelper.shouldBeComplete(objective, state)

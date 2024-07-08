@@ -158,10 +158,8 @@ describe("orchestratorState", () => {
     })
 
     it("can clone existing objects", () => {
-        const nowSpy = jest.spyOn(Date, "now").mockReturnValue(0)
-
         let originalBattleOrchestratorState: BattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
+            BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
@@ -194,7 +192,7 @@ describe("orchestratorState", () => {
 
     it("can change itself to match other objects", () => {
         let originalBattleOrchestratorState: BattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
+            BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
@@ -206,7 +204,7 @@ describe("orchestratorState", () => {
         expect(originalBattleOrchestratorState.isValid).toBeTruthy()
 
         const cloned: BattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
+            BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
                     missionId: "test mission",
@@ -226,14 +224,13 @@ describe("orchestratorState", () => {
         const numberGenerator = new RandomNumberGenerator()
         const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
 
-        const newBattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleState: validBattleState,
-                numberGenerator,
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD,
-                }),
-            })
+        const newBattleOrchestratorState = BattleOrchestratorStateService.new({
+            battleState: validBattleState,
+            numberGenerator,
+            battleHUD: BattleHUDService.new({
+                battleSquaddieSelectedHUD,
+            }),
+        })
 
         expect(newBattleOrchestratorState.battleState).toEqual(validBattleState)
         expect(newBattleOrchestratorState.numberGenerator).toEqual(
@@ -360,14 +357,13 @@ describe("orchestratorState", () => {
                 resourceHandler: mockResourceHandler(
                     new MockedP5GraphicsBuffer()
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            campaignId: "test campaign",
-                            missionId: "the mission",
-                            actionsThisRound,
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        campaignId: "test campaign",
+                        missionId: "the mission",
+                        actionsThisRound,
                     }),
+                }),
                 repository,
                 campaign: CampaignService.default({}),
             })

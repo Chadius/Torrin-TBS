@@ -69,13 +69,12 @@ describe("GameEngineGameLoader", () => {
         state = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "",
-                        campaignId,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "",
+                    campaignId,
                 }),
+            }),
         })
 
         let enemyDemonSlitherTemplate: SquaddieTemplate
@@ -431,52 +430,47 @@ describe("GameEngineGameLoader", () => {
                 repository: squaddieRepository,
                 previousMode: GameModeEnum.BATTLE,
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            campaignId: campaignFileData.id,
-                            missionId: "test mission",
-                            camera: new BattleCamera(100, 200),
-                            missionMap: NullMissionMap(),
-                            missionStatistics: {
-                                ...MissionStatisticsHandler.new(),
-                                timeElapsedInMilliseconds: 9001,
-                            },
-                            objectives: [
-                                MissionObjectiveHelper.validateMissionObjective(
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        campaignId: campaignFileData.id,
+                        missionId: "test mission",
+                        camera: new BattleCamera(100, 200),
+                        missionMap: NullMissionMap(),
+                        missionStatistics: {
+                            ...MissionStatisticsHandler.new(),
+                            timeElapsedInMilliseconds: 9001,
+                        },
+                        objectives: [
+                            MissionObjectiveHelper.validateMissionObjective({
+                                id: "test",
+                                reward: {
+                                    rewardType: MissionRewardType.VICTORY,
+                                },
+                                hasGivenReward: false,
+                                numberOfRequiredConditionsToComplete: 1,
+                                conditions: [
                                     {
                                         id: "test",
-                                        reward: {
-                                            rewardType:
-                                                MissionRewardType.VICTORY,
-                                        },
-                                        hasGivenReward: false,
-                                        numberOfRequiredConditionsToComplete: 1,
-                                        conditions: [
-                                            {
-                                                id: "test",
-                                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                            },
-                                        ],
-                                    }
-                                ),
-                            ],
-                            cutsceneTriggers: [
-                                {
-                                    cutsceneId: "introductory",
-                                    triggeringEvent:
-                                        TriggeringEvent.START_OF_TURN,
-                                    turn: 0,
-                                    systemReactedToTrigger: true,
-                                },
-                            ],
-                            missionCompletionStatus: {},
-                        }),
+                                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                    },
+                                ],
+                            }),
+                        ],
+                        cutsceneTriggers: [
+                            {
+                                cutsceneId: "introductory",
+                                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                                turn: 0,
+                                systemReactedToTrigger: true,
+                            },
+                        ],
+                        missionCompletionStatus: {},
                     }),
+                }),
                 campaign: CampaignService.default({}),
             })
             LoadSaveStateService.userRequestsLoad(
@@ -693,8 +687,7 @@ describe("GameEngineGameLoader", () => {
             originalState = GameEngineStateService.new({
                 repository: ObjectRepositoryService.new(),
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({}),
+                battleOrchestratorState: BattleOrchestratorStateService.new({}),
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),
             })
@@ -705,8 +698,7 @@ describe("GameEngineGameLoader", () => {
                 repository: ObjectRepositoryService.new(),
                 previousMode: GameModeEnum.TITLE_SCREEN,
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({}),
+                battleOrchestratorState: BattleOrchestratorStateService.new({}),
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),
             })
@@ -870,7 +862,7 @@ describe("GameEngineGameLoader", () => {
         const resetLoaderAndClearBattleOrchestratorState = () => {
             loader.reset(state)
             state.battleOrchestratorState.copyOtherOrchestratorState(
-                BattleOrchestratorStateService.newOrchestratorState({})
+                BattleOrchestratorStateService.new({})
             )
         }
 

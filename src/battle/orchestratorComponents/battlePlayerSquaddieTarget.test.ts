@@ -193,20 +193,18 @@ describe("BattleSquaddieTarget", () => {
 
         gameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: battleMap,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: battleMap,
+                    actionsThisRound,
+                    recording: { history: [] },
+                }),
+            }),
             repository: squaddieRepo,
             campaign: CampaignService.default({}),
         })
@@ -496,20 +494,19 @@ describe("BattleSquaddieTarget", () => {
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            campaignId: "test campaign",
-                            missionId: "test mission",
-                            missionMap: battleMap,
-                            actionsThisRound,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        campaignId: "test campaign",
+                        missionId: "test mission",
+                        missionMap: battleMap,
+                        actionsThisRound,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
             })
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
@@ -826,8 +823,8 @@ describe("BattleSquaddieTarget", () => {
 
                 gameEngineState = GameEngineStateService.new({
                     resourceHandler: mockResourceHandler,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleHUD: BattleHUDService.new({
                                 battleSquaddieSelectedHUD:
                                     new BattleSquaddieSelectedHUD(),
@@ -838,7 +835,8 @@ describe("BattleSquaddieTarget", () => {
                                 missionMap: battleMap,
                                 actionsThisRound,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepo,
                 })
 

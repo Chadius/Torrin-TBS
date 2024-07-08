@@ -446,24 +446,23 @@ const getGameEngineState = ({
     battleSquaddieId: string
 }): GameEngineState => {
     const gameEngineState = GameEngineStateService.new({
-        battleOrchestratorState:
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    camera: new BattleCamera(0, 0),
-                    battlePhaseState: BattlePhaseStateService.new({
-                        currentAffiliation: BattlePhase.PLAYER,
-                        turnCount: 0,
-                    }),
-                    actionsThisRound,
-                    missionMap: MissionMapService.new({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 1 "],
-                        }),
+        battleOrchestratorState: BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: BattlePhaseStateService.new({
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                }),
+                actionsThisRound,
+                missionMap: MissionMapService.new({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "],
                     }),
                 }),
             }),
+        }),
         repository,
         campaign: CampaignService.default({}),
         resourceHandler,

@@ -626,7 +626,7 @@ describe("Cutscene", () => {
             directions: [frontDoorGreeting],
         })
         const battleState: BattleOrchestratorState =
-            BattleOrchestratorStateService.newOrchestratorState({
+            BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
                     missionId: "test mission",

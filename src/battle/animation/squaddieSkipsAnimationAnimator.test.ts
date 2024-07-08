@@ -141,15 +141,14 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     it("will create a text window with the action results", () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        recording: battleEventRecording,
-                        actionsThisRound: monkMeditatesInstruction,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    recording: battleEventRecording,
+                    actionsThisRound: monkMeditatesInstruction,
                 }),
+            }),
             repository: squaddieRepository,
         })
 
@@ -178,15 +177,14 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound: monkMeditatesInstruction,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
                 }),
+            }),
             repository: squaddieRepository,
         })
         animator.reset(state)
@@ -205,15 +203,14 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound: monkMeditatesInstruction,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
                 }),
+            }),
             repository: squaddieRepository,
         })
         animator.reset(state)
@@ -235,15 +232,14 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     it("will set the action builder animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound: monkMeditatesInstruction,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
                 }),
+            }),
             repository: squaddieRepository,
         })
 

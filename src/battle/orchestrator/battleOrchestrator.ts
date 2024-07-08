@@ -176,32 +176,35 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this.mode
     }
 
-    public update(state: GameEngineState, graphicsContext: GraphicsBuffer) {
-        if (state.fileState.loadSaveState.applicationStartedLoad) {
+    public update(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        if (gameEngineState.fileState.loadSaveState.applicationStartedLoad) {
             return
         }
 
         if (this.uiControlSettings.displayBattleMap === true) {
-            this.displayBattleMap(state, graphicsContext)
+            this.displayBattleMap(gameEngineState, graphicsContext)
             BattleHUDService.draw(
-                state.battleOrchestratorState.battleHUD,
+                gameEngineState.battleOrchestratorState.battleHUD,
                 graphicsContext
             )
         }
 
         if (this.mode === BattleOrchestratorMode.PLAYER_HUD_CONTROLLER) {
             const orchestrationChanges: BattleOrchestratorChanges =
-                this.playerHudController.recommendStateChanges(state)
+                this.playerHudController.recommendStateChanges(gameEngineState)
             this.mode =
                 orchestrationChanges.nextMode ||
                 BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
-            this.playerHudController.reset(state)
+            this.playerHudController.reset(gameEngineState)
         }
 
         switch (this.mode) {
             case BattleOrchestratorMode.INITIALIZED:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.initializeBattle,
                     graphicsContext,
                     BattleOrchestratorMode.CUTSCENE_PLAYER
@@ -209,7 +212,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.cutscenePlayer,
                     graphicsContext,
                     BattleOrchestratorMode.PHASE_CONTROLLER
@@ -217,7 +220,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.PHASE_CONTROLLER:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.phaseController,
                     graphicsContext,
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
@@ -225,7 +228,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.playerSquaddieSelector,
                     graphicsContext,
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
@@ -233,7 +236,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.computerSquaddieSelector,
                     graphicsContext,
                     BattleOrchestratorMode.PHASE_CONTROLLER
@@ -241,7 +244,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.squaddieUsesActionOnMap,
                     graphicsContext,
                     BattleOrchestratorMode.PHASE_CONTROLLER
@@ -249,7 +252,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.squaddieUsesActionOnSquaddie,
                     graphicsContext,
                     BattleOrchestratorMode.PHASE_CONTROLLER
@@ -257,7 +260,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.squaddieMover,
                     graphicsContext,
                     BattleOrchestratorMode.PHASE_CONTROLLER
@@ -265,7 +268,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break
             case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
                 this.updateComponent(
-                    state,
+                    gameEngineState,
                     this.playerSquaddieTarget,
                     graphicsContext,
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
@@ -277,16 +280,19 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (
             !MissionStatisticsHandler.hasStarted(
-                state.battleOrchestratorState.battleState.missionStatistics
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics
             )
         ) {
             MissionStatisticsHandler.startRecording(
-                state.battleOrchestratorState.battleState.missionStatistics
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics
             )
         } else if (this.uiControlSettings.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
                 MissionStatisticsHandler.addTimeElapsed(
-                    state.battleOrchestratorState.battleState.missionStatistics,
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionStatistics,
                     Date.now() - this.previousUpdateTimestamp
                 )
             }
@@ -401,7 +407,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     setup({}: {}): BattleOrchestratorState {
-        return BattleOrchestratorStateService.newOrchestratorState({})
+        return BattleOrchestratorStateService.new({})
     }
 
     private setNextComponentMode(

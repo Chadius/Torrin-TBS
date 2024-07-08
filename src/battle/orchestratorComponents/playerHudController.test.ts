@@ -48,14 +48,13 @@ describe("PlayerHUDController", () => {
         repository = ObjectRepositoryService.new()
 
         gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionMap,
-                        campaignId: "campaignId",
-                        missionId: "missionId",
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionMap,
+                    campaignId: "campaignId",
+                    missionId: "missionId",
                 }),
+            }),
             resourceHandler: mocks.mockResourceHandler(
                 new MockedP5GraphicsBuffer()
             ),

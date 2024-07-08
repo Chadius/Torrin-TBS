@@ -176,16 +176,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound:
-                            knightHitsThiefWithLongswordInstructionInProgress,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound:
+                        knightHitsThiefWithLongswordInstructionInProgress,
+                    recording: battleEventRecording,
                 }),
+            }),
         })
         animator.reset(state)
         animator.update(state, mockedP5GraphicsContext)
@@ -212,16 +211,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound:
-                            knightHitsThiefWithLongswordInstructionInProgress,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound:
+                        knightHitsThiefWithLongswordInstructionInProgress,
+                    recording: battleEventRecording,
                 }),
+            }),
         })
         animator.reset(state)
         animator.update(state, mockedP5GraphicsContext)
@@ -258,16 +256,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound:
-                            knightHitsThiefWithLongswordInstructionInProgress,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound:
+                        knightHitsThiefWithLongswordInstructionInProgress,
+                    recording: battleEventRecording,
                 }),
+            }),
         })
         animator.reset(state)
         animator.update(state, mockedP5GraphicsContext)
@@ -285,16 +282,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        actionsThisRound:
-                            knightHitsThiefWithLongswordInstructionInProgress,
-                        recording: battleEventRecording,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound:
+                        knightHitsThiefWithLongswordInstructionInProgress,
+                    recording: battleEventRecording,
                 }),
+            }),
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =

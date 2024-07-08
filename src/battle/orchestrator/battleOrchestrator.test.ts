@@ -255,31 +255,30 @@ describe("Battle Orchestrator", () => {
     beforeEach(() => {
         nullState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
-                        }),
-                        missionCompletionStatus: {
-                            default: {
-                                isComplete: undefined,
-                                conditions: {},
-                            },
-                        },
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud,
                 }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
+                        }),
+                    }),
+                    missionCompletionStatus: {
+                        default: {
+                            isComplete: undefined,
+                            conditions: {},
+                        },
+                    },
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
+                }),
+            }),
             repository: undefined,
         })
         setupMocks()
@@ -346,25 +345,24 @@ describe("Battle Orchestrator", () => {
 
         const turn0State: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
                         }),
-                        cutsceneCollection,
-                        objectives: [],
-                        cutsceneTriggers: [turn0CutsceneTrigger],
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
                     }),
+                    cutsceneCollection,
+                    objectives: [],
+                    cutsceneTriggers: [turn0CutsceneTrigger],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
             repository: undefined,
         })
 
@@ -393,26 +391,25 @@ describe("Battle Orchestrator", () => {
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
             resourceHandler: nullState.resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                        cutsceneTriggers: [
-                            {
-                                cutsceneId: "starting",
-                                turn: 0,
-                                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                                systemReactedToTrigger: false,
-                            },
-                        ],
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
+                    cutsceneTriggers: [
+                        {
+                            cutsceneId: "starting",
+                            turn: 0,
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            systemReactedToTrigger: false,
                         },
-                    }),
+                    ],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
             repository: ObjectRepositoryService.new(),
         })
 
@@ -438,19 +435,18 @@ describe("Battle Orchestrator", () => {
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
             resourceHandler: nullState.resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
-                    }),
-                    cutsceneIdsToPlay: ["cutscene0", "cutscene1"],
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+                cutsceneIdsToPlay: ["cutscene0", "cutscene1"],
+            }),
             repository: ObjectRepositoryService.new(),
         })
 
@@ -499,38 +495,36 @@ describe("Battle Orchestrator", () => {
 
         const stateWithCutscene: GameEngineState = GameEngineStateService.new({
             resourceHandler: nullState.resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        cutsceneCollection,
-                        cutsceneTriggers: [
-                            {
-                                cutsceneId: "starting",
-                                turn: 0,
-                                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                                systemReactedToTrigger: false,
-                            },
-                            {
-                                cutsceneId: "next scene",
-                                turn: 1,
-                                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                                systemReactedToTrigger: false,
-                            },
-                            {
-                                cutsceneId: "victory",
-                                triggeringEvent:
-                                    TriggeringEvent.MISSION_VICTORY,
-                                systemReactedToTrigger: false,
-                            },
-                        ],
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    cutsceneCollection,
+                    cutsceneTriggers: [
+                        {
+                            cutsceneId: "starting",
+                            turn: 0,
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            systemReactedToTrigger: false,
                         },
-                    }),
+                        {
+                            cutsceneId: "next scene",
+                            turn: 1,
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            systemReactedToTrigger: false,
+                        },
+                        {
+                            cutsceneId: "victory",
+                            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                            systemReactedToTrigger: false,
+                        },
+                    ],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
             repository: ObjectRepositoryService.new(),
         })
         LoadSaveStateService.applicationStartsLoad(
@@ -778,182 +772,165 @@ describe("Battle Orchestrator", () => {
 
             victoryState = GameEngineStateService.new({
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 "],
                             }),
-                            objectives: [
-                                MissionObjectiveHelper.validateMissionObjective(
+                        }),
+                        objectives: [
+                            MissionObjectiveHelper.validateMissionObjective({
+                                id: "test",
+                                reward: {
+                                    rewardType: MissionRewardType.VICTORY,
+                                },
+                                numberOfRequiredConditionsToComplete: 1,
+                                hasGivenReward: false,
+                                conditions: [
                                     {
                                         id: "test",
-                                        reward: {
-                                            rewardType:
-                                                MissionRewardType.VICTORY,
-                                        },
-                                        numberOfRequiredConditionsToComplete: 1,
-                                        hasGivenReward: false,
-                                        conditions: [
-                                            {
-                                                id: "test",
-                                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                            },
-                                        ],
-                                    }
-                                ),
-                            ],
-                            cutsceneCollection,
-                            cutsceneTriggers: [
-                                {
-                                    cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                                    triggeringEvent:
-                                        TriggeringEvent.MISSION_VICTORY,
-                                    systemReactedToTrigger: false,
-                                },
-                            ],
-                            battleCompletionStatus:
-                                BattleCompletionStatus.IN_PROGRESS,
-                            battlePhaseState: {
-                                turnCount: 0,
-                                currentAffiliation: BattlePhase.UNKNOWN,
+                                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                    },
+                                ],
+                            }),
+                        ],
+                        cutsceneCollection,
+                        cutsceneTriggers: [
+                            {
+                                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                                triggeringEvent:
+                                    TriggeringEvent.MISSION_VICTORY,
+                                systemReactedToTrigger: false,
                             },
-                        }),
+                        ],
+                        battleCompletionStatus:
+                            BattleCompletionStatus.IN_PROGRESS,
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        },
                     }),
+                }),
                 repository: undefined,
             })
 
             defeatState = GameEngineStateService.new({
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 "],
                             }),
-                            objectives: [
-                                MissionObjectiveHelper.validateMissionObjective(
+                        }),
+                        objectives: [
+                            MissionObjectiveHelper.validateMissionObjective({
+                                id: "test",
+                                reward: {
+                                    rewardType: MissionRewardType.DEFEAT,
+                                },
+                                numberOfRequiredConditionsToComplete: 1,
+                                hasGivenReward: false,
+                                conditions: [
                                     {
                                         id: "test",
-                                        reward: {
-                                            rewardType:
-                                                MissionRewardType.DEFEAT,
-                                        },
-                                        numberOfRequiredConditionsToComplete: 1,
-                                        hasGivenReward: false,
-                                        conditions: [
-                                            {
-                                                id: "test",
-                                                type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                                            },
-                                        ],
-                                    }
-                                ),
-                            ],
-                            cutsceneCollection,
-                            cutsceneTriggers: [
-                                {
-                                    cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                                    triggeringEvent:
-                                        TriggeringEvent.MISSION_DEFEAT,
-                                    systemReactedToTrigger: false,
-                                },
-                            ],
-                            battleCompletionStatus:
-                                BattleCompletionStatus.IN_PROGRESS,
-                            battlePhaseState: {
-                                turnCount: 0,
-                                currentAffiliation: BattlePhase.UNKNOWN,
+                                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                    },
+                                ],
+                            }),
+                        ],
+                        cutsceneCollection,
+                        cutsceneTriggers: [
+                            {
+                                cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                                triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                                systemReactedToTrigger: false,
                             },
-                        }),
+                        ],
+                        battleCompletionStatus:
+                            BattleCompletionStatus.IN_PROGRESS,
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        },
                     }),
+                }),
                 repository: undefined,
             })
 
             victoryAndDefeatState = GameEngineStateService.new({
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 "],
                             }),
-                            objectives: [
-                                MissionObjectiveHelper.validateMissionObjective(
+                        }),
+                        objectives: [
+                            MissionObjectiveHelper.validateMissionObjective({
+                                id: "test",
+                                reward: {
+                                    rewardType: MissionRewardType.VICTORY,
+                                },
+                                numberOfRequiredConditionsToComplete: 1,
+                                hasGivenReward: false,
+                                conditions: [
                                     {
                                         id: "test",
-                                        reward: {
-                                            rewardType:
-                                                MissionRewardType.VICTORY,
-                                        },
-                                        numberOfRequiredConditionsToComplete: 1,
-                                        hasGivenReward: false,
-                                        conditions: [
-                                            {
-                                                id: "test",
-                                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                            },
-                                        ],
-                                    }
-                                ),
-                                MissionObjectiveHelper.validateMissionObjective(
+                                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                    },
+                                ],
+                            }),
+                            MissionObjectiveHelper.validateMissionObjective({
+                                id: "test1",
+                                reward: {
+                                    rewardType: MissionRewardType.DEFEAT,
+                                },
+                                numberOfRequiredConditionsToComplete: 1,
+                                hasGivenReward: false,
+                                conditions: [
                                     {
-                                        id: "test1",
-                                        reward: {
-                                            rewardType:
-                                                MissionRewardType.DEFEAT,
-                                        },
-                                        numberOfRequiredConditionsToComplete: 1,
-                                        hasGivenReward: false,
-                                        conditions: [
-                                            {
-                                                id: "test",
-                                                type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                                            },
-                                        ],
-                                    }
-                                ),
-                            ],
-                            cutsceneCollection,
-                            cutsceneTriggers: [
-                                {
-                                    cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                                    triggeringEvent:
-                                        TriggeringEvent.MISSION_VICTORY,
-                                    systemReactedToTrigger: false,
-                                },
-                                {
-                                    cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                                    triggeringEvent:
-                                        TriggeringEvent.MISSION_DEFEAT,
-                                    systemReactedToTrigger: false,
-                                },
-                            ],
-                            battleCompletionStatus:
-                                BattleCompletionStatus.IN_PROGRESS,
-                        }),
+                                        id: "test",
+                                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                    },
+                                ],
+                            }),
+                        ],
+                        cutsceneCollection,
+                        cutsceneTriggers: [
+                            {
+                                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                                triggeringEvent:
+                                    TriggeringEvent.MISSION_VICTORY,
+                                systemReactedToTrigger: false,
+                            },
+                            {
+                                cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                                triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                                systemReactedToTrigger: false,
+                            },
+                        ],
+                        battleCompletionStatus:
+                            BattleCompletionStatus.IN_PROGRESS,
                     }),
+                }),
                 repository: undefined,
             })
 
@@ -1174,13 +1151,14 @@ describe("Battle Orchestrator", () => {
             const stateWantsToDisplayTheMap: GameEngineState =
                 GameEngineStateService.new({
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                             }),
-                        }),
+                        }
+                    ),
                     repository: undefined,
                 })
 
@@ -1246,17 +1224,16 @@ describe("Battle Orchestrator", () => {
 
             const state: GameEngineState = GameEngineStateService.new({
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                        }),
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
                     }),
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                }),
                 repository: undefined,
             })
 
@@ -1308,13 +1285,14 @@ describe("Battle Orchestrator", () => {
             const stateWantsToDisplayTheMap: GameEngineState =
                 GameEngineStateService.new({
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                             }),
-                        }),
+                        }
+                    ),
                     repository: undefined,
                 })
 
@@ -1344,13 +1322,12 @@ describe("Battle Orchestrator", () => {
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
                     }),
+                }),
                 repository: undefined,
             })
             LoadSaveStateService.userRequestsLoad(

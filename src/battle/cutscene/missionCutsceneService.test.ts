@@ -75,36 +75,35 @@ describe("Mission Cutscene Service", () => {
         victoryState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
                         }),
-                        objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
-                                id: "test",
-                                reward: {
-                                    rewardType: MissionRewardType.VICTORY,
-                                },
-                                numberOfRequiredConditionsToComplete: 1,
-                                hasGivenReward: false,
-                                conditions: [
-                                    {
-                                        id: "test",
-                                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                    },
-                                ],
-                            }),
-                        ],
-                        cutsceneCollection,
-                        cutsceneTriggers: [victoryCutsceneTrigger],
                     }),
+                    objectives: [
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test",
+                            reward: {
+                                rewardType: MissionRewardType.VICTORY,
+                            },
+                            numberOfRequiredConditionsToComplete: 1,
+                            hasGivenReward: false,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                },
+                            ],
+                        }),
+                    ],
+                    cutsceneCollection,
+                    cutsceneTriggers: [victoryCutsceneTrigger],
                 }),
+            }),
         })
         victoryState.battleOrchestratorState.battleState.battleCompletionStatus =
             BattleCompletionStatus.IN_PROGRESS
@@ -117,36 +116,35 @@ describe("Mission Cutscene Service", () => {
         defeatState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
                         }),
-                        objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
-                                id: "test",
-                                reward: {
-                                    rewardType: MissionRewardType.DEFEAT,
-                                },
-                                numberOfRequiredConditionsToComplete: 1,
-                                hasGivenReward: false,
-                                conditions: [
-                                    {
-                                        id: "test",
-                                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                                    },
-                                ],
-                            }),
-                        ],
-                        cutsceneCollection,
-                        cutsceneTriggers: [defeatCutsceneTrigger],
                     }),
+                    objectives: [
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test",
+                            reward: {
+                                rewardType: MissionRewardType.DEFEAT,
+                            },
+                            numberOfRequiredConditionsToComplete: 1,
+                            hasGivenReward: false,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                },
+                            ],
+                        }),
+                    ],
+                    cutsceneCollection,
+                    cutsceneTriggers: [defeatCutsceneTrigger],
                 }),
+            }),
         })
         defeatState.battleOrchestratorState.battleState.battleCompletionStatus =
             BattleCompletionStatus.IN_PROGRESS
@@ -154,53 +152,52 @@ describe("Mission Cutscene Service", () => {
         victoryAndDefeatState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
                         }),
-                        objectives: [
-                            MissionObjectiveHelper.validateMissionObjective({
-                                id: "test",
-                                reward: {
-                                    rewardType: MissionRewardType.VICTORY,
-                                },
-                                numberOfRequiredConditionsToComplete: 1,
-                                hasGivenReward: false,
-                                conditions: [
-                                    {
-                                        id: "test",
-                                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                    },
-                                ],
-                            }),
-                            MissionObjectiveHelper.validateMissionObjective({
-                                id: "test1",
-                                reward: {
-                                    rewardType: MissionRewardType.DEFEAT,
-                                },
-                                numberOfRequiredConditionsToComplete: 1,
-                                hasGivenReward: false,
-                                conditions: [
-                                    {
-                                        id: "test",
-                                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                                    },
-                                ],
-                            }),
-                        ],
-                        cutsceneCollection,
-                        cutsceneTriggers: [
-                            victoryCutsceneTrigger,
-                            defeatCutsceneTrigger,
-                        ],
                     }),
+                    objectives: [
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test",
+                            reward: {
+                                rewardType: MissionRewardType.VICTORY,
+                            },
+                            numberOfRequiredConditionsToComplete: 1,
+                            hasGivenReward: false,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                },
+                            ],
+                        }),
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test1",
+                            reward: {
+                                rewardType: MissionRewardType.DEFEAT,
+                            },
+                            numberOfRequiredConditionsToComplete: 1,
+                            hasGivenReward: false,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                },
+                            ],
+                        }),
+                    ],
+                    cutsceneCollection,
+                    cutsceneTriggers: [
+                        victoryCutsceneTrigger,
+                        defeatCutsceneTrigger,
+                    ],
                 }),
+            }),
         })
         victoryAndDefeatState.battleOrchestratorState.battleState.battleCompletionStatus =
             BattleCompletionStatus.IN_PROGRESS
@@ -215,25 +212,24 @@ describe("Mission Cutscene Service", () => {
         turn0State = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "],
                         }),
-                        cutsceneCollection,
-                        objectives: [],
-                        cutsceneTriggers: [turn0CutsceneTrigger],
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
                     }),
+                    cutsceneCollection,
+                    objectives: [],
+                    cutsceneTriggers: [turn0CutsceneTrigger],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
         })
         turn0State.battleOrchestratorState.battleState.battlePhaseState.turnCount = 0
     })
@@ -422,8 +418,8 @@ describe("Mission Cutscene Service", () => {
                 gameEngineStateWithInjuryCutscene = GameEngineStateService.new({
                     repository: undefined,
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
@@ -436,7 +432,8 @@ describe("Mission Cutscene Service", () => {
                                 cutsceneTriggers: [],
                                 actionsThisRound,
                             }),
-                        }),
+                        }
+                    ),
                 })
             })
 

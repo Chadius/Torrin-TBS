@@ -218,17 +218,16 @@ describe("BattleSquaddieSelector", () => {
         )
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        battlePhaseState,
-                        teams,
-                        camera,
-                        missionMap,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    battlePhaseState,
+                    teams,
+                    camera,
+                    missionMap,
                 }),
+            }),
             repository: squaddieRepo,
         })
 
@@ -258,22 +257,21 @@ describe("BattleSquaddieSelector", () => {
                 resourceHandler: mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: new BattleCamera(),
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(),
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -344,21 +342,20 @@ describe("BattleSquaddieSelector", () => {
                 resourceHandler: mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera: new BattleCamera(),
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(),
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -544,23 +541,22 @@ describe("BattleSquaddieSelector", () => {
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            actionsThisRound,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        actionsThisRound,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -729,22 +725,21 @@ describe("BattleSquaddieSelector", () => {
                 resourceHandler: mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -833,22 +828,21 @@ describe("BattleSquaddieSelector", () => {
                 resourceHandler: mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 ),
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -1017,22 +1011,21 @@ describe("BattleSquaddieSelector", () => {
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                            actionsThisRound,
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                        actionsThisRound,
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -1150,20 +1143,19 @@ describe("BattleSquaddieSelector", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: mockHud,
                 }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teams,
+                }),
+            }),
             repository: squaddieRepo,
         })
 
@@ -1215,23 +1207,21 @@ describe("BattleSquaddieSelector", () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teams,
+                    actionsThisRound,
+                    recording: { history: [] },
+                }),
+            }),
             repository: squaddieRepo,
             campaign: CampaignService.default({}),
         })
@@ -1315,21 +1305,20 @@ describe("BattleSquaddieSelector", () => {
             )
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD: mockHud,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            missionMap,
-                            camera,
-                            battlePhaseState,
-                            teams,
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD: mockHud,
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
@@ -1467,8 +1456,8 @@ describe("BattleSquaddieSelector", () => {
                     resourceHandler: mocks.mockResourceHandler(
                         mockedP5GraphicsContext
                     ),
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleHUD: BattleHUDService.new({
                                 battleSquaddieSelectedHUD: hud,
                             }),
@@ -1480,7 +1469,8 @@ describe("BattleSquaddieSelector", () => {
                                 camera: new BattleCamera(),
                                 teams,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepo,
                     campaign: CampaignService.default({}),
                 }
@@ -1503,8 +1493,8 @@ describe("BattleSquaddieSelector", () => {
                     resourceHandler: mocks.mockResourceHandler(
                         mockedP5GraphicsContext
                     ),
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleHUD: BattleHUDService.new({
                                 battleSquaddieSelectedHUD: hud,
                             }),
@@ -1516,7 +1506,8 @@ describe("BattleSquaddieSelector", () => {
                                 camera: new BattleCamera(),
                                 teams,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepo,
                     campaign: CampaignService.default({}),
                 }
@@ -1566,8 +1557,8 @@ describe("BattleSquaddieSelector", () => {
                     resourceHandler: mocks.mockResourceHandler(
                         mockedP5GraphicsContext
                     ),
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleHUD: BattleHUDService.new({
                                 battleSquaddieSelectedHUD: hud,
                             }),
@@ -1580,7 +1571,8 @@ describe("BattleSquaddieSelector", () => {
                                 teams,
                                 actionsThisRound,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepo,
                     campaign: CampaignService.default({}),
                 }

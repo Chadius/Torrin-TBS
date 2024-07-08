@@ -57,37 +57,34 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         gameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: "dynamic_squaddie",
-                            startingLocation: { q: 0, r: 0 },
-                            processedActions: [
-                                ProcessedActionService.new({
-                                    decidedAction: undefined,
-                                    processedActionEffects: [
-                                        ProcessedActionEndTurnEffectService.new(
-                                            {
-                                                decidedActionEffect:
-                                                    DecidedActionEndTurnEffectService.new(
-                                                        {
-                                                            template:
-                                                                ActionEffectEndTurnTemplateService.new(
-                                                                    {}
-                                                                ),
-                                                        }
-                                                    ),
-                                            }
-                                        ),
-                                    ],
-                                }),
-                            ],
-                        }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    actionsThisRound: ActionsThisRoundService.new({
+                        battleSquaddieId: "dynamic_squaddie",
+                        startingLocation: { q: 0, r: 0 },
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: undefined,
+                                processedActionEffects: [
+                                    ProcessedActionEndTurnEffectService.new({
+                                        decidedActionEffect:
+                                            DecidedActionEndTurnEffectService.new(
+                                                {
+                                                    template:
+                                                        ActionEffectEndTurnTemplateService.new(
+                                                            {}
+                                                        ),
+                                                }
+                                            ),
+                                    }),
+                                ],
+                            }),
+                        ],
                     }),
                 }),
+            }),
         })
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
             PlayerBattleActionBuilderStateService.new({})

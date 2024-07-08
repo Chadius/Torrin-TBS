@@ -12,7 +12,7 @@ describe("TextSubstitution", () => {
         SubstituteText("No battle orchestrator state", {})
         expect(battleOrchestratorStateSubstitutionSpy).not.toBeCalled()
 
-        const state = BattleOrchestratorStateService.newOrchestratorState({
+        const state = BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
                 campaignId: "test campaign",
                 missionId: "test mission",

@@ -237,26 +237,25 @@ describe("BattleComputerSquaddieSelector", () => {
             gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            battlePhaseState,
-                            camera,
-                            missionMap,
-                            teams,
-                            teamStrategiesById: {
-                                teamId: [
-                                    {
-                                        type: TeamStrategyType.END_TURN,
-                                        options: {},
-                                    },
-                                ],
-                            },
-                            recording: { history: [] },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        battlePhaseState,
+                        camera,
+                        missionMap,
+                        teams,
+                        teamStrategiesById: {
+                            teamId: [
+                                {
+                                    type: TeamStrategyType.END_TURN,
+                                    options: {},
+                                },
+                            ],
+                        },
+                        recording: { history: [] },
                     }),
+                }),
             })
 
             dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
@@ -325,25 +324,24 @@ describe("BattleComputerSquaddieSelector", () => {
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            battlePhaseState,
-                            missionMap,
-                            recording: { history: [] },
-                            teams,
-                            teamStrategiesById: {
-                                teamId: [
-                                    {
-                                        type: TeamStrategyType.END_TURN,
-                                        options: {},
-                                    },
-                                ],
-                            },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        battlePhaseState,
+                        missionMap,
+                        recording: { history: [] },
+                        teams,
+                        teamStrategiesById: {
+                            teamId: [
+                                {
+                                    type: TeamStrategyType.END_TURN,
+                                    options: {},
+                                },
+                            ],
+                        },
                     }),
+                }),
             })
 
             selector.update(state, mockedP5GraphicsContext)
@@ -413,8 +411,8 @@ describe("BattleComputerSquaddieSelector", () => {
                 gameEngineState = GameEngineStateService.new({
                     repository: squaddieRepo,
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
@@ -431,7 +429,8 @@ describe("BattleComputerSquaddieSelector", () => {
                                     ],
                                 },
                             }),
-                        }),
+                        }
+                    ),
                 })
                 determineNextDecisionSpy = jest
                     .spyOn(
@@ -516,30 +515,29 @@ describe("BattleComputerSquaddieSelector", () => {
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD:
-                                new BattleSquaddieSelectedHUD(),
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            recording: { history: [] },
-                            battlePhaseState,
-                            camera,
-                            missionMap,
-                            teams,
-                            teamStrategiesById: {
-                                teamId: [
-                                    {
-                                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                                        options: {},
-                                    },
-                                ],
-                            },
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        recording: { history: [] },
+                        battlePhaseState,
+                        camera,
+                        missionMap,
+                        teams,
+                        teamStrategiesById: {
+                            teamId: [
+                                {
+                                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                    options: {},
+                                },
+                            ],
+                        },
+                    }),
+                }),
                 campaign: CampaignService.default({}),
             })
 
@@ -602,8 +600,8 @@ describe("BattleComputerSquaddieSelector", () => {
                 gameEngineState = GameEngineStateService.new({
                     repository: squaddieRepo,
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
@@ -621,7 +619,8 @@ describe("BattleComputerSquaddieSelector", () => {
                                 },
                                 recording: { history: [] },
                             }),
-                        }),
+                        }
+                    ),
                 })
                 jest.spyOn(
                     DetermineNextDecisionService,

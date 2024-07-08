@@ -137,16 +137,15 @@ describe("BattleSquaddieMover", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        missionMap: map,
-                        searchPath: movePath,
-                        actionsThisRound,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    missionMap: map,
+                    searchPath: movePath,
+                    actionsThisRound,
                 }),
+            }),
             campaign: CampaignService.default({}),
         })
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
@@ -197,7 +196,7 @@ describe("BattleSquaddieMover", () => {
                     1
                 )
 
-            return BattleOrchestratorStateService.newOrchestratorState({
+            return BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),

@@ -213,17 +213,16 @@ describe("calculator", () => {
         return GameEngineStateService.new({
             resourceHandler: undefined,
             repository: squaddieRepository,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    numberGenerator,
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        missionStatistics,
-                        actionsThisRound,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                numberGenerator,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    missionStatistics,
+                    actionsThisRound,
                 }),
+            }),
         })
     }
 
@@ -409,15 +408,16 @@ describe("calculator", () => {
             const results = ActionCalculator.calculateResults({
                 gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
                                 actionsThisRound,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepository,
                 }),
                 actionsThisRound,
@@ -473,8 +473,8 @@ describe("calculator", () => {
             ActionCalculator.calculateResults({
                 gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 campaignId: "test campaign",
@@ -482,7 +482,8 @@ describe("calculator", () => {
                                 missionStatistics,
                                 actionsThisRound,
                             }),
-                        }),
+                        }
+                    ),
                     repository: squaddieRepository,
                 }),
                 actionsThisRound,
@@ -659,8 +660,8 @@ describe("calculator", () => {
                 gameEngineState: GameEngineStateService.new({
                     repository: squaddieRepository,
                     resourceHandler: undefined,
-                    battleOrchestratorState:
-                        BattleOrchestratorStateService.newOrchestratorState({
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
                             numberGenerator,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
@@ -670,7 +671,8 @@ describe("calculator", () => {
                                 missionStatistics:
                                     MissionStatisticsHandler.new(),
                             }),
-                        }),
+                        }
+                    ),
                 }),
                 actionsThisRound,
                 actionEffect:

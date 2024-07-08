@@ -78,7 +78,7 @@ export const GameEngineStateService = {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
             battleOrchestratorState:
                 battleOrchestratorState ??
-                BattleOrchestratorStateService.newOrchestratorState({}),
+                BattleOrchestratorStateService.new({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
             fileState: FileStateService.new({}),
             campaign,

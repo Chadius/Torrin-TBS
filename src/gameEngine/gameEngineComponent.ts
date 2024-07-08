@@ -23,7 +23,9 @@ export interface GameEngineComponent {
 
     hasCompleted(state: GameEngineState): boolean
 
-    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined
+    recommendStateChanges(
+        gameEngineState: GameEngineState
+    ): GameEngineChanges | undefined
 
     reset(state: GameEngineState): void
 }

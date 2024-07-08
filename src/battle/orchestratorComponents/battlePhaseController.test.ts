@@ -140,23 +140,22 @@ describe("BattlePhaseController", () => {
         state = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        battlePhaseState: {
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                            turnCount: 0,
-                        },
-                        teams,
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    battlePhaseState: {
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                        turnCount: 0,
+                    },
+                    teams,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 "],
                         }),
                     }),
                 }),
+            }),
         })
 
         battlePhaseController = new BattlePhaseController()
@@ -190,19 +189,18 @@ describe("BattlePhaseController", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    teams,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 1 "],
                         }),
                     }),
                 }),
+            }),
         })
         battlePhaseController = new BattlePhaseController()
         const startTime = 0
@@ -241,23 +239,22 @@ describe("BattlePhaseController", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    teams,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 1 "],
                         }),
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
                     }),
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
         })
         battlePhaseController = new BattlePhaseController()
         const startTime = 0
@@ -297,7 +294,7 @@ describe("BattlePhaseController", () => {
                 { q: 0, r: 0 }
             )
             const state: BattleOrchestratorState =
-                BattleOrchestratorStateService.newOrchestratorState({
+                BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -497,23 +494,22 @@ describe("BattlePhaseController", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 1 1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    teams,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 1 "],
                         }),
-                        battlePhaseState: {
-                            turnCount: 0,
-                            currentAffiliation: BattlePhase.UNKNOWN,
-                        },
                     }),
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
+            }),
         })
         battlePhaseController = new BattlePhaseController()
         battlePhaseController.draw = jest.fn()
@@ -549,13 +545,12 @@ describe("BattlePhaseController", () => {
             GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                        }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
                     }),
+                }),
             })
         )
         expect(battlePhaseController.affiliationImageUI).toBeFalsy()
@@ -581,20 +576,19 @@ describe("BattlePhaseController", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        battlePhaseState: phase,
-                        teams,
-                        missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
-                                movementCost: ["1 "],
-                            }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    battlePhaseState: phase,
+                    teams,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 "],
                         }),
                     }),
                 }),
+            }),
         })
         battlePhaseController = new BattlePhaseController()
         const startTime = 0
@@ -650,23 +644,22 @@ describe("BattlePhaseController", () => {
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            teams,
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 1 1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        teams,
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 1 "],
                             }),
-                            battlePhaseState: {
-                                currentAffiliation: BattlePhase.PLAYER,
-                                turnCount: 0,
-                            },
                         }),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
                     }),
+                }),
             })
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update(state, mockedP5GraphicsContext)
@@ -696,23 +689,22 @@ describe("BattlePhaseController", () => {
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
                 resourceHandler,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            teams,
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 1 1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        teams,
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 1 "],
                             }),
-                            battlePhaseState: {
-                                currentAffiliation: BattlePhase.PLAYER,
-                                turnCount: 0,
-                            },
                         }),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        },
                     }),
+                }),
             })
             battlePhaseController = new BattlePhaseController()
             battlePhaseController.update(state, mockedP5GraphicsContext)

@@ -49,18 +49,16 @@ describe("battleMapDisplay", () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
             resourceHandler: undefined,
-            battleOrchestratorState:
-                BattleOrchestratorStateService.newOrchestratorState({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        camera,
-                    }),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 }),
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    camera,
+                }),
+            }),
         })
         battleMapDisplay.mouseEventHappened(state, {
             eventType: OrchestratorComponentMouseEventType.MOVED,
@@ -84,22 +82,21 @@ describe("battleMapDisplay", () => {
             state = GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
-                battleOrchestratorState:
-                    BattleOrchestratorStateService.newOrchestratorState({
-                        battleHUD: BattleHUDService.new({
-                            battleSquaddieSelectedHUD,
-                        }),
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            campaignId: "test campaign",
-                            camera,
-                            missionMap: new MissionMap({
-                                terrainTileMap: new TerrainTileMap({
-                                    movementCost: ["1 "],
-                                }),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD,
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        camera,
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 "],
                             }),
                         }),
                     }),
+                }),
             })
         })
 
@@ -158,7 +155,7 @@ describe("battleMapDisplay", () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT]
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = BattleOrchestratorStateService.newOrchestratorState({
+            state = BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({
                     battleSquaddieSelectedHUD,
                 }),
@@ -228,22 +225,21 @@ describe("battleMapDisplay", () => {
         ]
         let camera: BattleCamera = new BattleCamera(...initialCameraCoordinates)
 
-        const stateWithOpenedHUD =
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleHUDState: BattleHUDStateService.new({
-                    summaryHUDState: SummaryHUDStateService.new({
-                        mouseSelectionLocation: {
-                            x: 0,
-                            y: 0,
-                        },
-                    }),
+        const stateWithOpenedHUD = BattleOrchestratorStateService.new({
+            battleHUDState: BattleHUDStateService.new({
+                summaryHUDState: SummaryHUDStateService.new({
+                    mouseSelectionLocation: {
+                        x: 0,
+                        y: 0,
+                    },
                 }),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    camera,
-                }),
-            })
+            }),
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                camera,
+            }),
+        })
 
         stateWithOpenedHUD.battleState.camera.setXVelocity(0)
         stateWithOpenedHUD.battleState.camera.setYVelocity(0)
@@ -298,22 +294,21 @@ describe("battleMapDisplay", () => {
             },
         ]
 
-        const stateWithOpenedHUD =
-            BattleOrchestratorStateService.newOrchestratorState({
-                battleHUDState: BattleHUDStateService.new({
-                    summaryHUDState: SummaryHUDStateService.new({
-                        mouseSelectionLocation: {
-                            x: 0,
-                            y: 0,
-                        },
-                    }),
+        const stateWithOpenedHUD = BattleOrchestratorStateService.new({
+            battleHUDState: BattleHUDStateService.new({
+                summaryHUDState: SummaryHUDStateService.new({
+                    mouseSelectionLocation: {
+                        x: 0,
+                        y: 0,
+                    },
                 }),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    camera,
-                }),
-            })
+            }),
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                camera,
+            }),
+        })
 
         it.each(tests)(
             `when hovering over the HUD at mouseX $mouseX, the camera should $cameraDescription`,
