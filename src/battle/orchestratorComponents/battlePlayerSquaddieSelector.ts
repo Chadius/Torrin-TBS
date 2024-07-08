@@ -66,6 +66,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { PlayerCommandSelection } from "../hud/playerCommandHUD"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -153,13 +154,14 @@ export class BattlePlayerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
 
-        SummaryHUDStateService.mouseClicked({
-            mouseX,
-            mouseY,
-            gameEngineState,
-            mouseButton,
-            summaryHUDState,
-        })
+        const playerCommandSelection: PlayerCommandSelection =
+            SummaryHUDStateService.mouseClicked({
+                mouseX,
+                mouseY,
+                gameEngineState,
+                mouseButton,
+                summaryHUDState,
+            })
 
         if (summaryHUDState?.playerCommandState) {
             if (summaryHUDState.playerCommandState.playerSelectedEndTurn) {
@@ -178,6 +180,15 @@ export class BattlePlayerSquaddieSelector
                     mouseX,
                     mouseY
                 )
+                return
+            }
+            if (
+                [
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE,
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION,
+                ].includes(playerCommandSelection)
+            ) {
                 return
             }
         }

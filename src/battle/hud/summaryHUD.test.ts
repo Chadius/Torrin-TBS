@@ -22,6 +22,11 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { ButtonStatus } from "../../ui/button"
 import { SquaddieSummaryPanelService } from "./playerActionPanel/squaddieSummaryPanel"
 import { isValidValue } from "../../utils/validityCheck"
+import {
+    PlayerCommandSelection,
+    PlayerCommandStateService,
+} from "./playerCommandHUD"
+import { MouseButton } from "../../utils/mouseConfig"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -397,6 +402,32 @@ describe("summaryHUD", () => {
             expect(
                 summaryHUDState.playerCommandState.actionButtons[0].status
             ).toBe(ButtonStatus.ACTIVE)
+        })
+
+        it("will return which button was clicked on the PlayerCommandHUD", () => {
+            const playerCommandSpy: jest.SpyInstance = jest.spyOn(
+                PlayerCommandStateService,
+                "mouseClicked"
+            )
+
+            const selection = SummaryHUDStateService.mouseClicked({
+                summaryHUDState,
+                mouseButton: MouseButton.ACCEPT,
+                mouseX: RectAreaService.centerX(
+                    summaryHUDState.playerCommandState.actionButtons[0]
+                        .buttonArea
+                ),
+                mouseY: RectAreaService.centerY(
+                    summaryHUDState.playerCommandState.actionButtons[0]
+                        .buttonArea
+                ),
+                gameEngineState,
+            })
+            expect(playerCommandSpy).toBeCalled()
+            expect(selection).toEqual(
+                PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
+            )
+            playerCommandSpy.mockRestore()
         })
     })
 })

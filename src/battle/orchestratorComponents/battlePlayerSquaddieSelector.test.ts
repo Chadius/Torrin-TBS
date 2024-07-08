@@ -72,6 +72,10 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import SpyInstance = jest.SpyInstance
+import {
+    PlayerCommandSelection,
+    PlayerCommandStateService,
+} from "../hud/playerCommandHUD"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -84,7 +88,6 @@ describe("BattleSquaddieSelector", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let teams: BattleSquaddieTeam[]
     let playerSoldierBattleSquaddie: BattleSquaddie
-    let resourceHandler: ResourceHandler
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -96,7 +99,6 @@ describe("BattleSquaddieSelector", () => {
             }),
         })
         teams = []
-        resourceHandler = mockResourceHandler(mockedP5GraphicsContext)
     })
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
@@ -483,6 +485,32 @@ describe("BattleSquaddieSelector", () => {
                     r: 1,
                 })
             })
+        })
+
+        it("Does not make a movement action if you click on the player command HUD", () => {
+            const playerCommandSpy = jest
+                .spyOn(PlayerCommandStateService, "mouseClicked")
+                .mockReturnValue(
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
+                )
+
+            clickOnMapCoordinate({
+                selector,
+                gameEngineState: gameEngineState,
+                q: 0,
+                r: 1,
+                camera: new BattleCamera(),
+            })
+
+            expect(playerCommandSpy).toBeCalled()
+            expect(
+                PlayerBattleActionBuilderStateService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeFalsy()
+
+            playerCommandSpy.mockRestore()
         })
     })
 

@@ -20,6 +20,13 @@ import { Label, LabelService } from "../../ui/label"
 import { RectangleHelper } from "../../ui/rectangle"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
+export enum PlayerCommandSelection {
+    PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
+    PLAYER_COMMAND_SELECTION_ACTION = "PLAYER_COMMAND_SELECTION_ACTION",
+    PLAYER_COMMAND_SELECTION_MOVE = "PLAYER_COMMAND_SELECTION_MOVE",
+    PLAYER_COMMAND_SELECTION_END_TURN = "PLAYER_COMMAND_SELECTION_END_TURN",
+}
+
 export enum MoveButtonPurpose {
     HIDE = "HIDE",
     SHOW = "SHOW",
@@ -146,13 +153,13 @@ export const PlayerCommandStateService = {
         mouseY: number
         gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
-    }) => {
+    }): PlayerCommandSelection => {
         if (!isValidValue(playerCommandState)) {
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
         if (mouseButton !== MouseButton.ACCEPT) {
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
         if (
@@ -163,11 +170,11 @@ export const PlayerCommandStateService = {
             )
         ) {
             mouseClickedOnMoveButton(playerCommandState)
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
         }
 
         if (isCommandWindowHidden(playerCommandState)) {
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
         if (
@@ -181,7 +188,7 @@ export const PlayerCommandStateService = {
                 playerCommandState,
                 gameEngineState,
             })
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN
         }
 
         const actionButtonClicked = playerCommandState.actionButtons.find(
@@ -189,9 +196,9 @@ export const PlayerCommandStateService = {
                 RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
         )
         if (!actionButtonClicked) {
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
-        mouseClickedOnActionButton({
+        return mouseClickedOnActionButton({
             gameEngineState,
             playerCommandState,
             actionButtonClicked,
@@ -521,11 +528,12 @@ const mouseClickedOnActionButton = ({
     playerCommandState: PlayerCommandState
     actionButtonClicked: MakeDecisionButton
     gameEngineState: GameEngineState
-}) => {
+}): PlayerCommandSelection => {
     playerCommandState.playerSelectedEndTurn = false
     playerCommandState.playerSelectedSquaddieAction = true
     playerCommandState.selectedActionTemplate =
         actionButtonClicked.actionTemplate
+    return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
 }
 
 const drawMoveButton = (

@@ -13,6 +13,7 @@ import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     MoveButtonPurpose,
+    PlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
 } from "./playerCommandHUD"
@@ -234,7 +235,7 @@ describe("playerCommandHUD", () => {
     }
 
     const clickOnButton = ({ buttonArea }: { buttonArea: RectArea }) => {
-        PlayerCommandStateService.mouseClicked({
+        return PlayerCommandStateService.mouseClicked({
             mouseX: RectAreaService.centerX(buttonArea),
             mouseY: RectAreaService.centerY(buttonArea),
             mouseButton: MouseButton.ACCEPT,
@@ -242,6 +243,28 @@ describe("playerCommandHUD", () => {
             playerCommandState,
         })
     }
+
+    it("will indicate no button was clicked if clicked outside of range", () => {
+        selectPlayer()
+        const selectedButton = PlayerCommandStateService.mouseClicked({
+            mouseX:
+                RectAreaService.left(
+                    playerCommandState.playerCommandWindow.area
+                ) - 100,
+
+            mouseY:
+                RectAreaService.top(
+                    playerCommandState.playerCommandWindow.area
+                ) - 100,
+            mouseButton: MouseButton.ACCEPT,
+            gameEngineState,
+            playerCommandState,
+        })
+
+        expect(selectedButton).toEqual(
+            PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+        )
+    })
 
     describe("First row of buttons", () => {
         beforeEach(() => {
@@ -277,6 +300,15 @@ describe("playerCommandHUD", () => {
     describe("Clicking the Move button", () => {
         beforeEach(() => {
             selectPlayer()
+        })
+
+        it("will indicate the move button was clicked", () => {
+            const selectedButton = clickOnButton({
+                buttonArea: playerCommandState.moveButton.buttonArea,
+            })
+            expect(selectedButton).toEqual(
+                PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
+            )
         })
 
         it("will hide all buttons but show the reveal button if the player clicks move", () => {
@@ -342,6 +374,15 @@ describe("playerCommandHUD", () => {
                 "actionTemplate0"
             )
         })
+
+        it("will indicate the action button was clicked", () => {
+            const selectedButton = clickOnButton({
+                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+            })
+            expect(selectedButton).toEqual(
+                PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
+            )
+        })
     })
 
     describe("Second row of buttons", () => {
@@ -363,6 +404,15 @@ describe("playerCommandHUD", () => {
 
             expect(playerCommandState.playerSelectedEndTurn).toBeTruthy()
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
+        })
+
+        it("will indicate if the end turn button was clicked", () => {
+            const selectedButton = clickOnButton({
+                buttonArea: playerCommandState.endTurnButton.buttonArea,
+            })
+            expect(selectedButton).toEqual(
+                PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN
+            )
         })
     })
 })

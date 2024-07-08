@@ -1,6 +1,7 @@
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepository } from "../objectRepository"
 import {
+    PlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
 } from "./playerCommandHUD"
@@ -54,12 +55,12 @@ export const SummaryHUDStateService = {
         summaryHUDState: SummaryHUDState
         mouseY: number
         gameEngineState: GameEngineState
-    }) => {
+    }): PlayerCommandSelection => {
         if (!summaryHUDState?.showPlayerCommand) {
-            return
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
 
-        PlayerCommandStateService.mouseClicked({
+        return PlayerCommandStateService.mouseClicked({
             mouseX,
             mouseButton,
             mouseY,
