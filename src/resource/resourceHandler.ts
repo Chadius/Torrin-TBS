@@ -46,9 +46,11 @@ class P5ImageLoader implements ResourceTypeLoader {
         image: p5.Image
     ) => {}
     failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any
+    p5Instance: p5
 
-    constructor(graphicsBuffer: GraphicsBuffer) {
+    constructor(graphicsBuffer: GraphicsBuffer, p5Instance: p5) {
         this.graphicsBuffer = graphicsBuffer
+        this.p5Instance = p5Instance
     }
 
     setCallbacks(
@@ -78,6 +80,18 @@ class P5ImageLoader implements ResourceTypeLoader {
 
         const path = handler.getResourceLocator(resourceKey).path
         const loader = this
+        if (this.p5Instance) {
+            this.p5Instance.loadImage(
+                path,
+                (loadedImage: p5.Image) => {
+                    loader.successCallback(resourceKey, handler, loadedImage)
+                },
+                (p1: Event) => {
+                    loader.failureCallback(resourceKey, handler, p1)
+                }
+            )
+            return
+        }
         this.graphicsBuffer.loadImage(
             path,
             (loadedImage: p5.Image) => {
@@ -105,13 +119,16 @@ export class ResourceHandler {
         resourceLocators,
         imageLoader,
         graphics,
+        p5Instance,
     }: {
         resourceLocators: ResourceLocator[]
         imageLoader?: ResourceTypeLoader
         graphics?: GraphicsBuffer
+        p5Instance?: any
     }) {
         this.graphicsContext = graphics
-        this.imageLoader = imageLoader || new P5ImageLoader(graphics)
+        this.imageLoader =
+            imageLoader || new P5ImageLoader(graphics, p5Instance)
         this.imageLoader.setCallbacks(
             this.imageSuccessCallback,
             (key, handler, p1) => {
@@ -232,15 +249,18 @@ export const ResourceHandlerService = {
         imageLoader,
         resourceLocators,
         graphics,
+        p5Instance,
     }: {
         imageLoader: ResourceTypeLoader
         resourceLocators?: ResourceLocator[]
         graphics: GraphicsBuffer
+        p5Instance?: any
     }): ResourceHandler => {
         return new ResourceHandler({
             imageLoader,
             resourceLocators: resourceLocators ?? [],
             graphics,
+            p5Instance,
         })
     },
     hasResourceLocations: (resourceHandler: ResourceHandler): boolean => {

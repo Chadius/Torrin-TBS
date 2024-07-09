@@ -1,3 +1,4 @@
+import p5 from "p5"
 import { BattleOrchestrator } from "../battle/orchestrator/battleOrchestrator"
 import {
     BattleOrchestratorState,
@@ -150,9 +151,11 @@ export class GameEngine {
     async setup({
         graphicsBuffer,
         campaignId,
+        p5Instance,
     }: {
         graphicsBuffer: GraphicsBuffer
         campaignId: string
+        p5Instance?: p5
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
             initializeBattle: new InitializeBattle(),
@@ -172,6 +175,7 @@ export class GameEngine {
         await this.lazyLoadResourceHandler({
             graphicsBuffer: graphicsBuffer,
             campaignId,
+            p5Instance,
         })
 
         this._titleScreen = new TitleScreen({
@@ -276,15 +280,18 @@ export class GameEngine {
     private async lazyLoadResourceHandler({
         graphicsBuffer,
         campaignId,
+        p5Instance,
     }: {
         graphicsBuffer: GraphicsBuffer
         campaignId: string
+        p5Instance?: p5
     }) {
         if (this.resourceHandler === undefined) {
             this._resourceHandler = ResourceHandlerService.new({
                 graphics: graphicsBuffer,
                 resourceLocators: [],
                 imageLoader: undefined,
+                p5Instance,
             })
 
             const resourceLocationsFilename = `assets/campaign/${campaignId}/resourceLocators.json`

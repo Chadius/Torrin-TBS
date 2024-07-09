@@ -36,6 +36,7 @@ export const sketch = (p: p5) => {
             .setup({
                 graphicsBuffer: frameBuffer,
                 campaignId: CAMPAIGN_ID,
+                p5Instance: p,
             })
             .then(() => {})
     }

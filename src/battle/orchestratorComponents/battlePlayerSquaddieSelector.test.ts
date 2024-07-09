@@ -29,10 +29,7 @@ import { makeResult } from "../../utils/ResultOrError"
 import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import * as mocks from "../../utils/test/mocks"
-import {
-    MockedP5GraphicsBuffer,
-    mockResourceHandler,
-} from "../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     Trait,
     TraitStatusStorageService,
@@ -70,8 +67,6 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import SpyInstance = jest.SpyInstance
 import {
     PlayerCommandSelection,
     PlayerCommandStateService,
@@ -959,7 +954,7 @@ describe("BattleSquaddieSelector", () => {
         let interruptBattleSquaddie: BattleSquaddie
         let actionsThisRound: ActionsThisRound
         let mockHud: BattleSquaddieSelectedHUD
-        let selectSquaddieAndDrawWindowSpy: SpyInstance
+        let selectSquaddieAndDrawWindowSpy: jest.SpyInstance
         let camera: BattleCamera
         let gameEngineState: GameEngineState
         let startingMouseX: number
