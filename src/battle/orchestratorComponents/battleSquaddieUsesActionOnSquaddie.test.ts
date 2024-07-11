@@ -57,7 +57,7 @@ import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -616,6 +616,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+        )
+
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
 
         jest.spyOn(

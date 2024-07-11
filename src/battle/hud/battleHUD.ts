@@ -8,6 +8,7 @@ import {
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerEndsTurn,
     MessageBoardMessagePlayerSelectionIsInvalid,
+    MessageBoardMessagePlayerSelectsSquaddie,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -48,6 +49,8 @@ import { RecordingService } from "../history/recording"
 import { BattleEventService } from "../history/battleEvent"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieService } from "../../squaddie/squaddieService"
+import { SummaryHUDStateService } from "./summaryHUD"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
@@ -255,6 +258,65 @@ export const BattleHUDService = {
 
         gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
     },
+    playerSelectsSquaddie: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerSelectsSquaddie
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const battleSquaddieId = message.battleSquaddieSelectedId
+
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            SummaryHUDStateService.new({
+                mouseSelectionLocation: message.selectionMethod.mouse
+                    ? {
+                          x: message.selectionMethod.mouse.x,
+                          y: message.selectionMethod.mouse.y,
+                      }
+                    : { x: 0, y: 0 },
+            })
+
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+        const { squaddieIsNormallyControllableByPlayer } =
+            SquaddieService.canPlayerControlSquaddieRightNow({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+
+        if (squaddieIsNormallyControllableByPlayer) {
+            SummaryHUDStateService.setLeftSummaryPanel({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+            SummaryHUDStateService.createCommandWindow({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+        } else {
+            SummaryHUDStateService.setRightSummaryPanel({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+            })
+        }
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -299,6 +361,12 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_ENDS_TURN:
                 BattleHUDService.endPlayerSquaddieTurn(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE:
+                BattleHUDService.playerSelectsSquaddie(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )

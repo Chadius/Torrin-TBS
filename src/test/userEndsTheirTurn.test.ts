@@ -81,7 +81,6 @@ describe("User ends their turn", () => {
 
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     let selector: BattlePlayerSquaddieSelector
-    let battleHUDListener: BattleHUDListener
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
@@ -99,8 +98,6 @@ describe("User ends their turn", () => {
                 }),
             ],
         })
-
-        battleHUDListener = new BattleHUDListener("battleHUDListener")
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -174,6 +171,11 @@ describe("User ends their turn", () => {
         })
         gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD =
             battleSquaddieSelectedHUD
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+        )
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,

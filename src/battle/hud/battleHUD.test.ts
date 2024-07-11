@@ -74,6 +74,7 @@ import {
 import { SummaryHUDStateService } from "./summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
+import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -377,6 +378,210 @@ describe("Battle HUD", () => {
             expect(
                 popup.label.textBox.text.includes("Need 2 action points")
             ).toBeTruthy()
+        })
+    })
+    describe("Player selects a squaddie", () => {
+        let gameEngineState: GameEngineState
+        let battleSquaddie: BattleSquaddie
+
+        const createSquaddieAndAddToRepositoryAndMap = ({
+            affiliation,
+            repository,
+            missionMap,
+        }: {
+            affiliation: SquaddieAffiliation
+            repository: ObjectRepository
+            missionMap: MissionMap
+        }): {
+            battleSquaddie: BattleSquaddie
+        } => {
+            const squaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    name: "squaddie template",
+                    affiliation,
+                    templateId: "templateId",
+                }),
+            })
+            battleSquaddie = BattleSquaddieService.new({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddieId: "battleSquaddie",
+            })
+            ObjectRepositoryService.addSquaddieTemplate(
+                repository,
+                squaddieTemplate
+            )
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                battleSquaddie
+            )
+            MissionMapService.addSquaddie(
+                missionMap,
+                battleSquaddie.squaddieTemplateId,
+                battleSquaddie.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 0,
+                }
+            )
+            return {
+                battleSquaddie,
+            }
+        }
+
+        const createGameEngineState = ({
+            repository,
+            missionMap,
+            teamAffiliation,
+            battlePhase,
+            battleSquaddieId,
+        }: {
+            missionMap: MissionMap
+            teamAffiliation: SquaddieAffiliation
+            battlePhase: BattlePhase
+            repository: ObjectRepository
+            battleSquaddieId: string
+        }): GameEngineState => {
+            const team = BattleSquaddieTeamService.new({
+                id: "team",
+                name: "team",
+                affiliation: teamAffiliation,
+                battleSquaddieIds: [battleSquaddieId],
+            })
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        teams: [team],
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation: battlePhase,
+                        }),
+                    }),
+                }),
+                campaign: CampaignService.default({}),
+                repository,
+            })
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            )
+
+            return gameEngineState
+        }
+
+        beforeEach(() => {
+            const repository = ObjectRepositoryService.new()
+            const missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 "],
+                }),
+            })
+            const { battleSquaddie } = createSquaddieAndAddToRepositoryAndMap({
+                affiliation: SquaddieAffiliation.PLAYER,
+                repository,
+                missionMap,
+            })
+
+            gameEngineState = createGameEngineState({
+                teamAffiliation: SquaddieAffiliation.PLAYER,
+                battlePhase: BattlePhase.PLAYER,
+                missionMap,
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+            })
+        })
+
+        it("knows after selecting the player the hud has not selected actions", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState
+                    .playerSelectedSquaddieAction
+            ).toBeFalsy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState.playerSelectedEndTurn
+            ).toBeFalsy()
+        })
+
+        it("will show the summary window on the left side", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+            ).toEqual(battleSquaddie.battleSquaddieId)
+        })
+
+        it("knows after selecting the player the hud has not selected actions", () => {
+            let playerCommandState =
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState
+            expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
+            expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
+            expect(playerCommandState.selectedActionTemplate).toBeUndefined()
+        })
+
+        describe("Player selects squaddie they cannot control because it is an enemy", () => {
+            let gameEngineState: GameEngineState
+            let enemyBattleSquaddie: BattleSquaddie
+            beforeEach(() => {
+                const repository = ObjectRepositoryService.new()
+                const missionMap = MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
+                    }),
+                })
+                ;({ battleSquaddie: enemyBattleSquaddie } =
+                    createSquaddieAndAddToRepositoryAndMap({
+                        affiliation: SquaddieAffiliation.ENEMY,
+                        repository,
+                        missionMap,
+                    }))
+
+                gameEngineState = createGameEngineState({
+                    teamAffiliation: SquaddieAffiliation.ENEMY,
+                    battlePhase: BattlePhase.ENEMY,
+                    missionMap,
+                    repository,
+                    battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                })
+
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId:
+                        enemyBattleSquaddie.battleSquaddieId,
+                    selectionMethod: {
+                        mouse: { x: 0, y: 0 },
+                    },
+                })
+            })
+
+            it("will not show the player command window for uncontrollable enemy squaddies", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.showPlayerCommand
+                ).toBeFalsy()
+            })
+
+            it("will show the summary window on the right side", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.summaryPanelRight.battleSquaddieId
+                ).toEqual(enemyBattleSquaddie.battleSquaddieId)
+            })
         })
     })
     describe("Player cancels target selection they were considering", () => {

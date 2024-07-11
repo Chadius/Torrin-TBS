@@ -10,6 +10,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerCancelsTargetSelection
     | MessageBoardMessagePlayerCancelsTargetConfirmation
     | MessageBoardMessagePlayerEndsTurn
+    | MessageBoardMessagePlayerSelectsSquaddie
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -21,6 +22,7 @@ export enum MessageBoardMessageType {
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
     PLAYER_ENDS_TURN = "PLAYER_ENDS_TURN",
+    PLAYER_SELECTS_SQUADDIE = "PLAYER_SELECTS_SQUADDIE",
 }
 
 export interface MessageBoardMessageBase {
@@ -72,4 +74,16 @@ export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
 export interface MessageBoardMessagePlayerEndsTurn {
     type: MessageBoardMessageType.PLAYER_ENDS_TURN
     gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerSelectsSquaddie {
+    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+    gameEngineState: GameEngineState
+    battleSquaddieSelectedId: string
+    selectionMethod: {
+        mouse: {
+            x: number
+            y: number
+        }
+    }
 }

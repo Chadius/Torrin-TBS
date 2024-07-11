@@ -12,6 +12,7 @@ import { SummaryHUDStateService } from "./summaryHUD"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export class BattleSquaddieSelectedHUD {
     nextBattleSquaddieIds: string[]
@@ -32,57 +33,19 @@ export class BattleSquaddieSelectedHUD {
         }
         gameEngineState: GameEngineState
     }) {
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new({
-                mouseSelectionLocation: repositionWindow
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleId,
+            selectionMethod: {
+                mouse: repositionWindow
                     ? {
                           x: repositionWindow.mouseX,
                           y: repositionWindow.mouseY,
                       }
                     : { x: 0, y: 0 },
-            })
-
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleId
-            )
-        )
-        const { squaddieIsNormallyControllableByPlayer } =
-            SquaddieService.canPlayerControlSquaddieRightNow({
-                squaddieTemplate,
-                battleSquaddie,
-            })
-
-        if (squaddieIsNormallyControllableByPlayer) {
-            SummaryHUDStateService.setLeftSummaryPanel({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                battleSquaddieId: battleId,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-            })
-            SummaryHUDStateService.createCommandWindow({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-            })
-        } else {
-            SummaryHUDStateService.setRightSummaryPanel({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                battleSquaddieId: battleId,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-            })
-        }
+            },
+        })
     }
 
     draw(gameEngineState: GameEngineState, graphicsContext: GraphicsBuffer) {

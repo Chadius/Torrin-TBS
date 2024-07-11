@@ -41,10 +41,11 @@ import {
     ActionsThisRoundService,
 } from "../history/actionsThisRound"
 import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -368,13 +369,17 @@ describe("BattleSquaddieMover", () => {
                     targetLocation: { q: 0, r: 0 },
                 })
 
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-                    {
-                        battleId: "player_1",
-                        repositionWindow: { mouseX: 0, mouseY: 0 },
-                        gameEngineState: gameEngineState,
-                    }
+                const battleHUDListener = new BattleHUDListener(
+                    "battleHUDListener"
                 )
+                battleHUDListener.receiveMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: "player_1",
+                    selectionMethod: {
+                        mouse: { x: 0, y: 0 },
+                    },
+                })
 
                 mover = new BattleSquaddieMover()
                 dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 1)

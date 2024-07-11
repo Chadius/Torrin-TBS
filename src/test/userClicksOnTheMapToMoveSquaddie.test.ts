@@ -46,10 +46,11 @@ import { ActionEffectMovementTemplateService } from "../action/template/actionEf
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
-import { BattleHUDService } from "../battle/hud/battleHUD"
+import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import SpyInstance = jest.SpyInstance
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -135,6 +136,12 @@ describe("user clicks on the map to move", () => {
             }),
             battleSquaddieSelectedHUD,
         })
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+        )
+
         MissionMapService.addSquaddie(
             missionMap,
             playerSquaddieTemplate.squaddieId.templateId,

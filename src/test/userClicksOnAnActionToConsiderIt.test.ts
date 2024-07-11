@@ -51,6 +51,8 @@ import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/batt
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { MouseButton } from "../utils/mouseConfig"
+import { BattleHUDListener } from "../battle/hud/battleHUD"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 describe("user clicks on an action to consider it", () => {
     let repository: ObjectRepository
@@ -156,6 +158,11 @@ describe("user clicks on an action to consider it", () => {
         })
         gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD =
             battleSquaddieSelectedHUD
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+        )
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,

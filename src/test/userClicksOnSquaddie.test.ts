@@ -45,6 +45,8 @@ import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker
 import { CampaignService } from "../campaign/campaign"
 import { ActionsThisRound } from "../battle/history/actionsThisRound"
 import { MouseButton } from "../utils/mouseConfig"
+import { BattleHUDListener } from "../battle/hud/battleHUD"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository
@@ -145,6 +147,13 @@ describe("User clicks on a squaddie", () => {
             teams: [],
             battlePhaseState: undefined,
         })
+
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+        )
+
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
             battleSquaddieSelectedHUD,

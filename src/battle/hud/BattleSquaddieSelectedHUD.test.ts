@@ -1,12 +1,11 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMap } from "../../missionMap/missionMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
-import { RectAreaService } from "../../ui/rectArea"
 import { makeResult } from "../../utils/ResultOrError"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { BattleCamera } from "../battleCamera"
@@ -15,7 +14,6 @@ import { KeyButtonName } from "../../utils/keyboardConfig"
 import { config } from "../../configuration/config"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { ButtonStatus } from "../../ui/button"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
@@ -39,12 +37,11 @@ import {
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { CampaignService } from "../../campaign/campaign"
-import { MouseButton } from "../../utils/mouseConfig"
-import { BattlePlayerSquaddieSelector } from "../orchestratorComponents/battlePlayerSquaddieSelector"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 describe("BattleSquaddieSelectedHUD", () => {
     let hud: BattleSquaddieSelectedHUD
-    let selector: BattlePlayerSquaddieSelector
     let squaddieRepository: ObjectRepository
     let missionMap: MissionMap
     let resourceHandler: ResourceHandler
@@ -127,19 +124,25 @@ describe("BattleSquaddieSelectedHUD", () => {
         }))
 
         hud = new BattleSquaddieSelectedHUD()
-        selector = new BattlePlayerSquaddieSelector()
     })
 
     describe("Player selects squaddie they can control", () => {
         let gameEngineState: GameEngineState
 
-        const setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie = ({
-            teams,
-            battlePhaseState,
-        }: {
-            teams?: BattleSquaddieTeam[]
-            battlePhaseState?: BattlePhaseState
-        }) => {
+        it("sends a signal when you click on an available squaddie", () => {
+            const team = BattleSquaddieTeamService.new({
+                id: "player team",
+                name: "player team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
+            })
+
+            const missionMap: MissionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "],
+                }),
+            })
+
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -148,263 +151,39 @@ describe("BattleSquaddieSelectedHUD", () => {
                         campaignId: "test campaign",
                         missionMap,
                         camera: new BattleCamera(0, 0),
-                        teams,
-                        battlePhaseState,
+                        teams: [team],
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation: BattlePhase.PLAYER,
+                        }),
                     }),
                 }),
                 campaign: CampaignService.default({}),
                 repository: squaddieRepository,
             })
+
+            let messageSpy: jest.SpyInstance = jest.spyOn(
+                gameEngineState.messageBoard,
+                "sendMessage"
+            )
+
             hud.selectSquaddieAndDrawWindow({
                 battleId: playerBattleSquaddieId,
                 repositionWindow: { mouseX: 0, mouseY: 0 },
                 gameEngineState: gameEngineState,
             })
-        }
 
-        it("knows after selecting the player the hud has not selected actions", () => {
-            setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({})
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
-                    .playerSelectedSquaddieAction
-            ).toBeFalsy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.playerSelectedEndTurn
-            ).toBeFalsy()
-        })
-
-        it("will show the summary window on the left side", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
-            ).toEqual(playerBattleSquaddie.battleSquaddieId)
-        })
-
-        it("reports when an action button is clicked (via HUD)", () => {
-            MissionMapService.addSquaddie(
-                missionMap,
-                playerBattleSquaddie.squaddieTemplateId,
-                playerBattleSquaddie.battleSquaddieId,
-                {
-                    q: 0,
-                    r: 0,
-                }
-            )
-
-            setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({
-                teams: [
-                    BattleSquaddieTeamService.new({
-                        id: "player team",
-                        name: "player team",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                        battleSquaddieIds: [
-                            playerBattleSquaddie.battleSquaddieId,
-                        ],
-                    }),
-                ],
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.PLAYER,
-                },
-            })
-
-            const longswordButton =
-                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                    (button) => button.actionTemplate.id === longswordAction.id
-                )
-            selector.mouseClicked({
-                mouseX: longswordButton.buttonArea.left,
-                mouseY: longswordButton.buttonArea.top,
-                gameEngineState: gameEngineState,
-                mouseButton: MouseButton.ACCEPT,
-            })
-
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.playerSelectedEndTurn
-            ).toBeFalsy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
-                    .playerSelectedSquaddieAction
-            ).toBeTruthy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.selectedActionTemplate
-            ).toBe(longswordAction)
-        })
-
-        it("reports when an action button is hovered (via HUD)", () => {
-            setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({})
-            const longswordButton =
-                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                    (button) => button.actionTemplate.id === longswordAction.id
-                )
-            selector.mouseMoved(
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
                 gameEngineState,
-                RectAreaService.centerX(longswordButton.buttonArea),
-                RectAreaService.centerY(longswordButton.buttonArea)
-            )
-            expect(longswordButton.status).toBe(ButtonStatus.HOVER)
-        })
-
-        describe("when the end turn button is clicked", () => {
-            beforeEach(() => {
-                const team = BattleSquaddieTeamService.new({
-                    id: "player team",
-                    name: "player team",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
-                })
-
-                setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({
-                    teams: [team],
-                    battlePhaseState: BattlePhaseStateService.new({
-                        currentAffiliation: BattlePhase.PLAYER,
-                    }),
-                })
-            })
-
-            it("generates an end turn action button when a squaddie is selected", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState.endTurnButton
-                ).toBeTruthy()
-            })
-        })
-    })
-
-    describe("Player selects squaddie they can control", () => {
-        let gameEngineState: GameEngineState
-
-        const setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie = ({
-            teams,
-            battlePhaseState,
-        }: {
-            teams?: BattleSquaddieTeam[]
-            battlePhaseState?: BattlePhaseState
-        }) => {
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: new BattleCamera(0, 0),
-                        teams,
-                        battlePhaseState,
-                    }),
-                }),
-                campaign: CampaignService.default({}),
-                repository: squaddieRepository,
-            })
-            hud.selectSquaddieAndDrawWindow({
-                battleId: playerBattleSquaddieId,
-                repositionWindow: { mouseX: 0, mouseY: 0 },
-                gameEngineState: gameEngineState,
-            })
-        }
-
-        it("knows after selecting the player the hud has not selected actions", () => {
-            setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({})
-            let playerCommandState =
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
-            expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
-            expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
-            expect(playerCommandState.selectedActionTemplate).toBeUndefined()
-        })
-
-        it("reports when an action button is clicked", () => {
-            MissionMapService.addSquaddie(
-                missionMap,
-                playerBattleSquaddie.squaddieTemplateId,
-                playerBattleSquaddie.battleSquaddieId,
-                {
-                    q: 0,
-                    r: 0,
-                }
-            )
-
-            setupStateWithTeamsAndPhaseAndSelectPlayerBattleSquaddie({
-                teams: [
-                    BattleSquaddieTeamService.new({
-                        id: "player team",
-                        name: "player team",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                        battleSquaddieIds: [
-                            playerBattleSquaddie.battleSquaddieId,
-                        ],
-                    }),
-                ],
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.PLAYER,
+                battleSquaddieSelectedId: playerBattleSquaddieId,
+                selectionMethod: {
+                    mouse: {
+                        x: 0,
+                        y: 0,
+                    },
                 },
             })
-
-            let playerCommandState =
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
-
-            const longswordButton = playerCommandState.actionButtons.find(
-                (button) => button.actionTemplate.id === longswordAction.id
-            )
-            selector.mouseClicked({
-                mouseX: longswordButton.buttonArea.left,
-                mouseY: longswordButton.buttonArea.top,
-                gameEngineState: gameEngineState,
-                mouseButton: MouseButton.ACCEPT,
-            })
-
-            expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
-            expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
-            expect(playerCommandState.selectedActionTemplate).toBe(
-                longswordAction
-            )
-        })
-    })
-
-    describe("Player selects squaddie they cannot control because it is an enemy", () => {
-        let gameEngineState: GameEngineState
-        beforeEach(() => {
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: new BattleCamera(0, 0),
-                    }),
-                }),
-                campaign: CampaignService.default({}),
-                repository: squaddieRepository,
-            })
-
-            hud.selectSquaddieAndDrawWindow({
-                battleId: enemySquaddieDynamic.battleSquaddieId,
-                repositionWindow: { mouseX: 0, mouseY: 0 },
-                gameEngineState: gameEngineState,
-            })
-        })
-
-        it("will not show the player command window for uncontrollable enemy squaddies", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showPlayerCommand
-            ).toBeFalsy()
-            hud.draw(gameEngineState, mockedP5GraphicsContext)
-        })
-
-        it("will show the summary window on the right side", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelRight.battleSquaddieId
-            ).toEqual(enemySquaddieDynamic.battleSquaddieId)
+            messageSpy.mockRestore()
         })
     })
 
@@ -432,10 +211,6 @@ describe("BattleSquaddieSelectedHUD", () => {
         it("should respond to keyboard presses for the next squaddie, even if the HUD is not open", () => {
             const battleCamera = new BattleCamera(0, 0)
             hud = new BattleSquaddieSelectedHUD()
-            const selectSpy = jest.spyOn(
-                hud as any,
-                "selectSquaddieAndDrawWindow"
-            )
 
             missionMap.addSquaddie(
                 playerSquaddieStatic.squaddieId.templateId,
@@ -455,6 +230,11 @@ describe("BattleSquaddieSelectedHUD", () => {
             )
             const gameEngineState = getGameEngineState(battleCamera)
 
+            let messageSpy: jest.SpyInstance = jest.spyOn(
+                gameEngineState.messageBoard,
+                "sendMessage"
+            )
+
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
@@ -463,12 +243,20 @@ describe("BattleSquaddieSelectedHUD", () => {
                 config.KEYBOARD_SHORTCUTS[KeyButtonName.NEXT_SQUADDIE][0],
                 gameEngineState
             )
-            expect(selectSpy).toHaveBeenCalled()
-            expect([playerBattleSquaddieId, player2BattleSquaddieId]).toContain(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+
+            expect(messageSpy).toBeCalled()
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    gameEngineState,
+                })
             )
+            expect([playerBattleSquaddieId, player2BattleSquaddieId]).toContain(
+                messageSpy.mock.calls[0][0].battleSquaddieSelectedId
+            )
+
             expect(battleCamera.isPanning()).toBeTruthy()
+            messageSpy.mockRestore()
         })
     })
 })
