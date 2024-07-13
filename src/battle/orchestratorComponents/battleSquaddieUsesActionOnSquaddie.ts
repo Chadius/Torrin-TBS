@@ -165,6 +165,12 @@ export class BattleSquaddieUsesActionOnSquaddie
                 squaddieTemplate,
                 gameEngineState.repository
             )
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+
             this.sawResultAftermath = true
         }
     }

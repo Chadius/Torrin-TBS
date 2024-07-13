@@ -68,6 +68,10 @@ import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
+import {
+    BattleActionQueueService,
+    BattleActionService,
+} from "../battle/history/battleAction"
 
 describe("User ends their turn", () => {
     let repository: ObjectRepository
@@ -268,6 +272,38 @@ describe("User ends their turn", () => {
                 actionEffects: [decidedActionEndTurnEffect],
             })
         )
+    })
+
+    it("adds the Battle Action to the Battle Action Queue", () => {
+        const selector = new BattlePlayerSquaddieSelector()
+        let summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        selector.mouseEventHappened(gameEngineState, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: RectAreaService.centerX(
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseButton: MouseButton.ACCEPT,
+        })
+
+        const endTurnBattleAction = BattleActionService.new({
+            actor: {
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            },
+            action: { isEndTurn: true },
+            effect: { endTurn: true },
+        })
+
+        expect(
+            BattleActionQueueService.peek(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            )
+        ).toEqual(endTurnBattleAction)
     })
 
     describe("player squaddie selector reacts to ending the turn", () => {

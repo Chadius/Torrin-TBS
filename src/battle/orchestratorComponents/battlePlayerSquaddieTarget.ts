@@ -54,6 +54,12 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import {
+    BattleActionQueueService,
+    BattleActionService,
+    BattleActionSquaddieChange,
+} from "../history/battleAction"
+import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -687,6 +693,48 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
         })
+
+        const getBattleActionSquaddieChange = (
+            targetBattleSquaddieId: string,
+            actionResultPerSquaddie: ActionResultPerSquaddie
+        ): BattleActionSquaddieChange => {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    targetBattleSquaddieId
+                )
+            )
+            return {
+                battleSquaddieId: targetBattleSquaddieId,
+                attributesAfter: battleSquaddie.inBattleAttributes,
+                result: actionResultPerSquaddie,
+            }
+        }
+
+        const squaddieChanges: BattleActionSquaddieChange[] = Object.entries(
+            results.resultPerTarget
+        ).map(([targetBattleSquaddieId, actionResultPerSquaddie]) =>
+            getBattleActionSquaddieChange(
+                targetBattleSquaddieId,
+                actionResultPerSquaddie
+            )
+        )
+
+        const squaddieBattleAction = BattleActionService.new({
+            actor: {
+                battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+            },
+            action: { id: actionTemplate.id },
+            effect: {
+                squaddie: squaddieChanges,
+            },
+        })
+
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            squaddieBattleAction
+        )
 
         this.hasConfirmedAction = true
     }

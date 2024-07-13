@@ -32,6 +32,17 @@ import { isValidValue } from "../../utils/validityCheck"
 import { ObjectRepository } from "../objectRepository"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { PlayerBattleActionBuilderState } from "../actionBuilder/playerBattleActionBuilderState"
+import {
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "../history/battleAction"
+import { MessageBoardListener } from "../../message/messageBoardListener"
+import {
+    MessageBoardBattleActionFinishesAnimation,
+    MessageBoardMessage,
+    MessageBoardMessageType,
+} from "../../message/messageBoardMessage"
+import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -48,6 +59,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     squaddieMovePath?: SearchPath
     camera: BattleCamera
     recording: Recording
+    battleActionQueue: BattleActionQueue
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     actionsThisRound: ActionsThisRound
@@ -229,6 +241,7 @@ const newBattleState = ({
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
         playerBattleActionBuilderState: undefined,
+        battleActionQueue: BattleActionQueueService.new({}),
     }
 }
 
@@ -252,4 +265,30 @@ const getMissingComponents = (
     return Object.keys(expectedComponents)
         .map((str) => str as BattleStateValidityMissingComponent)
         .filter((component) => expectedComponents[component] === false)
+}
+
+export class BattleStateListener implements MessageBoardListener {
+    messageBoardListenerId: string
+
+    constructor(messageBoardListenerId: string) {
+        this.messageBoardListenerId = messageBoardListenerId
+    }
+
+    receiveMessage(message: MessageBoardMessage): void {
+        if (
+            message.type ===
+            MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
+        ) {
+            battleActionFinishesAnimation(message)
+        }
+    }
+}
+
+const battleActionFinishesAnimation = (
+    message: MessageBoardBattleActionFinishesAnimation
+) => {
+    const gameEngineState: GameEngineState = message.gameEngineState
+    BattleActionQueueService.dequeue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionQueue
+    )
 }

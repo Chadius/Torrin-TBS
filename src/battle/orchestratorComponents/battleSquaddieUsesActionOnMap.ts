@@ -14,6 +14,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 
@@ -97,6 +98,10 @@ export class BattleSquaddieUsesActionOnMap
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     animationCompleted: true,
+                })
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                    gameEngineState,
                 })
             }
             return

@@ -66,6 +66,7 @@ import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { BattleActionQueueService } from "../battle/history/battleAction"
 
 describe("User Selects Target and Confirms", () => {
     let repository: ObjectRepository
@@ -354,6 +355,24 @@ describe("User Selects Target and Confirms", () => {
                 expect(battleOrchestratorChanges.nextMode).toEqual(
                     BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
                 )
+            }
+        )
+
+        it.each(confirmMethods)(
+            `Will add the expected battle action to the queue via $name`,
+            ({ name, action }) => {
+                action()
+                const actualBattleAction = BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+                expect(actualBattleAction.actor.battleSquaddieId).toEqual(
+                    playerBattleSquaddie.battleSquaddieId
+                )
+                expect(actualBattleAction.action.id).toEqual(attackAction.id)
+                expect(
+                    actualBattleAction.effect.squaddie[0].battleSquaddieId
+                ).toEqual(enemyBattleSquaddie.battleSquaddieId)
             }
         )
     })

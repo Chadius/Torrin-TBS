@@ -21,6 +21,7 @@ import { ActionEffectEndTurnTemplateService } from "../../action/template/action
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -28,6 +29,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     let dateSpy: jest.SpyInstance
     let mapAction: BattleSquaddieUsesActionOnMap
     let gameEngineState: GameEngineState
+    let messageSpy: jest.SpyInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -106,10 +108,13 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                     .playerBattleActionBuilderState,
             targetLocation: { q: 0, r: 1 },
         })
+
+        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
     afterEach(() => {
         dateSpy.mockRestore()
+        messageSpy.mockRestore()
     })
 
     it("can wait half a second before ending turn", () => {
@@ -169,6 +174,16 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
         expect(stateChanges.displayMap).toBeTruthy()
+    })
+
+    it("sends a message noting the animation is complete", () => {
+        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        dateSpy.mockImplementation(() => 500)
+        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        expect(messageSpy).toBeCalledWith({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
     })
 
     describe("reset the component", () => {

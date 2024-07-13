@@ -67,6 +67,11 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { PlayerCommandSelection } from "../hud/playerCommandHUD"
+import {
+    BattleAction,
+    BattleActionQueueService,
+    BattleActionService,
+} from "../history/battleAction"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -748,6 +753,27 @@ export class BattlePlayerSquaddieSelector
             return
         }
 
+        const { mapLocation: startLocation } =
+            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+                battleSquaddie.battleSquaddieId
+            )
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: {
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation,
+                        endLocation: clickedHexCoordinate,
+                    },
+                },
+            })
+        )
+
         BattleSquaddieSelectorService.createSearchPath({
             state: gameEngineState,
             squaddieTemplate,
@@ -895,9 +921,20 @@ export class BattlePlayerSquaddieSelector
             return
         }
 
+        const endTurnBattleAction: BattleAction = BattleActionService.new({
+            actor: {
+                battleSquaddieId:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState?.summaryPanelLeft?.battleSquaddieId,
+            },
+            action: { isEndTurn: true },
+            effect: { endTurn: true },
+        })
+
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_ENDS_TURN,
             gameEngineState,
+            battleAction: endTurnBattleAction,
         })
     }
 

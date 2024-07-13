@@ -16,6 +16,7 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -168,6 +169,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             animationCompleted: true,
+        })
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
         })
     }
 }

@@ -49,7 +49,6 @@ import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import SpyInstance = jest.SpyInstance
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 describe("user clicks on the map to move", () => {
@@ -303,7 +302,7 @@ describe("user clicks on the map to move", () => {
     describe("Squaddie Mover knows to move over", () => {
         let mover: BattleSquaddieMover
         let graphicsContext: GraphicsBuffer
-        let moveSquaddieAlongPathSpy: SpyInstance
+        let moveSquaddieAlongPathSpy: jest.SpyInstance
 
         beforeEach(() => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 3)

@@ -1,5 +1,6 @@
 import {
     BattleState,
+    BattleStateListener,
     BattleStateService,
     BattleStateValidityMissingComponent,
 } from "./BattleState"
@@ -22,6 +23,17 @@ import {
 } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { BattleSquaddieService } from "../battleSquaddie"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "./battleOrchestratorState"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import {
+    BattleAction,
+    BattleActionQueueService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -435,6 +447,59 @@ describe("Battle State", () => {
                     squaddieRepository
                 )
             ).toBeUndefined()
+        })
+    })
+
+    describe("battle action animation", () => {
+        let gameEngineState: GameEngineState
+        let moveAction: BattleAction
+
+        beforeEach(() => {
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                    }),
+                }),
+            })
+
+            moveAction = BattleActionService.new({
+                actor: { battleSquaddieId: "battleSquaddieId" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 1, r: 1 },
+                    },
+                },
+            })
+
+            const battleStateListener: BattleStateListener =
+                new BattleStateListener("battleStateListener")
+            gameEngineState.messageBoard.addListener(
+                battleStateListener,
+                MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
+            )
+        })
+
+        it("clears the Battle Action Queue when it finishes animating", () => {
+            BattleActionQueueService.add(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue,
+                moveAction
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+
+            expect(
+                BattleActionQueueService.isEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            ).toBeTruthy()
         })
     })
 })

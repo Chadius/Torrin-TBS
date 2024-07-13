@@ -46,6 +46,7 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
+import { BattleStateListener } from "../battle/orchestrator/battleState"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -268,6 +269,16 @@ export class GameEngine {
                 messageBoardMessageType
             )
         })
+        const battleStateListener: BattleStateListener =
+            new BattleStateListener("battleStateListener")
+        ;[MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION].forEach(
+            (messageBoardMessageType) => {
+                this.gameEngineState.messageBoard.addListener(
+                    battleStateListener,
+                    messageBoardMessageType
+                )
+            }
+        )
 
         const cutsceneMessageListener = new CutsceneMessageListener(
             "cutsceneMessageListener"

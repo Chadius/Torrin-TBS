@@ -6,7 +6,6 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
-    MessageBoardMessagePlayerEndsTurn,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsSquaddie,
     MessageBoardMessageType,
@@ -51,6 +50,7 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
+import { BattleAction, BattleActionQueueService } from "../history/battleAction"
 
 export enum PopupWindowType {
     DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
@@ -237,10 +237,9 @@ export const BattleHUDService = {
         )
     },
     endPlayerSquaddieTurn: (
-        battleHUD: BattleHUD,
-        message: MessageBoardMessagePlayerEndsTurn
+        gameEngineState: GameEngineState,
+        battleAction: BattleAction
     ) => {
-        const gameEngineState = message.gameEngineState
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -257,6 +256,12 @@ export const BattleHUDService = {
         processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
 
         gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            battleAction
+        )
     },
     playerSelectsSquaddie: (
         battleHUD: BattleHUD,
@@ -361,8 +366,8 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_ENDS_TURN:
                 BattleHUDService.endPlayerSquaddieTurn(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
+                    message.gameEngineState,
+                    message.battleAction
                 )
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE:

@@ -555,6 +555,50 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         ).toBeFalsy()
     })
 
+    it("sends a message noting the animation is complete", () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+        })
+
+        const gameEngineState = usePowerAttackLongswordAndReturnState({
+            missionMap,
+        })
+        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
+
+        const messageSpy: jest.SpyInstance = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
+
+        jest.spyOn(
+            squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+            "update"
+        ).mockImplementation()
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+            .spyOn(
+                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                "hasCompleted"
+            )
+            .mockReturnValue(true)
+
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
+        expect(
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+        ).toBeCalled()
+
+        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+        squaddieUsesActionOnSquaddie.reset(gameEngineState)
+
+        expect(messageSpy).toBeCalledWith({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
+        messageSpy.mockRestore()
+    })
+
     it("resets squaddie currently acting when it runs out of actions and finishes acting", () => {
         const orchestratorUtilsSpy: jest.SpyInstance = jest.spyOn(
             OrchestratorUtilities,

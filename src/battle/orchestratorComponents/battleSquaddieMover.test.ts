@@ -161,6 +161,90 @@ describe("BattleSquaddieMover", () => {
         expect(mover.animationStartTime).toBeUndefined()
     })
 
+    it("sends a message once the squaddie finishes moving", () => {
+        map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
+
+        const searchResults: SearchResult = PathfinderHelper.search({
+            searchParameters: SearchParametersHelper.new({
+                startLocations: [{ q: 0, r: 0 }],
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                canStopOnSquaddies: true,
+                movementPerAction: 99,
+                shapeGenerator: getResultOrThrowError(
+                    GetTargetingShapeGenerator(TargetingShape.SNAKE)
+                ),
+                maximumDistanceMoved: undefined,
+                minimumDistanceMoved: undefined,
+                ignoreTerrainCost: false,
+                canPassOverPits: false,
+                canPassThroughWalls: false,
+                stopLocations: [{ q: 1, r: 1 }],
+                numberOfActions: 1,
+            }),
+            missionMap: map,
+            repository: squaddieRepo,
+        })
+
+        const movePath: SearchPath =
+            SearchResultsService.getShortestPathToLocation(searchResults, 1, 1)
+
+        const decidedActionMovementEffect =
+            DecidedActionMovementEffectService.new({
+                destination: { q: 0, r: 3 },
+                template: ActionEffectMovementTemplateService.new({}),
+            })
+        const processedAction = ProcessedActionService.new({
+            decidedAction: DecidedActionService.new({
+                battleSquaddieId: "player_1",
+                actionPointCost: 3,
+                actionTemplateName: "Move",
+                actionEffects: [decidedActionMovementEffect],
+            }),
+            processedActionEffects: [
+                ProcessedActionMovementEffectService.new({
+                    decidedActionEffect: decidedActionMovementEffect,
+                }),
+            ],
+        })
+        const actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: "player_1",
+            startingLocation: { q: 0, r: 0 },
+            processedActions: [processedAction],
+        })
+
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            repository: squaddieRepo,
+            resourceHandler: undefined,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    campaignId: "test campaign",
+                    missionId: "test mission",
+                    missionMap: map,
+                    searchPath: movePath,
+                    actionsThisRound,
+                }),
+            }),
+            campaign: CampaignService.default({}),
+        })
+        const messageSpy: jest.SpyInstance = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
+
+        const mover: BattleSquaddieMover = new BattleSquaddieMover()
+        jest.spyOn(Date, "now").mockImplementation(() => 1)
+        mover.update(gameEngineState, mockedP5GraphicsContext)
+
+        jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+        mover.update(gameEngineState, mockedP5GraphicsContext)
+        mover.reset(gameEngineState)
+
+        expect(messageSpy).toBeCalledWith({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
+    })
+
     describe("reset actions based on squaddie", () => {
         const setupSquaddie = ({
             squaddieAffiliation,
@@ -215,7 +299,7 @@ describe("BattleSquaddieMover", () => {
             })
         }
 
-        describe(" when the squaddie currently acting runs out of actions and finishes moving", () => {
+        describe("when the squaddie currently acting runs out of actions and finishes moving", () => {
             let mover: BattleSquaddieMover
             let gameEngineState: GameEngineState
             let clearActionsSpy: jest.SpyInstance

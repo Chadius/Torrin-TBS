@@ -71,6 +71,10 @@ import {
     PlayerCommandSelection,
     PlayerCommandStateService,
 } from "../hud/playerCommandHUD"
+import {
+    BattleActionQueueService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -488,6 +492,29 @@ describe("BattleSquaddieSelector", () => {
                     r: 1,
                 })
             })
+
+            it("adds a battle action to move", () => {
+                const squaddieBattleAction = BattleActionService.new({
+                    actor: {
+                        battleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 1 },
+                        },
+                    },
+                })
+
+                expect(
+                    BattleActionQueueService.peek(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionQueue
+                    )
+                ).toEqual(squaddieBattleAction)
+            })
         })
 
         it("Does not make a movement action if you click on the player command HUD", () => {
@@ -812,6 +839,17 @@ describe("BattleSquaddieSelector", () => {
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
                 gameEngineState,
+                battleAction: BattleActionService.new({
+                    action: {
+                        isEndTurn: true,
+                    },
+                    actor: {
+                        battleSquaddieId: "player_soldier_0",
+                    },
+                    effect: {
+                        endTurn: true,
+                    },
+                }),
             })
         })
 

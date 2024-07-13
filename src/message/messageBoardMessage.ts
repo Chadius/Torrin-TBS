@@ -1,4 +1,5 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
+import { BattleAction } from "../battle/history/battleAction"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -11,6 +12,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerCancelsTargetConfirmation
     | MessageBoardMessagePlayerEndsTurn
     | MessageBoardMessagePlayerSelectsSquaddie
+    | MessageBoardBattleActionFinishesAnimation
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -23,6 +25,7 @@ export enum MessageBoardMessageType {
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
     PLAYER_ENDS_TURN = "PLAYER_ENDS_TURN",
     PLAYER_SELECTS_SQUADDIE = "PLAYER_SELECTS_SQUADDIE",
+    BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
 }
 
 export interface MessageBoardMessageBase {
@@ -74,6 +77,7 @@ export interface MessageBoardMessagePlayerCancelsTargetConfirmation {
 export interface MessageBoardMessagePlayerEndsTurn {
     type: MessageBoardMessageType.PLAYER_ENDS_TURN
     gameEngineState: GameEngineState
+    battleAction: BattleAction
 }
 
 export interface MessageBoardMessagePlayerSelectsSquaddie {
@@ -86,4 +90,9 @@ export interface MessageBoardMessagePlayerSelectsSquaddie {
             y: number
         }
     }
+}
+
+export interface MessageBoardBattleActionFinishesAnimation {
+    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
+    gameEngineState: GameEngineState
 }

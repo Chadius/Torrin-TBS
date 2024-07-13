@@ -75,6 +75,11 @@ import { SummaryHUDStateService } from "./summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
+import {
+    BattleAction,
+    BattleActionQueueService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -938,6 +943,8 @@ describe("Battle HUD", () => {
         let missionMap: MissionMap
         let repository: ObjectRepository
         let playerSoldierBattleSquaddie: BattleSquaddie
+        let messageSpy: jest.SpyInstance
+        let endTurnBattleAction: BattleAction
 
         beforeEach(() => {
             repository = ObjectRepositoryService.new()
@@ -1029,12 +1036,28 @@ describe("Battle HUD", () => {
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+            endTurnBattleAction = BattleActionService.new({
+                actor: {
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                },
+                action: { isEndTurn: true },
+                effect: { endTurn: true },
+            })
+        })
+
+        afterEach(() => {
+            messageSpy.mockRestore()
         })
 
         it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
                 gameEngineState,
+                battleAction: endTurnBattleAction,
             })
 
             const decidedActionEndTurnEffect =
@@ -1104,6 +1127,7 @@ describe("Battle HUD", () => {
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
                 gameEngineState,
+                battleAction: endTurnBattleAction,
             })
 
             expect(
@@ -1131,6 +1155,7 @@ describe("Battle HUD", () => {
             battleHUDListener.receiveMessage({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
                 gameEngineState,
+                battleAction: endTurnBattleAction,
             })
 
             expect(
@@ -1166,6 +1191,21 @@ describe("Battle HUD", () => {
                 q: 0,
                 r: 0,
             })
+        })
+
+        it("adds the Battle Action to the Battle Action Queue", () => {
+            battleHUDListener.receiveMessage({
+                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                gameEngineState,
+                battleAction: endTurnBattleAction,
+            })
+
+            expect(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            ).toEqual(endTurnBattleAction)
         })
     })
 })
