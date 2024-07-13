@@ -332,76 +332,30 @@ describe("summaryHUD", () => {
             })
         })
 
-        it("when the mouse hovers over before clicking the button will change to HOVER state", () => {
-            SummaryHUDStateService.mouseMoved({
-                summaryHUDState,
-                mouseX: RectAreaService.centerX(
-                    summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonArea
-                ),
-                mouseY: RectAreaService.centerY(
-                    summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonArea
-                ),
-                gameEngineState,
-            })
-            expect(
-                summaryHUDState.playerCommandState.actionButtons[0].status
-            ).toBe(ButtonStatus.HOVER)
-        })
-
-        it("when the mouse hovers over the end turn button it will change to HOVER state", () => {
-            SummaryHUDStateService.mouseMoved({
-                summaryHUDState,
-                mouseX: RectAreaService.centerX(
-                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
-                ),
-                mouseY: RectAreaService.centerY(
-                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
-                ),
-                gameEngineState,
-            })
-            expect(
-                summaryHUDState.playerCommandState.endTurnButton.status
-            ).toBe(ButtonStatus.HOVER)
-        })
-
-        it("when the mouse hovers over the move turn button it will change to HOVER state", () => {
-            SummaryHUDStateService.mouseMoved({
-                summaryHUDState,
-                mouseX: RectAreaService.centerX(
-                    summaryHUDState.playerCommandState.moveButton.buttonArea
-                ),
-                mouseY: RectAreaService.centerY(
-                    summaryHUDState.playerCommandState.moveButton.buttonArea
-                ),
-                gameEngineState,
-            })
-            expect(summaryHUDState.playerCommandState.moveButton.status).toBe(
-                ButtonStatus.HOVER
+        it("will delegate mouseMoved events to playerCommandHUD when it is active", () => {
+            const playerCommandSpy = jest.spyOn(
+                PlayerCommandStateService,
+                "mouseMoved"
             )
-        })
+            const mouseX = RectAreaService.centerX(
+                summaryHUDState.playerCommandState.actionButtons[0].buttonArea
+            )
+            const mouseY = RectAreaService.centerY(
+                summaryHUDState.playerCommandState.actionButtons[0].buttonArea
+            )
 
-        it("when the mouse hovers off of the button before clicking the button will change to ACTIVE state", () => {
-            summaryHUDState.playerCommandState.actionButtons[0].status =
-                ButtonStatus.HOVER
             SummaryHUDStateService.mouseMoved({
                 summaryHUDState,
-                mouseX:
-                    RectAreaService.left(
-                        summaryHUDState.playerCommandState.actionButtons[0]
-                            .buttonArea
-                    ) - 5,
-                mouseY:
-                    RectAreaService.bottom(
-                        summaryHUDState.playerCommandState.actionButtons[0]
-                            .buttonArea
-                    ) - 5,
+                mouseX,
+                mouseY,
                 gameEngineState,
             })
-            expect(
-                summaryHUDState.playerCommandState.actionButtons[0].status
-            ).toBe(ButtonStatus.ACTIVE)
+            expect(playerCommandSpy).toBeCalledWith({
+                mouseX,
+                mouseY,
+                gameEngineState,
+                playerCommandState: summaryHUDState.playerCommandState,
+            })
         })
 
         it("will return which button was clicked on the PlayerCommandHUD", () => {

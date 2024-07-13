@@ -190,35 +190,12 @@ export const SummaryHUDStateService = {
             return
         }
 
-        const changeButtonStatusBasedOnMouseLocation = (button: {
-            buttonArea: RectArea
-            status: ButtonStatus
-        }) => {
-            const isMouseInsideButton = RectAreaService.isInside(
-                button.buttonArea,
-                mouseX,
-                mouseY
-            )
-
-            if (button.status === ButtonStatus.HOVER && !isMouseInsideButton) {
-                button.status = ButtonStatus.ACTIVE
-                return
-            }
-
-            if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
-                button.status = ButtonStatus.HOVER
-            }
-        }
-
-        summaryHUDState.playerCommandState.actionButtons.forEach((button) => {
-            changeButtonStatusBasedOnMouseLocation(button)
+        PlayerCommandStateService.mouseMoved({
+            mouseX,
+            mouseY,
+            gameEngineState,
+            playerCommandState: summaryHUDState.playerCommandState,
         })
-        changeButtonStatusBasedOnMouseLocation(
-            summaryHUDState.playerCommandState.moveButton
-        )
-        changeButtonStatusBasedOnMouseLocation(
-            summaryHUDState.playerCommandState.endTurnButton
-        )
     },
     createCommandWindow: ({
         summaryHUDState,
