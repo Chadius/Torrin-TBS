@@ -253,11 +253,11 @@ describe("User cancels the previewed action", () => {
                 ).toBeTruthy()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft
+                        .summaryHUDState.summaryPopoverMain
                 ).toBeTruthy()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                        .summaryHUDState.summaryPopoverMain.battleSquaddieId
                 ).toEqual(playerBattleSquaddie.battleSquaddieId)
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -478,7 +478,7 @@ const getGameEngineState = ({
         objectRepository: gameEngineState.repository,
         gameEngineState,
     })
-    SummaryHUDStateService.setLeftSummaryPanel({
+    SummaryHUDStateService.setMainSummaryPopover({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
@@ -486,6 +486,7 @@ const getGameEngineState = ({
         objectRepository: gameEngineState.repository,
         gameEngineState,
         battleSquaddieId,
+        lockPopover: true,
     })
 
     return gameEngineState

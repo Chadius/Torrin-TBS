@@ -457,7 +457,7 @@ describe("BattleSquaddieMover", () => {
                     "battleHUDListener"
                 )
                 battleHUDListener.receiveMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_1",
                     selectionMethod: {

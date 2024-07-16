@@ -7,7 +7,7 @@ import {
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerSelectionIsInvalid,
-    MessageBoardMessagePlayerSelectsSquaddie,
+    MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -244,7 +244,7 @@ export const BattleHUDService = {
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.summaryPopoverMain.battleSquaddieId
             )
         )
 
@@ -265,7 +265,7 @@ export const BattleHUDService = {
     },
     playerSelectsSquaddie: (
         battleHUD: BattleHUD,
-        message: MessageBoardMessagePlayerSelectsSquaddie
+        message: MessageBoardMessagePlayerSelectsAndLocksSquaddie
     ) => {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
@@ -293,7 +293,7 @@ export const BattleHUDService = {
             })
 
         if (squaddieIsNormallyControllableByPlayer) {
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -301,6 +301,7 @@ export const BattleHUDService = {
                 resourceHandler: gameEngineState.resourceHandler,
                 objectRepository: gameEngineState.repository,
                 gameEngineState,
+                lockPopover: true,
             })
             SummaryHUDStateService.createCommandWindow({
                 summaryHUDState:
@@ -311,7 +312,7 @@ export const BattleHUDService = {
                 gameEngineState,
             })
         } else {
-            SummaryHUDStateService.setRightSummaryPanel({
+            SummaryHUDStateService.setTargetSummaryPopover({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -319,6 +320,7 @@ export const BattleHUDService = {
                 resourceHandler: gameEngineState.resourceHandler,
                 objectRepository: gameEngineState.repository,
                 gameEngineState,
+                lockPopover: true,
             })
         }
     },
@@ -370,7 +372,7 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.battleAction
                 )
                 break
-            case MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE:
+            case MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE:
                 BattleHUDService.playerSelectsSquaddie(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message

@@ -178,7 +178,7 @@ describe("User ends their turn", () => {
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
         selectSquaddieForTheHUD({

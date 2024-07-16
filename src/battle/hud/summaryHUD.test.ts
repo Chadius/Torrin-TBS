@@ -20,7 +20,7 @@ import {
 import { CampaignService } from "../../campaign/campaign"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { ButtonStatus } from "../../ui/button"
-import { SquaddieSummaryPanelService } from "./playerActionPanel/squaddieSummaryPanel"
+import { SquaddieSummaryPopoverService } from "./playerActionPanel/squaddieSummaryPopover"
 import { isValidValue } from "../../utils/validityCheck"
 import {
     PlayerCommandSelection,
@@ -105,11 +105,11 @@ describe("summaryHUD", () => {
     })
 
     describe("will draw a window for a squaddie", () => {
-        it("can draw on the left side", () => {
+        it("can draw the main summary window on the left side", () => {
             const battleSquaddieId = "player"
 
             const panelSpy: jest.SpyInstance = jest.spyOn(
-                SquaddieSummaryPanelService,
+                SquaddieSummaryPopoverService,
                 "new"
             )
 
@@ -122,16 +122,21 @@ describe("summaryHUD", () => {
             summaryHUDState = SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
                 battleSquaddieId,
                 resourceHandler,
                 objectRepository,
                 gameEngineState,
+                lockPopover: true,
             })
 
-            expect(isValidValue(summaryHUDState.summaryPanelLeft)).toBeTruthy()
-            expect(isValidValue(summaryHUDState.summaryPanelRight)).toBeFalsy()
+            expect(
+                isValidValue(summaryHUDState.summaryPopoverMain)
+            ).toBeTruthy()
+            expect(
+                isValidValue(summaryHUDState.summaryPopoverTarget)
+            ).toBeFalsy()
 
             expect(panelSpy).toBeCalledWith({
                 startingColumn: 0,
@@ -139,11 +144,11 @@ describe("summaryHUD", () => {
             })
             panelSpy.mockRestore()
         })
-        it("can draw on the right side", () => {
+        it("can draw the target summary window on the right side", () => {
             const battleSquaddieId = "enemy"
 
             const panelSpy: jest.SpyInstance = jest.spyOn(
-                SquaddieSummaryPanelService,
+                SquaddieSummaryPopoverService,
                 "new"
             )
 
@@ -156,16 +161,19 @@ describe("summaryHUD", () => {
             summaryHUDState = SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
-            SummaryHUDStateService.setRightSummaryPanel({
+            SummaryHUDStateService.setTargetSummaryPopover({
                 summaryHUDState,
                 battleSquaddieId,
                 resourceHandler,
                 objectRepository,
                 gameEngineState,
+                lockPopover: true,
             })
 
-            expect(isValidValue(summaryHUDState.summaryPanelLeft)).toBeFalsy()
-            expect(isValidValue(summaryHUDState.summaryPanelRight)).toBeTruthy()
+            expect(isValidValue(summaryHUDState.summaryPopoverMain)).toBeFalsy()
+            expect(
+                isValidValue(summaryHUDState.summaryPopoverTarget)
+            ).toBeTruthy()
 
             expect(panelSpy).toBeCalledWith({
                 startingColumn: 9,
@@ -183,21 +191,24 @@ describe("summaryHUD", () => {
             summaryHUDState = SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
                 objectRepository,
                 gameEngineState,
                 resourceHandler,
                 battleSquaddieId: "player",
+                lockPopover: true,
             })
 
             expect(
                 SummaryHUDStateService.isMouseHoveringOver({
                     summaryHUDState,
                     mouseSelectionLocation: {
-                        x: summaryHUDState.summaryPanelLeft.windowArea.left - 5,
+                        x:
+                            summaryHUDState.summaryPopoverMain.windowArea.left -
+                            5,
                         y: RectAreaService.centerY(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
                     },
                 })
@@ -209,10 +220,10 @@ describe("summaryHUD", () => {
                     mouseSelectionLocation: {
                         x:
                             RectAreaService.right(
-                                summaryHUDState.summaryPanelLeft.windowArea
+                                summaryHUDState.summaryPopoverMain.windowArea
                             ) + 5,
                         y: RectAreaService.centerY(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
                     },
                 })
@@ -223,9 +234,11 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     mouseSelectionLocation: {
                         x: RectAreaService.centerX(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
-                        y: summaryHUDState.summaryPanelLeft.windowArea.top - 5,
+                        y:
+                            summaryHUDState.summaryPopoverMain.windowArea.top -
+                            5,
                     },
                 })
             ).toBeFalsy()
@@ -235,11 +248,11 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     mouseSelectionLocation: {
                         x: RectAreaService.centerX(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
                         y:
                             RectAreaService.bottom(
-                                summaryHUDState.summaryPanelLeft.windowArea
+                                summaryHUDState.summaryPopoverMain.windowArea
                             ) + 5,
                     },
                 })
@@ -250,10 +263,10 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     mouseSelectionLocation: {
                         x: RectAreaService.centerX(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
                         y: RectAreaService.centerY(
-                            summaryHUDState.summaryPanelLeft.windowArea
+                            summaryHUDState.summaryPopoverMain.windowArea
                         ),
                     },
                 })
@@ -261,7 +274,34 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("can create a playerCommandHUD based on the left panel", () => {
+    describe("lock main summary window", () => {
+        let gameEngineState: GameEngineState
+        beforeEach(() => {
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default({}),
+            })
+        })
+
+        it("will not change the main summary window if it is locked and the selection is not", () => {
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                lockPopover: true,
+            })
+        })
+
+        it("will change the main summary window if it is not locked and the selection is not", () => {})
+    })
+
+    describe("can create a playerCommandHUD based on the main panel", () => {
         let summaryHUDState: SummaryHUDState
         beforeEach(() => {
             summaryHUDState = SummaryHUDStateService.new({
@@ -272,12 +312,13 @@ describe("summaryHUD", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default({}),
             })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
                 battleSquaddieId: "player",
                 resourceHandler,
                 objectRepository,
                 gameEngineState,
+                lockPopover: true,
             })
             SummaryHUDStateService.createCommandWindow({
                 summaryHUDState,
@@ -312,12 +353,13 @@ describe("summaryHUD", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default({}),
             })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
                 resourceHandler,
                 battleSquaddieId: "player",
+                lockPopover: true,
             })
             SummaryHUDStateService.createCommandWindow({
                 summaryHUDState,

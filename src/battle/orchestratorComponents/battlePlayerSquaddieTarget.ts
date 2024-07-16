@@ -282,7 +282,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             ) {
                 const actingSquaddieBattleId =
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                        .summaryHUDState.summaryPopoverMain.battleSquaddieId
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new({
                         mouseSelectionLocation: {
@@ -291,7 +291,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                         },
                     })
 
-                SummaryHUDStateService.setLeftSummaryPanel({
+                SummaryHUDStateService.setMainSummaryPopover({
                     battleSquaddieId: actingSquaddieBattleId,
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
@@ -299,6 +299,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     gameEngineState,
                     resourceHandler: gameEngineState.resourceHandler,
                     objectRepository: gameEngineState.repository,
+                    lockPopover: true,
                 })
                 SummaryHUDStateService.createCommandWindow({
                     summaryHUDState:
@@ -529,7 +530,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             targetLocation: clickedLocation,
         })
 
-        SummaryHUDStateService.setRightSummaryPanel({
+        SummaryHUDStateService.setTargetSummaryPopover({
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
@@ -537,6 +538,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             gameEngineState,
             objectRepository: gameEngineState.repository,
             resourceHandler: gameEngineState.resourceHandler,
+            lockPopover: true,
         })
     }
 

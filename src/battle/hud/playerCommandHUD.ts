@@ -279,7 +279,7 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            summaryHUDState.summaryPanelLeft.battleSquaddieId
+            summaryHUDState.summaryPopoverMain.battleSquaddieId
         )
     )
 

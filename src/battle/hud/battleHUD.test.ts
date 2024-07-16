@@ -473,7 +473,7 @@ describe("Battle HUD", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             return gameEngineState
@@ -501,7 +501,7 @@ describe("Battle HUD", () => {
             })
 
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
@@ -525,7 +525,7 @@ describe("Battle HUD", () => {
         it("will show the summary window on the left side", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.summaryPopoverMain.battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
@@ -564,7 +564,7 @@ describe("Battle HUD", () => {
                 })
 
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId:
                         enemyBattleSquaddie.battleSquaddieId,
@@ -584,7 +584,7 @@ describe("Battle HUD", () => {
             it("will show the summary window on the right side", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelRight.battleSquaddieId
+                        .summaryHUDState.summaryPopoverTarget.battleSquaddieId
                 ).toEqual(enemyBattleSquaddie.battleSquaddieId)
             })
         })
@@ -1025,7 +1025,7 @@ describe("Battle HUD", () => {
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
             })
 
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
                 gameEngineState,
                 resourceHandler: gameEngineState.resourceHandler,
@@ -1033,6 +1033,7 @@ describe("Battle HUD", () => {
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
+                lockPopover: true,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")

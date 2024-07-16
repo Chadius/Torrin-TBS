@@ -6,18 +6,16 @@ import {
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { MouseButton } from "../../utils/mouseConfig"
-import { ButtonStatus } from "../../ui/button"
 import {
-    SquaddieSummaryPanel,
-    SquaddieSummaryPanelService,
-} from "./playerActionPanel/squaddieSummaryPanel"
+    SquaddieSummaryPopover,
+    SquaddieSummaryPopoverService,
+} from "./playerActionPanel/squaddieSummaryPopover"
 import { isValidValue } from "../../utils/validityCheck"
 
 const SUMMARY_WINDOW_DISPLAY = {
-    summaryPanelStartColumns: [0, 9],
+    summaryPopoverStartColumns: [0, 9],
 }
 
 export interface SummaryHUDState {
@@ -26,8 +24,8 @@ export interface SummaryHUDState {
     playerCommandState: PlayerCommandState
     mouseSelectionLocation: { x: number; y: number }
 
-    summaryPanelLeft?: SquaddieSummaryPanel
-    summaryPanelRight?: SquaddieSummaryPanel
+    summaryPopoverMain?: SquaddieSummaryPopover
+    summaryPopoverTarget?: SquaddieSummaryPopover
 }
 
 export const SummaryHUDStateService = {
@@ -80,17 +78,17 @@ export const SummaryHUDStateService = {
         }
 
         return [
-            summaryHUDState.summaryPanelLeft,
-            summaryHUDState.summaryPanelRight,
+            summaryHUDState.summaryPopoverMain,
+            summaryHUDState.summaryPopoverTarget,
         ]
             .filter((x) => x)
-            .some((panel: SquaddieSummaryPanel) =>
-                SquaddieSummaryPanelService.isMouseHoveringOver({
+            .some((popover: SquaddieSummaryPopover) =>
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
                     mouseLocation: {
                         x: mouseSelectionLocation.x,
                         y: mouseSelectionLocation.y,
                     },
-                    squaddieSummaryPanel: panel,
+                    squaddieSummaryPopover: popover,
                 })
             )
     },
@@ -107,13 +105,16 @@ export const SummaryHUDStateService = {
             return
         }
 
-        ;[summaryHUDState.summaryPanelLeft, summaryHUDState.summaryPanelRight]
+        ;[
+            summaryHUDState.summaryPopoverMain,
+            summaryHUDState.summaryPopoverTarget,
+        ]
             .filter((x) => x)
-            .forEach((panel) => {
-                SquaddieSummaryPanelService.draw({
+            .forEach((popover) => {
+                SquaddieSummaryPopoverService.draw({
                     graphicsBuffer,
                     gameEngineState,
-                    squaddieSummaryPanel: panel,
+                    squaddieSummaryPopover: popover,
                 })
             })
 
@@ -125,54 +126,58 @@ export const SummaryHUDStateService = {
             })
         }
     },
-    setLeftSummaryPanel: ({
+    setMainSummaryPopover: ({
         summaryHUDState,
         gameEngineState,
         objectRepository,
         resourceHandler,
         battleSquaddieId,
+        lockPopover,
     }: {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
         objectRepository: ObjectRepository
         resourceHandler: ResourceHandler
         battleSquaddieId: string
+        lockPopover: boolean
     }) => {
         maybeCreateSummaryPanel({
             summaryHUDState,
             battleSquaddieId,
-            summaryPanelIsOnLeftSide: true,
+            createMainPanel: true,
         })
-        SquaddieSummaryPanelService.update({
+        SquaddieSummaryPopoverService.update({
             objectRepository,
             gameEngineState,
             resourceHandler,
-            squaddieSummaryPanel: summaryHUDState.summaryPanelLeft,
+            squaddieSummaryPopover: summaryHUDState.summaryPopoverMain,
         })
     },
-    setRightSummaryPanel: ({
+    setTargetSummaryPopover: ({
         summaryHUDState,
         gameEngineState,
         objectRepository,
         resourceHandler,
         battleSquaddieId,
+        lockPopover,
     }: {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
         objectRepository: ObjectRepository
         resourceHandler: ResourceHandler
         battleSquaddieId: string
+        lockPopover: boolean
     }) => {
         maybeCreateSummaryPanel({
             summaryHUDState,
             battleSquaddieId,
-            summaryPanelIsOnLeftSide: false,
+            createMainPanel: false,
         })
-        SquaddieSummaryPanelService.update({
+        SquaddieSummaryPopoverService.update({
             objectRepository,
             gameEngineState,
             resourceHandler,
-            squaddieSummaryPanel: summaryHUDState.summaryPanelRight,
+            squaddieSummaryPopover: summaryHUDState.summaryPopoverTarget,
         })
     },
     mouseMoved: ({
@@ -208,7 +213,7 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
         resourceHandler: ResourceHandler
     }) => {
-        if (!isValidValue(summaryHUDState?.summaryPanelLeft)) {
+        if (!isValidValue(summaryHUDState?.summaryPopoverMain)) {
             return
         }
 
@@ -219,7 +224,8 @@ export const SummaryHUDStateService = {
             objectRepository,
             gameEngineState,
             resourceHandler,
-            battleSquaddieId: summaryHUDState.summaryPanelLeft.battleSquaddieId,
+            battleSquaddieId:
+                summaryHUDState.summaryPopoverMain.battleSquaddieId,
         })
     },
 }
@@ -227,11 +233,11 @@ export const SummaryHUDStateService = {
 const maybeCreateSummaryPanel = ({
     summaryHUDState,
     battleSquaddieId,
-    summaryPanelIsOnLeftSide,
+    createMainPanel,
 }: {
     summaryHUDState: SummaryHUDState
     battleSquaddieId: string
-    summaryPanelIsOnLeftSide: boolean
+    createMainPanel: boolean
 }) => {
     if (!isValidValue(battleSquaddieId) || battleSquaddieId === "") {
         return
@@ -239,16 +245,16 @@ const maybeCreateSummaryPanel = ({
 
     summaryHUDState.showSummaryHUD = true
 
-    const newPanel = SquaddieSummaryPanelService.new({
+    const newPanel = SquaddieSummaryPopoverService.new({
         battleSquaddieId: battleSquaddieId,
-        startingColumn: summaryPanelIsOnLeftSide
-            ? SUMMARY_WINDOW_DISPLAY.summaryPanelStartColumns[0]
-            : SUMMARY_WINDOW_DISPLAY.summaryPanelStartColumns[1],
+        startingColumn: createMainPanel
+            ? SUMMARY_WINDOW_DISPLAY.summaryPopoverStartColumns[0]
+            : SUMMARY_WINDOW_DISPLAY.summaryPopoverStartColumns[1],
     })
 
-    if (summaryPanelIsOnLeftSide) {
-        summaryHUDState.summaryPanelLeft = newPanel
+    if (createMainPanel) {
+        summaryHUDState.summaryPopoverMain = newPanel
         return
     }
-    summaryHUDState.summaryPanelRight = newPanel
+    summaryHUDState.summaryPopoverTarget = newPanel
 }

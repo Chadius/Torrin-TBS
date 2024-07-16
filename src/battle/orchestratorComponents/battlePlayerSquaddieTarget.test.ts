@@ -228,7 +228,7 @@ describe("BattleSquaddieTarget", () => {
             SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
-        SummaryHUDStateService.setLeftSummaryPanel({
+        SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
@@ -236,6 +236,7 @@ describe("BattleSquaddieTarget", () => {
             resourceHandler: gameEngineState.resourceHandler,
             objectRepository: gameEngineState.repository,
             gameEngineState,
+            lockPopover: true,
         })
 
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -432,11 +433,11 @@ describe("BattleSquaddieTarget", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.summaryPopoverMain.battleSquaddieId
             ).toEqual(knightDynamic.battleSquaddieId)
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelRight.battleSquaddieId
+                    .summaryHUDState.summaryPopoverTarget.battleSquaddieId
             ).toEqual(thiefDynamic.battleSquaddieId)
         })
 
@@ -513,7 +514,7 @@ describe("BattleSquaddieTarget", () => {
                 SummaryHUDStateService.new({
                     mouseSelectionLocation: { x: 0, y: 0 },
                 })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -521,6 +522,7 @@ describe("BattleSquaddieTarget", () => {
                 resourceHandler: gameEngineState.resourceHandler,
                 objectRepository: gameEngineState.repository,
                 gameEngineState,
+                lockPopover: true,
             })
 
             targetComponent.update(gameEngineState, mockedP5GraphicsContext)

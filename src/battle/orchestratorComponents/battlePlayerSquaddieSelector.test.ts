@@ -287,7 +287,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -368,7 +368,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -641,7 +641,7 @@ describe("BattleSquaddieSelector", () => {
                 BattleHUDService.playerSelectsSquaddie(
                     gameEngineState.battleOrchestratorState.battleHUD,
                     {
-                        type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                         gameEngineState,
                         battleSquaddieSelectedId: "player_soldier_0",
                         selectionMethod: {
@@ -804,7 +804,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -921,7 +921,7 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             BattleSquaddieTeamService.addBattleSquaddieIds(
@@ -1110,13 +1110,13 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -1315,7 +1315,7 @@ describe("BattleSquaddieSelector", () => {
         BattleHUDService.playerSelectsSquaddie(
             gameEngineState.battleOrchestratorState.battleHUD,
             {
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
@@ -1416,7 +1416,7 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             const { mapLocation: firstBattleSquaddieMapLocation } =

@@ -151,7 +151,7 @@ describe("User clicks on a squaddie", () => {
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
         selectSquaddieForTheHUD({
@@ -162,7 +162,7 @@ describe("User clicks on a squaddie", () => {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                .summaryHUDState.summaryPopoverMain.battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
         const actionButtons: MakeDecisionButton[] =

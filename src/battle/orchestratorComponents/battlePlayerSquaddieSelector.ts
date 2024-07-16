@@ -268,13 +268,13 @@ export class BattlePlayerSquaddieSelector
 
                 if (
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.summaryPanelLeft
+                        .summaryHUDState?.summaryPopoverMain
                 ) {
                     const squaddieInfo =
                         gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                             gameEngineState.battleOrchestratorState
-                                .battleHUDState.summaryHUDState.summaryPanelLeft
-                                .battleSquaddieId
+                                .battleHUDState.summaryHUDState
+                                .summaryPopoverMain.battleSquaddieId
                         )
                     if (
                         MissionMapSquaddieLocationHandler.isValid(
@@ -565,18 +565,18 @@ export class BattlePlayerSquaddieSelector
         const squaddieIsAlreadyDisplayedInTheLeftSummaryPanel: boolean =
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.summaryPanelLeft
+                    .summaryHUDState?.summaryPopoverMain
             ) &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId ===
+                .summaryHUDState.summaryPopoverMain.battleSquaddieId ===
                 battleSquaddieToHighlightId
         const squaddieIsAlreadyDisplayedInTheRightSummaryPanel: boolean =
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.summaryPanelRight
+                    .summaryHUDState?.summaryPopoverTarget
             ) &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelRight.battleSquaddieId ===
+                .summaryHUDState.summaryPopoverTarget.battleSquaddieId ===
                 battleSquaddieToHighlightId
 
         this.highlightSquaddieOnMap(
@@ -691,7 +691,8 @@ export class BattlePlayerSquaddieSelector
         }
         if (
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId === undefined
+                .summaryHUDState.summaryPopoverMain.battleSquaddieId ===
+            undefined
         ) {
             return
         }
@@ -700,7 +701,7 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.summaryPopoverMain.battleSquaddieId
             )
         )
 
@@ -904,7 +905,7 @@ export class BattlePlayerSquaddieSelector
             )
         const squaddieShownInHUD =
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.summaryPanelLeft?.battleSquaddieId
+                .summaryHUDState?.summaryPopoverMain?.battleSquaddieId
 
         return (
             startOfANewSquaddieTurn ||
@@ -925,7 +926,7 @@ export class BattlePlayerSquaddieSelector
             actor: {
                 battleSquaddieId:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.summaryPanelLeft?.battleSquaddieId,
+                        .summaryHUDState?.summaryPopoverMain?.battleSquaddieId,
             },
             action: { isEndTurn: true },
             effect: { endTurn: true },
@@ -951,7 +952,7 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.summaryPopoverMain.battleSquaddieId
             )
         )
 

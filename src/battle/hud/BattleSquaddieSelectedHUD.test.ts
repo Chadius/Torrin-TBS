@@ -173,7 +173,7 @@ describe("BattleSquaddieSelectedHUD", () => {
             })
 
             expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: playerBattleSquaddieId,
                 selectionMethod: {
@@ -247,7 +247,7 @@ describe("BattleSquaddieSelectedHUD", () => {
             expect(messageSpy).toBeCalled()
             expect(messageSpy).toBeCalledWith(
                 expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                 })
             )

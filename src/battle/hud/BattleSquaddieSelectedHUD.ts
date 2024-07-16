@@ -34,7 +34,7 @@ export class BattleSquaddieSelectedHUD {
         gameEngineState: GameEngineState
     }) {
         gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
             battleSquaddieSelectedId: battleId,
             selectionMethod: {
@@ -98,11 +98,11 @@ export class BattleSquaddieSelectedHUD {
                 ) ||
                 !isValidValue(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft
+                        .summaryHUDState.summaryPopoverMain
                 ) ||
                 id !==
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                        .summaryHUDState.summaryPopoverMain.battleSquaddieId
         )
 
         this.nextBattleSquaddieIds = this.nextBattleSquaddieIds.filter(

@@ -22,14 +22,14 @@ import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import { RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import {
-    SquaddieSummaryPanel,
-    SquaddieSummaryPanelService,
-} from "./squaddieSummaryPanel"
+    SquaddieSummaryPopover,
+    SquaddieSummaryPopoverService,
+} from "./squaddieSummaryPopover"
 
-describe("SquaddieSummaryPanel", () => {
+describe("squaddieSummaryPopover", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
     let objectRepository: ObjectRepository
-    let panel: SquaddieSummaryPanel
+    let panel: SquaddieSummaryPopover
     let resourceHandler: ResourceHandler
 
     beforeEach(() => {
@@ -146,18 +146,18 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         startingColumn: 0,
                         battleSquaddieId,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
                     })
-                    SquaddieSummaryPanelService.draw({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.draw({
+                        squaddieSummaryPopover: panel,
                         graphicsBuffer,
                         gameEngineState,
                     })
@@ -186,12 +186,12 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         battleSquaddieId: "player",
                         startingColumn: column,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
@@ -211,12 +211,12 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         battleSquaddieId: "player",
                         startingColumn: column,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
@@ -235,20 +235,20 @@ describe("SquaddieSummaryPanel", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default({}),
             })
-            panel = SquaddieSummaryPanelService.new({
+            panel = SquaddieSummaryPopoverService.new({
                 battleSquaddieId: "player",
                 startingColumn: 0,
             })
-            SquaddieSummaryPanelService.update({
-                squaddieSummaryPanel: panel,
+            SquaddieSummaryPopoverService.update({
+                squaddieSummaryPopover: panel,
                 objectRepository,
                 gameEngineState,
                 resourceHandler,
             })
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: panel.windowArea.left - 5,
                         y: RectAreaService.centerY(panel.windowArea),
@@ -257,8 +257,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.right(panel.windowArea) + 5,
                         y: RectAreaService.centerY(panel.windowArea),
@@ -267,8 +267,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: panel.windowArea.top - 5,
@@ -277,8 +277,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: RectAreaService.bottom(panel.windowArea) + 5,
@@ -287,8 +287,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: RectAreaService.centerY(panel.windowArea),

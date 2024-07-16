@@ -25,7 +25,7 @@ import { SquaddieEmotion } from "../../animation/actionAnimation/actionAnimation
 import { ImageUI } from "../../../ui/imageUI"
 import { DrawBattleHUD } from "../drawBattleHUD"
 
-const SQUADDIE_SUMMARY_PANEL_STYLE = {
+const SQUADDIE_SUMMARY_POPOVER_STYLE = {
     height: 100,
     color: {
         saturation: 10,
@@ -100,7 +100,7 @@ const SQUADDIE_PORTRAIT_STYLE = {
     height: 64,
 }
 
-export interface SquaddieSummaryPanel {
+export interface SquaddieSummaryPopover {
     battleSquaddieId: string
     windowArea: RectArea
 
@@ -111,21 +111,21 @@ export interface SquaddieSummaryPanel {
     squaddieIdTextBox?: TextBox
 }
 
-export const SquaddieSummaryPanelService = {
+export const SquaddieSummaryPopoverService = {
     new: ({
         startingColumn,
         battleSquaddieId,
     }: {
         startingColumn: number
         battleSquaddieId: string
-    }): SquaddieSummaryPanel => {
+    }): SquaddieSummaryPopover => {
         return {
             battleSquaddieId,
             windowArea: RectAreaService.new({
                 top:
                     ScreenDimensions.SCREEN_HEIGHT -
-                    SQUADDIE_SUMMARY_PANEL_STYLE.height,
-                height: SQUADDIE_SUMMARY_PANEL_STYLE.height,
+                    SQUADDIE_SUMMARY_POPOVER_STYLE.height,
+                height: SQUADDIE_SUMMARY_POPOVER_STYLE.height,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 startColumn: startingColumn > 8 ? 8 : startingColumn,
                 endColumn: startingColumn > 8 ? 11 : startingColumn + 3,
@@ -135,15 +135,15 @@ export const SquaddieSummaryPanelService = {
     update: ({
         objectRepository,
         gameEngineState,
-        squaddieSummaryPanel,
+        squaddieSummaryPopover,
     }: {
         objectRepository: ObjectRepository
         resourceHandler: ResourceHandler
         gameEngineState: GameEngineState
-        squaddieSummaryPanel: SquaddieSummaryPanel
+        squaddieSummaryPopover: SquaddieSummaryPopover
     }) => {
         maybeRecreateUIElements({
-            squaddieSummaryPanel,
+            squaddieSummaryPopover,
             objectRepository,
             gameEngineState,
         })
@@ -151,46 +151,50 @@ export const SquaddieSummaryPanelService = {
     draw: ({
         graphicsBuffer,
         gameEngineState,
-        squaddieSummaryPanel,
+        squaddieSummaryPopover,
     }: {
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
-        squaddieSummaryPanel: SquaddieSummaryPanel
+        squaddieSummaryPopover: SquaddieSummaryPopover
     }) => {
         drawSummarySquaddieWindow({
-            squaddieSummaryPanel,
+            squaddieSummaryPopover,
             graphicsBuffer,
             gameEngineState,
         })
 
-        if (squaddieSummaryPanel.squaddiePortrait) {
-            squaddieSummaryPanel.squaddiePortrait.draw(graphicsBuffer)
+        if (squaddieSummaryPopover.squaddiePortrait) {
+            squaddieSummaryPopover.squaddiePortrait.draw(graphicsBuffer)
         }
         TextBoxService.draw(
-            squaddieSummaryPanel.squaddieIdTextBox,
+            squaddieSummaryPopover.squaddieIdTextBox,
             graphicsBuffer
         )
 
-        drawActionPoints(squaddieSummaryPanel, gameEngineState, graphicsBuffer)
-        drawHitPoints(squaddieSummaryPanel, gameEngineState, graphicsBuffer)
+        drawActionPoints(
+            squaddieSummaryPopover,
+            gameEngineState,
+            graphicsBuffer
+        )
+        drawHitPoints(squaddieSummaryPopover, gameEngineState, graphicsBuffer)
         TextBoxService.draw(
-            squaddieSummaryPanel.actionPointsTextBox,
+            squaddieSummaryPopover.actionPointsTextBox,
             graphicsBuffer
         )
         TextBoxService.draw(
-            squaddieSummaryPanel.hitPointsTextBox,
+            squaddieSummaryPopover.hitPointsTextBox,
             graphicsBuffer
         )
     },
     isMouseHoveringOver: ({
         mouseLocation,
-        squaddieSummaryPanel,
+        squaddieSummaryPopover,
     }: {
         mouseLocation: { x: number; y: number }
-        squaddieSummaryPanel: SquaddieSummaryPanel
+        squaddieSummaryPopover: SquaddieSummaryPopover
     }): boolean => {
         return RectAreaService.isInside(
-            squaddieSummaryPanel.windowArea,
+            squaddieSummaryPopover.windowArea,
             mouseLocation.x,
             mouseLocation.y
         )
@@ -198,55 +202,55 @@ export const SquaddieSummaryPanelService = {
 }
 
 const maybeRecreateUIElements = ({
-    squaddieSummaryPanel,
+    squaddieSummaryPopover,
     objectRepository,
     gameEngineState,
 }: {
-    squaddieSummaryPanel: SquaddieSummaryPanel
+    squaddieSummaryPopover: SquaddieSummaryPopover
     objectRepository: ObjectRepository
     gameEngineState: GameEngineState
 }) => {
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            squaddieSummaryPanel.battleSquaddieId
+            squaddieSummaryPopover.battleSquaddieId
         )
     )
 
-    squaddieSummaryPanel.windowHue =
+    squaddieSummaryPopover.windowHue =
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
 
     generateSquaddiePortrait({
-        squaddieSummaryPanel,
+        squaddieSummaryPopover: squaddieSummaryPopover,
         gameEngineState,
     })
 
-    createSquaddieIdUIElements(squaddieSummaryPanel, squaddieTemplate)
+    createSquaddieIdUIElements(squaddieSummaryPopover, squaddieTemplate)
 
     createActionPointsUIElements(
         squaddieTemplate,
         battleSquaddie,
-        squaddieSummaryPanel
+        squaddieSummaryPopover
     )
 
     createHitPointsUIElements(
         squaddieTemplate,
         battleSquaddie,
-        squaddieSummaryPanel
+        squaddieSummaryPopover
     )
 }
 
 const createActionPointsUIElements = (
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
-    squaddieSummaryPanel: SquaddieSummaryPanel
+    squaddieSummaryPopover: SquaddieSummaryPopover
 ) => {
     const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })
 
-    squaddieSummaryPanel.actionPointsTextBox = TextBoxService.new({
+    squaddieSummaryPopover.actionPointsTextBox = TextBoxService.new({
         text: `Act: ${actionPointsRemaining}`,
         textSize: ACTION_POINTS_STYLE.text.height,
         fontColor: [
@@ -260,21 +264,22 @@ const createActionPointsUIElements = (
         horizAlign: HORIZONTAL_ALIGN.RIGHT,
         area: RectAreaService.new({
             left:
-                squaddieSummaryPanel.windowArea.left + WINDOW_SPACING.SPACING1,
+                squaddieSummaryPopover.windowArea.left +
+                WINDOW_SPACING.SPACING1,
             height: ACTION_POINTS_STYLE.bar.height,
             width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING.SPACING2,
             top:
-                squaddieSummaryPanel.windowArea.top +
+                squaddieSummaryPopover.windowArea.top +
                 ACTION_POINTS_STYLE.topOffset,
         }),
     })
 }
 
 const createSquaddieIdUIElements = (
-    squaddieSummaryPanel: SquaddieSummaryPanel,
+    squaddieSummaryPopover: SquaddieSummaryPopover,
     squaddieTemplate: SquaddieTemplate
 ) => {
-    squaddieSummaryPanel.squaddieIdTextBox = TextBoxService.new({
+    squaddieSummaryPopover.squaddieIdTextBox = TextBoxService.new({
         text: `${squaddieTemplate.squaddieId.name}`,
         textSize: SQUADDIE_ID_STYLE.textSize,
         fontColor: [
@@ -288,15 +293,15 @@ const createSquaddieIdUIElements = (
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         area: RectAreaService.new({
             left:
-                squaddieSummaryPanel.windowArea.left +
+                squaddieSummaryPopover.windowArea.left +
                 SQUADDIE_PORTRAIT_STYLE.width +
                 WINDOW_SPACING.SPACING1,
             height: SQUADDIE_ID_STYLE.bottomOffset,
             right:
-                RectAreaService.right(squaddieSummaryPanel.windowArea) -
+                RectAreaService.right(squaddieSummaryPopover.windowArea) -
                 WINDOW_SPACING.SPACING1,
             top:
-                squaddieSummaryPanel.windowArea.top +
+                squaddieSummaryPopover.windowArea.top +
                 SQUADDIE_ID_STYLE.topOffset,
         }),
     })
@@ -305,13 +310,13 @@ const createSquaddieIdUIElements = (
 const createHitPointsUIElements = (
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
-    squaddieSummaryPanel: SquaddieSummaryPanel
+    squaddieSummaryPopover: SquaddieSummaryPopover
 ) => {
     const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
         squaddieTemplate,
         battleSquaddie,
     })
-    squaddieSummaryPanel.hitPointsTextBox = TextBoxService.new({
+    squaddieSummaryPopover.hitPointsTextBox = TextBoxService.new({
         text: `HP: ${currentHitPoints} / ${maxHitPoints}`,
         textSize: HIT_POINTS_STYLE.text.height,
         fontColor: [
@@ -325,50 +330,51 @@ const createHitPointsUIElements = (
         horizAlign: HORIZONTAL_ALIGN.RIGHT,
         area: RectAreaService.new({
             left:
-                squaddieSummaryPanel.windowArea.left + WINDOW_SPACING.SPACING1,
+                squaddieSummaryPopover.windowArea.left +
+                WINDOW_SPACING.SPACING1,
             height: HIT_POINTS_STYLE.bar.height,
             width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING.SPACING2,
             top:
-                squaddieSummaryPanel.windowArea.top +
+                squaddieSummaryPopover.windowArea.top +
                 HIT_POINTS_STYLE.topOffset,
         }),
     })
 }
 
 const drawSummarySquaddieWindow = ({
-    squaddieSummaryPanel,
+    squaddieSummaryPopover,
     graphicsBuffer,
 }: {
     graphicsBuffer: GraphicsBuffer
-    squaddieSummaryPanel: SquaddieSummaryPanel
+    squaddieSummaryPopover: SquaddieSummaryPopover
     gameEngineState: GameEngineState
 }) => {
     graphicsBuffer.push()
     graphicsBuffer.fill(
-        squaddieSummaryPanel.windowHue,
-        SQUADDIE_SUMMARY_PANEL_STYLE.color.saturation,
-        SQUADDIE_SUMMARY_PANEL_STYLE.color.brightness
+        squaddieSummaryPopover.windowHue,
+        SQUADDIE_SUMMARY_POPOVER_STYLE.color.saturation,
+        SQUADDIE_SUMMARY_POPOVER_STYLE.color.brightness
     )
     graphicsBuffer.rect(
-        RectAreaService.left(squaddieSummaryPanel.windowArea),
-        RectAreaService.top(squaddieSummaryPanel.windowArea),
-        RectAreaService.width(squaddieSummaryPanel.windowArea),
-        RectAreaService.height(squaddieSummaryPanel.windowArea)
+        RectAreaService.left(squaddieSummaryPopover.windowArea),
+        RectAreaService.top(squaddieSummaryPopover.windowArea),
+        RectAreaService.width(squaddieSummaryPopover.windowArea),
+        RectAreaService.height(squaddieSummaryPopover.windowArea)
     )
     graphicsBuffer.pop()
 }
 
 const generateSquaddiePortrait = ({
-    squaddieSummaryPanel,
+    squaddieSummaryPopover,
     gameEngineState,
 }: {
-    squaddieSummaryPanel: SquaddieSummaryPanel
+    squaddieSummaryPopover: SquaddieSummaryPopover
     gameEngineState: GameEngineState
 }) => {
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            squaddieSummaryPanel.battleSquaddieId
+            squaddieSummaryPopover.battleSquaddieId
         )
     )
 
@@ -393,21 +399,21 @@ const generateSquaddiePortrait = ({
     }
 
     if (portraitIcon) {
-        squaddieSummaryPanel.squaddiePortrait = new ImageUI({
+        squaddieSummaryPopover.squaddiePortrait = new ImageUI({
             graphic: portraitIcon,
             area: RectAreaService.new({
                 left:
                     SQUADDIE_PORTRAIT_STYLE.left +
-                    squaddieSummaryPanel.windowArea.left,
+                    squaddieSummaryPopover.windowArea.left,
                 top:
                     SQUADDIE_PORTRAIT_STYLE.top +
-                    squaddieSummaryPanel.windowArea.top,
+                    squaddieSummaryPopover.windowArea.top,
                 width: SQUADDIE_PORTRAIT_STYLE.width,
                 height: SQUADDIE_PORTRAIT_STYLE.height,
             }),
         })
     } else {
-        squaddieSummaryPanel.squaddiePortrait = null
+        squaddieSummaryPopover.squaddiePortrait = null
     }
 }
 
@@ -434,14 +440,14 @@ const getSquaddieTeamIconImage = (
 }
 
 const drawActionPoints = (
-    squaddieSummaryPanel: SquaddieSummaryPanel,
+    squaddieSummaryPopover: SquaddieSummaryPopover,
     gameEngineState: GameEngineState,
     graphicsContext: GraphicsBuffer
 ) => {
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            squaddieSummaryPanel.battleSquaddieId
+            squaddieSummaryPopover.battleSquaddieId
         )
     )
     const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
@@ -463,12 +469,12 @@ const drawActionPoints = (
         graphicsContext,
         drawArea: RectAreaService.new({
             left:
-                squaddieSummaryPanel.windowArea.left +
+                squaddieSummaryPopover.windowArea.left +
                 ScreenDimensions.SCREEN_WIDTH / 12,
             height: ACTION_POINTS_STYLE.bar.height,
             width: ACTION_POINTS_STYLE.bar.width,
             top:
-                squaddieSummaryPanel.windowArea.top +
+                squaddieSummaryPopover.windowArea.top +
                 ACTION_POINTS_STYLE.topOffset,
         }),
         currentAmount: actionPointsRemaining,
@@ -482,14 +488,14 @@ const drawActionPoints = (
 }
 
 const drawHitPoints = (
-    squaddieSummaryPanel: SquaddieSummaryPanel,
+    squaddieSummaryPopover: SquaddieSummaryPopover,
     gameEngineState: GameEngineState,
     graphicsContext: GraphicsBuffer
 ) => {
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            squaddieSummaryPanel.battleSquaddieId
+            squaddieSummaryPopover.battleSquaddieId
         )
     )
     const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
@@ -511,12 +517,12 @@ const drawHitPoints = (
         graphicsContext,
         drawArea: RectAreaService.new({
             left:
-                squaddieSummaryPanel.windowArea.left +
+                squaddieSummaryPopover.windowArea.left +
                 ScreenDimensions.SCREEN_WIDTH / 12,
             height: HIT_POINTS_STYLE.bar.height,
             width: HIT_POINTS_STYLE.bar.width,
             top:
-                squaddieSummaryPanel.windowArea.top +
+                squaddieSummaryPopover.windowArea.top +
                 HIT_POINTS_STYLE.topOffset,
         }),
         currentAmount: currentHitPoints,

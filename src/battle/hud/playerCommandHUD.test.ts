@@ -179,12 +179,13 @@ describe("playerCommandHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default({}),
                 })
-                SummaryHUDStateService.setLeftSummaryPanel({
+                SummaryHUDStateService.setMainSummaryPopover({
                     summaryHUDState,
                     battleSquaddieId: "player",
                     resourceHandler,
                     objectRepository,
                     gameEngineState,
+                    lockPopover: true,
                 })
                 SummaryHUDStateService.createCommandWindow({
                     summaryHUDState,
@@ -213,12 +214,13 @@ describe("playerCommandHUD", () => {
                 y: 0,
             },
         })
-        SummaryHUDStateService.setLeftSummaryPanel({
+        SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState,
             battleSquaddieId: "player",
             resourceHandler,
             objectRepository,
             gameEngineState,
+            lockPopover: true,
         })
         SummaryHUDStateService.createCommandWindow({
             summaryHUDState,
