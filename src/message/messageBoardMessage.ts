@@ -1,6 +1,8 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
+import { ActionTemplate } from "../action/template/actionTemplate"
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -15,6 +17,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsAndLocksSquaddie
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
+    | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -29,6 +32,7 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTS_AND_LOCKS_SQUADDIE = "PLAYER_SELECTS_AND_LOCKS_SQUADDIE",
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
+    PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
 }
 
 export interface MessageBoardMessageBase {
@@ -111,4 +115,12 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
 export interface MessageBoardBattleActionFinishesAnimation {
     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
     gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
+    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+    gameEngineState: GameEngineState
+    actionTemplate: ActionTemplate
+    battleSquaddieId: string
+    mapStartingLocation: HexCoordinate
 }

@@ -66,7 +66,6 @@ import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBa
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService, SummaryPopoverType } from "../hud/summaryHUD"
-import { ActionTemplate } from "../../action/template/actionTemplate"
 import { PlayerCommandSelection } from "../hud/playerCommandHUD"
 import {
     BattleAction,
@@ -1010,42 +1009,12 @@ export class BattlePlayerSquaddieSelector
             return
         }
 
-        this.playerSelectsAction(
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
             gameEngineState,
-            battleSquaddie,
-            mapLocation,
-            newAction
-        )
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showSummaryHUD =
-            false
-    }
-
-    private playerSelectsAction = (
-        gameEngineState: GameEngineState,
-        battleSquaddie: BattleSquaddie,
-        mapLocation: HexCoordinate,
-        newAction: ActionTemplate
-    ) => {
-        ActionsThisRoundService.updateActionsThisRound({
-            state: gameEngineState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startingLocation: mapLocation,
-            previewedActionTemplateId: newAction.id,
-        })
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-        })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
             actionTemplate: newAction,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            mapStartingLocation: mapLocation,
         })
     }
 

@@ -163,6 +163,10 @@ describe("user clicks on an action to consider it", () => {
             battleHUDListener,
             MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+        )
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
@@ -273,6 +277,21 @@ describe("user clicks on an action to consider it", () => {
 
         expect(highlightSpy).toHaveBeenCalled()
         expect(highlightSpy.mock.calls[0][0][0].tiles).toEqual([{ q: 0, r: 1 }])
+    })
+
+    it("Hides the action selector", () => {
+        selectorClicksOnSquaddie(selector, gameEngineState)
+        selector.mouseClicked({
+            mouseX: RectAreaService.centerX(attackButton.buttonArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseButton: MouseButton.ACCEPT,
+            gameEngineState,
+        })
+
+        expect(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.showPlayerCommand
+        ).toBeFalsy()
     })
 })
 

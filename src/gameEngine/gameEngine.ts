@@ -264,6 +264,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
             MessageBoardMessageType.PLAYER_ENDS_TURN,
+            MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

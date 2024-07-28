@@ -986,6 +986,7 @@ describe("BattleSquaddieSelector", () => {
     describe("an action is selected that requires a target", () => {
         let gameEngineState: GameEngineState
         let longswordAction: ActionTemplate
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
             const battlePhaseState =
@@ -1048,6 +1049,8 @@ describe("BattleSquaddieSelector", () => {
                 MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
             BattleSquaddieTeamService.addBattleSquaddieIds(
                 gameEngineState.battleOrchestratorState.battleState.teams[0],
                 ["player_soldier_1"]
@@ -1078,21 +1081,13 @@ describe("BattleSquaddieSelector", () => {
                 gameEngineState,
             })
         })
+
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
         it("will complete the selector", () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-        })
-        it("will set the actions this round to the squaddie and its location", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.battleSquaddieId
-            ).toEqual("player_soldier_1")
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.startingLocation
-            ).toEqual({
-                q: 0,
-                r: 1,
-            })
         })
         it("will recommend player HUD controller as the next phase", () => {
             const recommendation: BattleOrchestratorChanges =
@@ -1101,29 +1096,14 @@ describe("BattleSquaddieSelector", () => {
                 BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
             )
         })
-        it("will add to the history", () => {
-            const history =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            expect(history).toHaveLength(0)
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.previewedActionTemplateId
-            ).toEqual(longswordAction.id)
-        })
-        it("set the action in the action builder when a button is clicked", () => {
-            expect(
-                PlayerBattleActionBuilderStateService.isActionSet(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).actionTemplate.id
-            ).toEqual(longswordAction.id)
+        it("sends a message that an action was selected that needs a target", () => {
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                gameEngineState,
+                actionTemplate: longswordAction,
+                battleSquaddieId: "player_soldier_1",
+                mapStartingLocation: { q: 0, r: 1 },
+            })
         })
     })
 

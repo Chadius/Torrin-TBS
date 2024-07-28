@@ -8,6 +8,7 @@ import {
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerPeeksAtSquaddie,
     MessageBoardMessagePlayerSelectionIsInvalid,
+    MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
@@ -389,6 +390,36 @@ export const BattleHUDService = {
                 return
         }
     },
+    playerSelectsActionThatRequiresATarget: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
+    ) => {
+        const gameEngineState = message.gameEngineState
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
+            false
+
+        ActionsThisRoundService.updateActionsThisRound({
+            state: gameEngineState,
+            battleSquaddieId: message.battleSquaddieId,
+            startingLocation: message.mapStartingLocation,
+            previewedActionTemplateId: message.actionTemplate.id,
+        })
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            PlayerBattleActionBuilderStateService.new({})
+        PlayerBattleActionBuilderStateService.setActor({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            battleSquaddieId: message.battleSquaddieId,
+        })
+        PlayerBattleActionBuilderStateService.addAction({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            actionTemplate: message.actionTemplate,
+        })
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -445,6 +476,12 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE:
                 BattleHUDService.playerPeeksAtSquaddie(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET:
+                BattleHUDService.playerSelectsActionThatRequiresATarget(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )

@@ -81,6 +81,7 @@ import {
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
+import { TargetingShape } from "../targeting/targetingShapeGenerator"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -1446,6 +1447,210 @@ describe("Battle HUD", () => {
                         .battleActionQueue
                 )
             ).toEqual(endTurnBattleAction)
+        })
+    })
+    describe("Player selects an action", () => {
+        let battleHUDListener: BattleHUDListener
+        let gameEngineState: GameEngineState
+        let missionMap: MissionMap
+        let repository: ObjectRepository
+        let playerSoldierBattleSquaddie: BattleSquaddie
+        let longswordAction: ActionTemplate
+
+        beforeEach(() => {
+            repository = ObjectRepositoryService.new()
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+
+            const playerTeam: BattleSquaddieTeam = {
+                id: "playerTeamId",
+                name: "player controlled team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
+            }
+            let teams: BattleSquaddieTeam[] = []
+            longswordAction = ActionTemplateService.new({
+                name: "longsword",
+                id: "longsword",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        targetingShape: TargetingShape.SNAKE,
+                    }),
+                ],
+            })
+            teams.push(playerTeam)
+            ;({ battleSquaddie: playerSoldierBattleSquaddie } =
+                CreateNewSquaddieAndAddToRepository({
+                    name: "Player Soldier",
+                    templateId: "player_soldier",
+                    battleId: "player_soldier_0",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    squaddieRepository: repository,
+                    actionTemplates: [longswordAction],
+                }))
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_0",
+            ])
+
+            missionMap.addSquaddie("player_soldier", "player_soldier_0", {
+                q: 0,
+                r: 0,
+            })
+
+            const battlePhaseState = {
+                currentAffiliation: BattlePhase.PLAYER,
+                turnCount: 1,
+            }
+
+            const camera: BattleCamera = new BattleCamera()
+
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    new MockedP5GraphicsBuffer()
+                ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new({
+                            mouseSelectionLocation: { x: 0, y: 0 },
+                        }),
+                    }),
+                }),
+                repository,
+                campaign: CampaignService.default({}),
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                PlayerBattleActionBuilderStateService.new({})
+
+            PlayerBattleActionBuilderStateService.setActor({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            })
+
+            SummaryHUDStateService.setMainSummaryPopover({
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: repository,
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            SummaryHUDStateService.createCommandWindow({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: repository,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                gameEngineState,
+                actionTemplate: longswordAction,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                mapStartingLocation: { q: 0, r: 0 },
+            })
+        })
+
+        it("hides the command window", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showPlayerCommand
+            ).toBeFalsy()
+        })
+
+        it("updates the action builder actor", () => {
+            expect(
+                PlayerBattleActionBuilderStateService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                ).battleSquaddieId
+            ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
+        })
+
+        it("updates the action builder action", () => {
+            expect(
+                PlayerBattleActionBuilderStateService.isActionSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                ).actionTemplate.id
+            ).toEqual(longswordAction.id)
+        })
+
+        it("clears the action builder target", () => {
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeFalsy()
+        })
+
+        it("will not add to the history", () => {
+            const history =
+                gameEngineState.battleOrchestratorState.battleState.recording
+                    .history
+            expect(history).toHaveLength(0)
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.previewedActionTemplateId
+            ).toEqual(longswordAction.id)
+        })
+
+        it("will set the actions this round to the squaddie and its location", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.battleSquaddieId
+            ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.startingLocation
+            ).toEqual({
+                q: 0,
+                r: 0,
+            })
         })
     })
 })
