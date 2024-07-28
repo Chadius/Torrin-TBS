@@ -353,7 +353,6 @@ export class BattleOrchestrator implements GameEngineComponent {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX,
             mouseY,
-            mouseButton: MouseButton.NONE,
         }
 
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent)

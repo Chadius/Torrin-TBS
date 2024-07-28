@@ -663,7 +663,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 1

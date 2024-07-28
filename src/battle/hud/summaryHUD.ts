@@ -6,18 +6,25 @@ import {
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { MouseButton } from "../../utils/mouseConfig"
-import { ButtonStatus } from "../../ui/button"
 import {
-    SquaddieSummaryPanel,
-    SquaddieSummaryPanelService,
-} from "./playerActionPanel/squaddieSummaryPanel"
+    SquaddieSummaryPopover,
+    SquaddieSummaryPopoverPosition,
+    SquaddieSummaryPopoverService,
+} from "./playerActionPanel/squaddieSummaryPopover"
 import { isValidValue } from "../../utils/validityCheck"
 
+export enum SummaryPopoverType {
+    MAIN = "MAIN",
+    TARGET = "TARGET",
+}
+
 const SUMMARY_WINDOW_DISPLAY = {
-    summaryPanelStartColumns: [0, 9],
+    squaddieSummaryPopoversByType: {
+        MAIN: 0,
+        TARGET: 9,
+    },
 }
 
 export interface SummaryHUDState {
@@ -25,9 +32,9 @@ export interface SummaryHUDState {
     showSummaryHUD: boolean
     playerCommandState: PlayerCommandState
     mouseSelectionLocation: { x: number; y: number }
-
-    summaryPanelLeft?: SquaddieSummaryPanel
-    summaryPanelRight?: SquaddieSummaryPanel
+    squaddieSummaryPopoversByType: {
+        [t in SummaryPopoverType]: SquaddieSummaryPopover
+    }
 }
 
 export const SummaryHUDStateService = {
@@ -41,6 +48,10 @@ export const SummaryHUDStateService = {
             showPlayerCommand: false,
             showSummaryHUD: false,
             mouseSelectionLocation,
+            squaddieSummaryPopoversByType: {
+                MAIN: undefined,
+                TARGET: undefined,
+            },
         }
     },
     mouseClicked: ({
@@ -80,17 +91,17 @@ export const SummaryHUDStateService = {
         }
 
         return [
-            summaryHUDState.summaryPanelLeft,
-            summaryHUDState.summaryPanelRight,
+            summaryHUDState.squaddieSummaryPopoversByType.MAIN,
+            summaryHUDState.squaddieSummaryPopoversByType.TARGET,
         ]
             .filter((x) => x)
-            .some((panel: SquaddieSummaryPanel) =>
-                SquaddieSummaryPanelService.isMouseHoveringOver({
+            .some((popover: SquaddieSummaryPopover) =>
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
                     mouseLocation: {
                         x: mouseSelectionLocation.x,
                         y: mouseSelectionLocation.y,
                     },
-                    squaddieSummaryPanel: panel,
+                    squaddieSummaryPopover: popover,
                 })
             )
     },
@@ -107,13 +118,27 @@ export const SummaryHUDStateService = {
             return
         }
 
-        ;[summaryHUDState.summaryPanelLeft, summaryHUDState.summaryPanelRight]
-            .filter((x) => x)
-            .forEach((panel) => {
-                SquaddieSummaryPanelService.draw({
+        ;[SummaryPopoverType.MAIN, SummaryPopoverType.TARGET]
+            .filter(
+                (popoverType) =>
+                    !!summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+            )
+            .map((popoverType) => {
+                removeSummaryPopoverIfExpired({ summaryHUDState, popoverType })
+                return popoverType
+            })
+            .filter(
+                (popoverType) =>
+                    !!summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+            )
+            .forEach((popoverType) => {
+                SquaddieSummaryPopoverService.draw({
                     graphicsBuffer,
                     gameEngineState,
-                    squaddieSummaryPanel: panel,
+                    squaddieSummaryPopover:
+                        summaryHUDState.squaddieSummaryPopoversByType[
+                            popoverType
+                        ],
                 })
             })
 
@@ -125,54 +150,68 @@ export const SummaryHUDStateService = {
             })
         }
     },
-    setLeftSummaryPanel: ({
+    setMainSummaryPopover: ({
         summaryHUDState,
         gameEngineState,
         objectRepository,
         resourceHandler,
         battleSquaddieId,
+        position,
+        expirationTime,
     }: {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
         objectRepository: ObjectRepository
         resourceHandler: ResourceHandler
         battleSquaddieId: string
+        position: SquaddieSummaryPopoverPosition
+        expirationTime?: number
     }) => {
         maybeCreateSummaryPanel({
             summaryHUDState,
             battleSquaddieId,
-            summaryPanelIsOnLeftSide: true,
+            popoverType: SummaryPopoverType.MAIN,
+            expirationTime,
+            position,
         })
-        SquaddieSummaryPanelService.update({
+        SquaddieSummaryPopoverService.update({
             objectRepository,
             gameEngineState,
             resourceHandler,
-            squaddieSummaryPanel: summaryHUDState.summaryPanelLeft,
+            squaddieSummaryPopover:
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN,
         })
     },
-    setRightSummaryPanel: ({
+    setTargetSummaryPopover: ({
         summaryHUDState,
         gameEngineState,
         objectRepository,
         resourceHandler,
         battleSquaddieId,
+        expirationTime,
+        position,
     }: {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
         objectRepository: ObjectRepository
         resourceHandler: ResourceHandler
         battleSquaddieId: string
+        position: SquaddieSummaryPopoverPosition
+        expirationTime?: number
     }) => {
         maybeCreateSummaryPanel({
             summaryHUDState,
             battleSquaddieId,
-            summaryPanelIsOnLeftSide: false,
+            popoverType: SummaryPopoverType.TARGET,
+            expirationTime,
+            position,
         })
-        SquaddieSummaryPanelService.update({
+        SquaddieSummaryPopoverService.update({
             objectRepository,
             gameEngineState,
             resourceHandler,
-            squaddieSummaryPanel: summaryHUDState.summaryPanelRight,
+            squaddieSummaryPopover:
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET,
         })
     },
     mouseMoved: ({
@@ -190,35 +229,12 @@ export const SummaryHUDStateService = {
             return
         }
 
-        const changeButtonStatusBasedOnMouseLocation = (button: {
-            buttonArea: RectArea
-            status: ButtonStatus
-        }) => {
-            const isMouseInsideButton = RectAreaService.isInside(
-                button.buttonArea,
-                mouseX,
-                mouseY
-            )
-
-            if (button.status === ButtonStatus.HOVER && !isMouseInsideButton) {
-                button.status = ButtonStatus.ACTIVE
-                return
-            }
-
-            if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
-                button.status = ButtonStatus.HOVER
-            }
-        }
-
-        summaryHUDState.playerCommandState.actionButtons.forEach((button) => {
-            changeButtonStatusBasedOnMouseLocation(button)
+        PlayerCommandStateService.mouseMoved({
+            mouseX,
+            mouseY,
+            gameEngineState,
+            playerCommandState: summaryHUDState.playerCommandState,
         })
-        changeButtonStatusBasedOnMouseLocation(
-            summaryHUDState.playerCommandState.moveButton
-        )
-        changeButtonStatusBasedOnMouseLocation(
-            summaryHUDState.playerCommandState.endTurnButton
-        )
     },
     createCommandWindow: ({
         summaryHUDState,
@@ -231,7 +247,9 @@ export const SummaryHUDStateService = {
         gameEngineState: GameEngineState
         resourceHandler: ResourceHandler
     }) => {
-        if (!isValidValue(summaryHUDState?.summaryPanelLeft)) {
+        if (
+            !isValidValue(summaryHUDState?.squaddieSummaryPopoversByType.MAIN)
+        ) {
             return
         }
 
@@ -242,7 +260,49 @@ export const SummaryHUDStateService = {
             objectRepository,
             gameEngineState,
             resourceHandler,
-            battleSquaddieId: summaryHUDState.summaryPanelLeft.battleSquaddieId,
+            battleSquaddieId:
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId,
+        })
+    },
+    hasMainSummaryPopoverExpired: ({
+        summaryHUDState,
+    }: {
+        summaryHUDState: SummaryHUDState
+    }): boolean => {
+        return hasSummaryPopoverExpired({
+            summaryHUDState,
+            popoverType: SummaryPopoverType.MAIN,
+        })
+    },
+    removeMainSummaryPopoverIfExpired: ({
+        summaryHUDState,
+    }: {
+        summaryHUDState: SummaryHUDState
+    }) => {
+        removeSummaryPopoverIfExpired({
+            summaryHUDState,
+            popoverType: SummaryPopoverType.MAIN,
+        })
+    },
+    hasTargetSummaryPopoverExpired: ({
+        summaryHUDState,
+    }: {
+        summaryHUDState: SummaryHUDState
+    }): boolean => {
+        return hasSummaryPopoverExpired({
+            summaryHUDState,
+            popoverType: SummaryPopoverType.TARGET,
+        })
+    },
+    removeTargetSummaryPopoverIfExpired: ({
+        summaryHUDState,
+    }: {
+        summaryHUDState: SummaryHUDState
+    }) => {
+        removeSummaryPopoverIfExpired({
+            summaryHUDState,
+            popoverType: SummaryPopoverType.TARGET,
         })
     },
 }
@@ -250,28 +310,88 @@ export const SummaryHUDStateService = {
 const maybeCreateSummaryPanel = ({
     summaryHUDState,
     battleSquaddieId,
-    summaryPanelIsOnLeftSide,
+    popoverType,
+    expirationTime,
+    position,
 }: {
     summaryHUDState: SummaryHUDState
     battleSquaddieId: string
-    summaryPanelIsOnLeftSide: boolean
+    popoverType: SummaryPopoverType
+    position: SquaddieSummaryPopoverPosition
+    expirationTime?: number
 }) => {
     if (!isValidValue(battleSquaddieId) || battleSquaddieId === "") {
         return
     }
 
-    summaryHUDState.showSummaryHUD = true
-
-    const newPanel = SquaddieSummaryPanelService.new({
+    const newPanel = SquaddieSummaryPopoverService.new({
         battleSquaddieId: battleSquaddieId,
-        startingColumn: summaryPanelIsOnLeftSide
-            ? SUMMARY_WINDOW_DISPLAY.summaryPanelStartColumns[0]
-            : SUMMARY_WINDOW_DISPLAY.summaryPanelStartColumns[1],
+        startingColumn:
+            SUMMARY_WINDOW_DISPLAY.squaddieSummaryPopoversByType[popoverType],
+        expirationTime,
+        position,
     })
 
-    if (summaryPanelIsOnLeftSide) {
-        summaryHUDState.summaryPanelLeft = newPanel
+    if (
+        !shouldReplacePopover(
+            summaryHUDState.squaddieSummaryPopoversByType[popoverType],
+            expirationTime
+        )
+    ) {
         return
     }
-    summaryHUDState.summaryPanelRight = newPanel
+
+    summaryHUDState.showSummaryHUD = true
+    summaryHUDState.squaddieSummaryPopoversByType[popoverType] = newPanel
+}
+
+const shouldReplacePopover = (
+    popover: SquaddieSummaryPopover,
+    expirationTime?: number
+) => {
+    const summaryPopoverExists: boolean = isValidValue(popover)
+    const summaryPopoverWillExpireOverTime: boolean =
+        summaryPopoverExists && isValidValue(popover.expirationTime)
+    const newPopoverWillExpireOverTime: boolean = isValidValue(expirationTime)
+
+    return !(
+        summaryPopoverExists &&
+        !summaryPopoverWillExpireOverTime &&
+        newPopoverWillExpireOverTime
+    )
+}
+
+const removeSummaryPopoverIfExpired = ({
+    summaryHUDState,
+    popoverType,
+}: {
+    summaryHUDState: SummaryHUDState
+    popoverType: SummaryPopoverType
+}) => {
+    if (hasSummaryPopoverExpired({ summaryHUDState, popoverType })) {
+        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
+    }
+}
+
+const hasSummaryPopoverExpired = ({
+    summaryHUDState,
+    popoverType,
+}: {
+    summaryHUDState: SummaryHUDState
+    popoverType: SummaryPopoverType
+}) => {
+    if (
+        !isValidValue(
+            summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+                ?.expirationTime
+        )
+    ) {
+        return false
+    }
+
+    return (
+        Date.now() >
+        summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+            ?.expirationTime
+    )
 }

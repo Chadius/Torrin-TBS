@@ -22,14 +22,18 @@ import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import { RectAreaService } from "../../../ui/rectArea"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import {
-    SquaddieSummaryPanel,
-    SquaddieSummaryPanelService,
-} from "./squaddieSummaryPanel"
+    SquaddieSummaryPopover,
+    SquaddieSummaryPopoverPosition,
+    SquaddieSummaryPopoverService,
+} from "./squaddieSummaryPopover"
+import { WINDOW_SPACING } from "../../../ui/constants"
+import { TARGET_CANCEL_BUTTON_TOP } from "../../orchestratorComponents/battlePlayerSquaddieTarget"
+import { ACTOR_TEXT_WINDOW } from "../../animation/actionAnimation/actorTextWindow"
 
-describe("SquaddieSummaryPanel", () => {
+describe("squaddieSummaryPopover", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
     let objectRepository: ObjectRepository
-    let panel: SquaddieSummaryPanel
+    let panel: SquaddieSummaryPopover
     let resourceHandler: ResourceHandler
 
     beforeEach(() => {
@@ -146,18 +150,19 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         startingColumn: 0,
                         battleSquaddieId,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
                     })
-                    SquaddieSummaryPanelService.draw({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.draw({
+                        squaddieSummaryPopover: panel,
                         graphicsBuffer,
                         gameEngineState,
                     })
@@ -186,12 +191,13 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         battleSquaddieId: "player",
                         startingColumn: column,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
@@ -211,12 +217,13 @@ describe("SquaddieSummaryPanel", () => {
                         repository: objectRepository,
                         campaign: CampaignService.default({}),
                     })
-                    panel = SquaddieSummaryPanelService.new({
+                    panel = SquaddieSummaryPopoverService.new({
                         battleSquaddieId: "player",
                         startingColumn: column,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
                     })
-                    SquaddieSummaryPanelService.update({
-                        squaddieSummaryPanel: panel,
+                    SquaddieSummaryPopoverService.update({
+                        squaddieSummaryPopover: panel,
                         objectRepository,
                         gameEngineState,
                         resourceHandler,
@@ -229,26 +236,108 @@ describe("SquaddieSummaryPanel", () => {
             )
         })
 
+        describe("will reposition based on the purpose", () => {
+            it("defaults to selecting main position", () => {
+                const popover: SquaddieSummaryPopover =
+                    SquaddieSummaryPopoverService.new({
+                        battleSquaddieId: "player",
+                        startingColumn: 0,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                    })
+
+                expect(popover.position).toEqual(
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN
+                )
+                expect(
+                    RectAreaService.bottom(popover.windowArea)
+                ).toBeGreaterThanOrEqual(
+                    ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1
+                )
+            })
+            it("will change to target position when requested", () => {
+                const popover: SquaddieSummaryPopover =
+                    SquaddieSummaryPopoverService.new({
+                        battleSquaddieId: "player",
+                        startingColumn: 0,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                    })
+                SquaddieSummaryPopoverService.changePopoverPosition({
+                    popover,
+                    position: SquaddieSummaryPopoverPosition.SELECT_TARGET,
+                })
+
+                expect(popover.position).toEqual(
+                    SquaddieSummaryPopoverPosition.SELECT_TARGET
+                )
+                expect(
+                    RectAreaService.bottom(popover.windowArea)
+                ).toBeLessThanOrEqual(TARGET_CANCEL_BUTTON_TOP)
+            })
+            it("will change to main position when requested", () => {
+                const popover: SquaddieSummaryPopover =
+                    SquaddieSummaryPopoverService.new({
+                        battleSquaddieId: "player",
+                        startingColumn: 0,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                    })
+                SquaddieSummaryPopoverService.changePopoverPosition({
+                    popover,
+                    position: SquaddieSummaryPopoverPosition.SELECT_TARGET,
+                })
+                SquaddieSummaryPopoverService.changePopoverPosition({
+                    popover,
+                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                })
+
+                expect(popover.position).toEqual(
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN
+                )
+                expect(
+                    RectAreaService.bottom(popover.windowArea)
+                ).toBeGreaterThanOrEqual(
+                    ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1
+                )
+            })
+            it("will can start in animate position when requested", () => {
+                const popover: SquaddieSummaryPopover =
+                    SquaddieSummaryPopoverService.new({
+                        battleSquaddieId: "player",
+                        startingColumn: 0,
+                        position:
+                            SquaddieSummaryPopoverPosition.ANIMATE_SQUADDIE_ACTION,
+                    })
+                expect(popover.position).toEqual(
+                    SquaddieSummaryPopoverPosition.ANIMATE_SQUADDIE_ACTION
+                )
+                expect(
+                    RectAreaService.bottom(popover.windowArea)
+                ).toBeGreaterThanOrEqual(
+                    ACTOR_TEXT_WINDOW.top + WINDOW_SPACING.SPACING1
+                )
+            })
+        })
+
         it("knows when the mouse is hovering over the window", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default({}),
             })
-            panel = SquaddieSummaryPanelService.new({
+            panel = SquaddieSummaryPopoverService.new({
                 battleSquaddieId: "player",
                 startingColumn: 0,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            SquaddieSummaryPanelService.update({
-                squaddieSummaryPanel: panel,
+            SquaddieSummaryPopoverService.update({
+                squaddieSummaryPopover: panel,
                 objectRepository,
                 gameEngineState,
                 resourceHandler,
             })
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: panel.windowArea.left - 5,
                         y: RectAreaService.centerY(panel.windowArea),
@@ -257,8 +346,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.right(panel.windowArea) + 5,
                         y: RectAreaService.centerY(panel.windowArea),
@@ -267,8 +356,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: panel.windowArea.top - 5,
@@ -277,8 +366,8 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: RectAreaService.bottom(panel.windowArea) + 5,
@@ -287,14 +376,39 @@ describe("SquaddieSummaryPanel", () => {
             ).toBeFalsy()
 
             expect(
-                SquaddieSummaryPanelService.isMouseHoveringOver({
-                    squaddieSummaryPanel: panel,
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    squaddieSummaryPopover: panel,
                     mouseLocation: {
                         x: RectAreaService.centerX(panel.windowArea),
                         y: RectAreaService.centerY(panel.windowArea),
                     },
                 })
             ).toBeTruthy()
+        })
+
+        it("knows if it will expire over time", () => {
+            const willExpireOverTime = SquaddieSummaryPopoverService.new({
+                startingColumn: 0,
+                battleSquaddieId: "squaddie",
+                expirationTime: 1000,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            expect(
+                SquaddieSummaryPopoverService.willExpireOverTime({
+                    squaddieSummaryPopover: willExpireOverTime,
+                })
+            ).toBe(true)
+
+            const willNeverExpire = SquaddieSummaryPopoverService.new({
+                startingColumn: 0,
+                battleSquaddieId: "squaddie",
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            expect(
+                SquaddieSummaryPopoverService.willExpireOverTime({
+                    squaddieSummaryPopover: willNeverExpire,
+                })
+            ).toBe(false)
         })
     })
 })

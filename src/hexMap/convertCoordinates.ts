@@ -1,5 +1,61 @@
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
+import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
+import { BattleCamera } from "../battle/battleCamera"
+import { isValidValue } from "../utils/validityCheck"
+
+export const ConvertCoordinateService = {
+    convertMapCoordinatesToScreenCoordinates: ({
+        q,
+        r,
+        cameraX,
+        cameraY,
+    }: {
+        q: number
+        r: number
+        cameraX: number
+        cameraY: number
+    }): { x: number; y: number } => {
+        const [screenX, screenY] = convertMapCoordinatesToScreenCoordinates(
+            q,
+            r,
+            cameraX,
+            cameraY
+        )
+        return {
+            x: screenX,
+            y: screenY,
+        }
+    },
+    convertScreenCoordinatesToMapCoordinates: ({
+        screenX,
+        screenY,
+        cameraX,
+        cameraY,
+        camera,
+    }: {
+        screenX: number
+        screenY: number
+        cameraX?: number
+        cameraY?: number
+        camera?: BattleCamera
+    }): HexCoordinate => {
+        if (isValidValue(camera)) {
+            ;({ cameraX, cameraY } = camera.getCoordinatesAsObject())
+        }
+
+        const [q, r] = convertScreenCoordinatesToMapCoordinates(
+            screenX,
+            screenY,
+            cameraX,
+            cameraY
+        )
+        return {
+            q,
+            r,
+        }
+    },
+}
 
 export const convertWorldCoordinatesToMapCoordinates = (
     worldX: number,

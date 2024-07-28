@@ -1,4 +1,5 @@
 import {
+    ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
@@ -131,11 +132,16 @@ describe("convertCoordinates", () => {
 
     it("converts map coordinates to screen coordinates", () => {
         expect(
-            convertMapCoordinatesToScreenCoordinates(0, 0, 0, 0)
-        ).toStrictEqual([
-            ScreenDimensions.SCREEN_WIDTH / 2,
-            ScreenDimensions.SCREEN_HEIGHT / 2,
-        ])
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 0,
+                cameraX: 0,
+                cameraY: 0,
+            })
+        ).toStrictEqual({
+            x: ScreenDimensions.SCREEN_WIDTH / 2,
+            y: ScreenDimensions.SCREEN_HEIGHT / 2,
+        })
 
         expect(
             convertMapCoordinatesToScreenCoordinates(0, 1, 0, 0)
@@ -168,13 +174,13 @@ describe("convertCoordinates", () => {
 
     it("converts screen coordinates to map coordinates", () => {
         expect(
-            convertScreenCoordinatesToMapCoordinates(
-                ScreenDimensions.SCREEN_WIDTH / 2,
-                ScreenDimensions.SCREEN_HEIGHT / 2,
-                0,
-                0
-            )
-        ).toStrictEqual([0, 0])
+            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0,
+            })
+        ).toStrictEqual({ q: 0, r: 0 })
 
         expect(
             convertScreenCoordinatesToMapCoordinates(

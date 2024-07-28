@@ -7,6 +7,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import {
+    ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
     convertScreenCoordinatesToMapCoordinates,
 } from "../../hexMap/convertCoordinates"
@@ -64,7 +65,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SummaryHUDStateService, SummaryPopoverType } from "../hud/summaryHUD"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { PlayerCommandSelection } from "../hud/playerCommandHUD"
 import {
@@ -72,6 +73,7 @@ import {
     BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
+import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -221,6 +223,12 @@ export class BattlePlayerSquaddieSelector
             mouseY,
         })
 
+        this.sendMessageIfUserPeeksAtSquaddieByMouse({
+            gameEngineState,
+            mouseX,
+            mouseY,
+        })
+
         if (
             !gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState?.showSummaryHUD
@@ -268,12 +276,13 @@ export class BattlePlayerSquaddieSelector
 
                 if (
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.summaryPanelLeft
+                        .summaryHUDState?.squaddieSummaryPopoversByType.MAIN
                 ) {
                     const squaddieInfo =
                         gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                             gameEngineState.battleOrchestratorState
-                                .battleHUDState.summaryHUDState.summaryPanelLeft
+                                .battleHUDState.summaryHUDState
+                                .squaddieSummaryPopoversByType.MAIN
                                 .battleSquaddieId
                         )
                     if (
@@ -434,8 +443,15 @@ export class BattlePlayerSquaddieSelector
         }
 
         if (
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState === undefined
+            !isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ) ||
+            isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            )
         ) {
             this.reactToClickingOnMapWhenNoSquaddieSelected(
                 gameEngineState,
@@ -565,19 +581,20 @@ export class BattlePlayerSquaddieSelector
         const squaddieIsAlreadyDisplayedInTheLeftSummaryPanel: boolean =
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.summaryPanelLeft
+                    .summaryHUDState?.squaddieSummaryPopoversByType.MAIN
             ) &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId ===
-                battleSquaddieToHighlightId
+                .summaryHUDState.squaddieSummaryPopoversByType[
+                SummaryPopoverType.MAIN
+            ].battleSquaddieId === battleSquaddieToHighlightId
         const squaddieIsAlreadyDisplayedInTheRightSummaryPanel: boolean =
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.summaryPanelRight
+                    .summaryHUDState?.squaddieSummaryPopoversByType.TARGET
             ) &&
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelRight.battleSquaddieId ===
-                battleSquaddieToHighlightId
+                .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                .battleSquaddieId === battleSquaddieToHighlightId
 
         this.highlightSquaddieOnMap(
             gameEngineState,
@@ -691,7 +708,9 @@ export class BattlePlayerSquaddieSelector
         }
         if (
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId === undefined
+                .summaryHUDState.squaddieSummaryPopoversByType[
+                SummaryPopoverType.MAIN
+            ].battleSquaddieId === undefined
         ) {
             return
         }
@@ -700,7 +719,8 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             )
         )
 
@@ -904,7 +924,9 @@ export class BattlePlayerSquaddieSelector
             )
         const squaddieShownInHUD =
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.summaryPanelLeft?.battleSquaddieId
+                .summaryHUDState?.squaddieSummaryPopoversByType[
+                SummaryPopoverType.MAIN
+            ]?.battleSquaddieId
 
         return (
             startOfANewSquaddieTurn ||
@@ -925,7 +947,8 @@ export class BattlePlayerSquaddieSelector
             actor: {
                 battleSquaddieId:
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.summaryPanelLeft?.battleSquaddieId,
+                        .summaryHUDState?.squaddieSummaryPopoversByType.MAIN
+                        ?.battleSquaddieId,
             },
             action: { isEndTurn: true },
             effect: { endTurn: true },
@@ -951,7 +974,8 @@ export class BattlePlayerSquaddieSelector
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             )
         )
 
@@ -1074,6 +1098,48 @@ export class BattlePlayerSquaddieSelector
             }),
             destination: decidedActionMovementEffect.destination,
         }
+    }
+
+    private sendMessageIfUserPeeksAtSquaddieByMouse = ({
+        mouseX,
+        mouseY,
+        gameEngineState,
+    }: {
+        mouseX: number
+        mouseY: number
+        gameEngineState: GameEngineState
+    }) => {
+        const { q, r } =
+            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+                screenX: mouseX,
+                screenY: mouseY,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+            })
+
+        const { battleSquaddieId } =
+            MissionMapService.getBattleSquaddieAtLocation(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                { q, r }
+            )
+
+        if (!isValidValue(battleSquaddieId)) {
+            return
+        }
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieId,
+            selectionMethod: {
+                mouse: {
+                    x: mouseX,
+                    y: mouseY,
+                },
+            },
+            squaddieSummaryPopoverPosition:
+                SquaddieSummaryPopoverPosition.SELECT_MAIN,
+        })
     }
 }
 

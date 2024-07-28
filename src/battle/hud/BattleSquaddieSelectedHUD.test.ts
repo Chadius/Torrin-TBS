@@ -22,14 +22,8 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import {
-    BattleSquaddieTeam,
-    BattleSquaddieTeamService,
-} from "../battleSquaddieTeam"
-import {
-    BattlePhaseState,
-    BattlePhaseStateService,
-} from "../orchestratorComponents/battlePhaseController"
+import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
+import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -38,7 +32,6 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { CampaignService } from "../../campaign/campaign"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 describe("BattleSquaddieSelectedHUD", () => {
     let hud: BattleSquaddieSelectedHUD
@@ -173,7 +166,7 @@ describe("BattleSquaddieSelectedHUD", () => {
             })
 
             expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: playerBattleSquaddieId,
                 selectionMethod: {
@@ -247,7 +240,7 @@ describe("BattleSquaddieSelectedHUD", () => {
             expect(messageSpy).toBeCalled()
             expect(messageSpy).toBeCalledWith(
                 expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                 })
             )

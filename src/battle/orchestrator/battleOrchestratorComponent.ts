@@ -10,11 +10,21 @@ export enum OrchestratorComponentMouseEventType {
     MOVED,
 }
 
-export type OrchestratorComponentMouseEvent = {
-    eventType: OrchestratorComponentMouseEventType
+export type OrchestratorComponentMouseEvent =
+    | OrchestratorComponentMouseEventClicked
+    | OrchestratorComponentMouseEventMoved
+
+export type OrchestratorComponentMouseEventClicked = {
+    eventType: OrchestratorComponentMouseEventType.CLICKED
     mouseX: number
     mouseY: number
     mouseButton: MouseButton
+}
+
+export type OrchestratorComponentMouseEventMoved = {
+    eventType: OrchestratorComponentMouseEventType.MOVED
+    mouseX: number
+    mouseY: number
 }
 
 export enum OrchestratorComponentKeyEventType {

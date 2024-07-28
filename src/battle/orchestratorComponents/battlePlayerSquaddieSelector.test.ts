@@ -75,6 +75,7 @@ import {
     BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
+import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -242,6 +243,129 @@ describe("BattleSquaddieSelector", () => {
         )
     })
 
+    describe("player hovers a squaddie", () => {
+        let gameEngineState: GameEngineState
+        let messageSpy: jest.SpyInstance
+        let battleSquaddieScreenPositionX: number
+        let battleSquaddieScreenPositionY: number
+
+        beforeEach(() => {
+            const missionMap: MissionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "],
+                }),
+            })
+            const battlePhaseState =
+                makeBattlePhaseTrackerWithPlayerTeam(missionMap)
+
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    mockedP5GraphicsContext
+                ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(),
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            ;[battleSquaddieScreenPositionX, battleSquaddieScreenPositionY] =
+                convertMapCoordinatesToScreenCoordinates(
+                    0,
+                    0,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+                )
+
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.MOVED,
+                mouseX: battleSquaddieScreenPositionX,
+                mouseY: battleSquaddieScreenPositionY,
+            })
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+            )
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+        })
+
+        it("will generate a message", () => {
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: "player_soldier_0",
+                selectionMethod: {
+                    mouse: {
+                        x: battleSquaddieScreenPositionX,
+                        y: battleSquaddieScreenPositionY,
+                    },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+        })
+
+        it("can still select squaddies afterward", () => {
+            BattleHUDService.playerPeeksAtSquaddie(
+                gameEngineState.battleOrchestratorState.battleHUD,
+                {
+                    type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: "player_soldier_0",
+                    selectionMethod: {
+                        mouse: { x: 0, y: 0 },
+                    },
+                    squaddieSummaryPopoverPosition:
+                        SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                }
+            )
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).not.toBeUndefined()
+            ;[battleSquaddieScreenPositionX, battleSquaddieScreenPositionY] =
+                convertMapCoordinatesToScreenCoordinates(
+                    0,
+                    0,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+                )
+
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: battleSquaddieScreenPositionX,
+                mouseY: battleSquaddieScreenPositionY,
+                mouseButton: MouseButton.ACCEPT,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).toBeUndefined()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.playerCommandState
+            ).not.toBeUndefined()
+        })
+    })
+
     describe("player selects a squaddie and then clicks off the map", () => {
         let gameEngineState: GameEngineState
 
@@ -287,7 +411,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -368,7 +492,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -641,7 +765,7 @@ describe("BattleSquaddieSelector", () => {
                 BattleHUDService.playerSelectsSquaddie(
                     gameEngineState.battleOrchestratorState.battleHUD,
                     {
-                        type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                         gameEngineState,
                         battleSquaddieSelectedId: "player_soldier_0",
                         selectionMethod: {
@@ -804,7 +928,7 @@ describe("BattleSquaddieSelector", () => {
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -921,7 +1045,7 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             BattleSquaddieTeamService.addBattleSquaddieIds(
@@ -1110,13 +1234,13 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             BattleHUDService.playerSelectsSquaddie(
                 gameEngineState.battleOrchestratorState.battleHUD,
                 {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
@@ -1315,7 +1439,7 @@ describe("BattleSquaddieSelector", () => {
         BattleHUDService.playerSelectsSquaddie(
             gameEngineState.battleOrchestratorState.battleHUD,
             {
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
@@ -1416,7 +1540,7 @@ describe("BattleSquaddieSelector", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             const { mapLocation: firstBattleSquaddieMapLocation } =

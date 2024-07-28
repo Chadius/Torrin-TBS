@@ -257,7 +257,8 @@ export class GameEngine {
         ;[
             MessageBoardMessageType.STARTED_PLAYER_PHASE,
             MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
             MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,

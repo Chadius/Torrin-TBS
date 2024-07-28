@@ -14,13 +14,16 @@ import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
 import { ActionResultTextService } from "../actionResultTextService"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
+export const ACTOR_TEXT_WINDOW = {
+    top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+    height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+}
+
 export class ActorTextWindow {
     results: SquaddieSquaddieResults
     actorTemplate: SquaddieTemplate
     actorBattle: BattleSquaddie
     actionTemplateName: string
-
-    constructor() {}
 
     private _backgroundHue: number
 
@@ -110,8 +113,8 @@ export class ActorTextWindow {
             area: RectAreaService.new({
                 startColumn: 4,
                 endColumn: 5,
-                top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
-                height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+                top: ACTOR_TEXT_WINDOW.top,
+                height: ACTOR_TEXT_WINDOW.height,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 margin: [
                     WINDOW_SPACING.SPACING1,

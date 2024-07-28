@@ -1,5 +1,6 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction"
+import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -11,7 +12,8 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerCancelsTargetSelection
     | MessageBoardMessagePlayerCancelsTargetConfirmation
     | MessageBoardMessagePlayerEndsTurn
-    | MessageBoardMessagePlayerSelectsSquaddie
+    | MessageBoardMessagePlayerSelectsAndLocksSquaddie
+    | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
 
 export enum MessageBoardMessageType {
@@ -24,7 +26,8 @@ export enum MessageBoardMessageType {
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
     PLAYER_ENDS_TURN = "PLAYER_ENDS_TURN",
-    PLAYER_SELECTS_SQUADDIE = "PLAYER_SELECTS_SQUADDIE",
+    PLAYER_SELECTS_AND_LOCKS_SQUADDIE = "PLAYER_SELECTS_AND_LOCKS_SQUADDIE",
+    PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
 }
 
@@ -80,8 +83,8 @@ export interface MessageBoardMessagePlayerEndsTurn {
     battleAction: BattleAction
 }
 
-export interface MessageBoardMessagePlayerSelectsSquaddie {
-    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
+    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: {
@@ -90,6 +93,19 @@ export interface MessageBoardMessagePlayerSelectsSquaddie {
             y: number
         }
     }
+}
+
+export interface MessageBoardMessagePlayerPeeksAtSquaddie {
+    type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+    gameEngineState: GameEngineState
+    battleSquaddieSelectedId: string
+    selectionMethod: {
+        mouse: {
+            x: number
+            y: number
+        }
+    }
+    squaddieSummaryPopoverPosition: SquaddieSummaryPopoverPosition
 }
 
 export interface MessageBoardBattleActionFinishesAnimation {

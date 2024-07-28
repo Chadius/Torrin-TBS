@@ -138,7 +138,7 @@ describe("user clicks on the map to move", () => {
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
         MissionMapService.addSquaddie(
@@ -211,7 +211,8 @@ describe("user clicks on the map to move", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             ).toEqual(anotherPlayer.battleSquaddieId)
         })
 

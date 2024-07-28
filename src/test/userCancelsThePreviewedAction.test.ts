@@ -54,6 +54,7 @@ import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -253,11 +254,12 @@ describe("User cancels the previewed action", () => {
                 ).toBeTruthy()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
                 ).toBeTruthy()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                        .battleSquaddieId
                 ).toEqual(playerBattleSquaddie.battleSquaddieId)
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -478,7 +480,7 @@ const getGameEngineState = ({
         objectRepository: gameEngineState.repository,
         gameEngineState,
     })
-    SummaryHUDStateService.setLeftSummaryPanel({
+    SummaryHUDStateService.setMainSummaryPopover({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
@@ -486,6 +488,7 @@ const getGameEngineState = ({
         objectRepository: gameEngineState.repository,
         gameEngineState,
         battleSquaddieId,
+        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
     })
 
     return gameEngineState

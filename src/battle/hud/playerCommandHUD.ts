@@ -204,6 +204,47 @@ export const PlayerCommandStateService = {
             actionButtonClicked,
         })
     },
+    mouseMoved: ({
+        mouseX,
+        mouseY,
+        gameEngineState,
+        playerCommandState,
+    }: {
+        mouseX: number
+        mouseY: number
+        gameEngineState: GameEngineState
+        playerCommandState: PlayerCommandState
+    }): void => {
+        if (!isValidValue(playerCommandState)) {
+            return
+        }
+
+        const changeButtonStatusBasedOnMouseLocation = (button: {
+            buttonArea: RectArea
+            status: ButtonStatus
+        }) => {
+            const isMouseInsideButton = RectAreaService.isInside(
+                button.buttonArea,
+                mouseX,
+                mouseY
+            )
+
+            if (button.status === ButtonStatus.HOVER && !isMouseInsideButton) {
+                button.status = ButtonStatus.ACTIVE
+                return
+            }
+
+            if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
+                button.status = ButtonStatus.HOVER
+            }
+        }
+
+        playerCommandState.actionButtons.forEach((button) => {
+            changeButtonStatusBasedOnMouseLocation(button)
+        })
+        changeButtonStatusBasedOnMouseLocation(playerCommandState.moveButton)
+        changeButtonStatusBasedOnMouseLocation(playerCommandState.endTurnButton)
+    },
     draw({
         playerCommandState,
         graphicsBuffer,
@@ -238,7 +279,7 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            summaryHUDState.summaryPanelLeft.battleSquaddieId
+            summaryHUDState.squaddieSummaryPopoversByType.MAIN.battleSquaddieId
         )
     )
 

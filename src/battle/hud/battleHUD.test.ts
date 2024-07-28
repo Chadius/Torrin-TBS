@@ -80,6 +80,7 @@ import {
     BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
+import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 
 describe("Battle HUD", () => {
     describe("enable buttons as a reaction", () => {
@@ -389,50 +390,6 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie
 
-        const createSquaddieAndAddToRepositoryAndMap = ({
-            affiliation,
-            repository,
-            missionMap,
-        }: {
-            affiliation: SquaddieAffiliation
-            repository: ObjectRepository
-            missionMap: MissionMap
-        }): {
-            battleSquaddie: BattleSquaddie
-        } => {
-            const squaddieTemplate = SquaddieTemplateService.new({
-                squaddieId: SquaddieIdService.new({
-                    name: "squaddie template",
-                    affiliation,
-                    templateId: "templateId",
-                }),
-            })
-            battleSquaddie = BattleSquaddieService.new({
-                squaddieTemplate: squaddieTemplate,
-                battleSquaddieId: "battleSquaddie",
-            })
-            ObjectRepositoryService.addSquaddieTemplate(
-                repository,
-                squaddieTemplate
-            )
-            ObjectRepositoryService.addBattleSquaddie(
-                repository,
-                battleSquaddie
-            )
-            MissionMapService.addSquaddie(
-                missionMap,
-                battleSquaddie.squaddieTemplateId,
-                battleSquaddie.battleSquaddieId,
-                {
-                    q: 0,
-                    r: 0,
-                }
-            )
-            return {
-                battleSquaddie,
-            }
-        }
-
         const createGameEngineState = ({
             repository,
             missionMap,
@@ -473,7 +430,7 @@ describe("Battle HUD", () => {
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
             return gameEngineState
@@ -486,11 +443,11 @@ describe("Battle HUD", () => {
                     movementCost: ["1 1 "],
                 }),
             })
-            const { battleSquaddie } = createSquaddieAndAddToRepositoryAndMap({
+            ;({ battleSquaddie } = createSquaddieAndAddToRepositoryAndMap({
                 affiliation: SquaddieAffiliation.PLAYER,
                 repository,
                 missionMap,
-            })
+            }))
 
             gameEngineState = createGameEngineState({
                 teamAffiliation: SquaddieAffiliation.PLAYER,
@@ -501,7 +458,7 @@ describe("Battle HUD", () => {
             })
 
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
@@ -522,10 +479,11 @@ describe("Battle HUD", () => {
             ).toBeFalsy()
         })
 
-        it("will show the summary window on the left side", () => {
+        it("will show the main summary popover", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
@@ -564,7 +522,7 @@ describe("Battle HUD", () => {
                 })
 
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE,
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId:
                         enemyBattleSquaddie.battleSquaddieId,
@@ -584,9 +542,290 @@ describe("Battle HUD", () => {
             it("will show the summary window on the right side", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.summaryPanelRight.battleSquaddieId
+                        .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                        .battleSquaddieId
                 ).toEqual(enemyBattleSquaddie.battleSquaddieId)
             })
+        })
+    })
+    describe("Player peeks at a squaddie", () => {
+        let gameEngineState: GameEngineState
+        let battleSquaddie: BattleSquaddie
+        let battleSquaddie2: BattleSquaddie
+        let battleHUDListener: BattleHUDListener
+
+        const createGameEngineState = ({
+            repository,
+            missionMap,
+            teamAffiliation,
+            battlePhase,
+            battleSquaddieId,
+        }: {
+            missionMap: MissionMap
+            teamAffiliation: SquaddieAffiliation
+            battlePhase: BattlePhase
+            repository: ObjectRepository
+            battleSquaddieId: string
+        }): GameEngineState => {
+            const team = BattleSquaddieTeamService.new({
+                id: "team",
+                name: "team",
+                affiliation: teamAffiliation,
+                battleSquaddieIds: [battleSquaddieId],
+            })
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(0, 0),
+                        teams: [team],
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation: battlePhase,
+                        }),
+                    }),
+                }),
+                campaign: CampaignService.default({}),
+                repository,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+            )
+
+            return gameEngineState
+        }
+
+        beforeEach(() => {
+            const repository = ObjectRepositoryService.new()
+            const missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 "],
+                }),
+            })
+
+            let squaddieTemplate: SquaddieTemplate
+            ;({ battleSquaddie, squaddieTemplate } =
+                createSquaddieAndAddToRepositoryAndMap({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    repository,
+                    missionMap,
+                }))
+
+            battleSquaddie2 = BattleSquaddieService.new({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddieId: "battleSquaddie2",
+            })
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                battleSquaddie2
+            )
+            MissionMapService.addSquaddie(
+                missionMap,
+                battleSquaddie2.squaddieTemplateId,
+                battleSquaddie2.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 1,
+                }
+            )
+
+            gameEngineState = createGameEngineState({
+                teamAffiliation: SquaddieAffiliation.PLAYER,
+                battlePhase: BattlePhase.PLAYER,
+                missionMap,
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+        })
+
+        it("will call the Summary HUD to open a new main window", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
+            ).toEqual(battleSquaddie.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).not.toBeUndefined()
+        })
+        it("will call the Summary HUD to open a new target window if the main window is open and does not expire", () => {
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new({
+                    mouseSelectionLocation: { x: 0, y: 0 },
+                })
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie2.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .battleSquaddieId
+            ).toEqual(battleSquaddie2.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .expirationTime
+            ).not.toBeUndefined()
+        })
+        it("will call the Summary HUD to replace the main target window if the main window is open and will expire", () => {
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new({
+                    mouseSelectionLocation: { x: 0, y: 0 },
+                })
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                expirationTime: 1000,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie2.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
+            ).toEqual(battleSquaddie2.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
+        })
+
+        it("selects a squaddie after peeking at it, popover should lose expiration time", () => {
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).not.toBeUndefined()
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).toBeUndefined()
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).toBeUndefined()
+        })
+
+        it("selects a squaddie and peeks the same one it should not make another one", () => {
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+            ).not.toBeUndefined()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN.position
+            ).toEqual(SquaddieSummaryPopoverPosition.SELECT_MAIN)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
         })
     })
     describe("Player cancels target selection they were considering", () => {
@@ -1025,7 +1264,7 @@ describe("Battle HUD", () => {
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
             })
 
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
                 gameEngineState,
                 resourceHandler: gameEngineState.resourceHandler,
@@ -1033,6 +1272,7 @@ describe("Battle HUD", () => {
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -1209,3 +1449,43 @@ describe("Battle HUD", () => {
         })
     })
 })
+
+const createSquaddieAndAddToRepositoryAndMap = ({
+    affiliation,
+    repository,
+    missionMap,
+}: {
+    affiliation: SquaddieAffiliation
+    repository: ObjectRepository
+    missionMap: MissionMap
+}): {
+    battleSquaddie: BattleSquaddie
+    squaddieTemplate: SquaddieTemplate
+} => {
+    const squaddieTemplate = SquaddieTemplateService.new({
+        squaddieId: SquaddieIdService.new({
+            name: "squaddie template",
+            affiliation,
+            templateId: "templateId",
+        }),
+    })
+    const battleSquaddie = BattleSquaddieService.new({
+        squaddieTemplate: squaddieTemplate,
+        battleSquaddieId: "battleSquaddie",
+    })
+    ObjectRepositoryService.addSquaddieTemplate(repository, squaddieTemplate)
+    ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie)
+    MissionMapService.addSquaddie(
+        missionMap,
+        battleSquaddie.squaddieTemplateId,
+        battleSquaddie.battleSquaddieId,
+        {
+            q: 0,
+            r: 0,
+        }
+    )
+    return {
+        battleSquaddie,
+        squaddieTemplate,
+    }
+}

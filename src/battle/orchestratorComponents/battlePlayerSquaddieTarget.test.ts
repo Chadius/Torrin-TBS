@@ -61,6 +61,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 
 describe("BattleSquaddieTarget", () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
@@ -228,7 +229,7 @@ describe("BattleSquaddieTarget", () => {
             SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
-        SummaryHUDStateService.setLeftSummaryPanel({
+        SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
@@ -236,6 +237,7 @@ describe("BattleSquaddieTarget", () => {
             resourceHandler: gameEngineState.resourceHandler,
             objectRepository: gameEngineState.repository,
             gameEngineState,
+            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
 
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -432,11 +434,13 @@ describe("BattleSquaddieTarget", () => {
             ).toBeTruthy()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             ).toEqual(knightDynamic.battleSquaddieId)
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.summaryPanelRight.battleSquaddieId
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .battleSquaddieId
             ).toEqual(thiefDynamic.battleSquaddieId)
         })
 
@@ -513,7 +517,7 @@ describe("BattleSquaddieTarget", () => {
                 SummaryHUDStateService.new({
                     mouseSelectionLocation: { x: 0, y: 0 },
                 })
-            SummaryHUDStateService.setLeftSummaryPanel({
+            SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -521,6 +525,7 @@ describe("BattleSquaddieTarget", () => {
                 resourceHandler: gameEngineState.resourceHandler,
                 objectRepository: gameEngineState.repository,
                 gameEngineState,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
 
             targetComponent.update(gameEngineState, mockedP5GraphicsContext)
@@ -849,5 +854,43 @@ describe("BattleSquaddieTarget", () => {
                 ).toBeFalsy()
             }
         )
+    })
+
+    it("sends a Peek message when the mouse moves over a squaddie", () => {
+        let messageSpy: jest.SpyInstance = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
+
+        const { mapLocation } =
+            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+                citizenDynamic.battleSquaddieId
+            )
+        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+            mapLocation.q,
+            mapLocation.r,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        )
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.MOVED,
+            mouseX,
+            mouseY,
+        }
+
+        targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
+
+        expect(messageSpy).toBeCalledWith({
+            type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: citizenDynamic.battleSquaddieId,
+            selectionMethod: {
+                mouse: {
+                    x: mouseX,
+                    y: mouseY,
+                },
+            },
+            squaddieSummaryPopoverPosition:
+                SquaddieSummaryPopoverPosition.SELECT_TARGET,
+        })
     })
 })

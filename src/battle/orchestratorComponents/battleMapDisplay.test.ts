@@ -18,7 +18,6 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattleHUDService } from "../hud/battleHUD"
-import { MouseButton } from "../../utils/mouseConfig"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 
@@ -64,7 +63,6 @@ describe("battleMapDisplay", () => {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX: 0,
             mouseY: 0,
-            mouseButton: MouseButton.ACCEPT,
         })
         expect(camera.setXVelocity).toBeCalled()
         expect(camera.setYVelocity).toBeCalled()
@@ -130,7 +128,6 @@ describe("battleMapDisplay", () => {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
                 mouseX: 0,
                 mouseY: 0,
-                mouseButton: MouseButton.ACCEPT,
             })
             expect(camera.setXVelocity).not.toBeCalled()
             expect(camera.setYVelocity).not.toBeCalled()

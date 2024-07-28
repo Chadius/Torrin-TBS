@@ -27,6 +27,8 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
 import { CampaignService } from "../../campaign/campaign"
+import { ButtonStatus } from "../../ui/button"
+import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -178,12 +180,13 @@ describe("playerCommandHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default({}),
                 })
-                SummaryHUDStateService.setLeftSummaryPanel({
+                SummaryHUDStateService.setMainSummaryPopover({
                     summaryHUDState,
                     battleSquaddieId: "player",
                     resourceHandler,
                     objectRepository,
                     gameEngineState,
+                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
                 })
                 SummaryHUDStateService.createCommandWindow({
                     summaryHUDState,
@@ -212,12 +215,13 @@ describe("playerCommandHUD", () => {
                 y: 0,
             },
         })
-        SummaryHUDStateService.setLeftSummaryPanel({
+        SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState,
             battleSquaddieId: "player",
             resourceHandler,
             objectRepository,
             gameEngineState,
+            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
         SummaryHUDStateService.createCommandWindow({
             summaryHUDState,
@@ -263,6 +267,69 @@ describe("playerCommandHUD", () => {
 
         expect(selectedButton).toEqual(
             PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+        )
+    })
+
+    it("when the mouse hovers over before clicking the button will change to HOVER state", () => {
+        PlayerCommandStateService.mouseMoved({
+            playerCommandState,
+            mouseX: RectAreaService.centerX(
+                playerCommandState.actionButtons[0].buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                playerCommandState.actionButtons[0].buttonArea
+            ),
+            gameEngineState,
+        })
+        expect(summaryHUDState.playerCommandState.actionButtons[0].status).toBe(
+            ButtonStatus.HOVER
+        )
+    })
+
+    it("when the mouse hovers over the end turn button it will change to HOVER state", () => {
+        PlayerCommandStateService.mouseMoved({
+            playerCommandState,
+            mouseX: RectAreaService.centerX(
+                playerCommandState.endTurnButton.buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                playerCommandState.endTurnButton.buttonArea
+            ),
+            gameEngineState,
+        })
+        expect(playerCommandState.endTurnButton.status).toBe(ButtonStatus.HOVER)
+    })
+
+    it("when the mouse hovers over the move turn button it will change to HOVER state", () => {
+        PlayerCommandStateService.mouseMoved({
+            playerCommandState,
+            mouseX: RectAreaService.centerX(
+                playerCommandState.moveButton.buttonArea
+            ),
+            mouseY: RectAreaService.centerY(
+                playerCommandState.moveButton.buttonArea
+            ),
+            gameEngineState,
+        })
+        expect(playerCommandState.moveButton.status).toBe(ButtonStatus.HOVER)
+    })
+
+    it("when the mouse hovers off of the button before clicking the button will change to ACTIVE state", () => {
+        playerCommandState.actionButtons[0].status = ButtonStatus.HOVER
+        PlayerCommandStateService.mouseMoved({
+            playerCommandState,
+            mouseX:
+                RectAreaService.left(
+                    playerCommandState.actionButtons[0].buttonArea
+                ) - 5,
+            mouseY:
+                RectAreaService.bottom(
+                    playerCommandState.actionButtons[0].buttonArea
+                ) - 5,
+            gameEngineState,
+        })
+        expect(playerCommandState.actionButtons[0].status).toBe(
+            ButtonStatus.ACTIVE
         )
     })
 

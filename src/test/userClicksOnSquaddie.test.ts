@@ -30,7 +30,10 @@ import { makeResult } from "../utils/ResultOrError"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { TerrainTileMap } from "../hexMap/terrainTileMap"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import {
+    ConvertCoordinateService,
+    convertMapCoordinatesToScreenCoordinates,
+} from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
 import {
@@ -151,7 +154,7 @@ describe("User clicks on a squaddie", () => {
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_SQUADDIE
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
         selectSquaddieForTheHUD({
@@ -162,7 +165,8 @@ describe("User clicks on a squaddie", () => {
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.summaryPanelLeft.battleSquaddieId
+                .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                .battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
         const actionButtons: MakeDecisionButton[] =
@@ -303,6 +307,68 @@ describe("User clicks on a squaddie", () => {
         const battleState = gameEngineState.battleOrchestratorState.battleState
         expect(battleState.actionsThisRound).toBeUndefined()
     })
+
+    describe("player hovers over squaddie", () => {
+        let gameEngineState: GameEngineState
+
+        const selectorHoversOnSquaddie = (gameEngineState: GameEngineState) => {
+            const selector = new BattlePlayerSquaddieSelector()
+            let { x, y } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 0,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                    }
+                )
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.MOVED,
+                mouseX: x,
+                mouseY: y,
+            })
+        }
+
+        beforeEach(() => {
+            gameEngineState = getGameEngineState({
+                resourceHandler,
+                missionMap,
+                repository,
+                teams: [],
+                battlePhaseState: undefined,
+            })
+
+            MissionMapService.addSquaddie(
+                missionMap,
+                playerSquaddieTemplate.squaddieId.templateId,
+                playerBattleSquaddie.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 0,
+                }
+            )
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
+            )
+        })
+
+        it("shows the main popover with the squaddie for a limited amount of time", () => {
+            selectorHoversOnSquaddie(gameEngineState)
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
+            ).toEqual(playerBattleSquaddie.battleSquaddieId)
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).not.toBeUndefined()
+        })
+    })
 })
 
 const getGameEngineState = ({
@@ -352,73 +418,4 @@ const selectSquaddieForTheHUD = ({
         gameEngineState: gameEngineState,
         repositionWindow: { mouseX: 0, mouseY: 0 },
     })
-}
-
-const setupEnemyTeam = ({
-    attackAction,
-    repository,
-}: {
-    attackAction: ActionTemplate
-    repository: ObjectRepository
-}): {
-    enemySquaddieTemplate: SquaddieTemplate
-    enemyBattleSquaddie: BattleSquaddie
-    enemyTeam: BattleSquaddieTeam
-} => {
-    const enemySquaddieTemplate = SquaddieTemplateService.new({
-        squaddieId: SquaddieIdService.new({
-            name: "enemy",
-            affiliation: SquaddieAffiliation.ENEMY,
-            templateId: "enemy",
-        }),
-        actionTemplates: [attackAction],
-    })
-    ObjectRepositoryService.addSquaddieTemplate(
-        repository,
-        enemySquaddieTemplate
-    )
-
-    const enemyBattleSquaddie = BattleSquaddieService.new({
-        squaddieTemplateId: enemySquaddieTemplate.squaddieId.templateId,
-        battleSquaddieId: "enemy 0",
-    })
-    ObjectRepositoryService.addBattleSquaddie(repository, enemyBattleSquaddie)
-
-    const enemyTeam = BattleSquaddieTeamService.new({
-        name: "enemy team",
-        id: "enemy",
-        affiliation: SquaddieAffiliation.ENEMY,
-        battleSquaddieIds: [enemyBattleSquaddie.battleSquaddieId],
-    })
-
-    return {
-        enemySquaddieTemplate,
-        enemyBattleSquaddie,
-        enemyTeam,
-    }
-}
-
-const addAnotherPlayer = ({
-    playerSquaddieTemplate,
-    repository,
-    playerTeam,
-}: {
-    playerSquaddieTemplate: SquaddieTemplate
-    repository: ObjectRepository
-    playerTeam: BattleSquaddieTeam
-}): {
-    player2: BattleSquaddie
-} => {
-    const player2 = BattleSquaddieService.new({
-        battleSquaddieId: "player 2",
-        squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
-    })
-    ObjectRepositoryService.addBattleSquaddie(repository, player2)
-    BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-        player2.battleSquaddieId,
-    ])
-
-    return {
-        player2,
-    }
 }
