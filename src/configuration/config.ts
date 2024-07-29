@@ -13,6 +13,7 @@ export interface Config {
     STARTUP_MODE: string
     HUD: string
     MOUSE_BUTTON_BINDINGS: { [key in MouseButton]?: string }
+    LOG_MESSAGES: boolean
 }
 
 export enum BATTLE_HUD_MODE {
@@ -28,6 +29,7 @@ export interface ProcessVariables {
     STARTUP_MODE?: string
     HUD?: BATTLE_HUD_MODE
     MOUSE_BUTTON_BINDINGS?: { [key in MouseButton]?: string }
+    LOG_MESSAGES?: boolean
 }
 
 export const config = getConfig(

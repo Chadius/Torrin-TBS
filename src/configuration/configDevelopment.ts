@@ -34,5 +34,6 @@ export function getDevelopmentConfig(
             processVariables.HUD,
             BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
         ),
+        LOG_MESSAGES: false,
     }
 }

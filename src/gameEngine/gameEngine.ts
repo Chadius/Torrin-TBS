@@ -47,6 +47,7 @@ import { PlayerHudController } from "../battle/orchestratorComponents/playerHudC
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/orchestrator/battleState"
+import { config } from "../configuration/config"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -89,7 +90,9 @@ export const GameEngineStateService = {
                 : undefined,
             repository,
             resourceHandler,
-            messageBoard: new MessageBoard(),
+            messageBoard: new MessageBoard({
+                logMessages: config.LOG_MESSAGES,
+            }),
         }
     },
 }

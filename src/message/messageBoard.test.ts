@@ -43,6 +43,7 @@ describe("MessageBoard", () => {
 
     it("returns nothing if there are no messages with the message id or type", () => {
         const messageBoard = new MessageBoard()
+
         expect(
             messageBoard.getListenersByMessageType(MessageBoardMessageType.BASE)
         ).toHaveLength(0)
@@ -59,6 +60,7 @@ describe("MessageBoard", () => {
 
     it("calls listener function if the id is used", () => {
         const messageBoard = new MessageBoard()
+        const messageBoardLoggerSpy = jest.spyOn(messageBoard, "logMessage")
         const messageBoardListener = new TestMessageListener(
             "testMessageListener"
         )
@@ -79,6 +81,54 @@ describe("MessageBoard", () => {
 
         expect(messageReceivedSpy).toBeCalled()
         expect(messageBoardListener.message).toEqual(message)
+
+        expect(messageBoardLoggerSpy).toBeCalledWith(
+            expect.objectContaining({
+                message: "sendMessage: BASE to testMessageListener",
+            })
+        )
+    })
+
+    describe("logMessages flag will control printing messages", () => {
+        let messageBoard: MessageBoard
+        let messageBoardListener: MessageBoardListener
+        let consoleSpy: jest.SpyInstance
+
+        afterEach(() => {
+            consoleSpy.mockRestore()
+        })
+
+        const setupMessageBoardAndListener = (logMessages: boolean) => {
+            messageBoard = new MessageBoard({ logMessages })
+            consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {})
+            messageBoardListener = new TestMessageListener(
+                "testMessageListener"
+            )
+            messageBoard.addListener(
+                messageBoardListener,
+                MessageBoardMessageType.BASE
+            )
+        }
+
+        it("will send messages when the flag is on", () => {
+            setupMessageBoardAndListener(true)
+            messageBoard.sendMessage({
+                type: MessageBoardMessageType.BASE,
+                message: "sending a message",
+            })
+            expect(consoleSpy).toBeCalledWith(
+                "sendMessage: BASE to testMessageListener"
+            )
+        })
+
+        it("will not send messages when the flag is on", () => {
+            setupMessageBoardAndListener(false)
+            messageBoard.sendMessage({
+                type: MessageBoardMessageType.BASE,
+                message: "sending a message",
+            })
+            expect(consoleSpy).not.toBeCalled()
+        })
     })
 
     it("removes listeners by id", () => {
