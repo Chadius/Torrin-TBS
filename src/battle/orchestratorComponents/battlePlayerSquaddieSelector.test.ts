@@ -243,7 +243,7 @@ describe("BattleSquaddieSelector", () => {
         )
     })
 
-    describe("player hovers a squaddie", () => {
+    describe("player hovers over a squaddie", () => {
         let gameEngineState: GameEngineState
         let messageSpy: jest.SpyInstance
         let battleSquaddieScreenPositionX: number
@@ -1113,7 +1113,6 @@ describe("BattleSquaddieSelector", () => {
         let interruptBattleSquaddie: BattleSquaddie
         let actionsThisRound: ActionsThisRound
         let mockHud: BattleSquaddieSelectedHUD
-        let selectSquaddieAndDrawWindowSpy: jest.SpyInstance
         let camera: BattleCamera
         let gameEngineState: GameEngineState
         let startingMouseX: number
@@ -1186,10 +1185,6 @@ describe("BattleSquaddieSelector", () => {
             mockHud = new BattleSquaddieSelectedHUD()
 
             camera = new BattleCamera()
-            selectSquaddieAndDrawWindowSpy = jest.spyOn(
-                mockHud,
-                "selectSquaddieAndDrawWindow"
-            )
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
@@ -1452,7 +1447,7 @@ describe("BattleSquaddieSelector", () => {
         let missionMap: MissionMap
         let gameEngineState: GameEngineState
         let camera: BattleCamera
-        let selectSquaddieAndDrawWindowSpy: jest.SpyInstance
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
             missionMap = new MissionMap({
@@ -1493,16 +1488,12 @@ describe("BattleSquaddieSelector", () => {
                 .mockReturnValue(makeResult(null))
             camera = new BattleCamera()
 
-            const mockHud = new BattleSquaddieSelectedHUD()
-            selectSquaddieAndDrawWindowSpy = jest.spyOn(
-                mockHud,
-                "selectSquaddieAndDrawWindow"
-            )
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
                     }),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -1517,6 +1508,7 @@ describe("BattleSquaddieSelector", () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
@@ -1535,9 +1527,15 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("opens the HUD for the first squaddie", () => {
-            expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1)
             expect(
-                selectSquaddieAndDrawWindowSpy.mock.calls[0][0]["battleId"]
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.showSummaryHUD
+            ).toBeTruthy()
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
             ).toEqual("player_soldier_0")
         })
 
@@ -1554,11 +1552,13 @@ describe("BattleSquaddieSelector", () => {
                 })
             })
 
-            it("opens the HUD for another squaddie", () => {
-                expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(2)
-                expect(
-                    selectSquaddieAndDrawWindowSpy.mock.calls[1][0]["battleId"]
-                ).toEqual("player_soldier_1")
+            it("sends a message to open the main window", () => {
+                expect(messageSpy).toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                        battleSquaddieSelectedId: "player_soldier_1",
+                    })
+                )
             })
 
             it("selects a different squaddie if the first squaddie has not started their turn", () => {
@@ -1587,6 +1587,12 @@ describe("BattleSquaddieSelector", () => {
                             .playerBattleActionBuilderState
                     ).battleSquaddieId
                 ).toEqual("player_soldier_1")
+            })
+            it("clears the target side since it is the same", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                ).toBeUndefined()
             })
         })
 
@@ -1622,7 +1628,12 @@ describe("BattleSquaddieSelector", () => {
             })
 
             it("does not select a different squaddie if the first squaddie starts their turn", () => {
-                expect(selectSquaddieAndDrawWindowSpy).toBeCalledTimes(1)
+                expect(messageSpy).not.toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                        battleSquaddieSelectedId: "player_soldier_1",
+                    })
+                )
             })
 
             it("does not change the actor in the actor builder if the first squaddie starts their turn", () => {
@@ -1810,6 +1821,12 @@ const clickOnMapCoordinate = ({
             r,
             ...camera.getCoordinates()
         )
+    selector.mouseEventHappened(gameEngineState, {
+        eventType: OrchestratorComponentMouseEventType.MOVED,
+        mouseX: destinationScreenX,
+        mouseY: destinationScreenY,
+    })
+
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX: destinationScreenX,

@@ -329,12 +329,22 @@ describe("User clicks on a squaddie", () => {
         }
 
         beforeEach(() => {
+            const playerTeam = BattleSquaddieTeamService.new({
+                id: "playerTeam",
+                affiliation: SquaddieAffiliation.PLAYER,
+                name: "player team",
+                battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
+            })
+
             gameEngineState = getGameEngineState({
                 resourceHandler,
                 missionMap,
                 repository,
-                teams: [],
-                battlePhaseState: undefined,
+                teams: [playerTeam],
+                battlePhaseState: BattlePhaseStateService.new({
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                }),
             })
 
             MissionMapService.addSquaddie(
@@ -352,6 +362,10 @@ describe("User clicks on a squaddie", () => {
                 battleHUDListener,
                 MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
             )
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
         })
 
         it("shows the main popover with the squaddie for a limited amount of time", () => {
@@ -367,6 +381,80 @@ describe("User clicks on a squaddie", () => {
                     .summaryHUDState.squaddieSummaryPopoversByType.MAIN
                     .expirationTime
             ).not.toBeUndefined()
+        })
+
+        it("will override the MAIN squaddie if it is clicked on", () => {
+            ObjectRepositoryService.addBattleSquaddie(
+                gameEngineState.repository,
+                BattleSquaddieService.new({
+                    squaddieTemplateId:
+                        playerSquaddieTemplate.squaddieId.templateId,
+                    battleSquaddieId: "player 1",
+                })
+            )
+
+            MissionMapService.addSquaddie(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                playerSquaddieTemplate.squaddieId.templateId,
+                "player 1",
+                { q: 0, r: 1 }
+            )
+
+            BattleSquaddieTeamService.addBattleSquaddieIds(
+                gameEngineState.battleOrchestratorState.battleState.teams[0],
+                ["player 1"]
+            )
+
+            const selector = new BattlePlayerSquaddieSelector()
+            let { x, y } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 0,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                    }
+                )
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: x,
+                mouseY: y,
+                mouseButton: MouseButton.ACCEPT,
+            })
+            ;({ x, y } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 1,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                    }
+                ))
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.MOVED,
+                mouseX: x,
+                mouseY: y,
+            })
+
+            selector.mouseEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: x,
+                mouseY: y,
+                mouseButton: MouseButton.ACCEPT,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .battleSquaddieId
+            ).toEqual("player 1")
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).toBeUndefined()
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
         })
     })
 })

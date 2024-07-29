@@ -577,7 +577,7 @@ export class BattlePlayerSquaddieSelector
     ) {
         const battleSquaddieToHighlightId: string =
             squaddieClickedOnInfoAndMapLocation.battleSquaddieId
-        const squaddieIsAlreadyDisplayedInTheLeftSummaryPanel: boolean =
+        if (
             isValidValue(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState?.squaddieSummaryPopoversByType.MAIN
@@ -586,14 +586,9 @@ export class BattlePlayerSquaddieSelector
                 .summaryHUDState.squaddieSummaryPopoversByType[
                 SummaryPopoverType.MAIN
             ].battleSquaddieId === battleSquaddieToHighlightId
-        const squaddieIsAlreadyDisplayedInTheRightSummaryPanel: boolean =
-            isValidValue(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.squaddieSummaryPopoversByType.TARGET
-            ) &&
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                .battleSquaddieId === battleSquaddieToHighlightId
+        ) {
+            return
+        }
 
         this.highlightSquaddieOnMap(
             gameEngineState,
@@ -601,10 +596,16 @@ export class BattlePlayerSquaddieSelector
         )
 
         if (
-            squaddieIsAlreadyDisplayedInTheLeftSummaryPanel ||
-            squaddieIsAlreadyDisplayedInTheRightSummaryPanel
+            isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState?.squaddieSummaryPopoversByType.TARGET
+            ) &&
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                .battleSquaddieId === battleSquaddieToHighlightId
         ) {
-            return
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieSummaryPopoversByType.TARGET =
+                undefined
         }
 
         this.selectSquaddieAndOpenHUD(
