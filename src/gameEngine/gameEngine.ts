@@ -48,6 +48,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/orchestrator/battleState"
 import { config } from "../configuration/config"
+import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -171,6 +172,7 @@ export class GameEngine {
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
+            playerConfirm: new BattlePlayerActionConfirm(),
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),
@@ -248,7 +250,7 @@ export class GameEngine {
 
     private resetComponentStates() {
         this.gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState: this.battleOrchestrator.setup({}),
+            battleOrchestratorState: this.battleOrchestrator.setup(),
             titleScreenState: this.titleScreen.setup(),
             repository: ObjectRepositoryService.new(),
             resourceHandler: this.resourceHandler,
