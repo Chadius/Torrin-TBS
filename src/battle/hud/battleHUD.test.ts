@@ -82,8 +82,12 @@ import {
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 describe("Battle HUD", () => {
+    // TODO Move copypasta boilerplate over here
+
     describe("enable buttons as a reaction", () => {
         let fileAccessHUDSpy: jest.SpyInstance
         let fileAccessHUD: FileAccessHUD
@@ -1651,6 +1655,164 @@ describe("Battle HUD", () => {
                 q: 0,
                 r: 0,
             })
+        })
+    })
+    describe("Player selects a target", () => {
+        let battleHUDListener: BattleHUDListener
+        let gameEngineState: GameEngineState
+        let missionMap: MissionMap
+        let repository: ObjectRepository
+        let playerSoldierBattleSquaddie: BattleSquaddie
+        let longswordAction: ActionTemplate
+
+        beforeEach(() => {
+            repository = ObjectRepositoryService.new()
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+
+            const playerTeam: BattleSquaddieTeam = {
+                id: "playerTeamId",
+                name: "player controlled team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
+            }
+            let teams: BattleSquaddieTeam[] = []
+            longswordAction = ActionTemplateService.new({
+                name: "longsword",
+                id: "longsword",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        targetingShape: TargetingShape.SNAKE,
+                    }),
+                ],
+            })
+            teams.push(playerTeam)
+            ;({ battleSquaddie: playerSoldierBattleSquaddie } =
+                CreateNewSquaddieAndAddToRepository({
+                    name: "Player Soldier",
+                    templateId: "player_soldier",
+                    battleId: "player_soldier_0",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    squaddieRepository: repository,
+                    actionTemplates: [longswordAction],
+                }))
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_0",
+            ])
+
+            missionMap.addSquaddie("player_soldier", "player_soldier_0", {
+                q: 0,
+                r: 0,
+            })
+
+            const battleSquaddie = BattleSquaddieService.newBattleSquaddie({
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_1",
+                squaddieTurn: SquaddieTurnService.new(),
+            })
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                battleSquaddie
+            )
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_1",
+            ])
+
+            missionMap.addSquaddie("player_soldier", "player_soldier_1", {
+                q: 0,
+                r: 1,
+            })
+
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    new MockedP5GraphicsBuffer()
+                ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({
+                        battleSquaddieSelectedHUD:
+                            new BattleSquaddieSelectedHUD(),
+                    }),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(),
+                        battlePhaseState: BattlePhaseStateService.new({
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 1,
+                        }),
+                        teams,
+                        recording: { history: [] },
+                    }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new({
+                            mouseSelectionLocation: { x: 0, y: 0 },
+                        }),
+                    }),
+                }),
+                repository,
+                campaign: CampaignService.default({}),
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                PlayerBattleActionBuilderStateService.new({})
+
+            PlayerBattleActionBuilderStateService.setActor({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            })
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+                gameEngineState,
+                targetLocation: { q: 0, r: 1 },
+            })
+        })
+
+        it("sets the target location", () => {
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getTarget(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toEqual({
+                targetLocation: { q: 0, r: 1 },
+                confirmed: false,
+            })
+        })
+
+        it("shows the popover window for the target", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .battleSquaddieId
+            ).toEqual("player_soldier_1")
         })
     })
 })

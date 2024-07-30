@@ -18,6 +18,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
     | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
+    | MessageBoardMessagePlayerSelectsTargetLocation
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -33,6 +34,7 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
+    PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
 }
 
 export interface MessageBoardMessageBase {
@@ -123,4 +125,10 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     actionTemplate: ActionTemplate
     battleSquaddieId: string
     mapStartingLocation: HexCoordinate
+}
+
+export interface MessageBoardMessagePlayerSelectsTargetLocation {
+    type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+    targetLocation: HexCoordinate
+    gameEngineState: GameEngineState
 }

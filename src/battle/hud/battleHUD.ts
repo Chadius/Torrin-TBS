@@ -10,6 +10,7 @@ import {
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
+    MessageBoardMessagePlayerSelectsTargetLocation,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -420,6 +421,36 @@ export const BattleHUDService = {
             actionTemplate: message.actionTemplate,
         })
     },
+    playerSelectsTargetLocation: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerSelectsTargetLocation
+    ) => {
+        const gameEngineState = message.gameEngineState
+
+        PlayerBattleActionBuilderStateService.setConsideredTarget({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            targetLocation: message.targetLocation,
+        })
+
+        const { battleSquaddieId: targetBattleSquaddieId } =
+            MissionMapService.getBattleSquaddieAtLocation(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                message.targetLocation
+            )
+
+        SummaryHUDStateService.setTargetSummaryPopover({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleSquaddieId: targetBattleSquaddieId,
+            gameEngineState,
+            objectRepository: gameEngineState.repository,
+            resourceHandler: gameEngineState.resourceHandler,
+            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+        })
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -482,6 +513,12 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET:
                 BattleHUDService.playerSelectsActionThatRequiresATarget(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION:
+                BattleHUDService.playerSelectsTargetLocation(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )

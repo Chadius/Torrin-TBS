@@ -11,23 +11,15 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventClicked,
-    OrchestratorComponentMouseEventMoved,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
-import {
-    ConvertCoordinateService,
-    convertScreenCoordinatesToMapCoordinates,
-} from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { FriendlyAffiliationsByAffiliation } from "../../squaddie/squaddieAffiliation"
-import { Trait } from "../../trait/traitStatusStorage"
 import { LabelService } from "../../ui/label"
 import { ActionCalculator } from "../actionCalculator/calculator"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
@@ -56,8 +48,6 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     BattleActionQueueService,
@@ -65,7 +55,6 @@ import {
     BattleActionSquaddieChange,
 } from "../history/battleAction"
 import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
-import { MissionMapService } from "../../missionMap/missionMap"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
@@ -76,21 +65,14 @@ const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
 const MESSAGE_TEXT_SIZE = 24
 
 export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
-    hasSelectedValidTarget: boolean
     private cancelAbility: boolean
     private hasConfirmedAction: boolean
-    private validTargetLocation?: HexCoordinate
-    private highlightedTargetRange: HexCoordinate[]
 
     constructor() {
         this.resetObject()
     }
 
-    private get hasHighlightedTargetRange(): boolean {
-        return this.highlightedTargetRange.length > 0
-    }
-
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(gameEngineState: GameEngineState): boolean {
         const userWantsADifferentAbility: boolean = this.cancelAbility === true
         const userConfirmedTarget: boolean = this.hasConfirmedAction === true
         return userWantsADifferentAbility || userConfirmedTarget
@@ -101,20 +83,8 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         mouseEvent: OrchestratorComponentMouseEvent
     ): void {
         if (
-            mouseEvent.eventType === OrchestratorComponentMouseEventType.MOVED
-        ) {
-            this.seeIfSquaddiePeekedOnASquaddie({ gameEngineState, mouseEvent })
-            return
-        }
-
-        if (
             mouseEvent.eventType !== OrchestratorComponentMouseEventType.CLICKED
         ) {
-            return
-        }
-
-        if (!this.hasSelectedValidTarget) {
-            this.waitingForValidTarget({ gameEngineState, mouseEvent })
             return
         }
 
@@ -134,11 +104,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             return
         }
 
-        if (!this.hasSelectedValidTarget) {
-            this.waitingForValidTarget({ gameEngineState, keyboardEvent })
-            return
-        }
-
         if (!this.hasConfirmedAction) {
             this.waitingForConfirmation({ gameEngineState, keyboardEvent })
         }
@@ -146,7 +111,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
-            scrollCamera: !this.shouldDrawConfirmWindow(),
+            scrollCamera: false,
             displayMap: true,
             pauseTimer: false,
         })
@@ -156,25 +121,12 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ): void {
-        if (!this.hasHighlightedTargetRange) {
-            return this.highlightTargetRange(gameEngineState)
-        }
-
         this.movePopoversPositions(
             gameEngineState,
             SquaddieSummaryPopoverPosition.SELECT_TARGET
         )
 
-        if (!this.hasSelectedValidTarget) {
-            this.drawCancelAbilityButton(
-                gameEngineState.battleOrchestratorState,
-                graphicsContext
-            )
-        }
-
-        if (this.hasSelectedValidTarget && !this.hasConfirmedAction) {
-            this.drawConfirmWindow(gameEngineState, graphicsContext)
-        }
+        this.drawConfirmWindow(gameEngineState, graphicsContext)
     }
 
     recommendStateChanges(
@@ -188,14 +140,16 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 gameEngineState,
                 SquaddieSummaryPopoverPosition.SELECT_MAIN
             )
+            return {
+                displayMap: true,
+                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
+            }
         }
         if (this.hasConfirmedAction) {
             this.movePopoversPositions(
                 gameEngineState,
                 SquaddieSummaryPopoverPosition.ANIMATE_SQUADDIE_ACTION
             )
-        }
-        if (this.cancelAbility || this.hasConfirmedAction) {
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -205,12 +159,8 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         return undefined
     }
 
-    reset(state: GameEngineState) {
+    reset(gameEngineState: GameEngineState) {
         this.resetObject()
-    }
-
-    shouldDrawConfirmWindow(): boolean {
-        return this.hasSelectedValidTarget === true
     }
 
     private waitingForConfirmation({
@@ -229,8 +179,12 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 keyboardEvent,
             })
         ) {
-            this.hasSelectedValidTarget = false
-            this.highlightTargetRange(gameEngineState)
+            TargetingResultsService.highlightTargetRange(gameEngineState)
+            this.cancelAbility = true
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
+                gameEngineState,
+            })
             return
         }
 
@@ -271,102 +225,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         return true
     }
 
-    private waitingForValidTarget = ({
-        gameEngineState,
-        mouseEvent,
-        keyboardEvent,
-    }: {
-        gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
-        keyboardEvent?: OrchestratorComponentKeyEvent
-    }) => {
-        if (
-            this.didUserCancelTargetLocation({
-                gameEngineState,
-                mouseEvent,
-                keyboardEvent,
-            })
-        ) {
-            this.cancelTargetSelection(gameEngineState)
-            let repositionWindow = {
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-            }
-            if (
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.playerCommandState?.playerCommandWindow
-            ) {
-                repositionWindow.mouseX =
-                    RectAreaService.left(
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState
-                            .playerCommandWindow.area
-                    ) + HEX_TILE_WIDTH
-                repositionWindow.mouseY =
-                    RectAreaService.top(
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState
-                            .playerCommandWindow.area
-                    ) - HEX_TILE_WIDTH
-            }
-
-            if (
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ) {
-                const actingSquaddieBattleId =
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                        .battleSquaddieId
-                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                    SummaryHUDStateService.new({
-                        mouseSelectionLocation: {
-                            x: repositionWindow.mouseX,
-                            y: repositionWindow.mouseY,
-                        },
-                    })
-
-                SummaryHUDStateService.setMainSummaryPopover({
-                    battleSquaddieId: actingSquaddieBattleId,
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    objectRepository: gameEngineState.repository,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                SummaryHUDStateService.createCommandWindow({
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    objectRepository: gameEngineState.repository,
-                })
-            }
-            return
-        }
-
-        if (!isValidValue(mouseEvent)) {
-            return
-        }
-
-        const mouseClickedAccept: boolean =
-            isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton === MouseButton.ACCEPT
-        if (!mouseClickedAccept) {
-            return
-        }
-
-        this.tryToSelectValidTarget({
-            mouseX: mouseEvent.mouseX,
-            mouseY: mouseEvent.mouseY,
-            gameEngineState,
-            mouseButton: mouseEvent.mouseButton,
-        })
-    }
-
     private didUserCancelActionConfirmation = ({
         gameEngineState,
         mouseEvent,
@@ -388,192 +246,9 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         return false
     }
 
-    private didUserCancelTargetLocation = ({
-        gameEngineState,
-        mouseEvent,
-        keyboardEvent,
-    }: {
-        gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
-        keyboardEvent?: OrchestratorComponentKeyEvent
-    }): boolean => {
-        if (isValidValue(mouseEvent)) {
-            return (
-                mouseEvent.mouseButton === MouseButton.CANCEL ||
-                mouseEvent.mouseY > TARGET_CANCEL_BUTTON_TOP
-            )
-        }
-        if (isValidValue(keyboardEvent)) {
-            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
-        }
-        return false
-    }
-
-    private cancelTargetSelection = (
-        gameEngineState: GameEngineState
-    ): void => {
-        this.cancelAbility = true
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-            gameEngineState,
-        })
-    }
-
     private resetObject() {
         this.hasConfirmedAction = false
-        this.highlightedTargetRange = []
         this.cancelAbility = false
-        this.hasSelectedValidTarget = false
-        this.validTargetLocation = undefined
-    }
-
-    private highlightTargetRange(state: GameEngineState) {
-        const actionRange = TargetingResultsService.highlightTargetRange(state)
-        this.highlightedTargetRange = [...actionRange]
-    }
-
-    private drawCancelAbilityButton(
-        state: BattleOrchestratorState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        const cancelAbilityButtonText =
-            "CONFIRM: Click on the target.     CANCEL: Click here."
-        this.drawButton(
-            RectAreaService.new({
-                left: 0,
-                top: TARGET_CANCEL_BUTTON_TOP,
-                width: ScreenDimensions.SCREEN_WIDTH,
-                height:
-                    ScreenDimensions.SCREEN_HEIGHT - TARGET_CANCEL_BUTTON_TOP,
-            }),
-            cancelAbilityButtonText,
-            graphicsContext
-        )
-    }
-
-    private tryToSelectValidTarget({
-        mouseX,
-        mouseY,
-        mouseButton,
-        gameEngineState,
-    }: {
-        mouseX: number
-        mouseY: number
-        mouseButton: MouseButton
-        gameEngineState: GameEngineState
-    }) {
-        const coordinates = convertScreenCoordinatesToMapCoordinates(
-            mouseX,
-            mouseY,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
-
-        const clickedLocation: HexCoordinate = {
-            q: coordinates[0],
-            r: coordinates[1],
-        }
-
-        if (
-            !this.highlightedTargetRange.some(
-                (tile) =>
-                    tile.q === clickedLocation.q && tile.r === clickedLocation.r
-            )
-        ) {
-            return
-        }
-
-        const {
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
-            mouseX,
-            mouseY,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
-            map: gameEngineState.battleOrchestratorState.battleState.missionMap,
-            squaddieRepository: gameEngineState.repository,
-        })
-
-        if (targetSquaddieTemplate === undefined) {
-            return
-        }
-
-        const { squaddieTemplate: actingSquaddieTemplate } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.battleSquaddieId
-                )
-            )
-
-        const actorAndTargetAreFriends: boolean =
-            FriendlyAffiliationsByAffiliation[
-                actingSquaddieTemplate.squaddieId.affiliation
-            ][targetSquaddieTemplate.squaddieId.affiliation]
-
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
-            (template) =>
-                template.id ===
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.previewedActionTemplateId
-        )
-
-        if (!isValidValue(actionTemplate)) {
-            return
-        }
-
-        const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-        if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-            return
-        }
-
-        if (
-            actorAndTargetAreFriends &&
-            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !==
-                true
-        ) {
-            return
-        }
-        if (
-            !actorAndTargetAreFriends &&
-            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] ===
-                true
-        ) {
-            return
-        }
-
-        const cameraCoordinates =
-            gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
-            {
-                mouseX,
-                mouseY,
-                mouseButton,
-                cameraX: cameraCoordinates[0],
-                cameraY: cameraCoordinates[1],
-            }
-        )
-        this.hasSelectedValidTarget = true
-        this.validTargetLocation = clickedLocation
-
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: clickedLocation,
-        })
-
-        SummaryHUDStateService.setTargetSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: targetBattleSquaddie.battleSquaddieId,
-            gameEngineState,
-            objectRepository: gameEngineState.repository,
-            resourceHandler: gameEngineState.resourceHandler,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-        })
     }
 
     private drawConfirmWindow(
@@ -689,11 +364,16 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
             undefined
 
+        const targetLocation = PlayerBattleActionBuilderStateService.getTarget(
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState
+        ).targetLocation
+
         const decidedAction = createDecidedAction(
             actionsThisRound,
             actionTemplate,
             firstActionEffectTemplate,
-            this.validTargetLocation
+            targetLocation
         )
         const processedAction = ProcessedActionService.new({
             decidedAction,
@@ -704,7 +384,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             ActionCalculator.calculateResults({
                 gameEngineState: gameEngineState,
                 actingBattleSquaddie,
-                validTargetLocation: this.validTargetLocation,
+                validTargetLocation: targetLocation,
                 actionsThisRound:
                     gameEngineState.battleOrchestratorState.battleState
                         .actionsThisRound,
@@ -776,45 +456,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         this.hasConfirmedAction = true
     }
 
-    private seeIfSquaddiePeekedOnASquaddie = ({
-        mouseEvent,
-        gameEngineState,
-    }: {
-        mouseEvent: OrchestratorComponentMouseEventMoved
-        gameEngineState: GameEngineState
-    }) => {
-        const { q, r } =
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
-                screenX: mouseEvent.mouseX,
-                screenY: mouseEvent.mouseY,
-                camera: gameEngineState.battleOrchestratorState.battleState
-                    .camera,
-            })
-
-        const { battleSquaddieId } =
-            MissionMapService.getBattleSquaddieAtLocation(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                { q, r }
-            )
-
-        if (!isValidValue(battleSquaddieId)) {
-            return
-        }
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-            gameEngineState,
-            battleSquaddieSelectedId: battleSquaddieId,
-            selectionMethod: {
-                mouse: {
-                    x: mouseEvent.mouseX,
-                    y: mouseEvent.mouseY,
-                },
-            },
-            squaddieSummaryPopoverPosition:
-                SquaddieSummaryPopoverPosition.SELECT_TARGET,
-        })
-    }
     private movePopoversPositions = (
         gameEngineState: GameEngineState,
         position: SquaddieSummaryPopoverPosition

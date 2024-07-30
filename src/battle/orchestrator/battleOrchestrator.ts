@@ -84,7 +84,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         squaddieUsesActionOnSquaddie,
         playerSquaddieSelector,
         playerSquaddieTarget,
-        playerConfirm,
+        playerActionConfirm,
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
@@ -92,7 +92,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
         playerSquaddieTarget: BattlePlayerSquaddieTarget
-        playerConfirm: BattlePlayerActionConfirm
+        playerActionConfirm: BattlePlayerActionConfirm
         computerSquaddieSelector: BattleComputerSquaddieSelector
         squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
         squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -105,7 +105,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
         this.playerSquaddieTarget = playerSquaddieTarget
-        this.playerActionConfirm = playerConfirm
+        this.playerActionConfirm = playerActionConfirm
         this.computerSquaddieSelector = computerSquaddieSelector
         this.squaddieUsesActionOnMap = squaddieUsesActionOnMap
         this.squaddieMover = squaddieMover

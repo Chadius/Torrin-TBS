@@ -172,7 +172,7 @@ export class GameEngine {
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
-            playerConfirm: new BattlePlayerActionConfirm(),
+            playerActionConfirm: new BattlePlayerActionConfirm(),
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),
@@ -270,6 +270,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
             MessageBoardMessageType.PLAYER_ENDS_TURN,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+            MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,
