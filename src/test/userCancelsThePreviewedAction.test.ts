@@ -55,6 +55,8 @@ import { KeyButtonName } from "../utils/keyboardConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
+import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
+import { BattleHUDListener } from "../battle/hud/battleHUD"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -68,9 +70,10 @@ describe("User cancels the previewed action", () => {
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
+    let graphicsContext: MockedP5GraphicsBuffer
 
     let targeting: BattlePlayerSquaddieTarget
-    let graphicsContext: MockedP5GraphicsBuffer
+    let confirm: BattlePlayerActionConfirm
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
@@ -137,6 +140,7 @@ describe("User cancels the previewed action", () => {
         )
 
         targeting = new BattlePlayerSquaddieTarget()
+        confirm = new BattlePlayerActionConfirm()
     })
 
     describe("when the user cancels after selecting an action", () => {
@@ -422,14 +426,13 @@ describe("User cancels the previewed action", () => {
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
 
-        targeting.mouseEventHappened(gameEngineState, {
+        confirm.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: ScreenDimensions.SCREEN_WIDTH,
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
             mouseButton: MouseButton.ACCEPT,
         })
 
-        expect(targeting.hasSelectedValidTarget).toBeFalsy()
         expect(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         ).toEqual(actionsThisRound)
@@ -469,6 +472,24 @@ const getGameEngineState = ({
         campaign: CampaignService.default({}),
         resourceHandler,
     })
+
+    const battleHUDListener = new BattleHUDListener("testBattleListener")
+    gameEngineState.messageBoard.addListener(
+        battleHUDListener,
+        MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION
+    )
+    gameEngineState.messageBoard.addListener(
+        battleHUDListener,
+        MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+    )
+    gameEngineState.messageBoard.addListener(
+        battleHUDListener,
+        MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+    )
+    gameEngineState.messageBoard.addListener(
+        battleHUDListener,
+        MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
+    )
 
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         SummaryHUDStateService.new({ mouseSelectionLocation: { x: 0, y: 0 } })

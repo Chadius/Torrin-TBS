@@ -19,10 +19,7 @@ import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
-import {
-    SquaddieTemplate,
-    SquaddieTemplateService,
-} from "../../campaign/squaddieTemplate"
+import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
@@ -54,12 +51,14 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { DamageType } from "../../squaddie/squaddieService"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import {
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService,
+} from "../../action/decided/decidedActionSquaddieEffect"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
@@ -74,7 +73,10 @@ import {
 import { SummaryHUDStateService } from "./summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { BattlePhaseStateService } from "../orchestratorComponents/battlePhaseController"
+import {
+    BattlePhaseState,
+    BattlePhaseStateService,
+} from "../orchestratorComponents/battlePhaseController"
 import {
     BattleAction,
     BattleActionQueueService,
@@ -82,8 +84,155 @@ import {
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieTurnService } from "../../squaddie/turn"
+import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import {
+    DamageType,
+    GetHitPoints,
+    GetNumberOfActionPoints,
+} from "../../squaddie/squaddieService"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { BattleEvent } from "../history/battleEvent"
+import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 
 describe("Battle HUD", () => {
+    const createGameEngineState = ({
+        battlePhaseState,
+        battleSquaddieLocation,
+        missionMap,
+    }: {
+        battlePhaseState?: BattlePhaseState
+        battleSquaddieLocation?: HexCoordinate
+        missionMap?: MissionMap
+    }): {
+        gameEngineState: GameEngineState
+        longswordAction: ActionTemplate
+        playerSoldierBattleSquaddie: BattleSquaddie
+        battleSquaddie2: BattleSquaddie
+    } => {
+        const repository = ObjectRepositoryService.new()
+        missionMap =
+            missionMap ??
+            new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                }),
+            })
+
+        const playerTeam: BattleSquaddieTeam = {
+            id: "playerTeamId",
+            name: "player controlled team",
+            affiliation: SquaddieAffiliation.PLAYER,
+            battleSquaddieIds: [],
+            iconResourceKey: "icon_player_team",
+        }
+        let teams: BattleSquaddieTeam[] = []
+        const longswordAction = ActionTemplateService.new({
+            name: "longsword",
+            id: "longsword",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                    }),
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    targetingShape: TargetingShape.SNAKE,
+                    damageDescriptions: {
+                        [DamageType.BODY]: 2,
+                    },
+                }),
+            ],
+        })
+        teams.push(playerTeam)
+        const { battleSquaddie: playerSoldierBattleSquaddie } =
+            CreateNewSquaddieAndAddToRepository({
+                name: "Player Soldier",
+                templateId: "player_soldier",
+                battleId: "player_soldier_0",
+                affiliation: SquaddieAffiliation.PLAYER,
+                squaddieRepository: repository,
+                actionTemplates: [longswordAction],
+            })
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+            "player_soldier_0",
+        ])
+
+        missionMap.addSquaddie(
+            "player_soldier",
+            "player_soldier_0",
+            battleSquaddieLocation ?? {
+                q: 0,
+                r: 0,
+            }
+        )
+
+        const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_1",
+            squaddieTurn: SquaddieTurnService.new(),
+        })
+        ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie2)
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+            "player_soldier_1",
+        ])
+
+        missionMap.addSquaddie("player_soldier", "player_soldier_1", {
+            q: 0,
+            r: 1,
+        })
+
+        const gameEngineState = GameEngineStateService.new({
+            resourceHandler: mocks.mockResourceHandler(
+                new MockedP5GraphicsBuffer()
+            ),
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleHUD: BattleHUDService.new({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                }),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    missionMap,
+                    camera: new BattleCamera(),
+                    battlePhaseState:
+                        battlePhaseState ??
+                        BattlePhaseStateService.new({
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 1,
+                        }),
+                    teams,
+                    recording: { history: [] },
+                }),
+                battleHUDState: BattleHUDStateService.new({
+                    summaryHUDState: SummaryHUDStateService.new({
+                        mouseSelectionLocation: { x: 0, y: 0 },
+                    }),
+                }),
+            }),
+            repository,
+            campaign: CampaignService.default({}),
+        })
+
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            PlayerBattleActionBuilderStateService.new({})
+
+        PlayerBattleActionBuilderStateService.setActor({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+        })
+
+        return {
+            gameEngineState,
+            longswordAction,
+            playerSoldierBattleSquaddie,
+            battleSquaddie2,
+        }
+    }
+
     describe("enable buttons as a reaction", () => {
         let fileAccessHUDSpy: jest.SpyInstance
         let fileAccessHUD: FileAccessHUD
@@ -161,11 +310,30 @@ describe("Battle HUD", () => {
             expect(fileAccessHUDSpy).toBeCalled()
         })
     })
+
+    const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
+        label: LabelService.new({
+            area: RectAreaService.new({
+                left: 0,
+                top: 0,
+                width: 200,
+                height: 100,
+            }),
+            text: "It's SQUADDIE_NAME turn",
+            textSize: 10,
+            fontColor: [0, 0, 100],
+            fillColor: [0, 0, 10],
+            textBoxMargin: 8,
+        }),
+    })
+
     describe("draw", () => {
         let mockGraphicsContext: MockedP5GraphicsBuffer
+
         beforeEach(() => {
             mockGraphicsContext = new MockedP5GraphicsBuffer()
         })
+
         it("will draw popup windows if they are defined", () => {
             const drawSpy: jest.SpyInstance = jest.spyOn(
                 PopupWindowService,
@@ -173,21 +341,6 @@ describe("Battle HUD", () => {
             )
 
             const battleHUD = BattleHUDService.new({})
-            const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
-                label: LabelService.new({
-                    area: RectAreaService.new({
-                        left: 0,
-                        top: 0,
-                        width: 200,
-                        height: 100,
-                    }),
-                    text: "It's SQUADDIE_NAME turn",
-                    textSize: 10,
-                    fontColor: [0, 0, 100],
-                    fillColor: [0, 0, 10],
-                    textBoxMargin: 8,
-                }),
-            })
 
             BattleHUDService.setPopupWindow(
                 battleHUD,
@@ -215,21 +368,6 @@ describe("Battle HUD", () => {
     describe("Popup Windows", () => {
         it("can set a popup window", () => {
             const battleHUD = BattleHUDService.new({})
-            const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
-                label: LabelService.new({
-                    area: RectAreaService.new({
-                        left: 0,
-                        top: 0,
-                        width: 200,
-                        height: 100,
-                    }),
-                    text: "It's SQUADDIE_NAME turn",
-                    textSize: 10,
-                    fontColor: [0, 0, 100],
-                    fillColor: [0, 0, 10],
-                    textBoxMargin: 8,
-                }),
-            })
 
             BattleHUDService.setPopupWindow(
                 battleHUD,
@@ -391,24 +529,54 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie
 
-        const createGameEngineState = ({
+        const createGameEngineStateWithAffiliation = ({
             repository,
             missionMap,
             teamAffiliation,
             battlePhase,
-            battleSquaddieId,
         }: {
             missionMap: MissionMap
             teamAffiliation: SquaddieAffiliation
             battlePhase: BattlePhase
             repository: ObjectRepository
-            battleSquaddieId: string
-        }): GameEngineState => {
+        }): {
+            gameEngineState: GameEngineState
+            battleSquaddie: BattleSquaddie
+        } => {
+            const squaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    name: "squaddie template",
+                    affiliation: teamAffiliation,
+                    templateId: "templateId",
+                }),
+            })
+            const battleSquaddie = BattleSquaddieService.new({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddieId: "battleSquaddie",
+            })
+            ObjectRepositoryService.addSquaddieTemplate(
+                repository,
+                squaddieTemplate
+            )
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                battleSquaddie
+            )
+            MissionMapService.addSquaddie(
+                missionMap,
+                battleSquaddie.squaddieTemplateId,
+                battleSquaddie.battleSquaddieId,
+                {
+                    q: 0,
+                    r: 0,
+                }
+            )
+
             const team = BattleSquaddieTeamService.new({
                 id: "team",
                 name: "team",
                 affiliation: teamAffiliation,
-                battleSquaddieIds: [battleSquaddieId],
+                battleSquaddieIds: [battleSquaddie.battleSquaddieId],
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -434,7 +602,7 @@ describe("Battle HUD", () => {
                 MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
-            return gameEngineState
+            return { gameEngineState, battleSquaddie }
         }
 
         beforeEach(() => {
@@ -444,19 +612,14 @@ describe("Battle HUD", () => {
                     movementCost: ["1 1 "],
                 }),
             })
-            ;({ battleSquaddie } = createSquaddieAndAddToRepositoryAndMap({
-                affiliation: SquaddieAffiliation.PLAYER,
-                repository,
-                missionMap,
-            }))
 
-            gameEngineState = createGameEngineState({
-                teamAffiliation: SquaddieAffiliation.PLAYER,
-                battlePhase: BattlePhase.PLAYER,
-                missionMap,
-                repository,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-            })
+            ;({ gameEngineState, battleSquaddie } =
+                createGameEngineStateWithAffiliation({
+                    teamAffiliation: SquaddieAffiliation.PLAYER,
+                    battlePhase: BattlePhase.PLAYER,
+                    missionMap,
+                    repository,
+                }))
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -500,6 +663,7 @@ describe("Battle HUD", () => {
         describe("Player selects squaddie they cannot control because it is an enemy", () => {
             let gameEngineState: GameEngineState
             let enemyBattleSquaddie: BattleSquaddie
+
             beforeEach(() => {
                 const repository = ObjectRepositoryService.new()
                 const missionMap = MissionMapService.new({
@@ -507,20 +671,14 @@ describe("Battle HUD", () => {
                         movementCost: ["1 1 "],
                     }),
                 })
-                ;({ battleSquaddie: enemyBattleSquaddie } =
-                    createSquaddieAndAddToRepositoryAndMap({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                        repository,
-                        missionMap,
-                    }))
 
-                gameEngineState = createGameEngineState({
-                    teamAffiliation: SquaddieAffiliation.ENEMY,
-                    battlePhase: BattlePhase.ENEMY,
-                    missionMap,
-                    repository,
-                    battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                })
+                ;({ gameEngineState, battleSquaddie: enemyBattleSquaddie } =
+                    createGameEngineStateWithAffiliation({
+                        teamAffiliation: SquaddieAffiliation.ENEMY,
+                        battlePhase: BattlePhase.ENEMY,
+                        missionMap,
+                        repository,
+                    }))
 
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -555,93 +713,24 @@ describe("Battle HUD", () => {
         let battleSquaddie2: BattleSquaddie
         let battleHUDListener: BattleHUDListener
 
-        const createGameEngineState = ({
-            repository,
-            missionMap,
-            teamAffiliation,
-            battlePhase,
-            battleSquaddieId,
-        }: {
-            missionMap: MissionMap
-            teamAffiliation: SquaddieAffiliation
-            battlePhase: BattlePhase
-            repository: ObjectRepository
-            battleSquaddieId: string
-        }): GameEngineState => {
-            const team = BattleSquaddieTeamService.new({
-                id: "team",
-                name: "team",
-                affiliation: teamAffiliation,
-                battleSquaddieIds: [battleSquaddieId],
-            })
-
-            gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: new BattleCamera(0, 0),
-                        teams: [team],
-                        battlePhaseState: BattlePhaseStateService.new({
-                            currentAffiliation: battlePhase,
-                        }),
+        beforeEach(() => {
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie: battleSquaddie,
+                battleSquaddie2,
+            } = createGameEngineState({
+                missionMap: MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
                     }),
                 }),
-                campaign: CampaignService.default({}),
-                repository,
-            })
+            }))
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
                 MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
             )
-
-            return gameEngineState
-        }
-
-        beforeEach(() => {
-            const repository = ObjectRepositoryService.new()
-            const missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 "],
-                }),
-            })
-
-            let squaddieTemplate: SquaddieTemplate
-            ;({ battleSquaddie, squaddieTemplate } =
-                createSquaddieAndAddToRepositoryAndMap({
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    repository,
-                    missionMap,
-                }))
-
-            battleSquaddie2 = BattleSquaddieService.new({
-                squaddieTemplate: squaddieTemplate,
-                battleSquaddieId: "battleSquaddie2",
-            })
-            ObjectRepositoryService.addBattleSquaddie(
-                repository,
-                battleSquaddie2
-            )
-            MissionMapService.addSquaddie(
-                missionMap,
-                battleSquaddie2.squaddieTemplateId,
-                battleSquaddie2.battleSquaddieId,
-                {
-                    q: 0,
-                    r: 1,
-                }
-            )
-
-            gameEngineState = createGameEngineState({
-                teamAffiliation: SquaddieAffiliation.PLAYER,
-                battlePhase: BattlePhase.PLAYER,
-                missionMap,
-                repository,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-            })
         })
 
         it("will call the Summary HUD to open a new main window", () => {
@@ -832,60 +921,24 @@ describe("Battle HUD", () => {
     describe("Player cancels target selection they were considering", () => {
         let gameEngineState: GameEngineState
         let battleHUDListener: BattleHUDListener
-        let squaddieTemplate: SquaddieTemplate
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let repository: ObjectRepository
-        let battleMap: MissionMap
         let highlightRangeSpy: jest.SpyInstance
 
         beforeEach(() => {
-            repository = ObjectRepositoryService.new()
-            battleMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-                }),
-            })
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie: battleSquaddie,
+                longswordAction,
+            } = createGameEngineState({
+                battleSquaddieLocation: { q: 1, r: 1 },
+            }))
+
             highlightRangeSpy = jest.spyOn(
                 DrawSquaddieUtilities,
                 "highlightSquaddieRange"
             )
 
-            longswordAction = ActionTemplateService.new({
-                name: "longsword",
-                id: "longswordActionId",
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                            [Trait.TARGET_ARMOR]: true,
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
-                        }),
-                        minimumRange: 1,
-                        maximumRange: 1,
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2,
-                        },
-                    }),
-                ],
-            })
-            ;({
-                squaddieTemplate: squaddieTemplate,
-                battleSquaddie: battleSquaddie,
-            } = CreateNewSquaddieAndAddToRepository({
-                name: "PlayerSquaddie",
-                templateId: "squaddieTemplateId",
-                battleId: "battleSquaddieId",
-                affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: repository,
-                actionTemplates: [longswordAction],
-            }))
-            battleMap.addSquaddie(
-                squaddieTemplate.squaddieId.templateId,
-                battleSquaddie.battleSquaddieId,
-                { q: 1, r: 1 }
-            )
             battleHUDListener = new BattleHUDListener("battleHUDListener")
         })
 
@@ -896,32 +949,9 @@ describe("Battle HUD", () => {
         const addActionsThisRoundThenCancelTargetSelection = (
             actionsThisRound: ActionsThisRound
         ) => {
-            gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: battleMap,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository,
-                campaign: CampaignService.default({}),
-            })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                actionsThisRound
 
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-            })
             PlayerBattleActionBuilderStateService.addAction({
                 actionBuilderState:
                     gameEngineState.battleOrchestratorState.battleState
@@ -1034,109 +1064,49 @@ describe("Battle HUD", () => {
     describe("Player cancels target confirmation", () => {
         let gameEngineState: GameEngineState
         let battleHUDListener: BattleHUDListener
-        let squaddieTemplate: SquaddieTemplate
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let repository: ObjectRepository
-        let battleMap: MissionMap
         let highlightRangeSpy: jest.SpyInstance
 
         beforeEach(() => {
-            repository = ObjectRepositoryService.new()
-            battleMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-                }),
-            })
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie: battleSquaddie,
+                longswordAction,
+            } = createGameEngineState({
+                battleSquaddieLocation: { q: 1, r: 1 },
+            }))
+
             highlightRangeSpy = jest.spyOn(
                 DrawSquaddieUtilities,
                 "highlightSquaddieRange"
             )
 
-            longswordAction = ActionTemplateService.new({
-                name: "longsword",
-                id: "longswordActionId",
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                            [Trait.TARGET_ARMOR]: true,
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
-                        }),
-                        minimumRange: 1,
-                        maximumRange: 1,
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2,
-                        },
-                    }),
-                ],
-            })
-            ;({
-                squaddieTemplate: squaddieTemplate,
-                battleSquaddie: battleSquaddie,
-            } = CreateNewSquaddieAndAddToRepository({
-                name: "PlayerSquaddie",
-                templateId: "squaddieTemplateId",
-                battleId: "battleSquaddieId",
-                affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: repository,
-                actionTemplates: [longswordAction],
-            }))
-            battleMap.addSquaddie(
-                squaddieTemplate.squaddieId.templateId,
-                battleSquaddie.battleSquaddieId,
-                { q: 1, r: 1 }
-            )
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                startingLocation: { q: 0, r: 0 },
-                previewedActionTemplateId: longswordAction.id,
-                processedActions: [
-                    ProcessedActionService.new({
-                        decidedAction: undefined,
-                        processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.new({
-                                decidedActionEffect:
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: longswordAction
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 1 },
-                                    }),
-                                results: undefined,
-                            }),
-                        ],
-                    }),
-                ],
-            })
-            gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap: battleMap,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository,
-                campaign: CampaignService.default({}),
-            })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: longswordAction.id,
+                    processedActions: [
+                        ProcessedActionService.new({
+                            decidedAction: undefined,
+                            processedActionEffects: [
+                                ProcessedActionSquaddieEffectService.new({
+                                    decidedActionEffect:
+                                        DecidedActionSquaddieEffectService.new({
+                                            template: longswordAction
+                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                            target: { q: 0, r: 1 },
+                                        }),
+                                    results: undefined,
+                                }),
+                            ],
+                        }),
+                    ],
+                })
 
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-            })
             PlayerBattleActionBuilderStateService.addAction({
                 actionBuilderState:
                     gameEngineState.battleOrchestratorState.battleState
@@ -1180,96 +1150,19 @@ describe("Battle HUD", () => {
     describe("Player ends their turn", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState
-        let missionMap: MissionMap
-        let repository: ObjectRepository
         let playerSoldierBattleSquaddie: BattleSquaddie
         let messageSpy: jest.SpyInstance
         let endTurnBattleAction: BattleAction
 
         beforeEach(() => {
-            repository = ObjectRepositoryService.new()
-            missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-                }),
-            })
-
-            const playerTeam: BattleSquaddieTeam = {
-                id: "playerTeamId",
-                name: "player controlled team",
-                affiliation: SquaddieAffiliation.PLAYER,
-                battleSquaddieIds: [],
-                iconResourceKey: "icon_player_team",
-            }
-            let teams: BattleSquaddieTeam[] = []
-            teams.push(playerTeam)
-            ;({ battleSquaddie: playerSoldierBattleSquaddie } =
-                CreateNewSquaddieAndAddToRepository({
-                    name: "Player Soldier",
-                    templateId: "player_soldier",
-                    battleId: "player_soldier_0",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    squaddieRepository: repository,
-                }))
-            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-                "player_soldier_0",
-            ])
-
-            missionMap.addSquaddie("player_soldier", "player_soldier_0", {
-                q: 0,
-                r: 0,
-            })
-
-            const battlePhaseState = {
-                currentAffiliation: BattlePhase.PLAYER,
-                turnCount: 1,
-            }
-
-            const camera: BattleCamera = new BattleCamera()
-
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(
-                    new MockedP5GraphicsBuffer()
-                ),
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                        recording: { history: [] },
-                    }),
-                    battleHUDState: BattleHUDStateService.new({
-                        summaryHUDState: SummaryHUDStateService.new({
-                            mouseSelectionLocation: { x: 0, y: 0 },
-                        }),
-                    }),
-                }),
-                repository,
-                campaign: CampaignService.default({}),
-            })
-
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
-
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-            })
+            ;({ gameEngineState, playerSoldierBattleSquaddie } =
+                createGameEngineState({}))
 
             SummaryHUDStateService.setMainSummaryPopover({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
                 gameEngineState,
                 resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: repository,
+                objectRepository: gameEngineState.repository,
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -1452,102 +1345,17 @@ describe("Battle HUD", () => {
     describe("Player selects an action", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState
-        let missionMap: MissionMap
-        let repository: ObjectRepository
         let playerSoldierBattleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
 
         beforeEach(() => {
-            repository = ObjectRepositoryService.new()
-            missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-                }),
-            })
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie,
+                longswordAction,
+            } = createGameEngineState({}))
 
-            const playerTeam: BattleSquaddieTeam = {
-                id: "playerTeamId",
-                name: "player controlled team",
-                affiliation: SquaddieAffiliation.PLAYER,
-                battleSquaddieIds: [],
-                iconResourceKey: "icon_player_team",
-            }
-            let teams: BattleSquaddieTeam[] = []
-            longswordAction = ActionTemplateService.new({
-                name: "longsword",
-                id: "longsword",
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues(),
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        targetingShape: TargetingShape.SNAKE,
-                    }),
-                ],
-            })
-            teams.push(playerTeam)
-            ;({ battleSquaddie: playerSoldierBattleSquaddie } =
-                CreateNewSquaddieAndAddToRepository({
-                    name: "Player Soldier",
-                    templateId: "player_soldier",
-                    battleId: "player_soldier_0",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    squaddieRepository: repository,
-                    actionTemplates: [longswordAction],
-                }))
-            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
-                "player_soldier_0",
-            ])
-
-            missionMap.addSquaddie("player_soldier", "player_soldier_0", {
-                q: 0,
-                r: 0,
-            })
-
-            const battlePhaseState = {
-                currentAffiliation: BattlePhase.PLAYER,
-                turnCount: 1,
-            }
-
-            const camera: BattleCamera = new BattleCamera()
-
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(
-                    new MockedP5GraphicsBuffer()
-                ),
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                        recording: { history: [] },
-                    }),
-                    battleHUDState: BattleHUDStateService.new({
-                        summaryHUDState: SummaryHUDStateService.new({
-                            mouseSelectionLocation: { x: 0, y: 0 },
-                        }),
-                    }),
-                }),
-                repository,
-                campaign: CampaignService.default({}),
-            })
-
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
-
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-            })
+            const repository = gameEngineState.repository
 
             SummaryHUDStateService.setMainSummaryPopover({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
@@ -1653,44 +1461,377 @@ describe("Battle HUD", () => {
             })
         })
     })
-})
+    describe("Player selects a target", () => {
+        let battleHUDListener: BattleHUDListener
+        let gameEngineState: GameEngineState
 
-const createSquaddieAndAddToRepositoryAndMap = ({
-    affiliation,
-    repository,
-    missionMap,
-}: {
-    affiliation: SquaddieAffiliation
-    repository: ObjectRepository
-    missionMap: MissionMap
-}): {
-    battleSquaddie: BattleSquaddie
-    squaddieTemplate: SquaddieTemplate
-} => {
-    const squaddieTemplate = SquaddieTemplateService.new({
-        squaddieId: SquaddieIdService.new({
-            name: "squaddie template",
-            affiliation,
-            templateId: "templateId",
-        }),
+        beforeEach(() => {
+            let longswordAction: ActionTemplate
+            ;({ gameEngineState, longswordAction } = createGameEngineState({}))
+
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+                gameEngineState,
+                targetLocation: { q: 0, r: 1 },
+            })
+        })
+
+        it("sets the target location", () => {
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+            expect(
+                PlayerBattleActionBuilderStateService.getTarget(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toEqual({
+                targetLocation: { q: 0, r: 1 },
+                confirmed: false,
+            })
+        })
+
+        it("shows the popover window for the target", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .battleSquaddieId
+            ).toEqual("player_soldier_1")
+        })
     })
-    const battleSquaddie = BattleSquaddieService.new({
-        squaddieTemplate: squaddieTemplate,
-        battleSquaddieId: "battleSquaddie",
+    describe("Player confirms their action", () => {
+        let gameEngineState: GameEngineState
+        let longswordAction: ActionTemplate
+        let thiefBattleSquaddie: BattleSquaddie
+        let playerSoldierBattleSquaddie: BattleSquaddie
+
+        beforeEach(() => {
+            ;({
+                gameEngineState,
+                longswordAction,
+                playerSoldierBattleSquaddie,
+            } = createGameEngineState({}))
+            ;({ battleSquaddie: thiefBattleSquaddie } =
+                CreateNewSquaddieAndAddToRepository({
+                    name: "Thief",
+                    templateId: "Thief",
+                    battleId: "Thief 0",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    squaddieRepository: gameEngineState.repository,
+                    actionTemplates: [longswordAction],
+                    attributes: {
+                        maxHitPoints: 5,
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 2,
+                        }),
+                        armorClass: 0,
+                    },
+                }))
+            MissionMapService.addSquaddie(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                thiefBattleSquaddie.squaddieTemplateId,
+                thiefBattleSquaddie.battleSquaddieId,
+                { q: 1, r: 2 }
+            )
+
+            PlayerBattleActionBuilderStateService.setConsideredTarget({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                targetLocation: { q: 1, r: 2 },
+            })
+
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+                gameEngineState,
+                objectRepository: gameEngineState.repository,
+                resourceHandler: gameEngineState.resourceHandler,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 1, r: 1 },
+                    previewedActionTemplateId: longswordAction.id,
+                })
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+            )
+        })
+
+        it("should create ActionsThisRound", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+
+            const decidedActionSquaddieEffect =
+                DecidedActionSquaddieEffectService.new({
+                    template: longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    target: { q: 1, r: 2 },
+                })
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                startingLocation: { q: 1, r: 1 },
+                previewedActionTemplateId: undefined,
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 1,
+                            battleSquaddieId:
+                                playerSoldierBattleSquaddie.battleSquaddieId,
+                            actionTemplateName: longswordAction.name,
+                            actionTemplateId: longswordAction.id,
+                            actionEffects: [decidedActionSquaddieEffect],
+                        }),
+                        processedActionEffects: [
+                            ProcessedActionSquaddieEffectService.new({
+                                decidedActionEffect:
+                                    decidedActionSquaddieEffect,
+                                results: {
+                                    actingBattleSquaddieId:
+                                        playerSoldierBattleSquaddie.battleSquaddieId,
+                                    actingSquaddieModifiers: {},
+                                    actingSquaddieRoll: {
+                                        occurred: false,
+                                        rolls: [],
+                                    },
+                                    resultPerTarget: {
+                                        "Thief 0": {
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            damageTaken: 2,
+                                            healingReceived: 0,
+                                        },
+                                    },
+                                    targetedBattleSquaddieIds: [
+                                        thiefBattleSquaddie.battleSquaddieId,
+                                    ],
+                                },
+                            }),
+                        ],
+                    }),
+                ],
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            ).toEqual(actionsThisRound)
+        })
+
+        it("should create a confirmed action in the action builder", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+        })
+
+        it("should consume the squaddie action points", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            const { squaddieTemplate } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    playerSoldierBattleSquaddie.battleSquaddieId
+                )
+            )
+
+            const { actionPointsRemaining } = GetNumberOfActionPoints({
+                squaddieTemplate,
+                battleSquaddie: playerSoldierBattleSquaddie,
+            })
+            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
+        })
+
+        describe("confirming an action mid turn", () => {
+            beforeEach(() => {
+                gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                    ActionsThisRoundService.new({
+                        battleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 1, r: 1 },
+                        previewedActionTemplateId: longswordAction.id,
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: DecidedActionService.new({
+                                    battleSquaddieId:
+                                        playerSoldierBattleSquaddie.battleSquaddieId,
+                                    actionPointCost:
+                                        longswordAction.actionPoints,
+                                    actionTemplateName: longswordAction.name,
+                                    actionTemplateId: longswordAction.id,
+                                    actionEffects: [
+                                        DecidedActionSquaddieEffectService.new({
+                                            template: longswordAction
+                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                            target: { q: 0, r: 0 },
+                                        }),
+                                    ],
+                                }),
+                            }),
+                        ],
+                    })
+            })
+
+            it("should add to existing instruction when confirmed mid turn", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions
+                ).toHaveLength(2)
+                const newProcessedAction =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions[1]
+                expect(
+                    newProcessedAction.decidedAction.actionTemplateId
+                ).toEqual(longswordAction.id)
+                expect(
+                    newProcessedAction.decidedAction.actionTemplateName
+                ).toEqual(longswordAction.name)
+                expect(
+                    newProcessedAction.decidedAction.battleSquaddieId
+                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
+
+                expect(
+                    newProcessedAction.decidedAction.actionEffects
+                ).toHaveLength(1)
+                expect(
+                    newProcessedAction.decidedAction.actionEffects[0].type
+                ).toEqual(ActionEffectType.SQUADDIE)
+                const newDecidedActionEffect = newProcessedAction.decidedAction
+                    .actionEffects[0] as DecidedActionSquaddieEffect
+                expect(newDecidedActionEffect.target).toEqual({ q: 1, r: 2 })
+                expect(newDecidedActionEffect.type).toEqual(
+                    ActionEffectType.SQUADDIE
+                )
+                expect(newDecidedActionEffect.template).toEqual(
+                    longswordAction.actionEffectTemplates[0]
+                )
+            })
+
+            it("should add the results to the history", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history
+                ).toHaveLength(1)
+                const mostRecentEvent: BattleEvent =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history[0]
+                expect(
+                    mostRecentEvent.processedAction.processedActionEffects
+                ).toHaveLength(1)
+                expect(
+                    mostRecentEvent.processedAction.processedActionEffects[0]
+                        .decidedActionEffect.type
+                ).toEqual(ActionEffectType.SQUADDIE)
+
+                expect(
+                    (
+                        mostRecentEvent.processedAction
+                            .processedActionEffects[0]
+                            .decidedActionEffect as DecidedActionSquaddieEffect
+                    ).template
+                ).toEqual(
+                    longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                )
+
+                const results = mostRecentEvent.results
+                expect(results.actingBattleSquaddieId).toBe(
+                    playerSoldierBattleSquaddie.battleSquaddieId
+                )
+                expect(results.targetedBattleSquaddieIds).toHaveLength(1)
+                expect(results.targetedBattleSquaddieIds[0]).toBe(
+                    thiefBattleSquaddie.battleSquaddieId
+                )
+                expect(
+                    results.resultPerTarget[
+                        thiefBattleSquaddie.battleSquaddieId
+                    ]
+                ).toBeTruthy()
+            })
+
+            it("should store the calculated results", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                const mostRecentEvent: BattleEvent =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history[0]
+                const knightUsesLongswordOnThiefResults =
+                    mostRecentEvent.results.resultPerTarget[
+                        thiefBattleSquaddie.battleSquaddieId
+                    ]
+                const longswordActionDamage = (
+                    longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                ).damageDescriptions.BODY
+                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(
+                    longswordActionDamage
+                )
+
+                const { squaddieTemplate } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        thiefBattleSquaddie.battleSquaddieId
+                    )
+                )
+
+                const { maxHitPoints, currentHitPoints } = GetHitPoints({
+                    squaddieTemplate: squaddieTemplate,
+                    battleSquaddie: thiefBattleSquaddie,
+                })
+                expect(currentHitPoints).toBe(
+                    maxHitPoints - longswordActionDamage
+                )
+            })
+        })
     })
-    ObjectRepositoryService.addSquaddieTemplate(repository, squaddieTemplate)
-    ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie)
-    MissionMapService.addSquaddie(
-        missionMap,
-        battleSquaddie.squaddieTemplateId,
-        battleSquaddie.battleSquaddieId,
-        {
-            q: 0,
-            r: 0,
-        }
-    )
-    return {
-        battleSquaddie,
-        squaddieTemplate,
-    }
-}
+})

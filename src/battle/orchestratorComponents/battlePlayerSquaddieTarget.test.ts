@@ -23,12 +23,7 @@ import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
-import {
-    DamageType,
-    GetHitPoints,
-    GetNumberOfActionPoints,
-} from "../../squaddie/squaddieService"
-import { BattleEvent } from "../history/battleEvent"
+import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
@@ -48,13 +43,7 @@ import {
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { DecidedActionService } from "../../action/decided/decidedAction"
-import {
-    DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService,
-} from "../../action/decided/decidedActionSquaddieEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -287,20 +276,6 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
     }
 
-    const clickOnConfirmTarget = () => {
-        const confirmSelectionClick: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-            mouseButton: MouseButton.ACCEPT,
-        }
-
-        targetComponent.mouseEventHappened(
-            gameEngineState,
-            confirmSelectionClick
-        )
-    }
-
     it("should highlight the map with the ability range", () => {
         targetComponent.update(gameEngineState, mockedP5GraphicsContext)
 
@@ -374,7 +349,6 @@ describe("BattleSquaddieTarget", () => {
         }
 
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
-        expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy()
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
             PlayerBattleActionBuilderStateService.isActionSet(
@@ -400,7 +374,6 @@ describe("BattleSquaddieTarget", () => {
         )
         targetComponent.update(gameEngineState, mockedP5GraphicsContext)
         clickOnThief()
-        expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy()
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
             PlayerBattleActionBuilderStateService.isTargetConsidered(
@@ -422,350 +395,29 @@ describe("BattleSquaddieTarget", () => {
             clickOnThief()
         })
 
-        it("should show the confirm window", () => {
-            expect(targetComponent.shouldDrawConfirmWindow()).toBeTruthy()
-            expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-        })
-
-        it("should show the summary HUD with both selected targets", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showSummaryHUD
-            ).toBeTruthy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
-            ).toEqual(knightDynamic.battleSquaddieId)
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                    .battleSquaddieId
-            ).toEqual(thiefDynamic.battleSquaddieId)
-        })
-
-        it("should consider the target for the action builder", () => {
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeFalsy()
-
+        it("sends a message with the clicked target location", () => {
             const { mapLocation } =
                 gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                     thiefDynamic.battleSquaddieId
                 )
-            expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).targetLocation
-            ).toEqual(mapLocation)
-        })
 
-        it("should cancel decision if the user cancels the target", () => {
-            const cancelTargetClick: OrchestratorComponentMouseEvent = {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: ScreenDimensions.SCREEN_WIDTH,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                mouseButton: MouseButton.ACCEPT,
-            }
-
-            targetComponent.mouseEventHappened(
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
                 gameEngineState,
-                cancelTargetClick
-            )
-
-            expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-            expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy()
-        })
-    })
-
-    describe("user clicks on target with heal", () => {
-        beforeEach(() => {
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                startingLocation: { q: 1, r: 1 },
-                previewedActionTemplateId: bandageWoundsActionId,
+                targetLocation: mapLocation,
             })
-
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: mockResourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
-                    battleState: BattleStateService.newBattleState({
-                        campaignId: "test campaign",
-                        missionId: "test mission",
-                        missionMap: battleMap,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository: squaddieRepo,
-            })
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                SummaryHUDStateService.new({
-                    mouseSelectionLocation: { x: 0, y: 0 },
-                })
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            targetComponent.update(gameEngineState, mockedP5GraphicsContext)
-            clickOnCitizen()
-        })
-
-        it("should show the confirm window", () => {
-            expect(targetComponent.shouldDrawConfirmWindow()).toBeTruthy()
-            expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-        })
-    })
-
-    describe("user confirms the target", () => {
-        beforeEach(() => {
-            targetComponent.update(gameEngineState, mockedP5GraphicsContext)
-            clickOnThief()
-            clickOnConfirmTarget()
-        })
-
-        it("should create ActionsThisRound", () => {
-            const decidedActionSquaddieEffect =
-                DecidedActionSquaddieEffectService.new({
-                    template: longswordAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                    target: { q: 1, r: 2 },
-                })
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                startingLocation: { q: 1, r: 1 },
-                previewedActionTemplateId: undefined,
-                processedActions: [
-                    ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            actionPointCost: 1,
-                            battleSquaddieId: knightDynamic.battleSquaddieId,
-                            actionTemplateName: longswordAction.name,
-                            actionTemplateId: longswordAction.id,
-                            actionEffects: [decidedActionSquaddieEffect],
-                        }),
-                        processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.new({
-                                decidedActionEffect:
-                                    decidedActionSquaddieEffect,
-                                results: {
-                                    actingBattleSquaddieId: "Knight 0",
-                                    actingSquaddieModifiers: {},
-                                    actingSquaddieRoll: {
-                                        occurred: false,
-                                        rolls: [],
-                                    },
-                                    resultPerTarget: {
-                                        "Thief 0": {
-                                            actorDegreeOfSuccess:
-                                                DegreeOfSuccess.SUCCESS,
-                                            damageTaken: 2,
-                                            healingReceived: 0,
-                                        },
-                                    },
-                                    targetedBattleSquaddieIds: ["Thief 0"],
-                                },
-                            }),
-                        ],
-                    }),
-                ],
-            })
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            ).toEqual(actionsThisRound)
         })
 
         it("should be completed", () => {
             expect(targetComponent.hasCompleted(gameEngineState)).toBeTruthy()
         })
 
-        it("should create a confirmed action in the action builder", () => {
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-        })
-
-        it("should change the gameEngineState to Player HUD Controller", () => {
-            const recommendedInfo =
+        it("should recommend Action Confirm mode next", () => {
+            const changes =
                 targetComponent.recommendStateChanges(gameEngineState)
-            expect(recommendedInfo.nextMode).toBe(
-                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+            expect(changes.nextMode).toEqual(
+                BattleOrchestratorMode.PLAYER_ACTION_CONFIRM
             )
-        })
-
-        it("should consume the squaddie action points", () => {
-            const { actionPointsRemaining } = GetNumberOfActionPoints({
-                squaddieTemplate: knightStatic,
-                battleSquaddie: knightDynamic,
-            })
-            expect(actionPointsRemaining).toBe(2)
-        })
-    })
-
-    describe("confirming an action mid turn", () => {
-        beforeEach(() => {
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-                ActionsThisRoundService.new({
-                    battleSquaddieId: knightDynamic.battleSquaddieId,
-                    startingLocation: { q: 1, r: 1 },
-                    previewedActionTemplateId: longswordActionId,
-                    processedActions: [
-                        ProcessedActionService.new({
-                            decidedAction: DecidedActionService.new({
-                                battleSquaddieId:
-                                    knightDynamic.battleSquaddieId,
-                                actionPointCost: longswordAction.actionPoints,
-                                actionTemplateName: longswordAction.name,
-                                actionTemplateId: longswordActionId,
-                                actionEffects: [
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: longswordAction
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 0 },
-                                    }),
-                                ],
-                            }),
-                        }),
-                    ],
-                })
-
-            expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-            targetComponent.update(gameEngineState, mockedP5GraphicsContext)
-            clickOnThief()
-            clickOnConfirmTarget()
-            expect(targetComponent.hasCompleted(gameEngineState)).toBeTruthy()
-        })
-
-        it("should add to existing instruction when confirmed mid turn", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.processedActions
-            ).toHaveLength(2)
-            const newProcessedAction =
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.processedActions[1]
-            expect(newProcessedAction.decidedAction.actionTemplateId).toEqual(
-                longswordAction.id
-            )
-            expect(newProcessedAction.decidedAction.actionTemplateName).toEqual(
-                longswordAction.name
-            )
-            expect(newProcessedAction.decidedAction.battleSquaddieId).toEqual(
-                knightDynamic.battleSquaddieId
-            )
-
-            expect(newProcessedAction.decidedAction.actionEffects).toHaveLength(
-                1
-            )
-            expect(
-                newProcessedAction.decidedAction.actionEffects[0].type
-            ).toEqual(ActionEffectType.SQUADDIE)
-            const newDecidedActionEffect = newProcessedAction.decidedAction
-                .actionEffects[0] as DecidedActionSquaddieEffect
-            expect(newDecidedActionEffect.target).toEqual({ q: 1, r: 2 })
-            expect(newDecidedActionEffect.type).toEqual(
-                ActionEffectType.SQUADDIE
-            )
-            expect(newDecidedActionEffect.template).toEqual(
-                longswordAction.actionEffectTemplates[0]
-            )
-        })
-
-        it("should spend the action resource cost after confirming but before showing results", () => {
-            const { actionPointsRemaining } = GetNumberOfActionPoints({
-                squaddieTemplate: knightStatic,
-                battleSquaddie: knightDynamic,
-            })
-            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
-        })
-
-        it("should add the results to the history", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            ).toHaveLength(1)
-            const mostRecentEvent: BattleEvent =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history[0]
-            expect(
-                mostRecentEvent.processedAction.processedActionEffects
-            ).toHaveLength(1)
-            expect(
-                mostRecentEvent.processedAction.processedActionEffects[0]
-                    .decidedActionEffect.type
-            ).toEqual(ActionEffectType.SQUADDIE)
-
-            expect(
-                (
-                    mostRecentEvent.processedAction.processedActionEffects[0]
-                        .decidedActionEffect as DecidedActionSquaddieEffect
-                ).template
-            ).toEqual(
-                longswordAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
-            )
-
-            const results = mostRecentEvent.results
-            expect(results.actingBattleSquaddieId).toBe(
-                knightDynamic.battleSquaddieId
-            )
-            expect(results.targetedBattleSquaddieIds).toHaveLength(1)
-            expect(results.targetedBattleSquaddieIds[0]).toBe(
-                thiefDynamic.battleSquaddieId
-            )
-            expect(
-                results.resultPerTarget[thiefDynamic.battleSquaddieId]
-            ).toBeTruthy()
-        })
-
-        it("should store the calculated results", () => {
-            const mostRecentEvent: BattleEvent =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history[0]
-            const knightUsesLongswordOnThiefResults =
-                mostRecentEvent.results.resultPerTarget[
-                    thiefDynamic.battleSquaddieId
-                ]
-            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(
-                longswordActionDamage
-            )
-
-            const { maxHitPoints, currentHitPoints } = GetHitPoints({
-                squaddieTemplate: thiefStatic,
-                battleSquaddie: thiefDynamic,
-            })
-            expect(currentHitPoints).toBe(maxHitPoints - longswordActionDamage)
         })
     })
 
@@ -848,7 +500,6 @@ describe("BattleSquaddieTarget", () => {
                 targetComponent.update(gameEngineState, mockedP5GraphicsContext)
                 invalidTargetClicker()
 
-                expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy()
                 expect(
                     targetComponent.hasCompleted(gameEngineState)
                 ).toBeFalsy()

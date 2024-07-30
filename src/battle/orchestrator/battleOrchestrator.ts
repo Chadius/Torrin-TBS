@@ -41,6 +41,7 @@ import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattleHUDService } from "../hud/battleHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -50,6 +51,7 @@ export enum BattleOrchestratorMode {
     PLAYER_HUD_CONTROLLER = "PLAYER_HUD_CONTROLLER",
     PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
     PLAYER_SQUADDIE_TARGET = "PLAYER_SQUADDIE_TARGET",
+    PLAYER_ACTION_CONFIRM = "PLAYER_ACTION_CONFIRM",
     COMPUTER_SQUADDIE_SELECTOR = "COMPUTER_SQUADDIE_SELECTOR",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
     SQUADDIE_USES_ACTION_ON_MAP = "SQUADDIE_USES_ACTION_ON_MAP",
@@ -71,6 +73,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     phaseController: BattlePhaseController
     initializeBattle: InitializeBattle
     playerHudController: PlayerHudController
+    playerActionConfirm: BattlePlayerActionConfirm
 
     constructor({
         cutscenePlayer,
@@ -81,6 +84,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         squaddieUsesActionOnSquaddie,
         playerSquaddieSelector,
         playerSquaddieTarget,
+        playerActionConfirm,
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
@@ -88,6 +92,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
         playerSquaddieTarget: BattlePlayerSquaddieTarget
+        playerActionConfirm: BattlePlayerActionConfirm
         computerSquaddieSelector: BattleComputerSquaddieSelector
         squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
         squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -100,6 +105,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
         this.playerSquaddieTarget = playerSquaddieTarget
+        this.playerActionConfirm = playerActionConfirm
         this.computerSquaddieSelector = computerSquaddieSelector
         this.squaddieUsesActionOnMap = squaddieUsesActionOnMap
         this.squaddieMover = squaddieMover
@@ -157,6 +163,8 @@ export class BattleOrchestrator implements GameEngineComponent {
                 return this.playerSquaddieSelector
             case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
                 return this.playerSquaddieTarget
+            case BattleOrchestratorMode.PLAYER_ACTION_CONFIRM:
+                return this.playerActionConfirm
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
                 return this.computerSquaddieSelector
             case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP:
@@ -201,81 +209,61 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.playerHudController.reset(gameEngineState)
         }
 
-        switch (this.mode) {
-            case BattleOrchestratorMode.INITIALIZED:
-                this.updateComponent(
-                    gameEngineState,
-                    this.initializeBattle,
-                    graphicsContext,
-                    BattleOrchestratorMode.CUTSCENE_PLAYER
-                )
-                break
-            case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                this.updateComponent(
-                    gameEngineState,
-                    this.cutscenePlayer,
-                    graphicsContext,
-                    BattleOrchestratorMode.PHASE_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.PHASE_CONTROLLER:
-                this.updateComponent(
-                    gameEngineState,
-                    this.phaseController,
-                    graphicsContext,
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR:
-                this.updateComponent(
-                    gameEngineState,
-                    this.playerSquaddieSelector,
-                    graphicsContext,
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
-                this.updateComponent(
-                    gameEngineState,
-                    this.computerSquaddieSelector,
-                    graphicsContext,
-                    BattleOrchestratorMode.PHASE_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP:
-                this.updateComponent(
-                    gameEngineState,
-                    this.squaddieUsesActionOnMap,
-                    graphicsContext,
-                    BattleOrchestratorMode.PHASE_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE:
-                this.updateComponent(
-                    gameEngineState,
-                    this.squaddieUsesActionOnSquaddie,
-                    graphicsContext,
-                    BattleOrchestratorMode.PHASE_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.SQUADDIE_MOVER:
-                this.updateComponent(
-                    gameEngineState,
-                    this.squaddieMover,
-                    graphicsContext,
-                    BattleOrchestratorMode.PHASE_CONTROLLER
-                )
-                break
-            case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
-                this.updateComponent(
-                    gameEngineState,
-                    this.playerSquaddieTarget,
-                    graphicsContext,
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
-                break
-            default:
-                break
+        const modeUpdateComponentParameters: {
+            [m in BattleOrchestratorMode]?: {
+                currentComponent: BattleOrchestratorComponent
+                defaultNextMode: BattleOrchestratorMode
+            }
+        } = {
+            [BattleOrchestratorMode.INITIALIZED]: {
+                currentComponent: this.initializeBattle,
+                defaultNextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+            },
+            [BattleOrchestratorMode.CUTSCENE_PLAYER]: {
+                currentComponent: this.cutscenePlayer,
+                defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+            },
+            [BattleOrchestratorMode.PHASE_CONTROLLER]: {
+                currentComponent: this.phaseController,
+                defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            },
+            [BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR]: {
+                currentComponent: this.playerSquaddieSelector,
+                defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            },
+            [BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR]: {
+                currentComponent: this.computerSquaddieSelector,
+                defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+            },
+            [BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP]: {
+                currentComponent: this.squaddieUsesActionOnMap,
+                defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+            },
+            [BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE]: {
+                currentComponent: this.squaddieUsesActionOnSquaddie,
+                defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+            },
+            [BattleOrchestratorMode.SQUADDIE_MOVER]: {
+                currentComponent: this.squaddieMover,
+                defaultNextMode: BattleOrchestratorMode.PHASE_CONTROLLER,
+            },
+            [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]: {
+                currentComponent: this.playerSquaddieTarget,
+                defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            },
+            [BattleOrchestratorMode.PLAYER_ACTION_CONFIRM]: {
+                currentComponent: this.playerActionConfirm,
+                defaultNextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+            },
+        }
+
+        if (this.mode in modeUpdateComponentParameters) {
+            this.updateComponent(
+                gameEngineState,
+                modeUpdateComponentParameters[this.mode].currentComponent,
+                graphicsContext,
+                modeUpdateComponentParameters[this.mode].defaultNextMode
+            )
         }
 
         if (
@@ -405,7 +393,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.resetInternalState()
     }
 
-    setup({}: {}): BattleOrchestratorState {
+    setup(): BattleOrchestratorState {
         return BattleOrchestratorStateService.new({})
     }
 

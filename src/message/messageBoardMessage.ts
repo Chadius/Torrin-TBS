@@ -18,13 +18,15 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
     | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
+    | MessageBoardMessagePlayerSelectsTargetLocation
+    | MessageBoardMessagePlayerConfirmsAction
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
     STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
-    PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
+    PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
     PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
@@ -33,6 +35,8 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
+    PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
+    PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
 }
 
 export interface MessageBoardMessageBase {
@@ -123,4 +127,15 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     actionTemplate: ActionTemplate
     battleSquaddieId: string
     mapStartingLocation: HexCoordinate
+}
+
+export interface MessageBoardMessagePlayerSelectsTargetLocation {
+    type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+    targetLocation: HexCoordinate
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerConfirmsAction {
+    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+    gameEngineState: GameEngineState
 }

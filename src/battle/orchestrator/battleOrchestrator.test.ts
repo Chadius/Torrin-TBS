@@ -53,6 +53,7 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
+import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -65,6 +66,7 @@ describe("Battle Orchestrator", () => {
         phaseController: BattlePhaseController
         playerHudController: PlayerHudController
         playerSquaddieTarget: BattlePlayerSquaddieTarget
+        playerConfirm: BattlePlayerActionConfirm
         initializeBattle: InitializeBattle
 
         initialMode: BattleOrchestratorMode
@@ -76,6 +78,7 @@ describe("Battle Orchestrator", () => {
     let mockBattleCutscenePlayer: BattleCutscenePlayer
     let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector
     let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget
+    let mockPlayerConfirm: BattlePlayerActionConfirm
     let mockComputerSquaddieSelector: BattleComputerSquaddieSelector
     let mockSquaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap
     let mockSquaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
@@ -145,6 +148,22 @@ describe("Battle Orchestrator", () => {
         mockPlayerSquaddieTarget.mouseEventHappened = jest.fn()
         mockPlayerSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true)
         mockPlayerSquaddieTarget.recommendStateChanges = jest
+            .fn()
+            .mockReturnValue({ displayMap: true })
+
+        mockPlayerConfirm = new (<new () => BattlePlayerActionConfirm>(
+            BattlePlayerActionConfirm
+        ))() as jest.Mocked<BattlePlayerActionConfirm>
+        mockPlayerConfirm.update = jest.fn()
+        mockPlayerConfirm.uiControlSettings = jest.fn().mockReturnValue(
+            new UIControlSettings({
+                displayMap: true,
+                scrollCamera: true,
+            })
+        )
+        mockPlayerConfirm.mouseEventHappened = jest.fn()
+        mockPlayerConfirm.hasCompleted = jest.fn().mockReturnValue(true)
+        mockPlayerConfirm.recommendStateChanges = jest
             .fn()
             .mockReturnValue({ displayMap: true })
 
@@ -299,9 +318,11 @@ describe("Battle Orchestrator", () => {
                 squaddieUsesActionOnSquaddie: mockSquaddieUsesActionOnSquaddie,
                 squaddieMover: mockSquaddieMover,
                 playerSquaddieTarget: mockPlayerSquaddieTarget,
+                playerConfirm: mockPlayerConfirm,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
                 playerHudController: mockPlayerHudController,
+                playerActionConfirm: mockPlayerConfirm,
             },
             ...overrides,
         })
@@ -696,6 +717,8 @@ describe("Battle Orchestrator", () => {
                             mockPlayerSquaddieSelector,
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]:
                             mockPlayerSquaddieTarget,
+                        [BattleOrchestratorMode.PLAYER_ACTION_CONFIRM]:
+                            mockPlayerConfirm,
                         [BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR]:
                             mockComputerSquaddieSelector,
                         [BattleOrchestratorMode.SQUADDIE_MOVER]:

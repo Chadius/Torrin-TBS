@@ -74,6 +74,7 @@ describe("PlayerHUDController", () => {
             squaddieMover: undefined,
             squaddieUsesActionOnMap: undefined,
             squaddieUsesActionOnSquaddie: undefined,
+            playerActionConfirm: undefined,
             playerHudController: controller,
         })
 
