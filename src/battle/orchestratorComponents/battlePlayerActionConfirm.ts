@@ -202,7 +202,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             gameEngineState,
         })
-        this.confirmTargetSelection(gameEngineState)
+        this.hasConfirmedAction = true
     }
 
     private didUserConfirmActionConfirmation({
@@ -339,127 +339,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         LabelService.draw(buttonBackground, graphicsContext)
     }
 
-    private confirmTargetSelection(gameEngineState: GameEngineState) {
-        let actionsThisRound =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        const {
-            squaddieTemplate: actingSquaddieTemplate,
-            battleSquaddie: actingBattleSquaddie,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                actionsThisRound.battleSquaddieId
-            )
-        )
-
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
-            (template) =>
-                template.id === actionsThisRound.previewedActionTemplateId
-        )
-        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-        if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-            return
-        }
-
-        SquaddieTurnService.spendActionPoints(
-            actingBattleSquaddie.squaddieTurn,
-            actionTemplate.actionPoints
-        )
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
-            undefined
-
-        const targetLocation = PlayerBattleActionBuilderStateService.getTarget(
-            gameEngineState.battleOrchestratorState.battleState
-                .playerBattleActionBuilderState
-        ).targetLocation
-
-        const decidedAction = createDecidedAction(
-            actionsThisRound,
-            actionTemplate,
-            firstActionEffectTemplate,
-            targetLocation
-        )
-        const processedAction = ProcessedActionService.new({
-            decidedAction,
-        })
-        actionsThisRound.processedActions.push(processedAction)
-
-        let results: SquaddieSquaddieResults =
-            ActionCalculator.calculateResults({
-                gameEngineState: gameEngineState,
-                actingBattleSquaddie,
-                validTargetLocation: targetLocation,
-                actionsThisRound:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound,
-                actionEffect:
-                    ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .actionsThisRound
-                    ).decidedActionEffect,
-            })
-        processedAction.processedActionEffects.push(
-            ProcessedActionSquaddieEffectService.new({
-                decidedActionEffect: decidedAction.actionEffects.find(
-                    (actionEffect) =>
-                        actionEffect.type === ActionEffectType.SQUADDIE
-                ) as DecidedActionSquaddieEffect,
-                results,
-            })
-        )
-        addEventToRecording(processedAction, results, gameEngineState)
-
-        PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-        })
-
-        const getBattleActionSquaddieChange = (
-            targetBattleSquaddieId: string,
-            actionResultPerSquaddie: ActionResultPerSquaddie
-        ): BattleActionSquaddieChange => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    targetBattleSquaddieId
-                )
-            )
-            return {
-                battleSquaddieId: targetBattleSquaddieId,
-                attributesAfter: battleSquaddie.inBattleAttributes,
-                result: actionResultPerSquaddie,
-            }
-        }
-
-        const squaddieChanges: BattleActionSquaddieChange[] = Object.entries(
-            results.resultPerTarget
-        ).map(([targetBattleSquaddieId, actionResultPerSquaddie]) =>
-            getBattleActionSquaddieChange(
-                targetBattleSquaddieId,
-                actionResultPerSquaddie
-            )
-        )
-
-        const squaddieBattleAction = BattleActionService.new({
-            actor: {
-                battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-            },
-            action: { id: actionTemplate.id },
-            effect: {
-                squaddie: squaddieChanges,
-            },
-        })
-
-        BattleActionQueueService.add(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
-            squaddieBattleAction
-        )
-
-        this.hasConfirmedAction = true
-    }
-
     private movePopoversPositions = (
         gameEngineState: GameEngineState,
         position: SquaddieSummaryPopoverPosition
@@ -523,39 +402,4 @@ const getActionEffectSquaddieTemplate = ({
         actionTemplate,
         actionEffectSquaddieTemplate: actionEffectTemplate,
     }
-}
-
-const createDecidedAction = (
-    actionsThisRound: ActionsThisRound,
-    actionTemplate: ActionTemplate,
-    firstActionEffectTemplate: ActionEffectSquaddieTemplate,
-    targetLocation: HexCoordinate
-) => {
-    return DecidedActionService.new({
-        battleSquaddieId: actionsThisRound.battleSquaddieId,
-        actionTemplateName: actionTemplate.name,
-        actionTemplateId: actionTemplate.id,
-        actionPointCost: actionTemplate.actionPoints,
-        actionEffects: [
-            DecidedActionSquaddieEffectService.new({
-                template: firstActionEffectTemplate,
-                target: targetLocation,
-            }),
-        ],
-    })
-}
-
-const addEventToRecording = (
-    processedAction: ProcessedAction,
-    results: SquaddieSquaddieResults,
-    state: GameEngineState
-) => {
-    const newEvent: BattleEvent = BattleEventService.new({
-        processedAction,
-        results,
-    })
-    RecordingService.addEvent(
-        state.battleOrchestratorState.battleState.recording,
-        newEvent
-    )
 }

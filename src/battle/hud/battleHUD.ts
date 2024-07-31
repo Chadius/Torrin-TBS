@@ -6,6 +6,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
+    MessageBoardMessagePlayerConfirmsAction,
     MessageBoardMessagePlayerPeeksAtSquaddie,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
@@ -44,20 +45,40 @@ import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionService } from "../../action/processed/processedAction"
+import {
+    ProcessedAction,
+    ProcessedActionService,
+} from "../../action/processed/processedAction"
 import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { RecordingService } from "../history/recording"
-import { BattleEventService } from "../history/battleEvent"
+import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
-import { BattleAction, BattleActionQueueService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionQueueService,
+    BattleActionService,
+    BattleActionSquaddieChange,
+} from "../history/battleAction"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "./playerActionPanel/squaddieSummaryPopover"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { SquaddieTurnService } from "../../squaddie/turn"
+import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import { ActionCalculator } from "../actionCalculator/calculator"
+import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import {
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService,
+} from "../../action/decided/decidedActionSquaddieEffect"
+import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
+import { ActionTemplate } from "../../action/template/actionTemplate"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -451,6 +472,129 @@ export const BattleHUDService = {
             position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
     },
+    playerConfirmsAction: (
+        battleHUD: BattleHUD,
+        message: MessageBoardMessagePlayerConfirmsAction
+    ) => {
+        const gameEngineState = message.gameEngineState
+
+        let actionsThisRound =
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+        const {
+            squaddieTemplate: actingSquaddieTemplate,
+            battleSquaddie: actingBattleSquaddie,
+        } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                actionsThisRound.battleSquaddieId
+            )
+        )
+
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
+            (template) =>
+                template.id === actionsThisRound.previewedActionTemplateId
+        )
+        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0]
+        if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+            return
+        }
+
+        SquaddieTurnService.spendActionPoints(
+            actingBattleSquaddie.squaddieTurn,
+            actionTemplate.actionPoints
+        )
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
+            undefined
+
+        const targetLocation = PlayerBattleActionBuilderStateService.getTarget(
+            gameEngineState.battleOrchestratorState.battleState
+                .playerBattleActionBuilderState
+        ).targetLocation
+
+        const decidedAction = createDecidedAction(
+            actionsThisRound,
+            actionTemplate,
+            firstActionEffectTemplate,
+            targetLocation
+        )
+        const processedAction = ProcessedActionService.new({
+            decidedAction,
+        })
+        actionsThisRound.processedActions.push(processedAction)
+
+        let results: SquaddieSquaddieResults =
+            ActionCalculator.calculateResults({
+                gameEngineState: gameEngineState,
+                actingBattleSquaddie,
+                validTargetLocation: targetLocation,
+                actionsThisRound:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound,
+                actionEffect:
+                    ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound
+                    ).decidedActionEffect,
+            })
+        processedAction.processedActionEffects.push(
+            ProcessedActionSquaddieEffectService.new({
+                decidedActionEffect: decidedAction.actionEffects.find(
+                    (actionEffect) =>
+                        actionEffect.type === ActionEffectType.SQUADDIE
+                ) as DecidedActionSquaddieEffect,
+                results,
+            })
+        )
+        addEventToRecording(processedAction, results, gameEngineState)
+
+        PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+        })
+
+        const getBattleActionSquaddieChange = (
+            targetBattleSquaddieId: string,
+            actionResultPerSquaddie: ActionResultPerSquaddie
+        ): BattleActionSquaddieChange => {
+            const { battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    targetBattleSquaddieId
+                )
+            )
+            return {
+                battleSquaddieId: targetBattleSquaddieId,
+                attributesAfter: battleSquaddie.inBattleAttributes,
+                result: actionResultPerSquaddie,
+            }
+        }
+
+        const squaddieChanges: BattleActionSquaddieChange[] = Object.entries(
+            results.resultPerTarget
+        ).map(([targetBattleSquaddieId, actionResultPerSquaddie]) =>
+            getBattleActionSquaddieChange(
+                targetBattleSquaddieId,
+                actionResultPerSquaddie
+            )
+        )
+
+        const squaddieBattleAction = BattleActionService.new({
+            actor: {
+                battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+            },
+            action: { id: actionTemplate.id },
+            effect: {
+                squaddie: squaddieChanges,
+            },
+        })
+
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            squaddieBattleAction
+        )
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -519,6 +663,12 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION:
                 BattleHUDService.playerSelectsTargetLocation(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
+            case MessageBoardMessageType.PLAYER_CONFIRMS_ACTION:
+                BattleHUDService.playerConfirmsAction(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )
@@ -664,4 +814,39 @@ const processEndTurnAction = (
         })
     )
     BattleSquaddieService.endTurn(battleSquaddie)
+}
+
+const createDecidedAction = (
+    actionsThisRound: ActionsThisRound,
+    actionTemplate: ActionTemplate,
+    firstActionEffectTemplate: ActionEffectSquaddieTemplate,
+    targetLocation: HexCoordinate
+) => {
+    return DecidedActionService.new({
+        battleSquaddieId: actionsThisRound.battleSquaddieId,
+        actionTemplateName: actionTemplate.name,
+        actionTemplateId: actionTemplate.id,
+        actionPointCost: actionTemplate.actionPoints,
+        actionEffects: [
+            DecidedActionSquaddieEffectService.new({
+                template: firstActionEffectTemplate,
+                target: targetLocation,
+            }),
+        ],
+    })
+}
+
+const addEventToRecording = (
+    processedAction: ProcessedAction,
+    results: SquaddieSquaddieResults,
+    state: GameEngineState
+) => {
+    const newEvent: BattleEvent = BattleEventService.new({
+        processedAction,
+        results,
+    })
+    RecordingService.addEvent(
+        state.battleOrchestratorState.battleState.recording,
+        newEvent
+    )
 }

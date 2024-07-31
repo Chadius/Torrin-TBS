@@ -50,12 +50,18 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
-import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import {
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService,
+} from "../../action/decided/decidedActionSquaddieEffect"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
@@ -83,6 +89,15 @@ import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSumm
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import {
+    DamageType,
+    GetHitPoints,
+    GetNumberOfActionPoints,
+} from "../../squaddie/squaddieService"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { BattleEvent } from "../history/battleEvent"
+import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -121,10 +136,15 @@ describe("Battle HUD", () => {
             id: "longsword",
             actionEffectTemplates: [
                 ActionEffectSquaddieTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                    }),
                     minimumRange: 0,
                     maximumRange: 1,
                     targetingShape: TargetingShape.SNAKE,
+                    damageDescriptions: {
+                        [DamageType.BODY]: 2,
+                    },
                 }),
             ],
         })
@@ -1495,6 +1515,326 @@ describe("Battle HUD", () => {
                     .summaryHUDState.squaddieSummaryPopoversByType.TARGET
                     .battleSquaddieId
             ).toEqual("player_soldier_1")
+        })
+    })
+    describe("Player confirms their action", () => {
+        let gameEngineState: GameEngineState
+        let longswordAction: ActionTemplate
+        let thiefBattleSquaddie: BattleSquaddie
+        let playerSoldierBattleSquaddie: BattleSquaddie
+
+        beforeEach(() => {
+            ;({
+                gameEngineState,
+                longswordAction,
+                playerSoldierBattleSquaddie,
+            } = createGameEngineState({}))
+            ;({ battleSquaddie: thiefBattleSquaddie } =
+                CreateNewSquaddieAndAddToRepository({
+                    name: "Thief",
+                    templateId: "Thief",
+                    battleId: "Thief 0",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    squaddieRepository: gameEngineState.repository,
+                    actionTemplates: [longswordAction],
+                    attributes: {
+                        maxHitPoints: 5,
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 2,
+                        }),
+                        armorClass: 0,
+                    },
+                }))
+            MissionMapService.addSquaddie(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                thiefBattleSquaddie.squaddieTemplateId,
+                thiefBattleSquaddie.battleSquaddieId,
+                { q: 1, r: 2 }
+            )
+
+            PlayerBattleActionBuilderStateService.setConsideredTarget({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                targetLocation: { q: 1, r: 2 },
+            })
+
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+                gameEngineState,
+                objectRepository: gameEngineState.repository,
+                resourceHandler: gameEngineState.resourceHandler,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            PlayerBattleActionBuilderStateService.addAction({
+                actionBuilderState:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                actionTemplate: longswordAction,
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 1, r: 1 },
+                    previewedActionTemplateId: longswordAction.id,
+                })
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+            )
+        })
+
+        it("should create ActionsThisRound", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+
+            const decidedActionSquaddieEffect =
+                DecidedActionSquaddieEffectService.new({
+                    template: longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    target: { q: 1, r: 2 },
+                })
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                startingLocation: { q: 1, r: 1 },
+                previewedActionTemplateId: undefined,
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 1,
+                            battleSquaddieId:
+                                playerSoldierBattleSquaddie.battleSquaddieId,
+                            actionTemplateName: longswordAction.name,
+                            actionTemplateId: longswordAction.id,
+                            actionEffects: [decidedActionSquaddieEffect],
+                        }),
+                        processedActionEffects: [
+                            ProcessedActionSquaddieEffectService.new({
+                                decidedActionEffect:
+                                    decidedActionSquaddieEffect,
+                                results: {
+                                    actingBattleSquaddieId:
+                                        playerSoldierBattleSquaddie.battleSquaddieId,
+                                    actingSquaddieModifiers: {},
+                                    actingSquaddieRoll: {
+                                        occurred: false,
+                                        rolls: [],
+                                    },
+                                    resultPerTarget: {
+                                        "Thief 0": {
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            damageTaken: 2,
+                                            healingReceived: 0,
+                                        },
+                                    },
+                                    targetedBattleSquaddieIds: [
+                                        thiefBattleSquaddie.battleSquaddieId,
+                                    ],
+                                },
+                            }),
+                        ],
+                    }),
+                ],
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            ).toEqual(actionsThisRound)
+        })
+
+        it("should create a confirmed action in the action builder", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeTruthy()
+        })
+
+        it("should consume the squaddie action points", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            const { squaddieTemplate } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    playerSoldierBattleSquaddie.battleSquaddieId
+                )
+            )
+
+            const { actionPointsRemaining } = GetNumberOfActionPoints({
+                squaddieTemplate,
+                battleSquaddie: playerSoldierBattleSquaddie,
+            })
+            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
+        })
+
+        describe("confirming an action mid turn", () => {
+            beforeEach(() => {
+                gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                    ActionsThisRoundService.new({
+                        battleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 1, r: 1 },
+                        previewedActionTemplateId: longswordAction.id,
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: DecidedActionService.new({
+                                    battleSquaddieId:
+                                        playerSoldierBattleSquaddie.battleSquaddieId,
+                                    actionPointCost:
+                                        longswordAction.actionPoints,
+                                    actionTemplateName: longswordAction.name,
+                                    actionTemplateId: longswordAction.id,
+                                    actionEffects: [
+                                        DecidedActionSquaddieEffectService.new({
+                                            template: longswordAction
+                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                            target: { q: 0, r: 0 },
+                                        }),
+                                    ],
+                                }),
+                            }),
+                        ],
+                    })
+            })
+
+            it("should add to existing instruction when confirmed mid turn", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions
+                ).toHaveLength(2)
+                const newProcessedAction =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions[1]
+                expect(
+                    newProcessedAction.decidedAction.actionTemplateId
+                ).toEqual(longswordAction.id)
+                expect(
+                    newProcessedAction.decidedAction.actionTemplateName
+                ).toEqual(longswordAction.name)
+                expect(
+                    newProcessedAction.decidedAction.battleSquaddieId
+                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
+
+                expect(
+                    newProcessedAction.decidedAction.actionEffects
+                ).toHaveLength(1)
+                expect(
+                    newProcessedAction.decidedAction.actionEffects[0].type
+                ).toEqual(ActionEffectType.SQUADDIE)
+                const newDecidedActionEffect = newProcessedAction.decidedAction
+                    .actionEffects[0] as DecidedActionSquaddieEffect
+                expect(newDecidedActionEffect.target).toEqual({ q: 1, r: 2 })
+                expect(newDecidedActionEffect.type).toEqual(
+                    ActionEffectType.SQUADDIE
+                )
+                expect(newDecidedActionEffect.template).toEqual(
+                    longswordAction.actionEffectTemplates[0]
+                )
+            })
+
+            it("should add the results to the history", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history
+                ).toHaveLength(1)
+                const mostRecentEvent: BattleEvent =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history[0]
+                expect(
+                    mostRecentEvent.processedAction.processedActionEffects
+                ).toHaveLength(1)
+                expect(
+                    mostRecentEvent.processedAction.processedActionEffects[0]
+                        .decidedActionEffect.type
+                ).toEqual(ActionEffectType.SQUADDIE)
+
+                expect(
+                    (
+                        mostRecentEvent.processedAction
+                            .processedActionEffects[0]
+                            .decidedActionEffect as DecidedActionSquaddieEffect
+                    ).template
+                ).toEqual(
+                    longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                )
+
+                const results = mostRecentEvent.results
+                expect(results.actingBattleSquaddieId).toBe(
+                    playerSoldierBattleSquaddie.battleSquaddieId
+                )
+                expect(results.targetedBattleSquaddieIds).toHaveLength(1)
+                expect(results.targetedBattleSquaddieIds[0]).toBe(
+                    thiefBattleSquaddie.battleSquaddieId
+                )
+                expect(
+                    results.resultPerTarget[
+                        thiefBattleSquaddie.battleSquaddieId
+                    ]
+                ).toBeTruthy()
+            })
+
+            it("should store the calculated results", () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                    gameEngineState,
+                })
+                const mostRecentEvent: BattleEvent =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history[0]
+                const knightUsesLongswordOnThiefResults =
+                    mostRecentEvent.results.resultPerTarget[
+                        thiefBattleSquaddie.battleSquaddieId
+                    ]
+                const longswordActionDamage = (
+                    longswordAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                ).damageDescriptions.BODY
+                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(
+                    longswordActionDamage
+                )
+
+                const { squaddieTemplate } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        thiefBattleSquaddie.battleSquaddieId
+                    )
+                )
+
+                const { maxHitPoints, currentHitPoints } = GetHitPoints({
+                    squaddieTemplate: squaddieTemplate,
+                    battleSquaddie: thiefBattleSquaddie,
+                })
+                expect(currentHitPoints).toBe(
+                    maxHitPoints - longswordActionDamage
+                )
+            })
         })
     })
 })
