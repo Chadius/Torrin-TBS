@@ -322,6 +322,7 @@ describe("Battle Orchestrator", () => {
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
                 playerHudController: mockPlayerHudController,
+                playerActionConfirm: mockPlayerConfirm,
             },
             ...overrides,
         })

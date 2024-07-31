@@ -271,6 +271,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_ENDS_TURN,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+            MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

@@ -198,6 +198,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             return
         }
 
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+            gameEngineState,
+        })
         this.confirmTargetSelection(gameEngineState)
     }
 

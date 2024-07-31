@@ -394,6 +394,12 @@ describe("BattleActionConfirm", () => {
         })
 
         // TODO Add a test to send a message
+        it("should send a message indicating the player confirmed their action", () => {
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+        })
 
         // TODO Should be part of BattleHUD
         it("should create a confirmed action in the action builder", () => {
