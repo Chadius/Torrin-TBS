@@ -19,10 +19,7 @@ import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
-import {
-    ConvertCoordinateService,
-    convertScreenCoordinatesToMapCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { FriendlyAffiliationsByAffiliation } from "../../squaddie/squaddieAffiliation"
 import { Trait } from "../../trait/traitStatusStorage"
@@ -31,7 +28,6 @@ import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
@@ -41,6 +37,8 @@ import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import { ActionTemplate } from "../../action/template/actionTemplate"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -334,16 +332,13 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         mouseButton: MouseButton
         gameEngineState: GameEngineState
     }) {
-        const coordinates = convertScreenCoordinatesToMapCoordinates(
-            mouseX,
-            mouseY,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
-
-        const clickedLocation: HexCoordinate = {
-            q: coordinates[0],
-            r: coordinates[1],
-        }
+        const clickedLocation =
+            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+                screenX: mouseX,
+                screenY: mouseY,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+            })
 
         if (
             !this.highlightedTargetRange.some(
@@ -354,16 +349,16 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
-        const {
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
-            mouseX,
-            mouseY,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
-            map: gameEngineState.battleOrchestratorState.battleState.missionMap,
-            squaddieRepository: gameEngineState.repository,
-        })
+        const { squaddieTemplate: targetSquaddieTemplate } =
+            OrchestratorUtilities.getSquaddieAtScreenLocation({
+                mouseX,
+                mouseY,
+                camera: gameEngineState.battleOrchestratorState.battleState
+                    .camera,
+                map: gameEngineState.battleOrchestratorState.battleState
+                    .missionMap,
+                squaddieRepository: gameEngineState.repository,
+            })
 
         if (targetSquaddieTemplate === undefined) {
             return
@@ -378,11 +373,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 )
             )
 
-        const actorAndTargetAreFriends: boolean =
-            FriendlyAffiliationsByAffiliation[
-                actingSquaddieTemplate.squaddieId.affiliation
-            ][targetSquaddieTemplate.squaddieId.affiliation]
-
         const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
             (template) =>
                 template.id ===
@@ -394,22 +384,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
-        const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-        if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-            return
-        }
-
         if (
-            actorAndTargetAreFriends &&
-            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !==
-                true
-        ) {
-            return
-        }
-        if (
-            !actorAndTargetAreFriends &&
-            actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] ===
-                true
+            actionViolatesFriendship({
+                actionTemplate,
+                actingSquaddieTemplate,
+                targetSquaddieTemplate,
+            })
         ) {
             return
         }
@@ -432,27 +412,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
             gameEngineState,
             targetLocation: clickedLocation,
-        })
-
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-
-        // TODO Move this to BattleHUD
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: clickedLocation,
-        })
-
-        SummaryHUDStateService.setTargetSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: targetBattleSquaddie.battleSquaddieId,
-            gameEngineState,
-            objectRepository: gameEngineState.repository,
-            resourceHandler: gameEngineState.resourceHandler,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
     }
 
@@ -534,4 +493,38 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             position,
         })
     }
+}
+
+const actionViolatesFriendship = ({
+    actionTemplate,
+    actingSquaddieTemplate,
+    targetSquaddieTemplate,
+}: {
+    actionTemplate: ActionTemplate
+    actingSquaddieTemplate: SquaddieTemplate
+    targetSquaddieTemplate: SquaddieTemplate
+}) => {
+    const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
+    if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+        return true
+    }
+
+    const actorAndTargetAreFriends: boolean =
+        FriendlyAffiliationsByAffiliation[
+            actingSquaddieTemplate.squaddieId.affiliation
+        ][targetSquaddieTemplate.squaddieId.affiliation]
+
+    if (
+        actorAndTargetAreFriends &&
+        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true
+    ) {
+        return true
+    }
+    if (
+        !actorAndTargetAreFriends &&
+        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] === true
+    ) {
+        return true
+    }
+    return false
 }

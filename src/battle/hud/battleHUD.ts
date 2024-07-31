@@ -477,6 +477,8 @@ export const BattleHUDService = {
             resourceHandler: gameEngineState.resourceHandler,
             position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
+
+        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
     },
     playerConfirmsAction: (
         battleHUD: BattleHUD,

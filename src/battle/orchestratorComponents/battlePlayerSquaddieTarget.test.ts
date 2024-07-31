@@ -419,32 +419,6 @@ describe("BattleSquaddieTarget", () => {
                 BattleOrchestratorMode.PLAYER_ACTION_CONFIRM
             )
         })
-
-        it("should consider the target for the action builder", () => {
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeFalsy()
-
-            const { mapLocation } =
-                gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    thiefDynamic.battleSquaddieId
-                )
-            expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).targetLocation
-            ).toEqual(mapLocation)
-        })
     })
 
     describe("invalid target based on affiliation", () => {

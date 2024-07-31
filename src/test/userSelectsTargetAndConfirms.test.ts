@@ -529,78 +529,77 @@ describe("User Selects Target and Confirms", () => {
                     "hasCompleted"
                 )
                 .mockReturnValue(false)
-
-            // TODO: Very similar copy
         })
 
-        it("If the action animates we should switch to SquaddieSquaddieAnimation", () => {
-            ;({ gameEngineState } = clickOnEnemy({
-                actionTemplate: attackAction,
-                attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                targetBattleTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-                targeting,
-                repository,
-                missionMap,
-                graphicsContext,
-                resourceHandler,
-            }))
-            clickOnConfirmTarget({ confirm, gameEngineState })
+        describe("select next phase based on how the action animates", () => {
+            const clickAndConfirmWithAttackAction = (
+                attackAction: ActionTemplate
+            ) => {
+                ;({ gameEngineState } = clickOnEnemy({
+                    actionTemplate: attackAction,
+                    attackerBattleSquaddieId:
+                        playerBattleSquaddie.battleSquaddieId,
+                    targetBattleSquaddieId:
+                        enemyBattleSquaddie.battleSquaddieId,
+                    targetBattleTemplateId:
+                        enemyBattleSquaddie.squaddieTemplateId,
+                    targeting,
+                    repository,
+                    missionMap,
+                    graphicsContext,
+                    resourceHandler,
+                }))
+                clickOnConfirmTarget({ confirm, gameEngineState })
 
-            confirm.recommendStateChanges(gameEngineState)
-            confirm.reset(gameEngineState)
+                confirm.recommendStateChanges(gameEngineState)
+                confirm.reset(gameEngineState)
+            }
 
-            squaddieUsesActionOnSquaddie.update(
-                gameEngineState,
-                graphicsContext
-            )
+            it("If the action animates we should switch to SquaddieSquaddieAnimation", () => {
+                clickAndConfirmWithAttackAction(attackAction)
 
-            expect(
-                squaddieUsesActionOnSquaddie.squaddieActionAnimator
-            ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
-            expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled()
-            expect(
-                squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
-            ).toBeCalled()
-            expect(
-                squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
-            ).toBeFalsy()
-        })
+                squaddieUsesActionOnSquaddie.update(
+                    gameEngineState,
+                    graphicsContext
+                )
 
-        it("If the action does not animate we should switch to the non-animating phase", () => {
-            ;(
-                attackAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
-            ).traits.booleanTraits[Trait.SKIP_ANIMATION] = true
-            ;({ gameEngineState } = clickOnEnemy({
-                actionTemplate: attackAction,
-                attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                targetBattleTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-                targeting,
-                repository,
-                missionMap,
-                graphicsContext,
-                resourceHandler,
-            }))
-            clickOnConfirmTarget({ confirm, gameEngineState })
+                expect(
+                    squaddieUsesActionOnSquaddie.squaddieActionAnimator
+                ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
+                expect(
+                    squaddieTargetsOtherSquaddiesAnimatorUpdateSpy
+                ).toBeCalled()
+                expect(
+                    squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+                ).toBeCalled()
+                expect(
+                    squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+                ).toBeFalsy()
+            })
 
-            confirm.recommendStateChanges(gameEngineState)
-            confirm.reset(gameEngineState)
+            it("If the action does not animate we should switch to the non-animating phase", () => {
+                ;(
+                    attackAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                ).traits.booleanTraits[Trait.SKIP_ANIMATION] = true
+                clickAndConfirmWithAttackAction(attackAction)
 
-            squaddieUsesActionOnSquaddie.update(
-                gameEngineState,
-                graphicsContext
-            )
+                squaddieUsesActionOnSquaddie.update(
+                    gameEngineState,
+                    graphicsContext
+                )
 
-            expect(
-                squaddieUsesActionOnSquaddie.squaddieActionAnimator
-            ).toBeInstanceOf(SquaddieSkipsAnimationAnimator)
-            expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled()
-            expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled()
-            expect(
-                squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
-            ).toBeFalsy()
+                expect(
+                    squaddieUsesActionOnSquaddie.squaddieActionAnimator
+                ).toBeInstanceOf(SquaddieSkipsAnimationAnimator)
+                expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled()
+                expect(
+                    squaddieSkipsAnimationAnimatorHasCompletedSpy
+                ).toBeCalled()
+                expect(
+                    squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+                ).toBeFalsy()
+            })
         })
     })
 })
