@@ -1,5 +1,4 @@
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
-import { RecordingService } from "../history/recording"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ATTACK_MODIFIER } from "../modifierConstants"
@@ -13,7 +12,6 @@ import {
     OrchestratorComponentMouseEventClicked,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -21,40 +19,16 @@ import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { LabelService } from "../../ui/label"
-import { ActionCalculator } from "../actionCalculator/calculator"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../history/actionsThisRound"
+import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionResultTextService } from "../animation/actionResultTextService"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import {
-    ProcessedAction,
-    ProcessedActionService,
-} from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import {
-    DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService,
-} from "../../action/decided/decidedActionSquaddieEffect"
-import { SquaddieTurnService } from "../../squaddie/turn"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import {
-    BattleActionQueueService,
-    BattleActionService,
-    BattleActionSquaddieChange,
-} from "../history/battleAction"
-import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,

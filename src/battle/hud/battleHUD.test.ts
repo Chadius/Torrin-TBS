@@ -19,10 +19,7 @@ import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
-import {
-    SquaddieTemplate,
-    SquaddieTemplateService,
-} from "../../campaign/squaddieTemplate"
+import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"

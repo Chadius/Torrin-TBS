@@ -156,6 +156,45 @@ describe("Action Builder", () => {
                 )
             ).toEqual(false)
         })
+        it("can remove the considered target for an action", () => {
+            PlayerBattleActionBuilderStateService.setConsideredTarget({
+                actionBuilderState,
+                targetLocation: { q: 0, r: 1 },
+            })
+            PlayerBattleActionBuilderStateService.removeTarget({
+                actionBuilderState,
+            })
+
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    actionBuilderState
+                )
+            ).toBeFalsy()
+            expect(
+                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    actionBuilderState
+                )
+            ).toBeFalsy()
+
+            expect(
+                PlayerBattleActionBuilderStateService.getAction(
+                    actionBuilderState
+                )
+            ).toEqual({
+                actionTemplate: singleTargetAction,
+            })
+            expect(
+                PlayerBattleActionBuilderStateService.getTarget(
+                    actionBuilderState
+                )
+            ).toBeUndefined()
+
+            expect(
+                PlayerBattleActionBuilderStateService.isActionComplete(
+                    actionBuilderState
+                )
+            ).toEqual(false)
+        })
         it("can confirm an already considered target without declaring the target", () => {
             PlayerBattleActionBuilderStateService.setConsideredTarget({
                 actionBuilderState,

@@ -8,10 +8,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
-import {
-    HexCoordinate,
-    HexCoordinateToKey,
-} from "../../hexMap/hexCoordinate/hexCoordinate"
+import { HexCoordinateToKey } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
@@ -26,12 +23,7 @@ import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
-import {
-    DamageType,
-    GetHitPoints,
-    GetNumberOfActionPoints,
-} from "../../squaddie/squaddieService"
-import { BattleEvent } from "../history/battleEvent"
+import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
@@ -51,13 +43,7 @@ import {
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { DecidedActionService } from "../../action/decided/decidedAction"
-import {
-    DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService,
-} from "../../action/decided/decidedActionSquaddieEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"

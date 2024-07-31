@@ -46,6 +46,16 @@ const setConsideredTarget = (
     }
 }
 
+const removeConsideredTarget = (
+    actionBuilderState: PlayerBattleActionBuilderState
+) => {
+    if (!isValidValue(actionBuilderState)) {
+        return
+    }
+
+    actionBuilderState.target = undefined
+}
+
 const isActorSet = (actionBuilderState: PlayerBattleActionBuilderState) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.actor) &&
@@ -258,5 +268,15 @@ export const PlayerBattleActionBuilderStateService = {
             return
         }
         actionBuilderState.action = undefined
+    },
+    removeTarget: ({
+        actionBuilderState,
+    }: {
+        actionBuilderState: PlayerBattleActionBuilderState
+    }) => {
+        if (!isValidValue(actionBuilderState)) {
+            return
+        }
+        actionBuilderState.target = undefined
     },
 }

@@ -265,6 +265,12 @@ export const BattleHUDService = {
                 },
             ]
         )
+
+        PlayerBattleActionBuilderStateService.removeTarget({
+            actionBuilderState:
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState,
+        })
     },
     endPlayerSquaddieTurn: (
         gameEngineState: GameEngineState,

@@ -15,9 +15,6 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import { makeResult } from "../../utils/ResultOrError"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { DamageType } from "../../squaddie/squaddieService"
