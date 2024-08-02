@@ -54,10 +54,19 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         )
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera()
 
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.draw(
+        if (
+            !gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState?.showSummaryHUD
+        ) {
+            return
+        }
+        SummaryHUDStateService.draw({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            graphicsBuffer: graphics,
             gameEngineState,
-            graphics
-        )
+        })
 
         FileAccessHUDService.updateBasedOnGameEngineState(
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,

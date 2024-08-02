@@ -14,9 +14,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { UIControlSettings } from "./uiControlSettings"
@@ -87,7 +85,6 @@ describe("Battle Orchestrator", () => {
     let mockPhaseController: BattlePhaseController
     let mockPlayerHudController: PlayerHudController
     let defaultBattleOrchestrator: DefaultBattleOrchestrator
-    let mockHud: BattleSquaddieSelectedHUD
 
     let nullState: GameEngineState
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -266,18 +263,13 @@ describe("Battle Orchestrator", () => {
         mockPlayerHudController.recommendStateChanges = jest
             .fn()
             .mockReturnValue({ displayMap: true })
-
-        mockHud = mocks.battleSquaddieSelectedHUD()
-        mockHud.selectSquaddieAndDrawWindow = jest.fn()
     }
 
     beforeEach(() => {
         nullState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: mockHud,
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
@@ -797,9 +789,7 @@ describe("Battle Orchestrator", () => {
             victoryState = GameEngineStateService.new({
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -847,9 +837,7 @@ describe("Battle Orchestrator", () => {
             defeatState = GameEngineStateService.new({
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -896,9 +884,7 @@ describe("Battle Orchestrator", () => {
             victoryAndDefeatState = GameEngineStateService.new({
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -1253,10 +1239,7 @@ describe("Battle Orchestrator", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                     }),
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                 }),
                 repository: undefined,
             })

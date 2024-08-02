@@ -32,7 +32,6 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -231,9 +230,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         const battleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
@@ -250,13 +247,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             campaign: CampaignService.default({}),
         })
 
-        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-            {
-                battleId: battleSquaddieBase.battleSquaddieId,
-                repositionWindow: { mouseX: 0, mouseY: 0 },
-                gameEngineState: gameEngineState,
-            }
-        )
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
+            selectionMethod: {
+                mouse: { x: 0, y: 0 },
+            },
+        })
+
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
             powerAttackLongswordAction.actionPoints
@@ -328,9 +327,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.new({
-            battleHUD: BattleHUDService.new({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            }),
+            battleHUD: BattleHUDService.new({}),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 campaignId: "test campaign",
@@ -347,13 +344,14 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             campaign: CampaignService.default({}),
         })
 
-        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-            {
-                battleId: battleSquaddieBase.battleSquaddieId,
-                repositionWindow: { mouseX: 0, mouseY: 0 },
-                gameEngineState: gameEngineState,
-            }
-        )
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
+            selectionMethod: {
+                mouse: { x: 0, y: 0 },
+            },
+        })
 
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
@@ -430,9 +428,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.new({
-            battleHUD: BattleHUDService.new({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            }),
+            battleHUD: BattleHUDService.new({}),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 campaignId: "test campaign",
@@ -449,13 +445,14 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             campaign: CampaignService.default({}),
         })
 
-        battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-            {
-                battleId: battleSquaddieBase.battleSquaddieId,
-                repositionWindow: { mouseX: 0, mouseY: 0 },
-                gameEngineState: gameEngineState,
-            }
-        )
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
+            selectionMethod: {
+                mouse: { x: 0, y: 0 },
+            },
+        })
 
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,

@@ -20,7 +20,6 @@ import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { DamageType } from "../../squaddie/squaddieService"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -143,9 +142,7 @@ describe("BattleActionConfirm", () => {
 
         gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",

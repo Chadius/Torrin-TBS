@@ -2,7 +2,6 @@ import p5 from "p5"
 import { ImageUI } from "../../ui/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
-import { BattleSquaddieSelectedHUD } from "../../battle/hud/BattleSquaddieSelectedHUD"
 import { RectAreaService } from "../../ui/rectArea"
 import { makeResult } from "../ResultOrError"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
@@ -71,14 +70,6 @@ export const mockResourceHandler = (graphics: GraphicsBuffer) => {
         .mockReturnValue(makeResult(graphics.createImage(1, 1)))
     handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true)
     return handler
-}
-
-export const battleSquaddieSelectedHUD = () => {
-    const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>(
-        BattleSquaddieSelectedHUD
-    ))({}) as jest.Mocked<BattleSquaddieSelectedHUD>
-    hud.draw = jest.fn()
-    return hud
 }
 
 export class MockedP5GraphicsBuffer implements GraphicsBuffer {

@@ -9,6 +9,7 @@ import {
 import {
     ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
+    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -71,14 +72,18 @@ import {
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
+import { BattleHUDStateService } from "../hud/battleHUDState"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
 {
+    nextBattleSquaddieIds: string[]
     private gaveMovementAction: boolean
 
     constructor() {
         this.gaveMovementAction = false
+        this.nextBattleSquaddieIds = []
     }
 
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -259,10 +264,9 @@ export class BattlePlayerSquaddieSelector
                     gameEngineState.repository
                 )
             ) {
-                gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.keyPressed(
-                    event.keyCode,
-                    gameEngineState
-                )
+                if (KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, event.keyCode)) {
+                    this.selectNextSquaddie(gameEngineState)
+                }
 
                 if (
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -355,7 +359,7 @@ export class BattlePlayerSquaddieSelector
 
     reset(gameEngineState: GameEngineState) {
         this.gaveMovementAction = false
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
+        this.nextBattleSquaddieIds = []
     }
 
     private playerCanControlAnySquaddiesOnTheCurrentTeam(
@@ -664,16 +668,17 @@ export class BattlePlayerSquaddieSelector
         mouseX: number,
         mouseY: number
     ) => {
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-            {
-                battleId: battleSquaddieId,
-                repositionWindow: {
-                    mouseX: mouseX,
-                    mouseY: mouseY,
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: battleSquaddieId,
+            selectionMethod: {
+                mouse: {
+                    x: mouseX,
+                    y: mouseY,
                 },
-                gameEngineState: gameEngineState,
-            }
-        )
+            },
+        })
     }
 
     private reactToSelectingSquaddieThenSelectingMap(
@@ -1090,6 +1095,73 @@ export class BattlePlayerSquaddieSelector
                 SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
     }
+
+    private selectNextSquaddie(gameEngineState: GameEngineState) {
+        if (this.nextBattleSquaddieIds.length === 0) {
+            this.nextBattleSquaddieIds =
+                getPlayerControllableSquaddiesWhoCanActAndOnTheMap(
+                    gameEngineState
+                ).map((info) => info.battleSquaddieId)
+        }
+
+        if (this.nextBattleSquaddieIds.length === 0) {
+            return
+        }
+
+        const nextBattleSquaddieId: string = this.nextBattleSquaddieIds.find(
+            (id) =>
+                !isValidValue(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState
+                ) ||
+                !isValidValue(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                ) ||
+                id !==
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                        .battleSquaddieId
+        )
+
+        this.nextBattleSquaddieIds = this.nextBattleSquaddieIds.filter(
+            (id) => id != nextBattleSquaddieId
+        )
+
+        const selectedMapCoordinates =
+            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+                nextBattleSquaddieId
+            )
+        if (MissionMapSquaddieLocationHandler.isValid(selectedMapCoordinates)) {
+            const selectedWorldCoordinates =
+                convertMapCoordinatesToWorldCoordinates(
+                    selectedMapCoordinates.mapLocation.q,
+                    selectedMapCoordinates.mapLocation.r
+                )
+            gameEngineState.battleOrchestratorState.battleState.camera.pan({
+                xDestination: selectedWorldCoordinates[0],
+                yDestination: selectedWorldCoordinates[1],
+                timeToPan: 500,
+                respectConstraints: true,
+            })
+        }
+
+        OrchestratorUtilities.highlightSquaddieRange(
+            gameEngineState,
+            nextBattleSquaddieId
+        )
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+            gameEngineState,
+            battleSquaddieSelectedId: nextBattleSquaddieId,
+            selectionMethod: {
+                mouse: BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
+                    { gameEngineState }
+                ),
+            },
+        })
+    }
 }
 
 const getMouseClickHexCoordinates = (
@@ -1140,4 +1212,42 @@ const addActorActionForPlayableSquaddie = ({
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
     }
+}
+
+const getPlayerControllableSquaddiesWhoCanActAndOnTheMap = (
+    gameEngineState: GameEngineState
+) =>
+    ObjectRepositoryService.getBattleSquaddieIterator(
+        gameEngineState.repository
+    ).filter((info) => {
+        return (
+            isSquaddiePlayerControllableRightNow(
+                info.battleSquaddieId,
+                gameEngineState
+            ) === true &&
+            MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                info.battleSquaddieId
+            ).mapLocation !== undefined
+        )
+    })
+
+const isSquaddiePlayerControllableRightNow = (
+    battleSquaddieId: string,
+    gameEngineState: GameEngineState
+): boolean => {
+    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieId
+        )
+    )
+
+    const { playerCanControlThisSquaddieRightNow } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
+
+    return playerCanControlThisSquaddieRightNow
 }

@@ -21,7 +21,6 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -282,9 +281,7 @@ describe("BattleSquaddieMover", () => {
                 )
 
             return BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",

@@ -25,7 +25,6 @@ import { SaveFile } from "../utils/fileHandling/saveFile"
 import { BattleCamera } from "../battle/battleCamera"
 import { TriggeringEvent } from "../cutscene/cutsceneTrigger"
 import { BattleStateService } from "../battle/orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectivesAndCutscenes"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
@@ -431,10 +430,7 @@ describe("GameEngineGameLoader", () => {
                 previousMode: GameModeEnum.BATTLE,
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         campaignId: campaignFileData.id,
                         missionId: "test mission",

@@ -44,7 +44,6 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -516,10 +515,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 repository: squaddieRepo,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",

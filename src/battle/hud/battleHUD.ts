@@ -1,4 +1,3 @@
-import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { MessageBoardListener } from "../../message/messageBoardListener"
@@ -88,7 +87,6 @@ export enum PopupWindowType {
 }
 
 export interface BattleHUD {
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     fileAccessHUD: FileAccessHUD
     popupWindows: {
         [key in PopupWindowType]: PopupWindow
@@ -117,19 +115,12 @@ const warningPopupConstants: {
 }
 
 export const BattleHUDService = {
-    new: ({
-        fileAccessHUD,
-        battleSquaddieSelectedHUD,
-    }: {
-        fileAccessHUD?: FileAccessHUD
-        battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD
-    }): BattleHUD => {
+    new: ({ fileAccessHUD }: { fileAccessHUD?: FileAccessHUD }): BattleHUD => {
         return {
             fileAccessHUD: getValidValueOrDefault(
                 fileAccessHUD,
                 FileAccessHUDService.new({})
             ),
-            battleSquaddieSelectedHUD,
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
                 [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,

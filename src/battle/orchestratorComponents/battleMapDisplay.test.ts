@@ -5,10 +5,8 @@ import {
 } from "../orchestrator/battleOrchestratorState"
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleCamera } from "../battleCamera"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMap } from "../../missionMap/missionMap"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
@@ -23,12 +21,9 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
-    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
-        battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD()
-
         jest.spyOn(
             ObjectRepositoryService,
             "getBattleSquaddieIterator"
@@ -49,9 +44,7 @@ describe("battleMapDisplay", () => {
             repository: undefined,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
                     missionId: "test mission",
@@ -81,9 +74,7 @@ describe("battleMapDisplay", () => {
                 repository: undefined,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -153,9 +144,7 @@ describe("battleMapDisplay", () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD,
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",

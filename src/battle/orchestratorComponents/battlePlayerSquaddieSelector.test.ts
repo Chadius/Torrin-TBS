@@ -26,7 +26,6 @@ import {
     convertMapCoordinatesToWorldCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { makeResult } from "../../utils/ResultOrError"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
@@ -74,6 +73,8 @@ import {
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import { KeyButtonName } from "../../utils/keyboardConfig"
+import { config } from "../../configuration/config"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -261,10 +262,7 @@ describe("BattleSquaddieSelector", () => {
                     mockedP5GraphicsContext
                 ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -381,10 +379,7 @@ describe("BattleSquaddieSelector", () => {
                     mockedP5GraphicsContext
                 ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -463,16 +458,12 @@ describe("BattleSquaddieSelector", () => {
             const battlePhaseState =
                 makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-            let mockHud = mocks.battleSquaddieSelectedHUD()
-
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -722,10 +713,7 @@ describe("BattleSquaddieSelector", () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -905,10 +893,7 @@ describe("BattleSquaddieSelector", () => {
                     mockedP5GraphicsContext
                 ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -1024,10 +1009,7 @@ describe("BattleSquaddieSelector", () => {
                     mockedP5GraphicsContext
                 ),
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -1110,7 +1092,6 @@ describe("BattleSquaddieSelector", () => {
         let interruptSquaddieStatic: SquaddieTemplate
         let interruptBattleSquaddie: BattleSquaddie
         let actionsThisRound: ActionsThisRound
-        let mockHud: BattleSquaddieSelectedHUD
         let camera: BattleCamera
         let gameEngineState: GameEngineState
         let startingMouseX: number
@@ -1180,16 +1161,12 @@ describe("BattleSquaddieSelector", () => {
                 .fn()
                 .mockReturnValue(makeResult(null))
 
-            mockHud = new BattleSquaddieSelectedHUD()
-
             camera = new BattleCamera()
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD: mockHud,
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -1315,42 +1292,6 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    it("will send key pressed events to the HUD", () => {
-        const battlePhaseState =
-            makeBattlePhaseTrackerWithPlayerTeam(missionMap)
-
-        const camera: BattleCamera = new BattleCamera()
-
-        let mockHud = mocks.battleSquaddieSelectedHUD()
-        const keySpy = jest.spyOn(mockHud, "keyPressed")
-
-        const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: mockHud,
-                }),
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    missionMap,
-                    camera,
-                    battlePhaseState,
-                    teams,
-                }),
-            }),
-            repository: squaddieRepo,
-        })
-
-        selector.keyEventHappened(state, {
-            eventType: OrchestratorComponentKeyEventType.PRESSED,
-            keyCode: 0,
-        })
-
-        expect(keySpy).toHaveBeenCalled()
-        keySpy.mockRestore()
-    })
-
     it("will accept commands even after canceling", () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -1391,9 +1332,7 @@ describe("BattleSquaddieSelector", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mocks.mockResourceHandler(mockedP5GraphicsContext),
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
@@ -1489,10 +1428,7 @@ describe("BattleSquaddieSelector", () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({
-                        battleSquaddieSelectedHUD:
-                            new BattleSquaddieSelectedHUD(),
-                    }),
+                    battleHUD: BattleHUDService.new({}),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
@@ -1648,6 +1584,79 @@ describe("BattleSquaddieSelector", () => {
                     ).battleSquaddieId
                 ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
             })
+        })
+    })
+
+    describe("Next Squaddie button", () => {
+        it("should respond to keyboard presses for the next squaddie, even if the HUD is not open", () => {
+            const battleCamera = new BattleCamera(0, 0)
+            const battlePhaseState =
+                makeBattlePhaseTrackerWithPlayerTeam(missionMap)
+
+            ObjectRepositoryService.addBattleSquaddie(
+                squaddieRepo,
+                BattleSquaddieService.new({
+                    battleSquaddieId: "player_soldier_1",
+                    squaddieTemplateId: "player_soldier",
+                })
+            )
+
+            BattleSquaddieTeamService.addBattleSquaddieIds(teams[0], [
+                "player_soldier_1",
+            ])
+
+            missionMap.addSquaddie("player_soldier", "player_soldier_1", {
+                q: 0,
+                r: 1,
+            })
+            const gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    mockedP5GraphicsContext
+                ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({}),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: battleCamera,
+                        battlePhaseState,
+                        teams,
+                        recording: { history: [] },
+                    }),
+                }),
+                repository: squaddieRepo,
+                campaign: CampaignService.default({}),
+            })
+
+            let messageSpy: jest.SpyInstance = jest.spyOn(
+                gameEngineState.messageBoard,
+                "sendMessage"
+            )
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
+            selector.keyEventHappened(gameEngineState, {
+                eventType: OrchestratorComponentKeyEventType.PRESSED,
+                keyCode:
+                    config.KEYBOARD_SHORTCUTS[KeyButtonName.NEXT_SQUADDIE][0],
+            })
+
+            expect(messageSpy).toBeCalled()
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                })
+            )
+            expect(["player_soldier_0", "player_soldier_1"]).toContain(
+                messageSpy.mock.calls[0][0].battleSquaddieSelectedId
+            )
+
+            expect(battleCamera.isPanning()).toBeTruthy()
+            messageSpy.mockRestore()
         })
     })
 })

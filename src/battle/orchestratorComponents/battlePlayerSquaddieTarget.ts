@@ -39,6 +39,7 @@ import {
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { BattleHUDStateService } from "../hud/battleHUDState"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -180,27 +181,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             })
         ) {
             this.cancelTargetSelection(gameEngineState)
-            let repositionWindow = {
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-            }
-            if (
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState?.playerCommandState?.playerCommandWindow
-            ) {
-                repositionWindow.mouseX =
-                    RectAreaService.left(
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState
-                            .playerCommandWindow.area
-                    ) + HEX_TILE_WIDTH
-                repositionWindow.mouseY =
-                    RectAreaService.top(
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState.playerCommandState
-                            .playerCommandWindow.area
-                    ) - HEX_TILE_WIDTH
-            }
 
             if (
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -212,10 +192,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                         .battleSquaddieId
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new({
-                        mouseSelectionLocation: {
-                            x: repositionWindow.mouseX,
-                            y: repositionWindow.mouseY,
-                        },
+                        mouseSelectionLocation:
+                            BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
+                                { gameEngineState }
+                            ),
                     })
 
                 SummaryHUDStateService.setMainSummaryPopover({

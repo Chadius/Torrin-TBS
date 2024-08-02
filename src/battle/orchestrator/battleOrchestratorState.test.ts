@@ -8,7 +8,6 @@ import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { MissionConditionType } from "../missionResult/missionCondition"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { BattleState, BattleStateService } from "./battleState"
 import { FixedNumberGenerator } from "../numberGenerator/fixed"
 import { RandomNumberGenerator } from "../numberGenerator/random"
@@ -125,16 +124,13 @@ describe("orchestratorState", () => {
 
         let args = {}
         validityCheck(args, false, [
-            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
             BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ])
 
         args = {
             ...args,
-            battleHUD: BattleHUDService.new({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            }),
+            battleHUD: BattleHUDService.new({}),
         }
         validityCheck(args, false, [
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
@@ -159,9 +155,7 @@ describe("orchestratorState", () => {
     it("can clone existing objects", () => {
         let originalBattleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: {
                     ...validBattleState,
                 },
@@ -190,9 +184,7 @@ describe("orchestratorState", () => {
     it("can change itself to match other objects", () => {
         let originalBattleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: {
                     ...validBattleState,
                 },
@@ -206,9 +198,7 @@ describe("orchestratorState", () => {
                     campaignId: "test campaign",
                     missionId: "test mission",
                 }),
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: undefined,
-                }),
+                battleHUD: BattleHUDService.new({}),
                 numberGenerator: undefined,
             })
         cloned.copyOtherOrchestratorState(originalBattleOrchestratorState)
@@ -219,23 +209,17 @@ describe("orchestratorState", () => {
 
     it("can make a new object using creator function", () => {
         const numberGenerator = new RandomNumberGenerator()
-        const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
 
         const newBattleOrchestratorState = BattleOrchestratorStateService.new({
             battleState: validBattleState,
             numberGenerator,
-            battleHUD: BattleHUDService.new({
-                battleSquaddieSelectedHUD,
-            }),
+            battleHUD: BattleHUDService.new({}),
         })
 
         expect(newBattleOrchestratorState.battleState).toEqual(validBattleState)
         expect(newBattleOrchestratorState.numberGenerator).toEqual(
             numberGenerator
         )
-        expect(
-            newBattleOrchestratorState.battleHUD.battleSquaddieSelectedHUD
-        ).toEqual(battleSquaddieSelectedHUD)
         expect(
             newBattleOrchestratorState.battleHUD.fileAccessHUD
         ).not.toBeUndefined()

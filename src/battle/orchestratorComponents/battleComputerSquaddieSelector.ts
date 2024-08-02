@@ -185,9 +185,6 @@ export class BattleComputerSquaddieSelector
 
     reset(state: GameEngineState) {
         this.resetInternalState()
-        if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
-            state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
-        }
     }
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(

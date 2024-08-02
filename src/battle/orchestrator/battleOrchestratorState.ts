@@ -1,4 +1,3 @@
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import { BattleState, BattleStateService } from "./battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
@@ -52,8 +51,6 @@ export class BattleOrchestratorState {
 
     get missingComponents(): BattleOrchestratorStateValidityReason[] {
         const expectedComponents = {
-            [BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD]:
-                this.battleHUD.battleSquaddieSelectedHUD !== undefined,
             [BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE]:
                 BattleStateService.isValid(this.battleState),
             [BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR]:
@@ -79,8 +76,6 @@ export class BattleOrchestratorState {
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.battleState = BattleStateService.clone(other.battleState)
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
-            battleSquaddieSelectedHUD:
-                other.battleHUD.battleSquaddieSelectedHUD,
             fileAccessHUD: FileAccessHUDService.new({}),
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
@@ -92,7 +87,6 @@ export class BattleOrchestratorState {
 }
 
 export enum BattleOrchestratorStateValidityReason {
-    MISSING_BATTLE_SQUADDIE_SELECTED_HUD = "MISSING_BATTLE_SQUADDIE_SELECTED_HUD",
     MISSING_NUMBER_GENERATOR = "MISSING_NUMBER_GENERATOR",
     INVALID_BATTLE_STATE = "INVALID_BATTLE_STATE",
 }
@@ -148,12 +142,7 @@ const newOrchestratorState = ({
             }),
         numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
         battleHUDState: battleHUDState,
-        battleHUD: getValidValueOrDefault(
-            battleHUD,
-            BattleHUDService.new({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            })
-        ),
+        battleHUD: getValidValueOrDefault(battleHUD, BattleHUDService.new({})),
         cutsceneIdsToPlay,
     })
 }

@@ -11,7 +11,6 @@ import {
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
 import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { SquaddieIdService } from "../squaddie/id"
@@ -61,7 +60,6 @@ describe("user clicks on the map to move", () => {
     let gameEngineState: GameEngineState
 
     let selector: BattlePlayerSquaddieSelector
-    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     let missionMap: MissionMap
 
     let resourceHandler: ResourceHandler
@@ -102,8 +100,6 @@ describe("user clicks on the map to move", () => {
             battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         })
 
-        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
-
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
@@ -122,7 +118,6 @@ describe("user clicks on the map to move", () => {
         })
 
         selector = new BattlePlayerSquaddieSelector()
-        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
 
         gameEngineState = getGameEngineState({
             resourceHandler,
@@ -133,7 +128,6 @@ describe("user clicks on the map to move", () => {
                 currentAffiliation: BattlePhase.PLAYER,
                 turnCount: 0,
             }),
-            battleSquaddieSelectedHUD,
         })
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
@@ -153,7 +147,6 @@ describe("user clicks on the map to move", () => {
 
         selectorAndHUDClickOnSquaddie(
             selector,
-            battleSquaddieSelectedHUD,
             playerBattleSquaddie.battleSquaddieId,
             gameEngineState
         )
@@ -334,7 +327,6 @@ const getGameEngineState = ({
     teams,
     battlePhaseState,
     actionsThisRound,
-    battleSquaddieSelectedHUD,
 }: {
     resourceHandler: ResourceHandler
     missionMap: MissionMap
@@ -342,14 +334,11 @@ const getGameEngineState = ({
     teams: BattleSquaddieTeam[]
     battlePhaseState: BattlePhaseState
     actionsThisRound?: ActionsThisRound
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
         battleOrchestratorState: BattleOrchestratorStateService.new({
-            battleHUD: BattleHUDService.new({
-                battleSquaddieSelectedHUD,
-            }),
+            battleHUD: BattleHUDService.new({}),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 campaignId: "test campaign",
@@ -367,7 +356,6 @@ const getGameEngineState = ({
 
 const selectorAndHUDClickOnSquaddie = (
     selector: BattlePlayerSquaddieSelector,
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
     battleSquaddieId: string,
     gameEngineState: GameEngineState
 ) => {
@@ -382,10 +370,13 @@ const selectorAndHUDClickOnSquaddie = (
         mouseY,
         mouseButton: MouseButton.ACCEPT,
     })
-    battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-        battleId: battleSquaddieId,
-        gameEngineState: gameEngineState,
-        repositionWindow: { mouseX: 0, mouseY: 0 },
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+        gameEngineState,
+        battleSquaddieSelectedId: battleSquaddieId,
+        selectionMethod: {
+            mouse: { x: 0, y: 0 },
+        },
     })
 }
 

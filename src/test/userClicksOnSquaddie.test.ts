@@ -15,7 +15,6 @@ import {
 } from "../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -59,8 +58,6 @@ describe("User clicks on a squaddie", () => {
     let playerBattleSquaddie: BattleSquaddie
 
     let attackAction: ActionTemplate
-
-    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
@@ -107,8 +104,6 @@ describe("User clicks on a squaddie", () => {
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         })
-
-        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
 
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
@@ -159,7 +154,6 @@ describe("User clicks on a squaddie", () => {
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
-            battleSquaddieSelectedHUD,
             gameEngineState: gameEngineState,
         })
 
@@ -494,16 +488,17 @@ const getGameEngineState = ({
 
 const selectSquaddieForTheHUD = ({
     battleSquaddie,
-    battleSquaddieSelectedHUD,
     gameEngineState,
 }: {
     battleSquaddie: BattleSquaddie
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     gameEngineState: GameEngineState
 }) => {
-    battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-        battleId: battleSquaddie.battleSquaddieId,
-        gameEngineState: gameEngineState,
-        repositionWindow: { mouseX: 0, mouseY: 0 },
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+        gameEngineState,
+        battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+        selectionMethod: {
+            mouse: { x: 0, y: 0 },
+        },
     })
 }

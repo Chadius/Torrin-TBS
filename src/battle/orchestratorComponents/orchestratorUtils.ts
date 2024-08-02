@@ -241,21 +241,21 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
 }
 
 const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
-    state: GameEngineState
+    gameEngineState: GameEngineState
 ) => {
     if (
-        !state.battleOrchestratorState.battleState.actionsThisRound ||
-        !isSquaddieCurrentlyTakingATurn(state)
+        !gameEngineState.battleOrchestratorState.battleState.actionsThisRound ||
+        !isSquaddieCurrentlyTakingATurn(gameEngineState)
     ) {
-        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
-        state.battleOrchestratorState.battleHUDState.summaryHUDState = undefined
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            undefined
         return
     }
 
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            state.repository,
-            state.battleOrchestratorState.battleState.actionsThisRound
+            gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
                 .battleSquaddieId
         )
     )
@@ -265,38 +265,36 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
             squaddieTemplate,
             battleSquaddie,
         })
-    if (playerCanControlThisSquaddieRightNow) {
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-            state.battleOrchestratorState.battleState.missionMap,
-            battleSquaddie.battleSquaddieId
-        )
-
-        let mouseX: number = 0,
-            mouseY: number = 0
-        if (mapLocation) {
-            ;[mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-                mapLocation.q,
-                mapLocation.r,
-                ...state.battleOrchestratorState.battleState.camera.getCoordinates()
-            )
-            mouseX -= HEX_TILE_WIDTH
-        }
-
-        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow(
-            {
-                battleId:
-                    state.battleOrchestratorState.battleState.actionsThisRound
-                        .battleSquaddieId,
-                gameEngineState: state,
-                repositionWindow: {
-                    mouseX,
-                    mouseY,
-                },
-            }
-        )
-    } else {
-        state.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
+    if (!playerCanControlThisSquaddieRightNow) {
+        return
     }
+
+    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleSquaddie.battleSquaddieId
+    )
+
+    let mouseX: number = 0,
+        mouseY: number = 0
+    if (mapLocation) {
+        ;[mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+            mapLocation.q,
+            mapLocation.r,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+        )
+        mouseX -= HEX_TILE_WIDTH
+    }
+
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+        gameEngineState: gameEngineState,
+        battleSquaddieSelectedId:
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId,
+        selectionMethod: {
+            mouse: { x: mouseX, y: mouseY },
+        },
+    })
 }
 
 const drawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (

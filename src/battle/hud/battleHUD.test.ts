@@ -52,7 +52,6 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
-import { BattleSquaddieSelectedHUD } from "./BattleSquaddieSelectedHUD"
 import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import {
@@ -188,9 +187,7 @@ describe("Battle HUD", () => {
                 new MockedP5GraphicsBuffer()
             ),
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",

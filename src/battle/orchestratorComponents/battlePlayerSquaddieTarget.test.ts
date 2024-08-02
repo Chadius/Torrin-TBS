@@ -27,7 +27,6 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
-import { BattleSquaddieSelectedHUD } from "../hud/BattleSquaddieSelectedHUD"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -184,9 +183,7 @@ describe("BattleSquaddieTarget", () => {
         gameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleHUD: BattleHUDService.new({
-                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                }),
+                battleHUD: BattleHUDService.new({}),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
@@ -482,10 +479,7 @@ describe("BattleSquaddieTarget", () => {
                     resourceHandler: mockResourceHandler,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
-                            battleHUD: BattleHUDService.new({
-                                battleSquaddieSelectedHUD:
-                                    new BattleSquaddieSelectedHUD(),
-                            }),
+                            battleHUD: BattleHUDService.new({}),
                             battleState: BattleStateService.newBattleState({
                                 campaignId: "test campaign",
                                 missionId: "test mission",

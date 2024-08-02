@@ -15,7 +15,6 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../action/template/actionTemplate"
-import { BattleSquaddieSelectedHUD } from "../battle/hud/BattleSquaddieSelectedHUD"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
@@ -83,7 +82,6 @@ describe("User ends their turn", () => {
 
     let attackAction: ActionTemplate
 
-    let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     let selector: BattlePlayerSquaddieSelector
 
     let resourceHandler: ResourceHandler
@@ -132,8 +130,6 @@ describe("User ends their turn", () => {
             battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         })
 
-        battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD()
-
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
@@ -173,8 +169,6 @@ describe("User ends their turn", () => {
                 turnCount: 0,
             }),
         })
-        gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD =
-            battleSquaddieSelectedHUD
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
@@ -183,7 +177,6 @@ describe("User ends their turn", () => {
 
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
-            battleSquaddieSelectedHUD,
             gameEngineState,
         })
         selector = new BattlePlayerSquaddieSelector()
@@ -566,16 +559,17 @@ const getGameEngineState = ({
 
 const selectSquaddieForTheHUD = ({
     battleSquaddie,
-    battleSquaddieSelectedHUD,
     gameEngineState,
 }: {
     battleSquaddie: BattleSquaddie
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD
     gameEngineState: GameEngineState
 }) => {
-    battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-        battleId: battleSquaddie.battleSquaddieId,
-        gameEngineState: gameEngineState,
-        repositionWindow: { mouseX: 0, mouseY: 0 },
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+        gameEngineState,
+        battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+        selectionMethod: {
+            mouse: { x: 0, y: 0 },
+        },
     })
 }
