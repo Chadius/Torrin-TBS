@@ -88,6 +88,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
+        version,
     }: {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
@@ -101,6 +102,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         phaseController: BattlePhaseController
         playerHudController: PlayerHudController
         initializeBattle: InitializeBattle
+        version: string
     }) {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector

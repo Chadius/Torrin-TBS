@@ -119,6 +119,14 @@ const TitleScreenDesign = {
             "Her friend, Sir Camil has a melee attack and more armor.",
         iconImageResourceKey: "sir camil cutscene portrait",
     },
+    version: {
+        startColumn: 0,
+        endColumn: 1,
+        textSize: 8,
+        top: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING4,
+        bottom: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
+        fontColor: [0, 0, 128],
+    },
 }
 
 const resourceKeys: string[] = [
@@ -142,6 +150,8 @@ export class TitleScreen implements GameEngineComponent {
     private titleBanner: ImageUI
     private titleBannerArea: RectArea
     private startNewGameButtonLabel: string
+    private versionTextBox: TextBox
+    version: string
 
     private demonUIElements: {
         icon: ImageUI
@@ -161,12 +171,19 @@ export class TitleScreen implements GameEngineComponent {
         descriptionText: TextBox
     }
 
-    constructor({ resourceHandler }: { resourceHandler: ResourceHandler }) {
+    constructor({
+        resourceHandler,
+        version,
+    }: {
+        resourceHandler: ResourceHandler
+        version: string
+    }) {
         this._resourceHandler = resourceHandler
+        this.version = version
         this.resetInternalState()
     }
 
-    private _resourceHandler: ResourceHandler
+    private readonly _resourceHandler: ResourceHandler
 
     get resourceHandler(): ResourceHandler {
         return this._resourceHandler
@@ -204,7 +221,9 @@ export class TitleScreen implements GameEngineComponent {
         this.continueGameButton.mouseClicked(mouseX, mouseY, this)
     }
 
-    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {}
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {
+        // No action
+    }
 
     hasCompleted(state: GameEngineState): boolean {
         return this.menuSelection !== TitleScreenMenuSelection.NONE
@@ -238,11 +257,10 @@ export class TitleScreen implements GameEngineComponent {
         TextBoxService.draw(this.lazyLoadTitle(), graphicsContext)
         TextBoxService.draw(this.lazyLoadByLine(), graphicsContext)
         TextBoxService.draw(this.lazyLoadGameDescription(), graphicsContext)
+        TextBoxService.draw(this.lazyLoadVersion(), graphicsContext)
 
         this.updateStartGameButton(graphicsContext).draw(graphicsContext)
-        this.updateContinueGameButton(state, graphicsContext).draw(
-            graphicsContext
-        )
+        this.updateContinueGameButton(state).draw(graphicsContext)
         this.drawCharacterIntroductions(state, graphicsContext)
     }
 
@@ -441,6 +459,27 @@ export class TitleScreen implements GameEngineComponent {
         return this.byLine
     }
 
+    private lazyLoadVersion() {
+        if (this.versionTextBox === undefined) {
+            this.versionTextBox = TextBoxService.new({
+                area: RectAreaService.new({
+                    startColumn: TitleScreenDesign.version.startColumn,
+                    endColumn: TitleScreenDesign.version.endColumn,
+                    screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                    screenHeight: ScreenDimensions.SCREEN_HEIGHT,
+                    top: TitleScreenDesign.version.top,
+                    bottom: TitleScreenDesign.version.bottom,
+                    margin: WINDOW_SPACING.SPACING1,
+                }),
+                text: `Version ${this.version}`,
+                textSize: TitleScreenDesign.version.textSize,
+                fontColor: TitleScreenDesign.version.fontColor,
+            })
+        }
+
+        return this.versionTextBox
+    }
+
     private updateStartGameButton(graphicsContext: GraphicsBuffer) {
         const windowIsTooSmall: boolean =
             graphicsContext.width < ScreenDimensions.SCREEN_WIDTH ||
@@ -469,15 +508,12 @@ export class TitleScreen implements GameEngineComponent {
             }
             changePlayButtonLabel = true
         } else if (
-            !windowIsTooSmall &&
-            !playButtonHasBeenClicked &&
-            this.startNewGameButtonLabel !==
-                TitleScreenDesign.startGameButton.playGameMessage
+            (!windowIsTooSmall &&
+                !playButtonHasBeenClicked &&
+                this.startNewGameButtonLabel !==
+                    TitleScreenDesign.startGameButton.playGameMessage) ||
+            this.startNewGameButton === undefined
         ) {
-            this.startNewGameButtonLabel =
-                TitleScreenDesign.startGameButton.playGameMessage
-            changePlayButtonLabel = true
-        } else if (this.startNewGameButton === undefined) {
             this.startNewGameButtonLabel =
                 TitleScreenDesign.startGameButton.playGameMessage
             changePlayButtonLabel = true
@@ -528,7 +564,7 @@ export class TitleScreen implements GameEngineComponent {
                         caller.menuSelection = TitleScreenMenuSelection.NEW_GAME
                         button.setStatus(ButtonStatus.ACTIVE)
                     }
-                    return
+                    return {}
                 },
             })
         }
@@ -536,11 +572,8 @@ export class TitleScreen implements GameEngineComponent {
         return this.startNewGameButton
     }
 
-    private updateContinueGameButton(
-        state: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        const newButtonLabel = this.getNewButtonLabel(state)
+    private updateContinueGameButton(gameEngineState: GameEngineState) {
+        const newButtonLabel = this.getNewButtonLabel(gameEngineState)
 
         let changePlayButtonLabel: boolean =
             newButtonLabel !== this.continueGameButtonLabel
@@ -591,10 +624,10 @@ export class TitleScreen implements GameEngineComponent {
                     ) {
                         caller.menuSelection =
                             TitleScreenMenuSelection.CONTINUE_GAME
-                        caller.markGameToBeLoaded(state)
+                        caller.markGameToBeLoaded(gameEngineState)
                         button.setStatus(ButtonStatus.ACTIVE)
                     }
-                    return
+                    return {}
                 },
             })
         }
@@ -603,54 +636,29 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private getNewButtonLabel(state: GameEngineState): string {
-        const defaultMessage: string = "Load file and continue"
-
-        const userRequestedLoad: boolean =
-            state.fileState.loadSaveState.userRequestedLoad === true
+        const loadFileAndContinueMessage = "Load file and continue"
+        if (!this.wasLoadingEngaged(state)) {
+            return loadFileAndContinueMessage
+        }
+        if (this.userIsWaitingForLoadToFinish(state)) {
+            return "Now loading..."
+        }
 
         const loadingFailedDueToError: boolean =
             state.fileState.loadSaveState.applicationErroredWhileLoading
-        const userCanceledLoad: boolean =
-            state.fileState.loadSaveState.userCanceledLoad
-        const loadingFailed: boolean =
-            loadingFailedDueToError || userCanceledLoad
-
-        if (!(userRequestedLoad || loadingFailed)) {
-            return defaultMessage
-        }
-
-        const loadingMessage: string = "Now loading..."
-        if (userRequestedLoad && !loadingFailed) {
-            return loadingMessage
-        }
-
-        const errorMessageTimeoutIsReached: boolean =
-            this.errorDuringLoadingDisplayStartTimestamp !== undefined &&
-            Date.now() - this.errorDuringLoadingDisplayStartTimestamp >=
-                FILE_MESSAGE_DISPLAY_DURATION
-
-        const applicationErrorMessage: string = "Loading failed. Check logs."
-        const currentlyShowingApplicationErrorMessage: boolean =
-            isValidValue(this.continueGameButton) &&
-            this.continueGameButton.readyLabel.textBox.text ===
-                applicationErrorMessage
-
         if (loadingFailedDueToError) {
-            if (!currentlyShowingApplicationErrorMessage) {
-                if (this.continueGameButton) {
-                    this.continueGameButton.buttonStatus = ButtonStatus.READY
-                }
-                this.errorDuringLoadingDisplayStartTimestamp = Date.now()
-                return applicationErrorMessage
-            }
+            const applicationErrorMessage = "Loading failed. Check logs."
+            this.updateErrorLabel(applicationErrorMessage)
 
-            if (!errorMessageTimeoutIsReached) {
+            if (
+                this.shouldShowApplicationErrorMessage(applicationErrorMessage)
+            ) {
                 return applicationErrorMessage
             }
 
             LoadSaveStateService.reset(state.fileState.loadSaveState)
             this.errorDuringLoadingDisplayStartTimestamp = undefined
-            return defaultMessage
+            return loadFileAndContinueMessage
         }
 
         const userCancelMessage: string = `Canceled loading.`
@@ -659,20 +667,87 @@ export class TitleScreen implements GameEngineComponent {
             this.continueGameButton.readyLabel.textBox.text ===
                 userCancelMessage
         if (!currentlyShowingUserCancelMessage) {
-            if (this.continueGameButton) {
-                this.continueGameButton.buttonStatus = ButtonStatus.READY
-            }
-            this.errorDuringLoadingDisplayStartTimestamp = Date.now()
+            this.updateLabelForUserCancel(userCancelMessage)
             return userCancelMessage
         }
 
-        if (!errorMessageTimeoutIsReached) {
+        if (!this.isErrorMessageTimeoutReached()) {
             return userCancelMessage
         }
 
         LoadSaveStateService.reset(state.fileState.loadSaveState)
         this.errorDuringLoadingDisplayStartTimestamp = undefined
-        return defaultMessage
+        return loadFileAndContinueMessage
+    }
+
+    private isErrorMessageTimeoutReached(): boolean {
+        return (
+            this.errorDuringLoadingDisplayStartTimestamp !== undefined &&
+            Date.now() - this.errorDuringLoadingDisplayStartTimestamp >=
+                FILE_MESSAGE_DISPLAY_DURATION
+        )
+    }
+
+    private didLoadingFail(gameEngineState: GameEngineState): boolean {
+        const loadingFailedDueToError: boolean =
+            gameEngineState.fileState.loadSaveState
+                .applicationErroredWhileLoading
+        const userCanceledLoad: boolean =
+            gameEngineState.fileState.loadSaveState.userCanceledLoad
+        return loadingFailedDueToError || userCanceledLoad
+    }
+
+    private wasLoadingEngaged(gameEngineState: GameEngineState): boolean {
+        const userRequestedLoad: boolean =
+            gameEngineState.fileState.loadSaveState.userRequestedLoad === true
+
+        return userRequestedLoad || this.didLoadingFail(gameEngineState)
+    }
+
+    private userIsWaitingForLoadToFinish(
+        gameEngineState: GameEngineState
+    ): boolean {
+        const userRequestedLoad: boolean =
+            gameEngineState.fileState.loadSaveState.userRequestedLoad === true
+
+        return userRequestedLoad && !this.didLoadingFail(gameEngineState)
+    }
+
+    private shouldShowApplicationErrorMessage(
+        applicationErrorMessage: string
+    ): boolean {
+        const currentlyShowingApplicationErrorMessage: boolean =
+            isValidValue(this.continueGameButton) &&
+            this.continueGameButton.readyLabel.textBox.text ===
+                applicationErrorMessage
+
+        if (!currentlyShowingApplicationErrorMessage) {
+            return true
+        }
+
+        return !this.isErrorMessageTimeoutReached()
+    }
+
+    private updateErrorLabel(applicationErrorMessage: string) {
+        const currentlyShowingApplicationErrorMessage: boolean =
+            isValidValue(this.continueGameButton) &&
+            this.continueGameButton.readyLabel.textBox.text ===
+                applicationErrorMessage
+
+        if (!currentlyShowingApplicationErrorMessage) {
+            if (this.continueGameButton) {
+                this.continueGameButton.buttonStatus = ButtonStatus.READY
+            }
+            this.errorDuringLoadingDisplayStartTimestamp = Date.now()
+        }
+    }
+
+    private updateLabelForUserCancel(userCancelMessage: string) {
+        if (this.continueGameButton) {
+            this.continueGameButton.buttonStatus = ButtonStatus.READY
+        }
+        this.errorDuringLoadingDisplayStartTimestamp = Date.now()
+        return userCancelMessage
     }
 
     private lazyLoadBackground() {

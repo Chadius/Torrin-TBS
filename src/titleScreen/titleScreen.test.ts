@@ -40,7 +40,10 @@ describe("Title Screen", () => {
         mockResourceHandler.getResource = jest
             .fn()
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
-        titleScreen = new TitleScreen({ resourceHandler: mockResourceHandler })
+        titleScreen = new TitleScreen({
+            resourceHandler: mockResourceHandler,
+            version: "TEST",
+        })
         titleScreenState = titleScreen.setup()
         gameEngineState = GameEngineStateService.new({
             titleScreenState,
@@ -457,5 +460,18 @@ describe("Title Screen", () => {
                 titleScreen.recommendStateChanges(gameEngineState).nextMode
             ).toBe(GameModeEnum.LOADING_BATTLE)
         })
+    })
+
+    it("will show the version", () => {
+        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        titleScreen.update(gameEngineState, mockedP5GraphicsContext)
+        expect(textSpy).toBeCalled()
+        expect(textSpy).toBeCalledWith(
+            "Version TEST",
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything()
+        )
     })
 })

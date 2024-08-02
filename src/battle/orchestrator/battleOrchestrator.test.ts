@@ -310,6 +310,7 @@ describe("Battle Orchestrator", () => {
     ) => {
         const orchestrator: BattleOrchestrator = new BattleOrchestrator({
             ...{
+                version: "TEST",
                 initializeBattle: mockInitializeBattle,
                 cutscenePlayer: mockBattleCutscenePlayer,
                 playerSquaddieSelector: mockPlayerSquaddieSelector,

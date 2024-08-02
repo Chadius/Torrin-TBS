@@ -157,9 +157,11 @@ export class GameEngine {
         graphicsBuffer,
         campaignId,
         p5Instance,
+        version,
     }: {
         graphicsBuffer: GraphicsBuffer
         campaignId: string
+        version: string
         p5Instance?: p5
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
@@ -176,6 +178,7 @@ export class GameEngine {
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),
+            version,
         })
 
         await this.lazyLoadResourceHandler({
@@ -186,6 +189,7 @@ export class GameEngine {
 
         this._titleScreen = new TitleScreen({
             resourceHandler: this.resourceHandler,
+            version,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader(campaignId)
         this.resetComponentStates()

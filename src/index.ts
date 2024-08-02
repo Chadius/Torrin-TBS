@@ -6,6 +6,7 @@ import { GetMouseButton, MouseButton } from "./utils/mouseConfig"
 
 let gameEngine: GameEngine
 const CAMPAIGN_ID: string = "templeDefense"
+const VERSION: string = "0.0.1"
 const mousePressedTracker: { [buttonName in string]: boolean } = {}
 
 let canvas: p5.Renderer
@@ -37,6 +38,7 @@ export const sketch = (p: p5) => {
                 graphicsBuffer: frameBuffer,
                 campaignId: CAMPAIGN_ID,
                 p5Instance: p,
+                version: VERSION,
             })
             .then(() => {})
     }

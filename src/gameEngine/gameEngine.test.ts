@@ -53,6 +53,7 @@ describe("Game Engine", () => {
         await newGameEngine.setup({
             graphicsBuffer: mockedP5GraphicsBuffer,
             campaignId: "default",
+            version: "TEST",
         })
 
         const nextComponent = newGameEngine.component
@@ -127,6 +128,7 @@ describe("Game Engine", () => {
             await newGameEngine.setup({
                 graphicsBuffer: mockedP5GraphicsBuffer,
                 campaignId: "default",
+                version: "TEST",
             })
             expect(loadFileIntoFormatSpy).toBeCalled()
             expect(newGameEngine.currentMode).toBe(startupMode)
@@ -160,6 +162,7 @@ describe("Game Engine", () => {
             await newGameEngine.setup({
                 graphicsBuffer: mockedP5GraphicsBuffer,
                 campaignId: "default",
+                version: "TEST",
             })
 
             expect(
@@ -192,6 +195,7 @@ describe("Game Engine", () => {
             await newGameEngine.setup({
                 graphicsBuffer: mockedP5GraphicsBuffer,
                 campaignId: "default",
+                version: "TEST",
             })
             expect(loadFileIntoFormatSpy).toBeCalled()
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
@@ -235,6 +239,7 @@ describe("Game Engine", () => {
             await newGameEngine.setup({
                 graphicsBuffer: mockedP5GraphicsBuffer,
                 campaignId: "default",
+                version: "TEST",
             })
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
@@ -281,6 +286,7 @@ describe("Game Engine", () => {
             await newGameEngine.setup({
                 graphicsBuffer: new MockedP5GraphicsBuffer(),
                 campaignId: "default",
+                version: "TEST",
             })
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
