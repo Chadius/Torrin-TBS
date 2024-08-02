@@ -143,6 +143,7 @@ export class TitleScreen implements GameEngineComponent {
     errorDuringLoadingDisplayStartTimestamp: number
     menuSelection: TitleScreenMenuSelection
     startNewGameButton: Button
+    version: string
     private byLine: TextBox
     private titleText: TextBox
     private gameDescription: TextBox
@@ -151,8 +152,6 @@ export class TitleScreen implements GameEngineComponent {
     private titleBannerArea: RectArea
     private startNewGameButtonLabel: string
     private versionTextBox: TextBox
-    version: string
-
     private demonUIElements: {
         icon: ImageUI
         iconArea: RectArea
@@ -170,6 +169,7 @@ export class TitleScreen implements GameEngineComponent {
         iconArea: RectArea
         descriptionText: TextBox
     }
+    private readonly _resourceHandler: ResourceHandler
 
     constructor({
         resourceHandler,
@@ -182,8 +182,6 @@ export class TitleScreen implements GameEngineComponent {
         this.version = version
         this.resetInternalState()
     }
-
-    private readonly _resourceHandler: ResourceHandler
 
     get resourceHandler(): ResourceHandler {
         return this._resourceHandler

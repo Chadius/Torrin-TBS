@@ -65,7 +65,6 @@ import {
     mockResourceHandler,
 } from "../../utils/test/mocks"
 import { CampaignService } from "../../campaign/campaign"
-import { BATTLE_HUD_MODE } from "../../configuration/config"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { BattleHUDService } from "../hud/battleHUD"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
@@ -167,9 +166,7 @@ describe("orchestratorState", () => {
                     ...validBattleState,
                 },
                 numberGenerator: new FixedNumberGenerator({ result: 3 }),
-                battleHUDState: BattleHUDStateService.new({
-                    hudMode: BATTLE_HUD_MODE.BATTLE_HUD_PANEL,
-                }),
+                battleHUDState: BattleHUDStateService.new({}),
             })
 
         expect(originalBattleOrchestratorState.isValid).toBeTruthy()
@@ -473,37 +470,5 @@ describe("orchestratorState", () => {
                 expect(recommendedChanges.nextMode).toBeUndefined()
             }
         )
-    })
-
-    describe("swap HUD", () => {
-        it("will start with Squaddie Selected HUD by default", () => {
-            const battleOrchestratorState = BattleOrchestratorStateService.new({
-                battleState: validBattleState,
-            })
-            expect(battleOrchestratorState.battleHUDState.hudMode).toEqual(
-                BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
-            )
-        })
-        it("will swap from Squaddie Selected HUD to Panel", () => {
-            const battleOrchestratorState = BattleOrchestratorStateService.new({
-                battleState: validBattleState,
-            })
-            BattleOrchestratorStateService.swapHUD({ battleOrchestratorState })
-            expect(battleOrchestratorState.battleHUDState.hudMode).toEqual(
-                BATTLE_HUD_MODE.BATTLE_HUD_PANEL
-            )
-        })
-        it("will swap from Panel to Squaddie Selected HUD", () => {
-            const battleOrchestratorState = BattleOrchestratorStateService.new({
-                battleState: validBattleState,
-                battleHUDState: BattleHUDStateService.new({
-                    hudMode: BATTLE_HUD_MODE.BATTLE_HUD_PANEL,
-                }),
-            })
-            BattleOrchestratorStateService.swapHUD({ battleOrchestratorState })
-            expect(battleOrchestratorState.battleHUDState.hudMode).toEqual(
-                BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
-            )
-        })
     })
 })

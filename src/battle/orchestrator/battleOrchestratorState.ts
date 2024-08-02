@@ -5,7 +5,6 @@ import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { RandomNumberGenerator } from "../numberGenerator/random"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
-import { BATTLE_HUD_MODE } from "../../configuration/config"
 import { BattleHUDState, BattleHUDStateService } from "../hud/battleHUDState"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { BattleHUD, BattleHUDService, PopupWindowType } from "../hud/battleHUD"
@@ -119,22 +118,6 @@ export const BattleOrchestratorStateService = {
             battleHUD,
             cutsceneIdsToPlay,
         })
-    },
-    swapHUD: ({
-        battleOrchestratorState,
-    }: {
-        battleOrchestratorState: BattleOrchestratorState
-    }) => {
-        if (
-            battleOrchestratorState.battleHUDState.hudMode ===
-            BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
-        ) {
-            battleOrchestratorState.battleHUDState.hudMode =
-                BATTLE_HUD_MODE.BATTLE_HUD_PANEL
-            return
-        }
-        battleOrchestratorState.battleHUDState.hudMode =
-            BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
     },
 }
 

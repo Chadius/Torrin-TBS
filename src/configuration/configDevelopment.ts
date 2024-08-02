@@ -1,4 +1,4 @@
-import { BATTLE_HUD_MODE, Config, ProcessVariables } from "./config"
+import { Config, ProcessVariables } from "./config"
 import { getValidValueOrDefault } from "../utils/validityCheck"
 
 export function getDevelopmentConfig(
@@ -21,7 +21,6 @@ export function getDevelopmentConfig(
         KEYBOARD_SHORTCUTS: {
             NEXT_SQUADDIE: [KeyCodes.x, KeyCodes.ctrl],
             ACCEPT: [KeyCodes.enter],
-            SWAP_HUD: [KeyCodes.c],
             CANCEL: [KeyCodes.backspace, KeyCodes.delete, KeyCodes.escape],
         },
         MOUSE_BUTTON_BINDINGS: {
@@ -30,10 +29,6 @@ export function getDevelopmentConfig(
             CANCEL: "right",
         },
         STARTUP_MODE: "TITLE_SCREEN",
-        HUD: getValidValueOrDefault(
-            processVariables.HUD,
-            BATTLE_HUD_MODE.BATTLE_SQUADDIE_SELECTED_HUD
-        ),
         LOG_MESSAGES: false,
     }
 }

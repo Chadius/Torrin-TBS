@@ -58,8 +58,6 @@ import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
@@ -261,13 +259,6 @@ export class BattlePlayerSquaddieSelector
                     gameEngineState.repository
                 )
             ) {
-                if (this.canSwapHUD(gameEngineState, event.keyCode)) {
-                    BattleOrchestratorStateService.swapHUD({
-                        battleOrchestratorState:
-                            gameEngineState.battleOrchestratorState,
-                    })
-                }
-
                 gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.keyPressed(
                     event.keyCode,
                     gameEngineState
@@ -365,18 +356,6 @@ export class BattlePlayerSquaddieSelector
     reset(gameEngineState: GameEngineState) {
         this.gaveMovementAction = false
         gameEngineState.battleOrchestratorState.battleHUD.battleSquaddieSelectedHUD.reset()
-    }
-
-    private canSwapHUD(
-        gameEngineState: GameEngineState,
-        keyCode: number
-    ): boolean {
-        return (
-            KeyWasPressed(KeyButtonName.SWAP_HUD, keyCode) &&
-            !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
-        )
     }
 
     private playerCanControlAnySquaddiesOnTheCurrentTeam(

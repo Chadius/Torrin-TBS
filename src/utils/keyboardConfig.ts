@@ -4,7 +4,6 @@ export enum KeyButtonName {
     UNKNOWN = "UNKNOWN",
     NEXT_SQUADDIE = "NEXT_SQUADDIE",
     ACCEPT = "ACCEPT",
-    SWAP_HUD = "SWAP_HUD",
     CANCEL = "CANCEL",
 }
 
@@ -15,7 +14,6 @@ export const KeyWasPressed = (
     const KeyboardShortcuts: { [key in KeyButtonName]?: number[] } = {
         NEXT_SQUADDIE: config.KEYBOARD_SHORTCUTS["NEXT_SQUADDIE"],
         ACCEPT: config.KEYBOARD_SHORTCUTS["ACCEPT"],
-        SWAP_HUD: config.KEYBOARD_SHORTCUTS["SWAP_HUD"],
         CANCEL: config.KEYBOARD_SHORTCUTS["CANCEL"],
     }
 
