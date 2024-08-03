@@ -46,7 +46,7 @@ import { DecidedActionSquaddieEffectService } from "../../action/decided/decided
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
@@ -197,15 +197,15 @@ describe("BattleSquaddieTarget", () => {
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: knightDynamic.battleSquaddieId,
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: longswordAction,
@@ -348,13 +348,13 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
-            PlayerBattleActionBuilderStateService.isActionSet(
+            BattleActionDecisionStepService.isActionSet(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )
         ).toBeTruthy()
         expect(
-            PlayerBattleActionBuilderStateService.isActionSet(
+            BattleActionDecisionStepService.isActionSet(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )
@@ -373,13 +373,13 @@ describe("BattleSquaddieTarget", () => {
         clickOnThief()
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
-            PlayerBattleActionBuilderStateService.isTargetConsidered(
+            BattleActionDecisionStepService.isTargetConsidered(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )
         ).toBeFalsy()
         expect(
-            PlayerBattleActionBuilderStateService.isTargetConfirmed(
+            BattleActionDecisionStepService.isTargetConfirmed(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )

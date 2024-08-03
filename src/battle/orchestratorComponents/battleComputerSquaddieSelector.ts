@@ -62,9 +62,9 @@ import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffect
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
-import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
@@ -384,8 +384,8 @@ export class BattleComputerSquaddieSelector
             )
         )
 
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -477,14 +477,14 @@ export class BattleComputerSquaddieSelector
         gameEngineState: GameEngineState,
         startingLocation: HexCoordinate
     ) {
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             endTurn: true,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: startingLocation,
@@ -500,14 +500,14 @@ export class BattleComputerSquaddieSelector
         decidedActionEffectToUse: DecidedActionSquaddieEffect
         actionTemplate: ActionTemplate
     }) {
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: actionTemplate,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: decidedActionEffectToUse.target,
@@ -518,14 +518,14 @@ export class BattleComputerSquaddieSelector
         gameEngineState: GameEngineState,
         decidedActionEffectToUse: DecidedActionMovementEffect
     ) {
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             movement: true,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: decidedActionEffectToUse.destination,

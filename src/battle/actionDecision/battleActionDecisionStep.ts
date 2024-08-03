@@ -2,38 +2,37 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 
-export interface PlayerBattleActionBuilderState {
-    actor: ActionBuilderStateActor
-    action: ActionBuilderStateAction
-    target: ActionBuilderStateTarget
-    animation: ActionBuilderStateAnimation
+export interface BattleActionDecisionStep {
+    actor: BattleActionDecisionStepActor
+    action: BattleActionDecisionStepAction
+    target: BattleActionDecisionStepTarget
+    animation: BattleActionDecisionStepAnimation
 }
 
-export interface ActionBuilderStateActor {
+export interface BattleActionDecisionStepActor {
     battleSquaddieId: string
 }
 
-export interface ActionBuilderStateAction {
+export interface BattleActionDecisionStepAction {
     actionTemplate?: ActionTemplate
     movement?: boolean
     endTurn?: boolean
 }
 
-export interface ActionBuilderStateTarget {
+export interface BattleActionDecisionStepTarget {
     targetLocation?: HexCoordinate
     confirmed: boolean
 }
 
-export interface ActionBuilderStateAnimation {
+export interface BattleActionDecisionStepAnimation {
     completed: boolean
 }
 
-const isTargetConsidered = (
-    actionBuilderState: PlayerBattleActionBuilderState
-) => isValidValue(actionBuilderState) && isValidValue(actionBuilderState.target)
+const isTargetConsidered = (actionBuilderState: BattleActionDecisionStep) =>
+    isValidValue(actionBuilderState) && isValidValue(actionBuilderState.target)
 
 const setConsideredTarget = (
-    actionBuilderState: PlayerBattleActionBuilderState,
+    actionBuilderState: BattleActionDecisionStep,
     targetLocation: HexCoordinate
 ) => {
     if (!isValidValue(actionBuilderState)) {
@@ -46,36 +45,22 @@ const setConsideredTarget = (
     }
 }
 
-const removeConsideredTarget = (
-    actionBuilderState: PlayerBattleActionBuilderState
-) => {
-    if (!isValidValue(actionBuilderState)) {
-        return
-    }
-
-    actionBuilderState.target = undefined
-}
-
-const isActorSet = (actionBuilderState: PlayerBattleActionBuilderState) =>
+const isActorSet = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.actor) &&
     isValidValue(actionBuilderState.actor.battleSquaddieId) &&
     actionBuilderState.actor.battleSquaddieId !== ""
 
-const isAnimationComplete = (
-    actionBuilderState: PlayerBattleActionBuilderState
-) =>
+const isAnimationComplete = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.animation) &&
     actionBuilderState.animation.completed
 
-const isTargetConfirmed = (
-    actionBuilderState: PlayerBattleActionBuilderState
-) =>
+const isTargetConfirmed = (actionBuilderState: BattleActionDecisionStep) =>
     isTargetConsidered(actionBuilderState) &&
     actionBuilderState.target.confirmed
 
-const isActionSet = (actionBuilderState: PlayerBattleActionBuilderState) =>
+const isActionSet = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.action) &&
     (isValidValue(actionBuilderState.action.actionTemplate) ||
@@ -83,7 +68,7 @@ const isActionSet = (actionBuilderState: PlayerBattleActionBuilderState) =>
         actionBuilderState.action.movement)
 
 const setConfirmedTarget = (
-    actionBuilderState: PlayerBattleActionBuilderState,
+    actionBuilderState: BattleActionDecisionStep,
     targetLocation: HexCoordinate
 ) => {
     if (!isValidValue(actionBuilderState)) {
@@ -94,8 +79,8 @@ const setConfirmedTarget = (
     actionBuilderState.target.confirmed = true
 }
 
-export const PlayerBattleActionBuilderStateService = {
-    new: ({}: {}): PlayerBattleActionBuilderState => {
+export const BattleActionDecisionStepService = {
+    new: (): BattleActionDecisionStep => {
         return {
             actor: undefined,
             action: undefined,
@@ -103,8 +88,8 @@ export const PlayerBattleActionBuilderStateService = {
             animation: undefined,
         }
     },
-    isActionBuilderStateNotSet: (
-        actionBuilderState: PlayerBattleActionBuilderState
+    isSquaddieActionRecordNotSet: (
+        actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return (
             !isValidValue(actionBuilderState) ||
@@ -114,8 +99,8 @@ export const PlayerBattleActionBuilderStateService = {
                 !isAnimationComplete(actionBuilderState))
         )
     },
-    isActionComplete: (
-        actionBuilderState: PlayerBattleActionBuilderState
+    isActionRecordComplete: (
+        actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return (
             isValidValue(actionBuilderState) &&
@@ -125,52 +110,50 @@ export const PlayerBattleActionBuilderStateService = {
             isAnimationComplete(actionBuilderState)
         )
     },
-    isActorSet: (
-        actionBuilderState: PlayerBattleActionBuilderState
-    ): boolean => {
+    isActorSet: (actionBuilderState: BattleActionDecisionStep): boolean => {
         return isActorSet(actionBuilderState)
     },
     isTargetConfirmed: (
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return isTargetConfirmed(actionBuilderState)
     },
     isAnimationComplete: (
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return isAnimationComplete(actionBuilderState)
     },
     setActor: ({
-        actionBuilderState,
+        actionDecisionStep,
         battleSquaddieId,
     }: {
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
         battleSquaddieId: string
     }) => {
-        if (!isValidValue(actionBuilderState)) {
+        if (!isValidValue(actionDecisionStep)) {
             return
         }
-        actionBuilderState.actor = {
+        actionDecisionStep.actor = {
             battleSquaddieId,
         }
     },
     getActor: (
-        actionBuilderState: PlayerBattleActionBuilderState
-    ): ActionBuilderStateActor => {
-        return actionBuilderState?.actor
+        actionDecisionStep: BattleActionDecisionStep
+    ): BattleActionDecisionStepActor => {
+        return actionDecisionStep?.actor
     },
     addAction: ({
-        actionBuilderState,
+        actionDecisionStep,
         actionTemplate,
         movement,
         endTurn,
     }: {
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
         actionTemplate?: ActionTemplate
         movement?: boolean
         endTurn?: boolean
     }) => {
-        if (!isValidValue(actionBuilderState)) {
+        if (!isValidValue(actionDecisionStep)) {
             return
         }
         const actionTemplateIsSet = isValidValue(actionTemplate)
@@ -179,104 +162,112 @@ export const PlayerBattleActionBuilderStateService = {
 
         if (!(actionTemplateIsSet || movementIsSet || endTurnIsSet)) {
             throw new Error(
-                "setAction: missing actionTemplate, movement or end turn"
+                "addAction: missing actionTemplate, movement or end turn"
             )
         }
 
-        actionBuilderState.action = {
+        actionDecisionStep.action = {
             actionTemplate,
             movement,
             endTurn,
         }
 
         if (endTurn) {
-            setConfirmedTarget(actionBuilderState, undefined)
+            setConfirmedTarget(actionDecisionStep, undefined)
         }
     },
     setConsideredTarget: ({
-        actionBuilderState,
+        actionDecisionStep,
         targetLocation,
     }: {
         targetLocation: HexCoordinate
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }) => {
-        setConsideredTarget(actionBuilderState, targetLocation)
+        setConsideredTarget(actionDecisionStep, targetLocation)
     },
     getTarget: (
-        actionBuilderState: PlayerBattleActionBuilderState
-    ): ActionBuilderStateTarget => {
-        return actionBuilderState?.target
+        actionDecisionStep: BattleActionDecisionStep
+    ): BattleActionDecisionStepTarget => {
+        return actionDecisionStep?.target
     },
     setConfirmedTarget: ({
-        actionBuilderState,
+        actionDecisionStep,
         targetLocation,
     }: {
         targetLocation: HexCoordinate
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }) => {
-        setConfirmedTarget(actionBuilderState, targetLocation)
+        setConfirmedTarget(actionDecisionStep, targetLocation)
     },
     getAction: (
-        actionBuilderState: PlayerBattleActionBuilderState
-    ): ActionBuilderStateAction => {
-        return actionBuilderState?.action
+        actionDecisionStep: BattleActionDecisionStep
+    ): BattleActionDecisionStepAction => {
+        return actionDecisionStep?.action
     },
     setAnimationCompleted: ({
-        actionBuilderState,
+        actionDecisionStep,
         animationCompleted,
     }: {
         animationCompleted: boolean
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }) => {
-        if (!isValidValue(actionBuilderState)) {
+        if (!isValidValue(actionDecisionStep)) {
             return
         }
-        actionBuilderState.animation = {
+        actionDecisionStep.animation = {
             completed: animationCompleted,
         }
     },
     isTargetConsidered: (
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     ): boolean => {
-        return isTargetConsidered(actionBuilderState)
+        return isTargetConsidered(actionDecisionStep)
     },
-    isActionSet: (
-        actionBuilderState: PlayerBattleActionBuilderState
-    ): boolean => {
-        return isActionSet(actionBuilderState)
+    isActionSet: (actionDecisionStep: BattleActionDecisionStep): boolean => {
+        return isActionSet(actionDecisionStep)
     },
     confirmAlreadyConsideredTarget: ({
-        actionBuilderState,
+        actionDecisionStep,
     }: {
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }): boolean => {
-        if (!isActionSet(actionBuilderState)) {
+        if (!isActionSet(actionDecisionStep)) {
             return false
         }
-        if (isTargetConsidered(actionBuilderState)) {
-            actionBuilderState.target.confirmed = true
+        if (isTargetConsidered(actionDecisionStep)) {
+            actionDecisionStep.target.confirmed = true
             return true
         }
         return false
     },
     removeAction: ({
-        actionBuilderState,
+        actionDecisionStep,
     }: {
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }) => {
-        if (!isValidValue(actionBuilderState)) {
+        if (!isValidValue(actionDecisionStep)) {
             return
         }
-        actionBuilderState.action = undefined
+        actionDecisionStep.action = undefined
     },
     removeTarget: ({
-        actionBuilderState,
+        actionDecisionStep,
     }: {
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionDecisionStep: BattleActionDecisionStep
     }) => {
-        if (!isValidValue(actionBuilderState)) {
+        if (!isValidValue(actionDecisionStep)) {
             return
         }
-        actionBuilderState.target = undefined
+        actionDecisionStep.target = undefined
+    },
+    isActionRecordReadyToAnimate: (
+        actionDecisionStep: BattleActionDecisionStep
+    ) => {
+        return (
+            isActorSet(actionDecisionStep) &&
+            isActionSet(actionDecisionStep) &&
+            isTargetConfirmed(actionDecisionStep) &&
+            !isAnimationComplete(actionDecisionStep)
+        )
     },
 }

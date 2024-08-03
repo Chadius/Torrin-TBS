@@ -1,7 +1,7 @@
 import {
-    PlayerBattleActionBuilderState,
-    PlayerBattleActionBuilderStateService,
-} from "./playerBattleActionBuilderState"
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import {
     ActionDecisionType,
@@ -28,7 +28,7 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { DecidedActionService } from "../../action/decided/decidedAction"
 
 describe("ActionComponentCalculator", () => {
-    let actionBuilderState: PlayerBattleActionBuilderState
+    let actionBuilderState: BattleActionDecisionStep
     let singleTargetAction: ActionTemplate
     beforeEach(() => {
         singleTargetAction = ActionTemplateService.new({
@@ -43,7 +43,7 @@ describe("ActionComponentCalculator", () => {
                 }),
             ],
         })
-        actionBuilderState = PlayerBattleActionBuilderStateService.new({})
+        actionBuilderState = BattleActionDecisionStepService.new()
     })
     it("suggests player squaddie selector when there is no actor", () => {
         const nextMode: BattleOrchestratorMode =
@@ -57,8 +57,8 @@ describe("ActionComponentCalculator", () => {
     })
 
     it("suggests player squaddie selector when there is no confirmed action", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battleSquaddieId",
         })
 
@@ -71,12 +71,12 @@ describe("ActionComponentCalculator", () => {
         )
     })
     it("suggests squaddie uses action on map when the action ends the turn", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battleSquaddieId",
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState,
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionBuilderState,
             endTurn: true,
         })
 
@@ -89,16 +89,16 @@ describe("ActionComponentCalculator", () => {
         )
     })
     it("suggests squaddie mover when action is to move", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battleSquaddieId",
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState,
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionBuilderState,
             movement: true,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState,
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionBuilderState,
             targetLocation: { q: 0, r: 1 },
         })
 
@@ -111,12 +111,12 @@ describe("ActionComponentCalculator", () => {
 
     describe("action needs one target", () => {
         it("suggests player squaddie target when an actor and action are set but no target", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battleSquaddieId",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 actionTemplate: singleTargetAction,
             })
 
@@ -130,16 +130,16 @@ describe("ActionComponentCalculator", () => {
             )
         })
         it("suggests player squaddie target when an actor and action are set but target is considered", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battleSquaddieId",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 actionTemplate: singleTargetAction,
             })
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
 
@@ -153,16 +153,16 @@ describe("ActionComponentCalculator", () => {
             )
         })
         it("suggests squaddie uses action on squaddie when actor, action and target are selected but animation is incomplete", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battleSquaddieId",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 actionTemplate: singleTargetAction,
             })
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
 
@@ -315,9 +315,7 @@ describe("ActionComponentCalculator", () => {
             )
         })
         it("new action builder needs actor and action", () => {
-            const newBuilderState = PlayerBattleActionBuilderStateService.new(
-                {}
-            )
+            const newBuilderState = BattleActionDecisionStepService.new()
 
             expect(
                 ActionComponentCalculator.getPendingActionDecisions(
@@ -332,10 +330,9 @@ describe("ActionComponentCalculator", () => {
         })
 
         it("action builder with an actor needs an action", () => {
-            const builderStateWithActor =
-                PlayerBattleActionBuilderStateService.new({})
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState: builderStateWithActor,
+            const builderStateWithActor = BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: builderStateWithActor,
                 battleSquaddieId: "battleSquaddieId",
             })
 
@@ -348,14 +345,13 @@ describe("ActionComponentCalculator", () => {
             )
         })
         it("action builder with an actor and single target action needs a target", () => {
-            const builderStateWithActor =
-                PlayerBattleActionBuilderStateService.new({})
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState: builderStateWithActor,
+            const builderStateWithActor = BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: builderStateWithActor,
                 battleSquaddieId: "battleSquaddieId",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState: builderStateWithActor,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: builderStateWithActor,
                 actionTemplate: singleTargetAction,
             })
 
@@ -368,18 +364,17 @@ describe("ActionComponentCalculator", () => {
             )
         })
         it("action builder with an actor, single target action and target is settled", () => {
-            const builderStateWithActor =
-                PlayerBattleActionBuilderStateService.new({})
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState: builderStateWithActor,
+            const builderStateWithActor = BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: builderStateWithActor,
                 battleSquaddieId: "battleSquaddieId",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState: builderStateWithActor,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: builderStateWithActor,
                 actionTemplate: singleTargetAction,
             })
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState: builderStateWithActor,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: builderStateWithActor,
                 targetLocation: { q: 0, r: 1 },
             })
 

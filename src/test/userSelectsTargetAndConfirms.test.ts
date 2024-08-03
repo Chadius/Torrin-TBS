@@ -74,9 +74,9 @@ import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/batt
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import {
-    PlayerBattleActionBuilderState,
-    PlayerBattleActionBuilderStateService,
-} from "../battle/actionBuilder/playerBattleActionBuilderState"
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 
@@ -209,13 +209,13 @@ describe("User Selects Target and Confirms", () => {
         })
 
         const playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState: playerBattleActionBuilderState,
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: playerBattleActionBuilderState,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState: playerBattleActionBuilderState,
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: playerBattleActionBuilderState,
             actionTemplate: attackAction,
         })
 
@@ -229,8 +229,8 @@ describe("User Selects Target and Confirms", () => {
             }
         )
 
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState: playerBattleActionBuilderState,
+        BattleActionDecisionStepService.setConsideredTarget({
+            actionDecisionStep: playerBattleActionBuilderState,
             targetLocation: { q: 0, r: 2 },
         })
 
@@ -509,7 +509,7 @@ describe("User Selects Target and Confirms", () => {
             ({ action }) => {
                 action()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
@@ -522,7 +522,7 @@ describe("User Selects Target and Confirms", () => {
             ({ action }) => {
                 action()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
@@ -656,7 +656,7 @@ const getGameEngineState = ({
     actionsThisRound?: ActionsThisRound
     missionMap: MissionMap
     resourceHandler: ResourceHandler
-    playerBattleActionBuilderState: PlayerBattleActionBuilderState
+    playerBattleActionBuilderState: BattleActionDecisionStep
 }): GameEngineState => {
     const gameEngineState = GameEngineStateService.new({
         battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -773,14 +773,13 @@ const clickOnEnemy = ({
         previewedActionTemplateId: actionTemplate.id,
     })
 
-    const playerBattleActionBuilderState =
-        PlayerBattleActionBuilderStateService.new({})
-    PlayerBattleActionBuilderStateService.setActor({
-        actionBuilderState: playerBattleActionBuilderState,
+    const playerBattleActionBuilderState = BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep: playerBattleActionBuilderState,
         battleSquaddieId: attackerBattleSquaddieId,
     })
-    PlayerBattleActionBuilderStateService.addAction({
-        actionBuilderState: playerBattleActionBuilderState,
+    BattleActionDecisionStepService.addAction({
+        actionDecisionStep: playerBattleActionBuilderState,
         actionTemplate,
     })
 
@@ -794,8 +793,8 @@ const clickOnEnemy = ({
         }
     )
 
-    PlayerBattleActionBuilderStateService.setConsideredTarget({
-        actionBuilderState: playerBattleActionBuilderState,
+    BattleActionDecisionStepService.setConsideredTarget({
+        actionDecisionStep: playerBattleActionBuilderState,
         targetLocation: { q: 0, r: 2 },
     })
 

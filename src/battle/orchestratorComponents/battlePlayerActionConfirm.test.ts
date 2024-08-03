@@ -33,7 +33,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
@@ -156,9 +156,9 @@ describe("BattleActionConfirm", () => {
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
@@ -187,8 +187,8 @@ describe("BattleActionConfirm", () => {
     })
 
     const attackThiefWithLongsword = () => {
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: longswordAction,
@@ -199,8 +199,8 @@ describe("BattleActionConfirm", () => {
             thiefBattleSquaddie.battleSquaddieId
         )
 
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConsideredTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: mapLocation,

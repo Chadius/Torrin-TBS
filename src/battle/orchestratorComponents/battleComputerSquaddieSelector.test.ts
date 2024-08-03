@@ -74,7 +74,7 @@ import { ActionEffectEndTurnTemplateService } from "../../action/template/action
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 
 describe("BattleComputerSquaddieSelector", () => {
@@ -293,7 +293,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         it("clears the action builder", () => {
             gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
+                BattleActionDecisionStepService.new()
             selector.update(gameEngineState, mockedP5GraphicsContext)
             expect(
                 gameEngineState.battleOrchestratorState.battleState

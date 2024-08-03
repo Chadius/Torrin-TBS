@@ -48,7 +48,7 @@ import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -491,21 +491,21 @@ describe("Orchestration Utils", () => {
             })
             it("will not clear if the action has not completed yet", () => {
                 gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    PlayerBattleActionBuilderStateService.new({})
-                PlayerBattleActionBuilderStateService.setActor({
-                    actionBuilderState:
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     battleSquaddieId: "battle squaddie",
                 })
-                PlayerBattleActionBuilderStateService.addAction({
-                    actionBuilderState:
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     actionTemplate: singleTargetAction,
                 })
-                PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                    actionBuilderState:
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     targetLocation: { q: 0, r: 1 },
@@ -515,7 +515,7 @@ describe("Orchestration Utils", () => {
                         .playerBattleActionBuilderState,
                 }
                 expect(
-                    PlayerBattleActionBuilderStateService.isActionComplete(
+                    BattleActionDecisionStepService.isActionRecordComplete(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
@@ -531,33 +531,33 @@ describe("Orchestration Utils", () => {
             })
             it("will clear if the action has finished", () => {
                 gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    PlayerBattleActionBuilderStateService.new({})
-                PlayerBattleActionBuilderStateService.setActor({
-                    actionBuilderState:
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     battleSquaddieId: "battle squaddie",
                 })
-                PlayerBattleActionBuilderStateService.addAction({
-                    actionBuilderState:
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     actionTemplate: singleTargetAction,
                 })
-                PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                    actionBuilderState:
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     targetLocation: { q: 0, r: 1 },
                 })
-                PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                    actionBuilderState:
+                BattleActionDecisionStepService.setAnimationCompleted({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     animationCompleted: true,
                 })
                 expect(
-                    PlayerBattleActionBuilderStateService.isActionComplete(
+                    BattleActionDecisionStepService.isActionRecordComplete(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )

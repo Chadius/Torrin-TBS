@@ -372,7 +372,7 @@ describe("BattleSaveState", () => {
             ],
         })
 
-        const secondBattleEvent: BattleEvent = {
+        const secondBattleEvent: BattleEvent = BattleEventService.new({
             processedAction: actionsThisRound.processedActions[0],
             results: SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: undefined,
@@ -386,7 +386,7 @@ describe("BattleSaveState", () => {
                     actingSquaddieModifiers: {},
                 }),
             }),
-        }
+        })
         eventRecording0.history.push(secondBattleEvent)
 
         const battleState = BattleOrchestratorStateService.new({

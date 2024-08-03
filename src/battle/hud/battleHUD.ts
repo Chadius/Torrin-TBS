@@ -39,7 +39,7 @@ import {
     ActionsThisRoundService,
 } from "../history/actionsThisRound"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
@@ -221,8 +221,8 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
             undefined
 
-        PlayerBattleActionBuilderStateService.removeAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.removeAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
         })
@@ -256,8 +256,8 @@ export const BattleHUDService = {
             ]
         )
 
-        PlayerBattleActionBuilderStateService.removeTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.removeTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
         })
@@ -424,15 +424,15 @@ export const BattleHUDService = {
             previewedActionTemplateId: message.actionTemplate.id,
         })
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: message.battleSquaddieId,
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: message.actionTemplate,
@@ -444,8 +444,8 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
 
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConsideredTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: message.targetLocation,
@@ -504,7 +504,7 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
             undefined
 
-        const targetLocation = PlayerBattleActionBuilderStateService.getTarget(
+        const targetLocation = BattleActionDecisionStepService.getTarget(
             gameEngineState.battleOrchestratorState.battleState
                 .playerBattleActionBuilderState
         ).targetLocation
@@ -545,8 +545,8 @@ export const BattleHUDService = {
         )
         addEventToRecording(processedAction, results, gameEngineState)
 
-        PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
         })
@@ -761,21 +761,21 @@ const processEndTurnAction = (
         processedAction,
     })
     gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-        PlayerBattleActionBuilderStateService.new({})
-    PlayerBattleActionBuilderStateService.setActor({
-        actionBuilderState:
+        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .playerBattleActionBuilderState,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
     })
-    PlayerBattleActionBuilderStateService.addAction({
-        actionBuilderState:
+    BattleActionDecisionStepService.addAction({
+        actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .playerBattleActionBuilderState,
         endTurn: true,
     })
-    PlayerBattleActionBuilderStateService.setConfirmedTarget({
-        actionBuilderState:
+    BattleActionDecisionStepService.setConfirmedTarget({
+        actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .playerBattleActionBuilderState,
         targetLocation: mapLocation,

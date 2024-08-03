@@ -10,7 +10,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleStateService } from "../orchestrator/battleState"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
@@ -37,10 +37,10 @@ export class PlayerHudController implements BattleOrchestratorComponent {
 
         if (
             !playerCanControlAtLeastOneSquaddie(gameEngineState) &&
-            (PlayerBattleActionBuilderStateService.isActionBuilderStateNotSet(
+            (BattleActionDecisionStepService.isSquaddieActionRecordNotSet(
                 actionBuilderState
             ) ||
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 ))
         ) {
@@ -51,12 +51,8 @@ export class PlayerHudController implements BattleOrchestratorComponent {
         }
 
         if (
-            !PlayerBattleActionBuilderStateService.isActorSet(
-                actionBuilderState
-            ) ||
-            !PlayerBattleActionBuilderStateService.isActionSet(
-                actionBuilderState
-            )
+            !BattleActionDecisionStepService.isActorSet(actionBuilderState) ||
+            !BattleActionDecisionStepService.isActionSet(actionBuilderState)
         ) {
             return {
                 displayMap: true,
@@ -80,7 +76,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
 
         if (isValidValue(actionBuilderState.action.actionTemplate)) {
             if (
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ) {
@@ -105,7 +101,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
 
     reset(gameEngineState: GameEngineState): void {
         if (
-            PlayerBattleActionBuilderStateService.isAnimationComplete(
+            BattleActionDecisionStepService.isAnimationComplete(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )

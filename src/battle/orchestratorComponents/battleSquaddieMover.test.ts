@@ -43,7 +43,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("BattleSquaddieMover", () => {
@@ -430,21 +430,21 @@ describe("BattleSquaddieMover", () => {
                     campaign: CampaignService.default({}),
                 })
                 gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    PlayerBattleActionBuilderStateService.new({})
-                PlayerBattleActionBuilderStateService.setActor({
-                    actionBuilderState:
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     battleSquaddieId: "player_1",
                 })
-                PlayerBattleActionBuilderStateService.addAction({
-                    actionBuilderState:
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     movement: true,
                 })
-                PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                    actionBuilderState:
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     targetLocation: { q: 0, r: 0 },
@@ -485,7 +485,7 @@ describe("BattleSquaddieMover", () => {
 
             it("should tell the action builder the animation is complete and check if it needs to be reset", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.isAnimationComplete(
+                    BattleActionDecisionStepService.isAnimationComplete(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
@@ -499,7 +499,7 @@ describe("BattleSquaddieMover", () => {
 
                 expect(actionBuilderSpy).toBeCalledWith(gameEngineState)
                 expect(
-                    PlayerBattleActionBuilderStateService.isActionComplete(
+                    BattleActionDecisionStepService.isActionRecordComplete(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )

@@ -31,7 +31,7 @@ import {
 import { isValidValue } from "../../utils/validityCheck"
 import { ObjectRepository } from "../objectRepository"
 import { ActionsThisRound } from "../history/actionsThisRound"
-import { PlayerBattleActionBuilderState } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import {
     BattleActionQueue,
     BattleActionQueueService,
@@ -63,7 +63,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     actionsThisRound: ActionsThisRound
-    playerBattleActionBuilderState: PlayerBattleActionBuilderState
+    playerBattleActionBuilderState: BattleActionDecisionStep
 }
 
 export const BattleStateService = {

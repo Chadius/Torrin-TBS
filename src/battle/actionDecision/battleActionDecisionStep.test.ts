@@ -1,7 +1,7 @@
 import {
-    PlayerBattleActionBuilderState,
-    PlayerBattleActionBuilderStateService,
-} from "./playerBattleActionBuilderState"
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "./battleActionDecisionStep"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -11,11 +11,11 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 
 describe("Action Builder", () => {
-    let actionBuilderState: PlayerBattleActionBuilderState
+    let actionBuilderState: BattleActionDecisionStep
     let singleTargetAction: ActionTemplate
 
     beforeEach(() => {
-        actionBuilderState = PlayerBattleActionBuilderStateService.new({})
+        actionBuilderState = BattleActionDecisionStepService.new()
         singleTargetAction = ActionTemplateService.new({
             id: "single target",
             name: "single target",
@@ -32,41 +32,41 @@ describe("Action Builder", () => {
 
     it("Needs actor, action, target, and animation status upon creation", () => {
         expect(
-            PlayerBattleActionBuilderStateService.isActionComplete(
+            BattleActionDecisionStepService.isActionRecordComplete(
                 actionBuilderState
             )
         ).toEqual(false)
         expect(
-            PlayerBattleActionBuilderStateService.isActorSet(actionBuilderState)
+            BattleActionDecisionStepService.isActorSet(actionBuilderState)
         ).toEqual(false)
         expect(
-            PlayerBattleActionBuilderStateService.isTargetConfirmed(
+            BattleActionDecisionStepService.isTargetConfirmed(
                 actionBuilderState
             )
         ).toEqual(false)
         expect(
-            PlayerBattleActionBuilderStateService.isAnimationComplete(
+            BattleActionDecisionStepService.isAnimationComplete(
                 actionBuilderState
             )
         ).toEqual(false)
     })
 
     it("can set the actor", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battle squaddie",
         })
 
         expect(
-            PlayerBattleActionBuilderStateService.isActorSet(actionBuilderState)
+            BattleActionDecisionStepService.isActorSet(actionBuilderState)
         ).toEqual(true)
         expect(
-            PlayerBattleActionBuilderStateService.getActor(actionBuilderState)
+            BattleActionDecisionStepService.getActor(actionBuilderState)
         ).toEqual({
             battleSquaddieId: "battle squaddie",
         })
         expect(
-            PlayerBattleActionBuilderStateService.isActionComplete(
+            BattleActionDecisionStepService.isActionRecordComplete(
                 actionBuilderState
             )
         ).toEqual(false)
@@ -74,197 +74,175 @@ describe("Action Builder", () => {
 
     describe("squaddie on squaddie action", () => {
         beforeEach(() => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battle squaddie",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 actionTemplate: singleTargetAction,
             })
         })
         it("can set the action template without setting a target", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.isActorSet(actionBuilderState)
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isActionSet(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.isActionSet(actionBuilderState)
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toEqual(false)
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 actionTemplate: singleTargetAction,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("can consider the target for an action", () => {
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
+                BattleActionDecisionStepService.isActorSet(actionBuilderState)
+            ).toEqual(true)
+            expect(
+                BattleActionDecisionStepService.isTargetConsidered(
                     actionBuilderState
                 )
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
-                    actionBuilderState
-                )
-            ).toEqual(true)
-            expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toEqual(false)
 
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 actionTemplate: singleTargetAction,
             })
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
                 targetLocation: { q: 0, r: 1 },
                 confirmed: false,
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("can remove the considered target for an action", () => {
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
-            PlayerBattleActionBuilderStateService.removeTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.removeTarget({
+                actionDecisionStep: actionBuilderState,
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                BattleActionDecisionStepService.isTargetConsidered(
                     actionBuilderState
                 )
             ).toBeFalsy()
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toBeFalsy()
 
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 actionTemplate: singleTargetAction,
             })
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toBeUndefined()
 
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("can confirm an already considered target without declaring the target", () => {
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
-            PlayerBattleActionBuilderStateService.confirmAlreadyConsideredTarget(
-                { actionBuilderState }
-            )
+            BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
+                actionDecisionStep: actionBuilderState,
+            })
 
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                BattleActionDecisionStepService.isTargetConsidered(
                     actionBuilderState
                 )
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toEqual(true)
         })
         it("can set the target for an action", () => {
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.isActorSet(actionBuilderState)
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toEqual(true)
 
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 actionTemplate: singleTargetAction,
             })
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
                 targetLocation: { q: 0, r: 1 },
                 confirmed: true,
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("Knows the action is complete if an actor, action, target and animation is complete", () => {
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
-            PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                actionBuilderState,
+            BattleActionDecisionStepService.setAnimationCompleted({
+                actionDecisionStep: actionBuilderState,
                 animationCompleted: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(true)
@@ -273,66 +251,58 @@ describe("Action Builder", () => {
 
     describe("movement action", () => {
         beforeEach(() => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battle squaddie",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 movement: true,
             })
         })
         it("can set a move action without setting a target", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.isActorSet(actionBuilderState)
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 movement: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("can set the target for movement", () => {
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 movement: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
                 targetLocation: { q: 0, r: 1 },
                 confirmed: true,
             })
         })
         it("Knows the action is complete if an actor, action, target and animation is complete", () => {
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState,
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
                 targetLocation: { q: 0, r: 1 },
             })
-            PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                actionBuilderState,
+            BattleActionDecisionStepService.setAnimationCompleted({
+                actionDecisionStep: actionBuilderState,
                 animationCompleted: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(true)
@@ -341,46 +311,42 @@ describe("Action Builder", () => {
 
     describe("end turn action", () => {
         beforeEach(() => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState,
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
                 battleSquaddieId: "battle squaddie",
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
                 endTurn: true,
             })
         })
         it("can end the turn and set its target", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
+                BattleActionDecisionStepService.isActorSet(actionBuilderState)
+            ).toEqual(true)
+            expect(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
                 )
             ).toEqual(true)
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
-                    actionBuilderState
-                )
-            ).toEqual(true)
-            expect(
-                PlayerBattleActionBuilderStateService.getAction(
-                    actionBuilderState
-                )
+                BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
                 endTurn: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(false)
         })
         it("Knows the action is complete if an actor, action, target and animation is complete", () => {
-            PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                actionBuilderState,
+            BattleActionDecisionStepService.setAnimationCompleted({
+                actionDecisionStep: actionBuilderState,
                 animationCompleted: true,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     actionBuilderState
                 )
             ).toEqual(true)
@@ -388,25 +354,25 @@ describe("Action Builder", () => {
     })
 
     it("can declare the action complete if it is a single target action and a single target is set and animated", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battle squaddie",
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState,
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionBuilderState,
             actionTemplate: singleTargetAction,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState,
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionBuilderState,
             targetLocation: { q: 0, r: 1 },
         })
-        PlayerBattleActionBuilderStateService.setAnimationCompleted({
-            actionBuilderState,
+        BattleActionDecisionStepService.setAnimationCompleted({
+            actionDecisionStep: actionBuilderState,
             animationCompleted: true,
         })
 
         expect(
-            PlayerBattleActionBuilderStateService.isActionComplete(
+            BattleActionDecisionStepService.isActionRecordComplete(
                 actionBuilderState
             )
         ).toEqual(true)
@@ -414,27 +380,52 @@ describe("Action Builder", () => {
 
     it("throws an error if no action is specified when it is set", () => {
         expect(() => {
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState,
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
             })
-        }).toThrow("setAction: missing actionTemplate, movement or end turn")
+        }).toThrow("addAction: missing actionTemplate, movement or end turn")
     })
 
     it("can remove the previously set action", () => {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState,
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
             battleSquaddieId: "battle squaddie",
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState,
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionBuilderState,
             actionTemplate: singleTargetAction,
         })
-        PlayerBattleActionBuilderStateService.removeAction({
-            actionBuilderState,
+        BattleActionDecisionStepService.removeAction({
+            actionDecisionStep: actionBuilderState,
         })
 
         expect(
-            PlayerBattleActionBuilderStateService.isActionSet(
+            BattleActionDecisionStepService.isActionSet(actionBuilderState)
+        ).toEqual(false)
+    })
+
+    it("knows when the action is ready to animate", () => {
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionBuilderState,
+            battleSquaddieId: "battle squaddie",
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionBuilderState,
+            actionTemplate: singleTargetAction,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionBuilderState,
+            targetLocation: { q: 0, r: 1 },
+        })
+
+        expect(
+            BattleActionDecisionStepService.isActionRecordReadyToAnimate(
+                actionBuilderState
+            )
+        ).toEqual(true)
+
+        expect(
+            BattleActionDecisionStepService.isActionRecordComplete(
                 actionBuilderState
             )
         ).toEqual(false)

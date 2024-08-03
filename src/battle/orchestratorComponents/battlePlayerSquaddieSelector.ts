@@ -61,7 +61,7 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService, SummaryPopoverType } from "../hud/summaryHUD"
@@ -418,7 +418,7 @@ export class BattlePlayerSquaddieSelector
             !areCoordinatesOnMap
         ) {
             gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
+                BattleActionDecisionStepService.new()
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 undefined
             return
@@ -605,7 +605,7 @@ export class BattlePlayerSquaddieSelector
             )
         )
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
+            BattleActionDecisionStepService.new()
         addActorActionForPlayableSquaddie({
             battleSquaddie,
             squaddieTemplate,
@@ -805,27 +805,27 @@ export class BattlePlayerSquaddieSelector
             processedAction,
         })
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             movement: true,
         })
-        PlayerBattleActionBuilderStateService.setConsideredTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConsideredTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: destination,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: destination,
@@ -1205,8 +1205,8 @@ const addActorActionForPlayableSquaddie = ({
         })
 
     if (playerCanControlThisSquaddieRightNow) {
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: battleSquaddie.battleSquaddieId,

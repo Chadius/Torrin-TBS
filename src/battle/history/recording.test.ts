@@ -41,9 +41,11 @@ describe("Recording", () => {
 
         const history: BattleEvent[] = recording.history
         expect(history).toHaveLength(1)
-        expect(history[0]).toStrictEqual({
-            results: undefined,
-            processedAction,
-        })
+        expect(history[0]).toStrictEqual(
+            BattleEventService.new({
+                results: undefined,
+                processedAction,
+            })
+        )
     })
 })

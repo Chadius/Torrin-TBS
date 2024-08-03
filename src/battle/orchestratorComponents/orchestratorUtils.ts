@@ -16,7 +16,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 
 export const OrchestratorUtilities = {
@@ -40,7 +40,7 @@ export const OrchestratorUtilities = {
         gameEngineState: GameEngineState
     ): void => {
         if (
-            !PlayerBattleActionBuilderStateService.isActionComplete(
+            !BattleActionDecisionStepService.isActionRecordComplete(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )

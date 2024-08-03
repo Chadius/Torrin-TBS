@@ -14,8 +14,8 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
-import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
@@ -164,8 +164,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             squaddieTemplate,
             graphicsContext
         )
-        PlayerBattleActionBuilderStateService.setAnimationCompleted({
-            actionBuilderState:
+        BattleActionDecisionStepService.setAnimationCompleted({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             animationCompleted: true,

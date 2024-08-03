@@ -28,7 +28,7 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattlePhase } from "./battlePhaseTracker"
 
 describe("PlayerHUDController", () => {
@@ -167,7 +167,7 @@ describe("PlayerHUDController", () => {
                     currentAffiliation: BattlePhase.PLAYER,
                 }
             gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                PlayerBattleActionBuilderStateService.new({})
+                BattleActionDecisionStepService.new()
         })
         it("recommends computer selector mode when no players can take a turn and there is no pending animation", () => {
             SquaddieTurnService.endTurn(playerBattleSquaddie.squaddieTurn)
@@ -186,8 +186,8 @@ describe("PlayerHUDController", () => {
             )
         })
         it("recommends player squaddie selector when no action is set", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
@@ -200,14 +200,14 @@ describe("PlayerHUDController", () => {
             )
         })
         it("recommends squaddie on map when the actor ends its turn", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 endTurn: true,
@@ -220,20 +220,20 @@ describe("PlayerHUDController", () => {
             )
         })
         it("recommends squaddie mover when the actor moves somewhere", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 movement: true,
             })
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState:
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 0, r: 1 },
@@ -246,14 +246,14 @@ describe("PlayerHUDController", () => {
             )
         })
         it("recommends player squaddie target when a action that needs a target is set", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: singleTargetAction,
@@ -266,20 +266,20 @@ describe("PlayerHUDController", () => {
             )
         })
         it("recommends squaddie on squaddie when the action and target are selected, even if this ends their turn", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: singleTargetAction,
             })
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState:
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 0, r: 2 },
@@ -294,26 +294,26 @@ describe("PlayerHUDController", () => {
             )
         })
         it("sets action builder to undefined when animation is complete", () => {
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerBattleSquaddieId,
             })
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: singleTargetAction,
             })
-            PlayerBattleActionBuilderStateService.setConfirmedTarget({
-                actionBuilderState:
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 0, r: 2 },
             })
-            PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                actionBuilderState:
+            BattleActionDecisionStepService.setAnimationCompleted({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 animationCompleted: true,

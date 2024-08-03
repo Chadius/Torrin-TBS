@@ -1,7 +1,7 @@
 import {
-    PlayerBattleActionBuilderState,
-    PlayerBattleActionBuilderStateService,
-} from "./playerBattleActionBuilderState"
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
@@ -13,7 +13,7 @@ import { ActionDecisionType } from "../../action/template/actionTemplate"
 
 export const ActionComponentCalculator = {
     getNextOrchestratorComponentMode: (
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionBuilderState: BattleActionDecisionStep
     ): BattleOrchestratorMode => {
         const selectorMode = BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
 
@@ -22,28 +22,24 @@ export const ActionComponentCalculator = {
         }
 
         if (
-            !PlayerBattleActionBuilderStateService.isActorSet(
-                actionBuilderState
-            ) ||
-            !PlayerBattleActionBuilderStateService.isActionSet(
-                actionBuilderState
-            )
+            !BattleActionDecisionStepService.isActorSet(actionBuilderState) ||
+            !BattleActionDecisionStepService.isActionSet(actionBuilderState)
         ) {
             return selectorMode
         }
 
         const actionIsEndTurn =
-            PlayerBattleActionBuilderStateService.getAction(actionBuilderState)
+            BattleActionDecisionStepService.getAction(actionBuilderState)
                 .endTurn === true
         if (actionIsEndTurn) {
             return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
         }
 
         const actionIsMovement =
-            PlayerBattleActionBuilderStateService.getAction(actionBuilderState)
+            BattleActionDecisionStepService.getAction(actionBuilderState)
                 .movement === true
         const targetIsConfirmed =
-            PlayerBattleActionBuilderStateService.isTargetConfirmed(
+            BattleActionDecisionStepService.isTargetConfirmed(
                 actionBuilderState
             ) === true
 
@@ -80,7 +76,7 @@ export const ActionComponentCalculator = {
         }
     },
     getPendingActionDecisions: (
-        actionBuilderState: PlayerBattleActionBuilderState
+        actionBuilderState: BattleActionDecisionStep
     ): ActionDecisionType[] => {
         if (!isValidValue(actionBuilderState)) {
             return [
@@ -90,18 +86,10 @@ export const ActionComponentCalculator = {
         }
 
         let actorAndActionMissing: ActionDecisionType[] = []
-        if (
-            !PlayerBattleActionBuilderStateService.isActorSet(
-                actionBuilderState
-            )
-        ) {
+        if (!BattleActionDecisionStepService.isActorSet(actionBuilderState)) {
             actorAndActionMissing.push(ActionDecisionType.ACTOR_SELECTION)
         }
-        if (
-            !PlayerBattleActionBuilderStateService.isActionSet(
-                actionBuilderState
-            )
-        ) {
+        if (!BattleActionDecisionStepService.isActionSet(actionBuilderState)) {
             actorAndActionMissing.push(ActionDecisionType.ACTION_SELECTION)
         }
         if (actorAndActionMissing.length > 0) {
@@ -109,7 +97,7 @@ export const ActionComponentCalculator = {
         }
 
         if (
-            !PlayerBattleActionBuilderStateService.isTargetConfirmed(
+            !BattleActionDecisionStepService.isTargetConfirmed(
                 actionBuilderState
             )
         ) {

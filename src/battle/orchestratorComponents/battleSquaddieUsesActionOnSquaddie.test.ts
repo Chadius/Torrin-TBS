@@ -58,7 +58,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
@@ -554,7 +554,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         expect(actionBuilderSpy).toBeCalledWith(gameEngineState)
         expect(
-            PlayerBattleActionBuilderStateService.isActionComplete(
+            BattleActionDecisionStepService.isActionRecordComplete(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )

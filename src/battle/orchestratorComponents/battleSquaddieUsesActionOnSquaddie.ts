@@ -23,7 +23,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export class BattleSquaddieUsesActionOnSquaddie

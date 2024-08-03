@@ -61,7 +61,7 @@ import { BattlePhaseState } from "./battlePhaseController"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
 import {
@@ -75,6 +75,7 @@ import {
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { config } from "../../configuration/config"
+import { BattleEventService } from "../history/battleEvent"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -394,8 +395,8 @@ describe("BattleSquaddieSelector", () => {
                 campaign: CampaignService.default({}),
             })
 
-            PlayerBattleActionBuilderStateService.setActor({
-                actionBuilderState:
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
@@ -431,7 +432,7 @@ describe("BattleSquaddieSelector", () => {
 
         it("clears the actor", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
+                BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
@@ -508,13 +509,13 @@ describe("BattleSquaddieSelector", () => {
                         .playerBattleActionBuilderState
                 ).not.toBeUndefined()
                 expect(
-                    PlayerBattleActionBuilderStateService.isActorSet(
+                    BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getActor(
+                    BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).battleSquaddieId
@@ -557,10 +558,12 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .recording.history
                 expect(history).toHaveLength(1)
-                expect(history[0]).toStrictEqual({
-                    results: undefined,
-                    processedAction: processedAction,
-                })
+                expect(history[0]).toStrictEqual(
+                    BattleEventService.new({
+                        results: undefined,
+                        processedAction: processedAction,
+                    })
+                )
             })
 
             it("consumes the squaddie actions", () => {
@@ -572,31 +575,31 @@ describe("BattleSquaddieSelector", () => {
 
             it("adds a movement action and confirmed target to the action builder", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.isActionSet(
+                    BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getAction(
+                    BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).movement
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getTarget(
+                    BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).targetLocation
@@ -647,7 +650,7 @@ describe("BattleSquaddieSelector", () => {
 
             expect(playerCommandSpy).toBeCalled()
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
+                BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
@@ -816,31 +819,31 @@ describe("BattleSquaddieSelector", () => {
 
             it("adds a movement action and confirmed target to the action builder", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.isActionSet(
+                    BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getAction(
+                    BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).movement
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConsidered(
+                    BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                    BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getTarget(
+                    BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).targetLocation
@@ -1510,13 +1513,13 @@ describe("BattleSquaddieSelector", () => {
             })
             it("changes the actor for the actor builder", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.isActorSet(
+                    BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getActor(
+                    BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).battleSquaddieId
@@ -1572,13 +1575,13 @@ describe("BattleSquaddieSelector", () => {
 
             it("does not change the actor in the actor builder if the first squaddie starts their turn", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.isActorSet(
+                    BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
                 ).toBeTruthy()
                 expect(
-                    PlayerBattleActionBuilderStateService.getActor(
+                    BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).battleSquaddieId

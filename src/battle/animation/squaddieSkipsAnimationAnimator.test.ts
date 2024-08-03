@@ -44,9 +44,9 @@ import {
 } from "../history/actionsThisRound"
 import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionActionContextService } from "../history/battleAction"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -242,21 +242,21 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: monkBattleSquaddieId,
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             actionTemplate: monkKoanAction,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: { q: 0, r: 0 },
@@ -265,7 +265,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         animator.reset(gameEngineState)
 
         expect(
-            PlayerBattleActionBuilderStateService.isAnimationComplete(
+            BattleActionDecisionStepService.isAnimationComplete(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )

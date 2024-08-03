@@ -12,8 +12,8 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
-import { ActionComponentCalculator } from "../actionBuilder/actionComponentCalculator"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
@@ -93,8 +93,8 @@ export class BattleSquaddieUsesActionOnMap
     ): void {
         if (this.animationCompleteStartTime !== undefined) {
             if (animationTimeHasExpired(this.animationCompleteStartTime)) {
-                PlayerBattleActionBuilderStateService.setAnimationCompleted({
-                    actionBuilderState:
+                BattleActionDecisionStepService.setAnimationCompleted({
+                    actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
                     animationCompleted: true,

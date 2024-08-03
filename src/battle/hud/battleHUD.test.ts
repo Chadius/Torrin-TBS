@@ -38,7 +38,7 @@ import { ProcessedActionMovementEffectService } from "../../action/processed/pro
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -93,7 +93,7 @@ import {
     GetNumberOfActionPoints,
 } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattleEvent } from "../history/battleEvent"
+import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
@@ -216,10 +216,10 @@ describe("Battle HUD", () => {
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
+            BattleActionDecisionStepService.new()
 
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
@@ -952,8 +952,8 @@ describe("Battle HUD", () => {
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 actionsThisRound
 
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: longswordAction,
@@ -996,7 +996,7 @@ describe("Battle HUD", () => {
             })
             it("it does not have an action set in the player battle action builder", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.getAction(
+                    BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     )
@@ -1053,7 +1053,7 @@ describe("Battle HUD", () => {
             })
             it("it has an actor in the player battle action builder", () => {
                 expect(
-                    PlayerBattleActionBuilderStateService.getActor(
+                    BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
                     ).battleSquaddieId
@@ -1107,14 +1107,14 @@ describe("Battle HUD", () => {
                     ],
                 })
 
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: longswordAction,
             })
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState:
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 0, r: 1 },
@@ -1223,10 +1223,12 @@ describe("Battle HUD", () => {
                 gameEngineState.battleOrchestratorState.battleState.recording
                     .history
             expect(history).toHaveLength(1)
-            expect(history[0]).toStrictEqual({
-                results: undefined,
-                processedAction,
-            })
+            expect(history[0]).toStrictEqual(
+                BattleEventService.new({
+                    results: undefined,
+                    processedAction,
+                })
+            )
             expect(
                 playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints
             ).toEqual(0)
@@ -1293,31 +1295,31 @@ describe("Battle HUD", () => {
             })
 
             expect(
-                PlayerBattleActionBuilderStateService.isActionSet(
+                BattleActionDecisionStepService.isActionSet(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
+                BattleActionDecisionStepService.getAction(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 ).endTurn
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                BattleActionDecisionStepService.isTargetConsidered(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
+                BattleActionDecisionStepService.getTarget(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 ).targetLocation
@@ -1399,13 +1401,13 @@ describe("Battle HUD", () => {
 
         it("updates the action builder actor", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActorSet(
+                BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.getActor(
+                BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 ).battleSquaddieId
@@ -1414,13 +1416,13 @@ describe("Battle HUD", () => {
 
         it("updates the action builder action", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isActionSet(
+                BattleActionDecisionStepService.isActionSet(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.getAction(
+                BattleActionDecisionStepService.getAction(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 ).actionTemplate.id
@@ -1429,7 +1431,7 @@ describe("Battle HUD", () => {
 
         it("clears the action builder target", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                BattleActionDecisionStepService.isTargetConsidered(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
@@ -1469,8 +1471,8 @@ describe("Battle HUD", () => {
             let longswordAction: ActionTemplate
             ;({ gameEngineState, longswordAction } = createGameEngineState({}))
 
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: longswordAction,
@@ -1490,13 +1492,13 @@ describe("Battle HUD", () => {
 
         it("sets the target location", () => {
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConsidered(
+                BattleActionDecisionStepService.isTargetConsidered(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
             ).toBeTruthy()
             expect(
-                PlayerBattleActionBuilderStateService.getTarget(
+                BattleActionDecisionStepService.getTarget(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
@@ -1549,8 +1551,8 @@ describe("Battle HUD", () => {
                 { q: 1, r: 2 }
             )
 
-            PlayerBattleActionBuilderStateService.setConsideredTarget({
-                actionBuilderState:
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 1, r: 2 },
@@ -1567,8 +1569,8 @@ describe("Battle HUD", () => {
                 position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
 
-            PlayerBattleActionBuilderStateService.addAction({
-                actionBuilderState:
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
                 actionTemplate: longswordAction,
@@ -1685,7 +1687,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
             })
             expect(
-                PlayerBattleActionBuilderStateService.isTargetConfirmed(
+                BattleActionDecisionStepService.isTargetConfirmed(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )

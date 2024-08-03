@@ -19,7 +19,7 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
-import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
@@ -89,21 +89,21 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             }),
         })
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            PlayerBattleActionBuilderStateService.new({})
-        PlayerBattleActionBuilderStateService.setActor({
-            actionBuilderState:
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             battleSquaddieId: "dynamic_squaddie",
         })
-        PlayerBattleActionBuilderStateService.addAction({
-            actionBuilderState:
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             endTurn: true,
         })
-        PlayerBattleActionBuilderStateService.setConfirmedTarget({
-            actionBuilderState:
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
             targetLocation: { q: 0, r: 1 },
@@ -161,7 +161,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         dateSpy.mockImplementation(() => 500)
         mapAction.update(gameEngineState, mockedP5GraphicsContext)
         expect(
-            PlayerBattleActionBuilderStateService.isAnimationComplete(
+            BattleActionDecisionStepService.isAnimationComplete(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
             )
@@ -216,7 +216,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         it("resets the action builder", () => {
             expect(actionBuilderSpy).toBeCalledWith(gameEngineState)
             expect(
-                PlayerBattleActionBuilderStateService.isActionComplete(
+                BattleActionDecisionStepService.isActionRecordComplete(
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState
                 )
