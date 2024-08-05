@@ -1,7 +1,10 @@
 import { BattleSquaddie } from "../battle/battleSquaddie"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
-import { InBattleAttributesHandler } from "../battle/stats/inBattleAttributes"
+import {
+    InBattleAttributes,
+    InBattleAttributesService,
+} from "../battle/stats/inBattleAttributes"
 import { SearchPath } from "../hexMap/pathfinder/searchPath"
 import { LocationTraveled } from "../hexMap/pathfinder/locationTraveled"
 import { getResultOrThrowError } from "../utils/ResultOrError"
@@ -24,9 +27,28 @@ export const SquaddieService = {
     }): {
         damageTaken: number
     } => {
-        return DealDamageToTheSquaddie({
-            squaddieTemplate,
-            battleSquaddie,
+        return dealDamageToTheSquaddie({
+            inBattleAttributes: battleSquaddie.inBattleAttributes,
+            damage,
+            damageType,
+        })
+    },
+    calculateDealtDamageToTheSquaddie: ({
+        battleSquaddie,
+        damage,
+        damageType,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+        damage: number
+        damageType: DamageType
+    }): {
+        damageTaken: number
+    } => {
+        const clonedInBattleAttributes: InBattleAttributes =
+            InBattleAttributesService.clone(battleSquaddie.inBattleAttributes)
+        return dealDamageToTheSquaddie({
+            inBattleAttributes: clonedInBattleAttributes,
             damage,
             damageType,
         })
@@ -114,6 +136,42 @@ export const SquaddieService = {
             battleSquaddie,
         })
     },
+    giveHealingToTheSquaddie: ({
+        battleSquaddie,
+        healingAmount,
+        healingType,
+    }: {
+        battleSquaddie: BattleSquaddie
+        healingAmount: number
+        healingType: HealingType
+    }): {
+        healingReceived: number
+    } => {
+        return giveHealingToTheSquaddie({
+            inBattleAttributes: battleSquaddie.inBattleAttributes,
+            healingAmount,
+            healingType,
+        })
+    },
+    calculateGiveHealingToTheSquaddie: ({
+        battleSquaddie,
+        healingAmount,
+        healingType,
+    }: {
+        battleSquaddie: BattleSquaddie
+        healingAmount: number
+        healingType: HealingType
+    }): {
+        healingReceived: number
+    } => {
+        return giveHealingToTheSquaddie({
+            inBattleAttributes: InBattleAttributesService.clone(
+                battleSquaddie.inBattleAttributes
+            ),
+            healingAmount,
+            healingType,
+        })
+    },
 }
 
 export const GetNumberOfActionPoints = ({
@@ -173,21 +231,19 @@ export enum HealingType {
     LOST_HIT_POINTS = "LOST_HIT_POINTS",
 }
 
-export const DealDamageToTheSquaddie = ({
-    squaddieTemplate,
-    battleSquaddie,
+const dealDamageToTheSquaddie = ({
+    inBattleAttributes,
     damage,
     damageType,
 }: {
-    squaddieTemplate: SquaddieTemplate
-    battleSquaddie: BattleSquaddie
+    inBattleAttributes: InBattleAttributes
     damage: number
     damageType: DamageType
 }): {
     damageTaken: number
 } => {
-    const actualHitPointLoss: number = InBattleAttributesHandler.takeDamage(
-        battleSquaddie.inBattleAttributes,
+    const actualHitPointLoss: number = InBattleAttributesService.takeDamage(
+        inBattleAttributes,
         damage,
         damageType
     )
@@ -197,7 +253,28 @@ export const DealDamageToTheSquaddie = ({
     }
 }
 
-export const GiveHealingToTheSquaddie = ({
+const giveHealingToTheSquaddie = ({
+    inBattleAttributes,
+    healingAmount,
+    healingType,
+}: {
+    inBattleAttributes: InBattleAttributes
+    healingAmount: number
+    healingType: HealingType
+}): {
+    healingReceived: number
+} => {
+    const actualHitPointGain: number = InBattleAttributesService.receiveHealing(
+        inBattleAttributes,
+        healingAmount
+    )
+
+    return {
+        healingReceived: actualHitPointGain,
+    }
+}
+
+export const GiveHealingToTheSquaddieOLD = ({
     squaddieTemplate,
     battleSquaddie,
     healingAmount,
@@ -210,7 +287,7 @@ export const GiveHealingToTheSquaddie = ({
 }): {
     healingReceived: number
 } => {
-    const actualHitPointGain: number = InBattleAttributesHandler.receiveHealing(
+    const actualHitPointGain: number = InBattleAttributesService.receiveHealing(
         battleSquaddie.inBattleAttributes,
         healingAmount
     )

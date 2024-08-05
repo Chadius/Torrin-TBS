@@ -31,7 +31,7 @@ import {
 } from "../targeting/targetingShapeGenerator"
 import {
     MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationHandler,
+    MissionMapSquaddieLocationService,
 } from "../../missionMap/squaddieLocation"
 import { BattleStateService } from "../orchestrator/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -280,7 +280,7 @@ export class BattlePlayerSquaddieSelector
                                 .battleSquaddieId
                         )
                     if (
-                        MissionMapSquaddieLocationHandler.isValid(
+                        MissionMapSquaddieLocationService.isValid(
                             squaddieInfo
                         ) &&
                         gameEngineState.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(
@@ -504,7 +504,7 @@ export class BattlePlayerSquaddieSelector
                 clickedHexCoordinate
             )
         const foundSquaddieAtLocation =
-            MissionMapSquaddieLocationHandler.isValid(
+            MissionMapSquaddieLocationService.isValid(
                 squaddieClickedOnInfoAndMapLocation
             )
         if (foundSquaddieAtLocation) {
@@ -1132,7 +1132,7 @@ export class BattlePlayerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 nextBattleSquaddieId
             )
-        if (MissionMapSquaddieLocationHandler.isValid(selectedMapCoordinates)) {
+        if (MissionMapSquaddieLocationService.isValid(selectedMapCoordinates)) {
             const selectedWorldCoordinates =
                 convertMapCoordinatesToWorldCoordinates(
                     selectedMapCoordinates.mapLocation.q,

@@ -36,7 +36,7 @@ import { CutsceneService } from "../../cutscene/cutscene"
 import { LoadFileIntoFormat } from "../../dataLoader/dataLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { SquaddieResource } from "../../squaddie/resource"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { isValidValue } from "../../utils/validityCheck"
 import p5 from "p5"
 
@@ -243,7 +243,7 @@ export const MissionLoader = {
         playerArmyData.squaddieTemplates.forEach((template) => {
             const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: template.squaddieId.templateId,
-                inBattleAttributes: InBattleAttributesHandler.new(
+                inBattleAttributes: InBattleAttributesService.new(
                     template.attributes
                 ),
                 squaddieTemplate: template,

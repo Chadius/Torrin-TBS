@@ -47,6 +47,7 @@ import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let squaddieRepository: ObjectRepository
@@ -141,13 +142,14 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             results: {
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
-                resultPerTarget: {
-                    [thiefDynamicId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: thiefDynamicId,
                         damageTaken: 1,
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],

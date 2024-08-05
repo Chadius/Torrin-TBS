@@ -2,7 +2,7 @@ import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import {
     InBattleAttributes,
-    InBattleAttributesHandler,
+    InBattleAttributesService,
 } from "./stats/inBattleAttributes"
 import {
     SquaddieTemplate,
@@ -76,7 +76,7 @@ describe("BattleSquaddie", () => {
             })
 
             const defaultInBattleAttributes: InBattleAttributes =
-                InBattleAttributesHandler.new()
+                InBattleAttributesService.new()
 
             expect(battleSoldier.inBattleAttributes).toStrictEqual(
                 defaultInBattleAttributes
@@ -126,7 +126,7 @@ describe("BattleSquaddie", () => {
             const newBattleSoldier = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
-                inBattleAttributes: InBattleAttributesHandler.new({
+                inBattleAttributes: InBattleAttributesService.new({
                     maxHitPoints: 9001,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,

@@ -10,7 +10,7 @@ import {
 } from "../../hexMap/convertCoordinates"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { MissionMapSquaddieLocationHandler } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import { MapHighlightHelper } from "../animation/mapHighlight"
 import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -168,7 +168,7 @@ export const OrchestratorUtilities = {
                         battleSquaddieId
                     )
                 const squaddieIsOnTheMap: boolean =
-                    MissionMapSquaddieLocationHandler.isValid(datum) &&
+                    MissionMapSquaddieLocationService.isValid(datum) &&
                     gameEngineState.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(
                         datum.mapLocation
                     )
@@ -396,7 +396,7 @@ const getSquaddieAtMapLocation = (param: {
     const squaddieAndLocationIdentifier = map.getSquaddieAtLocation(mapLocation)
 
     if (
-        !MissionMapSquaddieLocationHandler.isValid(
+        !MissionMapSquaddieLocationService.isValid(
             squaddieAndLocationIdentifier
         )
     ) {

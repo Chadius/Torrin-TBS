@@ -6,7 +6,7 @@ import { MissionMap, MissionMapService } from "./missionMap"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import {
     MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationHandler,
+    MissionMapSquaddieLocationService,
 } from "./squaddieLocation"
 
 describe("Mission Map", () => {
@@ -187,7 +187,7 @@ describe("Mission Map", () => {
 
         const noDatumFound = missionMap.getSquaddieAtLocation({ q: 0, r: 0 })
         expect(
-            MissionMapSquaddieLocationHandler.isValid(noDatumFound)
+            MissionMapSquaddieLocationService.isValid(noDatumFound)
         ).toBeFalsy()
     })
 
@@ -277,7 +277,7 @@ describe("Mission Map", () => {
             mapLocation: { q: 0, r: 0 },
         })
         expect(
-            MissionMapSquaddieLocationHandler.isValid(
+            MissionMapSquaddieLocationService.isValid(
                 missionMap.getSquaddieAtLocation({ q: 0, r: 1 })
             )
         ).toBeFalsy()
@@ -310,7 +310,7 @@ describe("Mission Map", () => {
             mapLocation: { q: 0, r: 0 },
         })
         expect(
-            MissionMapSquaddieLocationHandler.isValid(
+            MissionMapSquaddieLocationService.isValid(
                 missionMap.getSquaddieAtLocation({ q: 0, r: 1 })
             )
         ).toBeFalsy()
@@ -336,7 +336,7 @@ describe("Mission Map", () => {
             },
         ])
         expect(
-            MissionMapSquaddieLocationHandler.isValid(
+            MissionMapSquaddieLocationService.isValid(
                 missionMap.getSquaddieAtLocation({ q: 0, r: 1 })
             )
         ).toBeFalsy()

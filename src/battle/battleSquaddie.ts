@@ -2,7 +2,7 @@ import { SquaddieTurn, SquaddieTurnService } from "../squaddie/turn"
 import { ArmyAttributes } from "../squaddie/armyAttributes"
 import {
     InBattleAttributes,
-    InBattleAttributesHandler,
+    InBattleAttributesService,
 } from "./stats/inBattleAttributes"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 
@@ -46,7 +46,7 @@ export const BattleSquaddieService = {
         data: BattleSquaddie,
         attributes: ArmyAttributes
     ): void => {
-        data.inBattleAttributes = InBattleAttributesHandler.new(attributes)
+        data.inBattleAttributes = InBattleAttributesService.new(attributes)
     },
 }
 
@@ -61,7 +61,7 @@ const newBattleSquaddie = ({
         battleSquaddieId,
         squaddieTurn: squaddieTurn || SquaddieTurnService.new(),
         squaddieTemplateId,
-        inBattleAttributes: InBattleAttributesHandler.new(),
+        inBattleAttributes: InBattleAttributesService.new(),
     }
 
     if (squaddieTemplate) {
@@ -86,5 +86,5 @@ const newFromSquaddieTemplate = (
     template: SquaddieTemplate
 ): void => {
     data.squaddieTemplateId = template.squaddieId.templateId
-    data.inBattleAttributes = InBattleAttributesHandler.new(template.attributes)
+    data.inBattleAttributes = InBattleAttributesService.new(template.attributes)
 }

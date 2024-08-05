@@ -94,6 +94,7 @@ import {
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleEvent } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1598,6 +1599,7 @@ describe("Battle HUD", () => {
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                     target: { q: 1, r: 2 },
                 })
+
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
                 startingLocation: { q: 1, r: 1 },
@@ -1624,14 +1626,39 @@ describe("Battle HUD", () => {
                                         occurred: false,
                                         rolls: [],
                                     },
-                                    resultPerTarget: {
-                                        "Thief 0": {
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
                                             actorDegreeOfSuccess:
                                                 DegreeOfSuccess.SUCCESS,
                                             damageTaken: 2,
                                             healingReceived: 0,
-                                        },
-                                    },
+                                            attributesAfter: {
+                                                armyAttributes: {
+                                                    armorClass: 0,
+                                                    maxHitPoints: 5,
+                                                    movement: {
+                                                        crossOverPits: false,
+                                                        movementPerAction: 2,
+                                                        passThroughWalls: false,
+                                                    },
+                                                },
+                                                currentHitPoints: 3,
+                                            },
+                                            attributesBefore: {
+                                                armyAttributes: {
+                                                    armorClass: 0,
+                                                    maxHitPoints: 5,
+                                                    movement: {
+                                                        crossOverPits: false,
+                                                        movementPerAction: 2,
+                                                        passThroughWalls: false,
+                                                    },
+                                                },
+                                                currentHitPoints: 5,
+                                            },
+                                            battleSquaddieId: "Thief 0",
+                                        }),
+                                    ],
                                     targetedBattleSquaddieIds: [
                                         thiefBattleSquaddie.battleSquaddieId,
                                     ],
@@ -1788,9 +1815,11 @@ describe("Battle HUD", () => {
                     thiefBattleSquaddie.battleSquaddieId
                 )
                 expect(
-                    results.resultPerTarget[
-                        thiefBattleSquaddie.battleSquaddieId
-                    ]
+                    results.squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            thiefBattleSquaddie.battleSquaddieId
+                    )
                 ).toBeTruthy()
             })
 
@@ -1803,9 +1832,11 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .recording.history[0]
                 const knightUsesLongswordOnThiefResults =
-                    mostRecentEvent.results.resultPerTarget[
-                        thiefBattleSquaddie.battleSquaddieId
-                    ]
+                    mostRecentEvent.results.squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            thiefBattleSquaddie.battleSquaddieId
+                    )
                 const longswordActionDamage = (
                     longswordAction
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate

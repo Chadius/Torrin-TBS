@@ -10,7 +10,7 @@ import { HexDrawingUtils } from "../../hexMap/hexDrawingUtils"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { MissionMapSquaddieLocationHandler } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/validityCheck"
@@ -252,7 +252,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         )
 
                     const squaddieIsOnTheMap: boolean =
-                        MissionMapSquaddieLocationHandler.isValid(datum) &&
+                        MissionMapSquaddieLocationService.isValid(datum) &&
                         state.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(
                             datum.mapLocation
                         )

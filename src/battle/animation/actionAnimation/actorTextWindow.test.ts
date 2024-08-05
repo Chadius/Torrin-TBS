@@ -81,7 +81,7 @@ describe("ActorTextWindow", () => {
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actingSquaddieRoll: {
@@ -112,7 +112,7 @@ describe("ActorTextWindow", () => {
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actingSquaddieRoll: {
@@ -141,7 +141,7 @@ describe("ActorTextWindow", () => {
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actingSquaddieRoll: {
@@ -172,7 +172,7 @@ describe("ActorTextWindow", () => {
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
             results: {
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actingSquaddieRoll: {
@@ -204,7 +204,7 @@ describe("ActorTextWindow", () => {
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
                 results: {
-                    resultPerTarget: {},
+                    squaddieChanges: [],
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
                     actingSquaddieRoll: {
@@ -237,7 +237,7 @@ describe("ActorTextWindow", () => {
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
                 results: {
-                    resultPerTarget: {},
+                    squaddieChanges: [],
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
                     actingSquaddieRoll: {

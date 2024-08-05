@@ -3,7 +3,7 @@ import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import {
     MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationHandler,
+    MissionMapSquaddieLocationService,
 } from "./squaddieLocation"
 import {
     SquaddieDeployment,
@@ -112,7 +112,7 @@ export class MissionMap {
         const squaddieAlreadyOccupyingLocation: MissionMapSquaddieLocation =
             this.getSquaddieAtLocation(location)
         if (
-            MissionMapSquaddieLocationHandler.isValid(
+            MissionMapSquaddieLocationService.isValid(
                 squaddieAlreadyOccupyingLocation
             )
         ) {
@@ -138,7 +138,7 @@ export class MissionMap {
                 datum.mapLocation.r === location.r
         )
         return foundDatum
-            ? MissionMapSquaddieLocationHandler.clone(foundDatum)
+            ? MissionMapSquaddieLocationService.clone(foundDatum)
             : {
                   battleSquaddieId: undefined,
                   squaddieTemplateId: undefined,
@@ -153,7 +153,7 @@ export class MissionMap {
             (datum) => datum.battleSquaddieId === battleSquaddieId
         )
         return foundDatum
-            ? MissionMapSquaddieLocationHandler.clone(foundDatum)
+            ? MissionMapSquaddieLocationService.clone(foundDatum)
             : {
                   battleSquaddieId: undefined,
                   squaddieTemplateId: undefined,
@@ -171,7 +171,7 @@ export class MissionMap {
     getSquaddiesThatHaveNoLocation(): MissionMapSquaddieLocation[] {
         return this._squaddieInfo
             .filter((datum) => datum.mapLocation === undefined)
-            .map((datum) => MissionMapSquaddieLocationHandler.clone(datum))
+            .map((datum) => MissionMapSquaddieLocationService.clone(datum))
     }
 
     updateSquaddieLocation(
@@ -196,7 +196,7 @@ export class MissionMap {
         if (location) {
             const squaddieAtTheLocation = this.getSquaddieAtLocation(location)
             if (
-                MissionMapSquaddieLocationHandler.isValid(
+                MissionMapSquaddieLocationService.isValid(
                     squaddieAtTheLocation
                 ) &&
                 squaddieAtTheLocation.battleSquaddieId !== battleSquaddieId
@@ -212,8 +212,8 @@ export class MissionMap {
 
     getAllSquaddieData(): MissionMapSquaddieLocation[] {
         return this._squaddieInfo
-            .map((datum) => MissionMapSquaddieLocationHandler.clone(datum))
-            .map((datum) => MissionMapSquaddieLocationHandler.clone(datum))
+            .map((datum) => MissionMapSquaddieLocationService.clone(datum))
+            .map((datum) => MissionMapSquaddieLocationService.clone(datum))
     }
 
     getSquaddiesByTemplateId(
@@ -221,7 +221,7 @@ export class MissionMap {
     ): MissionMapSquaddieLocation[] {
         return this._squaddieInfo
             .filter((datum) => datum.squaddieTemplateId === squaddieTemplateId)
-            .map((datum) => MissionMapSquaddieLocationHandler.clone(datum))
+            .map((datum) => MissionMapSquaddieLocationService.clone(datum))
     }
 
     isSquaddieHiddenFromDrawing(battleSquaddieId: string): boolean {

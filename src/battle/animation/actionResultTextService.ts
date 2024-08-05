@@ -15,13 +15,13 @@ import {
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
 import { RollResultService } from "../actionCalculator/rollResult"
-import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
@@ -211,7 +211,7 @@ export const ActionResultTextService = {
     getAfterActionText: ({
         result,
     }: {
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
     }): string => {
         let targetAfterActionText = ""
 
@@ -314,7 +314,9 @@ const outputResultForTextOnly = ({
                     targetSquaddieId
                 )
             )
-        const resultPerTarget = result.resultPerTarget[targetSquaddieId]
+        const squaddieChange = result.squaddieChanges.find(
+            (change) => change.battleSquaddieId === targetSquaddieId
+        )
 
         if (
             ActionEffectSquaddieTemplateService.isHindering(
@@ -323,11 +325,11 @@ const outputResultForTextOnly = ({
         ) {
             if (
                 DegreeOfSuccessService.atBestFailure(
-                    resultPerTarget.actorDegreeOfSuccess
+                    squaddieChange.actorDegreeOfSuccess
                 )
             ) {
                 if (
-                    resultPerTarget.actorDegreeOfSuccess ===
+                    squaddieChange.actorDegreeOfSuccess ===
                     DegreeOfSuccess.FAILURE
                 ) {
                     output.push(
@@ -342,7 +344,7 @@ const outputResultForTextOnly = ({
                         )
                     )
                 }
-            } else if (resultPerTarget.damageTaken === 0) {
+            } else if (squaddieChange.damageTaken === 0) {
                 output.push(
                     ActionResultTextService.getHinderingActionDealtNoDamageString(
                         { squaddieTemplate: targetSquaddieTemplate }
@@ -350,14 +352,14 @@ const outputResultForTextOnly = ({
                 )
             } else {
                 if (
-                    resultPerTarget.actorDegreeOfSuccess ===
+                    squaddieChange.actorDegreeOfSuccess ===
                     DegreeOfSuccess.CRITICAL_SUCCESS
                 ) {
                     output.push(
                         ActionResultTextService.getHinderingActionDealtCriticalDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: resultPerTarget.damageTaken,
+                                damageTaken: squaddieChange.damageTaken,
                             }
                         )
                     )
@@ -366,7 +368,7 @@ const outputResultForTextOnly = ({
                         ActionResultTextService.getHinderingActionDealtDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: resultPerTarget.damageTaken,
+                                damageTaken: squaddieChange.damageTaken,
                             }
                         )
                     )
@@ -381,7 +383,7 @@ const outputResultForTextOnly = ({
             output.push(
                 ActionResultTextService.getHelpfulActionHealingReceivedString({
                     squaddieTemplate: targetSquaddieTemplate,
-                    healingReceived: resultPerTarget.healingReceived,
+                    healingReceived: squaddieChange.healingReceived,
                 })
             )
         }

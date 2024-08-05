@@ -7,11 +7,9 @@ import {
 import { BattleSquaddie } from "../battle/battleSquaddie"
 import {
     DamageType,
-    DealDamageToTheSquaddie,
     GetArmorClass,
-    GetHitPoints,
     GetNumberOfActionPoints,
-    GiveHealingToTheSquaddie,
+    GiveHealingToTheSquaddieOLD,
     HealingType,
     IsSquaddieAlive,
     SquaddieService,
@@ -90,16 +88,17 @@ describe("Squaddie Service", () => {
 
     describe("Current Hit Points", () => {
         it("Returns the maximum HP", () => {
-            let { maxHitPoints, currentHitPoints } = GetHitPoints({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-            })
+            let { maxHitPoints, currentHitPoints } =
+                SquaddieService.getHitPoints({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                })
 
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints)
         })
         it("can deal damage to the squaddie", () => {
-            let { damageTaken } = DealDamageToTheSquaddie({
+            let { damageTaken } = SquaddieService.dealDamageToTheSquaddie({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
                 damage: 1,
@@ -107,45 +106,64 @@ describe("Squaddie Service", () => {
             })
             expect(damageTaken).toBe(1)
 
-            let { maxHitPoints, currentHitPoints } = GetHitPoints({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-            })
+            let { maxHitPoints, currentHitPoints } =
+                SquaddieService.getHitPoints({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                })
 
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints - damageTaken)
         })
+        it("can calculate the dealt damage without changing the value", () => {
+            let { damageTaken } =
+                SquaddieService.calculateDealtDamageToTheSquaddie({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                    damage: 1,
+                    damageType: DamageType.BODY,
+                })
+            expect(damageTaken).toBe(1)
+
+            let { maxHitPoints, currentHitPoints } =
+                SquaddieService.getHitPoints({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                })
+
+            expect(maxHitPoints).toBe(maxHitPoints)
+            expect(currentHitPoints).toBe(maxHitPoints)
+        })
         it("can give healing to the squaddie", () => {
-            DealDamageToTheSquaddie({
+            SquaddieService.dealDamageToTheSquaddie({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
                 damage: 2,
                 damageType: DamageType.BODY,
             })
 
-            let { healingReceived } = GiveHealingToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
+            let { healingReceived } = SquaddieService.giveHealingToTheSquaddie({
                 battleSquaddie: playerBattleSquaddie,
                 healingAmount: 1,
                 healingType: HealingType.LOST_HIT_POINTS,
             })
             expect(healingReceived).toBe(1)
 
-            let { maxHitPoints, currentHitPoints } = GetHitPoints({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-            })
+            let { maxHitPoints, currentHitPoints } =
+                SquaddieService.getHitPoints({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                })
 
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints - 2 + 1)
-            ;({ healingReceived } = GiveHealingToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
+            ;({ healingReceived } = SquaddieService.giveHealingToTheSquaddie({
                 battleSquaddie: playerBattleSquaddie,
                 healingAmount: 9001,
                 healingType: HealingType.LOST_HIT_POINTS,
             }))
             expect(healingReceived).toBe(1)
-            ;({ currentHitPoints } = GetHitPoints({
+            ;({ currentHitPoints } = SquaddieService.getHitPoints({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             }))
@@ -164,7 +182,7 @@ describe("Squaddie Service", () => {
             expect(squaddieIsAlive).toBeTruthy()
         })
         it("knows the squaddie is dead due to zero Hit Points", () => {
-            DealDamageToTheSquaddie({
+            SquaddieService.dealDamageToTheSquaddie({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
                 damage:
@@ -209,7 +227,7 @@ describe("Squaddie Service", () => {
             expect(hasActionPointsRemaining).toBeFalsy()
         })
         it("knows a squaddie without hit points cannot act", () => {
-            DealDamageToTheSquaddie({
+            SquaddieService.dealDamageToTheSquaddie({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
                 damage:
@@ -282,7 +300,7 @@ describe("Squaddie Service", () => {
             expect(squaddieIsNormallyControllableByPlayer).toBeFalsy()
         })
         it("knows a squaddie without hit points cannot be controlled", () => {
-            DealDamageToTheSquaddie({
+            SquaddieService.dealDamageToTheSquaddie({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
                 damage:

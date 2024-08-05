@@ -15,7 +15,6 @@ import { HitPointMeter } from "./actionAnimation/hitPointMeter"
 import { GetHitPoints } from "../../squaddie/squaddieService"
 import { WINDOW_SPACING } from "../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../graphicsConstants"
-import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { RecordingService } from "../history/recording"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -27,6 +26,7 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -228,7 +228,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
         const resultPerTarget = RecordingService.mostRecentEvent(
             state.battleOrchestratorState.battleState.recording
-        ).results.resultPerTarget
+        ).results.squaddieChanges
         this.setupAnimationForTargetTextWindows(state, resultPerTarget)
         this.setupAnimationForTargetSprites(
             state,
@@ -241,9 +241,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     private setupAnimationForTargetSprites(
         state: GameEngineState,
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-        resultPerTarget: {
-            [p: string]: ActionResultPerSquaddie
-        }
+        resultPerTarget: BattleActionSquaddieChange[]
     ) {
         this._targetSprites = RecordingService.mostRecentEvent(
             state.battleOrchestratorState.battleState.recording
@@ -254,7 +252,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     targetBattleSquaddieId: battleId,
                     squaddieRepository: state.repository,
                     actionEffectSquaddieTemplate,
-                    result: resultPerTarget[battleId],
+                    result: resultPerTarget.find(
+                        (change) => change.battleSquaddieId === battleId
+                    ),
                     resourceHandler: state.resourceHandler,
                     startingPosition: RectAreaService.right(
                         this.targetTextWindows[index].targetLabel.rectangle.area
@@ -267,9 +267,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     private setupAnimationForTargetTextWindows(
         state: GameEngineState,
-        resultPerTarget: {
-            [p: string]: ActionResultPerSquaddie
-        }
+        resultPerTarget: BattleActionSquaddieChange[]
     ) {
         this._targetTextWindows = RecordingService.mostRecentEvent(
             state.battleOrchestratorState.battleState.recording
@@ -315,7 +313,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 targetTextWindow.start({
                     targetTemplate: targetTemplate,
                     targetBattle: targetBattle,
-                    result: resultPerTarget[battleId],
+                    result: resultPerTarget.find(
+                        (change) => change.battleSquaddieId === battleId
+                    ),
                     actionEffectSquaddieTemplate,
                 })
                 return targetTextWindow
@@ -349,10 +349,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     squaddieTemplate: targetTemplate,
                 })
 
-                displayedHitPointsBeforeChange -=
-                    mostRecentResults.resultPerTarget[battleId].healingReceived
-                displayedHitPointsBeforeChange +=
-                    mostRecentResults.resultPerTarget[battleId].damageTaken
+                const change = mostRecentResults.squaddieChanges.find(
+                    (change) => change.battleSquaddieId === battleId
+                )
+                displayedHitPointsBeforeChange -= change.healingReceived
+                displayedHitPointsBeforeChange += change.damageTaken
 
                 this._targetHitPointMeters[battleId] = new HitPointMeter({
                     currentHitPoints: displayedHitPointsBeforeChange,
@@ -423,7 +424,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 this.actionAnimationTimer,
                 graphicsContext,
                 actionEffectSquaddieTemplate,
-                mostRecentResults.resultPerTarget[t.battleSquaddieId]
+                mostRecentResults.squaddieChanges.find(
+                    (change) => change.battleSquaddieId === t.battleSquaddieId
+                )
             )
         })
         Object.values(this.targetHitPointMeters).forEach((t) =>
@@ -439,9 +442,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             state.battleState.recording
         ).results.targetedBattleSquaddieIds.forEach((battleId: string) => {
             const hitPointMeter = this.targetHitPointMeters[battleId]
+            const change = mostRecentResults.squaddieChanges.find(
+                (change) => change.battleSquaddieId === battleId
+            )
             const hitPointChange: number =
-                mostRecentResults.resultPerTarget[battleId].healingReceived -
-                mostRecentResults.resultPerTarget[battleId].damageTaken
+                change.healingReceived - change.damageTaken
             hitPointMeter.changeHitPoints(hitPointChange)
         })
     }

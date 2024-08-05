@@ -8,19 +8,19 @@ import { WINDOW_SPACING } from "../../../ui/constants"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { Label, LabelService } from "../../../ui/label"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
-import { ActionResultPerSquaddie } from "../../history/actionResultPerSquaddie"
 import { ActionTimer } from "./actionTimer"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { ActionResultTextService } from "../actionResultTextService"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { BattleActionSquaddieChange } from "../../history/battleActionSquaddieChange"
 
 export class TargetTextWindow {
     constructor() {}
 
-    private _result: ActionResultPerSquaddie
+    private _result: BattleActionSquaddieChange
 
-    get result(): ActionResultPerSquaddie {
+    get result(): BattleActionSquaddieChange {
         return this._result
     }
 
@@ -62,7 +62,7 @@ export class TargetTextWindow {
     }: {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     }) {
         this.reset()
@@ -103,7 +103,7 @@ export class TargetTextWindow {
     }: {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     }) {
         this._targetBeforeActionText =

@@ -1,7 +1,6 @@
-import { InBattleAttributes } from "../stats/inBattleAttributes"
-import { ActionResultPerSquaddie } from "./actionResultPerSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
+import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
 
 export interface BattleActionActor {
     battleSquaddieId: string
@@ -11,12 +10,6 @@ export interface BattleActionId {
     id?: string
     isMovement?: boolean
     isEndTurn?: boolean
-}
-
-export interface BattleActionSquaddieChange {
-    battleSquaddieId: string
-    attributesAfter: InBattleAttributes
-    result: ActionResultPerSquaddie
 }
 
 export interface BattleActionEffect {

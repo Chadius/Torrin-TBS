@@ -29,7 +29,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -60,6 +60,7 @@ import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let squaddieRepository: ObjectRepository
@@ -216,7 +217,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const newEvent: BattleEvent = BattleEventService.new({
             processedAction,
             results: {
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],
@@ -277,13 +278,14 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     occurred: false,
                     rolls: [],
                 },
-                resultPerTarget: {
-                    ["target_dynamic_squaddie"]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         damageTaken: 9001,
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                        battleSquaddieId: "target_dynamic_squaddie",
+                    }),
+                ],
             })
         const processedAction = ProcessedActionService.new({
             decidedAction: undefined,
@@ -378,13 +380,14 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     occurred: false,
                     rolls: [],
                 },
-                resultPerTarget: {
-                    [targetDynamicSquaddieBattleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: targetDynamicSquaddieBattleSquaddieId,
                         damageTaken: 1,
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
             })
         const processedAction = ProcessedActionService.new({
             decidedAction: undefined,
@@ -473,7 +476,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         ).toBeFalsy()
 
-        InBattleAttributesHandler.takeDamage(
+        InBattleAttributesService.takeDamage(
             targetDynamic.inBattleAttributes,
             targetStatic.attributes.maxHitPoints,
             DamageType.BODY

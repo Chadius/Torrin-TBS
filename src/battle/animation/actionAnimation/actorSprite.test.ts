@@ -114,7 +114,7 @@ describe("Actor Sprite", () => {
                     occurred: false,
                     rolls: [],
                 },
-                resultPerTarget: {},
+                squaddieChanges: [],
                 targetedBattleSquaddieIds: [],
                 actingBattleSquaddieId: battleSquaddieId,
                 actingSquaddieModifiers: {},

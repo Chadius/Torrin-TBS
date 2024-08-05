@@ -269,7 +269,7 @@ describe("orchestratorState", () => {
                         actingBattleSquaddieId: "",
                         actingSquaddieModifiers: undefined,
                         actingSquaddieRoll: undefined,
-                        resultPerTarget: {},
+                        squaddieChanges: [],
                     }),
                 })
             squaddieProcessedAction = ProcessedActionService.new({

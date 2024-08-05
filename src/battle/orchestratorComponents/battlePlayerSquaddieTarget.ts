@@ -30,7 +30,6 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
 import {

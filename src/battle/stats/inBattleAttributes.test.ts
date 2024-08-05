@@ -1,7 +1,7 @@
 import { ArmyAttributes } from "../../squaddie/armyAttributes"
 import {
     InBattleAttributes,
-    InBattleAttributesHandler,
+    InBattleAttributesService,
 } from "./inBattleAttributes"
 import { DamageType } from "../../squaddie/squaddieService"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
@@ -17,7 +17,7 @@ describe("inBattleAttributes", () => {
         }
 
         const inBattleAttributes: InBattleAttributes =
-            InBattleAttributesHandler.new(soldierAttributes)
+            InBattleAttributesService.new(soldierAttributes)
 
         expect(inBattleAttributes.currentHitPoints).toBe(
             soldierAttributes.maxHitPoints
@@ -33,8 +33,8 @@ describe("inBattleAttributes", () => {
         }
 
         const inBattleAttributes: InBattleAttributes =
-            InBattleAttributesHandler.new(soldierAttributes)
-        const actualDamageTaken = InBattleAttributesHandler.takeDamage(
+            InBattleAttributesService.new(soldierAttributes)
+        const actualDamageTaken = InBattleAttributesService.takeDamage(
             inBattleAttributes,
             2,
             DamageType.BODY
@@ -55,8 +55,8 @@ describe("inBattleAttributes", () => {
         }
 
         const inBattleAttributes: InBattleAttributes =
-            InBattleAttributesHandler.new(soldierAttributes)
-        const actualDamageTaken = InBattleAttributesHandler.takeDamage(
+            InBattleAttributesService.new(soldierAttributes)
+        const actualDamageTaken = InBattleAttributesService.takeDamage(
             inBattleAttributes,
             9001,
             DamageType.BODY
@@ -75,13 +75,13 @@ describe("inBattleAttributes", () => {
         }
 
         const inBattleAttributes: InBattleAttributes =
-            InBattleAttributesHandler.new(soldierAttributes)
-        InBattleAttributesHandler.takeDamage(
+            InBattleAttributesService.new(soldierAttributes)
+        InBattleAttributesService.takeDamage(
             inBattleAttributes,
             2,
             DamageType.BODY
         )
-        const actualAmountHealed = InBattleAttributesHandler.receiveHealing(
+        const actualAmountHealed = InBattleAttributesService.receiveHealing(
             inBattleAttributes,
             9001
         )
@@ -90,5 +90,23 @@ describe("inBattleAttributes", () => {
         expect(inBattleAttributes.currentHitPoints).toBe(
             soldierAttributes.maxHitPoints
         )
+    })
+    it("can clone", () => {
+        const soldierAttributes: ArmyAttributes = {
+            maxHitPoints: 3,
+            armorClass: 3,
+            movement: CreateNewSquaddieMovementWithTraits({
+                movementPerAction: 2,
+            }),
+        }
+
+        const original: InBattleAttributes =
+            InBattleAttributesService.new(soldierAttributes)
+
+        const clone: InBattleAttributes =
+            InBattleAttributesService.clone(original)
+
+        expect(clone).toEqual(original)
+        expect(clone.currentHitPoints).toBe(soldierAttributes.maxHitPoints)
     })
 })

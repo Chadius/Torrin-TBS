@@ -13,7 +13,7 @@ import {
 } from "./missionCondition"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
     GameEngineState,
@@ -205,7 +205,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 r: 1,
             }
         )
-        InBattleAttributesHandler.takeDamage(
+        InBattleAttributesService.takeDamage(
             enemy1Dynamic.inBattleAttributes,
             9001,
             DamageType.UNKNOWN
@@ -287,7 +287,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 r: 1,
             }
         )
-        InBattleAttributesHandler.takeDamage(
+        InBattleAttributesService.takeDamage(
             enemy1Dynamic.inBattleAttributes,
             9001,
             DamageType.UNKNOWN

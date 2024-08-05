@@ -24,6 +24,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -133,24 +134,26 @@ describe("Action Result Text Writer", () => {
 
     it("Explains how much damage occurred", () => {
         const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+            SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [
                     thiefDynamic.battleSquaddieId,
                     rogueDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    [rogueDynamic.battleSquaddieId]: {
+                    }),
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: rogueDynamic.battleSquaddieId,
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [2, 6],
@@ -177,24 +180,26 @@ describe("Action Result Text Writer", () => {
 
     it("Explains how much healing was received", () => {
         const healingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+            SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [
                     knightDynamic.battleSquaddieId,
                     citizenDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [knightDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: knightDynamic.battleSquaddieId,
                         damageTaken: 0,
                         healingReceived: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    [citizenDynamic.battleSquaddieId]: {
+                    }),
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: citizenDynamic.battleSquaddieId,
                         damageTaken: 0,
                         healingReceived: 2,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],
@@ -268,24 +273,26 @@ describe("Action Result Text Writer", () => {
 
     it("Will mention the actor roll, if the actor rolled", () => {
         const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+            SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [
                     thiefDynamic.battleSquaddieId,
                     rogueDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    [rogueDynamic.battleSquaddieId]: {
+                    }),
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: rogueDynamic.battleSquaddieId,
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [2, 6],
@@ -318,18 +325,20 @@ describe("Action Result Text Writer", () => {
                     thiefDynamic.battleSquaddieId,
                     rogueDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
-                    },
-                    [rogueDynamic.battleSquaddieId]: {
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
+                    }),
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                        battleSquaddieId: rogueDynamic.battleSquaddieId,
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [1, 2],
@@ -359,13 +368,14 @@ describe("Action Result Text Writer", () => {
             SquaddieSquaddieResultsService.sanitize({
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 4,
                         actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
-                    },
-                },
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [6, 6],
@@ -394,13 +404,14 @@ describe("Action Result Text Writer", () => {
             SquaddieSquaddieResultsService.sanitize({
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
-                    },
-                },
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [1, 1],
@@ -432,18 +443,20 @@ describe("Action Result Text Writer", () => {
                     thiefDynamic.battleSquaddieId,
                     rogueDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    [rogueDynamic.battleSquaddieId]: {
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
+                    }),
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                        battleSquaddieId: rogueDynamic.battleSquaddieId,
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [2, 6],
@@ -479,18 +492,20 @@ describe("Action Result Text Writer", () => {
                     thiefDynamic.battleSquaddieId,
                     rogueDynamic.battleSquaddieId,
                 ],
-                resultPerTarget: {
-                    [thiefDynamic.battleSquaddieId]: {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    [rogueDynamic.battleSquaddieId]: {
+                        battleSquaddieId: thiefDynamic.battleSquaddieId,
+                    }),
+                    BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
                         damageTaken: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                        battleSquaddieId: rogueDynamic.battleSquaddieId,
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],

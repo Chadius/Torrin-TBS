@@ -24,7 +24,7 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates,
 } from "../../hexMap/convertCoordinates"
-import { MissionMapSquaddieLocationHandler } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -333,7 +333,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 squaddieToPanToBattleId
             )
-        if (MissionMapSquaddieLocationHandler.isValid(mapDatum)) {
+        if (MissionMapSquaddieLocationService.isValid(mapDatum)) {
             const squaddieScreenLocation =
                 convertMapCoordinatesToScreenCoordinates(
                     mapDatum.mapLocation.q,

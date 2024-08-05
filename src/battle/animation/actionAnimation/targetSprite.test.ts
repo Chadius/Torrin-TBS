@@ -1,8 +1,4 @@
 import {
-    ActionResultPerSquaddie,
-    ActionResultPerSquaddieService,
-} from "../../history/actionResultPerSquaddie"
-import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
@@ -29,13 +25,17 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+} from "../../history/battleActionSquaddieChange"
 
 describe("Target Sprite", () => {
-    let resultTookDamage: ActionResultPerSquaddie
-    let resultTookLethalDamage: ActionResultPerSquaddie
-    let resultMissed: ActionResultPerSquaddie
-    let resultDealsNoDamage: ActionResultPerSquaddie
-    let resultHealsSquaddie: ActionResultPerSquaddie
+    let resultTookDamage: BattleActionSquaddieChange
+    let resultTookLethalDamage: BattleActionSquaddieChange
+    let resultMissed: BattleActionSquaddieChange
+    let resultDealsNoDamage: BattleActionSquaddieChange
+    let resultHealsSquaddie: BattleActionSquaddieChange
 
     let hinderingAction: ActionTemplate
     let helpfulAction: ActionTemplate
@@ -71,27 +71,32 @@ describe("Target Sprite", () => {
             )
         )
 
-        resultTookDamage = ActionResultPerSquaddieService.new({
+        resultTookDamage = BattleActionSquaddieChangeService.new({
+            battleSquaddieId,
             damageTaken: 1,
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
-        resultTookLethalDamage = ActionResultPerSquaddieService.new({
+        resultTookLethalDamage = BattleActionSquaddieChangeService.new({
+            battleSquaddieId,
             damageTaken: squaddieTemplate.attributes.maxHitPoints,
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
-        resultMissed = ActionResultPerSquaddieService.new({
+        resultMissed = BattleActionSquaddieChangeService.new({
+            battleSquaddieId,
             damageTaken: 0,
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
         })
-        resultDealsNoDamage = ActionResultPerSquaddieService.new({
+        resultDealsNoDamage = BattleActionSquaddieChangeService.new({
+            battleSquaddieId,
             damageTaken: 0,
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
-        resultHealsSquaddie = ActionResultPerSquaddieService.new({
+        resultHealsSquaddie = BattleActionSquaddieChangeService.new({
+            battleSquaddieId,
             damageTaken: 0,
             healingReceived: 1,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
@@ -328,7 +333,7 @@ describe("Target Sprite", () => {
     describe("should keep the same emotion in TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS", () => {
         let mapping: {
             [name: string]: {
-                result: ActionResultPerSquaddie
+                result: BattleActionSquaddieChange
                 action: ActionEffectSquaddieTemplate
             }
         }

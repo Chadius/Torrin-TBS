@@ -739,9 +739,11 @@ describe("BattleComputerSquaddieSelector", () => {
                     enemyDemonBattleSquaddie2.battleSquaddieId
                 )
                 expect(
-                    results.resultPerTarget[
-                        enemyDemonBattleSquaddie2.battleSquaddieId
-                    ]
+                    results.squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            enemyDemonBattleSquaddie2.battleSquaddieId
+                    )
                 ).toBeTruthy()
             })
 
@@ -750,9 +752,11 @@ describe("BattleComputerSquaddieSelector", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .recording.history[0]
                 const demonOneBitesDemonTwoResults =
-                    mostRecentEvent.results.resultPerTarget[
-                        enemyDemonBattleSquaddie2.battleSquaddieId
-                    ]
+                    mostRecentEvent.results.squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            enemyDemonBattleSquaddie2.battleSquaddieId
+                    )
                 expect(demonOneBitesDemonTwoResults.damageTaken).toBe(
                     demonBiteActionDamage
                 )

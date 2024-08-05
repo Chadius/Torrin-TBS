@@ -25,7 +25,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { DamageType } from "../../squaddie/squaddieService"
 import {
@@ -48,6 +48,7 @@ import { DecidedActionSquaddieEffectService } from "../../action/decided/decided
 import { ActionsThisRound, ActionsThisRoundService } from "./actionsThisRound"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
+import { BattleActionSquaddieChangeService } from "./battleActionSquaddieChange"
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording
@@ -84,18 +85,20 @@ describe("BattleSaveState", () => {
             results: {
                 actingBattleSquaddieId: "actor 1",
                 targetedBattleSquaddieIds: ["target 0, target 1"],
-                resultPerTarget: {
-                    "target 0": {
+                squaddieChanges: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "target 0",
                         damageTaken: 2,
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                    "target 1": {
+                    }),
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "target 0",
                         damageTaken: 1,
                         healingReceived: 3,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    },
-                },
+                    }),
+                ],
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [3, 5],
@@ -193,7 +196,7 @@ describe("BattleSaveState", () => {
             originalSquaddieRepository,
             enemy0BattleSquaddieWithWoundsAndTurnEnded
         )
-        InBattleAttributesHandler.takeDamage(
+        InBattleAttributesService.takeDamage(
             enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
             1,
             DamageType.UNKNOWN
@@ -218,7 +221,7 @@ describe("BattleSaveState", () => {
                 battleSquaddieId: "enemy battle 0",
                 squaddieTemplateId: "enemy template 0",
                 squaddieTurn: SquaddieTurnService.new(),
-                inBattleAttributes: InBattleAttributesHandler.new({
+                inBattleAttributes: InBattleAttributesService.new({
                     ...DefaultArmyAttributes(),
                     maxHitPoints: 5,
                 }),
@@ -370,7 +373,7 @@ describe("BattleSaveState", () => {
             results: {
                 actingBattleSquaddieId: undefined,
                 targetedBattleSquaddieIds: [],
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],

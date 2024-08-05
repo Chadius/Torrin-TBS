@@ -9,7 +9,7 @@ export interface InBattleAttributes {
     currentHitPoints: number
 }
 
-export const InBattleAttributesHandler = {
+export const InBattleAttributesService = {
     new: (statBlock?: ArmyAttributes): InBattleAttributes => {
         statBlock = statBlock || DefaultArmyAttributes()
         return {
@@ -40,5 +40,8 @@ export const InBattleAttributesHandler = {
         }
 
         return data.currentHitPoints - startingHitPoints
+    },
+    clone: (inBattleAttributes: InBattleAttributes): InBattleAttributes => {
+        return { ...inBattleAttributes }
     },
 }

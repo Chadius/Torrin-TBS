@@ -125,7 +125,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             results: {
                 actingBattleSquaddieId: monkBattleSquaddieId,
                 targetedBattleSquaddieIds: [],
-                resultPerTarget: {},
+                squaddieChanges: [],
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],

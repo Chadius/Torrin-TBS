@@ -15,7 +15,7 @@ import {
     MissionStatisticsHandler,
 } from "../missionStatistics/missionStatistics"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleStateService } from "../orchestrator/battleState"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { StreamNumberGenerator } from "../numberGenerator/stream"
@@ -42,6 +42,7 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DecidedActionService } from "../../action/decided/decidedAction"
+import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 
 describe("calculator", () => {
     let squaddieRepository: ObjectRepository
@@ -283,7 +284,17 @@ describe("calculator", () => {
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(2)
+
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.damageTaken).toBe(2)
+            expect(enemy1Changes.attributesBefore.currentHitPoints).toEqual(5)
+            expect(enemy1Changes.attributesAfter.currentHitPoints).toEqual(
+                5 - 2
+            )
         })
 
         it("will not require a roll for attacks that always hit", () => {
@@ -375,7 +386,7 @@ describe("calculator", () => {
         })
 
         it("will heal allies fully", () => {
-            InBattleAttributesHandler.takeDamage(
+            InBattleAttributesService.takeDamage(
                 ally1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes
                     .maxHitPoints - 1,
@@ -429,9 +440,14 @@ describe("calculator", () => {
                 validTargetLocation: { q: 0, r: 2 },
             })
 
-            expect(
-                results.resultPerTarget[ally1DynamicId].healingReceived
-            ).toBe(2)
+            const ally1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    ally1BattleSquaddie.battleSquaddieId
+            )
+            expect(ally1Changes.healingReceived).toBe(2)
+            expect(ally1Changes.attributesBefore.currentHitPoints).toEqual(1)
+            expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
         })
 
         it("will record the healing received by a player to mission statistics", () => {
@@ -440,7 +456,7 @@ describe("calculator", () => {
             MissionStatisticsHandler.reset(missionStatistics)
             MissionStatisticsHandler.startRecording(missionStatistics)
 
-            InBattleAttributesHandler.takeDamage(
+            InBattleAttributesService.takeDamage(
                 player1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes
                     .maxHitPoints - 1,
@@ -530,12 +546,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.SUCCESS)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(
-                actionBodyDamageAmount
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
             )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
         })
 
         it("will miss if the roll is less than the defender armor class", () => {
@@ -556,10 +575,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.FAILURE)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0)
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.FAILURE
+            )
+            expect(enemy1Changes.damageTaken).toBe(0)
         })
 
         it("will always hit if the action always hits", () => {
@@ -580,12 +604,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.SUCCESS)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(
-                actionBodyDamageAmount
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
             )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
         })
 
         it("knows when multiple attack penalties should apply", () => {
@@ -683,9 +710,14 @@ describe("calculator", () => {
                 validTargetLocation: { q: 0, r: 1 },
             })
 
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.FAILURE)
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.FAILURE
+            )
             expect(
                 results.actingSquaddieModifiers[
                     ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY
@@ -725,12 +757,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.CRITICAL_SUCCESS)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(
-                actionBodyDamageAmount * 2
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
             )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            )
+            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount * 2)
         })
 
         it("will critically hit if the roll is 6 and 6", () => {
@@ -751,12 +786,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.CRITICAL_SUCCESS)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(
-                actionBodyDamageAmount * 2
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
             )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            )
+            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount * 2)
         })
 
         it("cannot critically hit if the action is forbidden from critically succeeding", () => {
@@ -785,12 +823,15 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.SUCCESS)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(
-                actionBodyDamageAmount
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
             )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
         })
 
         it("will critically miss if the roll is 6 points or more under the defender armor", () => {
@@ -811,10 +852,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.CRITICAL_FAILURE)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0)
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL_FAILURE
+            )
+            expect(enemy1Changes.damageTaken).toBe(0)
         })
 
         it("will critically miss if the roll is 1 and 1", () => {
@@ -835,10 +881,15 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.CRITICAL_FAILURE)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0)
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL_FAILURE
+            )
+            expect(enemy1Changes.damageTaken).toBe(0)
         })
 
         it("cannot critically fail if the action is forbidden from critically failing", () => {
@@ -867,10 +918,64 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
+            const enemy1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL_FAILURE
+            )
+            expect(enemy1Changes.damageTaken).toBe(0)
+        })
+    })
+
+    describe("BattleActionSquaddieChange", () => {
+        it("can create a new BattleActionSquaddieChange when the squaddie is attacked before the changes are applied", () => {
+            const change: BattleActionSquaddieChange =
+                ActionCalculator.getBattleActionSquaddieChange({
+                    gameEngineState: GameEngineStateService.new({
+                        repository: squaddieRepository,
+                    }),
+                    targetBattleSquaddieId:
+                        enemy1BattleSquaddie.battleSquaddieId,
+                })
+
+            expect(change.battleSquaddieId).toEqual(
+                enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(change.attributesBefore.currentHitPoints).toEqual(5)
+            expect(change.attributesAfter).toBeUndefined()
+        })
+    })
+
+    describe("getTargetedBattleSquaddieIds", () => {
+        it("can get all squaddies in a given location", () => {
+            missionMap.addSquaddie(
+                player1SquaddieTemplateId,
+                player1DynamicId,
+                { q: 0, r: 0 }
+            )
+            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
+                q: 0,
+                r: 1,
+            })
+
             expect(
-                results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess
-            ).toBe(DegreeOfSuccess.CRITICAL_FAILURE)
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0)
+                ActionCalculator.getBattleSquaddieIdsAtGivenLocations({
+                    gameEngineState: GameEngineStateService.new({
+                        battleOrchestratorState:
+                            BattleOrchestratorStateService.new({
+                                battleState: BattleStateService.new({
+                                    missionMap,
+                                    campaignId: "",
+                                    missionId: "",
+                                }),
+                            }),
+                    }),
+                    locations: [{ q: 0, r: 1 }],
+                })
+            ).toEqual([enemy1BattleSquaddie.battleSquaddieId])
         })
     })
 })

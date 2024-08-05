@@ -74,6 +74,7 @@ import {
     PlayerBattleActionBuilderState,
     PlayerBattleActionBuilderStateService,
 } from "../battle/actionBuilder/playerBattleActionBuilderState"
+import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
 
 describe("User Selects Target and Confirms", () => {
     let repository: ObjectRepository
@@ -342,15 +343,46 @@ describe("User Selects Target and Confirms", () => {
                                                 occurred: false,
                                                 rolls: [],
                                             },
-                                            resultPerTarget: {
-                                                [enemyBattleSquaddie.battleSquaddieId]:
+                                            squaddieChanges: [
+                                                BattleActionSquaddieChangeService.new(
                                                     {
                                                         actorDegreeOfSuccess:
                                                             DegreeOfSuccess.SUCCESS,
                                                         damageTaken: 1,
                                                         healingReceived: 0,
-                                                    },
-                                            },
+                                                        attributesAfter: {
+                                                            armyAttributes: {
+                                                                armorClass: 0,
+                                                                maxHitPoints: 5,
+                                                                movement: {
+                                                                    crossOverPits:
+                                                                        false,
+                                                                    movementPerAction: 2,
+                                                                    passThroughWalls:
+                                                                        false,
+                                                                },
+                                                            },
+                                                            currentHitPoints: 4,
+                                                        },
+                                                        attributesBefore: {
+                                                            armyAttributes: {
+                                                                armorClass: 0,
+                                                                maxHitPoints: 5,
+                                                                movement: {
+                                                                    crossOverPits:
+                                                                        false,
+                                                                    movementPerAction: 2,
+                                                                    passThroughWalls:
+                                                                        false,
+                                                                },
+                                                            },
+                                                            currentHitPoints: 5,
+                                                        },
+                                                        battleSquaddieId:
+                                                            enemyBattleSquaddie.battleSquaddieId,
+                                                    }
+                                                ),
+                                            ],
                                             targetedBattleSquaddieIds: [
                                                 "enemy 0",
                                             ],

@@ -11,8 +11,7 @@ import {
 import { DefaultArmyAttributes } from "../../../squaddie/armyAttributes"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 import { SquaddieTurnService } from "../../../squaddie/turn"
-import { InBattleAttributesHandler } from "../../stats/inBattleAttributes"
-import { ActionResultPerSquaddie } from "../../history/actionResultPerSquaddie"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { ActionAnimationPhase } from "./actionAnimationConstants"
 import { ActionTimer } from "./actionTimer"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
@@ -26,6 +25,10 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+} from "../../history/battleActionSquaddieChange"
 
 describe("TargetTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -34,8 +37,8 @@ describe("TargetTextWindow", () => {
     let targetWindow: TargetTextWindow
     let targetSquaddie: SquaddieTemplate
     let targetBattle: BattleSquaddie
-    let targetResultTakenDamage: ActionResultPerSquaddie
-    let targetResultHealingReceived: ActionResultPerSquaddie
+    let targetResultTakenDamage: BattleActionSquaddieChange
+    let targetResultHealingReceived: BattleActionSquaddieChange
 
     let attackAction: ActionTemplate
     let healingAction: ActionTemplate
@@ -92,14 +95,15 @@ describe("TargetTextWindow", () => {
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
             squaddieTurn: SquaddieTurnService.new(),
             battleSquaddieId: "targetBattleId",
-            inBattleAttributes: InBattleAttributesHandler.new(),
+            inBattleAttributes: InBattleAttributesService.new(),
         })
 
-        targetResultTakenDamage = {
+        targetResultTakenDamage = BattleActionSquaddieChangeService.new({
             healingReceived: 0,
             damageTaken: 2,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-        }
+            battleSquaddieId: "targetBattleId",
+        })
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         mockedActionTimer = new ActionTimer()
@@ -223,11 +227,12 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             actionEffectSquaddieTemplate: attackAction
                 .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            result: {
+            result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageTaken: 0,
                 healingReceived: 0,
-            },
+                battleSquaddieId: targetBattle.battleSquaddieId,
+            }),
         })
 
         const timerSpy = jest
@@ -245,11 +250,12 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             actionEffectSquaddieTemplate: attackAction
                 .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-            result: {
+            result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageTaken: 0,
                 healingReceived: 0,
-            },
+                battleSquaddieId: targetBattle.battleSquaddieId,
+            }),
         })
 
         const timerSpy = jest
@@ -262,11 +268,12 @@ describe("TargetTextWindow", () => {
     })
 
     it("shows the healing received", () => {
-        targetResultHealingReceived = {
+        targetResultHealingReceived = BattleActionSquaddieChangeService.new({
             healingReceived: 2,
             damageTaken: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-        }
+            battleSquaddieId: targetBattle.battleSquaddieId,
+        })
 
         targetWindow.start({
             targetTemplate: targetSquaddie,

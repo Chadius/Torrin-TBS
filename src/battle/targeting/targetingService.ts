@@ -15,7 +15,7 @@ import {
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationHandler,
+    MissionMapSquaddieLocationService,
 } from "../../missionMap/squaddieLocation"
 import {
     SearchResult,
@@ -167,7 +167,7 @@ function addValidTargetsToResult(
         .map((tile) => {
             const mapData: MissionMapSquaddieLocation =
                 map.getSquaddieAtLocation(tile)
-            if (!MissionMapSquaddieLocationHandler.isValid(mapData)) {
+            if (!MissionMapSquaddieLocationService.isValid(mapData)) {
                 return undefined
             }
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(

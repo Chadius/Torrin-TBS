@@ -1,15 +1,14 @@
-import { ActionResultPerSquaddie } from "./actionResultPerSquaddie"
 import { RollResult } from "../actionCalculator/rollResult"
 import { ATTACK_MODIFIER } from "../modifierConstants"
+import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
 
 export interface SquaddieSquaddieResults {
     actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
-    actingBattleSquaddieId: string
-    targetedBattleSquaddieIds: string[]
     actingSquaddieRoll: RollResult
-    resultPerTarget: {
-        [battleId: string]: ActionResultPerSquaddie
-    }
+    actingBattleSquaddieId: string
+
+    targetedBattleSquaddieIds: string[]
+    squaddieChanges: BattleActionSquaddieChange[]
 }
 
 export const SquaddieSquaddieResultsService = {
@@ -18,22 +17,20 @@ export const SquaddieSquaddieResultsService = {
         actingBattleSquaddieId,
         targetedBattleSquaddieIds,
         actingSquaddieRoll,
-        resultPerTarget,
+        squaddieChanges,
     }: {
         actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
         actingBattleSquaddieId: string
         targetedBattleSquaddieIds: string[]
         actingSquaddieRoll: RollResult
-        resultPerTarget: {
-            [_: string]: ActionResultPerSquaddie
-        }
+        squaddieChanges: BattleActionSquaddieChange[]
     }): SquaddieSquaddieResults => {
         return sanitize({
             actingSquaddieModifiers,
             actingBattleSquaddieId,
             targetedBattleSquaddieIds,
             actingSquaddieRoll,
-            resultPerTarget,
+            squaddieChanges: squaddieChanges,
         })
     },
     sanitize: (result: SquaddieSquaddieResults): SquaddieSquaddieResults => {

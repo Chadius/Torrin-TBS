@@ -6,7 +6,7 @@ export interface MissionMapSquaddieLocation {
     mapLocation: HexCoordinate
 }
 
-export const MissionMapSquaddieLocationHandler = {
+export const MissionMapSquaddieLocationService = {
     clone: (datum: MissionMapSquaddieLocation): MissionMapSquaddieLocation => {
         return {
             squaddieTemplateId: datum.squaddieTemplateId,

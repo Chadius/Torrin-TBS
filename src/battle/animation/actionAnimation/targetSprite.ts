@@ -9,10 +9,6 @@ import {
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { ActionTimer } from "./actionTimer"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import {
-    ActionResultPerSquaddie,
-    ActionResultPerSquaddieService,
-} from "../../history/actionResultPerSquaddie"
 import { SquaddieSprite } from "./squaddieSprite"
 import {
     ObjectRepository,
@@ -30,6 +26,10 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+} from "../../history/battleActionSquaddieChange"
 
 export class TargetSprite {
     constructor() {}
@@ -58,9 +58,9 @@ export class TargetSprite {
         return this._squaddieRepository
     }
 
-    private _actionResult: ActionResultPerSquaddie
+    private _actionResult: BattleActionSquaddieChange
 
-    get actionResult(): ActionResultPerSquaddie {
+    get actionResult(): BattleActionSquaddieChange {
         return this._actionResult
     }
 
@@ -82,7 +82,7 @@ export class TargetSprite {
         targetBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
         startingPosition: number
         resourceHandler: ResourceHandler
     }) {
@@ -113,7 +113,7 @@ export class TargetSprite {
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
     ) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
@@ -146,7 +146,7 @@ export class TargetSprite {
         timer: ActionTimer
         battleSquaddieId: string
         squaddieRepository: ObjectRepository
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
         actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
@@ -186,14 +186,14 @@ export class TargetSprite {
                 }
 
                 if (
-                    !ActionResultPerSquaddieService.isSquaddieHindered(
+                    !BattleActionSquaddieChangeService.isSquaddieHindered(
                         result
                     ) &&
-                    !ActionResultPerSquaddieService.isSquaddieHelped(result)
+                    !BattleActionSquaddieChangeService.isSquaddieHelped(result)
                 ) {
                     return SquaddieEmotion.NEUTRAL
                 } else if (
-                    ActionResultPerSquaddieService.isSquaddieHindered(result)
+                    BattleActionSquaddieChangeService.isSquaddieHindered(result)
                 ) {
                     return SquaddieEmotion.DAMAGED
                 } else {
@@ -223,7 +223,7 @@ export class TargetSprite {
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
-        result: ActionResultPerSquaddie
+        result: BattleActionSquaddieChange
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,

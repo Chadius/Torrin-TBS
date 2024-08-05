@@ -43,7 +43,7 @@ import { DecidedActionService } from "../../action/decided/decidedAction"
 import { BattlePhaseStateService } from "./battlePhaseController"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { InBattleAttributesHandler } from "../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -438,7 +438,7 @@ describe("Orchestration Utils", () => {
             it("will clear if the squaddie is dead", () => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                     actionsThisRound
-                InBattleAttributesHandler.takeDamage(
+                InBattleAttributesService.takeDamage(
                     battleSquaddie.inBattleAttributes,
                     battleSquaddie.inBattleAttributes.currentHitPoints,
                     DamageType.UNKNOWN
@@ -615,7 +615,7 @@ describe("Orchestration Utils", () => {
             it("will return false if the squaddie is dead", () => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                     actionsThisRound
-                InBattleAttributesHandler.takeDamage(
+                InBattleAttributesService.takeDamage(
                     battleSquaddie.inBattleAttributes,
                     battleSquaddie.inBattleAttributes.currentHitPoints,
                     DamageType.UNKNOWN

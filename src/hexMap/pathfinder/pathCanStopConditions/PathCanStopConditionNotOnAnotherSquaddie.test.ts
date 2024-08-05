@@ -10,10 +10,7 @@ import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../squaddie/id"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../../../battle/battleSquaddie"
-import {
-    DamageType,
-    DealDamageToTheSquaddie,
-} from "../../../squaddie/squaddieService"
+import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 import { PathCanStopConditionNotOnAnotherSquaddie } from "./pathCanStopConditionNotOnAnotherSquaddie"
 
 describe("PathCanStopConditionNotOnASquaddie", () => {
@@ -204,7 +201,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
                 r: 2,
             }
         )
-        DealDamageToTheSquaddie({
+        SquaddieService.dealDamageToTheSquaddie({
             squaddieTemplate: blockingSquaddieTemplate,
             battleSquaddie: blockingSquaddieBattle,
             damage: 9001,

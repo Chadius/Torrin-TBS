@@ -60,7 +60,6 @@ import {
     BattleAction,
     BattleActionQueueService,
     BattleActionService,
-    BattleActionSquaddieChange,
 } from "../history/battleAction"
 import {
     SquaddieSummaryPopoverPosition,
@@ -75,9 +74,9 @@ import {
     DecidedActionSquaddieEffect,
     DecidedActionSquaddieEffectService,
 } from "../../action/decided/decidedActionSquaddieEffect"
-import { ActionResultPerSquaddie } from "../history/actionResultPerSquaddie"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -552,30 +551,8 @@ export const BattleHUDService = {
                     .playerBattleActionBuilderState,
         })
 
-        const getBattleActionSquaddieChange = (
-            targetBattleSquaddieId: string,
-            actionResultPerSquaddie: ActionResultPerSquaddie
-        ): BattleActionSquaddieChange => {
-            const { battleSquaddie } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    targetBattleSquaddieId
-                )
-            )
-            return {
-                battleSquaddieId: targetBattleSquaddieId,
-                attributesAfter: battleSquaddie.inBattleAttributes,
-                result: actionResultPerSquaddie,
-            }
-        }
-
-        const squaddieChanges: BattleActionSquaddieChange[] = Object.entries(
-            results.resultPerTarget
-        ).map(([targetBattleSquaddieId, actionResultPerSquaddie]) =>
-            getBattleActionSquaddieChange(
-                targetBattleSquaddieId,
-                actionResultPerSquaddie
-            )
+        const squaddieChanges: BattleActionSquaddieChange[] = Object.values(
+            results.squaddieChanges
         )
 
         const squaddieBattleAction = BattleActionService.new({
