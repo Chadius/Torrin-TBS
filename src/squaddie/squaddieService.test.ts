@@ -9,7 +9,6 @@ import {
     DamageType,
     GetArmorClass,
     GetNumberOfActionPoints,
-    GiveHealingToTheSquaddieOLD,
     HealingType,
     IsSquaddieAlive,
     SquaddieService,

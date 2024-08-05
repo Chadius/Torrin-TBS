@@ -301,7 +301,9 @@ describe("calculator", () => {
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
-            expect(results.actingSquaddieRoll.occurred).toBeFalsy()
+            expect(
+                results.actingContext.actingSquaddieRoll.occurred
+            ).toBeFalsy()
         })
 
         it("will require a roll for attacks that require rolls", () => {
@@ -314,8 +316,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(results.actingSquaddieRoll.occurred).toBeTruthy()
-            expect(results.actingSquaddieRoll.rolls).toEqual([1, 6])
+            expect(
+                results.actingContext.actingSquaddieRoll.occurred
+            ).toBeTruthy()
+            expect(results.actingContext.actingSquaddieRoll.rolls).toEqual([
+                1, 6,
+            ])
         })
 
         it("will record the damage dealt by the player to mission statistics", () => {
@@ -719,7 +725,7 @@ describe("calculator", () => {
                 DegreeOfSuccess.FAILURE
             )
             expect(
-                results.actingSquaddieModifiers[
+                results.actingContext.actingSquaddieModifiers[
                     ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY
                 ]
             ).toEqual(-3)

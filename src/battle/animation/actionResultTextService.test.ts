@@ -154,11 +154,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [2, 6],
+                actionContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [2, 6],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -200,11 +202,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
+                actionContext: {
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -293,11 +297,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [2, 6],
+                actionContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [2, 6],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -339,11 +345,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [1, 2],
+                actingContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [1, 2],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -376,11 +384,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [6, 6],
+                actingContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [6, 6],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -412,11 +422,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [1, 1],
+                actingContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [1, 1],
+                    },
+                    actingSquaddieModifiers: {},
                 },
-                actingSquaddieModifiers: {},
             })
 
         const outputStrings: string[] =
@@ -457,12 +469,14 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [2, 6],
-                },
-                actingSquaddieModifiers: {
-                    [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                actingContext: {
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [2, 6],
+                    },
+                    actingSquaddieModifiers: {
+                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                    },
                 },
             })
 
@@ -506,12 +520,14 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {
-                    [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                actingContext: {
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {
+                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                    },
                 },
             })
 

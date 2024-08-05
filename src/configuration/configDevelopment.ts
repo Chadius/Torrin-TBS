@@ -1,5 +1,4 @@
 import { Config, ProcessVariables } from "./config"
-import { getValidValueOrDefault } from "../utils/validityCheck"
 
 export function getDevelopmentConfig(
     processVariables: ProcessVariables

@@ -241,7 +241,7 @@ const newBattleState = ({
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
         playerBattleActionBuilderState: undefined,
-        battleActionQueue: BattleActionQueueService.new({}),
+        battleActionQueue: BattleActionQueueService.new(),
     }
 }
 

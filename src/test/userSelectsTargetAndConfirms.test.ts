@@ -66,7 +66,10 @@ import { config } from "../configuration/config"
 import { KeyButtonName } from "../utils/keyboardConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
-import { BattleActionQueueService } from "../battle/history/battleAction"
+import {
+    BattleActionActionContextService,
+    BattleActionQueueService,
+} from "../battle/history/battleAction"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -75,6 +78,7 @@ import {
     PlayerBattleActionBuilderStateService,
 } from "../battle/actionBuilder/playerBattleActionBuilderState"
 import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
+import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 
 describe("User Selects Target and Confirms", () => {
     let repository: ObjectRepository
@@ -336,57 +340,62 @@ describe("User Selects Target and Confirms", () => {
                                         decidedActionEffect: actionsThisRound
                                             .processedActions[0].decidedAction
                                             .actionEffects[0] as DecidedActionSquaddieEffect,
-                                        results: {
-                                            actingBattleSquaddieId: "player 0",
-                                            actingSquaddieModifiers: {},
-                                            actingSquaddieRoll: {
-                                                occurred: false,
-                                                rolls: [],
-                                            },
-                                            squaddieChanges: [
-                                                BattleActionSquaddieChangeService.new(
-                                                    {
-                                                        actorDegreeOfSuccess:
-                                                            DegreeOfSuccess.SUCCESS,
-                                                        damageTaken: 1,
-                                                        healingReceived: 0,
-                                                        attributesAfter: {
-                                                            armyAttributes: {
-                                                                armorClass: 0,
-                                                                maxHitPoints: 5,
-                                                                movement: {
-                                                                    crossOverPits:
-                                                                        false,
-                                                                    movementPerAction: 2,
-                                                                    passThroughWalls:
-                                                                        false,
-                                                                },
+                                        results:
+                                            SquaddieSquaddieResultsService.new({
+                                                actingBattleSquaddieId:
+                                                    "player 0",
+                                                actionContext:
+                                                    BattleActionActionContextService.new(
+                                                        {}
+                                                    ),
+                                                squaddieChanges: [
+                                                    BattleActionSquaddieChangeService.new(
+                                                        {
+                                                            actorDegreeOfSuccess:
+                                                                DegreeOfSuccess.SUCCESS,
+                                                            damageTaken: 1,
+                                                            healingReceived: 0,
+                                                            attributesAfter: {
+                                                                armyAttributes:
+                                                                    {
+                                                                        armorClass: 0,
+                                                                        maxHitPoints: 5,
+                                                                        movement:
+                                                                            {
+                                                                                crossOverPits:
+                                                                                    false,
+                                                                                movementPerAction: 2,
+                                                                                passThroughWalls:
+                                                                                    false,
+                                                                            },
+                                                                    },
+                                                                currentHitPoints: 4,
                                                             },
-                                                            currentHitPoints: 4,
-                                                        },
-                                                        attributesBefore: {
-                                                            armyAttributes: {
-                                                                armorClass: 0,
-                                                                maxHitPoints: 5,
-                                                                movement: {
-                                                                    crossOverPits:
-                                                                        false,
-                                                                    movementPerAction: 2,
-                                                                    passThroughWalls:
-                                                                        false,
-                                                                },
+                                                            attributesBefore: {
+                                                                armyAttributes:
+                                                                    {
+                                                                        armorClass: 0,
+                                                                        maxHitPoints: 5,
+                                                                        movement:
+                                                                            {
+                                                                                crossOverPits:
+                                                                                    false,
+                                                                                movementPerAction: 2,
+                                                                                passThroughWalls:
+                                                                                    false,
+                                                                            },
+                                                                    },
+                                                                currentHitPoints: 5,
                                                             },
-                                                            currentHitPoints: 5,
-                                                        },
-                                                        battleSquaddieId:
-                                                            enemyBattleSquaddie.battleSquaddieId,
-                                                    }
-                                                ),
-                                            ],
-                                            targetedBattleSquaddieIds: [
-                                                "enemy 0",
-                                            ],
-                                        },
+                                                            battleSquaddieId:
+                                                                enemyBattleSquaddie.battleSquaddieId,
+                                                        }
+                                                    ),
+                                                ],
+                                                targetedBattleSquaddieIds: [
+                                                    "enemy 0",
+                                                ],
+                                            }),
                                     }),
                                 ],
                             }),

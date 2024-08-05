@@ -4,6 +4,7 @@ import {
     BattleActionQueueService,
     BattleActionService,
 } from "./battleAction"
+import { RollResultService } from "../actionCalculator/rollResult"
 
 describe("BattleAction", () => {
     describe("Creation and Sanitization", () => {
@@ -46,9 +47,18 @@ describe("BattleAction", () => {
         let endTurnAction: BattleAction
 
         beforeEach(() => {
-            queue = BattleActionQueueService.new({})
+            queue = BattleActionQueueService.new()
             moveAction = BattleActionService.new({
-                actor: { battleSquaddieId: "battleSquaddieId" },
+                actor: {
+                    battleSquaddieId: "battleSquaddieId",
+                    actorContext: {
+                        actingSquaddieModifiers: {},
+                        actingSquaddieRoll: RollResultService.new({
+                            rolls: [2, 6],
+                            occurred: true,
+                        }),
+                    },
+                },
                 action: { isMovement: true },
                 effect: {
                     movement: {

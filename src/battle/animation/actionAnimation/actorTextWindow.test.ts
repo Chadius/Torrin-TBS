@@ -19,6 +19,8 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
+import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
+import { BattleActionActionContextService } from "../../history/battleAction"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -80,16 +82,18 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [1, 5],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [1, 5],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
+            }),
         })
 
         const timerSpy = jest
@@ -111,16 +115,18 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
+            }),
         })
 
         const timerSpy = jest
@@ -140,16 +146,18 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [6, 6],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [6, 6],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
+            }),
         })
 
         const timerSpy = jest
@@ -171,16 +179,18 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 squaddieChanges: [],
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [1, 1],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [1, 1],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
+            }),
         })
 
         const timerSpy = jest
@@ -203,18 +213,20 @@ describe("ActorTextWindow", () => {
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
-                results: {
+                results: SquaddieSquaddieResultsService.new({
                     squaddieChanges: [],
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                    actingSquaddieModifiers: {
-                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
-                    },
-                },
+                    actionContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: {
+                            [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
+                        },
+                    }),
+                }),
             })
 
             const timerSpy = jest
@@ -236,18 +248,20 @@ describe("ActorTextWindow", () => {
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
-                results: {
+                results: SquaddieSquaddieResultsService.new({
                     squaddieChanges: [],
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
-                    actingSquaddieRoll: {
-                        occurred: true,
-                        rolls: [1, 5],
-                    },
-                    actingSquaddieModifiers: {
-                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
-                    },
-                },
+                    actionContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: true,
+                            rolls: [1, 5],
+                        },
+                        actingSquaddieModifiers: {
+                            [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
+                        },
+                    }),
+                }),
             })
 
             const timerSpy = jest

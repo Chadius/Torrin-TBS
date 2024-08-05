@@ -158,14 +158,14 @@ export const ActionResultTextService = {
                 ActionAnimationPhase.SHOWING_RESULTS,
                 ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
             ].includes(timer.currentPhase) &&
-            results.actingSquaddieRoll.occurred
+            results.actingContext.actingSquaddieRoll.occurred
         ) {
             actorUsesActionDescriptionText += `\n\n`
-            actorUsesActionDescriptionText += `   rolls(${results.actingSquaddieRoll.rolls[0]}, ${results.actingSquaddieRoll.rolls[1]})`
+            actorUsesActionDescriptionText += `   rolls(${results.actingContext.actingSquaddieRoll.rolls[0]}, ${results.actingContext.actingSquaddieRoll.rolls[1]})`
 
             const attackPenaltyDescriptions =
                 ActionResultText.getAttackPenaltyDescriptions(
-                    results.actingSquaddieModifiers
+                    results.actingContext.actingSquaddieModifiers
                 )
             if (attackPenaltyDescriptions.length > 0) {
                 actorUsesActionDescriptionText +=
@@ -175,12 +175,16 @@ export const ActionResultTextService = {
             actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results)}`
 
             if (
-                RollResultService.isACriticalSuccess(results.actingSquaddieRoll)
+                RollResultService.isACriticalSuccess(
+                    results.actingContext.actingSquaddieRoll
+                )
             ) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`
             }
             if (
-                RollResultService.isACriticalFailure(results.actingSquaddieRoll)
+                RollResultService.isACriticalFailure(
+                    results.actingContext.actingSquaddieRoll
+                )
             ) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL MISS!!`
             }
@@ -277,10 +281,10 @@ const outputResultForTextOnly = ({
         })
     output.push(actorUsesActionDescriptionText)
 
-    if (result.actingSquaddieRoll.occurred) {
+    if (result.actingContext.actingSquaddieRoll.occurred) {
         output.push(
             ActionResultTextService.getRollsDescriptionString({
-                rolls: result.actingSquaddieRoll.rolls,
+                rolls: result.actingContext.actingSquaddieRoll.rolls,
                 addSpacing: true,
             })
         )
@@ -297,7 +301,7 @@ const outputResultForTextOnly = ({
         ) {
             output.push(
                 ...ActionResultText.getAttackPenaltyDescriptions(
-                    result.actingSquaddieModifiers
+                    result.actingContext.actingSquaddieModifiers
                 )
             )
             output.push(

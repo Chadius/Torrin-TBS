@@ -10,7 +10,10 @@ import {
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import {
+    SquaddieSquaddieResults,
+    SquaddieSquaddieResultsService,
+} from "../history/squaddieSquaddieResults"
 import {
     Trait,
     TraitStatusStorageService,
@@ -35,6 +38,7 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
 } from "../history/battleActionSquaddieChange"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -195,13 +199,15 @@ const calculateResults = ({
         )
     })
 
-    return {
+    return SquaddieSquaddieResultsService.new({
         actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
         targetedBattleSquaddieIds: targetedBattleSquaddieIds,
         squaddieChanges: resultPerTarget,
-        actingSquaddieRoll,
-        actingSquaddieModifiers,
-    }
+        actionContext: BattleActionActionContextService.new({
+            actingSquaddieModifiers,
+            actingSquaddieRoll,
+        }),
+    })
 }
 
 const compareAttackRollToGetDegreeOfSuccess = ({

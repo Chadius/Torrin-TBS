@@ -31,7 +31,10 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
+import {
+    SquaddieSquaddieResults,
+    SquaddieSquaddieResultsService,
+} from "../history/squaddieSquaddieResults"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
@@ -42,6 +45,7 @@ import { ProcessedActionSquaddieEffectService } from "../../action/processed/pro
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -383,13 +387,15 @@ describe("Mission Cutscene Service", () => {
                     ],
                 }
 
-                targetWasInjuredResult = {
+                targetWasInjuredResult = SquaddieSquaddieResultsService.new({
                     actingBattleSquaddieId: "attacker",
-                    actingSquaddieModifiers: undefined,
-                    actingSquaddieRoll: undefined,
+                    actionContext: BattleActionActionContextService.new({
+                        actingSquaddieModifiers: undefined,
+                        actingSquaddieRoll: undefined,
+                    }),
                     squaddieChanges: [],
                     targetedBattleSquaddieIds: [injuredBattleSquaddieId],
-                }
+                })
 
                 const actionsThisRound: ActionsThisRound =
                     ActionsThisRoundService.new({

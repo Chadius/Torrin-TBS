@@ -1,11 +1,9 @@
-import { RollResult } from "../actionCalculator/rollResult"
-import { ATTACK_MODIFIER } from "../modifierConstants"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
+import { BattleActionActionContext } from "./battleAction"
 
 export interface SquaddieSquaddieResults {
-    actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
-    actingSquaddieRoll: RollResult
     actingBattleSquaddieId: string
+    actingContext: BattleActionActionContext
 
     targetedBattleSquaddieIds: string[]
     squaddieChanges: BattleActionSquaddieChange[]
@@ -13,23 +11,20 @@ export interface SquaddieSquaddieResults {
 
 export const SquaddieSquaddieResultsService = {
     new: ({
-        actingSquaddieModifiers,
+        actionContext,
         actingBattleSquaddieId,
         targetedBattleSquaddieIds,
-        actingSquaddieRoll,
         squaddieChanges,
     }: {
-        actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
+        actionContext: BattleActionActionContext
         actingBattleSquaddieId: string
         targetedBattleSquaddieIds: string[]
-        actingSquaddieRoll: RollResult
         squaddieChanges: BattleActionSquaddieChange[]
     }): SquaddieSquaddieResults => {
         return sanitize({
-            actingSquaddieModifiers,
+            actingContext: actionContext,
             actingBattleSquaddieId,
             targetedBattleSquaddieIds,
-            actingSquaddieRoll,
             squaddieChanges: squaddieChanges,
         })
     },
@@ -39,8 +34,8 @@ export const SquaddieSquaddieResultsService = {
 }
 
 const sanitize = (result: SquaddieSquaddieResults): SquaddieSquaddieResults => {
-    if (result.actingSquaddieModifiers === undefined) {
-        result.actingSquaddieModifiers = {}
+    if (result.actingContext.actingSquaddieModifiers === undefined) {
+        result.actingContext.actingSquaddieModifiers = {}
     }
 
     return result

@@ -28,12 +28,11 @@ const getActingSquaddieRollTotalIfNeeded = (
     result: SquaddieSquaddieResults
 ): string[] => {
     let totalAttackRoll = RollResultService.totalAttackRoll(
-        result.actingSquaddieRoll
+        result.actingContext.actingSquaddieRoll
     )
-    let totalModifier = Object.values(result.actingSquaddieModifiers).reduce(
-        (currentSum, currentValue) => currentSum + currentValue,
-        0
-    )
+    let totalModifier = Object.values(
+        result.actingContext.actingSquaddieModifiers
+    ).reduce((currentSum, currentValue) => currentSum + currentValue, 0)
 
     return [` Total ${totalAttackRoll + totalModifier}`]
 }

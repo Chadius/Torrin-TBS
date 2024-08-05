@@ -267,8 +267,10 @@ describe("orchestratorState", () => {
                     results: SquaddieSquaddieResultsService.new({
                         targetedBattleSquaddieIds: [],
                         actingBattleSquaddieId: "",
-                        actingSquaddieModifiers: undefined,
-                        actingSquaddieRoll: undefined,
+                        actionContext: {
+                            actingSquaddieModifiers: {},
+                            actingSquaddieRoll: undefined,
+                        },
                         squaddieChanges: [],
                     }),
                 })
@@ -367,7 +369,7 @@ describe("orchestratorState", () => {
 
         it.each(tests)(
             `($name) will suggest the squaddie mover if it has a movement action`,
-            ({ name, component }) => {
+            ({ component }) => {
                 const state = setupStateWithProcessedActionEffects(
                     squaddieProcessedAction,
                     movementProcessedAction
@@ -390,7 +392,7 @@ describe("orchestratorState", () => {
 
         it.each(tests)(
             `($name) will suggest the squaddie act on squaddie mode if it has a squaddie action`,
-            ({ name, component }) => {
+            ({ component }) => {
                 const state = setupStateWithProcessedActionEffects(
                     movementProcessedAction,
                     squaddieProcessedAction
@@ -413,7 +415,7 @@ describe("orchestratorState", () => {
 
         it.each(tests)(
             `($name) will suggest the squaddie act on map mode if it has an end turn action`,
-            ({ name, component }) => {
+            ({ component }) => {
                 const state = setupStateWithProcessedActionEffects(
                     movementProcessedAction,
                     endTurnProcessedAction
@@ -436,7 +438,7 @@ describe("orchestratorState", () => {
 
         it.each(tests)(
             `($name) will not suggest a mode if there are no more decisions to process`,
-            ({ name, component }) => {
+            ({ component }) => {
                 const state = setupStateWithProcessedActionEffects(
                     movementProcessedAction,
                     undefined

@@ -48,6 +48,8 @@ import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let squaddieRepository: ObjectRepository
@@ -139,7 +141,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         knightHitsThiefWithLongswordEvent = BattleEventService.new({
             processedAction: oneDecisionInstruction,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
                 squaddieChanges: [
@@ -150,12 +152,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({}),
+            }),
         })
         battleEventRecording = { history: [] }
     })

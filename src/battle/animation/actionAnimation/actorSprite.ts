@@ -205,7 +205,7 @@ export class ActorSprite {
                     timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME
                 if (
                     RollResultService.isACriticalSuccess(
-                        this.squaddieResult.actingSquaddieRoll
+                        this.squaddieResult.actingContext.actingSquaddieRoll
                     )
                 ) {
                     const revUpTime = ACTION_ANIMATION_ACTION_TIME / 2

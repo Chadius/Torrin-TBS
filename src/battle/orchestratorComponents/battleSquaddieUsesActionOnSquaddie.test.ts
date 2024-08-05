@@ -61,6 +61,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let squaddieRepository: ObjectRepository
@@ -216,16 +217,17 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         const newEvent: BattleEvent = BattleEventService.new({
             processedAction,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 squaddieChanges: [],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                }),
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actingSquaddieModifiers: {},
                 targetedBattleSquaddieIds: [],
-            },
+            }),
         })
         RecordingService.addEvent(battleEventRecording, newEvent)
 
@@ -270,14 +272,16 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         missionMap?: MissionMap
     }): GameEngineState => {
         const results: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+            SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actingSquaddieModifiers: {},
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         damageTaken: 9001,
@@ -372,14 +376,16 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         const results: SquaddieSquaddieResults =
             SquaddieSquaddieResultsService.sanitize({
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actingSquaddieModifiers: {},
+                actingContext: BattleActionActionContextService.new({
+                    actingSquaddieModifiers: {},
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                }),
                 targetedBattleSquaddieIds: [
                     targetDynamicSquaddieBattleSquaddieId,
                 ],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: targetDynamicSquaddieBattleSquaddieId,

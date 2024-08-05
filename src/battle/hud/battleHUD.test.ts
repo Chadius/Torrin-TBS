@@ -78,6 +78,7 @@ import {
 } from "../orchestratorComponents/battlePhaseController"
 import {
     BattleAction,
+    BattleActionActionContextService,
     BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
@@ -95,6 +96,7 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleEvent } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1618,14 +1620,17 @@ describe("Battle HUD", () => {
                             ProcessedActionSquaddieEffectService.new({
                                 decidedActionEffect:
                                     decidedActionSquaddieEffect,
-                                results: {
+                                results: SquaddieSquaddieResultsService.new({
                                     actingBattleSquaddieId:
                                         playerSoldierBattleSquaddie.battleSquaddieId,
-                                    actingSquaddieModifiers: {},
-                                    actingSquaddieRoll: {
-                                        occurred: false,
-                                        rolls: [],
-                                    },
+                                    actionContext:
+                                        BattleActionActionContextService.new({
+                                            actingSquaddieModifiers: {},
+                                            actingSquaddieRoll: {
+                                                occurred: false,
+                                                rolls: [],
+                                            },
+                                        }),
                                     squaddieChanges: [
                                         BattleActionSquaddieChangeService.new({
                                             actorDegreeOfSuccess:
@@ -1662,7 +1667,7 @@ describe("Battle HUD", () => {
                                     targetedBattleSquaddieIds: [
                                         thiefBattleSquaddie.battleSquaddieId,
                                     ],
-                                },
+                                }),
                             }),
                         ],
                     }),

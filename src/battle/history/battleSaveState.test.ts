@@ -49,6 +49,8 @@ import { ActionsThisRound, ActionsThisRoundService } from "./actionsThisRound"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { BattleActionSquaddieChangeService } from "./battleActionSquaddieChange"
+import { BattleActionActionContextService } from "./battleAction"
+import { SquaddieSquaddieResultsService } from "./squaddieSquaddieResults"
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording
@@ -99,11 +101,13 @@ describe("BattleSaveState", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingSquaddieRoll: {
-                    occurred: true,
-                    rolls: [3, 5],
-                },
-                actingSquaddieModifiers: {},
+                actingContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [3, 5],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
             },
         })
         eventRecording0.history.push(firstBattleEvent)
@@ -370,16 +374,18 @@ describe("BattleSaveState", () => {
 
         const secondBattleEvent: BattleEvent = {
             processedAction: actionsThisRound.processedActions[0],
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: undefined,
                 targetedBattleSquaddieIds: [],
                 squaddieChanges: [],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {},
+                }),
+            }),
         }
         eventRecording0.history.push(secondBattleEvent)
 

@@ -1,12 +1,15 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
+import { ATTACK_MODIFIER } from "../modifierConstants"
+import { RollResult } from "../actionCalculator/rollResult"
 
 export interface BattleActionActor {
     battleSquaddieId: string
+    actorContext?: BattleActionActionContext
 }
 
-export interface BattleActionId {
+export interface BattleActionAction {
     id?: string
     isMovement?: boolean
     isEndTurn?: boolean
@@ -23,8 +26,29 @@ export interface BattleActionEffect {
 
 export interface BattleAction {
     actor: BattleActionActor
-    action: BattleActionId
+    action: BattleActionAction
     effect: BattleActionEffect
+}
+
+export interface BattleActionActionContext {
+    actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
+    actingSquaddieRoll: RollResult
+}
+
+export const BattleActionActionContextService = {
+    new: ({
+        actingSquaddieModifiers,
+        actingSquaddieRoll,
+    }: {
+        actingSquaddieModifiers?: { [modifier in ATTACK_MODIFIER]?: number }
+        actingSquaddieRoll?: RollResult
+    }): BattleActionActionContext => ({
+        actingSquaddieModifiers: actingSquaddieModifiers ?? {},
+        actingSquaddieRoll: actingSquaddieRoll ?? {
+            occurred: false,
+            rolls: [],
+        },
+    }),
 }
 
 export const BattleActionService = {
@@ -34,7 +58,7 @@ export const BattleActionService = {
         effect,
     }: {
         actor: BattleActionActor
-        action: BattleActionId
+        action: BattleActionAction
         effect: BattleActionEffect
     }): BattleAction => {
         return sanitize({
@@ -74,7 +98,7 @@ export interface BattleActionQueue {
 }
 
 export const BattleActionQueueService = {
-    new: ({}): BattleActionQueue => {
+    new: (): BattleActionQueue => {
         return {
             actions: [],
         }

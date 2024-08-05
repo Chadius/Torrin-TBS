@@ -45,6 +45,8 @@ import {
 import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
 import { PlayerBattleActionBuilderStateService } from "../actionBuilder/playerBattleActionBuilderState"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -122,16 +124,12 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
         monkMeditatesEvent = BattleEventService.new({
             processedAction: oneDecisionInstruction,
-            results: {
+            results: SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: monkBattleSquaddieId,
                 targetedBattleSquaddieIds: [],
                 squaddieChanges: [],
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            },
+                actionContext: BattleActionActionContextService.new({}),
+            }),
         })
         RecordingService.addEvent(battleEventRecording, monkMeditatesEvent)
 
