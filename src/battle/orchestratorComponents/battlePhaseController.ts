@@ -45,6 +45,10 @@ export interface BattlePhaseState {
     turnCount: number
 }
 
+// TODO When ANY phase begins, send a message noting the new phase
+// TODO Add BattleHUD listener for new phase
+// TODO When phase hears, decrease the duration for all squaddies with that phase
+
 export const BattlePhaseStateService = {
     new: ({
         currentAffiliation,

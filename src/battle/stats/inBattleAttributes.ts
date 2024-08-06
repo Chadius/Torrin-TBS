@@ -20,18 +20,17 @@ export const InBattleAttributesService = {
     new: ({
         armyAttributes,
         currentHitPoints,
+        attributeModifiers,
     }: {
         armyAttributes?: ArmyAttributes
         currentHitPoints?: number
+        attributeModifiers?: AttributeModifier[]
     }): InBattleAttributes => {
-        return {
-            armyAttributes: armyAttributes || DefaultArmyAttributes(),
-            currentHitPoints:
-                currentHitPoints ??
-                armyAttributes?.maxHitPoints ??
-                DefaultArmyAttributes().maxHitPoints,
-            attributeModifiers: [],
-        }
+        return newAttributeModifier({
+            armyAttributes,
+            currentHitPoints,
+            attributeModifiers,
+        })
     },
     takeDamage(
         data: InBattleAttributes,
@@ -58,7 +57,11 @@ export const InBattleAttributesService = {
         return data.currentHitPoints - startingHitPoints
     },
     clone: (inBattleAttributes: InBattleAttributes): InBattleAttributes => {
-        return { ...inBattleAttributes }
+        return newAttributeModifier({
+            armyAttributes: inBattleAttributes.armyAttributes,
+            currentHitPoints: inBattleAttributes.currentHitPoints,
+            attributeModifiers: [...inBattleAttributes.attributeModifiers],
+        })
     },
     getAllActiveAttributeModifiers: (
         attributes: InBattleAttributes
@@ -197,4 +200,23 @@ const getAllActiveAttributeModifiers = (
     return attributes.attributeModifiers.filter(
         AttributeModifierService.isActive
     )
+}
+
+const newAttributeModifier = ({
+    armyAttributes,
+    currentHitPoints,
+    attributeModifiers,
+}: {
+    armyAttributes?: ArmyAttributes
+    currentHitPoints?: number
+    attributeModifiers?: AttributeModifier[]
+}): InBattleAttributes => {
+    return {
+        armyAttributes: armyAttributes || DefaultArmyAttributes(),
+        currentHitPoints:
+            currentHitPoints ??
+            armyAttributes?.maxHitPoints ??
+            DefaultArmyAttributes().maxHitPoints,
+        attributeModifiers: attributeModifiers || [],
+    }
 }

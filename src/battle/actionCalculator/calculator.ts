@@ -39,6 +39,8 @@ import {
     BattleActionSquaddieChangeService,
 } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
+import { AttributeModifier } from "../../squaddie/attributeModifier"
+import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -169,10 +171,19 @@ const calculateResults = ({
             actingSquaddieModifierTotal: multipleAttackPenalty,
         })
 
+        let attributeModifiers: AttributeModifier[] =
+            calculateAttributeModifiers({
+                gameEngineState,
+                actionEffect,
+                actingBattleSquaddie,
+                targetedBattleSquaddie,
+            })
+
         applyChangesToSquaddie({
             targetedBattleSquaddie,
             calculatedDamageTaken: damageDealt,
             calculatedHealingReceived: healingReceived,
+            attributeModifiers,
         })
 
         changes.attributesAfter = InBattleAttributesService.clone(
@@ -343,10 +354,12 @@ const applyChangesToSquaddie = ({
     targetedBattleSquaddie,
     calculatedDamageTaken,
     calculatedHealingReceived,
+    attributeModifiers,
 }: {
     targetedBattleSquaddie: BattleSquaddie
     calculatedDamageTaken: number
     calculatedHealingReceived: number
+    attributeModifiers: AttributeModifier[]
 }) => {
     InBattleAttributesService.takeDamage(
         targetedBattleSquaddie.inBattleAttributes,
@@ -356,6 +369,12 @@ const applyChangesToSquaddie = ({
     InBattleAttributesService.receiveHealing(
         targetedBattleSquaddie.inBattleAttributes,
         calculatedHealingReceived
+    )
+    attributeModifiers.forEach((modifier) =>
+        InBattleAttributesService.addActiveAttributeModifier(
+            targetedBattleSquaddie.inBattleAttributes,
+            modifier
+        )
     )
 }
 
@@ -481,4 +500,22 @@ const getBattleSquaddieIdsAtGivenLocations = ({
         .map(
             (battleSquaddieLocation) => battleSquaddieLocation.battleSquaddieId
         )
+}
+
+const calculateAttributeModifiers = ({
+    actingBattleSquaddie,
+    actionEffect,
+    gameEngineState,
+    targetedBattleSquaddie,
+}: {
+    actingBattleSquaddie: BattleSquaddie
+    actionEffect: DecidedActionEffect
+    gameEngineState: GameEngineState
+    targetedBattleSquaddie: BattleSquaddie
+}): AttributeModifier[] => {
+    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
+        return []
+    }
+
+    return [...actionEffect.template.attributeModifiers]
 }
