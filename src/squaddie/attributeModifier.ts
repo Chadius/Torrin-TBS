@@ -1,9 +1,12 @@
 export enum AttributeType {
     ARMOR = "ARMOR",
+    TEMPORARY_HIT_POINTS = "TEMPORARY_HIT_POINTS",
 }
 
 export enum AttributeSource {
     CIRCUMSTANCE = "CIRCUMSTANCE",
+    ITEM = "ITEM",
+    STATUS = "STATUS",
 }
 
 export interface AttributeModifier {
@@ -12,6 +15,7 @@ export interface AttributeModifier {
     amount: number
     duration: number | undefined
     numberOfUses: number | undefined
+    description: string
 }
 
 export const AttributeModifierService = {
@@ -21,12 +25,14 @@ export const AttributeModifierService = {
         amount,
         duration,
         numberOfUses,
+        description,
     }: {
         type: AttributeType
         source: AttributeSource
         amount: number
         duration?: number
         numberOfUses?: number
+        description?: string
     }): AttributeModifier => {
         return {
             type,
@@ -34,6 +40,7 @@ export const AttributeModifierService = {
             amount,
             duration,
             numberOfUses,
+            description,
         }
     },
     isActive: (modifier: AttributeModifier): boolean => {

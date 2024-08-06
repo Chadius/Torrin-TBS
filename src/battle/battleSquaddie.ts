@@ -46,7 +46,9 @@ export const BattleSquaddieService = {
         data: BattleSquaddie,
         attributes: ArmyAttributes
     ): void => {
-        data.inBattleAttributes = InBattleAttributesService.new(attributes)
+        data.inBattleAttributes = InBattleAttributesService.new({
+            armyAttributes: attributes,
+        })
     },
 }
 
@@ -61,7 +63,7 @@ const newBattleSquaddie = ({
         battleSquaddieId,
         squaddieTurn: squaddieTurn || SquaddieTurnService.new(),
         squaddieTemplateId,
-        inBattleAttributes: InBattleAttributesService.new(),
+        inBattleAttributes: InBattleAttributesService.new({}),
     }
 
     if (squaddieTemplate) {
@@ -86,5 +88,7 @@ const newFromSquaddieTemplate = (
     template: SquaddieTemplate
 ): void => {
     data.squaddieTemplateId = template.squaddieId.templateId
-    data.inBattleAttributes = InBattleAttributesService.new(template.attributes)
+    data.inBattleAttributes = InBattleAttributesService.new({
+        armyAttributes: template.attributes,
+    })
 }

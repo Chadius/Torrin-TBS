@@ -95,7 +95,7 @@ describe("TargetTextWindow", () => {
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
             squaddieTurn: SquaddieTurnService.new(),
             battleSquaddieId: "targetBattleId",
-            inBattleAttributes: InBattleAttributesService.new(),
+            inBattleAttributes: InBattleAttributesService.new({}),
         })
 
         targetResultTakenDamage = BattleActionSquaddieChangeService.new({

@@ -14,12 +14,14 @@ describe("AttributeModifier", () => {
             source: AttributeSource.CIRCUMSTANCE,
             amount: 2,
             duration: 1,
+            description: "Raise a Shield",
         })
     })
 
     it("Can create a new modifier with a given duration", () => {
         expect(armorModifierFor1Round.amount).toEqual(2)
         expect(armorModifierFor1Round.duration).toEqual(1)
+        expect(armorModifierFor1Round.description).toEqual("Raise a Shield")
     })
     it("Can create a new modifier with a given number of applications", () => {
         const armorModifierFor3Uses: AttributeModifier =

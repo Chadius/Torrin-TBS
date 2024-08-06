@@ -79,6 +79,7 @@ import {
 } from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
+import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 
 describe("User Selects Target and Confirms", () => {
     let repository: ObjectRepository
@@ -355,38 +356,44 @@ describe("User Selects Target and Confirms", () => {
                                                                 DegreeOfSuccess.SUCCESS,
                                                             damageTaken: 1,
                                                             healingReceived: 0,
-                                                            attributesAfter: {
-                                                                armyAttributes:
+                                                            attributesAfter:
+                                                                InBattleAttributesService.new(
                                                                     {
-                                                                        armorClass: 0,
-                                                                        maxHitPoints: 5,
-                                                                        movement:
+                                                                        armyAttributes:
                                                                             {
-                                                                                crossOverPits:
-                                                                                    false,
-                                                                                movementPerAction: 2,
-                                                                                passThroughWalls:
-                                                                                    false,
+                                                                                armorClass: 0,
+                                                                                maxHitPoints: 5,
+                                                                                movement:
+                                                                                    {
+                                                                                        crossOverPits:
+                                                                                            false,
+                                                                                        movementPerAction: 2,
+                                                                                        passThroughWalls:
+                                                                                            false,
+                                                                                    },
                                                                             },
-                                                                    },
-                                                                currentHitPoints: 4,
-                                                            },
-                                                            attributesBefore: {
-                                                                armyAttributes:
+                                                                        currentHitPoints: 4,
+                                                                    }
+                                                                ),
+                                                            attributesBefore:
+                                                                InBattleAttributesService.new(
                                                                     {
-                                                                        armorClass: 0,
-                                                                        maxHitPoints: 5,
-                                                                        movement:
+                                                                        armyAttributes:
                                                                             {
-                                                                                crossOverPits:
-                                                                                    false,
-                                                                                movementPerAction: 2,
-                                                                                passThroughWalls:
-                                                                                    false,
+                                                                                armorClass: 0,
+                                                                                maxHitPoints: 5,
+                                                                                movement:
+                                                                                    {
+                                                                                        crossOverPits:
+                                                                                            false,
+                                                                                        movementPerAction: 2,
+                                                                                        passThroughWalls:
+                                                                                            false,
+                                                                                    },
                                                                             },
-                                                                    },
-                                                                currentHitPoints: 5,
-                                                            },
+                                                                        currentHitPoints: 5,
+                                                                    }
+                                                                ),
                                                             battleSquaddieId:
                                                                 enemyBattleSquaddie.battleSquaddieId,
                                                         }
