@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import {
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
+    ConvertCoordinateService,
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
@@ -353,7 +353,7 @@ export class BattleComputerSquaddieSelector
             )
 
         const squaddieWorldLocation: number[] =
-            convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 datum.mapLocation.q,
                 datum.mapLocation.r
             )

@@ -226,8 +226,10 @@ describe("BattleSaveState", () => {
                 squaddieTemplateId: "enemy template 0",
                 squaddieTurn: SquaddieTurnService.new(),
                 inBattleAttributes: InBattleAttributesService.new({
-                    ...DefaultArmyAttributes(),
-                    maxHitPoints: 5,
+                    armyAttributes: {
+                        ...DefaultArmyAttributes(),
+                        maxHitPoints: 5,
+                    },
                 }),
             })
         ObjectRepositoryService.addBattleSquaddie(

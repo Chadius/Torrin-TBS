@@ -20,7 +20,7 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleCamera, PanningInformation } from "../battleCamera"
-import { convertMapCoordinatesToWorldCoordinates } from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
@@ -228,7 +228,11 @@ describe("BattleComputerSquaddieSelector", () => {
                     })
                 )
 
-            squaddieLocation = convertMapCoordinatesToWorldCoordinates(0, 0)
+            squaddieLocation =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    0,
+                    0
+                )
             camera = new BattleCamera(
                 squaddieLocation[0] + ScreenDimensions.SCREEN_WIDTH * 2,
                 squaddieLocation[1] + ScreenDimensions.SCREEN_HEIGHT * 2
@@ -502,7 +506,10 @@ describe("BattleComputerSquaddieSelector", () => {
             )
 
             camera = new BattleCamera(
-                ...convertMapCoordinatesToWorldCoordinates(0, 0)
+                ...ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    0,
+                    0
+                )
             )
         })
 

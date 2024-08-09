@@ -1,5 +1,5 @@
 import { assertsInteger, assertsNonNegativeNumber } from "../utils/mathAssert"
-import { convertMapCoordinatesToWorldCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 
@@ -304,9 +304,12 @@ export class BattleCamera {
         const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10
 
         const worldLocationOfStartOfFirstRow: [number, number] =
-            convertMapCoordinatesToWorldCoordinates(0, 0)
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                0,
+                0
+            )
         const worldLocationOfEndOfLastRow: [number, number] =
-            convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 this.mapDimensionBoundaries.numberOfRows,
                 this.mapDimensionBoundaries.widthOfWidestRow
             )

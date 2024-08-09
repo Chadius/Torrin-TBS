@@ -243,9 +243,9 @@ export const MissionLoader = {
         playerArmyData.squaddieTemplates.forEach((template) => {
             const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: template.squaddieId.templateId,
-                inBattleAttributes: InBattleAttributesService.new(
-                    template.attributes
-                ),
+                inBattleAttributes: InBattleAttributesService.new({
+                    armyAttributes: template.attributes,
+                }),
                 squaddieTemplate: template,
             })
 

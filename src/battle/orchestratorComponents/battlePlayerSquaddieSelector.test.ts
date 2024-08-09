@@ -23,7 +23,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import {
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
+    ConvertCoordinateService,
 } from "../../hexMap/convertCoordinates"
 import { makeResult } from "../../utils/ResultOrError"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
@@ -216,7 +216,10 @@ describe("BattleSquaddieSelector", () => {
         const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap)
 
         const camera: BattleCamera = new BattleCamera(
-            ...convertMapCoordinatesToWorldCoordinates(0, 0)
+            ...ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                0,
+                0
+            )
         )
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,

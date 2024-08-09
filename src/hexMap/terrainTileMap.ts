@@ -4,7 +4,7 @@ import {
     HexGridMovementCost,
 } from "./hexGridMovementCost"
 import {
-    convertMapCoordinatesToWorldCoordinates,
+    ConvertCoordinateService,
     convertScreenCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToMapCoordinates,
     convertWorldCoordinatesToScreenCoordinates,
@@ -37,10 +37,11 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
                 costStringIndex + 2
             )
             let movementCostType = convertStringToMovementCost(stringToConvert)
-            const worldLocation = convertMapCoordinatesToWorldCoordinates(
-                qIndex,
-                rIndex
-            )
+            const worldLocation =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    qIndex,
+                    rIndex
+                )
             newTiles.push({
                 q: qIndex,
                 r: rIndex,
@@ -332,7 +333,7 @@ export const TerrainTileMapService = {
     ): { width: number; height: number } => {
         const terrainTileMapDimensions = terrainTileMap.getDimensions()
         const dimensionsConvertedToWorldWithBuffer =
-            convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 terrainTileMapDimensions.numberOfRows + 1,
                 terrainTileMapDimensions.widthOfWidestRow + 1
             )

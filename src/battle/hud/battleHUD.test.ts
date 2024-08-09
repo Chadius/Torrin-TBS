@@ -97,6 +97,7 @@ import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1639,30 +1640,36 @@ describe("Battle HUD", () => {
                                                 DegreeOfSuccess.SUCCESS,
                                             damageTaken: 2,
                                             healingReceived: 0,
-                                            attributesAfter: {
-                                                armyAttributes: {
-                                                    armorClass: 0,
-                                                    maxHitPoints: 5,
-                                                    movement: {
-                                                        crossOverPits: false,
-                                                        movementPerAction: 2,
-                                                        passThroughWalls: false,
+                                            attributesAfter:
+                                                InBattleAttributesService.new({
+                                                    armyAttributes: {
+                                                        armorClass: 0,
+                                                        maxHitPoints: 5,
+                                                        movement: {
+                                                            crossOverPits:
+                                                                false,
+                                                            movementPerAction: 2,
+                                                            passThroughWalls:
+                                                                false,
+                                                        },
                                                     },
-                                                },
-                                                currentHitPoints: 3,
-                                            },
-                                            attributesBefore: {
-                                                armyAttributes: {
-                                                    armorClass: 0,
-                                                    maxHitPoints: 5,
-                                                    movement: {
-                                                        crossOverPits: false,
-                                                        movementPerAction: 2,
-                                                        passThroughWalls: false,
+                                                    currentHitPoints: 3,
+                                                }),
+                                            attributesBefore:
+                                                InBattleAttributesService.new({
+                                                    armyAttributes: {
+                                                        armorClass: 0,
+                                                        maxHitPoints: 5,
+                                                        movement: {
+                                                            crossOverPits:
+                                                                false,
+                                                            movementPerAction: 2,
+                                                            passThroughWalls:
+                                                                false,
+                                                        },
                                                     },
-                                                },
-                                                currentHitPoints: 5,
-                                            },
+                                                    currentHitPoints: 5,
+                                                }),
                                             battleSquaddieId: "Thief 0",
                                         }),
                                     ],

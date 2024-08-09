@@ -26,7 +26,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { MissionMapService } from "../../missionMap/missionMap"
 import {
-    convertMapCoordinatesToWorldCoordinates,
+    ConvertCoordinateService,
     convertScreenCoordinatesToWorldCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -690,10 +690,11 @@ const calculateMidTurnPopup = (
     )
 
     if (isValidValue(mapLocation)) {
-        ;[left, top] = convertMapCoordinatesToWorldCoordinates(
-            mapLocation.q,
-            mapLocation.r
-        )
+        ;[left, top] =
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                mapLocation.q,
+                mapLocation.r
+            )
         left -= warningPopupConstants.width / 2
         top += HEX_TILE_WIDTH
 

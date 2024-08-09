@@ -43,6 +43,12 @@ import { ProcessedActionSquaddieEffectService } from "../../action/processed/pro
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DecidedActionService } from "../../action/decided/decidedAction"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import {
+    AttributeModifier,
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../squaddie/attributeModifier"
 
 describe("calculator", () => {
     let squaddieRepository: ObjectRepository
@@ -518,6 +524,121 @@ describe("calculator", () => {
             })
 
             expect(missionStatistics.healingReceivedByPlayerTeam).toBe(2)
+        })
+    })
+
+    describe("apply attribute modifiers to the target", () => {
+        let raiseShieldAction: ActionTemplate
+        let armorCircumstanceModifier: AttributeModifier
+
+        beforeEach(() => {
+            missionMap.addSquaddie(
+                player1SquaddieTemplateId,
+                player1DynamicId,
+                { q: 0, r: 0 }
+            )
+            armorCircumstanceModifier = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 1,
+                duration: 1,
+            })
+            raiseShieldAction = ActionTemplateService.new({
+                id: "raise shield",
+                name: "Raise Shield",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.TARGETS_SELF]: true,
+                        }),
+                        minimumRange: 0,
+                        maximumRange: 0,
+                        attributeModifiers: [armorCircumstanceModifier],
+                    }),
+                ],
+            })
+            squaddieRepository.squaddieTemplates[
+                player1SquaddieTemplateId
+            ].actionTemplates.push(raiseShieldAction)
+        })
+
+        it("will apply modifiers", () => {
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                startingLocation: { q: 0, r: 0 },
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            battleSquaddieId:
+                                player1BattleSquaddie.battleSquaddieId,
+                            actionTemplateName: raiseShieldAction.name,
+                            actionTemplateId: raiseShieldAction.id,
+                            actionEffects: [
+                                DecidedActionSquaddieEffectService.new({
+                                    template: raiseShieldAction
+                                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                    target: { q: 0, r: 0 },
+                                }),
+                            ],
+                        }),
+                    }),
+                ],
+                previewedActionTemplateId: raiseShieldAction.id,
+            })
+
+            const results = ActionCalculator.calculateResults({
+                gameEngineState: GameEngineStateService.new({
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                missionMap,
+                                actionsThisRound,
+                            }),
+                        }
+                    ),
+                    repository: squaddieRepository,
+                }),
+                actionsThisRound,
+                actionEffect:
+                    ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
+                        actionsThisRound
+                    ).decidedActionEffect,
+                actingBattleSquaddie: player1BattleSquaddie,
+                validTargetLocation: { q: 0, r: 0 },
+            })
+
+            const player1Changes = results.squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    player1BattleSquaddie.battleSquaddieId
+            )
+
+            const beforeChanges =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    player1Changes.attributesBefore
+                )
+            expect(beforeChanges).toHaveLength(0)
+
+            const afterChanges =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    player1Changes.attributesAfter
+                )
+            expect(afterChanges).toEqual([
+                {
+                    type: AttributeType.ARMOR,
+                    amount: 1,
+                },
+            ])
+
+            expect(
+                InBattleAttributesService.getAllActiveAttributeModifiers(
+                    player1Changes.attributesAfter
+                )
+            ).toEqual([armorCircumstanceModifier])
         })
     })
 

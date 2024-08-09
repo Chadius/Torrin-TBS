@@ -25,8 +25,7 @@ import { MissionObjective } from "../missionResult/missionObjective"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
     BattlePhase,
-    ConvertBattlePhaseToSquaddieAffiliation,
-    FindTeamsOfAffiliation,
+    BattlePhaseService,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
 import { ObjectRepository } from "../objectRepository"
@@ -106,12 +105,13 @@ export const BattleStateService = {
             return undefined
         }
 
-        const teamsOfAffiliation: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
-            battleState.teams,
-            ConvertBattlePhaseToSquaddieAffiliation(
-                battleState.battlePhaseState.currentAffiliation
+        const teamsOfAffiliation: BattleSquaddieTeam[] =
+            BattlePhaseService.FindTeamsOfAffiliation(
+                battleState.teams,
+                BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
+                    battleState.battlePhaseState.currentAffiliation
+                )
             )
-        )
 
         return teamsOfAffiliation.find((team) =>
             BattleSquaddieTeamService.hasAnActingSquaddie(

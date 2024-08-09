@@ -1,7 +1,6 @@
 import {
     ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
     convertScreenCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToMapCoordinates,
@@ -33,18 +32,33 @@ describe("convertCoordinates", () => {
     })
 
     it("converts map coordinates to world coordinates", () => {
-        expect(convertMapCoordinatesToWorldCoordinates(0, 0)).toStrictEqual([
-            0, 0,
-        ])
-        expect(convertMapCoordinatesToWorldCoordinates(0, 1)).toStrictEqual([
-            HEX_TILE_WIDTH,
-            0,
-        ])
-        expect(convertMapCoordinatesToWorldCoordinates(1, 0)).toStrictEqual([
+        expect(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                0,
+                0
+            )
+        ).toStrictEqual([0, 0])
+        expect(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                0,
+                1
+            )
+        ).toStrictEqual([HEX_TILE_WIDTH, 0])
+        expect(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                1,
+                0
+            )
+        ).toStrictEqual([
             HEX_TILE_WIDTH / 2,
             (HEX_TILE_WIDTH * Math.sqrt(3)) / 2,
         ])
-        expect(convertMapCoordinatesToWorldCoordinates(-2, 0)).toStrictEqual([
+        expect(
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                -2,
+                0
+            )
+        ).toStrictEqual([
             HEX_TILE_WIDTH * -1,
             HEX_TILE_WIDTH * -1 * Math.sqrt(3),
         ])

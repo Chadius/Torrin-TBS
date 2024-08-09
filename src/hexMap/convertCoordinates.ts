@@ -55,6 +55,14 @@ export const ConvertCoordinateService = {
             r,
         }
     },
+    convertMapCoordinatesToWorldCoordinates: (
+        q: number,
+        r: number
+    ): [number, number] => {
+        const y = (q * Math.sqrt(3)) / 2
+        const x = r + q / 2
+        return [x * HEX_TILE_WIDTH, y * HEX_TILE_WIDTH]
+    },
 }
 
 export const convertWorldCoordinatesToMapCoordinates = (
@@ -75,15 +83,6 @@ export const convertWorldCoordinatesToMapCoordinates = (
         return [Math.round(q), Math.round(r)]
     }
     return [q, r]
-}
-
-export const convertMapCoordinatesToWorldCoordinates = (
-    q: number,
-    r: number
-): [number, number] => {
-    const y = (q * Math.sqrt(3)) / 2
-    const x = r + q / 2
-    return [x * HEX_TILE_WIDTH, y * HEX_TILE_WIDTH]
 }
 
 export const convertWorldCoordinatesToScreenCoordinates = (
@@ -117,7 +116,8 @@ export const convertMapCoordinatesToScreenCoordinates = (
     cameraX: number,
     cameraY: number
 ): [number, number] => {
-    const worldCoordinates = convertMapCoordinatesToWorldCoordinates(q, r)
+    const worldCoordinates =
+        ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(q, r)
     return convertWorldCoordinatesToScreenCoordinates(
         ...worldCoordinates,
         cameraX,

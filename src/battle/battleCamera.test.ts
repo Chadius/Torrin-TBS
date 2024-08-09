@@ -1,6 +1,6 @@
 import { BattleCamera } from "./battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
-import { convertMapCoordinatesToWorldCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 
 describe("BattleCamera", () => {
@@ -56,10 +56,11 @@ describe("BattleCamera", () => {
 
         camera.constrainCamera()
 
-        const bottomOfLastRow: number = convertMapCoordinatesToWorldCoordinates(
-            3,
-            0
-        )[1]
+        const bottomOfLastRow: number =
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                3,
+                0
+            )[1]
 
         expect(camera.getCoordinates()[1]).toBe(bottomOfLastRow / 2)
         expect(camera.getVelocity()[1]).toBe(0)
@@ -75,8 +76,16 @@ describe("BattleCamera", () => {
 
         camera.constrainCamera()
 
-        const topLeftTile = convertMapCoordinatesToWorldCoordinates(0, 0)
-        const bottomRightTile = convertMapCoordinatesToWorldCoordinates(3, 3)
+        const topLeftTile =
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                0,
+                0
+            )
+        const bottomRightTile =
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                3,
+                3
+            )
 
         expect(camera.getCoordinates()[0]).toBe(
             (topLeftTile[0] + bottomRightTile[0]) / 2
@@ -86,7 +95,10 @@ describe("BattleCamera", () => {
 
     it("can be constrained so it cannot scroll too far to the left", () => {
         const worldLocationOfBoundary: [number, number] =
-            convertMapCoordinatesToWorldCoordinates(2, 0)
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                2,
+                0
+            )
         const camera: BattleCamera = new BattleCamera(
             -ScreenDimensions.SCREEN_WIDTH * 2,
             worldLocationOfBoundary[1]
@@ -104,7 +116,10 @@ describe("BattleCamera", () => {
 
     it("can be constrained so it cannot scroll too far to the right", () => {
         const worldLocationOfBoundary: [number, number] =
-            convertMapCoordinatesToWorldCoordinates(2, 2)
+            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                2,
+                2
+            )
         const camera: BattleCamera = new BattleCamera(
             ScreenDimensions.SCREEN_WIDTH * 2,
             worldLocationOfBoundary[1]

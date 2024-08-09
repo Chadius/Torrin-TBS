@@ -9,7 +9,6 @@ import {
 import {
     ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -1134,7 +1133,7 @@ export class BattlePlayerSquaddieSelector
             )
         if (MissionMapSquaddieLocationService.isValid(selectedMapCoordinates)) {
             const selectedWorldCoordinates =
-                convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                     selectedMapCoordinates.mapLocation.q,
                     selectedMapCoordinates.mapLocation.r
                 )

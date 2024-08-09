@@ -3,7 +3,7 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { AdvanceToNextPhase, BattlePhase } from "./battlePhaseTracker"
+import { BattlePhaseService, BattlePhase } from "./battlePhaseTracker"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { BattlePhaseState } from "./battlePhaseController"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
@@ -165,7 +165,7 @@ describe("battlePhaseTracker", () => {
             turnCount: 0,
         }
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
     })
 
@@ -176,7 +176,7 @@ describe("battlePhaseTracker", () => {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
     })
 
@@ -193,23 +193,23 @@ describe("battlePhaseTracker", () => {
             turnCount: 0,
         }
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
         expect(battlePhaseState.turnCount).toBe(1)
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY)
         expect(battlePhaseState.turnCount).toBe(1)
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ALLY)
         expect(battlePhaseState.turnCount).toBe(1)
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.NONE)
         expect(battlePhaseState.turnCount).toBe(1)
 
-        AdvanceToNextPhase(battlePhaseState, teams)
+        BattlePhaseService.AdvanceToNextPhase(battlePhaseState, teams)
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER)
         expect(battlePhaseState.turnCount).toBe(2)
     })
@@ -221,7 +221,7 @@ describe("battlePhaseTracker", () => {
         }
 
         const shouldThrowError = () => {
-            AdvanceToNextPhase(battlePhaseState, [])
+            BattlePhaseService.AdvanceToNextPhase(battlePhaseState, [])
         }
 
         expect(() => {

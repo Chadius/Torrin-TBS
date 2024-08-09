@@ -10,7 +10,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
-import { FindTeamsOfAffiliation } from "../orchestratorComponents/battlePhaseTracker"
+import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
@@ -36,10 +36,11 @@ export class InitializeBattle implements BattleOrchestratorComponent {
     }
 
     reset(state: GameEngineState): void {
-        const playerTeams: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
-            state.battleOrchestratorState.battleState.teams,
-            SquaddieAffiliation.PLAYER
-        )
+        const playerTeams: BattleSquaddieTeam[] =
+            BattlePhaseService.FindTeamsOfAffiliation(
+                state.battleOrchestratorState.battleState.teams,
+                SquaddieAffiliation.PLAYER
+            )
         playerTeams.forEach((playerTeam) => {
             playerTeam.battleSquaddieIds.forEach((battleId) => {
                 const { battleSquaddie, squaddieTemplate } =

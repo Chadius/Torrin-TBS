@@ -1,6 +1,6 @@
 import {
+    ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { BattleCamera } from "../battleCamera"
@@ -72,14 +72,16 @@ export const lerpSquaddieBetweenPath = (
     cameraX: number,
     cameraY: number
 ): [number, number] => {
-    const startpoint = convertMapCoordinatesToWorldCoordinates(
-        movementPathInfo[0].q,
-        movementPathInfo[0].r
-    )
-    const endpoint = convertMapCoordinatesToWorldCoordinates(
-        movementPathInfo[1].q,
-        movementPathInfo[1].r
-    )
+    const startpoint =
+        ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            movementPathInfo[0].q,
+            movementPathInfo[0].r
+        )
+    const endpoint =
+        ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            movementPathInfo[1].q,
+            movementPathInfo[1].r
+        )
 
     const lerpX: number =
         (endpoint[0] - startpoint[0]) * (timePassed / totalTravelTime) +

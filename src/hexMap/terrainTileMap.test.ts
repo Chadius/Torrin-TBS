@@ -4,7 +4,7 @@ import { HexGridMovementCost } from "./hexGridMovementCost"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { MapLayer } from "../missionMap/mapLayer"
 import { MouseButton } from "../utils/mouseConfig"
-import { convertMapCoordinatesToWorldCoordinates } from "./convertCoordinates"
+import { ConvertCoordinateService } from "./convertCoordinates"
 import { BattleCamera } from "../battle/battleCamera"
 
 describe("hexMap", () => {
@@ -275,7 +275,10 @@ describe("hexMap", () => {
             ).toBeCloseTo(0)
 
             const expectedLocationFor33 =
-                convertMapCoordinatesToWorldCoordinates(3, 3)
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    3,
+                    3
+                )
             expect(
                 TerrainTileMapService.getWorldLocation(bigMap, 3, 3).x
             ).toBeCloseTo(expectedLocationFor33[0])
@@ -300,7 +303,10 @@ describe("hexMap", () => {
 
         it("calculates the bounding box using world coordinates", () => {
             let expectedWorldBoundariesSize =
-                convertMapCoordinatesToWorldCoordinates(4 + 1, 5 + 1)
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    4 + 1,
+                    5 + 1
+                )
 
             const dimensions = TerrainTileMapService.getWorldBoundingBox(bigMap)
 
@@ -429,7 +435,11 @@ describe("hexMap", () => {
         })
 
         it("knows all of the tiles are on screen", () => {
-            const centerOfMap = convertMapCoordinatesToWorldCoordinates(1, 1)
+            const centerOfMap =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    1,
+                    1
+                )
             const camera = new BattleCamera(centerOfMap[0], centerOfMap[1])
             expect(
                 TerrainTileMapService.isTileOnScreen(map, 0, 0, camera)
@@ -461,7 +471,11 @@ describe("hexMap", () => {
         })
 
         it("knows when tiles have scrolled off the top of the screen", () => {
-            const centerOfMap = convertMapCoordinatesToWorldCoordinates(1, 1)
+            const centerOfMap =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    1,
+                    1
+                )
             const camera = new BattleCamera(
                 centerOfMap[0],
                 centerOfMap[1] +
@@ -477,7 +491,11 @@ describe("hexMap", () => {
         })
 
         it("knows when tiles have scrolled off the bottom of the screen", () => {
-            const centerOfMap = convertMapCoordinatesToWorldCoordinates(1, 1)
+            const centerOfMap =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    1,
+                    1
+                )
             const camera = new BattleCamera(
                 centerOfMap[0],
                 centerOfMap[1] -
@@ -493,7 +511,11 @@ describe("hexMap", () => {
         })
 
         it("knows when tiles have scrolled off the left of the screen", () => {
-            const centerOfMap = convertMapCoordinatesToWorldCoordinates(0, 1)
+            const centerOfMap =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    0,
+                    1
+                )
             const camera = new BattleCamera(
                 centerOfMap[0] + ScreenDimensions.SCREEN_WIDTH / 2,
                 centerOfMap[1]
@@ -507,7 +529,11 @@ describe("hexMap", () => {
         })
 
         it("knows when tiles have scrolled off the right of the screen", () => {
-            const centerOfMap = convertMapCoordinatesToWorldCoordinates(0, 1)
+            const centerOfMap =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    0,
+                    1
+                )
             const camera = new BattleCamera(
                 centerOfMap[0] -
                     ScreenDimensions.SCREEN_WIDTH / 2 -

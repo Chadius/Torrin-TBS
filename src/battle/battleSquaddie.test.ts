@@ -76,7 +76,7 @@ describe("BattleSquaddie", () => {
             })
 
             const defaultInBattleAttributes: InBattleAttributes =
-                InBattleAttributesService.new()
+                InBattleAttributesService.new({})
 
             expect(battleSoldier.inBattleAttributes).toStrictEqual(
                 defaultInBattleAttributes
@@ -127,11 +127,13 @@ describe("BattleSquaddie", () => {
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
                 inBattleAttributes: InBattleAttributesService.new({
-                    maxHitPoints: 9001,
-                    movement: CreateNewSquaddieMovementWithTraits({
-                        movementPerAction: 2,
-                    }),
-                    armorClass: 0,
+                    armyAttributes: {
+                        maxHitPoints: 9001,
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 2,
+                        }),
+                        armorClass: 0,
+                    },
                 }),
             })
 

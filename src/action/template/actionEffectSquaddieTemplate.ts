@@ -8,6 +8,7 @@ import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import { ActionRange } from "../../squaddie/actionRange"
 import { assertsInteger } from "../../utils/mathAssert"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
+import { AttributeModifier } from "../../squaddie/attributeModifier"
 
 export interface ActionEffectSquaddieTemplate {
     type: ActionEffectType.SQUADDIE
@@ -20,6 +21,7 @@ export interface ActionEffectSquaddieTemplate {
     maximumRange: number
     targetingShape: TargetingShape
     buttonIconResourceKey?: string
+    attributeModifiers: AttributeModifier[]
 }
 
 export const ActionEffectSquaddieTemplateService = {
@@ -31,6 +33,7 @@ export const ActionEffectSquaddieTemplateService = {
         traits,
         targetingShape,
         buttonIconResourceKey,
+        attributeModifiers,
     }: {
         traits?: {
             booleanTraits: { [key in Trait]?: boolean }
@@ -38,6 +41,7 @@ export const ActionEffectSquaddieTemplateService = {
         damageDescriptions?: { [t in DamageType]?: number }
         healingDescriptions?: { [t in HealingType]?: number }
         targetingShape?: TargetingShape
+        attributeModifiers?: AttributeModifier[]
         buttonIconResourceKey?: string
     } & Partial<ActionRange>): ActionEffectSquaddieTemplate => {
         const data: ActionEffectSquaddieTemplate = {
@@ -48,6 +52,7 @@ export const ActionEffectSquaddieTemplateService = {
             damageDescriptions: damageDescriptions,
             healingDescriptions: healingDescriptions,
             targetingShape: targetingShape,
+            attributeModifiers: attributeModifiers || [],
             buttonIconResourceKey,
         }
 

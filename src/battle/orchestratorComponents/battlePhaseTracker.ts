@@ -13,24 +13,27 @@ export enum BattlePhase {
     NONE = "NONE",
 }
 
-const squaddieAffiliationToBattlePhase: (
-    squaddieAffiliation: SquaddieAffiliation
-) => BattlePhase = (squaddieAffiliation: SquaddieAffiliation): BattlePhase => {
-    switch (squaddieAffiliation) {
-        case SquaddieAffiliation.PLAYER:
-            return BattlePhase.PLAYER
-        case SquaddieAffiliation.ENEMY:
-            return BattlePhase.ENEMY
-        case SquaddieAffiliation.ALLY:
-            return BattlePhase.ALLY
-        case SquaddieAffiliation.NONE:
-            return BattlePhase.NONE
-        default:
-            return BattlePhase.UNKNOWN
-    }
+export const BattlePhaseService = {
+    ConvertBattlePhaseToSquaddieAffiliation: (
+        phase: BattlePhase
+    ): SquaddieAffiliation => {
+        return convertBattlePhaseToSquaddieAffiliation(phase)
+    },
+    AdvanceToNextPhase: (
+        startingPhaseState: BattlePhaseState,
+        teams: BattleSquaddieTeam[]
+    ) => {
+        return advanceToNextPhase(startingPhaseState, teams)
+    },
+    FindTeamsOfAffiliation: (
+        teams: BattleSquaddieTeam[],
+        affiliation: SquaddieAffiliation
+    ): BattleSquaddieTeam[] => {
+        return findTeamsOfAffiliation(teams, affiliation)
+    },
 }
 
-export const ConvertBattlePhaseToSquaddieAffiliation: (
+const convertBattlePhaseToSquaddieAffiliation: (
     phase: BattlePhase
 ) => SquaddieAffiliation = (phase: BattlePhase): SquaddieAffiliation => {
     switch (phase) {
@@ -47,7 +50,7 @@ export const ConvertBattlePhaseToSquaddieAffiliation: (
     }
 }
 
-export const AdvanceToNextPhase = (
+const advanceToNextPhase = (
     startingPhaseState: BattlePhaseState,
     teams: BattleSquaddieTeam[]
 ) => {
@@ -73,9 +76,9 @@ export const AdvanceToNextPhase = (
 
     let numberOfAttemptedSwitches = 0
     while (numberOfAttemptedSwitches < 5) {
-        const teamsOfAffiliation = FindTeamsOfAffiliation(
+        const teamsOfAffiliation = findTeamsOfAffiliation(
             teams,
-            ConvertBattlePhaseToSquaddieAffiliation(phase)
+            convertBattlePhaseToSquaddieAffiliation(phase)
         )
         if (
             teamsOfAffiliation.length > 0 &&
@@ -104,7 +107,7 @@ export const AdvanceToNextPhase = (
     throw new Error("No teams are available")
 }
 
-export const FindTeamsOfAffiliation = (
+const findTeamsOfAffiliation = (
     teams: BattleSquaddieTeam[],
     affiliation: SquaddieAffiliation
 ): BattleSquaddieTeam[] => {

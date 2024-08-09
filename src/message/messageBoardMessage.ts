@@ -3,6 +3,7 @@ import { BattleAction } from "../battle/history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { ActionTemplate } from "../action/template/actionTemplate"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
+import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -20,6 +21,8 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     | MessageBoardMessagePlayerSelectsTargetLocation
     | MessageBoardMessagePlayerConfirmsAction
+    | MessageBoardMessageSquaddiePhaseStarts
+    | MessageBoardMessageSquaddiePhaseEnds
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -37,6 +40,8 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
     PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
+    SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
+    SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
 }
 
 export interface MessageBoardMessageBase {
@@ -137,5 +142,17 @@ export interface MessageBoardMessagePlayerSelectsTargetLocation {
 
 export interface MessageBoardMessagePlayerConfirmsAction {
     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageSquaddiePhaseStarts {
+    type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS
+    phase: BattlePhase
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageSquaddiePhaseEnds {
+    type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS
+    phase: BattlePhase
     gameEngineState: GameEngineState
 }

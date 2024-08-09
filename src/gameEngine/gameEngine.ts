@@ -49,6 +49,7 @@ import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneServi
 import { BattleStateListener } from "../battle/orchestrator/battleState"
 import { config } from "../configuration/config"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
+import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -260,6 +261,10 @@ export class GameEngine {
             resourceHandler: this.resourceHandler,
             campaign: undefined,
         })
+        this.addMessageListeners()
+    }
+
+    private addMessageListeners() {
         const battleHUDListener: BattleHUDListener = new BattleHUDListener(
             "battleHUDListener"
         )
@@ -282,6 +287,21 @@ export class GameEngine {
                 messageBoardMessageType
             )
         })
+
+        const squaddiePhaseListener = new SquaddiePhaseListener(
+            "squaddiePhaseListener"
+        )
+        ;[
+            MessageBoardMessageType.STARTED_PLAYER_PHASE,
+            MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+            MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                squaddiePhaseListener,
+                messageBoardMessageType
+            )
+        })
+
         const battleStateListener: BattleStateListener =
             new BattleStateListener("battleStateListener")
         ;[MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION].forEach(

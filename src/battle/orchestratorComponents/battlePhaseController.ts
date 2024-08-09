@@ -5,36 +5,21 @@ import {
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
-import {
-    AdvanceToNextPhase,
-    BattlePhase,
-    ConvertBattlePhaseToSquaddieAffiliation,
-    FindTeamsOfAffiliation,
-} from "./battlePhaseTracker"
+import { BattlePhase, BattlePhaseService } from "./battlePhaseTracker"
 import { ImageUI } from "../../ui/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import {
-    GraphicsConfig,
-    ScreenDimensions,
-} from "../../utils/graphics/graphicsConfig"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import {
-    convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
-} from "../../hexMap/convertCoordinates"
-import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { BattleStateService } from "../orchestrator/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { ObjectRepository } from "../objectRepository"
 import { isValidValue } from "../../utils/validityCheck"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { SquaddieService } from "../../squaddie/squaddieService"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
@@ -88,14 +73,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return false
         }
 
-        if (
-            Date.now() - this.bannerDisplayAnimationStartTime <
+        return (
+            Date.now() - this.bannerDisplayAnimationStartTime >=
             BANNER_ANIMATION_TIME
-        ) {
-            return false
-        }
-
-        return true
+        )
     }
 
     mouseEventHappened(
@@ -115,14 +96,17 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         })
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+    update(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ): void {
         if (
             !this.newBannerShown &&
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation !== BattlePhase.UNKNOWN &&
             BattleStateService.getCurrentTeam(
-                state.battleOrchestratorState.battleState,
-                state.repository
+                gameEngineState.battleOrchestratorState.battleState,
+                gameEngineState.repository
             )
         ) {
             return
@@ -133,64 +117,57 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             Date.now() - this.bannerDisplayAnimationStartTime <
                 BANNER_ANIMATION_TIME
         ) {
-            this.draw(state.battleOrchestratorState, graphicsContext)
+            this.draw(gameEngineState.battleOrchestratorState, graphicsContext)
             return
         }
 
         const phaseIsComplete: boolean =
             findFirstTeamOfAffiliationThatCanAct(
-                state.battleOrchestratorState.battleState.teams,
-                ConvertBattlePhaseToSquaddieAffiliation(
-                    state.battleOrchestratorState.battleState.battlePhaseState
-                        .currentAffiliation
+                gameEngineState.battleOrchestratorState.battleState.teams,
+                BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battlePhaseState.currentAffiliation
                 ),
-                state.repository
+                gameEngineState.repository
             ) === undefined
 
         if (
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation === BattlePhase.UNKNOWN ||
             phaseIsComplete
         ) {
-            const teamsOfCurrentAffiliation: BattleSquaddieTeam[] =
-                state.battleOrchestratorState.battleState.teams.filter(
-                    (team) =>
-                        team.affiliation ===
-                        ConvertBattlePhaseToSquaddieAffiliation(
-                            state.battleOrchestratorState.battleState
-                                .battlePhaseState.currentAffiliation
-                        )
-                )
-
-            teamsOfCurrentAffiliation.forEach((team) =>
-                BattleSquaddieTeamService.beginNewRound(team, state.repository)
-            )
-
-            this.newBannerShown = true
-            AdvanceToNextPhase(
-                state.battleOrchestratorState.battleState.battlePhaseState,
-                state.battleOrchestratorState.battleState.teams
-            )
-            this.bannerDisplayAnimationStartTime = Date.now()
-            this.setBannerImage(state)
-
-            state.battleOrchestratorState.battleState.camera.setXVelocity(0)
-            state.battleOrchestratorState.battleState.camera.setYVelocity(0)
-
-            this.panToControllablePlayerSquaddieIfPlayerPhase(state)
-            this.updateHUDIfPlayerPhase(state)
-
-            FindTeamsOfAffiliation(
-                state.battleOrchestratorState.battleState.teams,
-                ConvertBattlePhaseToSquaddieAffiliation(
-                    state.battleOrchestratorState.battleState.battlePhaseState
-                        .currentAffiliation
-                )
-            ).forEach((team) => {
-                BattleSquaddieTeamService.beginNewRound(team, state.repository)
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
+                gameEngineState: gameEngineState,
+                phase: gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation,
             })
 
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+            this.newBannerShown = true
+            BattlePhaseService.AdvanceToNextPhase(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState,
+                gameEngineState.battleOrchestratorState.battleState.teams
+            )
+            this.bannerDisplayAnimationStartTime = Date.now()
+            this.setBannerImage(gameEngineState)
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+                gameEngineState: gameEngineState,
+                phase: gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation,
+            })
+
+            if (
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation === BattlePhase.PLAYER
+            ) {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
+                    gameEngineState,
+                })
+            }
         }
     }
 
@@ -200,9 +177,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         const currentSquaddieAffiliation =
             state.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
-        const teams = FindTeamsOfAffiliation(
+        const teams = BattlePhaseService.FindTeamsOfAffiliation(
             state.battleOrchestratorState.battleState.teams,
-            ConvertBattlePhaseToSquaddieAffiliation(currentSquaddieAffiliation)
+            BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
+                currentSquaddieAffiliation
+            )
         )
 
         if (teams.length > 0) {
@@ -290,91 +269,6 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         this.affiliationImageUI = undefined
         this.bannerDisplayAnimationStartTime = undefined
         this.newBannerShown = false
-    }
-
-    private panToControllablePlayerSquaddieIfPlayerPhase(
-        state: GameEngineState
-    ) {
-        if (
-            state.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.PLAYER
-        ) {
-            return
-        }
-
-        const playerTeam: BattleSquaddieTeam = FindTeamsOfAffiliation(
-            state.battleOrchestratorState.battleState.teams,
-            SquaddieAffiliation.PLAYER
-        )[0]
-        let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find(
-            (id) => {
-                const { squaddieTemplate, battleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            state.repository,
-                            id
-                        )
-                    )
-                const { playerCanControlThisSquaddieRightNow } =
-                    SquaddieService.canPlayerControlSquaddieRightNow({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    })
-
-                return playerCanControlThisSquaddieRightNow
-            }
-        )
-
-        if (squaddieToPanToBattleId === undefined) {
-            return
-        }
-
-        const mapDatum =
-            state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                squaddieToPanToBattleId
-            )
-        if (MissionMapSquaddieLocationService.isValid(mapDatum)) {
-            const squaddieScreenLocation =
-                convertMapCoordinatesToScreenCoordinates(
-                    mapDatum.mapLocation.q,
-                    mapDatum.mapLocation.r,
-                    ...state.battleOrchestratorState.battleState.camera.getCoordinates()
-                )
-            if (
-                GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(
-                    ...squaddieScreenLocation
-                )
-            ) {
-                return
-            }
-
-            const squaddieWorldLocation =
-                convertMapCoordinatesToWorldCoordinates(
-                    mapDatum.mapLocation.q,
-                    mapDatum.mapLocation.r
-                )
-            state.battleOrchestratorState.battleState.camera.pan({
-                xDestination: squaddieWorldLocation[0],
-                yDestination: squaddieWorldLocation[1],
-                timeToPan: BANNER_ANIMATION_TIME - 500,
-                respectConstraints: true,
-            })
-            return
-        }
-    }
-
-    private updateHUDIfPlayerPhase = (gameEngineState: GameEngineState) => {
-        if (
-            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
-                .currentAffiliation !== BattlePhase.PLAYER
-        ) {
-            return
-        }
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.STARTED_PLAYER_PHASE,
-            gameEngineState,
-        })
     }
 }
 

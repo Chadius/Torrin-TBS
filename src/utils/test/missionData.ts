@@ -13,7 +13,7 @@ import {
 } from "../../battle/orchestrator/missionCutsceneCollection"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -621,8 +621,7 @@ export const TestMissionData = () => {
                 name: "Bite",
                 actionPoints: 1,
                 actionEffectTemplates: [
-                    {
-                        type: ActionEffectType.SQUADDIE,
+                    ActionEffectSquaddieTemplateService.new({
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: {
@@ -635,7 +634,7 @@ export const TestMissionData = () => {
                         },
                         healingDescriptions: {},
                         targetingShape: TargetingShape.SNAKE,
-                    },
+                    }),
                 ],
                 buttonIconResourceKey: "decision-button-sword",
             },
@@ -682,8 +681,7 @@ export const TestMissionData = () => {
                 name: "Short sword",
                 actionPoints: 1,
                 actionEffectTemplates: [
-                    {
-                        type: ActionEffectType.SQUADDIE,
+                    ActionEffectSquaddieTemplateService.new({
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: {
@@ -696,7 +694,7 @@ export const TestMissionData = () => {
                         },
                         healingDescriptions: {},
                         targetingShape: TargetingShape.SNAKE,
-                    },
+                    }),
                 ],
                 buttonIconResourceKey: "decision-button-sword",
             },
@@ -736,8 +734,7 @@ export const TestMissionData = () => {
                 name: "Ignition",
                 actionPoints: 1,
                 actionEffectTemplates: [
-                    {
-                        type: ActionEffectType.SQUADDIE,
+                    ActionEffectSquaddieTemplateService.new({
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: {
@@ -750,7 +747,7 @@ export const TestMissionData = () => {
                         },
                         healingDescriptions: {},
                         targetingShape: TargetingShape.SNAKE,
-                    },
+                    }),
                 ],
                 buttonIconResourceKey: "decision-button-sword",
             },

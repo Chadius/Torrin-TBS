@@ -2,11 +2,8 @@ import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
-import { AdvanceToNextPhase, BattlePhase } from "./battlePhaseTracker"
-import {
-    BattleSquaddieTeam,
-    BattleSquaddieTeamService,
-} from "../battleSquaddieTeam"
+import { BattlePhaseService, BattlePhase } from "./battlePhaseTracker"
+import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -14,7 +11,6 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import {
     BANNER_ANIMATION_TIME,
     BattlePhaseController,
-    BattlePhaseState,
 } from "./battlePhaseController"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -25,8 +21,6 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { convertMapCoordinatesToWorldCoordinates } from "../../hexMap/convertCoordinates"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { MissionMap } from "../../missionMap/missionMap"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
@@ -36,10 +30,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { FileAccessHUDService } from "../hud/fileAccessHUD"
-import { BattleHUDListener } from "../hud/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { ButtonStatus } from "../../ui/button"
 
 describe("BattlePhaseController", () => {
     let squaddieRepo: ObjectRepository
@@ -48,7 +39,7 @@ describe("BattlePhaseController", () => {
     let enemySquaddieTeam: BattleSquaddieTeam
     let resourceHandler: ResourceHandler
     let diffTime: number
-    let state: GameEngineState
+    let gameEngineState: GameEngineState
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let teams: BattleSquaddieTeam[]
     let playerSquaddieTemplate: SquaddieTemplate
@@ -137,7 +128,7 @@ describe("BattlePhaseController", () => {
             .fn()
             .mockReturnValue(makeResult("Hi"))
 
-        state = GameEngineStateService.new({
+        gameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -163,24 +154,25 @@ describe("BattlePhaseController", () => {
     })
 
     it("does nothing and finishes immediately if team has not finished their turn", () => {
-        state.battleOrchestratorState.battleState.battlePhaseState = {
+        gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
-        AdvanceToNextPhase(
-            state.battleOrchestratorState.battleState.battlePhaseState,
+        BattlePhaseService.AdvanceToNextPhase(
+            gameEngineState.battleOrchestratorState.battleState
+                .battlePhaseState,
             teams
         )
         expect(
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
         ).toBe(BattlePhase.PLAYER)
 
-        battlePhaseController.update(state, mockedP5GraphicsContext)
-        expect(battlePhaseController.hasCompleted(state)).toBeTruthy()
+        battlePhaseController.update(gameEngineState, mockedP5GraphicsContext)
+        expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
         expect(battlePhaseController.draw).not.toBeCalled()
         expect(
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
         ).toBe(BattlePhase.PLAYER)
     })
@@ -268,159 +260,39 @@ describe("BattlePhaseController", () => {
         ).toStrictEqual([0, 0])
     })
 
-    describe("The start of Player Phase", () => {
-        let missionMap: MissionMap
+    it("sends a message when the phase changes", () => {
+        const messageSpy = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
 
-        beforeEach(() => {
-            missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 "],
-                }),
-            })
-        })
-
-        const initializeState = ({
-            squaddieTemplateIdToAdd,
-            battleSquaddieIdToAdd,
-            camera,
-        }: {
-            squaddieTemplateIdToAdd: string
-            battleSquaddieIdToAdd: string
-            camera: BattleCamera
-        }): GameEngineState => {
-            missionMap.addSquaddie(
-                squaddieTemplateIdToAdd,
-                battleSquaddieIdToAdd,
-                { q: 0, r: 0 }
-            )
-            const state: BattleOrchestratorState =
-                BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap,
-                        camera,
-                    }),
-                })
-
-            state.battleState.battlePhaseState = {
-                currentAffiliation: BattlePhase.UNKNOWN,
-                turnCount: 0,
-            }
-
-            battlePhaseController = new BattlePhaseController()
-            return GameEngineStateService.new({
-                battleOrchestratorState: state,
-                repository: squaddieRepo,
-                resourceHandler,
-            })
+        gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
+            currentAffiliation: BattlePhase.PLAYER,
+            turnCount: 1,
         }
-
-        it("pans the camera to the first player when it is the player phase and the player is not near the middle of the screen", () => {
-            const state = initializeState({
-                squaddieTemplateIdToAdd:
-                    playerSquaddieTemplate.squaddieId.templateId,
-                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
-                camera: new BattleCamera(
-                    ScreenDimensions.SCREEN_WIDTH * 10,
-                    ScreenDimensions.SCREEN_HEIGHT * 10
-                ),
+        ;[playerSquaddieTeam].forEach((team) =>
+            team.battleSquaddieIds.forEach((battleSquaddieId) => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        squaddieRepo,
+                        battleSquaddieId
+                    )
+                )
+                SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
+        )
+        battlePhaseController.update(gameEngineState, mockedP5GraphicsContext)
 
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(
-                state.battleOrchestratorState.battleState.camera.isPanning()
-            ).toBeTruthy()
-
-            const datum =
-                state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    playerSquaddieTeam.battleSquaddieIds[0]
-                )
-            const playerSquaddieLocation =
-                convertMapCoordinatesToWorldCoordinates(
-                    datum.mapLocation.q,
-                    datum.mapLocation.r
-                )
-            expect(
-                state.battleOrchestratorState.battleState.camera
-                    .panningInformation.xDestination
-            ).toBe(playerSquaddieLocation[0])
-            expect(
-                state.battleOrchestratorState.battleState.camera
-                    .panningInformation.yDestination
-            ).toBe(playerSquaddieLocation[1])
+        expect(messageSpy).toHaveBeenCalledWith({
+            type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
+            phase: BattlePhase.PLAYER,
+            gameEngineState,
         })
 
-        it("enables and shows the HUD at the start of the player phase", () => {
-            const gameEngineState = initializeState({
-                squaddieTemplateIdToAdd:
-                    playerSquaddieTemplate.squaddieId.templateId,
-                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
-                camera: new BattleCamera(
-                    ScreenDimensions.SCREEN_WIDTH * 10,
-                    ScreenDimensions.SCREEN_HEIGHT * 10
-                ),
-            })
-            const battleHUDListener: BattleHUDListener = new BattleHUDListener(
-                "battleHUDListener"
-            )
-            gameEngineState.messageBoard.addListener(
-                battleHUDListener,
-                MessageBoardMessageType.STARTED_PLAYER_PHASE
-            )
-
-            const messageSpy: jest.SpyInstance = jest.spyOn(
-                gameEngineState.messageBoard,
-                "sendMessage"
-            )
-
-            battlePhaseController.update(
-                gameEngineState,
-                mockedP5GraphicsContext
-            )
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD.loadButton.getStatus()
-            ).toBe(ButtonStatus.READY)
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD.saveButton.getStatus()
-            ).toBe(ButtonStatus.READY)
-            expect(messageSpy).toBeCalled()
-            messageSpy.mockRestore()
-        })
-
-        it("does not pan the camera to the first player when it is the player phase and the player is near the center of the screen", () => {
-            const state = initializeState({
-                squaddieTemplateIdToAdd:
-                    playerSquaddieTemplate.squaddieId.templateId,
-                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
-                camera: new BattleCamera(
-                    ...convertMapCoordinatesToWorldCoordinates(0, 0)
-                ),
-            })
-
-            const datum =
-                state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    playerSquaddieTeam.battleSquaddieIds[0]
-                )
-            const playerSquaddieLocation =
-                convertMapCoordinatesToWorldCoordinates(
-                    datum.mapLocation.q,
-                    datum.mapLocation.r
-                )
-            state.battleOrchestratorState.battleState.camera.xCoord =
-                playerSquaddieLocation[0]
-            state.battleOrchestratorState.battleState.camera.yCoord =
-                playerSquaddieLocation[1]
-
-            battlePhaseController = new BattlePhaseController()
-            const startTime = 0
-            jest.spyOn(Date, "now").mockImplementation(() => startTime)
-
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(
-                state.battleOrchestratorState.battleState.camera.isPanning()
-            ).toBeFalsy()
+        expect(messageSpy).toHaveBeenCalledWith({
+            type: MessageBoardMessageType.SQUADDIE_PHASE_STARTS,
+            phase: BattlePhase.ENEMY,
+            gameEngineState,
         })
     })
 
@@ -428,18 +300,20 @@ describe("BattlePhaseController", () => {
         const startTime = 100
 
         beforeEach(() => {
-            state.battleOrchestratorState.battleState.battlePhaseState = {
-                currentAffiliation: BattlePhase.UNKNOWN,
-                turnCount: 0,
-            }
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState =
+                {
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                    turnCount: 0,
+                }
 
-            AdvanceToNextPhase(
-                state.battleOrchestratorState.battleState.battlePhaseState,
+            BattlePhaseService.AdvanceToNextPhase(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState,
                 teams
             )
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.PLAYER)
 
             const { battleSquaddie: battleSquaddie0 } = getResultOrThrowError(
@@ -451,11 +325,16 @@ describe("BattlePhaseController", () => {
             BattleSquaddieService.endTurn(battleSquaddie0)
 
             jest.spyOn(Date, "now").mockImplementation(() => startTime)
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
+            battlePhaseController.update(
+                gameEngineState,
+                mockedP5GraphicsContext
+            )
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
+                battlePhaseController.hasCompleted(gameEngineState)
+            ).toBeFalsy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.ENEMY)
         })
 
@@ -463,30 +342,17 @@ describe("BattlePhaseController", () => {
             jest.spyOn(Date, "now").mockImplementation(
                 () => startTime + BANNER_ANIMATION_TIME + diffTime
             )
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(battlePhaseController.hasCompleted(state)).toBeTruthy()
+            battlePhaseController.update(
+                gameEngineState,
+                mockedP5GraphicsContext
+            )
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
+                battlePhaseController.hasCompleted(gameEngineState)
+            ).toBeTruthy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.ENEMY)
-        })
-
-        it("does not enable the HUD at the start of the phase", () => {
-            const fileAccessHUDSpy = jest.spyOn(
-                FileAccessHUDService,
-                "enableButtons"
-            )
-            jest.spyOn(Date, "now").mockImplementation(
-                () => startTime + BANNER_ANIMATION_TIME + diffTime
-            )
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
-            ).not.toBe(BattlePhase.PLAYER)
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(fileAccessHUDSpy).not.toBeCalled()
-            fileAccessHUDSpy.mockRestore()
         })
     })
 
@@ -554,53 +420,6 @@ describe("BattlePhaseController", () => {
             })
         )
         expect(battlePhaseController.affiliationImageUI).toBeFalsy()
-    })
-
-    it("restores team squaddie turns once the banner appears starts", () => {
-        const { battleSquaddie: battleSquaddie0 } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                squaddieRepo,
-                "player_squaddie_0"
-            )
-        )
-        BattleSquaddieService.endTurn(battleSquaddie0)
-        expect(
-            BattleSquaddieService.canStillActThisRound(battleSquaddie0)
-        ).toBeFalsy()
-
-        const phase: BattlePhaseState = {
-            currentAffiliation: BattlePhase.UNKNOWN,
-            turnCount: 0,
-        }
-
-        const state: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
-            resourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    battlePhaseState: phase,
-                    teams,
-                    missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 "],
-                        }),
-                    }),
-                }),
-            }),
-        })
-        battlePhaseController = new BattlePhaseController()
-        const startTime = 0
-
-        jest.spyOn(Date, "now").mockImplementation(() => startTime)
-        battlePhaseController.update(state, mockedP5GraphicsContext)
-
-        expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
-        expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER)
-        expect(
-            BattleSquaddieService.canStillActThisRound(battleSquaddie0)
-        ).toBeTruthy()
     })
 
     describe("multiple teams of the same affiliation", () => {
@@ -717,21 +536,6 @@ describe("BattlePhaseController", () => {
                 state.battleOrchestratorState.battleState.battlePhaseState
                     .turnCount
             ).toBe(0)
-
-            expect(
-                BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(
-                    playerSquaddieTeam,
-                    squaddieRepo
-                )
-            ).toEqual(
-                expect.arrayContaining(playerSquaddieTeam.battleSquaddieIds)
-            )
-            expect(
-                BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(
-                    playerTeam2,
-                    squaddieRepo
-                )
-            ).toEqual(expect.arrayContaining(playerTeam2.battleSquaddieIds))
         })
     })
 })
