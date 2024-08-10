@@ -13,7 +13,7 @@ import {
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { ActionTimer } from "./actionTimer"
 import { ActionAnimationPhase } from "./actionAnimationConstants"
-import { ATTACK_MODIFIER } from "../../modifierConstants"
+import { ACTOR_MODIFIER } from "../../modifierConstants"
 import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
 import {
     ActionTemplate,
@@ -223,7 +223,7 @@ describe("ActorTextWindow", () => {
                             rolls: [],
                         },
                         actingSquaddieModifiers: {
-                            [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
+                            [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
                         },
                     }),
                 }),
@@ -258,7 +258,7 @@ describe("ActorTextWindow", () => {
                             rolls: [1, 5],
                         },
                         actingSquaddieModifiers: {
-                            [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
+                            [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
                         },
                     }),
                 }),

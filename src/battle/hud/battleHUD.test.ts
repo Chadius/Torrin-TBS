@@ -1633,6 +1633,10 @@ describe("Battle HUD", () => {
                                                 occurred: false,
                                                 rolls: [],
                                             },
+                                            targetSquaddieModifiers: {
+                                                [thiefBattleSquaddie.battleSquaddieId]:
+                                                    {},
+                                            },
                                         }),
                                     squaddieChanges: [
                                         BattleActionSquaddieChangeService.new({

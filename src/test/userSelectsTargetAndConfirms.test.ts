@@ -347,7 +347,13 @@ describe("User Selects Target and Confirms", () => {
                                                     "player 0",
                                                 actionContext:
                                                     BattleActionActionContextService.new(
-                                                        {}
+                                                        {
+                                                            targetSquaddieModifiers:
+                                                                {
+                                                                    "enemy 0":
+                                                                        {},
+                                                                },
+                                                        }
                                                     ),
                                                 squaddieChanges: [
                                                     BattleActionSquaddieChangeService.new(

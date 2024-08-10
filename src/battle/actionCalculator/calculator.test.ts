@@ -23,7 +23,7 @@ import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionCalculator } from "./calculator"
 
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import {
@@ -847,7 +847,7 @@ describe("calculator", () => {
             )
             expect(
                 results.actingContext.actingSquaddieModifiers[
-                    ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY
+                    ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY
                 ]
             ).toEqual(-3)
         })

@@ -24,6 +24,7 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
+import { BattleActionActionContextService } from "../../history/battleAction"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository
@@ -111,13 +112,13 @@ describe("Actor Sprite", () => {
             actorBattleSquaddieId: battleSquaddieId,
             startingPosition: 0,
             squaddieResult: SquaddieSquaddieResultsService.new({
-                actionContext: {
+                actionContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: false,
                         rolls: [],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
                 squaddieChanges: [],
                 targetedBattleSquaddieIds: [],
                 actingBattleSquaddieId: battleSquaddieId,

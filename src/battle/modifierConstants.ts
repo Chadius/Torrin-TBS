@@ -1,9 +1,9 @@
-export enum ATTACK_MODIFIER {
+export enum ACTOR_MODIFIER {
     MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
 }
 
-export const AttackModifierStrings: { [key in ATTACK_MODIFIER]: string } = {
-    [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: "Multiple Attack",
+export const ActorModifierStrings: { [key in ACTOR_MODIFIER]: string } = {
+    [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: "Multiple Attack",
 }
 
 export const MULTIPLE_ATTACK_PENALTY = -3

@@ -67,6 +67,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { BattleHUDService } from "../hud/battleHUD"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("orchestratorState", () => {
     let validBattleState: BattleState
@@ -267,10 +268,10 @@ describe("orchestratorState", () => {
                     results: SquaddieSquaddieResultsService.new({
                         targetedBattleSquaddieIds: [],
                         actingBattleSquaddieId: "",
-                        actionContext: {
+                        actionContext: BattleActionActionContextService.new({
                             actingSquaddieModifiers: {},
                             actingSquaddieRoll: undefined,
-                        },
+                        }),
                         squaddieChanges: [],
                     }),
                 })

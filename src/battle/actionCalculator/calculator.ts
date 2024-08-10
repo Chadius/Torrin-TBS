@@ -20,7 +20,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import {
@@ -39,7 +39,14 @@ import {
     BattleActionSquaddieChangeService,
 } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
-import { AttributeModifier } from "../../squaddie/attributeModifier"
+import {
+    AttributeModifier,
+    AttributeType,
+} from "../../squaddie/attributeModifier"
+import { CalculateAgainstArmor } from "./calculateAgainstArmor"
+import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
+import { DecidedActionMovementEffect } from "../../action/decided/decidedActionMovementEffect"
+import { DecidedActionEndTurnEffect } from "../../action/decided/decidedActionEndTurnEffect"
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -101,6 +108,237 @@ export const ActionCalculator = {
     },
 }
 
+const getActingSquaddieModifiers = (actionsThisRound: ActionsThisRound) => {
+    let { multipleAttackPenalty } =
+        ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
+            actionsThisRound
+        )
+    let actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number } = {}
+
+    if (multipleAttackPenalty !== 0) {
+        actingSquaddieModifiers[ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
+            multipleAttackPenalty
+    }
+    return actingSquaddieModifiers
+}
+
+const calculateAndApplyResultToTarget = (
+    gameEngineState: GameEngineState,
+    targetedBattleSquaddieId: string,
+    actionEffect:
+        | DecidedActionSquaddieEffect
+        | DecidedActionMovementEffect
+        | DecidedActionEndTurnEffect,
+    targetSquaddieModifiers: {
+        [p: string]: { [modifier in AttributeType]?: number }
+    },
+    actingBattleSquaddie: BattleSquaddie,
+    actingSquaddieRoll: RollResult,
+    actingSquaddieModifierTotal: number
+) => {
+    const {
+        squaddieTemplate: targetedSquaddieTemplate,
+        battleSquaddie: targetedBattleSquaddie,
+    } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            targetedBattleSquaddieId
+        )
+    )
+
+    const changes = ActionCalculator.getBattleActionSquaddieChange({
+        gameEngineState,
+        targetBattleSquaddieId: targetedBattleSquaddieId,
+    })
+
+    let healingReceived = calculateTotalHealingReceived({
+        targetedBattleSquaddie,
+        actionEffect: actionEffect,
+    })
+
+    let targetSquaddieModifierTotal: number = 0
+    let targetSquaddieModifiersForThisSquaddie: {
+        [modifier in AttributeType]?: number
+    } = {}
+
+    if (isActionAgainstArmor(actionEffect)) {
+        ;({
+            modifiers: targetSquaddieModifiersForThisSquaddie,
+            modifierTotal: targetSquaddieModifierTotal,
+        } = CalculateAgainstArmor.getTargetSquaddieModifierTotal(
+            targetedBattleSquaddie
+        ))
+    }
+
+    targetSquaddieModifiers[targetedBattleSquaddieId] =
+        targetSquaddieModifiersForThisSquaddie
+
+    let { damageDealt, degreeOfSuccess } =
+        calculateTotalDamageDealtForAttackRoll({
+            actionEffect,
+            state: gameEngineState.battleOrchestratorState,
+            actingBattleSquaddie,
+            targetedSquaddieTemplate,
+            targetedBattleSquaddie,
+            actingSquaddieRoll,
+            actingSquaddieModifierTotal,
+            targetSquaddieModifierTotal,
+        })
+
+    let attributeModifiersToAddToTarget: AttributeModifier[] =
+        calculateAttributeModifiers({
+            actionEffect,
+        })
+
+    applyChangesToSquaddie({
+        targetedBattleSquaddie,
+        calculatedDamageTaken: damageDealt,
+        calculatedHealingReceived: healingReceived,
+        attributeModifiers: attributeModifiersToAddToTarget,
+    })
+
+    changes.attributesAfter = InBattleAttributesService.clone(
+        targetedBattleSquaddie.inBattleAttributes
+    )
+
+    return BattleActionSquaddieChangeService.new({
+        battleSquaddieId: targetedBattleSquaddieId,
+        healingReceived,
+        damageTaken: damageDealt,
+        actorDegreeOfSuccess: degreeOfSuccess,
+        attributesBefore: changes.attributesBefore,
+        attributesAfter: changes.attributesAfter,
+    })
+}
+
+const calculateIfAttack = ({
+    actionEffect,
+    gameEngineState,
+    validTargetLocation,
+    actionsThisRound,
+    actingBattleSquaddie,
+}: {
+    actionEffect: DecidedActionSquaddieEffect
+    gameEngineState: GameEngineState
+    validTargetLocation: HexCoordinate
+    actionsThisRound: ActionsThisRound
+    actingBattleSquaddie: BattleSquaddie
+}) => {
+    let actingSquaddieRoll: RollResult
+    actingSquaddieRoll = maybeMakeAttackRoll(
+        actionEffect.template,
+        gameEngineState.battleOrchestratorState
+    )
+
+    const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
+        gameEngineState,
+        locations: [validTargetLocation],
+    })
+
+    let actingSquaddieModifiers = getActingSquaddieModifiers(actionsThisRound)
+    let actingSquaddieModifierTotal: number = Object.values(
+        actingSquaddieModifiers
+    ).reduce((previousValue: number, currentValue: number) => {
+        return previousValue + currentValue
+    }, 0)
+
+    const resultPerTarget: BattleActionSquaddieChange[] = []
+    const targetSquaddieModifiers: {
+        [squaddieId: string]: { [modifier in AttributeType]?: number }
+    } = {}
+
+    targetedBattleSquaddieIds.forEach((targetedBattleSquaddieId) => {
+        const result: BattleActionSquaddieChange =
+            calculateAndApplyResultToTarget(
+                gameEngineState,
+                targetedBattleSquaddieId,
+                actionEffect,
+                targetSquaddieModifiers,
+                actingBattleSquaddie,
+                actingSquaddieRoll,
+                actingSquaddieModifierTotal
+            )
+
+        resultPerTarget.push(result)
+        maybeUpdateMissionStatistics({
+            result,
+            gameEngineState,
+            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+        })
+    })
+
+    return SquaddieSquaddieResultsService.new({
+        actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+        targetedBattleSquaddieIds: targetedBattleSquaddieIds,
+        squaddieChanges: resultPerTarget,
+        actionContext: BattleActionActionContextService.new({
+            actingSquaddieModifiers,
+            actingSquaddieRoll,
+            targetSquaddieModifiers,
+        }),
+    })
+}
+
+const calculateIfNotAnAttack = ({
+    actionEffect,
+    gameEngineState,
+    validTargetLocation,
+    actingBattleSquaddie,
+}: {
+    actionEffect: DecidedActionSquaddieEffect
+    gameEngineState: GameEngineState
+    validTargetLocation: HexCoordinate
+    actingBattleSquaddie: BattleSquaddie
+}) => {
+    let actingSquaddieRoll: RollResult = RollResultService.new({
+        occurred: false,
+        rolls: [],
+    })
+
+    const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
+        gameEngineState,
+        locations: [validTargetLocation],
+    })
+
+    const resultPerTarget: BattleActionSquaddieChange[] = []
+
+    targetedBattleSquaddieIds.forEach((targetedBattleSquaddieId) => {
+        const result: BattleActionSquaddieChange =
+            calculateAndApplyResultToTarget(
+                gameEngineState,
+                targetedBattleSquaddieId,
+                actionEffect,
+                {},
+                actingBattleSquaddie,
+                actingSquaddieRoll,
+                0
+            )
+
+        resultPerTarget.push(result)
+        maybeUpdateMissionStatistics({
+            result,
+            gameEngineState,
+            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+        })
+    })
+
+    return SquaddieSquaddieResultsService.new({
+        actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+        targetedBattleSquaddieIds: targetedBattleSquaddieIds,
+        squaddieChanges: resultPerTarget,
+        actionContext: BattleActionActionContextService.new({
+            actingSquaddieModifiers: {},
+            actingSquaddieRoll,
+            targetSquaddieModifiers: Object.fromEntries(
+                targetedBattleSquaddieIds.map((battleSquaddieId) => [
+                    battleSquaddieId,
+                    {},
+                ])
+            ),
+        }),
+    })
+}
+
 const calculateResults = ({
     gameEngineState,
     actingBattleSquaddie,
@@ -114,109 +352,25 @@ const calculateResults = ({
     actionsThisRound: ActionsThisRound
     actionEffect: DecidedActionEffect
 }): SquaddieSquaddieResults => {
-    const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
-        gameEngineState,
-        locations: [validTargetLocation],
-    })
-
-    let actingSquaddieRoll: RollResult
-    if (actionEffect && actionEffect.type === ActionEffectType.SQUADDIE) {
-        actingSquaddieRoll = maybeMakeAttackRoll(
-            actionEffect.template,
-            gameEngineState.battleOrchestratorState
-        )
-    }
-    let { multipleAttackPenalty } =
-        ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
-            actionsThisRound
-        )
-    let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {}
-
-    if (multipleAttackPenalty !== 0) {
-        actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
-            multipleAttackPenalty
+    if (actionEffect?.type !== ActionEffectType.SQUADDIE) {
+        return
     }
 
-    const resultPerTarget: BattleActionSquaddieChange[] = []
-
-    targetedBattleSquaddieIds.forEach((targetedBattleSquaddieId) => {
-        const {
-            squaddieTemplate: targetedSquaddieTemplate,
-            battleSquaddie: targetedBattleSquaddie,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                targetedBattleSquaddieId
-            )
-        )
-
-        const changes = ActionCalculator.getBattleActionSquaddieChange({
+    if (isAnAttack(actionEffect)) {
+        return calculateIfAttack({
+            actionEffect,
             gameEngineState,
-            targetBattleSquaddieId: targetedBattleSquaddieId,
-        })
-
-        let healingReceived = calculateTotalHealingReceived({
-            targetedBattleSquaddie,
-            actionEffect: actionEffect,
-        })
-
-        let { damageDealt, degreeOfSuccess } = calculateTotalDamageDealt({
-            actionEffect: actionEffect,
-            state: gameEngineState.battleOrchestratorState,
+            validTargetLocation,
+            actionsThisRound,
             actingBattleSquaddie,
-            targetedSquaddieTemplate,
-            targetedBattleSquaddie,
-            actingSquaddieRoll,
-            actingSquaddieModifierTotal: multipleAttackPenalty,
         })
+    }
 
-        let attributeModifiers: AttributeModifier[] =
-            calculateAttributeModifiers({
-                gameEngineState,
-                actionEffect,
-                actingBattleSquaddie,
-                targetedBattleSquaddie,
-            })
-
-        applyChangesToSquaddie({
-            targetedBattleSquaddie,
-            calculatedDamageTaken: damageDealt,
-            calculatedHealingReceived: healingReceived,
-            attributeModifiers,
-        })
-
-        changes.attributesAfter = InBattleAttributesService.clone(
-            targetedBattleSquaddie.inBattleAttributes
-        )
-
-        resultPerTarget.push(
-            BattleActionSquaddieChangeService.new({
-                battleSquaddieId: targetedBattleSquaddieId,
-                healingReceived,
-                damageTaken: damageDealt,
-                actorDegreeOfSuccess: degreeOfSuccess,
-                attributesBefore: changes.attributesBefore,
-                attributesAfter: changes.attributesAfter,
-            })
-        )
-
-        maybeUpdateMissionStatistics(
-            targetedSquaddieTemplate,
-            gameEngineState,
-            healingReceived,
-            damageDealt,
-            actingBattleSquaddie
-        )
-    })
-
-    return SquaddieSquaddieResultsService.new({
-        actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-        targetedBattleSquaddieIds: targetedBattleSquaddieIds,
-        squaddieChanges: resultPerTarget,
-        actionContext: BattleActionActionContextService.new({
-            actingSquaddieModifiers,
-            actingSquaddieRoll,
-        }),
+    return calculateIfNotAnAttack({
+        actionEffect,
+        gameEngineState,
+        validTargetLocation,
+        actingBattleSquaddie,
     })
 }
 
@@ -286,13 +440,14 @@ const compareAttackRollToGetDegreeOfSuccess = ({
     }
 }
 
-const calculateTotalDamageDealt = ({
+const calculateTotalDamageDealtForAttackRoll = ({
     state,
     actingBattleSquaddie,
     targetedSquaddieTemplate,
     targetedBattleSquaddie,
     actingSquaddieRoll,
     actingSquaddieModifierTotal,
+    targetSquaddieModifierTotal,
     actionEffect,
 }: {
     state: BattleOrchestratorState
@@ -301,6 +456,7 @@ const calculateTotalDamageDealt = ({
     actingBattleSquaddie: BattleSquaddie
     actingSquaddieRoll: RollResult
     actingSquaddieModifierTotal: number
+    targetSquaddieModifierTotal: number
     actionEffect: DecidedActionEffect
 }): { damageDealt: number; degreeOfSuccess: DegreeOfSuccess } => {
     let damageDealt = 0
@@ -319,7 +475,8 @@ const calculateTotalDamageDealt = ({
         actor: actingBattleSquaddie,
         target: targetedBattleSquaddie,
         actingSquaddieRoll,
-        actingSquaddieModifierTotal,
+        actingSquaddieModifierTotal:
+            actingSquaddieModifierTotal - targetSquaddieModifierTotal,
     })
 
     Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach(
@@ -407,31 +564,45 @@ const calculateTotalHealingReceived = ({
     return healingReceived
 }
 
-function maybeUpdateMissionStatistics(
-    targetedSquaddieTemplate: SquaddieTemplate,
-    state: GameEngineState,
-    healingReceived: number,
-    damageDealt: number,
-    actingBattleSquaddie: BattleSquaddie
-) {
+const maybeUpdateMissionStatistics = ({
+    result,
+    gameEngineState,
+    actingBattleSquaddieId,
+}: {
+    result: BattleActionSquaddieChange
+    gameEngineState: GameEngineState
+    actingBattleSquaddieId: string
+}) => {
+    const { squaddieTemplate: targetedSquaddieTemplate } =
+        getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                result.battleSquaddieId
+            )
+        )
+    const healingReceived: number = result.healingReceived
+    const damageDealt: number = result.damageTaken
+
     if (
         targetedSquaddieTemplate.squaddieId.affiliation ===
         SquaddieAffiliation.PLAYER
     ) {
         MissionStatisticsHandler.addHealingReceivedByPlayerTeam(
-            state.battleOrchestratorState.battleState.missionStatistics,
+            gameEngineState.battleOrchestratorState.battleState
+                .missionStatistics,
             healingReceived
         )
         MissionStatisticsHandler.addDamageTakenByPlayerTeam(
-            state.battleOrchestratorState.battleState.missionStatistics,
+            gameEngineState.battleOrchestratorState.battleState
+                .missionStatistics,
             damageDealt
         )
     }
 
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            state.repository,
-            actingBattleSquaddie.battleSquaddieId
+            gameEngineState.repository,
+            actingBattleSquaddieId
         )
     )
     if (
@@ -439,7 +610,8 @@ function maybeUpdateMissionStatistics(
         SquaddieAffiliation.PLAYER
     ) {
         MissionStatisticsHandler.addDamageDealtByPlayerTeam(
-            state.battleOrchestratorState.battleState.missionStatistics,
+            gameEngineState.battleOrchestratorState.battleState
+                .missionStatistics,
             damageDealt
         )
     }
@@ -502,15 +674,9 @@ const getBattleSquaddieIdsAtGivenLocations = ({
 }
 
 const calculateAttributeModifiers = ({
-    actingBattleSquaddie,
     actionEffect,
-    gameEngineState,
-    targetedBattleSquaddie,
 }: {
-    actingBattleSquaddie: BattleSquaddie
     actionEffect: DecidedActionEffect
-    gameEngineState: GameEngineState
-    targetedBattleSquaddie: BattleSquaddie
 }): AttributeModifier[] => {
     if (actionEffect.type !== ActionEffectType.SQUADDIE) {
         return []
@@ -522,3 +688,21 @@ const calculateAttributeModifiers = ({
 
     return [...actionEffect.template.attributeModifiers]
 }
+
+const isActionAgainstArmor = (
+    actionEffect:
+        | DecidedActionSquaddieEffect
+        | DecidedActionMovementEffect
+        | DecidedActionEndTurnEffect
+): boolean =>
+    actionEffect.type === ActionEffectType.SQUADDIE &&
+    TraitStatusStorageService.getStatus(
+        actionEffect.template.traits,
+        Trait.TARGET_ARMOR
+    ) === true
+
+const isAnAttack = (actionEffect: DecidedActionSquaddieEffect): boolean =>
+    TraitStatusStorageService.getStatus(
+        actionEffect.template.traits,
+        Trait.ATTACK
+    )

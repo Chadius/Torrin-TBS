@@ -1,7 +1,7 @@
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     BattleOrchestratorChanges,
@@ -246,14 +246,14 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         )
 
         let actingSquaddieModifiers: {
-            [modifier in ATTACK_MODIFIER]?: number
+            [modifier in ACTOR_MODIFIER]?: number
         } = {}
         let { multipleAttackPenalty } =
             ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
                 state.battleOrchestratorState.battleState.actionsThisRound
             )
         if (multipleAttackPenalty !== 0) {
-            actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
+            actingSquaddieModifiers[ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
                 multipleAttackPenalty
         }
 
