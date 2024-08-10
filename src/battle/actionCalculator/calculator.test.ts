@@ -23,7 +23,7 @@ import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionCalculator } from "./calculator"
 
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import {
@@ -847,7 +847,7 @@ describe("calculator", () => {
             )
             expect(
                 results.actingContext.actingSquaddieModifiers[
-                    ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY
+                    ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY
                 ]
             ).toEqual(-3)
         })
@@ -1054,55 +1054,6 @@ describe("calculator", () => {
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
             expect(enemy1Changes.damageTaken).toBe(0)
-        })
-    })
-
-    describe("BattleActionSquaddieChange", () => {
-        it("can create a new BattleActionSquaddieChange when the squaddie is attacked before the changes are applied", () => {
-            const change: BattleActionSquaddieChange =
-                ActionCalculator.getBattleActionSquaddieChange({
-                    gameEngineState: GameEngineStateService.new({
-                        repository: squaddieRepository,
-                    }),
-                    targetBattleSquaddieId:
-                        enemy1BattleSquaddie.battleSquaddieId,
-                })
-
-            expect(change.battleSquaddieId).toEqual(
-                enemy1BattleSquaddie.battleSquaddieId
-            )
-            expect(change.attributesBefore.currentHitPoints).toEqual(5)
-            expect(change.attributesAfter).toBeUndefined()
-        })
-    })
-
-    describe("getTargetedBattleSquaddieIds", () => {
-        it("can get all squaddies in a given location", () => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
-                q: 0,
-                r: 1,
-            })
-
-            expect(
-                ActionCalculator.getBattleSquaddieIdsAtGivenLocations({
-                    gameEngineState: GameEngineStateService.new({
-                        battleOrchestratorState:
-                            BattleOrchestratorStateService.new({
-                                battleState: BattleStateService.new({
-                                    missionMap,
-                                    campaignId: "",
-                                    missionId: "",
-                                }),
-                            }),
-                    }),
-                    locations: [{ q: 0, r: 1 }],
-                })
-            ).toEqual([enemy1BattleSquaddie.battleSquaddieId])
         })
     })
 })

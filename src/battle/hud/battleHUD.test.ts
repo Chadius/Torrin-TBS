@@ -138,6 +138,7 @@ describe("Battle HUD", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.ATTACK]: true,
                     }),
                     minimumRange: 0,
                     maximumRange: 1,
@@ -1632,6 +1633,10 @@ describe("Battle HUD", () => {
                                             actingSquaddieRoll: {
                                                 occurred: false,
                                                 rolls: [],
+                                            },
+                                            targetSquaddieModifiers: {
+                                                [thiefBattleSquaddie.battleSquaddieId]:
+                                                    {},
                                             },
                                         }),
                                     squaddieChanges: [

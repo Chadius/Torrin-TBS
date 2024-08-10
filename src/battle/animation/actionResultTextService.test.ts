@@ -13,7 +13,7 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../history/squaddieSquaddieResults"
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
 import {
@@ -25,6 +25,7 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -154,13 +155,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actionContext: {
+                actionContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [2, 6],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -202,13 +203,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actionContext: {
+                actionContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: false,
                         rolls: [],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -250,7 +251,7 @@ describe("Action Result Text Writer", () => {
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 actingSquaddieModifiers: {
-                    [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
+                    [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
                 },
             })
 
@@ -267,7 +268,7 @@ describe("Action Result Text Writer", () => {
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 actingSquaddieModifiers: {
-                    [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
+                    [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
                 },
             })
 
@@ -297,13 +298,13 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actionContext: {
+                actionContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [2, 6],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -345,13 +346,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingContext: {
+                actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [1, 2],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -384,13 +385,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                 ],
-                actingContext: {
+                actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [6, 6],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -422,13 +423,13 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                 ],
-                actingContext: {
+                actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [1, 1],
                     },
                     actingSquaddieModifiers: {},
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -469,15 +470,15 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingContext: {
+                actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
                         rolls: [2, 6],
                     },
                     actingSquaddieModifiers: {
-                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                        [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
                     },
-                },
+                }),
             })
 
         const outputStrings: string[] =
@@ -520,15 +521,15 @@ describe("Action Result Text Writer", () => {
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
                 ],
-                actingContext: {
+                actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: false,
                         rolls: [],
                     },
                     actingSquaddieModifiers: {
-                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
+                        [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
                     },
-                },
+                }),
             })
 
         const outputStrings: string[] =

@@ -1,10 +1,10 @@
-import { ATTACK_MODIFIER, AttackModifierStrings } from "../../modifierConstants"
+import { ACTOR_MODIFIER, ActorModifierStrings } from "../../modifierConstants"
 import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
 import { RollResultService } from "../../actionCalculator/rollResult"
 
 export const ActionResultText = {
     getAttackPenaltyDescriptions: (actingSquaddieModifiers: {
-        [modifier in ATTACK_MODIFIER]?: number
+        [modifier in ACTOR_MODIFIER]?: number
     }): string[] => {
         return getAttackPenaltyDescriptions(actingSquaddieModifiers)
     },
@@ -16,12 +16,12 @@ export const ActionResultText = {
 }
 
 const getAttackPenaltyDescriptions = (actingSquaddieModifiers: {
-    [modifier in ATTACK_MODIFIER]?: number
+    [modifier in ACTOR_MODIFIER]?: number
 }): string[] => {
     return Object.entries(actingSquaddieModifiers).map(([keyStr, value]) => {
-        const modifierKey: ATTACK_MODIFIER = keyStr as ATTACK_MODIFIER
+        const modifierKey: ACTOR_MODIFIER = keyStr as ACTOR_MODIFIER
         let padding: string = value > 0 ? " " : ""
-        return `   ${padding}${value}: ${AttackModifierStrings[modifierKey]}`
+        return `   ${padding}${value}: ${ActorModifierStrings[modifierKey]}`
     })
 }
 const getActingSquaddieRollTotalIfNeeded = (

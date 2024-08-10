@@ -2,7 +2,7 @@ import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { ATTACK_MODIFIER } from "../modifierConstants"
+import { ACTOR_MODIFIER } from "../modifierConstants"
 import {
     Trait,
     TraitStatusStorageService,
@@ -53,7 +53,7 @@ export const ActionResultTextService = {
         currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         actingBattleSquaddieId: string
         squaddieRepository: ObjectRepository
-        actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
+        actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number }
     }): string[] => {
         return outputIntentForTextOnly({
             actionTemplate,
@@ -407,7 +407,7 @@ const outputIntentForTextOnly = ({
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     actingBattleSquaddieId: string
     squaddieRepository: ObjectRepository
-    actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }
+    actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number }
 }): string[] => {
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
