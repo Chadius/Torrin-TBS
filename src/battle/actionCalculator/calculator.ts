@@ -1,11 +1,7 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import {
-    DamageType,
-    HealingType,
-    SquaddieService,
-} from "../../squaddie/squaddieService"
+import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
 import {
@@ -16,14 +12,12 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { RollResult, RollResultService } from "./rollResult"
 import { ObjectRepositoryService } from "../objectRepository"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
-import { isValidValue } from "../../utils/validityCheck"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
@@ -31,17 +25,12 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
 } from "../history/battleActionSquaddieChange"
-import {
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "../history/battleAction"
+import { BattleActionActionContext } from "../history/battleAction"
 import {
     AttributeModifier,
     AttributeType,
 } from "../../squaddie/attributeModifier"
 import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
-import { DecidedActionMovementEffect } from "../../action/decided/decidedActionMovementEffect"
-import { DecidedActionEndTurnEffect } from "../../action/decided/decidedActionEndTurnEffect"
 import { CalculatorAttack } from "./attack"
 import { CalculatorMiscellaneous } from "./miscellaneous"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"

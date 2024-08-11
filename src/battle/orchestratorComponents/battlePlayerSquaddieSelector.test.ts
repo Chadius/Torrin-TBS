@@ -22,8 +22,8 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import {
-    convertMapCoordinatesToScreenCoordinates,
     ConvertCoordinateService,
+    convertMapCoordinatesToScreenCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { makeResult } from "../../utils/ResultOrError"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"

@@ -7,8 +7,8 @@ import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import {
-    convertMapCoordinatesToScreenCoordinates,
     ConvertCoordinateService,
+    convertMapCoordinatesToScreenCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"

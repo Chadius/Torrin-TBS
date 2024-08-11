@@ -19,15 +19,8 @@ import {
 } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
-import {
-    AttributeModifierService,
-    AttributeSource,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 
 describe("squaddie phase ends", () => {

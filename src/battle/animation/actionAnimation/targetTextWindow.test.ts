@@ -29,6 +29,11 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
 } from "../../history/battleActionSquaddieChange"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../../squaddie/attributeModifier"
 
 describe("TargetTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -137,6 +142,60 @@ describe("TargetTextWindow", () => {
         expect(targetWindow.targetLabel.textBox.text).toContain(
             `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
         )
+    })
+
+    describe("Armor bonus", () => {
+        beforeEach(() => {
+            targetBattle.inBattleAttributes.attributeModifiers.push(
+                AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 9001,
+                    duration: 1,
+                    description: "Impenetrable Armor",
+                })
+            )
+        })
+
+        it("shows the target armor bonus in target window if the action is an attack", () => {
+            targetWindow.start({
+                targetTemplate: targetSquaddie,
+                targetBattle: targetBattle,
+                result: targetResultTakenDamage,
+                actionEffectSquaddieTemplate: attackAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            })
+
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
+            )
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+            )
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `+9001 Armor`
+            )
+        })
+
+        it("shows the target armor bonus in text only", () => {
+            targetWindow.start({
+                targetTemplate: targetSquaddie,
+                targetBattle: targetBattle,
+                result: targetResultTakenDamage,
+                actionEffectSquaddieTemplate: attackAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            })
+
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
+            )
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+            )
+            expect(targetWindow.targetLabel.textBox.text).toContain(
+                `+9001 Armor`
+            )
+        })
     })
 
     it("does not show the target armor if the action heals", () => {

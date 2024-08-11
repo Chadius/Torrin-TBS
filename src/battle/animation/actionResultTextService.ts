@@ -22,6 +22,11 @@ import {
 } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import {
+    AttributeSource,
+    AttributeType,
+} from "../../squaddie/attributeModifier"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
@@ -207,7 +212,22 @@ export const ActionResultTextService = {
                 actionEffectSquaddieTemplate
             )
         ) {
-            targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+            const targetModifiers: {
+                type: AttributeType
+                amount: number
+            }[] = InBattleAttributesService.calculateCurrentAttributeModifiers(
+                targetBattle.inBattleAttributes
+            )
+
+            const armorModifier =
+                targetModifiers.find(
+                    (modifier) => modifier.type === AttributeType.ARMOR
+                )?.amount || 0
+            targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + armorModifier}`
+
+            if (armorModifier) {
+                targetBeforeActionText += `\n ${armorModifier > 0 ? "+" : ""}${armorModifier} Armor`
+            }
         }
 
         return targetBeforeActionText
@@ -252,6 +272,32 @@ export const ActionResultTextService = {
 
         return targetAfterActionText
     },
+}
+
+const getAttributeModifierChanges = ({
+    squaddieChange,
+    targetSquaddieTemplate,
+}: {
+    squaddieChange: BattleActionSquaddieChange
+    targetSquaddieTemplate: SquaddieTemplate
+}): string[] => {
+    if (!squaddieChange?.attributesAfter?.attributeModifiers) {
+        return []
+    }
+
+    const attributeTypeToStringMapping: { [t in AttributeType]?: string } = {
+        [AttributeType.ARMOR]: "Armor",
+    }
+    const attributeSourceToStringMapping: {
+        [t in AttributeSource]?: string
+    } = {
+        [AttributeSource.CIRCUMSTANCE]: "Circumstance",
+    }
+
+    return squaddieChange.attributesAfter.attributeModifiers.map(
+        (attribute) =>
+            `${targetSquaddieTemplate.squaddieId.name} ${attributeTypeToStringMapping[attribute.type] || attribute.type} ${attribute.amount > 0 ? "+" : ""}${attribute.amount} (${attributeSourceToStringMapping[attribute.source] || attribute.source})`
+    )
 }
 
 const outputResultForTextOnly = ({
@@ -311,13 +357,15 @@ const outputResultForTextOnly = ({
     }
 
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
-        const { squaddieTemplate: targetSquaddieTemplate } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
-                    targetSquaddieId
-                )
+        const {
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie,
+        } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                squaddieRepository,
+                targetSquaddieId
             )
+        )
         const squaddieChange = result.squaddieChanges.find(
             (change) => change.battleSquaddieId === targetSquaddieId
         )
@@ -391,6 +439,12 @@ const outputResultForTextOnly = ({
                 })
             )
         }
+        output.push(
+            ...getAttributeModifierChanges({
+                squaddieChange,
+                targetSquaddieTemplate,
+            })
+        )
     })
 
     return output

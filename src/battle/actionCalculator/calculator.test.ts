@@ -42,7 +42,6 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DecidedActionService } from "../../action/decided/decidedAction"
-import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 import {
     AttributeModifier,
     AttributeModifierService,

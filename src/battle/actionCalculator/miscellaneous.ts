@@ -1,9 +1,7 @@
 import { ActionsThisRound } from "../history/actionsThisRound"
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
 import {

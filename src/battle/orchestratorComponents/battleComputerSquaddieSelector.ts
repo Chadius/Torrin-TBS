@@ -6,8 +6,8 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import {
-    convertMapCoordinatesToScreenCoordinates,
     ConvertCoordinateService,
+    convertMapCoordinatesToScreenCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"

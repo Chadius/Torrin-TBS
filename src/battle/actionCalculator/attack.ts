@@ -8,17 +8,9 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
 import {
-    BattleActionSquaddieChange,
-    BattleActionSquaddieChangeService,
-} from "../history/battleActionSquaddieChange"
-import {
     AttributeModifier,
     AttributeType,
 } from "../../squaddie/attributeModifier"
-import {
-    SquaddieSquaddieResults,
-    SquaddieSquaddieResultsService,
-} from "../history/squaddieSquaddieResults"
 import {
     BattleActionActionContext,
     BattleActionActionContextService,
@@ -31,11 +23,8 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DecidedActionMovementEffect } from "../../action/decided/decidedActionMovementEffect"
 import { DecidedActionEndTurnEffect } from "../../action/decided/decidedActionEndTurnEffect"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { ObjectRepositoryService } from "../objectRepository"
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { ActionCalculator, CalculatedEffect } from "./calculator"
+import { CalculatedEffect } from "./calculator"
 import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../utils/validityCheck"

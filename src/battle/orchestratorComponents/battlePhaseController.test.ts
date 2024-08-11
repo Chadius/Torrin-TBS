@@ -1,8 +1,5 @@
-import {
-    BattleOrchestratorState,
-    BattleOrchestratorStateService,
-} from "../orchestrator/battleOrchestratorState"
-import { BattlePhaseService, BattlePhase } from "./battlePhaseTracker"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { BattlePhase, BattlePhaseService } from "./battlePhaseTracker"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
@@ -14,7 +11,6 @@ import {
 } from "./battlePhaseController"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { BattleCamera } from "../battleCamera"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {

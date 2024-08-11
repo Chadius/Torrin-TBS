@@ -26,6 +26,12 @@ import {
 } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../squaddie/attributeModifier"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -225,6 +231,76 @@ describe("Action Result Text Writer", () => {
         expect(outputStrings[0]).toBe("Knight uses Bandage Wounds")
         expect(outputStrings[1]).toBe("Knight receives 1 healing")
         expect(outputStrings[2]).toBe("Citizen receives 2 healing")
+    })
+
+    describe("Add Armor buff", () => {
+        let raiseShieldAction: ActionTemplate
+
+        beforeEach(() => {
+            raiseShieldAction = ActionTemplateService.new({
+                id: "raiseShield",
+                name: "Raise Shield",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGETS_SELF]: true,
+                        }),
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                source: AttributeSource.CIRCUMSTANCE,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                ],
+            })
+        })
+
+        it("Shows Armor bonus was applied", () => {
+            const armorBonusResult: SquaddieSquaddieResults =
+                SquaddieSquaddieResultsService.new({
+                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                    targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId],
+                    squaddieChanges: [
+                        BattleActionSquaddieChangeService.new({
+                            battleSquaddieId: knightDynamic.battleSquaddieId,
+                            damageTaken: 0,
+                            healingReceived: 0,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                            attributesAfter: InBattleAttributesService.new({
+                                attributeModifiers: [
+                                    AttributeModifierService.new({
+                                        type: AttributeType.ARMOR,
+                                        source: AttributeSource.CIRCUMSTANCE,
+                                        amount: 1,
+                                    }),
+                                ],
+                            }),
+                        }),
+                    ],
+                    actionContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: {},
+                    }),
+                })
+
+            const outputStrings: string[] =
+                ActionResultTextService.outputResultForTextOnly({
+                    actionTemplateName: "Raise Shield",
+                    currentActionEffectSquaddieTemplate: raiseShieldAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    result: armorBonusResult,
+                    squaddieRepository,
+                })
+
+            expect(outputStrings).toHaveLength(2)
+            expect(outputStrings[0]).toBe("Knight uses Raise Shield")
+            expect(outputStrings[1]).toBe("Knight Armor +1 (Circumstance)")
+        })
     })
 
     it("Explains intent to use a power", () => {
@@ -545,5 +621,53 @@ describe("Action Result Text Writer", () => {
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
         expect(outputStrings[1]).toBe("Thief takes 1 damage")
         expect(outputStrings[2]).toBe("Rogue takes 1 damage")
+    })
+
+    describe("AC bonus", () => {
+        beforeEach(() => {
+            thiefDynamic.inBattleAttributes.attributeModifiers.push(
+                AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 9001,
+                    duration: 1,
+                    description: "Impenetrable Armor",
+                })
+            )
+        })
+        it("Shows AC bonuses against attacks", () => {
+            const outputString: string =
+                ActionResultTextService.getBeforeActionText({
+                    targetTemplate: thiefStatic,
+                    targetBattle: thiefDynamic,
+                    actionEffectSquaddieTemplate: longswordSweepAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                })
+
+            expect(outputString).toContain(
+                `AC ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
+            )
+            expect(outputString).toContain(
+                `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`
+            )
+            expect(outputString).toContain(`+9001 Armor`)
+        })
+        it("Does not shows AC bonuses against non attacks", () => {
+            const outputString: string =
+                ActionResultTextService.getBeforeActionText({
+                    targetTemplate: thiefStatic,
+                    targetBattle: thiefDynamic,
+                    actionEffectSquaddieTemplate: bandageWoundsAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                })
+
+            expect(outputString).not.toContain(
+                `AC ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
+            )
+            expect(outputString).not.toContain(
+                `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`
+            )
+            expect(outputString).not.toContain(`+9001 Armor`)
+        })
     })
 })
