@@ -152,7 +152,7 @@ export class TargetSprite {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
                 if (
-                    ActionEffectSquaddieTemplateService.isHindering(
+                    ActionEffectSquaddieTemplateService.doesItTargetFoes(
                         actionEffectSquaddieTemplateService
                     )
                 ) {
@@ -254,7 +254,7 @@ export class TargetSprite {
                     emotion
                 ))
         } else if (
-            ActionEffectSquaddieTemplateService.isHindering(
+            ActionEffectSquaddieTemplateService.doesItTargetFoes(
                 actionEffectSquaddieTemplateService
             )
         ) {

@@ -63,6 +63,7 @@ describe("Action Result Text Writer", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_ARMOR]: true,
+                        [Trait.TARGETS_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,

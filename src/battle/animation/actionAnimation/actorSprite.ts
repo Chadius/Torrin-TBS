@@ -149,10 +149,14 @@ export class ActorSprite {
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (ActionEffectSquaddieTemplateService.isHindering(action)) {
+                if (
+                    ActionEffectSquaddieTemplateService.doesItTargetFoes(action)
+                ) {
                     return SquaddieEmotion.ATTACK
                 } else if (
-                    ActionEffectSquaddieTemplateService.isHelpful(action)
+                    ActionEffectSquaddieTemplateService.doesItTargetFriends(
+                        action
+                    )
                 ) {
                     return SquaddieEmotion.ASSISTING
                 } else {

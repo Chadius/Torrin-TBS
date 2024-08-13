@@ -68,6 +68,7 @@ describe("Actor Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
+                        TARGETS_FOE: true,
                     }),
                 }),
             ],
@@ -83,6 +84,7 @@ describe("Actor Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
+                        TARGETS_ALLIES: true,
                     }),
                 }),
             ],

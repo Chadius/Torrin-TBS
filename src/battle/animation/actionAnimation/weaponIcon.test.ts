@@ -1,5 +1,8 @@
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
-import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { WeaponIcon } from "./weaponIcon"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
@@ -30,6 +33,7 @@ describe("weapon icon", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
+                        [Trait.TARGETS_FOE]: true,
                     }),
                 }),
             ],
@@ -45,6 +49,7 @@ describe("weapon icon", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
+                        [Trait.TARGETS_ALLIES]: true,
                     }),
                 }),
             ],

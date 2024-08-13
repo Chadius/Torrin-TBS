@@ -14,7 +14,10 @@ import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieSprite } from "./squaddieSprite"
 import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
-import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
 import { DegreeOfSuccess } from "../../actionCalculator/degreeOfSuccess"
 import {
     ActionTemplate,
@@ -112,6 +115,7 @@ describe("Target Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
+                        [Trait.TARGETS_FOE]: true,
                     }),
                 }),
             ],

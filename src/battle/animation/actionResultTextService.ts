@@ -207,18 +207,18 @@ export const ActionResultTextService = {
     }): string => {
         let targetBeforeActionText = `${targetTemplate.squaddieId.name}`
 
+        const targetModifiers: {
+            type: AttributeType
+            amount: number
+        }[] = InBattleAttributesService.calculateCurrentAttributeModifiers(
+            targetBattle.inBattleAttributes
+        )
+
         if (
-            ActionEffectSquaddieTemplateService.isHindering(
+            ActionEffectSquaddieTemplateService.doesItTargetFoes(
                 actionEffectSquaddieTemplate
             )
         ) {
-            const targetModifiers: {
-                type: AttributeType
-                amount: number
-            }[] = InBattleAttributesService.calculateCurrentAttributeModifiers(
-                targetBattle.inBattleAttributes
-            )
-
             const armorModifier =
                 targetModifiers.find(
                     (modifier) => modifier.type === AttributeType.ARMOR
@@ -371,7 +371,7 @@ const outputResultForTextOnly = ({
         )
 
         if (
-            ActionEffectSquaddieTemplateService.isHindering(
+            ActionEffectSquaddieTemplateService.doesItTargetFoes(
                 currentActionEffectSquaddieTemplate
             )
         ) {
@@ -428,8 +428,9 @@ const outputResultForTextOnly = ({
             }
         }
         if (
-            ActionEffectSquaddieTemplateService.isHelpful(
-                currentActionEffectSquaddieTemplate
+            TraitStatusStorageService.getStatus(
+                currentActionEffectSquaddieTemplate.traits,
+                Trait.HEALING
             )
         ) {
             output.push(

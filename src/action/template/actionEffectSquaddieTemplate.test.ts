@@ -33,30 +33,36 @@ describe("ActionEffectSquaddieTemplate", () => {
         )
     })
 
-    it("uses the traits to determine if it is Harmful", () => {
+    it("uses the traits to determine if it targets foes", () => {
         const harmfulAttack = ActionEffectSquaddieTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
+                [Trait.TARGETS_FOE]: true,
             }),
         })
         expect(
-            ActionEffectSquaddieTemplateService.isHelpful(harmfulAttack)
+            ActionEffectSquaddieTemplateService.doesItTargetFriends(
+                harmfulAttack
+            )
         ).toBeFalsy()
         expect(
-            ActionEffectSquaddieTemplateService.isHindering(harmfulAttack)
+            ActionEffectSquaddieTemplateService.doesItTargetFoes(harmfulAttack)
         ).toBeTruthy()
     })
     it("uses the traits to determine if it is Helpful", () => {
         const helpfulAttack = ActionEffectSquaddieTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
+                [Trait.TARGETS_ALLIES]: true,
             }),
         })
         expect(
-            ActionEffectSquaddieTemplateService.isHelpful(helpfulAttack)
+            ActionEffectSquaddieTemplateService.doesItTargetFriends(
+                helpfulAttack
+            )
         ).toBeTruthy()
         expect(
-            ActionEffectSquaddieTemplateService.isHindering(helpfulAttack)
+            ActionEffectSquaddieTemplateService.doesItTargetFoes(helpfulAttack)
         ).toBeFalsy()
     })
 

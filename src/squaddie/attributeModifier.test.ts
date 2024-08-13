@@ -96,4 +96,188 @@ describe("AttributeModifier", () => {
             AttributeModifierService.isActive(unlimitedModifier)
         ).toBeTruthy()
     })
+
+    describe("calculateCurrentAttributeModifiers", () => {
+        let attributeModifiers: AttributeModifier[]
+        beforeEach(() => {
+            attributeModifiers = []
+        })
+
+        describe("can calculate the net effect of modifiers", () => {
+            let armorCircumstance: AttributeModifier
+            let armorItem: AttributeModifier
+            let tempHitPointCircumstance: AttributeModifier
+            let armorCircumstancePenalty: AttributeModifier
+            let bigArmorCircumstancePenalty: AttributeModifier
+
+            beforeEach(() => {
+                armorCircumstance = AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 1,
+                    description: "Raise A Shield",
+                })
+                armorItem = AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.ITEM,
+                    amount: 2,
+                    description: "Magic Armor Plating",
+                })
+                tempHitPointCircumstance = AttributeModifierService.new({
+                    type: AttributeType.TEMPORARY_HIT_POINTS,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 3,
+                    description: "Inspirational Speech",
+                })
+                armorCircumstancePenalty = AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: -1,
+                })
+                bigArmorCircumstancePenalty = AttributeModifierService.new({
+                    type: AttributeType.ARMOR,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: -2,
+                })
+            })
+            it("if modifiers are the same type and source then only the greater positive amount is used", () => {
+                attributeModifiers.push(armorCircumstance)
+
+                const bigArmorCircumstance: AttributeModifier = {
+                    ...armorCircumstance,
+                }
+                bigArmorCircumstance.amount = armorCircumstance.amount + 1
+
+                attributeModifiers.push(bigArmorCircumstance)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: bigArmorCircumstance.amount,
+                    },
+                ])
+            })
+            it("if modifiers are the same type and source then only the smaller negative amount is used", () => {
+                attributeModifiers.push(armorCircumstancePenalty)
+
+                attributeModifiers.push(bigArmorCircumstancePenalty)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: bigArmorCircumstancePenalty.amount,
+                    },
+                ])
+            })
+            it("if modifiers are the same type and source combine positive and negative values", () => {
+                attributeModifiers.push(armorCircumstance)
+
+                attributeModifiers.push(bigArmorCircumstancePenalty)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount:
+                            bigArmorCircumstancePenalty.amount +
+                            armorCircumstance.amount,
+                    },
+                ])
+            })
+            it("if modifiers cancel each other out do not report them in calculation", () => {
+                expect(
+                    armorCircumstancePenalty.amount + armorCircumstance.amount
+                ).toEqual(0)
+
+                attributeModifiers.push(armorCircumstance)
+
+                attributeModifiers.push(armorCircumstancePenalty)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toHaveLength(0)
+            })
+            it("if modifiers are the same type but different source then the amounts are combined", () => {
+                attributeModifiers.push(armorCircumstance)
+                attributeModifiers.push(armorItem)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: armorCircumstance.amount + armorItem.amount,
+                    },
+                ])
+            })
+            it("if modifiers are different types then both modifiers are reported", () => {
+                attributeModifiers.push(armorCircumstance)
+                attributeModifiers.push(tempHitPointCircumstance)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toHaveLength(2)
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual(
+                    expect.arrayContaining([
+                        {
+                            type: AttributeType.ARMOR,
+                            amount: armorCircumstance.amount,
+                        },
+                        {
+                            type: AttributeType.TEMPORARY_HIT_POINTS,
+                            amount: tempHitPointCircumstance.amount,
+                        },
+                    ])
+                )
+            })
+            it("ignores inactive modifiers", () => {
+                attributeModifiers.push(armorCircumstance)
+
+                const expiredArmorItem: AttributeModifier =
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.ITEM,
+                        amount: 9001,
+                        duration: 0,
+                    })
+                expect(
+                    AttributeModifierService.isActive(expiredArmorItem)
+                ).toBeFalsy()
+
+                attributeModifiers.push(expiredArmorItem)
+
+                expect(
+                    AttributeModifierService.calculateCurrentAttributeModifiers(
+                        attributeModifiers
+                    )
+                ).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: armorCircumstance.amount,
+                    },
+                ])
+            })
+        })
+    })
 })

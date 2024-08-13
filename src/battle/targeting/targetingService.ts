@@ -27,6 +27,12 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import {
+    Trait,
+    TraitCategory,
+    TraitStatusStorage,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 
 export class TargetingResults {
     constructor() {
@@ -143,24 +149,42 @@ const findValidTargets = ({
         SearchResultsService.getStoppableLocations(allLocationsInRange)
     )
 
-    addValidTargetsToResult(
-        results,
+    addValidTargetsToResult({
+        traits: actionEffectSquaddieTemplate
+            ? TraitStatusStorageService.filterCategory(
+                  actionEffectSquaddieTemplate.traits,
+                  TraitCategory.ACTION
+              )
+            : undefined,
+        targetingResults: results,
         actingSquaddieTemplate,
-        SearchResultsService.getStoppableLocations(allLocationsInRange),
+        actingBattleSquaddie,
+        tilesInRange:
+            SearchResultsService.getStoppableLocations(allLocationsInRange),
         map,
-        squaddieRepository
-    )
+        objectRepository: squaddieRepository,
+    })
 
     return results
 }
 
-function addValidTargetsToResult(
-    targetingResults: TargetingResults,
-    actingSquaddieTemplate: SquaddieTemplate,
-    tilesInRange: HexCoordinate[],
-    map: MissionMap,
-    squaddieRepository: ObjectRepository
-) {
+const addValidTargetsToResult = ({
+    traits,
+    targetingResults,
+    actingSquaddieTemplate,
+    actingBattleSquaddie,
+    tilesInRange,
+    map,
+    objectRepository,
+}: {
+    traits?: TraitStatusStorage
+    targetingResults: TargetingResults
+    actingSquaddieTemplate: SquaddieTemplate
+    actingBattleSquaddie: BattleSquaddie
+    tilesInRange: HexCoordinate[]
+    map: MissionMap
+    objectRepository: ObjectRepository
+}) => {
     const actingAffiliation: SquaddieAffiliation =
         actingSquaddieTemplate.squaddieId.affiliation
     const validBattleSquaddieIds: string[] = tilesInRange
@@ -172,23 +196,74 @@ function addValidTargetsToResult(
             }
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     mapData.battleSquaddieId
                 )
             )
 
-            const friendlyAffiliations: {
-                [friendlyAffiliation in SquaddieAffiliation]?: boolean
-            } = FriendlyAffiliationsByAffiliation[actingAffiliation]
-            if (friendlyAffiliations[squaddieTemplate.squaddieId.affiliation]) {
-                return undefined
+            if (traits === undefined) {
+                return battleSquaddie.battleSquaddieId
             }
 
-            return battleSquaddie.battleSquaddieId
+            if (
+                shouldAddDueToAffiliationAndTargetTraits({
+                    actionTraits: traits,
+                    actorAffiliation:
+                        actingSquaddieTemplate.squaddieId.affiliation,
+                    actorBattleSquaddieId:
+                        actingBattleSquaddie.battleSquaddieId,
+                    targetAffiliation: squaddieTemplate.squaddieId.affiliation,
+                    targetBattleSquaddieId: battleSquaddie.battleSquaddieId,
+                })
+            ) {
+                return battleSquaddie.battleSquaddieId
+            }
+
+            return undefined
         })
         .filter((x) => x)
 
     targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
+}
+
+const shouldAddDueToAffiliationAndTargetTraits = ({
+    actorAffiliation,
+    actorBattleSquaddieId,
+    targetBattleSquaddieId,
+    actionTraits,
+    targetAffiliation,
+}: {
+    actorAffiliation: SquaddieAffiliation
+    actorBattleSquaddieId: string
+    targetBattleSquaddieId: string
+    targetAffiliation: SquaddieAffiliation
+    actionTraits: TraitStatusStorage
+}): boolean => {
+    const friendlyAffiliations: {
+        [friendlyAffiliation in SquaddieAffiliation]?: boolean
+    } = FriendlyAffiliationsByAffiliation[actorAffiliation]
+
+    if (
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_SELF) &&
+        targetBattleSquaddieId === actorBattleSquaddieId
+    ) {
+        return true
+    }
+
+    if (
+        TraitStatusStorageService.getStatus(
+            actionTraits,
+            Trait.TARGETS_ALLIES
+        ) &&
+        friendlyAffiliations[targetAffiliation]
+    ) {
+        return true
+    }
+
+    return (
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_FOE) &&
+        !friendlyAffiliations[targetAffiliation]
+    )
 }
 
 const highlightTargetRange = (

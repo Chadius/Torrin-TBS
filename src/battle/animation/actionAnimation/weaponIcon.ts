@@ -69,10 +69,14 @@ export class WeaponIcon {
         const labelBackgroundColor = [0, 10, 80]
 
         let labelText: string = "(Using)"
-        if (ActionEffectSquaddieTemplateService.isHindering(action)) {
+        if (ActionEffectSquaddieTemplateService.doesItTargetFoes(action)) {
             labelText = "Attacking!"
-        } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
+        } else if (
+            ActionEffectSquaddieTemplateService.doesItTargetFriends(action)
+        ) {
             labelText = "Helping..."
+        } else {
+            labelText = "Action!"
         }
 
         this._attackingLabel = LabelService.new({

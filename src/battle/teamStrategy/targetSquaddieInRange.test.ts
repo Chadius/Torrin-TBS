@@ -58,6 +58,7 @@ describe("target a squaddie within reach of actions", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_ARMOR]: true,
+                        [Trait.TARGETS_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 2,

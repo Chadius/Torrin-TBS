@@ -64,12 +64,20 @@ export const ActionEffectSquaddieTemplateService = {
     ): ActionEffectSquaddieTemplate => {
         return sanitize(data)
     },
-    isHelpful: (data: ActionEffectSquaddieTemplate): boolean => {
-        return TraitStatusStorageService.getStatus(data.traits, Trait.HEALING)
-    },
-    isHindering: (data: ActionEffectSquaddieTemplate): boolean => {
-        return TraitStatusStorageService.getStatus(data.traits, Trait.ATTACK)
-    },
+    doesItTargetFriends: (
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    ): boolean =>
+        TraitStatusStorageService.getStatus(
+            actionEffectSquaddieTemplate.traits,
+            Trait.TARGETS_ALLIES
+        ),
+    doesItTargetFoes: (
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    ): boolean =>
+        TraitStatusStorageService.getStatus(
+            actionEffectSquaddieTemplate.traits,
+            Trait.TARGETS_FOE
+        ),
     getMultipleAttackPenalty: (
         template: ActionEffectSquaddieTemplate
     ): number => {

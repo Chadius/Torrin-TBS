@@ -48,6 +48,7 @@ describe("Targeting Service", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_ARMOR]: true,
+                        [Trait.TARGETS_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -189,6 +190,35 @@ describe("Targeting Service", () => {
         )
     })
 
+    const makeSquaddieOfGivenAffiliationAndAddOnMap = ({
+        battleSquaddieId,
+        squaddieAffiliation,
+        location,
+        repository,
+        battleMap,
+    }: {
+        battleSquaddieId: string
+        squaddieAffiliation: SquaddieAffiliation
+        location: HexCoordinate
+        repository: ObjectRepository
+        battleMap: MissionMap
+    }) => {
+        let { squaddieTemplate, battleSquaddie } =
+            CreateNewSquaddieAndAddToRepository({
+                name: battleSquaddieId,
+                templateId: battleSquaddieId,
+                battleId: battleSquaddieId,
+                affiliation: squaddieAffiliation,
+                squaddieRepository: repository,
+            })
+
+        battleMap.addSquaddie(
+            squaddieTemplate.squaddieId.templateId,
+            battleSquaddie.battleSquaddieId,
+            location
+        )
+    }
+
     it("will highlight unfriendly squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -202,56 +232,29 @@ describe("Targeting Service", () => {
             { q: 1, r: 1 }
         )
 
-        let {
-            squaddieTemplate: playerTeamStatic,
-            battleSquaddie: playerTeamDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
-            name: "Player",
-            templateId: "player",
-            battleId: "Player 0",
-            affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: squaddieRepo,
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "player in range",
+            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 1, r: 0 },
         })
 
-        battleMap.addSquaddie(
-            playerTeamStatic.squaddieId.templateId,
-            playerTeamDynamic.battleSquaddieId,
-            { q: 1, r: 0 }
-        )
-
-        let {
-            squaddieTemplate: enemyTeamStatic,
-            battleSquaddie: enemyTeamDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
-            name: "Enemy",
-            templateId: "enemy",
-            battleId: "enemy 0",
-            affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepository: squaddieRepo,
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "enemy in range",
+            squaddieAffiliation: SquaddieAffiliation.ENEMY,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 2, r: 1 },
         })
 
-        battleMap.addSquaddie(
-            enemyTeamStatic.squaddieId.templateId,
-            enemyTeamDynamic.battleSquaddieId,
-            { q: 2, r: 1 }
-        )
-
-        let {
-            squaddieTemplate: enemyFarAwayTeamStatic,
-            battleSquaddie: enemyFarAwayTeamDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
-            name: "Enemy far away",
-            templateId: "enemy far away",
-            battleId: "enemy far away 0",
-            affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepository: squaddieRepo,
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "enemy far away",
+            squaddieAffiliation: SquaddieAffiliation.ENEMY,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 0, r: 3 },
         })
-
-        battleMap.addSquaddie(
-            enemyFarAwayTeamStatic.squaddieId.templateId,
-            enemyFarAwayTeamDynamic.battleSquaddieId,
-            { q: 0, r: 3 }
-        )
 
         const results: TargetingResults =
             TargetingResultsService.findValidTargets({
@@ -263,10 +266,83 @@ describe("Targeting Service", () => {
                 squaddieRepository: squaddieRepo,
             })
 
-        expect(results.battleSquaddieIdsInRange).toHaveLength(1)
-        expect(results.battleSquaddieIdsInRange).toContain(
-            enemyTeamDynamic.battleSquaddieId
+        expect(results.battleSquaddieIdsInRange).toEqual(
+            expect.arrayContaining(["enemy in range"])
         )
+    })
+
+    it("will highlight allied squaddies if they are in range", () => {
+        let battleMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
+            }),
+        })
+
+        battleMap.addSquaddie(
+            sirCamilSquaddieTemplate.squaddieId.templateId,
+            sirCamilBattleSquaddie.battleSquaddieId,
+            { q: 1, r: 1 }
+        )
+
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "player in range",
+            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 1, r: 0 },
+        })
+
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "enemy in range",
+            squaddieAffiliation: SquaddieAffiliation.ENEMY,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 1, r: 2 },
+        })
+
+        makeSquaddieOfGivenAffiliationAndAddOnMap({
+            battleSquaddieId: "enemy far away",
+            squaddieAffiliation: SquaddieAffiliation.ENEMY,
+            repository: squaddieRepo,
+            battleMap: battleMap,
+            location: { q: 0, r: 3 },
+        })
+
+        const healingAction: ActionTemplate = ActionTemplateService.new({
+            id: "healingAction",
+            name: "Healing Action",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    healingDescriptions: {
+                        LOST_HIT_POINTS: 1,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        TARGETS_ALLIES: true,
+                        TARGETS_SELF: true,
+                    }),
+                    minimumRange: 0,
+                    maximumRange: 1,
+                }),
+            ],
+        })
+
+        const results: TargetingResults =
+            TargetingResultsService.findValidTargets({
+                map: battleMap,
+                actionEffectSquaddieTemplate: healingAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                actingSquaddieTemplate: sirCamilSquaddieTemplate,
+                actingBattleSquaddie: sirCamilBattleSquaddie,
+                squaddieRepository: squaddieRepo,
+            })
+
+        expect(results.battleSquaddieIdsInRange).toEqual(
+            expect.arrayContaining([
+                "player in range",
+                sirCamilBattleSquaddie.battleSquaddieId,
+            ])
+        )
+        expect(results.battleSquaddieIdsInRange).toHaveLength(2)
     })
 
     it("will ignore terrain costs when targeting", () => {

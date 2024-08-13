@@ -76,35 +76,6 @@ export const CalculatorAttack = {
             targetedSquaddieTemplate,
             targetedBattleSquaddie,
         }),
-    calculateEffect: ({
-        actionEffect,
-        gameEngineState,
-        targetedBattleSquaddie,
-        actingBattleSquaddie,
-        targetSquaddieModifierTotal,
-        actingSquaddieModifierTotal,
-        actingSquaddieRoll,
-        targetedSquaddieTemplate,
-    }: {
-        actionEffect: DecidedActionSquaddieEffect
-        gameEngineState: GameEngineState
-        targetedBattleSquaddie: BattleSquaddie
-        actingBattleSquaddie: BattleSquaddie
-        targetedSquaddieTemplate: SquaddieTemplate
-        targetSquaddieModifierTotal: number
-        actingSquaddieModifierTotal: number
-        actingSquaddieRoll: RollResult
-    }): CalculatedEffect =>
-        calculateEffect({
-            actionEffect,
-            gameEngineState,
-            targetedBattleSquaddie,
-            actingBattleSquaddie,
-            targetSquaddieModifierTotal,
-            actingSquaddieModifierTotal,
-            actingSquaddieRoll,
-            targetedSquaddieTemplate,
-        }),
     getTargetSquaddieModifiers: ({
         actionEffect,
         targetedBattleSquaddie,
@@ -115,7 +86,6 @@ export const CalculatorAttack = {
         modifierTotal: number
         modifiers: { [modifier in AttributeType]?: number }
     } => getTargetSquaddieModifiers({ actionEffect, targetedBattleSquaddie }),
-    // TODO Delete above
     getActorContext: ({
         actionEffect,
         gameEngineState,
@@ -239,57 +209,6 @@ const getTargetSquaddieModifiers = ({
     }
 }
 
-const calculateEffect = ({
-    actionEffect,
-    gameEngineState,
-    targetedBattleSquaddie,
-    actingBattleSquaddie,
-    targetSquaddieModifierTotal,
-    actingSquaddieModifierTotal,
-    actingSquaddieRoll,
-    targetedSquaddieTemplate,
-}: {
-    actionEffect: DecidedActionSquaddieEffect
-    gameEngineState: GameEngineState
-    targetedBattleSquaddie: BattleSquaddie
-    actingBattleSquaddie: BattleSquaddie
-    targetedSquaddieTemplate: SquaddieTemplate
-    targetSquaddieModifierTotal: number
-    actingSquaddieModifierTotal: number
-    actingSquaddieRoll: RollResult
-}): {
-    damageDealt: number
-    healingReceived: number
-    attributeModifiersToAddToTarget: AttributeModifier[]
-    degreeOfSuccess: DegreeOfSuccess
-} => {
-    let healingReceived = 0
-
-    let { damageDealt, degreeOfSuccess } =
-        calculateTotalDamageDealtForAttackRoll({
-            actionEffect,
-            state: gameEngineState.battleOrchestratorState,
-            actingBattleSquaddie,
-            targetedSquaddieTemplate,
-            targetedBattleSquaddie,
-            actingSquaddieRoll,
-            actingSquaddieModifierTotal,
-            targetSquaddieModifierTotal,
-        })
-
-    let attributeModifiersToAddToTarget: AttributeModifier[] =
-        calculateAttributeModifiers({
-            actionEffect,
-        })
-
-    return {
-        damageDealt,
-        healingReceived,
-        attributeModifiersToAddToTarget,
-        degreeOfSuccess,
-    }
-}
-
 const compareAttackRollToGetDegreeOfSuccess = ({
     actor,
     actingSquaddieRoll,
@@ -353,72 +272,6 @@ const compareAttackRollToGetDegreeOfSuccess = ({
         return DegreeOfSuccess.CRITICAL_FAILURE
     } else {
         return DegreeOfSuccess.FAILURE
-    }
-}
-
-const calculateTotalDamageDealtForAttackRoll = ({
-    state,
-    actingBattleSquaddie,
-    targetedSquaddieTemplate,
-    targetedBattleSquaddie,
-    actingSquaddieRoll,
-    actingSquaddieModifierTotal,
-    targetSquaddieModifierTotal,
-    actionEffect,
-}: {
-    state: BattleOrchestratorState
-    targetedSquaddieTemplate: SquaddieTemplate
-    targetedBattleSquaddie: BattleSquaddie
-    actingBattleSquaddie: BattleSquaddie
-    actingSquaddieRoll: RollResult
-    actingSquaddieModifierTotal: number
-    targetSquaddieModifierTotal: number
-    actionEffect: DecidedActionEffect
-}): { damageDealt: number; degreeOfSuccess: DegreeOfSuccess } => {
-    let damageDealt = 0
-    let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE
-
-    if (
-        actionEffect === undefined ||
-        actionEffect.type !== ActionEffectType.SQUADDIE
-    ) {
-        return { damageDealt: 0, degreeOfSuccess: DegreeOfSuccess.NONE }
-    }
-    const actionEffectSquaddieTemplate = actionEffect.template
-
-    degreeOfSuccess = compareAttackRollToGetDegreeOfSuccess({
-        actionEffectSquaddieTemplate,
-        actor: actingBattleSquaddie,
-        target: targetedBattleSquaddie,
-        actingSquaddieRoll,
-        actingSquaddieModifierTotal:
-            actingSquaddieModifierTotal - targetSquaddieModifierTotal,
-    })
-
-    Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach(
-        (damageType: DamageType) => {
-            let rawDamageFromAction =
-                actionEffectSquaddieTemplate.damageDescriptions[damageType]
-            if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
-                rawDamageFromAction *= 2
-            }
-            if (DegreeOfSuccessService.atBestFailure(degreeOfSuccess)) {
-                rawDamageFromAction = 0
-            }
-
-            const { damageTaken: damageTakenByThisType } =
-                SquaddieService.calculateDealtDamageToTheSquaddie({
-                    squaddieTemplate: targetedSquaddieTemplate,
-                    battleSquaddie: targetedBattleSquaddie,
-                    damage: rawDamageFromAction,
-                    damageType,
-                })
-            damageDealt += damageTakenByThisType
-        }
-    )
-    return {
-        damageDealt,
-        degreeOfSuccess,
     }
 }
 
