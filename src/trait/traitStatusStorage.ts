@@ -13,7 +13,7 @@ export enum Trait {
     SKIP_ANIMATION = "SKIP_ANIMATION",
     TARGETS_SELF = "TARGETS_SELF",
     TARGETS_FOE = "TARGETS_FOE",
-    TARGETS_ALLIES = "TARGETS_ALLIES",
+    TARGETS_ALLY = "TARGETS_ALLY",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
     CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
@@ -99,7 +99,7 @@ const traitInformation: {
         description: "The acting Squaddie can target foes with this action.",
         categories: [TraitCategory.ACTION],
     },
-    [Trait.TARGETS_ALLIES]: {
+    [Trait.TARGETS_ALLY]: {
         description: "The acting Squaddie can target allies with this action.",
         categories: [TraitCategory.ACTION],
     },

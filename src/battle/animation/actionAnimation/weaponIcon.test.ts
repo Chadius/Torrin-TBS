@@ -49,7 +49,7 @@ describe("weapon icon", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
-                        [Trait.TARGETS_ALLIES]: true,
+                        [Trait.TARGETS_ALLY]: true,
                     }),
                 }),
             ],

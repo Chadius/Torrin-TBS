@@ -79,7 +79,7 @@ describe("Action Result Text Writer", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGETS_ALLIES]: true,
+                        [Trait.TARGETS_ALLY]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
                     minimumRange: 1,

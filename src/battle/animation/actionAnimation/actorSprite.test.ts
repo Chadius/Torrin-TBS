@@ -84,7 +84,7 @@ describe("Actor Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
-                        TARGETS_ALLIES: true,
+                        TARGETS_ALLY: true,
                     }),
                 }),
             ],

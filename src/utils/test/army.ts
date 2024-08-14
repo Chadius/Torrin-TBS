@@ -80,7 +80,7 @@ export const TestArmyPlayerData = () => {
                                 traits: {
                                     booleanTraits: {
                                         ALWAYS_SUCCEEDS: true,
-                                        TARGETS_ALLIES: true,
+                                        TARGETS_ALLY: true,
                                         HEALING: true,
                                     },
                                 },

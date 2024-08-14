@@ -44,7 +44,8 @@
               "maximumRange": 2,
               "traits": {
                 "booleanTraits": {
-                  "ATTACK": true
+                  "ATTACK": true,
+                  "TARGETS_FOE": true
                 }
               },
               "damageDescriptions": {
@@ -66,7 +67,7 @@
               "traits": {
                 "booleanTraits": {
                   "ALWAYS_SUCCEEDS": true,
-                  "TARGETS_ALLIES": true,
+                  "TARGET_ALLY": true,
                   "HEALING": true
                 }
               },
@@ -122,7 +123,8 @@
               "maximumRange": 1,
               "traits": {
                 "booleanTraits": {
-                  "ATTACK": true
+                  "ATTACK": true,
+                  "TARGETS_FOE": true
                 }
               },
               "damageDescriptions": {
@@ -178,7 +180,8 @@
               "maximumRange": 1,
               "traits": {
                 "booleanTraits": {
-                  "ATTACK": true
+                  "ATTACK": true,
+                  "TARGETS_FOE": true
                 }
               },
               "damageDescriptions": {

@@ -76,7 +76,7 @@ describe("TargetTextWindow", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.TARGETS_SELF]: true,
-                        [Trait.TARGETS_ALLIES]: true,
+                        [Trait.TARGETS_ALLY]: true,
                     }),
                 }),
             ],

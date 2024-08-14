@@ -69,7 +69,7 @@ export const ActionEffectSquaddieTemplateService = {
     ): boolean =>
         TraitStatusStorageService.getStatus(
             actionEffectSquaddieTemplate.traits,
-            Trait.TARGETS_ALLIES
+            Trait.TARGETS_ALLY
         ),
     doesItTargetFoes: (
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate

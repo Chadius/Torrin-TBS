@@ -35,7 +35,8 @@
           "maximumRange": 1,
           "traits": {
             "booleanTraits": {
-              "ATTACK": true
+              "ATTACK": true,
+              "TARGETS_FOE": true
             }
           },
           "damageDescriptions": {

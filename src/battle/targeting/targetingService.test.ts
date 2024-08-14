@@ -317,7 +317,7 @@ describe("Targeting Service", () => {
                         LOST_HIT_POINTS: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        TARGETS_ALLIES: true,
+                        TARGETS_ALLY: true,
                         TARGETS_SELF: true,
                     }),
                     minimumRange: 0,

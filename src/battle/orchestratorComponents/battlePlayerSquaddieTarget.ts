@@ -495,13 +495,13 @@ const actionViolatesFriendship = ({
 
     if (
         actorAndTargetAreFriends &&
-        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true
+        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLY] !== true
     ) {
         return true
     }
     if (
         !actorAndTargetAreFriends &&
-        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] === true
+        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLY] === true
     ) {
         return true
     }

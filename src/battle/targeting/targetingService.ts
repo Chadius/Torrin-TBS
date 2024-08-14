@@ -251,10 +251,7 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
     }
 
     if (
-        TraitStatusStorageService.getStatus(
-            actionTraits,
-            Trait.TARGETS_ALLIES
-        ) &&
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_ALLY) &&
         friendlyAffiliations[targetAffiliation]
     ) {
         return true

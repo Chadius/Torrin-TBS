@@ -110,7 +110,7 @@ describe("BattleSquaddieTarget", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGETS_ALLIES]: true,
+                        [Trait.TARGETS_ALLY]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -427,7 +427,7 @@ describe("BattleSquaddieTarget", () => {
             },
             {
                 name: "heal ally tries to heal a foe",
-                actionTraits: [Trait.HEALING, Trait.TARGETS_ALLIES],
+                actionTraits: [Trait.HEALING, Trait.TARGETS_ALLY],
                 invalidTargetClicker: clickOnThief,
             },
         ]
