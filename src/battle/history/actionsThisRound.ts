@@ -1,13 +1,11 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
+    MULTIPLE_ATTACK_PENALTY,
+    MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX,
     ProcessedAction,
     ProcessedActionService,
 } from "../../action/processed/processedAction"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
-import {
-    MULTIPLE_ATTACK_PENALTY,
-    MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX,
-} from "../modifierConstants"
 import { ProcessedActionEffect } from "../../action/processed/processedActionEffect"
 import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
 import { GameEngineState } from "../../gameEngine/gameEngine"

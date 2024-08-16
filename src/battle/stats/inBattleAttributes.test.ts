@@ -446,11 +446,11 @@ describe("inBattleAttributes", () => {
                 )
             ).toEqual(
                 expect.arrayContaining([
-                    armorModifierFor3Rounds,
+                    { ...armorModifierFor3Rounds, duration: 2 },
                     unlimitedArmorModifier,
                 ])
             )
-            expect(armorModifierFor3Rounds.duration).toEqual(2)
+            expect(armorModifierFor3Rounds.duration).toEqual(3)
             expect(
                 InBattleAttributesService.getAllActiveAttributeModifiers(
                     attributes
@@ -464,7 +464,7 @@ describe("inBattleAttributes", () => {
                 )
             ).toEqual(
                 expect.arrayContaining([
-                    armorModifierFor3Rounds,
+                    { ...armorModifierFor3Rounds, duration: 1 },
                     unlimitedArmorModifier,
                 ])
             )
@@ -546,7 +546,7 @@ describe("inBattleAttributes", () => {
                 )
             ).toEqual(
                 expect.arrayContaining([
-                    armorModifierFor3Uses,
+                    { ...armorModifierFor3Uses, numberOfUses: 2 },
                     unlimitedArmorModifier,
                 ])
             )
@@ -563,7 +563,7 @@ describe("inBattleAttributes", () => {
                 )
             ).toEqual(
                 expect.arrayContaining([
-                    armorModifierFor3Uses,
+                    { ...armorModifierFor3Uses, numberOfUses: 1 },
                     unlimitedArmorModifier,
                 ])
             )

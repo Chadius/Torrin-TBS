@@ -269,7 +269,7 @@ describe("orchestratorState", () => {
                         targetedBattleSquaddieIds: [],
                         actingBattleSquaddieId: "",
                         actionContext: BattleActionActionContextService.new({
-                            actingSquaddieModifiers: {},
+                            actingSquaddieModifiers: [],
                             actingSquaddieRoll: undefined,
                         }),
                         squaddieChanges: [],

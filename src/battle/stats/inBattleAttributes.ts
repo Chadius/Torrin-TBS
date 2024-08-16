@@ -6,7 +6,7 @@ import { DamageType } from "../../squaddie/squaddieService"
 import {
     AttributeModifier,
     AttributeModifierService,
-    AttributeType,
+    AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 
 export interface InBattleAttributes {
@@ -69,10 +69,7 @@ export const InBattleAttributesService = {
     },
     calculateCurrentAttributeModifiers: (
         attributes: InBattleAttributes
-    ): {
-        type: AttributeType
-        amount: number
-    }[] =>
+    ): AttributeTypeAndAmount[] =>
         AttributeModifierService.calculateCurrentAttributeModifiers(
             attributes.attributeModifiers
         ),
@@ -80,7 +77,7 @@ export const InBattleAttributesService = {
         attributes: InBattleAttributes,
         attributeModifier: AttributeModifier
     ) => {
-        attributes.attributeModifiers.push(attributeModifier)
+        attributes.attributeModifiers.push({ ...attributeModifier })
     },
     decreaseModifiersBy1Round: (attributes: InBattleAttributes) => {
         attributes.attributeModifiers.forEach((modifier) => {

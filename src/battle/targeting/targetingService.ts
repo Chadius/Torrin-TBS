@@ -94,6 +94,27 @@ export const TargetingResultsService = {
     ): HexCoordinate[] => {
         return highlightTargetRange(gameEngineState)
     },
+    shouldTargetDueToAffiliationAndTargetTraits: ({
+        actorAffiliation,
+        actorBattleSquaddieId,
+        targetBattleSquaddieId,
+        actionTraits,
+        targetAffiliation,
+    }: {
+        actorAffiliation: SquaddieAffiliation
+        actorBattleSquaddieId: string
+        targetBattleSquaddieId: string
+        targetAffiliation: SquaddieAffiliation
+        actionTraits: TraitStatusStorage
+    }): boolean => {
+        return shouldAddDueToAffiliationAndTargetTraits({
+            actorAffiliation,
+            actorBattleSquaddieId,
+            targetBattleSquaddieId,
+            actionTraits,
+            targetAffiliation,
+        })
+    },
 }
 
 const findValidTargets = ({
@@ -185,8 +206,6 @@ const addValidTargetsToResult = ({
     map: MissionMap
     objectRepository: ObjectRepository
 }) => {
-    const actingAffiliation: SquaddieAffiliation =
-        actingSquaddieTemplate.squaddieId.affiliation
     const validBattleSquaddieIds: string[] = tilesInRange
         .map((tile) => {
             const mapData: MissionMapSquaddieLocation =
@@ -258,8 +277,9 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
     }
 
     return (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_FOE) &&
-        !friendlyAffiliations[targetAffiliation]
+        (TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_FOE) &&
+            !friendlyAffiliations[targetAffiliation]) ||
+        false
     )
 }
 

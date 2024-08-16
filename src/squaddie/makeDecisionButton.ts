@@ -12,6 +12,7 @@ import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
 import { ImageUI } from "../ui/imageUI"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { AttributeModifierService, AttributeType } from "./attributeModifier"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     strokeSaturation: 85,
@@ -162,13 +163,20 @@ export class MakeDecisionButton {
         graphicsContext: GraphicsBuffer,
         top: number
     ) => {
-        const { damageDescription, healingDescription } =
-            this.getActionTemplateEffectDescriptions(this.actionTemplate)
+        const {
+            damageDescription,
+            healingDescription,
+            attributeModifierDescription,
+        } = this.getActionTemplateEffectDescriptions(this.actionTemplate)
 
         this.drawInfoTextBox(
             graphicsContext,
             top,
-            [`${damageDescription}`, `${healingDescription}`].join(" ")
+            [
+                damageDescription,
+                healingDescription,
+                attributeModifierDescription,
+            ].join(" ")
         )
     }
 
@@ -208,14 +216,39 @@ export class MakeDecisionButton {
 
     private getActionTemplateEffectDescriptions = (
         actionTemplate: ActionTemplate
-    ) => {
+    ): {
+        damageDescription: string
+        healingDescription: string
+        attributeModifierDescription: string
+    } => {
         const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)
         const totalHealing =
             ActionTemplateService.getTotalHealing(actionTemplate)
         const damageDescription = totalDamage > 0 ? `${totalDamage} damage` : ""
         const healingDescription =
             totalHealing > 0 ? `${totalHealing} healing` : ""
-        return { damageDescription, healingDescription }
+
+        const attributeModifierSums: {
+            type: AttributeType
+            amount: number
+        }[] = AttributeModifierService.calculateCurrentAttributeModifiers(
+            ActionTemplateService.getAttributeModifiers(actionTemplate)
+        )
+
+        const capitalizeFirstLetter = (input: string) =>
+            input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
+        const attributeModifierDescription = attributeModifierSums
+            .map(
+                (attributeModifierDescription) =>
+                    `${capitalizeFirstLetter(attributeModifierDescription.type)} ${attributeModifierDescription.amount > 0 ? "+" : ""}${attributeModifierDescription.amount}`
+            )
+            .join("\n")
+
+        return {
+            damageDescription,
+            healingDescription,
+            attributeModifierDescription,
+        }
     }
 
     private shouldDrawActionPoints = () => {
@@ -239,6 +272,12 @@ export class MakeDecisionButton {
         const totalHealing = ActionTemplateService.getTotalHealing(
             this.actionTemplate
         )
-        return totalDamage > 0 || totalHealing > 0
+        const attributeModifiers = ActionTemplateService.getAttributeModifiers(
+            this.actionTemplate
+        )
+
+        return (
+            totalDamage > 0 || totalHealing > 0 || attributeModifiers.length > 0
+        )
     }
 }

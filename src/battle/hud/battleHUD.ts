@@ -571,6 +571,24 @@ export const BattleHUDService = {
             squaddieBattleAction
         )
     },
+    enablePlayerCommand: (
+        battleHUD: BattleHUD,
+        gameEngineState: GameEngineState
+    ) => {
+        if (
+            gameEngineState?.battleOrchestratorState?.battleHUDState
+                ?.summaryHUDState?.squaddieSummaryPopoversByType?.MAIN
+        ) {
+            SquaddieSummaryPopoverService.update({
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                squaddieSummaryPopover:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
+            })
+        }
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -587,6 +605,10 @@ export class BattleHUDListener implements MessageBoardListener {
                 FileAccessHUDService.enableButtons(
                     message.gameEngineState.battleOrchestratorState.battleHUD
                         .fileAccessHUD
+                )
+                BattleHUDService.enablePlayerCommand(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message.gameEngineState
                 )
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN:

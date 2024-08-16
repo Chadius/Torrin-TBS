@@ -288,9 +288,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
 
     private async loadCampaignDataFromFile(
         campaignId: string,
-        state: GameEngineState
+        gameEngineState: GameEngineState
     ) {
-        if (state.campaignIdThatWasLoaded === campaignId) {
+        if (gameEngineState.campaignIdThatWasLoaded === campaignId) {
             return
         }
 
@@ -301,23 +301,30 @@ export class GameEngineGameLoader implements GameEngineComponent {
         }
 
         const campaignResources: CampaignResources = campaignData.resources
-        state.resourceHandler.loadResources(
+        gameEngineState.resourceHandler.loadResources(
             Object.values(campaignResources.missionMapMovementIconResourceKeys)
         )
-        state.resourceHandler.loadResources(
+        gameEngineState.resourceHandler.loadResources(
             Object.values(campaignResources.missionMapAttackIconResourceKeys)
         )
-        state.resourceHandler.loadResources(
+        gameEngineState.resourceHandler.loadResources(
             Object.values(campaignResources.missionAttributeIconResourceKeys)
         )
-        state.resourceHandler.loadResources(
+        gameEngineState.resourceHandler.loadResources(
             Object.values(
                 campaignResources.actionEffectSquaddieTemplateButtonIcons
             )
         )
-        state.resourceHandler.loadResources(
+        gameEngineState.resourceHandler.loadResources(
             campaignResources.mapTiles.resourceKeys
         )
+        gameEngineState.resourceHandler.loadResources(
+            Object.values(campaignResources.attributeIcons)
+        )
+        gameEngineState.resourceHandler.loadResources(
+            Object.values(campaignResources.attributeComparisons)
+        )
+
         this.campaignLoaderContext.resourcesPendingLoading = [
             ...this.campaignLoaderContext.resourcesPendingLoading,
             ...Object.values(
@@ -333,9 +340,11 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 campaignResources.actionEffectSquaddieTemplateButtonIcons
             ),
             ...campaignResources.mapTiles.resourceKeys,
+            ...Object.values(campaignResources.attributeIcons),
+            ...Object.values(campaignResources.attributeComparisons),
         ]
-        state.campaignIdThatWasLoaded = campaignData.id
-        state.campaign = campaignData
+        gameEngineState.campaignIdThatWasLoaded = campaignData.id
+        gameEngineState.campaign = campaignData
     }
 
     private resetBattleOrchestratorState(

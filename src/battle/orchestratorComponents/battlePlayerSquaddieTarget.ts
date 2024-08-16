@@ -21,11 +21,8 @@ import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { FriendlyAffiliationsByAffiliation } from "../../squaddie/squaddieAffiliation"
-import { Trait } from "../../trait/traitStatusStorage"
 import { LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -36,9 +33,8 @@ import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
-import { ActionTemplate } from "../../action/template/actionTemplate"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleHUDStateService } from "../hud/battleHUDState"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -46,7 +42,6 @@ const MESSAGE_TEXT_SIZE = 24
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     hasSelectedValidTarget: boolean
     private cancelAbility: boolean
-    private validTargetLocation?: HexCoordinate
     private highlightedTargetRange: HexCoordinate[]
 
     constructor() {
@@ -82,7 +77,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         if (!this.hasSelectedValidTarget) {
             this.waitingForValidTarget({ gameEngineState, mouseEvent })
-            return
         }
     }
 
@@ -99,7 +93,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         if (!this.hasSelectedValidTarget) {
             this.waitingForValidTarget({ gameEngineState, keyboardEvent })
-            return
         }
     }
 
@@ -273,7 +266,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.highlightedTargetRange = []
         this.cancelAbility = false
         this.hasSelectedValidTarget = false
-        this.validTargetLocation = undefined
     }
 
     private highlightTargetRange(state: GameEngineState) {
@@ -328,29 +320,31 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
-        const { squaddieTemplate: targetSquaddieTemplate } =
-            OrchestratorUtilities.getSquaddieAtScreenLocation({
-                mouseX,
-                mouseY,
-                camera: gameEngineState.battleOrchestratorState.battleState
-                    .camera,
-                map: gameEngineState.battleOrchestratorState.battleState
-                    .missionMap,
-                squaddieRepository: gameEngineState.repository,
-            })
+        const {
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie,
+        } = OrchestratorUtilities.getSquaddieAtScreenLocation({
+            mouseX,
+            mouseY,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            map: gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieRepository: gameEngineState.repository,
+        })
 
         if (targetSquaddieTemplate === undefined) {
             return
         }
 
-        const { squaddieTemplate: actingSquaddieTemplate } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.battleSquaddieId
-                )
+        const {
+            squaddieTemplate: actingSquaddieTemplate,
+            battleSquaddie: actorBattleSquaddie,
+        } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.battleSquaddieId
             )
+        )
 
         const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
             (template) =>
@@ -364,11 +358,21 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         if (
-            actionViolatesFriendship({
-                actionTemplate,
-                actingSquaddieTemplate,
-                targetSquaddieTemplate,
-            })
+            !TargetingResultsService.shouldTargetDueToAffiliationAndTargetTraits(
+                {
+                    actorAffiliation:
+                        actingSquaddieTemplate.squaddieId.affiliation,
+                    actorBattleSquaddieId: actorBattleSquaddie.battleSquaddieId,
+                    targetBattleSquaddieId:
+                        targetBattleSquaddie.battleSquaddieId,
+                    actionTraits: (
+                        actionTemplate
+                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                    ).traits,
+                    targetAffiliation:
+                        targetSquaddieTemplate.squaddieId.affiliation,
+                }
+            )
         ) {
             return
         }
@@ -385,8 +389,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             }
         )
         this.hasSelectedValidTarget = true
-        this.validTargetLocation = clickedLocation
-
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
             gameEngineState,
@@ -472,38 +474,4 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             position,
         })
     }
-}
-
-const actionViolatesFriendship = ({
-    actionTemplate,
-    actingSquaddieTemplate,
-    targetSquaddieTemplate,
-}: {
-    actionTemplate: ActionTemplate
-    actingSquaddieTemplate: SquaddieTemplate
-    targetSquaddieTemplate: SquaddieTemplate
-}) => {
-    const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-    if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-        return true
-    }
-
-    const actorAndTargetAreFriends: boolean =
-        FriendlyAffiliationsByAffiliation[
-            actingSquaddieTemplate.squaddieId.affiliation
-        ][targetSquaddieTemplate.squaddieId.affiliation]
-
-    if (
-        actorAndTargetAreFriends &&
-        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLY] !== true
-    ) {
-        return true
-    }
-    if (
-        !actorAndTargetAreFriends &&
-        actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLY] === true
-    ) {
-        return true
-    }
-    return false
 }

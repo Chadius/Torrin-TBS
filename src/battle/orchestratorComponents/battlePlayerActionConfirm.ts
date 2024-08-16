@@ -1,7 +1,6 @@
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     BattleOrchestratorChanges,
@@ -33,6 +32,11 @@ import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+    AttributeTypeAndAmountService,
+} from "../../squaddie/attributeModifier"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -245,16 +249,18 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             graphicsContext
         )
 
-        let actingSquaddieModifiers: {
-            [modifier in ACTOR_MODIFIER]?: number
-        } = {}
+        let actingSquaddieModifiers: AttributeTypeAndAmount[] = []
         let { multipleAttackPenalty } =
             ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
                 state.battleOrchestratorState.battleState.actionsThisRound
             )
         if (multipleAttackPenalty !== 0) {
-            actingSquaddieModifiers[ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY] =
-                multipleAttackPenalty
+            actingSquaddieModifiers.push(
+                AttributeTypeAndAmountService.new({
+                    type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                    amount: multipleAttackPenalty,
+                })
+            )
         }
 
         const { found, actionTemplate, actionEffectSquaddieTemplate } =

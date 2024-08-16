@@ -8,6 +8,7 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "./actionEffectSquaddieTemplate"
+import { AttributeModifier } from "../../squaddie/attributeModifier"
 
 export enum ActionDecisionType {
     TARGET_SQUADDIE = "TARGET_SQUADDIE",
@@ -164,6 +165,34 @@ export const ActionTemplateService = {
         actionTemplate: ActionTemplate
     ): ActionDecisionType[] => {
         return [ActionDecisionType.TARGET_SQUADDIE]
+    },
+    getAttributeModifiers: (
+        actionTemplate: ActionTemplate
+    ): AttributeModifier[] => {
+        return (
+            actionTemplate.actionEffectTemplates
+                .filter(
+                    (actionEffectTemplate: ActionEffectTemplate) =>
+                        actionEffectTemplate.type === ActionEffectType.SQUADDIE
+                )
+                .map(
+                    (actionEffectTemplate: ActionEffectTemplate) =>
+                        actionEffectTemplate as ActionEffectSquaddieTemplate
+                )
+                .filter(
+                    (
+                        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+                    ) =>
+                        actionEffectSquaddieTemplate.attributeModifiers
+                            ?.length > 0
+                )
+                .map(
+                    (
+                        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+                    ) => actionEffectSquaddieTemplate.attributeModifiers
+                )
+                .flat() || []
+        )
     },
 }
 

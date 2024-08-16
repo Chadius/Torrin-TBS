@@ -627,6 +627,7 @@ export const TestMissionData = () => {
                         traits: {
                             booleanTraits: {
                                 [Trait.ATTACK]: true,
+                                [Trait.TARGET_ARMOR]: true,
                             },
                         },
                         damageDescriptions: {

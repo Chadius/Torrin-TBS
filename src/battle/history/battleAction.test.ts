@@ -53,7 +53,7 @@ describe("BattleAction", () => {
                 actor: {
                     battleSquaddieId: "battleSquaddieId",
                     actorContext: BattleActionActionContextService.new({
-                        actingSquaddieModifiers: {},
+                        actingSquaddieModifiers: [],
                         actingSquaddieRoll: RollResultService.new({
                             rolls: [2, 6],
                             occurred: true,

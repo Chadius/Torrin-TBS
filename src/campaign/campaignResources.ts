@@ -1,4 +1,5 @@
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
+import { AttributeType } from "../squaddie/attributeModifier"
 
 export enum MissionMapMovementIconKey {
     MOVE_1_ACTION = "MOVE_1_ACTION",
@@ -37,49 +38,16 @@ export interface CampaignResources {
         [iconKey in ActionEffectSquaddieTemplateButtonIconKey]: string
     }
     mapTiles: MapTilesResources
+    attributeComparisons: {
+        up: string
+        down: string
+    }
+    attributeIcons: {
+        [t in AttributeType]?: string
+    }
 }
 
 export const CampaignResourcesService = {
-    new: ({}: {}): CampaignResources => {
-        return {
-            missionMapMovementIconResourceKeys: {
-                [MissionMapMovementIconKey.MOVE_1_ACTION]:
-                    "map icon move 1 action",
-                [MissionMapMovementIconKey.MOVE_2_ACTIONS]:
-                    "map icon move 2 actions",
-                [MissionMapMovementIconKey.MOVE_3_ACTIONS]:
-                    "map icon move 3 actions",
-            },
-            missionMapAttackIconResourceKeys: {
-                [MissionMapAttackIconKey.ATTACK_1_ACTION]:
-                    "map icon attack 1 action",
-            },
-            missionAttributeIconResourceKeys: {
-                [MissionAttributeIconKey.ARMOR_CLASS]: "armor class icon",
-            },
-            actionEffectSquaddieTemplateButtonIcons: {
-                [ActionEffectSquaddieTemplateButtonIconKey.UNKNOWN]:
-                    "decision-button-unknown",
-            },
-            mapTiles: {
-                resourceKeys: [
-                    "map-tiles-basic-floor",
-                    "map-tiles-basic-pit",
-                    "map-tiles-basic-wall",
-                    "map-tiles-basic-water",
-                    "map-tiles-basic-sand",
-                ],
-                defaultByTerrainCost: {
-                    [HexGridMovementCost.singleMovement]:
-                        "map-tiles-basic-floor",
-                    [HexGridMovementCost.doubleMovement]:
-                        "map-tiles-basic-sand",
-                    [HexGridMovementCost.pit]: "map-tiles-basic-water",
-                    [HexGridMovementCost.wall]: "map-tiles-basic-wall",
-                },
-            },
-        }
-    },
     default: ({}: {}): CampaignResources => {
         return {
             missionMapMovementIconResourceKeys: {
@@ -117,6 +85,13 @@ export const CampaignResourcesService = {
                     [HexGridMovementCost.pit]: "map-tiles-basic-water",
                     [HexGridMovementCost.wall]: "map-tiles-basic-wall",
                 },
+            },
+            attributeIcons: {
+                [AttributeType.ARMOR]: "armor",
+            },
+            attributeComparisons: {
+                up: "attribute-up",
+                down: "attribute-down",
             },
         }
     },

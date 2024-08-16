@@ -1,12 +1,31 @@
 export enum AttributeType {
     ARMOR = "ARMOR",
     TEMPORARY_HIT_POINTS = "TEMPORARY_HIT_POINTS",
+    MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
 }
 
 export enum AttributeSource {
     CIRCUMSTANCE = "CIRCUMSTANCE",
     ITEM = "ITEM",
     STATUS = "STATUS",
+}
+
+export type AttributeTypeAndAmount = {
+    type: AttributeType
+    amount: number
+}
+
+export const AttributeTypeAndAmountService = {
+    new: ({
+        type,
+        amount,
+    }: {
+        type: AttributeType
+        amount: number
+    }): AttributeTypeAndAmount => ({
+        type,
+        amount,
+    }),
 }
 
 export interface AttributeModifier {

@@ -67,7 +67,7 @@
               "traits": {
                 "booleanTraits": {
                   "ALWAYS_SUCCEEDS": true,
-                  "TARGET_ALLY": true,
+                  "TARGETS_ALLY": true,
                   "HEALING": true
                 }
               },
@@ -133,6 +133,33 @@
             }
           ],
           "buttonIconResourceKey": "decision-button-sword"
+        },
+        {
+          "name": "raise shield",
+          "id": "sir_camil_raise_shield",
+          "actionEffectTemplates": [
+            {
+              "type": "SQUADDIE",
+              "minimumRange": 0,
+              "maximumRange": 0,
+              "traits": {
+                "booleanTraits": {
+                  "TARGETS_SELF": true,
+                  "SKIP_ANIMATION": true
+                }
+              },
+              "attributeModifiers": [
+                {
+                  "type": "ARMOR",
+                  "source": "CIRCUMSTANCE",
+                  "amount": 1,
+                  "duration": 1,
+                  "description": "Raise your shield to improve defense"
+                }
+              ]
+            }
+          ],
+          "buttonIconResourceKey": "decision-button-shield"
         }
       ]
     },

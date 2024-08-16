@@ -22,8 +22,6 @@ import { StreamNumberGenerator } from "../numberGenerator/stream"
 import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ActionCalculator } from "./calculator"
-
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
 import {
@@ -845,10 +843,15 @@ describe("calculator", () => {
                 DegreeOfSuccess.FAILURE
             )
             expect(
-                results.actingContext.actingSquaddieModifiers[
-                    ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY
-                ]
-            ).toEqual(-3)
+                results.actingContext.actingSquaddieModifiers.find(
+                    (modifierAndType) =>
+                        modifierAndType.type ===
+                        AttributeType.MULTIPLE_ATTACK_PENALTY
+                )
+            ).toEqual({
+                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                amount: -3,
+            })
         })
     })
 
