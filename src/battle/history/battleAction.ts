@@ -1,9 +1,8 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import { RollResult } from "../actionCalculator/rollResult"
-import { AttributeType } from "../../squaddie/attributeModifier"
+import { AttributeTypeAndAmount } from "../../squaddie/attributeModifier"
 
 export interface BattleActionActor {
     battleSquaddieId: string
@@ -32,10 +31,10 @@ export interface BattleAction {
 }
 
 export interface BattleActionActionContext {
-    actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number }
+    actingSquaddieModifiers: AttributeTypeAndAmount[]
     actingSquaddieRoll: RollResult
     targetSquaddieModifiers: {
-        [squaddieId: string]: { [modifier in AttributeType]?: number }
+        [squaddieId: string]: AttributeTypeAndAmount[]
     }
 }
 
@@ -45,13 +44,13 @@ export const BattleActionActionContextService = {
         actingSquaddieRoll,
         targetSquaddieModifiers,
     }: {
-        actingSquaddieModifiers?: { [modifier in ACTOR_MODIFIER]?: number }
+        actingSquaddieModifiers?: AttributeTypeAndAmount[]
         actingSquaddieRoll?: RollResult
         targetSquaddieModifiers?: {
-            [squaddieId: string]: { [modifier in AttributeType]?: number }
+            [squaddieId: string]: AttributeTypeAndAmount[]
         }
     }): BattleActionActionContext => ({
-        actingSquaddieModifiers: actingSquaddieModifiers ?? {},
+        actingSquaddieModifiers: actingSquaddieModifiers ?? [],
         targetSquaddieModifiers: targetSquaddieModifiers ?? {},
         actingSquaddieRoll: actingSquaddieRoll ?? {
             occurred: false,

@@ -453,4 +453,173 @@ describe("Targeting Service", () => {
             ])
         })
     })
+
+    describe("verify target affiliation in relation to the user", () => {
+        type idAndAffiliation = {
+            id: string
+            affiliation: SquaddieAffiliation
+        }
+
+        let player1: idAndAffiliation = {
+            id: "player1",
+            affiliation: SquaddieAffiliation.PLAYER,
+        }
+        let player2: idAndAffiliation = {
+            id: "player2",
+            affiliation: SquaddieAffiliation.PLAYER,
+        }
+        let enemy1: idAndAffiliation = {
+            id: "enemy1",
+            affiliation: SquaddieAffiliation.ENEMY,
+        }
+
+        type AffiliationTest = {
+            name: string
+            actor: idAndAffiliation
+            target: idAndAffiliation
+            traits: Trait[]
+            expectedToTarget: boolean
+        }
+
+        const expectShouldTarget = ({
+            traits,
+            actor,
+            target,
+            expectedToTarget,
+        }: {
+            traits: Trait[]
+            actor: idAndAffiliation
+            target: idAndAffiliation
+            expectedToTarget: boolean
+        }) => {
+            const actionTraits = TraitStatusStorageService.newUsingTraitValues(
+                Object.fromEntries(traits.map((trait) => [trait, true]))
+            )
+            expect(
+                TargetingResultsService.shouldTargetDueToAffiliationAndTargetTraits(
+                    {
+                        actionTraits: actionTraits,
+                        actorBattleSquaddieId: actor.id,
+                        actorAffiliation: actor.affiliation,
+                        targetBattleSquaddieId: target.id,
+                        targetAffiliation: target.affiliation,
+                    }
+                )
+            ).toEqual(expectedToTarget)
+        }
+
+        describe("can target itself if the action TARGETS_SELF", () => {
+            const tests: AffiliationTest[] = [
+                {
+                    name: "player1 player1",
+                    actor: player1,
+                    target: player1,
+                    traits: [Trait.TARGETS_SELF],
+                    expectedToTarget: true,
+                },
+                {
+                    name: "player1 player2",
+                    actor: player1,
+                    target: player2,
+                    traits: [Trait.TARGETS_SELF],
+                    expectedToTarget: false,
+                },
+            ]
+
+            it.each(tests)(
+                `$name`,
+                ({ actor, target, traits, expectedToTarget }) => {
+                    expectShouldTarget({
+                        traits,
+                        actor,
+                        target,
+                        expectedToTarget,
+                    })
+                }
+            )
+        })
+
+        describe("can target allies if the action TARGETS_ALLY", () => {
+            const tests: AffiliationTest[] = [
+                {
+                    name: "player1 player1",
+                    actor: player1,
+                    target: player1,
+                    traits: [Trait.TARGETS_ALLY],
+                    expectedToTarget: true,
+                },
+                {
+                    name: "player1 player2",
+                    actor: player1,
+                    target: player2,
+                    traits: [Trait.TARGETS_ALLY],
+                    expectedToTarget: true,
+                },
+                {
+                    name: "player1 enemy1",
+                    actor: player1,
+                    target: enemy1,
+                    traits: [Trait.TARGETS_ALLY],
+                    expectedToTarget: false,
+                },
+            ]
+
+            it.each(tests)(
+                `$name`,
+                ({ actor, target, traits, expectedToTarget }) => {
+                    expectShouldTarget({
+                        traits,
+                        actor,
+                        target,
+                        expectedToTarget,
+                    })
+                }
+            )
+        })
+
+        describe("can target allies if the action TARGETS_FOE", () => {
+            const tests: AffiliationTest[] = [
+                {
+                    name: "player1 enemy1",
+                    actor: player1,
+                    target: enemy1,
+                    traits: [Trait.TARGETS_FOE],
+                    expectedToTarget: true,
+                },
+                {
+                    name: "enemy1 player1",
+                    actor: enemy1,
+                    target: player1,
+                    traits: [Trait.TARGETS_FOE],
+                    expectedToTarget: true,
+                },
+                {
+                    name: "player1 player1",
+                    actor: player1,
+                    target: player1,
+                    traits: [Trait.TARGETS_FOE],
+                    expectedToTarget: false,
+                },
+                {
+                    name: "player1 player2",
+                    actor: player1,
+                    target: player2,
+                    traits: [Trait.TARGETS_FOE],
+                    expectedToTarget: false,
+                },
+            ]
+
+            it.each(tests)(
+                `$name`,
+                ({ actor, target, traits, expectedToTarget }) => {
+                    expectShouldTarget({
+                        traits,
+                        actor,
+                        target,
+                        expectedToTarget,
+                    })
+                }
+            )
+        })
+    })
 })

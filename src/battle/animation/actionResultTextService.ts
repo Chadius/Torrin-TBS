@@ -2,16 +2,12 @@ import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { ActionResultText } from "./actionAnimation/actionResultText"
-import {
-    DegreeOfSuccess,
-    DegreeOfSuccessService,
-} from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
 import { RollResultService } from "../actionCalculator/rollResult"
@@ -26,6 +22,7 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
     AttributeSource,
     AttributeType,
+    AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 
 export const ActionResultTextService = {
@@ -58,7 +55,7 @@ export const ActionResultTextService = {
         currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         actingBattleSquaddieId: string
         squaddieRepository: ObjectRepository
-        actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number }
+        actingSquaddieModifiers: AttributeTypeAndAmount[]
     }): string[] => {
         return outputIntentForTextOnly({
             actionTemplate,
@@ -238,13 +235,13 @@ export const ActionResultTextService = {
         result: BattleActionSquaddieChange
     }): string => {
         let targetAfterActionText = ""
-
+        let damageText = ""
         switch (result.actorDegreeOfSuccess) {
             case DegreeOfSuccess.FAILURE:
                 targetAfterActionText = `MISS`
                 break
             case DegreeOfSuccess.CRITICAL_SUCCESS:
-                let damageText = "CRITICAL HIT!\n"
+                damageText = "CRITICAL HIT!\n"
                 if (result.damageTaken === 0 && result.healingReceived === 0) {
                     damageText += `NO DAMAGE`
                 } else if (result.damageTaken > 0) {
@@ -357,56 +354,57 @@ const outputResultForTextOnly = ({
     }
 
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
-        const {
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                squaddieRepository,
-                targetSquaddieId
+        const { squaddieTemplate: targetSquaddieTemplate } =
+            getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    squaddieRepository,
+                    targetSquaddieId
+                )
             )
-        )
         const squaddieChange = result.squaddieChanges.find(
             (change) => change.battleSquaddieId === targetSquaddieId
         )
 
-        if (
-            ActionEffectSquaddieTemplateService.doesItTargetFoes(
-                currentActionEffectSquaddieTemplate
-            )
-        ) {
-            if (
-                DegreeOfSuccessService.atBestFailure(
-                    squaddieChange.actorDegreeOfSuccess
-                )
-            ) {
-                if (
-                    squaddieChange.actorDegreeOfSuccess ===
-                    DegreeOfSuccess.FAILURE
-                ) {
+        const targetFoe = ActionEffectSquaddieTemplateService.doesItTargetFoes(
+            currentActionEffectSquaddieTemplate
+        )
+
+        const degreeOfSuccessIsCriticalFailure =
+            squaddieChange.actorDegreeOfSuccess ===
+            DegreeOfSuccess.CRITICAL_FAILURE
+        const degreeOfSuccessIsFailure =
+            squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
+        const degreeOfSuccessIsSuccess =
+            squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+        const degreeOfSuccessIsCriticalSuccess =
+            squaddieChange.actorDegreeOfSuccess ===
+            DegreeOfSuccess.CRITICAL_SUCCESS
+        const noDamageTaken = squaddieChange.damageTaken === 0
+
+        if (targetFoe) {
+            switch (true) {
+                case degreeOfSuccessIsFailure:
                     output.push(
                         ActionResultTextService.getHinderingActionMissedString({
                             squaddieTemplate: targetSquaddieTemplate,
                         })
                     )
-                } else {
+                    break
+                case degreeOfSuccessIsCriticalFailure:
                     output.push(
                         ActionResultTextService.getHinderingActionCriticallyMissedString(
                             { squaddieTemplate: targetSquaddieTemplate }
                         )
                     )
-                }
-            } else if (squaddieChange.damageTaken === 0) {
-                output.push(
-                    ActionResultTextService.getHinderingActionDealtNoDamageString(
-                        { squaddieTemplate: targetSquaddieTemplate }
+                    break
+                case noDamageTaken:
+                    output.push(
+                        ActionResultTextService.getHinderingActionDealtNoDamageString(
+                            { squaddieTemplate: targetSquaddieTemplate }
+                        )
                     )
-                )
-            } else {
-                if (
-                    squaddieChange.actorDegreeOfSuccess ===
-                    DegreeOfSuccess.CRITICAL_SUCCESS
-                ) {
+                    break
+                case degreeOfSuccessIsCriticalSuccess:
                     output.push(
                         ActionResultTextService.getHinderingActionDealtCriticalDamageString(
                             {
@@ -415,7 +413,8 @@ const outputResultForTextOnly = ({
                             }
                         )
                     )
-                } else {
+                    break
+                case degreeOfSuccessIsSuccess:
                     output.push(
                         ActionResultTextService.getHinderingActionDealtDamageString(
                             {
@@ -424,9 +423,10 @@ const outputResultForTextOnly = ({
                             }
                         )
                     )
-                }
+                    break
             }
         }
+
         if (
             TraitStatusStorageService.getStatus(
                 currentActionEffectSquaddieTemplate.traits,
@@ -462,7 +462,7 @@ const outputIntentForTextOnly = ({
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     actingBattleSquaddieId: string
     squaddieRepository: ObjectRepository
-    actingSquaddieModifiers: { [modifier in ACTOR_MODIFIER]?: number }
+    actingSquaddieModifiers: AttributeTypeAndAmount[]
 }): string[] => {
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(

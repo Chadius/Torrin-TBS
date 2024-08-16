@@ -28,7 +28,7 @@ import {
 import { BattleActionActionContext } from "../history/battleAction"
 import {
     AttributeModifier,
-    AttributeType,
+    AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
 import { CalculatorAttack } from "./attack"
@@ -82,7 +82,7 @@ const calculateResults = ({
     if (actionEffect?.type !== ActionEffectType.SQUADDIE) {
         return
     }
-    const actionEffectSquaddie = actionEffect as DecidedActionSquaddieEffect
+    const actionEffectSquaddie: DecidedActionSquaddieEffect = actionEffect
 
     const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
         gameEngineState,
@@ -108,12 +108,11 @@ const calculateResults = ({
             )
         )
 
-        const { modifiers, modifierTotal } = getTargetContext({
-            actionEffect: actionEffectSquaddie,
-            targetedBattleSquaddie,
-        })
         actionContext.targetSquaddieModifiers[targetedBattleSquaddieId] =
-            modifiers
+            getTargetContext({
+                actionEffect: actionEffectSquaddie,
+                targetedBattleSquaddie,
+            })
         const degreeOfSuccess = getDegreeOfSuccess({
             actingBattleSquaddie,
             actionEffect,
@@ -182,10 +181,7 @@ const getTargetContext = ({
 }: {
     actionEffect: DecidedActionSquaddieEffect
     targetedBattleSquaddie: BattleSquaddie
-}): {
-    modifierTotal: number
-    modifiers: { [modifier in AttributeType]?: number }
-} => {
+}): AttributeTypeAndAmount[] => {
     if (isAnAttack(actionEffect)) {
         return CalculatorAttack.getTargetSquaddieModifiers({
             actionEffect,

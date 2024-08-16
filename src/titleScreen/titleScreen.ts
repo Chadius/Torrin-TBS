@@ -19,7 +19,7 @@ import { TextBox, TextBoxService } from "../ui/textBox"
 import { KeyButtonName, KeyWasPressed } from "../utils/keyboardConfig"
 import { Rectangle, RectangleHelper } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"
-import { ImageUI, ScaleImageHeight, ScaleImageWidth } from "../ui/imageUI"
+import { ImageUI, ImageUIService } from "../ui/imageUI"
 import { LoadSaveStateService } from "../dataLoader/loadSaveState"
 import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
@@ -102,7 +102,7 @@ const TitleScreenDesign = {
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         },
         descriptionText:
-            "This is Torrin. She can attack at range and heal in melee.",
+            "This is Torrin. She can attack at range and heal with a touch.",
         iconImageResourceKey: "young torrin cutscene portrait",
     },
     sirCamil: {
@@ -115,8 +115,7 @@ const TitleScreenDesign = {
                 100,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         },
-        descriptionText:
-            "Her friend, Sir Camil has a melee attack and more armor.",
+        descriptionText: "Her friend, Sir Camil has a sword and shield.",
         iconImageResourceKey: "sir camil cutscene portrait",
     },
     version: {
@@ -369,7 +368,7 @@ export class TitleScreen implements GameEngineComponent {
                 height:
                     ScreenDimensions.SCREEN_HEIGHT *
                     TitleScreenDesign.logo.screenHeight,
-                width: ScaleImageWidth({
+                width: ImageUIService.ScaleImageWidth({
                     imageWidth: image.width,
                     imageHeight: image.height,
                     desiredHeight:
@@ -819,7 +818,7 @@ export class TitleScreen implements GameEngineComponent {
             top:
                 RectAreaService.bottom(this.torrinUIElements.iconArea) +
                 WINDOW_SPACING.SPACING1,
-            height: ScaleImageHeight({
+            height: ImageUIService.ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
                 desiredWidth: 100,
@@ -895,7 +894,7 @@ export class TitleScreen implements GameEngineComponent {
         this.torrinUIElements.iconArea = RectAreaService.new({
             left: this.torrinUIElements.iconArea.left,
             top: this.torrinUIElements.iconArea.top,
-            height: ScaleImageHeight({
+            height: ImageUIService.ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
                 desiredWidth: TitleScreenDesign.torrin.iconArea.width,
@@ -1005,7 +1004,7 @@ export class TitleScreen implements GameEngineComponent {
         this.demonUIElements.iconArea = RectAreaService.new({
             left: this.demonUIElements.iconArea.left,
             top: this.demonUIElements.iconArea.top,
-            height: ScaleImageHeight({
+            height: ImageUIService.ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
                 desiredWidth: TitleScreenDesign.demon.iconArea.width,

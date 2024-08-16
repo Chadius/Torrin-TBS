@@ -13,7 +13,6 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../history/squaddieSquaddieResults"
-import { ACTOR_MODIFIER } from "../modifierConstants"
 import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
 import {
@@ -31,6 +30,7 @@ import {
     AttributeModifierService,
     AttributeSource,
     AttributeType,
+    AttributeTypeAndAmountService,
 } from "../../squaddie/attributeModifier"
 
 describe("Action Result Text Writer", () => {
@@ -167,7 +167,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [2, 6],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -215,7 +215,7 @@ describe("Action Result Text Writer", () => {
                         occurred: false,
                         rolls: [],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -285,7 +285,7 @@ describe("Action Result Text Writer", () => {
                             occurred: false,
                             rolls: [],
                         },
-                        actingSquaddieModifiers: {},
+                        actingSquaddieModifiers: [],
                     }),
                 })
 
@@ -312,7 +312,7 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
-                actingSquaddieModifiers: {},
+                actingSquaddieModifiers: [],
             })
 
         expect(outputStrings).toHaveLength(1)
@@ -327,13 +327,16 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
-                actingSquaddieModifiers: {
-                    [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
-                },
+                actingSquaddieModifiers: [
+                    AttributeTypeAndAmountService.new({
+                        type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                        amount: -6,
+                    }),
+                ],
             })
 
         expect(outputStrings).toHaveLength(2)
-        expect(outputStrings[1]).toBe("   -6: Multiple Attack")
+        expect(outputStrings[1]).toBe("   -6: Multiple attack penalty")
     })
 
     it("Explains action but does not show attack modifiers if the action always succeeds", () => {
@@ -344,9 +347,12 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
-                actingSquaddieModifiers: {
-                    [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -6,
-                },
+                actingSquaddieModifiers: [
+                    AttributeTypeAndAmountService.new({
+                        type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                        amount: -6,
+                    }),
+                ],
             })
 
         expect(outputStrings).toHaveLength(1)
@@ -380,7 +386,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [2, 6],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -428,7 +434,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [1, 2],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -467,7 +473,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [6, 6],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -505,7 +511,7 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [1, 1],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -552,9 +558,12 @@ describe("Action Result Text Writer", () => {
                         occurred: true,
                         rolls: [2, 6],
                     },
-                    actingSquaddieModifiers: {
-                        [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
-                    },
+                    actingSquaddieModifiers: [
+                        AttributeTypeAndAmountService.new({
+                            type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                            amount: -3,
+                        }),
+                    ],
                 }),
             })
 
@@ -570,7 +579,7 @@ describe("Action Result Text Writer", () => {
         expect(outputStrings).toHaveLength(6)
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
         expect(outputStrings[1]).toBe("   rolls (2, 6)")
-        expect(outputStrings[2]).toBe("   -3: Multiple Attack")
+        expect(outputStrings[2]).toBe("   -3: Multiple attack penalty")
         expect(outputStrings[3]).toBe(" Total 5")
         expect(outputStrings[4]).toBe("Thief takes 1 damage")
         expect(outputStrings[5]).toBe("Rogue takes 1 damage")
@@ -603,9 +612,12 @@ describe("Action Result Text Writer", () => {
                         occurred: false,
                         rolls: [],
                     },
-                    actingSquaddieModifiers: {
-                        [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -3,
-                    },
+                    actingSquaddieModifiers: [
+                        AttributeTypeAndAmountService.new({
+                            type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                            amount: -3,
+                        }),
+                    ],
                 }),
             })
 

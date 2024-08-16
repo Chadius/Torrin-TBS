@@ -427,7 +427,7 @@ export const TestMissionData = () => {
                                 "young torrin cutscene portrait",
                             speakerName: "Torrin",
                             speakerText:
-                                "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
+                                "Torrin can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nBut it can heal one target.",
                             animationDuration: 0,
                         },
                         {
@@ -435,7 +435,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_4",
                             speakerName: "Sir Camil",
                             speakerText:
-                                "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
+                                "Sir Camil has more Health and Armor than Torrin.\nHe has a longsword for melee attacks.\nRaise Shield to improve his Armor until the start of his next turn.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
                             animationDuration: 0,
@@ -459,7 +459,7 @@ export const TestMissionData = () => {
                             id: "turn1_1",
                             speakerName: "Sir Camil",
                             speakerText:
-                                "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
+                                "I'll take the lead.\nI can Raise Shield to briefly my armor.\nHeal me if I get injured.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
                             animationDuration: 0,
@@ -627,6 +627,7 @@ export const TestMissionData = () => {
                         traits: {
                             booleanTraits: {
                                 [Trait.ATTACK]: true,
+                                [Trait.TARGET_ARMOR]: true,
                             },
                         },
                         damageDescriptions: {

@@ -35,7 +35,7 @@ export const SquaddieSquaddieResultsService = {
 
 const sanitize = (result: SquaddieSquaddieResults): SquaddieSquaddieResults => {
     if (result.actingContext.actingSquaddieModifiers === undefined) {
-        result.actingContext.actingSquaddieModifiers = {}
+        result.actingContext.actingSquaddieModifiers = []
     }
 
     return result

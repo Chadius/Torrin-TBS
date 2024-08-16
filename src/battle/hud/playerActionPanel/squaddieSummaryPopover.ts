@@ -26,6 +26,11 @@ import { ImageUI } from "../../../ui/imageUI"
 import { DrawBattleHUD } from "../drawBattleHUD"
 import { TARGET_CANCEL_BUTTON_TOP } from "../../orchestratorComponents/battlePlayerSquaddieTarget"
 import { ACTOR_TEXT_WINDOW } from "../../animation/actionAnimation/actorTextWindow"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+} from "../../../squaddie/attributeModifier"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 
 const SQUADDIE_SUMMARY_POPOVER_STYLE = {
     height: 100,
@@ -102,10 +107,44 @@ const SQUADDIE_PORTRAIT_STYLE = {
     height: 64,
 }
 
+const ATTRIBUTE_ICON_DISPLAY = {
+    COMPARISON_AMOUNT_TEXT: {
+        textSize: 8,
+        fontColor: [0, 0, 0],
+    },
+    MAXIMUM_COMPARISON_ICONS: 4,
+    DRAW_INDEX_SPACING: {
+        horizontal: 8,
+        vertical: 36,
+    },
+    ICON_SPACING: {
+        top: 45,
+        left:
+            (2 * ScreenDimensions.SCREEN_WIDTH) / 12 -
+            WINDOW_SPACING.SPACING2 +
+            WINDOW_SPACING.SPACING2,
+    },
+}
+
 export enum SquaddieSummaryPopoverPosition {
     SELECT_MAIN = "SELECT_MAIN",
     SELECT_TARGET = "SELECT_TARGET",
     ANIMATE_SQUADDIE_ACTION = "ANIMATE_SQUADDIE_ACTION",
+}
+
+enum AttributeComparisonType {
+    NONE = "NONE",
+    UP = "UP",
+    DOWN = "DOWN",
+}
+
+type AttributeIconDisplay = {
+    drawIndex: number
+    type: AttributeType
+    attributeIcon?: ImageUI
+    comparisonIconImages: ImageUI[]
+    comparisonType: AttributeComparisonType
+    comparisonAmountTextBox?: TextBox
 }
 
 export interface SquaddieSummaryPopover {
@@ -119,6 +158,7 @@ export interface SquaddieSummaryPopover {
     actionPointsTextBox?: TextBox
     hitPointsTextBox?: TextBox
     squaddieIdTextBox?: TextBox
+    attributeIconsByType: AttributeIconDisplay[]
 }
 
 export const SquaddieSummaryPopoverService = {
@@ -147,6 +187,7 @@ export const SquaddieSummaryPopoverService = {
                 endColumn: startingColumn > 8 ? 11 : startingColumn + 3,
             }),
             expirationTime,
+            attributeIconsByType: [],
         }
 
         changePopoverPosition({
@@ -209,6 +250,23 @@ export const SquaddieSummaryPopoverService = {
         TextBoxService.draw(
             squaddieSummaryPopover.hitPointsTextBox,
             graphicsBuffer
+        )
+
+        squaddieSummaryPopover.attributeIconsByType.forEach(
+            (attributeDescription) => {
+                attributeDescription.attributeIcon?.draw(graphicsBuffer)
+
+                attributeDescription.comparisonIconImages.forEach(
+                    (comparisonIcon) => comparisonIcon.draw(graphicsBuffer)
+                )
+
+                if (attributeDescription.comparisonAmountTextBox) {
+                    TextBoxService.draw(
+                        attributeDescription.comparisonAmountTextBox,
+                        graphicsBuffer
+                    )
+                }
+            }
         )
     },
     isMouseHoveringOver: ({
@@ -282,6 +340,11 @@ const maybeRecreateUIElements = ({
         battleSquaddie,
         squaddieSummaryPopover
     )
+
+    updateAttributeModifierIcons({
+        squaddieSummaryPopover,
+        gameEngineState,
+    })
 }
 
 const createActionPointsUIElements = (
@@ -599,6 +662,13 @@ const changePopoverPosition = ({
         return
     }
 
+    const originalPosition = RectAreaService.new({
+        left: RectAreaService.left(squaddieSummaryPopover.windowArea),
+        top: RectAreaService.top(squaddieSummaryPopover.windowArea),
+        width: RectAreaService.width(squaddieSummaryPopover.windowArea),
+        height: RectAreaService.height(squaddieSummaryPopover.windowArea),
+    })
+
     squaddieSummaryPopover.position = position
 
     switch (squaddieSummaryPopover.position) {
@@ -622,11 +692,12 @@ const changePopoverPosition = ({
             break
     }
 
-    repositionSquaddieUIElements(squaddieSummaryPopover)
+    repositionSquaddieUIElements(squaddieSummaryPopover, originalPosition)
 }
 
 const repositionSquaddieUIElements = (
-    squaddieSummaryPopover: SquaddieSummaryPopover
+    squaddieSummaryPopover: SquaddieSummaryPopover,
+    originalPosition: RectArea
 ) => {
     if (isValidValue(squaddieSummaryPopover.squaddiePortrait)) {
         squaddieSummaryPopover.squaddiePortrait.area.top =
@@ -645,4 +716,231 @@ const repositionSquaddieUIElements = (
         squaddieSummaryPopover.hitPointsTextBox.area.top =
             squaddieSummaryPopover.windowArea.top + HIT_POINTS_STYLE.topOffset
     }
+
+    squaddieSummaryPopover.attributeIconsByType.forEach((attribute) => {
+        const moveLeft: number =
+            RectAreaService.left(squaddieSummaryPopover.windowArea) -
+            RectAreaService.left(originalPosition)
+        const moveTop: number =
+            RectAreaService.top(squaddieSummaryPopover.windowArea) -
+            RectAreaService.top(originalPosition)
+
+        RectAreaService.move(attribute.attributeIcon.area, {
+            left: RectAreaService.left(attribute.attributeIcon.area) + moveLeft,
+            top: RectAreaService.top(attribute.attributeIcon.area) + moveTop,
+        })
+
+        attribute.comparisonIconImages.forEach((imageUI) => {
+            RectAreaService.move(imageUI.area, {
+                left: RectAreaService.left(imageUI.area) + moveLeft,
+                top: RectAreaService.top(imageUI.area) + moveTop,
+            })
+        })
+    })
+}
+
+const updateAttributeModifierIcons = ({
+    squaddieSummaryPopover,
+    gameEngineState,
+}: {
+    squaddieSummaryPopover: SquaddieSummaryPopover
+    gameEngineState: GameEngineState
+}) => {
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            squaddieSummaryPopover.battleSquaddieId
+        )
+    )
+    const calculatedAttributeTypeAndAmount: AttributeTypeAndAmount[] =
+        InBattleAttributesService.calculateCurrentAttributeModifiers(
+            battleSquaddie.inBattleAttributes
+        )
+
+    const getCalculatedAttributeTypeByIconDisplay = (
+        attributeIconDisplay: AttributeIconDisplay
+    ) =>
+        calculatedAttributeTypeAndAmount.find(
+            (a) => a.type === attributeIconDisplay.type
+        )
+
+    squaddieSummaryPopover.attributeIconsByType =
+        squaddieSummaryPopover.attributeIconsByType.filter(
+            (attributeIcon) =>
+                getCalculatedAttributeTypeByIconDisplay(attributeIcon) !==
+                undefined
+        )
+
+    const missingAttributeIcons = calculatedAttributeTypeAndAmount.filter(
+        (modifier) =>
+            getExistingAttributeModifierDrawIndex(
+                squaddieSummaryPopover,
+                modifier.type
+            ) === undefined
+    )
+
+    missingAttributeIcons.forEach((attributeTypeAndAmount) => {
+        squaddieSummaryPopover.attributeIconsByType.push(
+            addAttributeModifierIcon({
+                squaddieSummaryPopover,
+                attributeTypeAndAmount,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+        )
+    })
+
+    squaddieSummaryPopover.attributeIconsByType.forEach(
+        (attributeIconDisplay) =>
+            updateAttributeComparisonsAmount({
+                attributeIconDisplay,
+                attributeTypeAndAmount:
+                    getCalculatedAttributeTypeByIconDisplay(
+                        attributeIconDisplay
+                    ),
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+    )
+}
+
+const addAttributeModifierIcon = ({
+    squaddieSummaryPopover,
+    attributeTypeAndAmount,
+    resourceHandler,
+}: {
+    squaddieSummaryPopover: SquaddieSummaryPopover
+    attributeTypeAndAmount: AttributeTypeAndAmount
+    resourceHandler: ResourceHandler
+}): AttributeIconDisplay => {
+    const resourceKey = `attribute-icon-${attributeTypeAndAmount.type.toLowerCase()}`
+    const image = resourceHandler.getResource(resourceKey)
+    const drawIndex: number = getFirstEmptyAttributeModifierDrawIndex(
+        squaddieSummaryPopover
+    )
+    const iconXPosition: number =
+        squaddieSummaryPopover.windowArea.left +
+        ATTRIBUTE_ICON_DISPLAY.ICON_SPACING.left +
+        ATTRIBUTE_ICON_DISPLAY.DRAW_INDEX_SPACING.horizontal * (drawIndex % 2)
+    const iconYPosition: number =
+        squaddieSummaryPopover.windowArea.top +
+        ATTRIBUTE_ICON_DISPLAY.ICON_SPACING.top +
+        ATTRIBUTE_ICON_DISPLAY.DRAW_INDEX_SPACING.vertical * (drawIndex / 2)
+    const imageUI: ImageUI = new ImageUI({
+        graphic: image,
+        area: RectAreaService.new({
+            left: iconXPosition,
+            top: iconYPosition,
+            width: image.width,
+            height: image.height,
+        }),
+    })
+    return {
+        drawIndex,
+        type: attributeTypeAndAmount.type,
+        attributeIcon: imageUI,
+        comparisonIconImages: [],
+        comparisonType: AttributeComparisonType.NONE,
+    }
+}
+
+const getExistingAttributeModifierDrawIndex = (
+    squaddieSummaryPopover: SquaddieSummaryPopover,
+    attributeType: AttributeType
+): number =>
+    squaddieSummaryPopover.attributeIconsByType.find(
+        (iconDescription) => iconDescription.type === attributeType
+    )?.drawIndex
+
+const getFirstEmptyAttributeModifierDrawIndex = (
+    squaddieSummaryPopover: SquaddieSummaryPopover
+): number => {
+    const maximumIndex = squaddieSummaryPopover.attributeIconsByType.length
+
+    const emptySlot: number = [...Array(maximumIndex)].find(
+        (_, n) =>
+            squaddieSummaryPopover.attributeIconsByType.find(
+                (iconDescription) => iconDescription.drawIndex === n
+            ) === undefined
+    )
+
+    return emptySlot ?? squaddieSummaryPopover.attributeIconsByType.length
+}
+
+const updateAttributeComparisonsAmount = ({
+    attributeIconDisplay,
+    attributeTypeAndAmount,
+    resourceHandler,
+}: {
+    attributeIconDisplay: AttributeIconDisplay
+    attributeTypeAndAmount: AttributeTypeAndAmount
+    resourceHandler: ResourceHandler
+}): void => {
+    let expectedComparisonsAmount: number = Math.abs(
+        attributeTypeAndAmount.amount
+    )
+    let textDescription = ""
+
+    if (
+        expectedComparisonsAmount >
+        ATTRIBUTE_ICON_DISPLAY.MAXIMUM_COMPARISON_ICONS
+    ) {
+        textDescription = `${attributeTypeAndAmount.amount > 0 ? "+" : ""}${attributeTypeAndAmount.amount}`
+        expectedComparisonsAmount = 1
+    }
+
+    const expectedComparisonType: AttributeComparisonType =
+        attributeTypeAndAmount.amount > 0
+            ? AttributeComparisonType.UP
+            : AttributeComparisonType.DOWN
+
+    if (
+        attributeIconDisplay.comparisonType === expectedComparisonType &&
+        attributeIconDisplay.comparisonIconImages.length ===
+            expectedComparisonsAmount
+    ) {
+        return
+    }
+    attributeIconDisplay.comparisonType = expectedComparisonType
+
+    const resourceKey = `attribute-${expectedComparisonType.toLowerCase()}`
+    const image = resourceHandler.getResource(resourceKey)
+    const startingXPosition =
+        RectAreaService.right(attributeIconDisplay.attributeIcon.area) -
+        (image.width * 3) / 8
+    const startingYPosition =
+        RectAreaService.top(attributeIconDisplay.attributeIcon.area) +
+        image.height / 8
+    attributeIconDisplay.comparisonIconImages = []
+    ;[...Array(expectedComparisonsAmount)].forEach((_, i) => {
+        attributeIconDisplay.comparisonIconImages.push(
+            new ImageUI({
+                graphic: image,
+                area: RectAreaService.new({
+                    left: startingXPosition + image.width * i,
+                    top: startingYPosition,
+                    width: image.width,
+                    height: image.height,
+                }),
+            })
+        )
+    })
+
+    if (!isValidValue(textDescription) || textDescription === "") {
+        return
+    }
+
+    attributeIconDisplay.comparisonAmountTextBox = TextBoxService.new({
+        textSize: ATTRIBUTE_ICON_DISPLAY.COMPARISON_AMOUNT_TEXT.textSize,
+        fontColor: ATTRIBUTE_ICON_DISPLAY.COMPARISON_AMOUNT_TEXT.fontColor,
+        text: textDescription,
+        area: RectAreaService.new({
+            left: RectAreaService.right(
+                attributeIconDisplay.comparisonIconImages[0].area
+            ),
+            top: RectAreaService.top(
+                attributeIconDisplay.comparisonIconImages[0].area
+            ),
+            width: ATTRIBUTE_ICON_DISPLAY.COMPARISON_AMOUNT_TEXT.textSize * 4,
+            height: ATTRIBUTE_ICON_DISPLAY.COMPARISON_AMOUNT_TEXT.textSize * 2,
+        }),
+    })
 }

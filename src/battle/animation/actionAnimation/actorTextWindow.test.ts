@@ -13,7 +13,6 @@ import {
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { ActionTimer } from "./actionTimer"
 import { ActionAnimationPhase } from "./actionAnimationConstants"
-import { ACTOR_MODIFIER } from "../../modifierConstants"
 import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
 import {
     ActionTemplate,
@@ -21,6 +20,10 @@ import {
 } from "../../../action/template/actionTemplate"
 import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
 import { BattleActionActionContextService } from "../../history/battleAction"
+import {
+    AttributeType,
+    AttributeTypeAndAmountService,
+} from "../../../squaddie/attributeModifier"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -91,7 +94,7 @@ describe("ActorTextWindow", () => {
                         occurred: true,
                         rolls: [1, 5],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             }),
         })
@@ -124,7 +127,7 @@ describe("ActorTextWindow", () => {
                         occurred: false,
                         rolls: [],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             }),
         })
@@ -155,7 +158,7 @@ describe("ActorTextWindow", () => {
                         occurred: true,
                         rolls: [6, 6],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             }),
         })
@@ -188,7 +191,7 @@ describe("ActorTextWindow", () => {
                         occurred: true,
                         rolls: [1, 1],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             }),
         })
@@ -222,9 +225,12 @@ describe("ActorTextWindow", () => {
                             occurred: false,
                             rolls: [],
                         },
-                        actingSquaddieModifiers: {
-                            [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
-                        },
+                        actingSquaddieModifiers: [
+                            AttributeTypeAndAmountService.new({
+                                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                                amount: -2,
+                            }),
+                        ],
                     }),
                 }),
             })
@@ -257,9 +263,12 @@ describe("ActorTextWindow", () => {
                             occurred: true,
                             rolls: [1, 5],
                         },
-                        actingSquaddieModifiers: {
-                            [ACTOR_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2,
-                        },
+                        actingSquaddieModifiers: [
+                            AttributeTypeAndAmountService.new({
+                                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
+                                amount: -2,
+                            }),
+                        ],
                     }),
                 }),
             })
@@ -272,7 +281,7 @@ describe("ActorTextWindow", () => {
             expect(timerSpy).toBeCalled()
 
             expect(window.actorUsesActionDescriptionText).toBe(
-                "Actor uses\nAction\n\n   rolls(1, 5)\n   -2: Multiple Attack\n Total 4"
+                "Actor uses\nAction\n\n   rolls(1, 5)\n   -2: Multiple attack penalty\n Total 4"
             )
         })
     })

@@ -1,9 +1,9 @@
-import { ScaleImageHeight, ScaleImageWidth } from "./imageUI"
+import { ImageUIService } from "./imageUI"
 
 describe("ImageUI", () => {
     it("can scale width to match the screen ratio", () => {
         expect(
-            ScaleImageWidth({
+            ImageUIService.ScaleImageWidth({
                 desiredHeight: 300,
                 imageHeight: 150,
                 imageWidth: 100,
@@ -13,7 +13,7 @@ describe("ImageUI", () => {
 
     it("can scale height to match the screen ratio", () => {
         expect(
-            ScaleImageHeight({
+            ImageUIService.ScaleImageHeight({
                 desiredWidth: 300,
                 imageHeight: 100,
                 imageWidth: 150,

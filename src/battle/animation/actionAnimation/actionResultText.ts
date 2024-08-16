@@ -1,11 +1,11 @@
-import { ACTOR_MODIFIER, ActorModifierStrings } from "../../modifierConstants"
 import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
 import { RollResultService } from "../../actionCalculator/rollResult"
+import { AttributeTypeAndAmount } from "../../../squaddie/attributeModifier"
 
 export const ActionResultText = {
-    getAttackPenaltyDescriptions: (actingSquaddieModifiers: {
-        [modifier in ACTOR_MODIFIER]?: number
-    }): string[] => {
+    getAttackPenaltyDescriptions: (
+        actingSquaddieModifiers: AttributeTypeAndAmount[]
+    ): string[] => {
         return getAttackPenaltyDescriptions(actingSquaddieModifiers)
     },
     getActingSquaddieRollTotalIfNeeded: (
@@ -15,24 +15,29 @@ export const ActionResultText = {
     },
 }
 
-const getAttackPenaltyDescriptions = (actingSquaddieModifiers: {
-    [modifier in ACTOR_MODIFIER]?: number
-}): string[] => {
-    return Object.entries(actingSquaddieModifiers).map(([keyStr, value]) => {
-        const modifierKey: ACTOR_MODIFIER = keyStr as ACTOR_MODIFIER
-        let padding: string = value > 0 ? " " : ""
-        return `   ${padding}${value}: ${ActorModifierStrings[modifierKey]}`
+const capitalizeFirstLetter = (input: string) =>
+    (input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()).replaceAll(
+        "_",
+        " "
+    )
+const getAttackPenaltyDescriptions = (
+    actingSquaddieModifiers: AttributeTypeAndAmount[]
+): string[] =>
+    actingSquaddieModifiers.map((attributeModifier) => {
+        let padding: string = attributeModifier.amount > 0 ? " " : ""
+        return `   ${padding}${attributeModifier.amount}: ${capitalizeFirstLetter(attributeModifier.type)}`
     })
-}
+
 const getActingSquaddieRollTotalIfNeeded = (
     result: SquaddieSquaddieResults
 ): string[] => {
     let totalAttackRoll = RollResultService.totalAttackRoll(
         result.actingContext.actingSquaddieRoll
     )
-    let totalModifier = Object.values(
-        result.actingContext.actingSquaddieModifiers
-    ).reduce((currentSum, currentValue) => currentSum + currentValue, 0)
+    let totalModifier = result.actingContext.actingSquaddieModifiers.reduce(
+        (currentSum, currentValue) => currentSum + currentValue.amount,
+        0
+    )
 
     return [` Total ${totalAttackRoll + totalModifier}`]
 }

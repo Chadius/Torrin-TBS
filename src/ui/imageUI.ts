@@ -2,7 +2,36 @@ import { RectArea } from "./rectArea"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
-export const ScaleImageWidth = ({
+export const ImageUIService = {
+    ScaleImageWidth: ({
+        imageWidth,
+        imageHeight,
+        desiredHeight,
+    }: {
+        imageWidth: number
+        imageHeight: number
+        desiredHeight: number
+    }): number => {
+        return scaleImageWidth({ imageWidth, imageHeight, desiredHeight })
+    },
+    ScaleImageHeight: ({
+        imageWidth,
+        imageHeight,
+        desiredWidth,
+    }: {
+        imageWidth: number
+        imageHeight: number
+        desiredWidth: number
+    }): number => {
+        return scaleImageHeight({
+            imageHeight,
+            desiredWidth,
+            imageWidth,
+        })
+    },
+}
+
+const scaleImageWidth = ({
     imageWidth,
     imageHeight,
     desiredHeight,
@@ -14,7 +43,7 @@ export const ScaleImageWidth = ({
     return (imageWidth * desiredHeight) / imageHeight
 }
 
-export const ScaleImageHeight = ({
+const scaleImageHeight = ({
     imageWidth,
     imageHeight,
     desiredWidth,

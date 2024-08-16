@@ -1,4 +1,5 @@
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
+import { AttributeType } from "../../squaddie/attributeModifier"
 
 export const TestCampaignData = () => {
     const testCampaignFile: CampaignFileFormat = {
@@ -33,6 +34,13 @@ export const TestCampaignData = () => {
                     pit: "map-tiles-basic-water",
                     wall: "map-tiles-basic-wall",
                 },
+            },
+            attributeIcons: {
+                [AttributeType.ARMOR]: "armor",
+            },
+            attributeComparisons: {
+                up: "attribute-up",
+                down: "attribute-down",
             },
         },
     }

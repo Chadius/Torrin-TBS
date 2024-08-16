@@ -32,8 +32,6 @@ import {
 } from "../../history/battleActionSquaddieChange"
 
 export class TargetSprite {
-    constructor() {}
-
     private _startingPosition: number
 
     get startingPosition(): number {
@@ -149,6 +147,16 @@ export class TargetSprite {
         result: BattleActionSquaddieChange
         actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate
     }): SquaddieEmotion {
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                squaddieRepository,
+                battleSquaddieId
+            )
+        )
+        const stillAlive = IsSquaddieAlive({
+            squaddieTemplate,
+            battleSquaddie,
+        })
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
                 if (
@@ -162,17 +170,6 @@ export class TargetSprite {
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                const { squaddieTemplate, battleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            squaddieRepository,
-                            battleSquaddieId
-                        )
-                    )
-                const stillAlive = IsSquaddieAlive({
-                    squaddieTemplate,
-                    battleSquaddie,
-                })
                 if (!stillAlive) {
                     return SquaddieEmotion.DEAD
                 }
@@ -318,7 +315,6 @@ export class TargetSprite {
         verticalDistance: number
     } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime)
-
         let horizontalDistance: number = 0
         let verticalDistance: number = 0
         let maximumHorizontalDistance: number =
@@ -327,12 +323,9 @@ export class TargetSprite {
             .NEUTRAL
             ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 8
             : ScreenDimensions.SCREEN_HEIGHT / 24
+        const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime =
-                    timeElapsed -
-                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
-                        ACTION_ANIMATION_ACTION_TIME)
                 if (
                     attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
                 ) {
@@ -355,14 +348,11 @@ export class TargetSprite {
                         2 *
                         Math.PI
                     verticalDistance = Math.sin(angle) * maximumVerticalDistance
-                } else {
-                    verticalDistance = 0
                 }
                 break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
                 horizontalDistance = maximumHorizontalDistance
-                verticalDistance = 0
                 break
         }
 
@@ -384,12 +374,9 @@ export class TargetSprite {
         let horizontalDistance: number = 0
         let maximumHorizontalDistance: number =
             ScreenDimensions.SCREEN_WIDTH / 24
+        const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime =
-                    timeElapsed -
-                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
-                        ACTION_ANIMATION_ACTION_TIME)
                 if (
                     attackTime <
                     ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10
@@ -424,12 +411,9 @@ export class TargetSprite {
         let horizontalDistance: number = 0
         let maximumHorizontalDistance: number =
             ScreenDimensions.SCREEN_WIDTH / 24
+        const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
-                const attackTime =
-                    timeElapsed -
-                    (ACTION_ANIMATION_BEFORE_ACTION_TIME +
-                        ACTION_ANIMATION_ACTION_TIME)
                 if (
                     attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
                 ) {
@@ -439,13 +423,10 @@ export class TargetSprite {
                         Math.PI
                     horizontalDistance =
                         Math.sin(angle) * maximumHorizontalDistance
-                } else {
-                    horizontalDistance = 0
                 }
                 break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = 0
                 break
         }
 
@@ -455,3 +436,7 @@ export class TargetSprite {
         }
     }
 }
+
+const getAttackTime = (timeElapsed: number): number =>
+    timeElapsed -
+    (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME)

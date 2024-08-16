@@ -4,10 +4,6 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
-import {
-    AttributeModifier,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import {
     BattleActionActionContext,
@@ -18,6 +14,11 @@ import { HealingType, SquaddieService } from "../../squaddie/squaddieService"
 import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import {
+    AttributeModifier,
+    AttributeTypeAndAmount,
+} from "../../squaddie/attributeModifier"
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({
@@ -35,7 +36,7 @@ export const CalculatorMiscellaneous = {
         })
 
         return BattleActionActionContextService.new({
-            actingSquaddieModifiers: {},
+            actingSquaddieModifiers: [],
             actingSquaddieRoll,
             targetSquaddieModifiers: {},
         })
@@ -46,10 +47,8 @@ export const CalculatorMiscellaneous = {
     }: {
         actionEffect: DecidedActionSquaddieEffect
         targetedBattleSquaddie: BattleSquaddie
-    }): {
-        modifierTotal: number
-        modifiers: { [modifier in AttributeType]?: number }
-    } => getTargetSquaddieModifiers({ actionEffect, targetedBattleSquaddie }),
+    }): AttributeTypeAndAmount[] =>
+        getTargetSquaddieModifiers({ actionEffect, targetedBattleSquaddie }),
     getDegreeOfSuccess: ({
         actionEffect,
         actionContext,
@@ -95,11 +94,10 @@ const getTargetSquaddieModifiers = ({
 }: {
     actionEffect: DecidedActionSquaddieEffect
     targetedBattleSquaddie: BattleSquaddie
-}): {
-    modifierTotal: number
-    modifiers: { [modifier in AttributeType]?: number }
-} => {
-    return { modifierTotal: 0, modifiers: {} }
+}): AttributeTypeAndAmount[] => {
+    return InBattleAttributesService.calculateCurrentAttributeModifiers(
+        targetedBattleSquaddie.inBattleAttributes
+    )
 }
 
 const getDegreeOfSuccess = ({

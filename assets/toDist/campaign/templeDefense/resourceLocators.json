@@ -271,6 +271,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/decisions/decision-button-shield-64.png",
+    "key": "decision-button-shield"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/mapTiles/basic/floor.png",
     "key": "map-tiles-basic-floor"
   },
@@ -293,5 +298,20 @@
     "type": "IMAGE",
     "path": "assets/mapTiles/basic/water.png",
     "key": "map-tiles-basic-water"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/ui/attribute/armor.png",
+    "key": "attribute-icon-armor"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/ui/attribute/down.png",
+    "key": "attribute-down"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/ui/attribute/up.png",
+    "key": "attribute-up"
   }
 ]

@@ -279,7 +279,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                         occurred: false,
                         rolls: [],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
                 squaddieChanges: [
@@ -377,7 +377,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             SquaddieSquaddieResultsService.sanitize({
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                     actingSquaddieRoll: {
                         occurred: false,
                         rolls: [],

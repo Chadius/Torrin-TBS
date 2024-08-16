@@ -106,7 +106,7 @@ describe("BattleSaveState", () => {
                         occurred: true,
                         rolls: [3, 5],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             },
         })
@@ -385,7 +385,7 @@ describe("BattleSaveState", () => {
                         occurred: false,
                         rolls: [],
                     },
-                    actingSquaddieModifiers: {},
+                    actingSquaddieModifiers: [],
                 }),
             }),
         })

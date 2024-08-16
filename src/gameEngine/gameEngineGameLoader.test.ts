@@ -46,7 +46,7 @@ describe("GameEngineGameLoader", () => {
     let missionData: MissionFileFormat
     let campaignFileData: CampaignFileFormat
     let loadFileIntoFormatSpy: jest.SpyInstance
-    let state: GameEngineState
+    let gameEngineState: GameEngineState
     let resourceHandler: ResourceHandler
     let squaddieRepository: ObjectRepository
     let playerArmy: PlayerArmy
@@ -65,7 +65,7 @@ describe("GameEngineGameLoader", () => {
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
         squaddieRepository = ObjectRepositoryService.new()
 
-        state = GameEngineStateService.new({
+        gameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -152,7 +152,7 @@ describe("GameEngineGameLoader", () => {
 
     describe("loading the campaign", () => {
         it("loads the campaign first", async () => {
-            await loader.update(state)
+            await loader.update(gameEngineState)
             expect(loadFileIntoFormatSpy).toBeCalledWith(
                 "assets/campaign/coolCampaign/campaign.json"
             )
@@ -176,52 +176,59 @@ describe("GameEngineGameLoader", () => {
                 ...Object.values(
                     campaignFileData.resources.mapTiles.resourceKeys
                 ),
+                ...Object.values(
+                    campaignFileData.resources.attributeComparisons
+                ),
+                ...Object.values(campaignFileData.resources.attributeIcons),
             ]
 
-            await loader.update(state)
+            await loader.update(gameEngineState)
             expect(
-                state.resourceHandler.areAllResourcesLoaded(
+                gameEngineState.resourceHandler.areAllResourcesLoaded(
                     expectedResourceKeys
                 )
             ).toBeFalsy()
             expect(
                 loader.campaignLoaderContext.resourcesPendingLoading
+            ).toEqual(expect.arrayContaining(expectedResourceKeys))
+            expect(
+                loader.campaignLoaderContext.resourcesPendingLoading
             ).toHaveLength(expectedResourceKeys.length)
         })
         it("knows it has not gotten resources yet", () => {
-            loader.update(state)
+            loader.update(gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
         it("knows it is not complete", () => {
-            expect(loader.hasCompleted(state)).toBeFalsy()
-            loader.update(state)
-            expect(loader.hasCompleted(state)).toBeFalsy()
+            expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
+            loader.update(gameEngineState)
+            expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
     })
 
     describe("loading the mission", () => {
         it("asks the loader to load the mission", async () => {
-            await loader.update(state)
+            await loader.update(gameEngineState)
             expect(loadFileIntoFormatSpy).toBeCalledWith(
                 "assets/mission/0000.json"
             )
         })
 
         it("knows file has been loaded", async () => {
-            await loader.update(state)
+            await loader.update(gameEngineState)
             expect(
                 loader.missionLoaderContext.completionProgress.started
             ).toBeTruthy()
         })
 
         it("knows it has not gotten resources yet", () => {
-            loader.update(state)
+            loader.update(gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
 
         it("knows it is not complete", () => {
-            loader.update(state)
-            expect(loader.hasCompleted(state)).toBeFalsy()
+            loader.update(gameEngineState)
+            expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
         it("reports errors", async () => {
@@ -229,7 +236,7 @@ describe("GameEngineGameLoader", () => {
                 .spyOn(console, "error")
                 .mockImplementation(() => {})
             loadFileIntoFormatSpy.mockRejectedValue("Error")
-            await loader.update(state)
+            await loader.update(gameEngineState)
             expect(loader.errorFoundWhileLoading).toBeTruthy()
             expect(consoleErrorSpy).toBeCalledWith(
                 expect.stringContaining("Error while loading campaign file")
@@ -246,12 +253,12 @@ describe("GameEngineGameLoader", () => {
         let squaddieRepositorySize: number
 
         beforeEach(async () => {
-            await loader.update(state)
+            await loader.update(gameEngineState)
             squaddieRepositorySize =
                 ObjectRepositoryService.getBattleSquaddieIterator(
-                    state.repository
+                    gameEngineState.repository
                 ).length
-            await loader.update(state)
+            await loader.update(gameEngineState)
         })
 
         it("should load resources into the handler", () => {
@@ -262,38 +269,38 @@ describe("GameEngineGameLoader", () => {
 
         it("should be complete", () => {
             expect(loader.appliedResources).toBeTruthy()
-            expect(loader.hasCompleted(state)).toBeTruthy()
+            expect(loader.hasCompleted(gameEngineState)).toBeTruthy()
         })
 
         it("should recommend the battle scene as the next object", () => {
-            expect(loader.recommendStateChanges(state).nextMode).toBe(
+            expect(loader.recommendStateChanges(gameEngineState).nextMode).toBe(
                 GameModeEnum.BATTLE
             )
         })
 
         it("mission id", () => {
-            expect(state.battleOrchestratorState.battleState.missionId).toEqual(
-                missionData.id
-            )
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.missionId
+            ).toEqual(missionData.id)
         })
 
         it("campaign id", () => {
-            expect(state.campaign.id).toEqual(campaignFileData.id)
+            expect(gameEngineState.campaign.id).toEqual(campaignFileData.id)
         })
 
         it("mission map", () => {
             expect(
-                state.battleOrchestratorState.battleState.missionMap
+                gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap
             ).toEqual(loader.missionLoaderContext.missionMap.terrainTileMap)
         })
 
         it("mission objectives", () => {
             expect(
-                state.battleOrchestratorState.battleState.objectives
+                gameEngineState.battleOrchestratorState.battleState.objectives
             ).toEqual(loader.missionLoaderContext.objectives)
             expect(
-                state.battleOrchestratorState.battleState
+                gameEngineState.battleOrchestratorState.battleState
                     .missionCompletionStatus
             ).toEqual({
                 victory: {
@@ -314,15 +321,15 @@ describe("GameEngineGameLoader", () => {
         it("squaddies", () => {
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                    state.repository
+                    gameEngineState.repository
                 ).length
             ).toBeGreaterThan(0)
             expect(
-                state.battleOrchestratorState.battleState.teams.length
+                gameEngineState.battleOrchestratorState.battleState.teams.length
             ).toBeGreaterThan(0)
 
             expect(
-                state.battleOrchestratorState.battleState.teams.some(
+                gameEngineState.battleOrchestratorState.battleState.teams.some(
                     (team) =>
                         team.affiliation === SquaddieAffiliation.PLAYER &&
                         team.id === missionData.player.teamId
@@ -331,36 +338,44 @@ describe("GameEngineGameLoader", () => {
 
             expect(
                 Object.keys(
-                    state.battleOrchestratorState.battleState.teamStrategiesById
+                    gameEngineState.battleOrchestratorState.battleState
+                        .teamStrategiesById
                 ).length
             ).toBeGreaterThan(0)
             expect(
-                state.battleOrchestratorState.battleState.teamStrategiesById[
+                gameEngineState.battleOrchestratorState.battleState
+                    .teamStrategiesById[
                     missionData.npcDeployments.enemy.teams[0].id
                 ]
             ).toEqual(missionData.npcDeployments.enemy.teams[0].strategies)
 
             expect(
-                Object.keys(state.repository.imageUIByBattleSquaddieId)
+                Object.keys(
+                    gameEngineState.repository.imageUIByBattleSquaddieId
+                )
             ).toHaveLength(squaddieRepositorySize)
         })
 
         it("cutscenes", () => {
             expect(
-                state.battleOrchestratorState.battleState.cutsceneTriggers
-                    .length
+                gameEngineState.battleOrchestratorState.battleState
+                    .cutsceneTriggers.length
             ).toBeGreaterThan(0)
             expect(
                 CutsceneService.hasLoaded(
-                    state.battleOrchestratorState.battleState.cutsceneCollection
-                        .cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    gameEngineState.battleOrchestratorState.battleState
+                        .cutsceneCollection.cutsceneById[
+                        DEFAULT_VICTORY_CUTSCENE_ID
+                    ],
                     resourceHandler
                 )
             ).toBeTruthy()
         })
 
         it("campaign resources", () => {
-            expect(state.campaign.resources).toEqual(campaignFileData.resources)
+            expect(gameEngineState.campaign.resources).toEqual(
+                campaignFileData.resources
+            )
         })
 
         it("initializes the camera", () => {
@@ -374,11 +389,11 @@ describe("GameEngineGameLoader", () => {
             ).toBe(18)
 
             expect(
-                state.battleOrchestratorState.battleState.camera
+                gameEngineState.battleOrchestratorState.battleState.camera
                     .mapDimensionBoundaries.widthOfWidestRow
             ).toBe(17)
             expect(
-                state.battleOrchestratorState.battleState.camera
+                gameEngineState.battleOrchestratorState.battleState.camera
                     .mapDimensionBoundaries.numberOfRows
             ).toBe(18)
         })
@@ -492,7 +507,7 @@ describe("GameEngineGameLoader", () => {
                 originalState.campaignIdThatWasLoaded
         })
 
-        it("will backup the battle orchestrator state", async () => {
+        it("will backup the battle orchestrator gameEngineState", async () => {
             await loader.update(currentState)
             expect(loader.backupBattleOrchestratorState).toEqual(
                 originalState.battleOrchestratorState
@@ -534,8 +549,10 @@ describe("GameEngineGameLoader", () => {
             ).toBeGreaterThan(0)
             expect(
                 CutsceneService.hasLoaded(
-                    state.battleOrchestratorState.battleState.cutsceneCollection
-                        .cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    gameEngineState.battleOrchestratorState.battleState
+                        .cutsceneCollection.cutsceneById[
+                        DEFAULT_VICTORY_CUTSCENE_ID
+                    ],
                     resourceHandler
                 )
             ).toBeTruthy()
@@ -735,8 +752,10 @@ describe("GameEngineGameLoader", () => {
             ).toBeGreaterThan(0)
             expect(
                 CutsceneService.hasLoaded(
-                    state.battleOrchestratorState.battleState.cutsceneCollection
-                        .cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    gameEngineState.battleOrchestratorState.battleState
+                        .cutsceneCollection.cutsceneById[
+                        DEFAULT_VICTORY_CUTSCENE_ID
+                    ],
                     resourceHandler
                 )
             ).toBeTruthy()
@@ -851,13 +870,13 @@ describe("GameEngineGameLoader", () => {
 
     describe("reloading while game is in progress", () => {
         beforeEach(async () => {
-            await loader.update(state)
-            await loader.update(state)
+            await loader.update(gameEngineState)
+            await loader.update(gameEngineState)
         })
 
         const resetLoaderAndClearBattleOrchestratorState = () => {
-            loader.reset(state)
-            state.battleOrchestratorState.copyOtherOrchestratorState(
+            loader.reset(gameEngineState)
+            gameEngineState.battleOrchestratorState.copyOtherOrchestratorState(
                 BattleOrchestratorStateService.new({})
             )
         }
@@ -866,7 +885,7 @@ describe("GameEngineGameLoader", () => {
             expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(
                 campaignId
             )
-            loader.reset(state)
+            loader.reset(gameEngineState)
             expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(
                 campaignId
             )
@@ -874,12 +893,12 @@ describe("GameEngineGameLoader", () => {
 
         it("will load battle resources again but nothing else", async () => {
             expect(loader.appliedResources).toBeTruthy()
-            expect(loader.hasCompleted(state)).toBeTruthy()
+            expect(loader.hasCompleted(gameEngineState)).toBeTruthy()
             const initialFileLoadCalls = loadFileIntoFormatSpy.mock.calls.length
 
             resetLoaderAndClearBattleOrchestratorState()
 
-            await loader.update(state)
+            await loader.update(gameEngineState)
             const missionMapCallsCount = 1
             const playerArmyCallsCount = 1
             const templateCallsCount =
@@ -899,16 +918,16 @@ describe("GameEngineGameLoader", () => {
                 loader.missionLoaderContext.completionProgress.loadedFileData
             ).toBeTruthy()
             expect(loader.appliedResources).toBeFalsy()
-            expect(loader.hasCompleted(state)).toBeFalsy()
+            expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
         it("will switch to battle mode once resources have finished loading", async () => {
             resetLoaderAndClearBattleOrchestratorState()
-            await loader.update(state)
-            await loader.update(state)
+            await loader.update(gameEngineState)
+            await loader.update(gameEngineState)
             expect(loader.appliedResources).toBeTruthy()
-            expect(loader.hasCompleted(state)).toBeTruthy()
-            expect(loader.recommendStateChanges(state).nextMode).toBe(
+            expect(loader.hasCompleted(gameEngineState)).toBeTruthy()
+            expect(loader.recommendStateChanges(gameEngineState).nextMode).toBe(
                 GameModeEnum.BATTLE
             )
         })

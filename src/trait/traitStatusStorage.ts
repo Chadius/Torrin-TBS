@@ -168,7 +168,7 @@ export const TraitStatusStorageService = {
                     )
                     .map((traitName: Trait) => [
                         traitName,
-                        data.booleanTraits[traitName],
+                        data.booleanTraits[traitName as Trait],
                     ])
             ),
         })

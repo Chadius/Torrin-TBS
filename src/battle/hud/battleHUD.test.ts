@@ -1629,14 +1629,14 @@ describe("Battle HUD", () => {
                                         playerSoldierBattleSquaddie.battleSquaddieId,
                                     actionContext:
                                         BattleActionActionContextService.new({
-                                            actingSquaddieModifiers: {},
+                                            actingSquaddieModifiers: [],
                                             actingSquaddieRoll: {
                                                 occurred: false,
                                                 rolls: [],
                                             },
                                             targetSquaddieModifiers: {
                                                 [thiefBattleSquaddie.battleSquaddieId]:
-                                                    {},
+                                                    [],
                                             },
                                         }),
                                     squaddieChanges: [

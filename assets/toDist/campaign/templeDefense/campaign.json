@@ -1,6 +1,8 @@
 {
   "id": "templeDefense",
-  "missionIds": ["0000"],
+  "missionIds": [
+    "0000"
+  ],
   "resources": {
     "missionMapMovementIconResourceKeys": {
       "MOVE_1_ACTION": "map icon move 1 action",
@@ -14,7 +16,7 @@
       "ARMOR_CLASS": "armor class icon"
     },
     "actionEffectSquaddieTemplateButtonIcons": {
-      "UNKNOWN" : "decision-button-unknown"
+      "UNKNOWN": "decision-button-unknown"
     },
     "mapTiles": {
       "resourceKeys": [
@@ -30,6 +32,13 @@
         "pit": "map-tiles-basic-water",
         "wall": "map-tiles-basic-wall"
       }
+    },
+    "attributeIcons": {
+      "ARMOR": "attribute-icon-armor"
+    },
+    "attributeComparisons": {
+      "up": "attribute-up",
+      "down": "attribute-down"
     }
   }
 }

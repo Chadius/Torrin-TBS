@@ -399,7 +399,7 @@
             "type": "DIALOGUE",
             "id": "turn1_0",
             "speakerName": "Torrin",
-            "speakerText": "We have to destroy all of these demons!\nI can stay back and fire at range.\nOr I can heal you. It will cost 2 action points, though.",
+            "speakerText": "We have to destroy all of these demons!\nI can attack from range.\nI can also heal.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -407,7 +407,7 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "speakerText": "I'll take the lead, I have more health.\nI'll destroy these demons with my longsword.\nTry to heal me if I am injured.",
+            "speakerText": "I'll take the lead, stay behind me.\nI'll destroy these demons with my longsword.\nAnd Raise my Shield for more armor.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
