@@ -54,7 +54,7 @@ import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 describe("user clicks on an action to consider it", () => {
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let gameEngineState: GameEngineState
 
     let playerTeam: BattleSquaddieTeam
@@ -70,7 +70,7 @@ describe("user clicks on an action to consider it", () => {
     let selector: BattlePlayerSquaddieSelector
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
@@ -85,6 +85,10 @@ describe("user clicks on an action to consider it", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            attackAction
+        )
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -92,10 +96,10 @@ describe("user clicks on an action to consider it", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             playerSquaddieTemplate
         )
 
@@ -104,7 +108,7 @@ describe("user clicks on an action to consider it", () => {
             battleSquaddieId: "player 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             playerBattleSquaddie
         )
 
@@ -144,7 +148,7 @@ describe("user clicks on an action to consider it", () => {
         gameEngineState = getGameEngineState({
             resourceHandler,
             missionMap,
-            repository,
+            repository: objectRepository,
             teams: [playerTeam],
             battlePhaseState: BattlePhaseStateService.new({
                 currentAffiliation: BattlePhase.PLAYER,
@@ -168,7 +172,7 @@ describe("user clicks on an action to consider it", () => {
 
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplate.id === attackAction.id
+                (button) => button.actionTemplateId === attackAction.id
             )
 
         selector = new BattlePlayerSquaddieSelector()
@@ -179,9 +183,15 @@ describe("user clicks on an action to consider it", () => {
             playerBattleSquaddie.squaddieTurn,
             2
         )
+
+        const attackButtonAction =
+            ObjectRepositoryService.getActionTemplateById(
+                gameEngineState.repository,
+                attackButton.actionTemplateId
+            )
         expect(
             playerBattleSquaddie.squaddieTurn.remainingActionPoints
-        ).toBeLessThan(attackButton.actionTemplate.actionPoints)
+        ).toBeLessThan(attackButtonAction.actionPoints)
 
         selectorClicksOnSquaddie(selector, gameEngineState)
         selector.mouseClicked({
@@ -216,8 +226,8 @@ describe("user clicks on an action to consider it", () => {
         ).toBeTruthy()
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState.selectedActionTemplate
-        ).toEqual(attackAction)
+                .summaryHUDState.playerCommandState.selectedActionTemplateId
+        ).toEqual(attackAction.id)
         expect(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         ).toEqual(

@@ -499,7 +499,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_0",
             "speakerName": "Sir Camil",
-            "speakerText": "Those demons bite hard.\nTorrin, can you help me?",
+            "speakerText": "Those demons got through my armor.\nTorrin, can you heal me?",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -507,7 +507,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
             "speakerName": "Torrin",
-            "speakerText": "I can use Healing Touch if you're next to me!\nIt costs 2 action points.\nIf I heal you I can't do much else.",
+            "speakerText": "I can use Healing Touch if I'm right next to you.\nI need 2 action points.\nThat leaves 1 action point to move or attack.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }

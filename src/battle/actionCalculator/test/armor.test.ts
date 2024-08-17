@@ -84,7 +84,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                 name: "actingTemplate",
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            actionTemplates: [armorAttackingAction],
+            actionTemplateIds: [armorAttackingAction.id],
         })
         actingSquaddie = BattleSquaddieService.new({
             squaddieTemplate: actingTemplate,

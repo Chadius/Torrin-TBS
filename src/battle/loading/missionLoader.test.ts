@@ -7,7 +7,6 @@ import {
     NpcTeam,
     NpcTeamMissionDeployment,
 } from "../../dataLoader/missionLoader"
-import * as DataLoader from "../../dataLoader/dataLoader"
 import { MissionLoader, MissionLoaderContext } from "./missionLoader"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
@@ -17,26 +16,26 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { TestMissionData } from "../../utils/test/missionData"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { PlayerArmy } from "../../campaign/playerArmy"
-import { TestArmyPlayerData } from "../../utils/test/army"
 import { CutsceneService } from "../../cutscene/cutscene"
 import { isValidValue } from "../../utils/validityCheck"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import { Dialogue } from "../../cutscene/dialogue/dialogue"
 import { SplashScreen } from "../../cutscene/splashScreen"
+import { ActionTemplate } from "../../action/template/actionTemplate"
+import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 
 describe("Mission Loader", () => {
     let resourceHandler: ResourceHandler
     let missionData: MissionFileFormat
     let loadFileIntoFormatSpy: jest.SpyInstance
     let missionLoaderContext: MissionLoaderContext
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let enemyDemonSlitherTemplate: SquaddieTemplate
     let enemyDemonSlitherTemplate2: SquaddieTemplate
-    let allyGuardTemplate: SquaddieTemplate
-    let noAffiliationLivingFlameTemplate: SquaddieTemplate
+    let npcActionTemplates: ActionTemplate[]
+    let playerActionTemplates: ActionTemplate[]
     let playerArmy: PlayerArmy
 
     beforeEach(() => {
@@ -47,60 +46,17 @@ describe("Mission Loader", () => {
         resourceHandler.loadResource = jest.fn()
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true)
         ;({
+            loadFileIntoFormatSpy,
+            playerArmy,
             missionData,
             enemyDemonSlitherTemplate,
             enemyDemonSlitherTemplate2,
-            allyGuardTemplate,
-            noAffiliationLivingFlameTemplate,
-        } = TestMissionData())
-        ;({ playerArmy } = TestArmyPlayerData())
+            npcActionTemplates,
+            playerActionTemplates,
+        } = LoadCampaignData.createLoadFileSpy())
 
-        loadFileIntoFormatSpy = jest
-            .spyOn(DataLoader, "LoadFileIntoFormat")
-            .mockImplementation(
-                async (
-                    filename: string
-                ): Promise<
-                    MissionFileFormat | SquaddieTemplate | PlayerArmy
-                > => {
-                    if (filename === "assets/mission/0000.json") {
-                        return missionData
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/enemy_demon_slither.json"
-                    ) {
-                        return enemyDemonSlitherTemplate
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json"
-                    ) {
-                        return enemyDemonSlitherTemplate2
-                    }
-
-                    if (
-                        filename === "assets/npcData/templates/ally_guard.json"
-                    ) {
-                        return allyGuardTemplate
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/no_affiliation_living_flame.json"
-                    ) {
-                        return noAffiliationLivingFlameTemplate
-                    }
-
-                    if (filename === "assets/playerArmy/playerArmy.json") {
-                        return playerArmy
-                    }
-                }
-            )
         missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext()
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
     })
 
     it("knows it has not started yet", () => {
@@ -116,7 +72,7 @@ describe("Mission Loader", () => {
                 missionLoaderContext: missionLoaderContext,
                 missionId: "0000",
                 resourceHandler,
-                repository: repository,
+                objectRepository: objectRepository,
             })
         })
 
@@ -191,6 +147,55 @@ describe("Mission Loader", () => {
             ).toBe(18)
         })
 
+        it("gets cutscenes", () => {
+            expect(Object.keys(missionData.cutscene.cutsceneById)).toEqual(
+                Object.keys(
+                    missionLoaderContext.cutsceneInfo.cutsceneCollection
+                        .cutsceneById
+                )
+            )
+
+            expect(missionLoaderContext.resourcesPendingLoading).toContain(
+                "tutorial-confirm-cancel"
+            )
+            expect(missionLoaderContext.resourcesPendingLoading).toContain(
+                "splash victory"
+            )
+            expect(
+                missionLoaderContext.resourcesPendingLoading.every((key) =>
+                    isValidValue(key)
+                )
+            ).toBeTruthy()
+
+            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(
+                missionData.cutscene.cutsceneTriggers
+            )
+
+            const introductionCutsceneDirections =
+                missionData.cutscene.cutsceneById["introduction"].directions[0]
+            expect(introductionCutsceneDirections.type).toEqual(
+                CutsceneActionPlayerType.DIALOGUE
+            )
+            expect(
+                (introductionCutsceneDirections as Dialogue).backgroundColor
+            ).toEqual([1, 2, 3])
+
+            const victoryCutsceneDirections =
+                missionData.cutscene.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID]
+                    .directions
+            expect(
+                victoryCutsceneDirections[victoryCutsceneDirections.length - 1]
+                    .type
+            ).toEqual(CutsceneActionPlayerType.SPLASH_SCREEN)
+            expect(
+                (
+                    victoryCutsceneDirections[
+                        victoryCutsceneDirections.length - 1
+                    ] as SplashScreen
+                ).backgroundColor
+            ).toEqual([10, 11, 12])
+        })
+
         describe("npc squaddie information", () => {
             it("knows the template ids for this map", () => {
                 expect(
@@ -219,26 +224,28 @@ describe("Mission Loader", () => {
                 expect(missionLoaderContext.resourcesPendingLoading).toEqual(
                     expect.arrayContaining(
                         SquaddieTemplateService.getResourceKeys(
-                            enemyDemonSlitherTemplate
+                            enemyDemonSlitherTemplate,
+                            objectRepository
                         )
                     )
                 )
 
                 expect(resourceHandler.loadResources).toBeCalledWith(
                     SquaddieTemplateService.getResourceKeys(
-                        enemyDemonSlitherTemplate
+                        enemyDemonSlitherTemplate,
+                        objectRepository
                     )
                 )
             })
-            it("knows to add the template to the squaddie repository", () => {
+            it("knows to add the template to the repository", () => {
                 expect(
                     ObjectRepositoryService.getSquaddieTemplateIterator(
-                        repository
+                        objectRepository
                     ).length
                 ).toBeGreaterThan(0)
                 expect(
                     ObjectRepositoryService.getSquaddieTemplateIterator(
-                        repository
+                        objectRepository
                     ).some(
                         (val) =>
                             val.squaddieTemplateId ===
@@ -247,7 +254,7 @@ describe("Mission Loader", () => {
                 )
                 expect(
                     ObjectRepositoryService.getSquaddieTemplateIterator(
-                        repository
+                        objectRepository
                     ).some(
                         (val) =>
                             val.squaddieTemplateId ===
@@ -255,7 +262,7 @@ describe("Mission Loader", () => {
                     )
                 )
             })
-            it("adds battle squaddies to the squaddie repository", () => {
+            it("adds battle squaddies to the repository", () => {
                 const npcDeployments: NpcTeamMissionDeployment[] = [
                     missionData.npcDeployments.enemy,
                     missionData.npcDeployments.ally,
@@ -266,7 +273,7 @@ describe("Mission Loader", () => {
                     deployment.mapPlacements.forEach((placement) => {
                         const { battleSquaddie } = getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
-                                repository,
+                                objectRepository,
                                 placement.battleSquaddieId
                             )
                         )
@@ -411,6 +418,17 @@ describe("Mission Loader", () => {
                         ).toContain(bannerResourceKey)
                     })
             })
+            it("adds action templates to the repository", () => {
+                expect(
+                    npcActionTemplates.every(
+                        (template) =>
+                            ObjectRepositoryService.getActionTemplateById(
+                                objectRepository,
+                                template.id
+                            ) === template
+                    )
+                ).toBeTruthy()
+            })
         })
     })
 
@@ -422,7 +440,7 @@ describe("Mission Loader", () => {
                 missionLoaderContext: missionLoaderContext,
                 missionId: "0000",
                 resourceHandler,
-                repository: repository,
+                objectRepository: objectRepository,
             })
 
             initialPendingResourceListLength =
@@ -431,7 +449,7 @@ describe("Mission Loader", () => {
             await MissionLoader.loadPlayerArmyFromFile({
                 missionLoaderContext: missionLoaderContext,
                 resourceHandler,
-                squaddieRepository: repository,
+                objectRepository,
             })
         })
 
@@ -454,7 +472,8 @@ describe("Mission Loader", () => {
             ).toBeGreaterThan(initialPendingResourceListLength)
 
             const player0ResourceKeys = SquaddieTemplateService.getResourceKeys(
-                playerArmy.squaddieTemplates[0]
+                playerArmy.squaddieTemplates[0],
+                objectRepository
             )
             expect(missionLoaderContext.resourcesPendingLoading).toEqual(
                 expect.arrayContaining(player0ResourceKeys)
@@ -464,7 +483,8 @@ describe("Mission Loader", () => {
             )
 
             const player1ResourceKeys = SquaddieTemplateService.getResourceKeys(
-                playerArmy.squaddieTemplates[0]
+                playerArmy.squaddieTemplates[1],
+                objectRepository
             )
             expect(missionLoaderContext.resourcesPendingLoading).toEqual(
                 expect.arrayContaining(player1ResourceKeys)
@@ -477,7 +497,7 @@ describe("Mission Loader", () => {
         it("adds player squaddies to the repository", () => {
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                    repository
+                    objectRepository
                 ).some(
                     (template) =>
                         template.squaddieTemplateId ===
@@ -486,7 +506,7 @@ describe("Mission Loader", () => {
             ).toBeTruthy()
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                    repository
+                    objectRepository
                 ).some(
                     (template) =>
                         template.squaddieTemplateId ===
@@ -535,8 +555,9 @@ describe("Mission Loader", () => {
 
         it("gets squaddies and queues resources to load based on the squaddie resources", () => {
             expect(
-                ObjectRepositoryService.getSquaddieTemplateIterator(repository)
-                    .length
+                ObjectRepositoryService.getSquaddieTemplateIterator(
+                    objectRepository
+                ).length
             ).toBeGreaterThan(0)
             expect(
                 missionLoaderContext.squaddieData.teams.length
@@ -551,53 +572,16 @@ describe("Mission Loader", () => {
             ).toBeGreaterThan(initialPendingResourceListLength)
         })
 
-        it("gets cutscenes", () => {
-            expect(Object.keys(missionData.cutscene.cutsceneById)).toEqual(
-                Object.keys(
-                    missionLoaderContext.cutsceneInfo.cutsceneCollection
-                        .cutsceneById
-                )
-            )
-
-            expect(missionLoaderContext.resourcesPendingLoading).toContain(
-                "tutorial-confirm-cancel"
-            )
-            expect(missionLoaderContext.resourcesPendingLoading).toContain(
-                "splash victory"
-            )
+        it("adds action templates to the repository", () => {
             expect(
-                missionLoaderContext.resourcesPendingLoading.every((key) =>
-                    isValidValue(key)
+                playerActionTemplates.every(
+                    (template) =>
+                        ObjectRepositoryService.getActionTemplateById(
+                            objectRepository,
+                            template.id
+                        ) === template
                 )
             ).toBeTruthy()
-
-            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(
-                missionData.cutscene.cutsceneTriggers
-            )
-
-            const introductionCutsceneDirections =
-                missionData.cutscene.cutsceneById["introduction"].directions[0]
-            expect(introductionCutsceneDirections.type).toEqual(
-                CutsceneActionPlayerType.DIALOGUE
-            )
-            expect(
-                (introductionCutsceneDirections as Dialogue).backgroundColor
-            ).toEqual([1, 2, 3])
-
-            const victoryCutsceneDirections =
-                missionData.cutscene.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID]
-                    .directions
-            expect(
-                victoryCutsceneDirections[victoryCutsceneDirections.length - 1]
-                    .type
-            ).toEqual(CutsceneActionPlayerType.SPLASH_SCREEN)
-            expect(
-                (
-                    victoryCutsceneDirections[
-                        victoryCutsceneDirections.length - 1
-                    ] as SplashScreen
-                ).backgroundColor
-            ).toEqual([10, 11, 12])
         })
     })
 
@@ -651,7 +635,7 @@ describe("Mission Loader", () => {
                 missionLoaderContext: missionLoaderContext,
                 missionId: "0000",
                 resourceHandler,
-                repository: repository,
+                objectRepository: objectRepository,
             })
 
             jest.spyOn(resourceHandler, "isResourceLoaded").mockReturnValue(
@@ -664,16 +648,17 @@ describe("Mission Loader", () => {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderContext,
                 resourceHandler,
-                repository: repository,
+                repository: objectRepository,
             })
         })
 
         it("initializes squaddie resources", () => {
             expect(
-                Object.keys(repository.imageUIByBattleSquaddieId)
+                Object.keys(objectRepository.imageUIByBattleSquaddieId)
             ).toHaveLength(
-                ObjectRepositoryService.getBattleSquaddieIterator(repository)
-                    .length
+                ObjectRepositoryService.getBattleSquaddieIterator(
+                    objectRepository
+                ).length
             )
         })
 
@@ -690,7 +675,7 @@ describe("Mission Loader", () => {
         it("has the squaddie templates that were loaded from files", () => {
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                    repository
+                    objectRepository
                 ).some(
                     (val) =>
                         val.squaddieTemplateId ===
@@ -699,7 +684,7 @@ describe("Mission Loader", () => {
             )
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
-                    repository
+                    objectRepository
                 ).some(
                     (val) =>
                         val.squaddieTemplateId ===
@@ -709,9 +694,9 @@ describe("Mission Loader", () => {
         })
 
         it("copies the banner by squaddie affiliation information", () => {
-            expect(repository.uiElements.phaseBannersByAffiliation).toEqual(
-                missionData.phaseBannersByAffiliation
-            )
+            expect(
+                objectRepository.uiElements.phaseBannersByAffiliation
+            ).toEqual(missionData.phaseBannersByAffiliation)
         })
 
         it("copies the team affiliation icons", () => {
@@ -728,7 +713,7 @@ describe("Mission Loader", () => {
                 })
             )
 
-            expect(repository.uiElements.teamAffiliationIcons).toEqual(
+            expect(objectRepository.uiElements.teamAffiliationIcons).toEqual(
                 expectedKeys
             )
         })

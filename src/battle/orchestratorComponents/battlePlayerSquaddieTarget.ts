@@ -346,11 +346,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             )
         )
 
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
-            (template) =>
-                template.id ===
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.previewedActionTemplateId
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .previewedActionTemplateId
         )
 
         if (!isValidValue(actionTemplate)) {

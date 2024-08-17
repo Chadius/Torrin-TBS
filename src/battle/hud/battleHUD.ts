@@ -421,7 +421,7 @@ export const BattleHUDService = {
             state: gameEngineState,
             battleSquaddieId: message.battleSquaddieId,
             startingLocation: message.mapStartingLocation,
-            previewedActionTemplateId: message.actionTemplate.id,
+            previewedActionTemplateId: message.actionTemplateId,
         })
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
             BattleActionDecisionStepService.new()
@@ -435,7 +435,10 @@ export const BattleHUDService = {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            actionTemplate: message.actionTemplate,
+            actionTemplate: ObjectRepositoryService.getActionTemplateById(
+                gameEngineState.repository,
+                message.actionTemplateId
+            ),
         })
     },
     playerSelectsTargetLocation: (
@@ -488,9 +491,9 @@ export const BattleHUDService = {
             )
         )
 
-        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
-            (template) =>
-                template.id === actionsThisRound.previewedActionTemplateId
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            actionsThisRound.previewedActionTemplateId
         )
         let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0]
         if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {

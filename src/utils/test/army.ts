@@ -6,13 +6,17 @@ import {
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
         squaddieTemplates: [
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "player_young_torrin",
                     name: "Torrin",
@@ -48,52 +52,12 @@ export const TestArmyPlayerData = () => {
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
-                actionTemplates: [
-                    ActionTemplateService.new({
-                        name: "water cannon",
-                        id: "torrin_water_cannon",
-                        actionEffectTemplates: [
-                            ActionEffectSquaddieTemplateService.new({
-                                minimumRange: 0,
-                                maximumRange: 2,
-                                traits: {
-                                    booleanTraits: {
-                                        ATTACK: true,
-                                    },
-                                },
-                                damageDescriptions: {
-                                    BODY: 2,
-                                },
-                                buttonIconResourceKey: "decision-button-bow",
-                            }),
-                        ],
-                        buttonIconResourceKey: "decision-button-bow",
-                    }),
-                    ActionTemplateService.new({
-                        name: "healing touch",
-                        id: "young_torrin_healing_touch",
-                        actionPoints: 2,
-                        actionEffectTemplates: [
-                            ActionEffectSquaddieTemplateService.new({
-                                minimumRange: 0,
-                                maximumRange: 1,
-                                traits: {
-                                    booleanTraits: {
-                                        ALWAYS_SUCCEEDS: true,
-                                        TARGETS_ALLY: true,
-                                        HEALING: true,
-                                    },
-                                },
-                                healingDescriptions: {
-                                    LOST_HIT_POINTS: 2,
-                                },
-                            }),
-                        ],
-                        buttonIconResourceKey: "decision-button-heart",
-                    }),
+                actionTemplateIds: [
+                    "torrin_water_cannon",
+                    "young_torrin_healing_touch",
                 ],
-            },
-            {
+            }),
+            SquaddieTemplateService.new({
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 8,
@@ -127,32 +91,76 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                actionTemplates: [
-                    ActionTemplateService.new({
-                        name: "longsword",
-                        id: "sir_camil_longsword",
-                        actionEffectTemplates: [
-                            ActionEffectSquaddieTemplateService.new({
-                                minimumRange: 0,
-                                maximumRange: 1,
-                                traits: {
-                                    booleanTraits: {
-                                        ATTACK: true,
-                                    },
-                                },
-                                damageDescriptions: {
-                                    BODY: 2,
-                                },
-                            }),
-                        ],
-                        buttonIconResourceKey: "decision-button-sword",
-                    }),
-                ],
-            },
+                actionTemplateIds: ["sir_camil_longsword"],
+            }),
         ],
     }
+    const playerActionTemplates: ActionTemplate[] = [
+        ActionTemplateService.new({
+            id: "torrin_water_cannon",
+            name: "water cannon",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 2,
+                    traits: {
+                        booleanTraits: {
+                            ATTACK: true,
+                        },
+                    },
+                    damageDescriptions: {
+                        BODY: 2,
+                    },
+                    buttonIconResourceKey: "decision-button-bow",
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-bow",
+        }),
+        ActionTemplateService.new({
+            id: "young_torrin_healing_touch",
+            name: "healing touch",
+            actionPoints: 2,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: {
+                        booleanTraits: {
+                            ALWAYS_SUCCEEDS: true,
+                            TARGETS_ALLY: true,
+                            HEALING: true,
+                        },
+                    },
+                    healingDescriptions: {
+                        LOST_HIT_POINTS: 2,
+                    },
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-heart",
+        }),
+        ActionTemplateService.new({
+            id: "sir_camil_longsword",
+            name: "longsword",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: {
+                        booleanTraits: {
+                            ATTACK: true,
+                        },
+                    },
+                    damageDescriptions: {
+                        BODY: 2,
+                    },
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-sword",
+        }),
+    ]
 
     return {
         playerArmy,
+        playerActionTemplates,
     }
 }

@@ -13,6 +13,10 @@ import { ImageUI } from "../ui/imageUI"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { AttributeModifierService, AttributeType } from "./attributeModifier"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../battle/objectRepository"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     strokeSaturation: 85,
@@ -31,7 +35,7 @@ const DECISION_BUTTON_LAYOUT_COLORS = {
 
 export class MakeDecisionButton {
     buttonArea: RectArea
-    actionTemplate: ActionTemplate
+    actionTemplateId: string
     hue: number
     buttonIconResourceKey: string
     buttonIcon: ImageUI
@@ -39,19 +43,19 @@ export class MakeDecisionButton {
 
     constructor({
         buttonArea,
-        actionTemplate,
+        actionTemplateId,
         hue,
         resourceHandler,
         buttonIconResourceKey,
     }: {
         buttonArea?: RectArea
-        actionTemplate: ActionTemplate
+        actionTemplateId: string
         hue?: number
         buttonIconResourceKey: string
         resourceHandler: ResourceHandler
     }) {
         this.buttonArea = buttonArea
-        this.actionTemplate = actionTemplate
+        this.actionTemplateId = actionTemplateId
         this.hue = getValidValueOrDefault(
             hue,
             HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN]
@@ -76,7 +80,7 @@ export class MakeDecisionButton {
         this._status = value
     }
 
-    draw(graphicsContext: GraphicsBuffer) {
+    draw(objectRepository: ObjectRepository, graphicsContext: GraphicsBuffer) {
         this.buttonIcon.draw(graphicsContext)
         if (this.status === ButtonStatus.HOVER) {
             const hoverOutline = RectangleHelper.new({
@@ -98,7 +102,12 @@ export class MakeDecisionButton {
             RectangleHelper.draw(hoverOutline, graphicsContext)
         }
 
-        let actionDescription = this.actionTemplate.name
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            this.actionTemplateId
+        )
+
+        let actionDescription = actionTemplate.name
         const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),
@@ -118,37 +127,48 @@ export class MakeDecisionButton {
         let infoTextTop =
             RectAreaService.bottom(buttonTextBox.area) +
             DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
-        if (this.shouldDrawActionPoints()) {
-            this.drawActionPoints(graphicsContext, infoTextTop)
+        if (this.shouldDrawActionPoints(actionTemplate)) {
+            this.drawActionPoints(graphicsContext, actionTemplate, infoTextTop)
             infoTextTop +=
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
         }
 
-        if (this.shouldDrawActionRange()) {
-            this.drawActionRange(graphicsContext, infoTextTop)
+        if (this.shouldDrawActionRange(actionTemplate)) {
+            this.drawActionRange(graphicsContext, actionTemplate, infoTextTop)
             infoTextTop +=
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
         }
 
-        if (this.shouldDrawActionTemplateEffects()) {
-            this.drawActionTemplateEffect(graphicsContext, infoTextTop)
+        if (this.shouldDrawActionTemplateEffects(actionTemplate)) {
+            this.drawActionTemplateEffect(
+                graphicsContext,
+                actionTemplate,
+                infoTextTop
+            )
         }
     }
 
-    drawActionPoints(graphicsContext: GraphicsBuffer, top: number) {
+    drawActionPoints(
+        graphicsContext: GraphicsBuffer,
+        actionTemplate: ActionTemplate,
+        top: number
+    ) {
         this.drawInfoTextBox(
             graphicsContext,
             top,
-            `Action Points: ${this.actionTemplate.actionPoints}`
+            `Action Points: ${actionTemplate.actionPoints}`
         )
     }
 
-    drawActionRange = (graphicsContext: GraphicsBuffer, top: number) => {
-        const templateRange = ActionTemplateService.getActionTemplateRange(
-            this.actionTemplate
-        )
+    drawActionRange = (
+        graphicsContext: GraphicsBuffer,
+        actionTemplate: ActionTemplate,
+        top: number
+    ) => {
+        const templateRange =
+            ActionTemplateService.getActionTemplateRange(actionTemplate)
         const minimumRange = isValidValue(templateRange) ? templateRange[0] : 0
         const maximumRange = isValidValue(templateRange) ? templateRange[1] : 0
 
@@ -161,13 +181,14 @@ export class MakeDecisionButton {
 
     drawActionTemplateEffect = (
         graphicsContext: GraphicsBuffer,
+        actionTemplate: ActionTemplate,
         top: number
     ) => {
         const {
             damageDescription,
             healingDescription,
             attributeModifierDescription,
-        } = this.getActionTemplateEffectDescriptions(this.actionTemplate)
+        } = this.getActionTemplateEffectDescriptions(actionTemplate)
 
         this.drawInfoTextBox(
             graphicsContext,
@@ -251,30 +272,27 @@ export class MakeDecisionButton {
         }
     }
 
-    private shouldDrawActionPoints = () => {
-        return this.actionTemplate.actionPoints !== 1
+    private shouldDrawActionPoints = (actionTemplate: ActionTemplate) => {
+        return actionTemplate.actionPoints !== 1
     }
 
-    private shouldDrawActionRange = () => {
-        const templateRange = ActionTemplateService.getActionTemplateRange(
-            this.actionTemplate
-        )
+    private shouldDrawActionRange = (actionTemplate: ActionTemplate) => {
+        const templateRange =
+            ActionTemplateService.getActionTemplateRange(actionTemplate)
         const minRangeIsWorthDescribing =
             !isValidValue(templateRange) || templateRange[0] > 1
         const maxRangeIsWorthDescribing =
             !isValidValue(templateRange) || templateRange[1] > 1
         return minRangeIsWorthDescribing || maxRangeIsWorthDescribing
     }
-    private shouldDrawActionTemplateEffects = () => {
-        const totalDamage = ActionTemplateService.getTotalDamage(
-            this.actionTemplate
-        )
-        const totalHealing = ActionTemplateService.getTotalHealing(
-            this.actionTemplate
-        )
-        const attributeModifiers = ActionTemplateService.getAttributeModifiers(
-            this.actionTemplate
-        )
+    private shouldDrawActionTemplateEffects = (
+        actionTemplate: ActionTemplate
+    ) => {
+        const totalDamage = ActionTemplateService.getTotalDamage(actionTemplate)
+        const totalHealing =
+            ActionTemplateService.getTotalHealing(actionTemplate)
+        const attributeModifiers =
+            ActionTemplateService.getAttributeModifiers(actionTemplate)
 
         return (
             totalDamage > 0 || totalHealing > 0 || attributeModifiers.length > 0

@@ -1,7 +1,6 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
-import { ActionTemplate } from "../action/template/actionTemplate"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 
@@ -129,7 +128,7 @@ export interface MessageBoardBattleActionFinishesAnimation {
 export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
     gameEngineState: GameEngineState
-    actionTemplate: ActionTemplate
+    actionTemplateId: string
     battleSquaddieId: string
     mapStartingLocation: HexCoordinate
 }

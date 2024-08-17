@@ -7,7 +7,6 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleSquaddieUsesActionOnMap } from "./battleSquaddieUsesActionOnMap"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
     GameEngineState,
@@ -22,6 +21,7 @@ import { ProcessedActionEndTurnEffectService } from "../../action/processed/proc
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -34,12 +34,12 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepository = ObjectRepositoryService.new()
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Torrin",
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: squaddieRepository,
+            objectRepository: squaddieRepository,
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
@@ -50,6 +50,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 armorClass: 0,
                 maxHitPoints: 0,
             },
+            actionTemplateIds: [],
         })
 
         dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)

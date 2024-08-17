@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { TargetSprite } from "./targetSprite"
 import { ActionTimer } from "./actionTimer"
@@ -32,6 +31,7 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
 } from "../../history/battleActionSquaddieChange"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 
 describe("Target Sprite", () => {
     let resultTookDamage: BattleActionSquaddieChange
@@ -52,7 +52,7 @@ describe("Target Sprite", () => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
 
         squaddieRepository = ObjectRepositoryService.new()
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
                 maxHitPoints: 5,
@@ -63,8 +63,9 @@ describe("Target Sprite", () => {
             },
             battleId: battleSquaddieId,
             name: "Target",
-            squaddieRepository,
+            objectRepository: squaddieRepository,
             templateId: "target",
+            actionTemplateIds: [],
         })
 
         const { squaddieTemplate } = getResultOrThrowError(

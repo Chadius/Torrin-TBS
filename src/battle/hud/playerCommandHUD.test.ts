@@ -9,7 +9,6 @@ import {
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     MoveButtonPurpose,
@@ -29,6 +28,7 @@ import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
 import { CampaignService } from "../../campaign/campaign"
 import { ButtonStatus } from "../../ui/button"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -51,52 +51,58 @@ describe("playerCommandHUD", () => {
             .fn()
             .mockReturnValue(makeResult(null))
 
-        CreateNewSquaddieAndAddToRepository({
-            name: "player",
-            battleId: "player",
-            templateId: "player",
-            squaddieRepository: objectRepository,
-            affiliation: SquaddieAffiliation.PLAYER,
-            actionTemplates: [
-                ActionTemplateService.new({
-                    id: "actionTemplate0",
-                    name: "NeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 2,
-                            maximumRange: 3,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
-                }),
-                ActionTemplateService.new({
-                    id: "actionTemplate1",
-                    name: "AlsoNeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 1,
-                            maximumRange: 2,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
+        const actionTemplate0 = ActionTemplateService.new({
+            id: "actionTemplate0",
+            name: "NeedsTarget",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 2,
+                    maximumRange: 3,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.TARGETS_FOE]: true,
+                    }),
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionTemplate0
+        )
 
-        CreateNewSquaddieAndAddToRepository({
+        const actionTemplate1 = ActionTemplateService.new({
+            id: "actionTemplate1",
+            name: "AlsoNeedsTarget",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 1,
+                    maximumRange: 2,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.TARGETS_FOE]: true,
+                    }),
+                }),
+            ],
+        })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionTemplate1
+        )
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "player",
+            battleId: "player",
+            templateId: "player",
+            objectRepository: objectRepository,
+            affiliation: SquaddieAffiliation.PLAYER,
+            actionTemplateIds: [actionTemplate0.id, actionTemplate1.id],
+        })
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "enemy",
             battleId: "enemy",
             templateId: "enemy",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.ENEMY,
+            actionTemplateIds: [],
         })
     })
 
@@ -351,15 +357,15 @@ describe("playerCommandHUD", () => {
             )
 
             expect(playerCommandState.actionButtons).toHaveLength(
-                squaddieTemplate.actionTemplates.length
+                squaddieTemplate.actionTemplateIds.length
             )
 
             const actualActionTemplatesUsed =
                 playerCommandState.actionButtons.map(
-                    (button) => button.actionTemplate
+                    (button) => button.actionTemplateId
                 )
             expect(actualActionTemplatesUsed).toEqual(
-                squaddieTemplate.actionTemplates
+                squaddieTemplate.actionTemplateIds
             )
         })
     })
@@ -395,7 +401,7 @@ describe("playerCommandHUD", () => {
             })
 
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
-            expect(playerCommandState.selectedActionTemplate).toBeUndefined()
+            expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
         })
 
         it("will hide the reveal button and show other buttons if the player clicks reveal", () => {
@@ -431,13 +437,13 @@ describe("playerCommandHUD", () => {
             })
 
             expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
-            expect(playerCommandState.selectedActionTemplate.id).toEqual(
+            expect(playerCommandState.selectedActionTemplateId).toEqual(
                 "actionTemplate0"
             )
 
             expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
             expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
-            expect(playerCommandState.selectedActionTemplate.id).toEqual(
+            expect(playerCommandState.selectedActionTemplateId).toEqual(
                 "actionTemplate0"
             )
         })
@@ -466,7 +472,7 @@ describe("playerCommandHUD", () => {
                 buttonArea: playerCommandState.endTurnButton.buttonArea,
             })
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
-            expect(playerCommandState.selectedActionTemplate).toBeUndefined()
+            expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
             expect(playerCommandState.playerSelectedEndTurn).toBeTruthy()
 
             expect(playerCommandState.playerSelectedEndTurn).toBeTruthy()

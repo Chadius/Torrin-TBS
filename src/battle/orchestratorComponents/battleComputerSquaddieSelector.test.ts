@@ -28,7 +28,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import {
     BattleComputerSquaddieSelector,
     SHOW_SELECTED_ACTION_TIME,
@@ -76,11 +75,12 @@ import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
         new BattleComputerSquaddieSelector()
-    let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
+    let objectRepository: ObjectRepository = ObjectRepositoryService.new()
     let enemyDemonTemplate: SquaddieTemplate
     let enemyDemonBattleSquaddie: BattleSquaddie
     let enemyDemonBattleSquaddie2: BattleSquaddie
@@ -92,7 +92,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector()
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         teams = []
     })
@@ -127,16 +127,20 @@ describe("BattleComputerSquaddieSelector", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            demonBiteAction
+        )
         ;({
             battleSquaddie: enemyDemonBattleSquaddie,
             squaddieTemplate: enemyDemonTemplate,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
-            squaddieRepository: squaddieRepo,
-            actionTemplates: [demonBiteAction],
+            objectRepository: objectRepository,
+            actionTemplateIds: [demonBiteAction.id],
             attributes: {
                 maxHitPoints: 5,
                 movement: CreateNewSquaddieMovementWithTraits({
@@ -153,7 +157,7 @@ describe("BattleComputerSquaddieSelector", () => {
         })
 
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             enemyDemonBattleSquaddie2
         )
 
@@ -238,7 +242,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 squaddieLocation[1] + ScreenDimensions.SCREEN_HEIGHT * 2
             )
             gameEngineState = GameEngineStateService.new({
-                repository: squaddieRepo,
+                repository: objectRepository,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
@@ -325,7 +329,7 @@ describe("BattleComputerSquaddieSelector", () => {
             )
 
             const state: GameEngineState = GameEngineStateService.new({
-                repository: squaddieRepo,
+                repository: objectRepository,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
@@ -412,7 +416,7 @@ describe("BattleComputerSquaddieSelector", () => {
             let determineNextDecisionSpy: jest.SpyInstance
             beforeEach(() => {
                 gameEngineState = GameEngineStateService.new({
-                    repository: squaddieRepo,
+                    repository: objectRepository,
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
@@ -519,7 +523,7 @@ describe("BattleComputerSquaddieSelector", () => {
             )
 
             const state: GameEngineState = GameEngineStateService.new({
-                repository: squaddieRepo,
+                repository: objectRepository,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleHUD: BattleHUDService.new({}),
@@ -601,7 +605,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 })
 
                 gameEngineState = GameEngineStateService.new({
-                    repository: squaddieRepo,
+                    repository: objectRepository,
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {

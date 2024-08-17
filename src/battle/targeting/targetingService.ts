@@ -24,7 +24,6 @@ import {
 import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import {
@@ -33,6 +32,7 @@ import {
     TraitStatusStorage,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
+import { ActionTemplate } from "../../action/template/actionTemplate"
 
 export class TargetingResults {
     constructor() {
@@ -297,11 +297,13 @@ const highlightTargetRange = (
     const previewedActionTemplateId =
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound
             .previewedActionTemplateId
-    const previewedActionTemplate = squaddieTemplate.actionTemplates.find(
-        (template) => template.id === previewedActionTemplateId
-    )
-
-    if (!isValidValue(previewedActionTemplate)) {
+    let previewedActionTemplate: ActionTemplate
+    try {
+        previewedActionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            previewedActionTemplateId
+        )
+    } catch (e) {
         return []
     }
 

@@ -60,7 +60,7 @@ import { BattleHUDListener } from "../battle/hud/battleHUD"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let gameEngineState: GameEngineState
 
     let playerSquaddieTemplate: SquaddieTemplate
@@ -76,7 +76,7 @@ describe("User cancels the previewed action", () => {
     let confirm: BattlePlayerActionConfirm
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
@@ -92,6 +92,10 @@ describe("User cancels the previewed action", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            attackAction
+        )
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -99,10 +103,10 @@ describe("User cancels the previewed action", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             playerSquaddieTemplate
         )
 
@@ -111,7 +115,7 @@ describe("User cancels the previewed action", () => {
             battleSquaddieId: "player 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             playerBattleSquaddie
         )
 
@@ -150,7 +154,7 @@ describe("User cancels the previewed action", () => {
 
         beforeEach(() => {
             gameEngineState = getGameEngineState({
-                repository,
+                repository: objectRepository,
                 resourceHandler,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 actionsThisRound: ActionsThisRoundService.new({
@@ -280,7 +284,7 @@ describe("User cancels the previewed action", () => {
 
     it("Ensure if this is the 2nd action the user cannot cancel their turn. via $name", () => {
         gameEngineState = getGameEngineState({
-            repository,
+            repository: objectRepository,
             resourceHandler,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
             actionsThisRound: ActionsThisRoundService.new({
@@ -347,10 +351,10 @@ describe("User cancels the previewed action", () => {
                 affiliation: SquaddieAffiliation.ENEMY,
                 templateId: "enemy",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             enemySquaddieTemplate
         )
 
@@ -359,7 +363,7 @@ describe("User cancels the previewed action", () => {
             battleSquaddieId: "enemy 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             enemyBattleSquaddie
         )
 
@@ -386,7 +390,7 @@ describe("User cancels the previewed action", () => {
         })
 
         gameEngineState = getGameEngineState({
-            repository,
+            repository: objectRepository,
             resourceHandler,
             actionsThisRound: actionsThisRound,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,

@@ -4,35 +4,36 @@ import {
     ArmyAttributesService,
     DefaultArmyAttributes,
 } from "../squaddie/armyAttributes"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
-import {
-    ActionTemplate,
-    ActionTemplateService,
-} from "../action/template/actionTemplate"
+import { isValidValue } from "../utils/validityCheck"
+import { ActionTemplate } from "../action/template/actionTemplate"
 import { SquaddieResourceService } from "../squaddie/resource"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../battle/objectRepository"
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId
     attributes: ArmyAttributes
-    actionTemplates: ActionTemplate[]
+    actionTemplateIds: string[]
 }
 
 export const SquaddieTemplateService = {
     new: ({
         squaddieId,
         attributes,
-        actionTemplates,
+        actionTemplateIds,
     }: {
         squaddieId: SquaddieId
         attributes?: ArmyAttributes
-        actionTemplates?: ActionTemplate[]
+        actionTemplateIds?: string[]
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
             attributes: isValidValue(attributes)
                 ? attributes
                 : ArmyAttributesService.default(),
-            actionTemplates: getValidValueOrDefault(actionTemplates, []),
+            actionTemplateIds: actionTemplateIds || [],
         }
         SquaddieTemplateService.sanitize(data)
         return data
@@ -40,7 +41,10 @@ export const SquaddieTemplateService = {
     sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
         return sanitize(data)
     },
-    getResourceKeys: (squaddieTemplate: SquaddieTemplate): string[] => {
+    getResourceKeys: (
+        squaddieTemplate: SquaddieTemplate,
+        objectRepository: ObjectRepository
+    ): string[] => {
         let resourceKeys: string[] = []
 
         resourceKeys.push(
@@ -48,8 +52,17 @@ export const SquaddieTemplateService = {
                 squaddieTemplate.squaddieId.resources
             )
         )
+
+        const actionTemplates: ActionTemplate[] =
+            squaddieTemplate.actionTemplateIds.map((id) =>
+                ObjectRepositoryService.getActionTemplateById(
+                    objectRepository,
+                    id
+                )
+            )
+
         resourceKeys.push(
-            ...squaddieTemplate.actionTemplates
+            ...actionTemplates
                 .filter(
                     (actionTemplate) => !!actionTemplate.buttonIconResourceKey
                 )
@@ -64,9 +77,6 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
         throw new Error("Squaddie Action cannot sanitize, missing squaddieId ")
     }
     SquaddieIdService.sanitize(data.squaddieId)
-    data.actionTemplates.forEach((actionTemplate) =>
-        ActionTemplateService.sanitize(actionTemplate)
-    )
     data.attributes = isValidValue(data.attributes)
         ? data.attributes
         : DefaultArmyAttributes()

@@ -73,7 +73,7 @@ import {
 } from "../battle/history/battleAction"
 
 describe("User ends their turn", () => {
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let gameEngineState: GameEngineState
 
     let playerTeam: BattleSquaddieTeam
@@ -88,7 +88,7 @@ describe("User ends their turn", () => {
     let missionMap: MissionMap
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
@@ -100,6 +100,10 @@ describe("User ends their turn", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            attackAction
+        )
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -107,10 +111,10 @@ describe("User ends their turn", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             playerSquaddieTemplate
         )
 
@@ -119,7 +123,7 @@ describe("User ends their turn", () => {
             battleSquaddieId: "player 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             playerBattleSquaddie
         )
 
@@ -162,7 +166,7 @@ describe("User ends their turn", () => {
         gameEngineState = getGameEngineState({
             resourceHandler,
             missionMap,
-            repository,
+            repository: objectRepository,
             teams: [playerTeam],
             battlePhaseState: BattlePhaseStateService.new({
                 currentAffiliation: BattlePhase.PLAYER,
@@ -421,7 +425,7 @@ describe("User ends their turn", () => {
             graphicsContext = new MockedP5GraphicsBuffer()
             mapAction = new BattleSquaddieUsesActionOnMap()
             gameEngineState = GameEngineStateService.new({
-                repository: repository,
+                repository: objectRepository,
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({

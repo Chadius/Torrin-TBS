@@ -12,7 +12,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
@@ -47,6 +46,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionActionContextService } from "../history/battleAction"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -85,13 +85,13 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         })
 
         squaddieRepository = ObjectRepositoryService.new()
-        CreateNewSquaddieAndAddToRepository({
-            actionTemplates: [monkKoanAction],
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            actionTemplateIds: [monkKoanAction.id],
             affiliation: SquaddieAffiliation.PLAYER,
             battleId: monkBattleSquaddieId,
             name: "Monk",
             templateId: monkStaticId,
-            squaddieRepository,
+            objectRepository: squaddieRepository,
         })
 
         battleEventRecording = { history: [] }

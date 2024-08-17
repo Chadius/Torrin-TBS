@@ -14,7 +14,6 @@ import {
     HexCoordinate,
     NewHexCoordinateFromNumberPair,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     ActionTemplate,
@@ -32,14 +31,16 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../orchestrator/battleState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
     let sirCamilSquaddieTemplate: SquaddieTemplate
     let sirCamilBattleSquaddie: BattleSquaddie
-    let squaddieRepo: ObjectRepository
+    let objectRepository: ObjectRepository
 
     beforeEach(() => {
+        objectRepository = ObjectRepositoryService.new()
         longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
@@ -55,18 +56,20 @@ describe("Targeting Service", () => {
                 }),
             ],
         })
-
-        squaddieRepo = ObjectRepositoryService.new()
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            longswordAction
+        )
         ;({
             squaddieTemplate: sirCamilSquaddieTemplate,
             battleSquaddie: sirCamilBattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Sir Camil",
             templateId: "Sir Camil",
             battleId: "Sir Camil 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            actionTemplates: [longswordAction],
-            squaddieRepository: squaddieRepo,
+            actionTemplateIds: [longswordAction.id],
+            objectRepository: objectRepository,
         }))
     })
 
@@ -90,7 +93,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: sirCamilSquaddieTemplate,
                 actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.locationsInRange).toHaveLength(6)
@@ -118,7 +121,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: sirCamilSquaddieTemplate,
                 actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.locationsInRange).toHaveLength(0)
@@ -146,17 +149,17 @@ describe("Targeting Service", () => {
             ],
         })
 
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         let {
             squaddieTemplate: archerSquaddieTemplate,
             battleSquaddie: archerBattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Archer",
             templateId: "archer",
             battleId: "Archer 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            actionTemplates: [longbowAction],
-            squaddieRepository: squaddieRepo,
+            actionTemplateIds: [longbowAction.id],
+            objectRepository: objectRepository,
         })
 
         battleMap.addSquaddie(
@@ -172,7 +175,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: archerSquaddieTemplate,
                 actingBattleSquaddie: archerBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.locationsInRange).toHaveLength(4)
@@ -204,12 +207,13 @@ describe("Targeting Service", () => {
         battleMap: MissionMap
     }) => {
         let { squaddieTemplate, battleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: battleSquaddieId,
                 templateId: battleSquaddieId,
                 battleId: battleSquaddieId,
                 affiliation: squaddieAffiliation,
-                squaddieRepository: repository,
+                objectRepository: repository,
+                actionTemplateIds: [],
             })
 
         battleMap.addSquaddie(
@@ -235,7 +239,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "player in range",
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 1, r: 0 },
         })
@@ -243,7 +247,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "enemy in range",
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 2, r: 1 },
         })
@@ -251,7 +255,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "enemy far away",
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 0, r: 3 },
         })
@@ -263,7 +267,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: sirCamilSquaddieTemplate,
                 actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.battleSquaddieIdsInRange).toEqual(
@@ -287,7 +291,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "player in range",
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 1, r: 0 },
         })
@@ -295,7 +299,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "enemy in range",
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 1, r: 2 },
         })
@@ -303,7 +307,7 @@ describe("Targeting Service", () => {
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "enemy far away",
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
-            repository: squaddieRepo,
+            repository: objectRepository,
             battleMap: battleMap,
             location: { q: 0, r: 3 },
         })
@@ -333,7 +337,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: sirCamilSquaddieTemplate,
                 actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.battleSquaddieIdsInRange).toEqual(
@@ -380,7 +384,7 @@ describe("Targeting Service", () => {
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                 actingSquaddieTemplate: sirCamilSquaddieTemplate,
                 actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: squaddieRepo,
+                squaddieRepository: objectRepository,
             })
 
         expect(results.locationsInRange).toHaveLength(3)
@@ -422,7 +426,7 @@ describe("Targeting Service", () => {
                         actionsThisRound,
                     }),
                 }),
-                repository: squaddieRepo,
+                repository: objectRepository,
             })
 
             highlightRangeSpy = jest.spyOn(

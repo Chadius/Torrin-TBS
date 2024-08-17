@@ -2,7 +2,6 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { ActorSprite } from "./actorSprite"
 import { ActionTimer } from "./actionTimer"
@@ -25,6 +24,7 @@ import {
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
 import { BattleActionActionContextService } from "../../history/battleAction"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository
@@ -39,7 +39,7 @@ describe("Actor Sprite", () => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
 
         squaddieRepository = ObjectRepositoryService.new()
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
                 maxHitPoints: 5,
@@ -50,8 +50,9 @@ describe("Actor Sprite", () => {
             },
             battleId: battleSquaddieId,
             name: "actor",
-            squaddieRepository,
+            objectRepository: squaddieRepository,
             templateId: "actor",
+            actionTemplateIds: [],
         })
 
         timer = new ActionTimer()

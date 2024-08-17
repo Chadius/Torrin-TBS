@@ -32,7 +32,7 @@ export const ActionTemplateService = {
         actionPoints,
         buttonIconResourceKey,
     }: {
-        id?: string
+        id: string
         name: string
         actionEffectTemplates?: ActionEffectTemplate[]
         actionPoints?: number
@@ -197,8 +197,12 @@ export const ActionTemplateService = {
 }
 
 const sanitize = (template: ActionTemplate): ActionTemplate => {
+    if (!isValidValue(template.id)) {
+        throw new Error("ActionTemplate cannot sanitize, id required")
+    }
+
     if (!isValidValue(template.name)) {
-        throw new Error("ActionTemplate cannot sanitize, no name found")
+        throw new Error("ActionTemplate cannot sanitize, name required")
     }
 
     template.actionPoints = getValidValueOrDefault(template.actionPoints, 1)

@@ -3,8 +3,12 @@ import { makeError, makeResult, ResultOrError } from "../utils/ResultOrError"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { ImageUI } from "../ui/imageUI"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import { ActionTemplate } from "../action/template/actionTemplate"
 
 export interface ObjectRepository {
+    actionTemplatesById: {
+        [id: string]: ActionTemplate
+    }
     imageUIByBattleSquaddieId: {
         [id: string]: ImageUI
     }
@@ -25,6 +29,7 @@ export interface ObjectRepository {
 export const ObjectRepositoryService = {
     new: (): ObjectRepository => {
         return {
+            actionTemplatesById: {},
             imageUIByBattleSquaddieId: {},
             squaddieTemplates: {},
             battleSquaddies: {},
@@ -128,12 +133,41 @@ export const ObjectRepositoryService = {
             }
         )
     },
+    addActionTemplate: (
+        repository: ObjectRepository,
+        actionTemplate: ActionTemplate
+    ) => {
+        if (repository.actionTemplatesById[actionTemplate.id] !== undefined) {
+            throw new Error(
+                `cannot addActionTemplate '${actionTemplate.id}', already exists`
+            )
+        }
+
+        repository.actionTemplatesById[actionTemplate.id] = actionTemplate
+    },
+    getActionTemplateById: (
+        repository: ObjectRepository,
+        actionTemplateId: string
+    ): ActionTemplate => {
+        const actionTemplate = repository.actionTemplatesById[actionTemplateId]
+        if (actionTemplate === undefined) {
+            throw new Error(
+                `cannot getActionTemplateById '${actionTemplateId}', does not exist`
+            )
+        }
+        return actionTemplate
+    },
 }
 
 const reset = (repo: ObjectRepository) => {
     repo.imageUIByBattleSquaddieId = {}
     repo.squaddieTemplates = {}
     repo.battleSquaddies = {}
+    repo.actionTemplatesById = {}
+    repo.uiElements = {
+        phaseBannersByAffiliation: {},
+        teamAffiliationIcons: {},
+    }
 }
 
 const addSquaddieTemplate = (

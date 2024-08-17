@@ -82,7 +82,7 @@ import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquadd
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 
 describe("User Selects Target and Confirms", () => {
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let gameEngineState: GameEngineState
 
     let playerSquaddieTemplate: SquaddieTemplate
@@ -102,7 +102,7 @@ describe("User Selects Target and Confirms", () => {
     let graphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
@@ -120,6 +120,10 @@ describe("User Selects Target and Confirms", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            attackAction
+        )
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -127,10 +131,10 @@ describe("User Selects Target and Confirms", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             playerSquaddieTemplate
         )
 
@@ -139,7 +143,7 @@ describe("User Selects Target and Confirms", () => {
             battleSquaddieId: "player 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             playerBattleSquaddie
         )
 
@@ -148,7 +152,7 @@ describe("User Selects Target and Confirms", () => {
             battleSquaddieId: "player 2",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             player2BattleSquaddie
         )
 
@@ -183,10 +187,10 @@ describe("User Selects Target and Confirms", () => {
                 affiliation: SquaddieAffiliation.ENEMY,
                 templateId: "enemy",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             enemySquaddieTemplate
         )
 
@@ -195,7 +199,7 @@ describe("User Selects Target and Confirms", () => {
             battleSquaddieId: "enemy 0",
         })
         ObjectRepositoryService.addBattleSquaddie(
-            repository,
+            objectRepository,
             enemyBattleSquaddie
         )
 
@@ -237,7 +241,7 @@ describe("User Selects Target and Confirms", () => {
         })
 
         gameEngineState = getGameEngineState({
-            repository,
+            repository: objectRepository,
             actionsThisRound: actionsThisRound,
             missionMap,
             resourceHandler,
@@ -298,7 +302,7 @@ describe("User Selects Target and Confirms", () => {
                 targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
                 targetBattleTemplateId: enemyBattleSquaddie.squaddieTemplateId,
                 targeting,
-                repository,
+                repository: objectRepository,
                 missionMap,
                 graphicsContext,
                 resourceHandler,
@@ -468,7 +472,7 @@ describe("User Selects Target and Confirms", () => {
                 targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
                 targetBattleTemplateId: enemyBattleSquaddie.squaddieTemplateId,
                 targeting,
-                repository,
+                repository: objectRepository,
                 missionMap,
                 graphicsContext,
                 resourceHandler,
@@ -599,7 +603,7 @@ describe("User Selects Target and Confirms", () => {
                     targetBattleTemplateId:
                         enemyBattleSquaddie.squaddieTemplateId,
                     targeting,
-                    repository,
+                    repository: objectRepository,
                     missionMap,
                     graphicsContext,
                     resourceHandler,

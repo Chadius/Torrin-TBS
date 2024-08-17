@@ -2,7 +2,6 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
@@ -19,6 +18,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () => {
     let missionMap: MissionMap
@@ -52,12 +52,12 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
 
         squaddieRepository = ObjectRepositoryService.new()
         ;({ squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "enemy 1",
                 templateId: "enemy 1",
                 battleId: "enemy 1",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -65,14 +65,15 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     }),
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
         ;({ squaddieTemplate: enemy2Static, battleSquaddie: enemy2Dynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "enemy 2",
                 templateId: "enemy 2",
                 battleId: "enemy 2",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -80,6 +81,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     }),
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
 
         conditionDefeatAllEnemies = {
@@ -87,12 +89,12 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             type: MissionConditionType.DEFEAT_ALL_ENEMIES,
         }
         ;({ squaddieTemplate: player1Static, battleSquaddie: player1Dynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "player 1",
                 templateId: "player 1",
                 battleId: "player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -100,6 +102,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     }),
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
 
         conditionDefeatAllPlayers = {
@@ -107,12 +110,12 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             type: MissionConditionType.DEFEAT_ALL_PLAYERS,
         }
         ;({ squaddieTemplate: ally1Static, battleSquaddie: ally1Dynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "ally 1",
                 templateId: "ally 1",
                 battleId: "ally 1",
                 affiliation: SquaddieAffiliation.ALLY,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -120,6 +123,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     }),
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
 
         conditionDefeatAllAllies = {
@@ -129,12 +133,12 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
         ;({
             squaddieTemplate: noAffiliation1Static,
             battleSquaddie: noAffiliation1Dynamic,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "no affiliation 1",
             templateId: "no affiliation 1",
             battleId: "no affiliation 1",
             affiliation: SquaddieAffiliation.NONE,
-            squaddieRepository,
+            objectRepository: squaddieRepository,
             attributes: {
                 maxHitPoints: 1,
                 movement: CreateNewSquaddieMovementWithTraits({
@@ -142,6 +146,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 }),
                 armorClass: 0,
             },
+            actionTemplateIds: [],
         }))
 
         conditionDefeatAllNoAffiliation = {

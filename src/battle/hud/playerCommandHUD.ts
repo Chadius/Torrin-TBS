@@ -73,7 +73,7 @@ export interface PlayerCommandState {
     endTurnButtonLabel: Label
     moveButtonLabel: Label
     playerSelectedSquaddieAction: boolean
-    selectedActionTemplate: ActionTemplate
+    selectedActionTemplateId: string
     playerSelectedEndTurn: boolean
     playerCommandWindow?: { area: RectArea }
 
@@ -96,7 +96,7 @@ export const PlayerCommandStateService = {
     new: ({}: {}): PlayerCommandState => {
         return {
             playerSelectedSquaddieAction: false,
-            selectedActionTemplate: undefined,
+            selectedActionTemplateId: undefined,
             playerSelectedEndTurn: false,
             actionButtons: [],
             moveButton: undefined,
@@ -261,7 +261,7 @@ export const PlayerCommandStateService = {
         }
 
         playerCommandState.actionButtons.forEach((button) => {
-            button.draw(graphicsBuffer)
+            button.draw(gameEngineState.repository, graphicsBuffer)
         })
 
         drawEndTurnButton(playerCommandState, graphicsBuffer)
@@ -287,7 +287,7 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
         top: mouseSelectionLocation.y,
         left: mouseSelectionLocation.x,
         width:
-            (squaddieTemplate.actionTemplates.length + 1) *
+            (squaddieTemplate.actionTemplateIds.length + 1) *
             (DECISION_BUTTON_LAYOUT.width +
                 DECISION_BUTTON_LAYOUT.horizontalSpacePerButton),
         height:
@@ -442,8 +442,14 @@ const createButtonsForFirstRow = ({
     }
     updateMoveButtonText(playerCommandState)
 
-    playerCommandState.actionButtons = squaddieTemplate.actionTemplates.map(
-        (actionTemplate: ActionTemplate, index: number) => {
+    playerCommandState.actionButtons = squaddieTemplate.actionTemplateIds
+        .map((id) =>
+            ObjectRepositoryService.getActionTemplateById(
+                gameEngineState.repository,
+                id
+            )
+        )
+        .map((actionTemplate: ActionTemplate, index: number) => {
             const button = new MakeDecisionButton({
                 buttonArea: RectAreaService.new({
                     left:
@@ -458,7 +464,7 @@ const createButtonsForFirstRow = ({
                     height: DECISION_BUTTON_LAYOUT.height,
                 }),
                 resourceHandler,
-                actionTemplate,
+                actionTemplateId: actionTemplate.id,
                 buttonIconResourceKey: isValidValue(
                     actionTemplate.buttonIconResourceKey
                 )
@@ -468,8 +474,7 @@ const createButtonsForFirstRow = ({
             })
             button.status = ButtonStatus.ACTIVE
             return button
-        }
-    )
+        })
 }
 
 const createButtonsForSecondRow = ({
@@ -507,7 +512,7 @@ const createButtonsForSecondRow = ({
                 DECISION_BUTTON_LAYOUT.verticalSpaceBetweenRows,
             width:
                 DECISION_BUTTON_LAYOUT.width *
-                Math.min(2, squaddieTemplate.actionTemplates.length + 1),
+                Math.min(2, squaddieTemplate.actionTemplateIds.length + 1),
             height: DECISION_BUTTON_LAYOUT.height / 2,
         }),
         hue: squaddieAffiliationHue,
@@ -558,7 +563,7 @@ const mouseClickedOnEndTurnButton = ({
 }) => {
     playerCommandState.playerSelectedEndTurn = true
     playerCommandState.playerSelectedSquaddieAction = false
-    playerCommandState.selectedActionTemplate = undefined
+    playerCommandState.selectedActionTemplateId = undefined
 }
 
 const mouseClickedOnActionButton = ({
@@ -572,8 +577,8 @@ const mouseClickedOnActionButton = ({
 }): PlayerCommandSelection => {
     playerCommandState.playerSelectedEndTurn = false
     playerCommandState.playerSelectedSquaddieAction = true
-    playerCommandState.selectedActionTemplate =
-        actionButtonClicked.actionTemplate
+    playerCommandState.selectedActionTemplateId =
+        actionButtonClicked.actionTemplateId
     return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
 }
 

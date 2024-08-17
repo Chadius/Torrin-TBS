@@ -2,7 +2,6 @@ import { GameEngineGameLoader } from "./gameEngineGameLoader"
 import { ResourceHandler } from "../resource/resourceHandler"
 import * as mocks from "./../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import * as DataLoader from "../dataLoader/dataLoader"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -29,17 +28,13 @@ import { BattleCompletionStatus } from "../battle/orchestrator/missionObjectives
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { TitleScreenStateHelper } from "../titleScreen/titleScreenState"
 import { GameEngineState, GameEngineStateService } from "./gameEngine"
-import { SquaddieTemplate } from "../campaign/squaddieTemplate"
-import { TestMissionData } from "../utils/test/missionData"
-import { TestArmyPlayerData } from "../utils/test/army"
-import { PlayerArmy } from "../campaign/playerArmy"
 import { CutsceneService } from "../cutscene/cutscene"
 import { CampaignService } from "../campaign/campaign"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
-import { TestCampaignData } from "../utils/test/campaignData"
 import { LoadSaveStateService } from "../dataLoader/loadSaveState"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { BattleHUDService } from "../battle/hud/battleHUD"
+import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -49,7 +44,6 @@ describe("GameEngineGameLoader", () => {
     let gameEngineState: GameEngineState
     let resourceHandler: ResourceHandler
     let squaddieRepository: ObjectRepository
-    let playerArmy: PlayerArmy
     const campaignId = "coolCampaign"
 
     beforeEach(() => {
@@ -75,75 +69,8 @@ describe("GameEngineGameLoader", () => {
                 }),
             }),
         })
-
-        let enemyDemonSlitherTemplate: SquaddieTemplate
-        let enemyDemonSlitherTemplate2: SquaddieTemplate
-        let allyGuardTemplate: SquaddieTemplate
-        let noAffiliationLivingFlameTemplate: SquaddieTemplate
-        ;({
-            missionData,
-            enemyDemonSlitherTemplate,
-            enemyDemonSlitherTemplate2,
-            allyGuardTemplate,
-            noAffiliationLivingFlameTemplate,
-        } = TestMissionData())
-        ;({ playerArmy } = TestArmyPlayerData())
-        ;({ campaignFile: campaignFileData } = TestCampaignData())
-
-        loadFileIntoFormatSpy = jest
-            .spyOn(DataLoader, "LoadFileIntoFormat")
-            .mockImplementation(
-                async (
-                    filename: string
-                ): Promise<
-                    | MissionFileFormat
-                    | SquaddieTemplate
-                    | PlayerArmy
-                    | CampaignFileFormat
-                > => {
-                    if (filename === "assets/mission/0000.json") {
-                        return missionData
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/enemy_demon_slither.json"
-                    ) {
-                        return enemyDemonSlitherTemplate
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json"
-                    ) {
-                        return enemyDemonSlitherTemplate2
-                    }
-
-                    if (
-                        filename === "assets/npcData/templates/ally_guard.json"
-                    ) {
-                        return allyGuardTemplate
-                    }
-
-                    if (
-                        filename ===
-                        "assets/npcData/templates/no_affiliation_living_flame.json"
-                    ) {
-                        return noAffiliationLivingFlameTemplate
-                    }
-
-                    if (filename === "assets/playerArmy/playerArmy.json") {
-                        return playerArmy
-                    }
-
-                    if (
-                        filename ===
-                        "assets/campaign/coolCampaign/campaign.json"
-                    ) {
-                        return campaignFileData
-                    }
-                }
-            )
+        ;({ loadFileIntoFormatSpy, campaignFileData, missionData } =
+            LoadCampaignData.createLoadFileSpy())
     })
 
     afterEach(() => {
@@ -195,13 +122,13 @@ describe("GameEngineGameLoader", () => {
                 loader.campaignLoaderContext.resourcesPendingLoading
             ).toHaveLength(expectedResourceKeys.length)
         })
-        it("knows it has not gotten resources yet", () => {
-            loader.update(gameEngineState)
+        it("knows it has not gotten resources yet", async () => {
+            await loader.update(gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
-        it("knows it is not complete", () => {
+        it("knows it is not complete", async () => {
             expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
-            loader.update(gameEngineState)
+            await loader.update(gameEngineState)
             expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
     })
@@ -221,13 +148,13 @@ describe("GameEngineGameLoader", () => {
             ).toBeTruthy()
         })
 
-        it("knows it has not gotten resources yet", () => {
-            loader.update(gameEngineState)
+        it("knows it has not gotten resources yet", async () => {
+            await loader.update(gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
 
-        it("knows it is not complete", () => {
-            loader.update(gameEngineState)
+        it("knows it is not complete", async () => {
+            await loader.update(gameEngineState)
             expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
@@ -354,6 +281,21 @@ describe("GameEngineGameLoader", () => {
                     gameEngineState.repository.imageUIByBattleSquaddieId
                 )
             ).toHaveLength(squaddieRepositorySize)
+
+            ObjectRepositoryService.getSquaddieTemplateIterator(
+                gameEngineState.repository
+            ).forEach((entry) => {
+                const { squaddieTemplate } = entry
+                expect(
+                    squaddieTemplate.actionTemplateIds.every(
+                        (id) =>
+                            ObjectRepositoryService.getActionTemplateById(
+                                gameEngineState.repository,
+                                id
+                            ) !== undefined
+                    )
+                ).toBeTruthy()
+            })
         })
 
         it("cutscenes", () => {
@@ -901,6 +843,8 @@ describe("GameEngineGameLoader", () => {
             await loader.update(gameEngineState)
             const missionMapCallsCount = 1
             const playerArmyCallsCount = 1
+            const playerArmyActionTemplatesCallsCount = 1
+            const npcActionTemplatesCallsCount = 1
             const templateCallsCount =
                 missionData.npcDeployments.enemy.templateIds.length +
                 missionData.npcDeployments.ally.templateIds.length +
@@ -909,7 +853,9 @@ describe("GameEngineGameLoader", () => {
                 initialFileLoadCalls +
                     missionMapCallsCount +
                     templateCallsCount +
-                    playerArmyCallsCount
+                    playerArmyCallsCount +
+                    playerArmyActionTemplatesCallsCount +
+                    npcActionTemplatesCallsCount
             )
             expect(
                 loader.missionLoaderContext.completionProgress.started

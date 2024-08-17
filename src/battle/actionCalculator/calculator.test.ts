@@ -1,4 +1,4 @@
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
@@ -48,7 +48,7 @@ import {
 } from "../../squaddie/attributeModifier"
 
 describe("calculator", () => {
-    let squaddieRepository: ObjectRepository
+    let objectRepository: ObjectRepository
     let missionMap: MissionMap
     let player1DynamicId = "player 1"
     let player1SquaddieTemplateId = "player 1"
@@ -65,7 +65,7 @@ describe("calculator", () => {
     let actionNeedsAnAttackRollToDealBodyDamage: ActionTemplate
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 1 1 1 1 1 "],
@@ -108,15 +108,15 @@ describe("calculator", () => {
             ],
         })
         ;({ battleSquaddie: player1BattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleId: player1DynamicId,
                 templateId: player1SquaddieTemplateId,
                 name: "player",
-                squaddieRepository,
-                actionTemplates: [
-                    actionAlwaysHitsAndDealsBodyDamage,
-                    actionNeedsAnAttackRollToDealBodyDamage,
+                objectRepository: objectRepository,
+                actionTemplateIds: [
+                    actionAlwaysHitsAndDealsBodyDamage.id,
+                    actionNeedsAnAttackRollToDealBodyDamage.id,
                 ],
                 attributes: {
                     maxHitPoints: 5,
@@ -127,15 +127,15 @@ describe("calculator", () => {
                 },
             }))
         ;({ battleSquaddie: enemy1BattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleId: enemy1DynamicId,
                 templateId: enemy1StaticId,
                 name: "enemy",
-                squaddieRepository,
-                actionTemplates: [
-                    actionAlwaysHitsAndDealsBodyDamage,
-                    actionNeedsAnAttackRollToDealBodyDamage,
+                objectRepository: objectRepository,
+                actionTemplateIds: [
+                    actionAlwaysHitsAndDealsBodyDamage.id,
+                    actionNeedsAnAttackRollToDealBodyDamage.id,
                 ],
                 attributes: {
                     maxHitPoints: 5,
@@ -146,12 +146,12 @@ describe("calculator", () => {
                 },
             }))
         ;({ battleSquaddie: ally1BattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 affiliation: SquaddieAffiliation.ALLY,
                 battleId: ally1DynamicId,
                 templateId: ally1StaticId,
                 name: "ally",
-                squaddieRepository,
+                objectRepository: objectRepository,
                 attributes: {
                     maxHitPoints: 5,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -159,6 +159,7 @@ describe("calculator", () => {
                     }),
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
     })
 
@@ -216,7 +217,7 @@ describe("calculator", () => {
     }) => {
         return GameEngineStateService.new({
             resourceHandler: undefined,
-            repository: squaddieRepository,
+            repository: objectRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 numberGenerator,
                 battleState: BattleStateService.newBattleState({
@@ -389,9 +390,13 @@ describe("calculator", () => {
                     }),
                 ],
             })
-            squaddieRepository.squaddieTemplates[
+            objectRepository.squaddieTemplates[
                 player1SquaddieTemplateId
-            ].actionTemplates.push(healsLostHitPoints)
+            ].actionTemplateIds.push(healsLostHitPoints.id)
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                healsLostHitPoints
+            )
         })
 
         it("will heal allies fully", () => {
@@ -438,7 +443,7 @@ describe("calculator", () => {
                             }),
                         }
                     ),
-                    repository: squaddieRepository,
+                    repository: objectRepository,
                 }),
                 actionsThisRound,
                 actionEffect:
@@ -509,7 +514,7 @@ describe("calculator", () => {
                             }),
                         }
                     ),
-                    repository: squaddieRepository,
+                    repository: objectRepository,
                 }),
                 actionsThisRound,
                 actionEffect:
@@ -555,9 +560,13 @@ describe("calculator", () => {
                     }),
                 ],
             })
-            squaddieRepository.squaddieTemplates[
+            objectRepository.squaddieTemplates[
                 player1SquaddieTemplateId
-            ].actionTemplates.push(raiseShieldAction)
+            ].actionTemplateIds.push(raiseShieldAction.id)
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                raiseShieldAction
+            )
         })
 
         it("will apply modifiers", () => {
@@ -597,7 +606,7 @@ describe("calculator", () => {
                             }),
                         }
                     ),
-                    repository: squaddieRepository,
+                    repository: objectRepository,
                 }),
                 actionsThisRound,
                 actionEffect:
@@ -655,7 +664,7 @@ describe("calculator", () => {
         it("will hit if the roll hits the defender armor", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -684,7 +693,7 @@ describe("calculator", () => {
         it("will miss if the roll is less than the defender armor class", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -713,7 +722,7 @@ describe("calculator", () => {
         it("will always hit if the action always hits", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -742,7 +751,7 @@ describe("calculator", () => {
         it("knows when multiple attack penalties should apply", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -809,7 +818,7 @@ describe("calculator", () => {
 
             const results = ActionCalculator.calculateResults({
                 gameEngineState: GameEngineStateService.new({
-                    repository: squaddieRepository,
+                    repository: objectRepository,
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
                         {
@@ -871,7 +880,7 @@ describe("calculator", () => {
         it("will critically hit if the roll hits the defender armor by 6 points or more", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -900,7 +909,7 @@ describe("calculator", () => {
         it("will critically hit if the roll is 6 and 6", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -929,7 +938,7 @@ describe("calculator", () => {
         it("cannot critically hit if the action is forbidden from critically succeeding", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -966,7 +975,7 @@ describe("calculator", () => {
         it("will critically miss if the roll is 6 points or more under the defender armor", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -995,7 +1004,7 @@ describe("calculator", () => {
         it("will critically miss if the roll is 1 and 1", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )
@@ -1024,7 +1033,7 @@ describe("calculator", () => {
         it("cannot critically fail if the action is forbidden from critically failing", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     enemy1DynamicId
                 )
             )

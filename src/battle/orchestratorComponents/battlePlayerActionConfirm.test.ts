@@ -16,7 +16,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { DamageType } from "../../squaddie/squaddieService"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
@@ -37,11 +36,12 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleActionConfirm", () => {
     let playerActionConfirm: BattlePlayerActionConfirm
 
-    let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
+    let objectRepository: ObjectRepository = ObjectRepositoryService.new()
     let knightBattleSquaddie: BattleSquaddie
     let citizenBattleSquaddie: BattleSquaddie
     let thiefBattleSquaddie: BattleSquaddie
@@ -56,7 +56,7 @@ describe("BattleActionConfirm", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         playerActionConfirm = new BattlePlayerActionConfirm()
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
@@ -82,14 +82,18 @@ describe("BattleActionConfirm", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            longswordAction
+        )
         ;({ battleSquaddie: knightBattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Knight",
                 templateId: "Knight",
                 battleId: "Knight 0",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepo,
-                actionTemplates: [longswordAction],
+                objectRepository: objectRepository,
+                actionTemplateIds: [longswordAction.id],
             }))
         battleMap.addSquaddie(
             knightBattleSquaddie.squaddieTemplateId,
@@ -97,12 +101,13 @@ describe("BattleActionConfirm", () => {
             { q: 1, r: 1 }
         )
         ;({ battleSquaddie: citizenBattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
                 templateId: "Citizen",
                 battleId: "Citizen 0",
                 affiliation: SquaddieAffiliation.ALLY,
-                squaddieRepository: squaddieRepo,
+                objectRepository: objectRepository,
+                actionTemplateIds: [],
             }))
         battleMap.addSquaddie(
             citizenBattleSquaddie.squaddieTemplateId,
@@ -113,13 +118,13 @@ describe("BattleActionConfirm", () => {
             }
         )
         ;({ battleSquaddie: thiefBattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Thief",
                 templateId: "Thief",
                 battleId: "Thief 0",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository: squaddieRepo,
-                actionTemplates: [longswordAction],
+                objectRepository: objectRepository,
+                actionTemplateIds: [longswordAction.id],
                 attributes: {
                     maxHitPoints: 5,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -151,7 +156,7 @@ describe("BattleActionConfirm", () => {
                     recording: { history: [] },
                 }),
             }),
-            repository: squaddieRepo,
+            repository: objectRepository,
             campaign: CampaignService.default({}),
         })
 

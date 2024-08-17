@@ -16,7 +16,6 @@ import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { UIControlSettings } from "./uiControlSettings"
 import { BattleComputerSquaddieSelector } from "../orchestratorComponents/battleComputerSquaddieSelector"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -52,6 +51,7 @@ import { ActionEffectMovementTemplateService } from "../../action/template/actio
 import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -583,12 +583,13 @@ describe("Battle Orchestrator", () => {
             initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         })
         nullState.repository = ObjectRepositoryService.new()
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "new static squaddie",
             templateId: "new static squaddie",
             battleId: "new dynamic squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: nullState.repository,
+            objectRepository: nullState.repository,
+            actionTemplateIds: [],
         })
 
         nullState.battleOrchestratorState.battleState.actionsThisRound =

@@ -51,7 +51,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import {
@@ -98,6 +97,7 @@ import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -151,13 +151,13 @@ describe("Battle HUD", () => {
         })
         teams.push(playerTeam)
         const { battleSquaddie: playerSoldierBattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Player Soldier",
                 templateId: "player_soldier",
                 battleId: "player_soldier_0",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: repository,
-                actionTemplates: [longswordAction],
+                objectRepository: repository,
+                actionTemplateIds: [longswordAction.id],
             })
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
             "player_soldier_0",
@@ -216,6 +216,10 @@ describe("Battle HUD", () => {
             repository,
             campaign: CampaignService.default({}),
         })
+        ObjectRepositoryService.addActionTemplate(
+            gameEngineState.repository,
+            longswordAction
+        )
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
             BattleActionDecisionStepService.new()
@@ -659,7 +663,7 @@ describe("Battle HUD", () => {
                     .summaryHUDState.playerCommandState
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
             expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
-            expect(playerCommandState.selectedActionTemplate).toBeUndefined()
+            expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
         })
 
         describe("Player selects squaddie they cannot control because it is an enemy", () => {
@@ -1388,7 +1392,7 @@ describe("Battle HUD", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
                 gameEngineState,
-                actionTemplate: longswordAction,
+                actionTemplateId: longswordAction.id,
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
                 mapStartingLocation: { q: 0, r: 0 },
             })
@@ -1531,13 +1535,13 @@ describe("Battle HUD", () => {
                 playerSoldierBattleSquaddie,
             } = createGameEngineState({}))
             ;({ battleSquaddie: thiefBattleSquaddie } =
-                CreateNewSquaddieAndAddToRepository({
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                     name: "Thief",
                     templateId: "Thief",
                     battleId: "Thief 0",
                     affiliation: SquaddieAffiliation.ENEMY,
-                    squaddieRepository: gameEngineState.repository,
-                    actionTemplates: [longswordAction],
+                    objectRepository: gameEngineState.repository,
+                    actionTemplateIds: [longswordAction.id],
                     attributes: {
                         maxHitPoints: 5,
                         movement: CreateNewSquaddieMovementWithTraits({

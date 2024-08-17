@@ -10,7 +10,6 @@ import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { BattleSquaddie } from "../battleSquaddie"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
@@ -19,6 +18,7 @@ import { ActionEffectMovementTemplateService } from "../../action/template/actio
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -36,32 +36,34 @@ describe("move towards closest squaddie in range", () => {
         ;({
             squaddieTemplate: targetSquaddieTemplate,
             battleSquaddie: targetBattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "target_squaddie",
             battleId: "target_squaddie_0",
             name: "Target",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: repository,
+            objectRepository: repository,
+            actionTemplateIds: [],
         }))
         ;({
             squaddieTemplate: ignoredSquaddieStatic,
             battleSquaddie: ignoredSquaddieDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "ignored_squaddie",
             battleId: "ignored_squaddie_0",
             name: "Ignored",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: repository,
+            objectRepository: repository,
+            actionTemplateIds: [],
         }))
         ;({
             squaddieTemplate: searchingSquaddieTemplate,
             battleSquaddie: target,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "searching_squaddie",
             battleId: "searching_squaddie_0",
             name: "Searching",
             affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository: repository,
+            objectRepository: repository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
@@ -71,6 +73,7 @@ describe("move towards closest squaddie in range", () => {
                     }),
                 },
             },
+            actionTemplateIds: [],
         }))
 
         allyTeam = {
@@ -151,12 +154,12 @@ describe("move towards closest squaddie in range", () => {
         const {
             squaddieTemplate: searchingSquaddieStatic2,
             battleSquaddie: searchingSquaddieDynamic2,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "searching_squaddie_2",
             battleId: "searching_squaddie_2",
             name: "Searching",
             affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository: repository,
+            objectRepository: repository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
@@ -166,6 +169,7 @@ describe("move towards closest squaddie in range", () => {
                     }),
                 },
             },
+            actionTemplateIds: [],
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(allyTeam, [
             searchingSquaddieDynamic2.battleSquaddieId,
@@ -388,12 +392,12 @@ describe("move towards closest squaddie in range", () => {
     })
 
     it("will find an alternate destination if a squaddie is blocking its first space", () => {
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "player_squaddie",
             battleId: "player_squaddie_1",
             name: "Player",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: repository,
+            objectRepository: repository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
@@ -403,6 +407,7 @@ describe("move towards closest squaddie in range", () => {
                     }),
                 },
             },
+            actionTemplateIds: [],
         })
 
         missionMap = new MissionMap({

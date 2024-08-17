@@ -18,7 +18,6 @@ import {
 } from "../targeting/targetingShapeGenerator"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -45,6 +44,7 @@ import { BattlePhase } from "./battlePhaseTracker"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -66,20 +66,22 @@ describe("BattleSquaddieMover", () => {
         ;({
             squaddieTemplate: player1Static,
             battleSquaddie: player1BattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Player1",
             templateId: "player_1",
             battleId: "player_1",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: squaddieRepo,
+            objectRepository: squaddieRepo,
+            actionTemplateIds: [],
         }))
         ;({ squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Enemy1",
                 templateId: "enemy_1",
                 battleId: "enemy_1",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository: squaddieRepo,
+                objectRepository: squaddieRepo,
+                actionTemplateIds: [],
             }))
     })
 

@@ -6,7 +6,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
@@ -32,6 +31,7 @@ import {
     AttributeType,
     AttributeTypeAndAmountService,
 } from "../../squaddie/attributeModifier"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -88,13 +88,16 @@ describe("Action Result Text Writer", () => {
             ],
         })
         ;({ squaddieTemplate: knightStatic, battleSquaddie: knightDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Knight",
                 templateId: "Knight",
                 battleId: "Knight 0",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepository,
-                actionTemplates: [longswordSweepAction, bandageWoundsAction],
+                objectRepository: squaddieRepository,
+                actionTemplateIds: [
+                    longswordSweepAction.id,
+                    bandageWoundsAction.id,
+                ],
             }))
 
         battleMap.addSquaddie(
@@ -103,20 +106,22 @@ describe("Action Result Text Writer", () => {
             { q: 1, r: 1 }
         )
         ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
                 templateId: "Citizen",
                 battleId: "Citizen 0",
                 affiliation: SquaddieAffiliation.ALLY,
-                squaddieRepository: squaddieRepository,
+                objectRepository: squaddieRepository,
+                actionTemplateIds: [],
             }))
         ;({ squaddieTemplate: thiefStatic, battleSquaddie: thiefDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Thief",
                 templateId: "Thief",
                 battleId: "Thief 0",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository: squaddieRepository,
+                objectRepository: squaddieRepository,
+                actionTemplateIds: [],
             }))
 
         battleMap.addSquaddie(
@@ -125,12 +130,13 @@ describe("Action Result Text Writer", () => {
             { q: 1, r: 2 }
         )
         ;({ squaddieTemplate: rogueStatic, battleSquaddie: rogueDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Rogue",
                 templateId: "Rogue",
                 battleId: "Rogue 1",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository: squaddieRepository,
+                objectRepository: squaddieRepository,
+                actionTemplateIds: [],
             }))
 
         battleMap.addSquaddie(

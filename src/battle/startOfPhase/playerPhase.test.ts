@@ -10,7 +10,6 @@ import {
 import { BattleStateService } from "../orchestrator/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -26,6 +25,7 @@ import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("player phase listener", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
@@ -45,12 +45,13 @@ describe("player phase listener", () => {
 
         repository = ObjectRepositoryService.new()
         ;({ battleSquaddie: player1, squaddieTemplate: playerTemplate } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "player",
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player template",
-                squaddieRepository: repository,
+                objectRepository: repository,
                 battleId: "player 1",
+                actionTemplateIds: [],
             }))
 
         ObjectRepositoryService.addBattleSquaddie(

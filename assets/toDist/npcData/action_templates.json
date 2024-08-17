@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Bite",
+    "id": "demon_slither_bite",
+    "actionEffectTemplates": [
+      {
+        "type": "SQUADDIE",
+        "minimumRange": 0,
+        "maximumRange": 1,
+        "traits": {
+          "booleanTraits": {
+            "ATTACK": true,
+            "TARGETS_FOE": true,
+            "TARGET_ARMOR": true
+          }
+        },
+        "damageDescriptions": {
+          "BODY": 1
+        }
+      }
+    ],
+    "buttonIconResourceKey": "decision-button-sword"
+  }
+]

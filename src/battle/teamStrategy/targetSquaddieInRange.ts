@@ -70,16 +70,18 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 battleSquaddieIdToAct
             )
         )
-        const validActionTemplates = squaddieTemplate.actionTemplates.filter(
-            (actionTemplate) => {
+        const validActionTemplates = squaddieTemplate.actionTemplateIds
+            .map((id) =>
+                ObjectRepositoryService.getActionTemplateById(repository, id)
+            )
+            .filter((actionTemplate) => {
                 return (
                     SquaddieTurnService.canPerformAction(
                         battleSquaddie.squaddieTurn,
                         actionTemplate
                     ).canPerform === true
                 )
-            }
-        )
+            })
 
         const firstActionTemplateWithTarget =
             this.getTargetingResultsOfActionWithTargets({
@@ -101,13 +103,17 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 this.desiredBattleSquaddieId
             )
 
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            repository,
+            firstActionTemplateWithTarget.actionTemplateId
+        )
         if (desiredBattleSquaddieIsInRange) {
             const { mapLocation } = MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 this.desiredBattleSquaddieId
             )
             return createDecidedAction(
-                firstActionTemplateWithTarget.actionTemplate,
+                actionTemplate,
                 mapLocation,
                 battleSquaddieIdToAct
             )
@@ -148,7 +154,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             battleSquaddieIdToTarget
         )
         return createDecidedAction(
-            firstActionTemplateWithTarget.actionTemplate,
+            actionTemplate,
             mapLocation,
             battleSquaddieIdToAct
         )
@@ -168,7 +174,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actionTemplates: ActionTemplate[]
     }):
         | {
-              actionTemplate: ActionTemplate
+              actionTemplateId: string
               targetingResults: TargetingResults
           }
         | undefined {
@@ -195,7 +201,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
                 if (results.battleSquaddieIdsInRange.length > 0) {
                     return {
-                        actionTemplate: actionTemplate,
+                        actionTemplateId: actionTemplate.id,
                         targetingResults: results,
                     }
                 }

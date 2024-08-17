@@ -45,7 +45,6 @@ describe("Battle Squaddie Team", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            actionTemplates: [],
         })
 
         ObjectRepositoryService.addSquaddieTemplate(

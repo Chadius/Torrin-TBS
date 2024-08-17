@@ -75,6 +75,7 @@ describe("User clicks on a squaddie", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(repository, attackAction)
 
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -82,7 +83,7 @@ describe("User clicks on a squaddie", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
                 templateId: "player",
             }),
-            actionTemplates: [attackAction],
+            actionTemplateIds: [attackAction.id],
         })
         ObjectRepositoryService.addSquaddieTemplate(
             repository,
@@ -125,8 +126,8 @@ describe("User clicks on a squaddie", () => {
 
     it("HUD produces a button for each ActionTemplate", () => {
         const attackAction2 = ActionTemplateService.new({
-            id: "action",
-            name: "action",
+            id: "action2",
+            name: "action2",
             actionEffectTemplates: [
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
@@ -137,7 +138,7 @@ describe("User clicks on a squaddie", () => {
         })
         repository.squaddieTemplates[
             playerSquaddieTemplate.squaddieId.templateId
-        ].actionTemplates.push(attackAction2)
+        ].actionTemplateIds.push(attackAction2.id)
         const gameEngineState = getGameEngineState({
             resourceHandler,
             missionMap,
@@ -145,6 +146,7 @@ describe("User clicks on a squaddie", () => {
             teams: [],
             battlePhaseState: undefined,
         })
+        ObjectRepositoryService.addActionTemplate(repository, attackAction2)
 
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
@@ -170,13 +172,13 @@ describe("User clicks on a squaddie", () => {
 
         expect(
             actionButtons.find((button) => {
-                return button.actionTemplate.id === attackAction.id
+                return button.actionTemplateId === attackAction.id
             })
         ).toBeTruthy()
 
         expect(
             actionButtons.find((button) => {
-                return button.actionTemplate.id === attackAction2.id
+                return button.actionTemplateId === attackAction2.id
             })
         ).toBeTruthy()
     })

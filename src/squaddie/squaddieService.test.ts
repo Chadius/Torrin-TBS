@@ -1,4 +1,3 @@
-import { CreateNewSquaddieAndAddToRepository } from "../utils/test/squaddie"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
 import {
     ObjectRepository,
@@ -16,6 +15,7 @@ import {
 import { DefaultArmyAttributes } from "./armyAttributes"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "./turn"
+import { SquaddieRepositoryService } from "../utils/test/squaddie"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -29,12 +29,13 @@ describe("Squaddie Service", () => {
         ;({
             squaddieTemplate: playerSquaddieTemplate,
             battleSquaddie: playerBattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            actionTemplateIds: [],
             name: "Player",
             templateId: "player",
             battleId: "player",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            objectRepository: squaddieRepository,
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
@@ -44,12 +45,13 @@ describe("Squaddie Service", () => {
             },
         }))
         ;({ squaddieTemplate: enemyStatic, battleSquaddie: enemyDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                actionTemplateIds: [],
                 name: "Enemy",
                 templateId: "enemy",
                 battleId: "enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
             }))
     })
 

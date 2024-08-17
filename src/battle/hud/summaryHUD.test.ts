@@ -9,7 +9,6 @@ import {
     SummaryPopoverType,
 } from "./summaryHUD"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { RectAreaService } from "../../ui/rectArea"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
@@ -33,6 +32,7 @@ import {
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { MouseButton } from "../../utils/mouseConfig"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -45,68 +45,76 @@ describe("summaryHUD", () => {
         graphicsBuffer = new MockedP5GraphicsBuffer()
         resourceHandler = mockResourceHandler(graphicsBuffer)
 
-        CreateNewSquaddieAndAddToRepository({
-            name: "player",
-            battleId: "player",
-            templateId: "player",
-            squaddieRepository: objectRepository,
-            affiliation: SquaddieAffiliation.PLAYER,
-            actionTemplates: [
-                ActionTemplateService.new({
-                    id: "actionTemplate0",
-                    name: "NeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 2,
-                            maximumRange: 3,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
-                }),
-                ActionTemplateService.new({
-                    id: "actionTemplate1",
-                    name: "AlsoNeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 1,
-                            maximumRange: 2,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
+        const actionTemplate0 = ActionTemplateService.new({
+            id: "actionTemplate0",
+            name: "NeedsTarget",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 2,
+                    maximumRange: 3,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.TARGETS_FOE]: true,
+                    }),
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionTemplate0
+        )
 
-        CreateNewSquaddieAndAddToRepository({
+        const actionTemplate1 = ActionTemplateService.new({
+            id: "actionTemplate1",
+            name: "AlsoNeedsTarget",
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 1,
+                    maximumRange: 2,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.TARGETS_FOE]: true,
+                    }),
+                }),
+            ],
+        })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            actionTemplate1
+        )
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "player",
+            battleId: "player",
+            templateId: "player",
+            objectRepository: objectRepository,
+            affiliation: SquaddieAffiliation.PLAYER,
+            actionTemplateIds: [actionTemplate0.id, actionTemplate1.id],
+        })
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "enemy",
             battleId: "enemy",
             templateId: "enemy",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.ENEMY,
+            actionTemplateIds: [],
         })
 
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "ally",
             battleId: "ally",
             templateId: "ally",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.ALLY,
+            actionTemplateIds: [],
         })
 
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "none",
             battleId: "none",
             templateId: "none",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.NONE,
+            actionTemplateIds: [],
         })
     })
 
@@ -320,13 +328,13 @@ describe("summaryHUD", () => {
                 mouseSelectionLocation: { x: 0, y: 0 },
             })
 
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "another_player",
                 battleId: "another_player",
                 templateId: "another_player",
-                squaddieRepository: objectRepository,
+                objectRepository: objectRepository,
                 affiliation: SquaddieAffiliation.PLAYER,
-                actionTemplates: [],
+                actionTemplateIds: [],
             })
         })
 

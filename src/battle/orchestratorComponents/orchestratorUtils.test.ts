@@ -9,7 +9,6 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -56,6 +55,7 @@ import {
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -69,12 +69,13 @@ describe("Orchestration Utils", () => {
         ;({
             squaddieTemplate: knightSquaddieTemplate,
             battleSquaddie: knightBattleSquaddie,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "knight",
             templateId: "knight_static",
             battleId: "knight_dynamic",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            objectRepository: squaddieRepository,
+            actionTemplateIds: [],
         }))
 
         map = new MissionMap({
@@ -919,12 +920,13 @@ describe("Orchestration Utils", () => {
             const {
                 battleSquaddie: enemyBattleSquaddie,
                 squaddieTemplate: enemySquaddieTemplate,
-            } = CreateNewSquaddieAndAddToRepository({
-                squaddieRepository,
+            } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                objectRepository: squaddieRepository,
                 templateId: "enemy",
                 name: "enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleId: "enemy",
+                actionTemplateIds: [],
             })
             enemySquaddieTemplate.attributes.movement.movementPerAction = 1
             SquaddieTurnService.endTurn(enemyBattleSquaddie.squaddieTurn)

@@ -86,22 +86,24 @@ describe("Actions This Round", () => {
                     name: "soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                actionTemplates: [
-                    ActionTemplateService.new({
-                        id: "attack",
-                        name: "attack",
-                        actionEffectTemplates: [
-                            ActionEffectSquaddieTemplateService.new({
-                                maximumRange: 1,
-                                damageDescriptions: { [DamageType.BODY]: 2 },
-                                traits: TraitStatusStorageService.newUsingTraitValues(
-                                    { [Trait.ATTACK]: true }
-                                ),
-                            }),
-                        ],
-                    }),
-                ],
+                actionTemplateIds: ["attack"],
             })
+            ObjectRepositoryService.addActionTemplate(
+                repository,
+                ActionTemplateService.new({
+                    id: "attack",
+                    name: "attack",
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            maximumRange: 1,
+                            damageDescriptions: { [DamageType.BODY]: 2 },
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                { [Trait.ATTACK]: true }
+                            ),
+                        }),
+                    ],
+                })
+            )
             ObjectRepositoryService.addSquaddieTemplate(
                 repository,
                 squaddieTemplate

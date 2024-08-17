@@ -22,7 +22,6 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
@@ -50,9 +49,10 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleSquaddieTarget", () => {
-    let squaddieRepo: ObjectRepository = ObjectRepositoryService.new()
+    let objectRepository: ObjectRepository = ObjectRepositoryService.new()
     let targetComponent: BattlePlayerSquaddieTarget
     let knightStatic: SquaddieTemplate
     let knightDynamic: BattleSquaddie
@@ -74,7 +74,7 @@ describe("BattleSquaddieTarget", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         targetComponent = new BattlePlayerSquaddieTarget()
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
@@ -102,6 +102,10 @@ describe("BattleSquaddieTarget", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            longswordAction
+        )
 
         bandageWoundsAction = ActionTemplateService.new({
             name: "Bandage Wounds",
@@ -118,14 +122,18 @@ describe("BattleSquaddieTarget", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            bandageWoundsAction
+        )
         ;({ squaddieTemplate: knightStatic, battleSquaddie: knightDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Knight",
                 templateId: "Knight",
                 battleId: "Knight 0",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepo,
-                actionTemplates: [longswordAction, bandageWoundsAction],
+                objectRepository: objectRepository,
+                actionTemplateIds: [longswordAction.id, bandageWoundsAction.id],
             }))
         battleMap.addSquaddie(
             knightStatic.squaddieId.templateId,
@@ -133,12 +141,13 @@ describe("BattleSquaddieTarget", () => {
             { q: 1, r: 1 }
         )
         ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
                 templateId: "Citizen",
                 battleId: "Citizen 0",
                 affiliation: SquaddieAffiliation.ALLY,
-                squaddieRepository: squaddieRepo,
+                objectRepository: objectRepository,
+                actionTemplateIds: [],
             }))
         battleMap.addSquaddie(
             citizenStatic.squaddieId.templateId,
@@ -149,13 +158,13 @@ describe("BattleSquaddieTarget", () => {
             }
         )
         ;({ squaddieTemplate: thiefStatic, battleSquaddie: thiefDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Thief",
                 templateId: "Thief",
                 battleId: "Thief 0",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository: squaddieRepo,
-                actionTemplates: [longswordAction],
+                objectRepository: objectRepository,
+                actionTemplateIds: [longswordAction.id],
                 attributes: {
                     maxHitPoints: 5,
                     movement: CreateNewSquaddieMovementWithTraits({
@@ -193,7 +202,7 @@ describe("BattleSquaddieTarget", () => {
                     recording: { history: [] },
                 }),
             }),
-            repository: squaddieRepo,
+            repository: objectRepository,
             campaign: CampaignService.default({}),
         })
 
@@ -489,8 +498,12 @@ describe("BattleSquaddieTarget", () => {
                             }),
                         }
                     ),
-                    repository: squaddieRepo,
+                    repository: objectRepository,
                 })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    action
+                )
 
                 targetComponent.update(gameEngineState, mockedP5GraphicsContext)
                 invalidTargetClicker()

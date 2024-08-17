@@ -447,10 +447,7 @@ export class BattleComputerSquaddieSelector
                     this.setActionBuilderStateToAffectSquaddie({
                         gameEngineState,
                         decidedActionEffectToUse,
-                        actionTemplate: squaddieTemplate.actionTemplates.find(
-                            (template) =>
-                                template.id === decidedAction.actionTemplateId
-                        ),
+                        actionTemplateId: decidedAction.actionTemplateId,
                     })
                     break
             }
@@ -494,12 +491,18 @@ export class BattleComputerSquaddieSelector
     private setActionBuilderStateToAffectSquaddie({
         gameEngineState,
         decidedActionEffectToUse,
-        actionTemplate,
+        actionTemplateId,
     }: {
         gameEngineState: GameEngineState
         decidedActionEffectToUse: DecidedActionSquaddieEffect
-        actionTemplate: ActionTemplate
+        actionTemplateId: string
     }) {
+        const actionTemplate: ActionTemplate =
+            ObjectRepositoryService.getActionTemplateById(
+                gameEngineState.repository,
+                actionTemplateId
+            )
+
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
@@ -600,7 +603,7 @@ export class BattleComputerSquaddieSelector
     }
 
     private calculateActionPointsSpentOnDecidedAction(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         decidedAction: DecidedAction
     ): {
         shouldEndTurn: boolean
@@ -608,7 +611,7 @@ export class BattleComputerSquaddieSelector
     } {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                state.repository,
+                gameEngineState.repository,
                 decidedAction.battleSquaddieId
             )
         )
@@ -631,7 +634,7 @@ export class BattleComputerSquaddieSelector
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
                     BattleSquaddieSelectorService.createSearchPath({
-                        state,
+                        state: gameEngineState,
                         squaddieTemplate,
                         battleSquaddie,
                         clickedHexCoordinate: decidedActionEffect.destination,
@@ -642,11 +645,11 @@ export class BattleComputerSquaddieSelector
                         SquaddieService.searchPathLocationsByNumberOfMovementActions(
                             {
                                 searchPath:
-                                    state.battleOrchestratorState.battleState
-                                        .squaddieMovePath,
+                                    gameEngineState.battleOrchestratorState
+                                        .battleState.squaddieMovePath,
                                 battleSquaddieId:
                                     battleSquaddie.battleSquaddieId,
-                                repository: state.repository,
+                                repository: gameEngineState.repository,
                             }
                         )
                     const numberOfActionPointsSpentMoving: number =
@@ -664,10 +667,11 @@ export class BattleComputerSquaddieSelector
         })
 
         if (addActionPointCostForTemplate) {
-            const actionTemplate = squaddieTemplate.actionTemplates.find(
-                (actionTemplate) =>
-                    actionTemplate.id === decidedAction.actionTemplateId
-            )
+            const actionTemplate =
+                ObjectRepositoryService.getActionTemplateById(
+                    gameEngineState.repository,
+                    decidedAction.actionTemplateId
+                )
             actionPointCost += actionTemplate.actionPoints
         }
 

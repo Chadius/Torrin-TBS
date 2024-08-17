@@ -33,7 +33,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -76,6 +75,7 @@ import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddi
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { config } from "../../configuration/config"
 import { BattleEventService } from "../history/battleEvent"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -132,13 +132,13 @@ describe("BattleSquaddieSelector", () => {
         ;({
             battleSquaddie: enemyBattleSquaddie,
             squaddieTemplate: enemySquaddieTemplate,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
-            squaddieRepository: squaddieRepo,
-            actionTemplates: [demonBiteAction],
+            objectRepository: squaddieRepo,
+            actionTemplateIds: [demonBiteAction.id],
         }))
 
         ObjectRepositoryService.addBattleSquaddie(
@@ -185,12 +185,13 @@ describe("BattleSquaddieSelector", () => {
         }
         teams.push(playerTeam)
         ;({ battleSquaddie: playerSoldierBattleSquaddie } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Player Soldier",
                 templateId: "player_soldier",
                 battleId: "player_soldier_0",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepo,
+                objectRepository: squaddieRepo,
+                actionTemplateIds: [],
             }))
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
             "player_soldier_0",
@@ -996,13 +997,13 @@ describe("BattleSquaddieSelector", () => {
                 ],
             })
 
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Player Soldier with a Longsword Action",
                 templateId: "player_soldier_longsword",
                 battleId: "player_soldier_1",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepo,
-                actionTemplates: [longswordAction],
+                objectRepository: squaddieRepo,
+                actionTemplateIds: [longswordAction.id],
             })
 
             missionMap.addSquaddie("player_soldier", "player_soldier_1", {
@@ -1029,6 +1030,10 @@ describe("BattleSquaddieSelector", () => {
                 repository: squaddieRepo,
                 campaign: CampaignService.default({}),
             })
+            ObjectRepositoryService.addActionTemplate(
+                gameEngineState.repository,
+                longswordAction
+            )
             const battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
@@ -1058,7 +1063,7 @@ describe("BattleSquaddieSelector", () => {
             })
             const longswordButton =
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                    (button) => button.actionTemplate.id === longswordAction.id
+                    (button) => button.actionTemplateId === longswordAction.id
                 )
             selector.mouseClicked({
                 mouseX: RectAreaService.centerX(longswordButton.buttonArea),
@@ -1086,7 +1091,7 @@ describe("BattleSquaddieSelector", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
                 gameEngineState,
-                actionTemplate: longswordAction,
+                actionTemplateId: longswordAction.id,
                 battleSquaddieId: "player_soldier_1",
                 mapStartingLocation: { q: 0, r: 1 },
             })
@@ -1115,12 +1120,13 @@ describe("BattleSquaddieSelector", () => {
             ;({
                 squaddieTemplate: interruptSquaddieStatic,
                 battleSquaddie: interruptBattleSquaddie,
-            } = CreateNewSquaddieAndAddToRepository({
+            } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "interrupting squaddie",
                 templateId: "interrupting squaddie",
                 battleId: "interrupting squaddie",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: squaddieRepo,
+                objectRepository: squaddieRepo,
+                actionTemplateIds: [],
             }))
 
             missionMap.addSquaddie(

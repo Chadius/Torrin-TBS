@@ -10,7 +10,6 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { TerrainTileMap } from "../../hexMap/terrainTileMap"
 import { TargetSquaddieInRange } from "./targetSquaddieInRange"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -33,9 +32,10 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("target a squaddie within reach of actions", () => {
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
     let missionMap: MissionMap
     let enemyBanditStatic: SquaddieTemplate
     let enemyBanditDynamic: BattleSquaddie
@@ -47,7 +47,7 @@ describe("target a squaddie within reach of actions", () => {
     let enemyTeam: BattleSquaddieTeam
 
     beforeEach(() => {
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
 
         shortBowAction = ActionTemplateService.new({
             name: "short bow",
@@ -65,36 +65,42 @@ describe("target a squaddie within reach of actions", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            shortBowAction
+        )
         ;({
             squaddieTemplate: enemyBanditStatic,
             battleSquaddie: enemyBanditDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "enemy_bandit",
             battleId: "enemy_bandit_0",
             name: "Bandit",
             affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepository: repository,
-            actionTemplates: [shortBowAction],
+            objectRepository: objectRepository,
+            actionTemplateIds: [shortBowAction.id],
         }))
         ;({
             squaddieTemplate: playerKnightStatic,
             battleSquaddie: playerKnightDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "player_knight",
             battleId: "player_knight_0",
             name: "Knight",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: repository,
+            objectRepository: objectRepository,
+            actionTemplateIds: [],
         }))
         ;({
             squaddieTemplate: allyClericStatic,
             battleSquaddie: allyClericDynamic,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "ally_cleric",
             battleId: "ally_cleric_0",
             name: "Cleric",
             affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository: repository,
+            objectRepository: objectRepository,
+            actionTemplateIds: [],
         }))
 
         missionMap = new MissionMap({
@@ -140,7 +146,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -160,7 +166,7 @@ describe("target a squaddie within reach of actions", () => {
             strategy.DetermineNextInstruction({
                 team: enemyTeam,
                 missionMap,
-                repository,
+                repository: objectRepository,
             })
         }
 
@@ -196,7 +202,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
         const decidedActionSquaddieEffect =
             DecidedActionSquaddieEffectService.new({
@@ -238,7 +244,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
         const decidedActionSquaddieEffect =
             DecidedActionSquaddieEffectService.new({
@@ -272,7 +278,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -307,7 +313,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -354,7 +360,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
             actionsThisRound,
         })
         const decidedActionSquaddieEffect =
@@ -393,13 +399,13 @@ describe("target a squaddie within reach of actions", () => {
         const {
             squaddieTemplate: enemyBanditStatic2,
             battleSquaddie: enemyBanditDynamic2,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "enemy_bandit_2",
             battleId: "enemy_bandit_2",
             name: "Bandit",
             affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepository: repository,
-            actionTemplates: [longBowAction],
+            objectRepository: objectRepository,
+            actionTemplateIds: [longBowAction.id],
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [
             enemyBanditDynamic2.battleSquaddieId,
@@ -451,7 +457,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
             actionsThisRound,
         })
         const decidedActionSquaddieEffect =
@@ -485,7 +491,7 @@ describe("target a squaddie within reach of actions", () => {
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
             missionMap,
-            repository,
+            repository: objectRepository,
         })
         expect(actualInstruction).toBeUndefined()
     })

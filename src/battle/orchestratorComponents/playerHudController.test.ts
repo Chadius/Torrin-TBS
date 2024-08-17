@@ -15,7 +15,6 @@ import {
     BattleOrchestrator,
     BattleOrchestratorMode,
 } from "../orchestrator/battleOrchestrator"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -30,6 +29,7 @@ import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattlePhase } from "./battlePhaseTracker"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState
@@ -111,13 +111,13 @@ describe("PlayerHUDController", () => {
             ;({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
-            } = CreateNewSquaddieAndAddToRepository({
+            } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 templateId: "player_soldier",
                 name: "Player Soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleId: playerBattleSquaddieId,
-                squaddieRepository: repository,
-                actionTemplates: [singleTargetAction],
+                objectRepository: repository,
+                actionTemplateIds: [singleTargetAction.id],
             }))
             MissionMapService.addSquaddie(
                 missionMap,
@@ -137,13 +137,13 @@ describe("PlayerHUDController", () => {
             ;({
                 squaddieTemplate: enemySquaddieTemplate,
                 battleSquaddie: enemyBattleSquaddie,
-            } = CreateNewSquaddieAndAddToRepository({
+            } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 templateId: "enemy_thief",
                 name: "Enemy Thief",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleId: enemyBattleSquaddieId,
-                squaddieRepository: repository,
-                actionTemplates: [singleTargetAction],
+                objectRepository: repository,
+                actionTemplateIds: [singleTargetAction.id],
             }))
             MissionMapService.addSquaddie(
                 missionMap,

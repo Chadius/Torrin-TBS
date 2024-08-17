@@ -47,5 +47,8 @@
       ],
       "buttonIconResourceKey": "decision-button-sword"
     }
+  ],
+  "actionTemplateIds": [
+    "demon_slither_bite"
   ]
 }

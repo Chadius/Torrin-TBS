@@ -10,7 +10,6 @@ import {
     BattlePhaseService,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../battleSquaddie"
 import {
@@ -28,6 +27,7 @@ import {
     AttributeType,
 } from "../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("squaddie phase starts", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
@@ -47,13 +47,15 @@ describe("squaddie phase starts", () => {
     const createTeamOfTwo = (
         affiliation: SquaddieAffiliation
     ): BattleSquaddieTeam => {
-        const { squaddieTemplate } = CreateNewSquaddieAndAddToRepository({
-            name: affiliation,
-            affiliation: affiliation,
-            templateId: `${affiliation} template`,
-            squaddieRepository: repository,
-            battleId: `${affiliation} 1`,
-        })
+        const { squaddieTemplate } =
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: affiliation,
+                affiliation: affiliation,
+                templateId: `${affiliation} template`,
+                objectRepository: repository,
+                battleId: `${affiliation} 1`,
+                actionTemplateIds: [],
+            })
 
         ObjectRepositoryService.addBattleSquaddie(
             repository,

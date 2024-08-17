@@ -8,7 +8,6 @@ import {
 } from "../../objectRepository"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { getResultOrThrowError, makeResult } from "../../../utils/ResultOrError"
-import { CreateNewSquaddieAndAddToRepository } from "../../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
@@ -39,6 +38,7 @@ import {
 } from "../../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { BattleSquaddie } from "../../battleSquaddie"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 
 describe("squaddieSummaryPopover", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -57,68 +57,74 @@ describe("squaddieSummaryPopover", () => {
             .fn()
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
-        CreateNewSquaddieAndAddToRepository({
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            ActionTemplateService.new({
+                id: "actionTemplate0",
+                name: "NeedsTarget",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 2,
+                        maximumRange: 3,
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGETS_FOE]: true,
+                        }),
+                    }),
+                ],
+            })
+        )
+
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            ActionTemplateService.new({
+                id: "actionTemplate1",
+                name: "AlsoNeedsTarget",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 1,
+                        maximumRange: 2,
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGETS_FOE]: true,
+                        }),
+                    }),
+                ],
+            })
+        )
+
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "player",
             battleId: "player",
             templateId: "player",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.PLAYER,
-            actionTemplates: [
-                ActionTemplateService.new({
-                    id: "actionTemplate0",
-                    name: "NeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 2,
-                            maximumRange: 3,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
-                }),
-                ActionTemplateService.new({
-                    id: "actionTemplate1",
-                    name: "AlsoNeedsTarget",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            minimumRange: 1,
-                            maximumRange: 2,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGETS_FOE]: true,
-                                }
-                            ),
-                        }),
-                    ],
-                }),
-            ],
+            actionTemplateIds: ["actionTemplate0", "actionTemplate1"],
         })
 
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "enemy",
             battleId: "enemy",
             templateId: "enemy",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.ENEMY,
+            actionTemplateIds: [],
         })
 
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "ally",
             battleId: "ally",
             templateId: "ally",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.ALLY,
+            actionTemplateIds: [],
         })
 
-        CreateNewSquaddieAndAddToRepository({
+        SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "none",
             battleId: "none",
             templateId: "none",
-            squaddieRepository: objectRepository,
+            objectRepository: objectRepository,
             affiliation: SquaddieAffiliation.NONE,
+            actionTemplateIds: [],
         })
     })
 

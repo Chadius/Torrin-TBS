@@ -21,7 +21,6 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { CreateNewSquaddieAndAddToRepository } from "../../utils/test/squaddie"
 import { Recording, RecordingService } from "../history/recording"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DamageType, IsSquaddieAlive } from "../../squaddie/squaddieService"
@@ -62,6 +61,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let squaddieRepository: ObjectRepository
@@ -84,12 +84,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         ;({
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,
-        } = CreateNewSquaddieAndAddToRepository({
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             name: "Torrin",
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository,
+            objectRepository: squaddieRepository,
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
@@ -100,14 +100,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 maxHitPoints: 1,
                 armorClass: 0,
             },
+            actionTemplateIds: [],
         }))
         ;({ squaddieTemplate: targetStatic, battleSquaddie: targetDynamic } =
-            CreateNewSquaddieAndAddToRepository({
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Target",
                 templateId: "target_static_squaddie",
                 battleId: "target_dynamic_squaddie",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepository,
+                objectRepository: squaddieRepository,
                 attributes: {
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
@@ -118,6 +119,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     maxHitPoints: 3,
                     armorClass: 0,
                 },
+                actionTemplateIds: [],
             }))
 
         powerAttackLongswordAction = ActionTemplateService.new({

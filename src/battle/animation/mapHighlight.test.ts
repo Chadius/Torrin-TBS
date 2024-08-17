@@ -42,15 +42,15 @@ describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
     let terrainAllDoubleMovement: TerrainTileMap
     let terrainAlternatingPits: TerrainTileMap
-    let repository: ObjectRepository
+    let objectRepository: ObjectRepository
 
-    let rangedAction: ActionTemplate
+    let meleeAndRangedAction: ActionTemplate
     let campaignResources: CampaignResources
 
     beforeEach(() => {
         campaignResources = CampaignResourcesService.default({})
 
-        repository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         terrainAllSingleMovement = TerrainTileMapService.new({
             movementCost: ["1 1 1 1 1 1 1 1 1 1 "],
         })
@@ -63,7 +63,7 @@ describe("map highlight generator", () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         })
 
-        rangedAction = ActionTemplateService.new({
+        meleeAndRangedAction = ActionTemplateService.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
             actionEffectTemplates: [
@@ -76,6 +76,10 @@ describe("map highlight generator", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            meleeAndRangedAction
+        )
     })
 
     it("can draw a search path based on the number of actions spent", () => {
@@ -161,7 +165,7 @@ describe("map highlight generator", () => {
                 }),
             })
         ObjectRepositoryService.addSquaddieTemplate(
-            repository,
+            objectRepository,
             squaddieWith2Movement
         )
 
@@ -169,13 +173,16 @@ describe("map highlight generator", () => {
             battleSquaddieId: "2 movement",
             squaddieTemplate: squaddieWith2Movement,
         })
-        ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie)
+        ObjectRepositoryService.addBattleSquaddie(
+            objectRepository,
+            battleSquaddie
+        )
 
         const highlightedTiles: HighlightTileDescription[] =
             MapHighlightHelper.convertSearchPathToHighlightLocations({
                 searchPath: pathToDraw,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
-                repository,
+                repository: objectRepository,
                 campaignResources,
             })
 
@@ -237,7 +244,7 @@ describe("map highlight generator", () => {
                 }),
             })
             ObjectRepositoryService.addSquaddieTemplate(
-                repository,
+                objectRepository,
                 squaddieWithMovement1
             )
 
@@ -246,7 +253,7 @@ describe("map highlight generator", () => {
                 squaddieTemplate: squaddieWithMovement1,
             })
             ObjectRepositoryService.addBattleSquaddie(
-                repository,
+                objectRepository,
                 battleSquaddie
             )
         }
@@ -320,7 +327,7 @@ describe("map highlight generator", () => {
                         terrainTileMap: terrainAllSingleMovement,
                     }),
                     startLocation: { q: 0, r: 2 },
-                    repository,
+                    repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                 })
@@ -339,7 +346,7 @@ describe("map highlight generator", () => {
                         terrainTileMap: terrainAllSingleMovement,
                     }),
                     startLocation: { q: 0, r: 2 },
-                    repository,
+                    repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                 })
@@ -361,7 +368,7 @@ describe("map highlight generator", () => {
                         terrainTileMap: terrainAllSingleMovement,
                     }),
                     startLocation: { q: 0, r: 2 },
-                    repository,
+                    repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                     squaddieTurnOverride: turnWith1Action,
@@ -381,7 +388,7 @@ describe("map highlight generator", () => {
                         terrainTileMap: terrainAllDoubleMovement,
                     }),
                     startLocation: { q: 0, r: 2 },
-                    repository,
+                    repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                 })
@@ -422,10 +429,10 @@ describe("map highlight generator", () => {
                         movementPerAction: 1,
                     }),
                 }),
-                actionTemplates: [rangedAction],
+                actionTemplateIds: [meleeAndRangedAction.id],
             })
             ObjectRepositoryService.addSquaddieTemplate(
-                repository,
+                objectRepository,
                 squaddieWithOneMovement
             )
 
@@ -434,7 +441,7 @@ describe("map highlight generator", () => {
                 squaddieTemplate: squaddieWithOneMovement,
             })
             ObjectRepositoryService.addBattleSquaddie(
-                repository,
+                objectRepository,
                 battleSquaddie
             )
         })
@@ -446,7 +453,7 @@ describe("map highlight generator", () => {
                         terrainTileMap: terrainAlternatingPits,
                     }),
                     startLocation: { q: 0, r: 4 },
-                    repository,
+                    repository: objectRepository,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     campaignResources,
                 })

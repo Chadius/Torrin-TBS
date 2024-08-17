@@ -39,6 +39,10 @@ import { SquaddieResource } from "../../squaddie/resource"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { isValidValue } from "../../utils/validityCheck"
 import p5 from "p5"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -101,12 +105,12 @@ export const MissionLoader = {
         missionLoaderContext,
         missionId,
         resourceHandler,
-        repository,
+        objectRepository,
     }: {
         missionLoaderContext: MissionLoaderContext
         missionId: string
         resourceHandler: ResourceHandler
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     }) => {
         missionLoaderContext.completionProgress.started = true
         const missionData: MissionFileFormat =
@@ -144,10 +148,13 @@ export const MissionLoader = {
         const loaderLock = {
             locked: false,
         }
+        await loadActionTemplates({
+            objectRepository,
+        })
         await loadAndPrepareNPCTemplateData({
             missionLoaderContext: missionLoaderContext,
             resourceHandler,
-            repository: repository,
+            repository: objectRepository,
             loaderLock,
         })
 
@@ -156,7 +163,7 @@ export const MissionLoader = {
 
         spawnNPCSquaddiesAndAddToMap({
             missionLoaderContext: missionLoaderContext,
-            repository: repository,
+            repository: objectRepository,
             missionData,
         })
         createSquaddieTeams({ missionLoaderContext, missionData })
@@ -166,13 +173,13 @@ export const MissionLoader = {
         loadPhaseAffiliationBanners(
             missionLoaderContext,
             missionData,
-            repository,
+            objectRepository,
             resourceHandler
         )
         loadTeamIcons(
             missionLoaderContext,
             missionData,
-            repository,
+            objectRepository,
             resourceHandler
         )
         loadCutscenes({
@@ -214,13 +221,13 @@ export const MissionLoader = {
         })
     },
     loadPlayerArmyFromFile: async ({
-        squaddieRepository,
         resourceHandler,
         missionLoaderContext,
+        objectRepository,
     }: {
-        squaddieRepository: ObjectRepository
         resourceHandler: ResourceHandler
         missionLoaderContext: MissionLoaderContext
+        objectRepository: ObjectRepository
     }) => {
         const playerArmyData: PlayerArmy = await LoadPlayerArmyFromFile()
         playerArmyData.squaddieTemplates.forEach((template) => {
@@ -237,6 +244,7 @@ export const MissionLoader = {
                 missionLoaderContext,
                 resources,
                 resourceHandler,
+                objectRepository,
             })
         })
 
@@ -250,7 +258,7 @@ export const MissionLoader = {
             })
 
             ObjectRepositoryService.addSquaddie(
-                squaddieRepository,
+                objectRepository,
                 template,
                 battleSquaddie
             )
@@ -263,14 +271,16 @@ const loadSquaddieTemplateResources = ({
     resources,
     resourceHandler,
     template,
+    objectRepository,
 }: {
     missionLoaderContext: MissionLoaderContext
     resources: SquaddieResource
     resourceHandler: ResourceHandler
     template: SquaddieTemplate
+    objectRepository: ObjectRepository
 }) => {
     const squaddieTemplateResourceKeys =
-        SquaddieTemplateService.getResourceKeys(template)
+        SquaddieTemplateService.getResourceKeys(template, objectRepository)
     resourceHandler.loadResources(squaddieTemplateResourceKeys)
     missionLoaderContext.resourcesPendingLoading.push(
         ...squaddieTemplateResourceKeys
@@ -451,7 +461,7 @@ const loadAndPrepareNPCTemplateData = async ({
 
     Object.values(loadedTemplatesById).forEach((template) => {
         const squaddieTemplateResourceKeys =
-            SquaddieTemplateService.getResourceKeys(template)
+            SquaddieTemplateService.getResourceKeys(template, repository)
         resourceHandler.loadResources(squaddieTemplateResourceKeys)
         missionLoaderContext.resourcesPendingLoading.push(
             ...squaddieTemplateResourceKeys
@@ -643,5 +653,45 @@ const loadTeamIcons = (
                     teamIconResourceKey
                 )
             })
+    )
+}
+
+const loadActionTemplates = async ({
+    objectRepository,
+}: {
+    objectRepository: ObjectRepository
+}) => {
+    const loadActionTemplatesFromFile = async (
+        filename: string,
+        errorMessage: string
+    ): Promise<ActionTemplate[]> => {
+        try {
+            return await LoadFileIntoFormat<ActionTemplate[]>(filename)
+        } catch (e) {
+            console.error(errorMessage)
+            console.error(e)
+            throw e
+        }
+    }
+
+    const npcActionTemplatesFromFile: ActionTemplate[] =
+        await loadActionTemplatesFromFile(
+            `assets/npcData/action_templates.json`,
+            `Failed to load NPC action templates`
+        )
+
+    const playerActionTemplatesFromFile: ActionTemplate[] =
+        await loadActionTemplatesFromFile(
+            `assets/playerArmy/action_templates.json`,
+            `Failed to load player action templates`
+        )
+
+    ;[...npcActionTemplatesFromFile, ...playerActionTemplatesFromFile].forEach(
+        (actionTemplate) => {
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.sanitize(actionTemplate)
+            )
+        }
     )
 }

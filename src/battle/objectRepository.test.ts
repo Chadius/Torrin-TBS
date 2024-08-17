@@ -13,14 +13,21 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../action/template/actionTemplate"
+import { ActionEffectMovementTemplateService } from "../action/template/actionEffectMovementTemplate"
+import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { DamageType } from "../squaddie/squaddieService"
 
 describe("BattleSquaddieRepository", () => {
-    let squaddieRepo: ObjectRepository
+    let objectRepository: ObjectRepository
     let squaddieTemplateBase: SquaddieTemplate
     let battleSquaddieBase: BattleSquaddie
 
     beforeEach(() => {
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         squaddieTemplateBase = SquaddieTemplateService.new({
             attributes: {
                 maxHitPoints: 1,
@@ -52,20 +59,20 @@ describe("BattleSquaddieRepository", () => {
         })
 
         ObjectRepositoryService.addSquaddieTemplate(
-            squaddieRepo,
+            objectRepository,
             squaddieTemplateBase
         )
     })
 
     it("retrieves squaddie info by battle id", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
 
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                squaddieRepo,
+                objectRepository,
                 "player_young_torrin_0"
             )
         )
@@ -77,7 +84,7 @@ describe("BattleSquaddieRepository", () => {
     it("should throw error if you add already existing static squaddie", () => {
         const shouldThrowError = () => {
             ObjectRepositoryService.addSquaddieTemplate(
-                squaddieRepo,
+                objectRepository,
                 squaddieTemplateBase
             )
         }
@@ -95,7 +102,7 @@ describe("BattleSquaddieRepository", () => {
     it("should throw error if you add battle squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepo,
+                objectRepository,
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
@@ -116,13 +123,13 @@ describe("BattleSquaddieRepository", () => {
 
     it("should throw error if you add battle squaddie for battle squaddie that already exists", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
 
         const shouldThrowError = () => {
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepo,
+                objectRepository,
                 battleSquaddieBase
             )
         }
@@ -140,7 +147,7 @@ describe("BattleSquaddieRepository", () => {
     it("should throw an error if battle squaddie is invalid", () => {
         const shouldThrowError = () => {
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepo,
+                objectRepository,
                 (battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
@@ -159,7 +166,7 @@ describe("BattleSquaddieRepository", () => {
 
     it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
         const resultOrError = ObjectRepositoryService.getSquaddieByBattleId(
-            squaddieRepo,
+            objectRepository,
             "player_young_torrin_0"
         )
 
@@ -173,14 +180,17 @@ describe("BattleSquaddieRepository", () => {
 
     it("should get an iterator across all static ids", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
 
         const entities: {
             squaddieTemplateId: string
             squaddieTemplate: SquaddieTemplate
-        }[] = ObjectRepositoryService.getSquaddieTemplateIterator(squaddieRepo)
+        }[] =
+            ObjectRepositoryService.getSquaddieTemplateIterator(
+                objectRepository
+            )
 
         expect(entities).toStrictEqual([
             {
@@ -192,14 +202,15 @@ describe("BattleSquaddieRepository", () => {
 
     it("should get an iterator across all battle ids", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
 
         const entities: {
             battleSquaddieId: string
             battleSquaddie: BattleSquaddie
-        }[] = ObjectRepositoryService.getBattleSquaddieIterator(squaddieRepo)
+        }[] =
+            ObjectRepositoryService.getBattleSquaddieIterator(objectRepository)
         expect(entities).toStrictEqual([
             {
                 battleSquaddieId: "player_young_torrin_0",
@@ -210,7 +221,7 @@ describe("BattleSquaddieRepository", () => {
 
     it("should update existing battle squaddie", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
         expect(
@@ -222,7 +233,7 @@ describe("BattleSquaddieRepository", () => {
         const turnEnded: SquaddieTurn = { remainingActionPoints: 3 }
         SquaddieTurnService.endTurn(turnEnded)
         ObjectRepositoryService.updateBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: battleSquaddieBase.squaddieTemplateId,
@@ -233,7 +244,7 @@ describe("BattleSquaddieRepository", () => {
 
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                squaddieRepo,
+                objectRepository,
                 "player_young_torrin_0"
             )
         )
@@ -248,7 +259,7 @@ describe("BattleSquaddieRepository", () => {
 
     it("should throw error if you update a battle squaddie to a non existent template", () => {
         ObjectRepositoryService.addBattleSquaddie(
-            squaddieRepo,
+            objectRepository,
             battleSquaddieBase
         )
 
@@ -260,7 +271,7 @@ describe("BattleSquaddieRepository", () => {
             })
 
             ObjectRepositoryService.updateBattleSquaddie(
-                squaddieRepo,
+                objectRepository,
                 badBattleSquaddie
             )
         }
@@ -273,5 +284,67 @@ describe("BattleSquaddieRepository", () => {
         }).toThrow(
             `cannot updateBattleSquaddie '${battleSquaddieBase.battleSquaddieId}', no squaddie template with id 'does not exist' exists`
         )
+    })
+
+    describe("Action Template", () => {
+        let action: ActionTemplate
+
+        beforeEach(() => {
+            action = ActionTemplateService.new({
+                id: "action",
+                name: "Action Template",
+                actionPoints: 2,
+                buttonIconResourceKey: "image key",
+                actionEffectTemplates: [
+                    ActionEffectMovementTemplateService.new({}),
+                    ActionEffectSquaddieTemplateService.new({
+                        minimumRange: 0,
+                        maximumRange: 2,
+                        damageDescriptions: {
+                            [DamageType.SOUL]: 2,
+                        },
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGETS_FOE]: true,
+                            [Trait.TARGET_ARMOR]: true,
+                        }),
+                    }),
+                ],
+            })
+        })
+
+        it("can store and retrieve action templates by id", () => {
+            ObjectRepositoryService.addActionTemplate(objectRepository, action)
+
+            const actualAction = ObjectRepositoryService.getActionTemplateById(
+                objectRepository,
+                action.id
+            )
+
+            expect(actualAction).toEqual(action)
+        })
+
+        it("should throw an error if the action template id does not exist", () => {
+            const shouldThrowError = () => {
+                ObjectRepositoryService.getActionTemplateById(
+                    objectRepository,
+                    "non-existent-action-template"
+                )
+            }
+
+            expect(shouldThrowError).toThrowError("does not exist")
+        })
+
+        it("should throw an error if you add two action templates with the same id", () => {
+            ObjectRepositoryService.addActionTemplate(objectRepository, action)
+
+            const shouldThrowError = () => {
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    action
+                )
+            }
+
+            expect(shouldThrowError).toThrowError("already exists")
+        })
     })
 })

@@ -966,9 +966,11 @@ export class BattlePlayerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
         )
-        const newAction =
+        const newAction = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState.selectedActionTemplate
+                .summaryHUDState.playerCommandState.selectedActionTemplateId
+        )
 
         const { actionPointsRemaining } =
             SquaddieService.getNumberOfActionPoints({
@@ -986,7 +988,7 @@ export class BattlePlayerSquaddieSelector
                 },
             })
 
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.selectedActionTemplate =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.selectedActionTemplateId =
                 undefined
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.playerSelectedSquaddieAction =
                 false
@@ -996,7 +998,7 @@ export class BattlePlayerSquaddieSelector
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
             gameEngineState,
-            actionTemplate: newAction,
+            actionTemplateId: newAction.id,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             mapStartingLocation: mapLocation,
         })

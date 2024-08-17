@@ -270,18 +270,18 @@ export class GameEngineGameLoader implements GameEngineComponent {
     private async loadMissionDataFromFile(
         campaign: Campaign,
         state: GameEngineState,
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     ) {
         await MissionLoader.loadMissionFromFile({
             missionLoaderContext: this.missionLoaderContext,
             missionId: CampaignService.getNextMissionId(campaign),
             resourceHandler: state.resourceHandler,
-            repository: repository,
+            objectRepository: objectRepository,
         }).then(async () => {
             await MissionLoader.loadPlayerArmyFromFile({
                 missionLoaderContext: this.missionLoaderContext,
                 resourceHandler: state.resourceHandler,
-                squaddieRepository: repository,
+                objectRepository: objectRepository,
             })
         })
     }

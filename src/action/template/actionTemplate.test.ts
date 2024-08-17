@@ -10,13 +10,14 @@ import { ActionEffectMovementTemplateService } from "./actionEffectMovementTempl
 import { ActionEffectEndTurnTemplateService } from "./actionEffectEndTurnTemplate"
 
 describe("ActionTemplate", () => {
-    it("can create a template with default values without an id", () => {
+    it("can create a template with required id", () => {
         const justMovement = ActionTemplateService.new({
+            id: "Move it",
             name: "Move",
         })
 
+        expect(justMovement.id).toEqual("Move it")
         expect(justMovement.name).toEqual("Move")
-        expect(justMovement.id).toBeUndefined()
         expect(justMovement.actionEffectTemplates).toHaveLength(0)
         expect(justMovement.actionPoints).toEqual(1)
     })
@@ -46,11 +47,23 @@ describe("ActionTemplate", () => {
     it("will throw an error if the template has no name", () => {
         const throwErrorBecauseOfNoName = () => {
             ActionTemplateService.new({
+                id: "action Id",
                 name: undefined,
             })
         }
 
         expect(throwErrorBecauseOfNoName).toThrowError("cannot sanitize")
+    })
+
+    it("will throw an error if the template has no id", () => {
+        const throwErrorBecauseOfNoId = () => {
+            ActionTemplateService.new({
+                id: undefined,
+                name: "Wow cool name",
+            })
+        }
+
+        expect(throwErrorBecauseOfNoId).toThrowError("cannot sanitize")
     })
 
     it("can describe the damage and heal totals", () => {
@@ -82,6 +95,7 @@ describe("ActionTemplate", () => {
     describe("MultipleAttackPenalty", () => {
         it("cannot contribute if it has no effects", () => {
             const justMovement = ActionTemplateService.new({
+                id: "Move it",
                 name: "Move",
             })
             expect(
@@ -92,6 +106,7 @@ describe("ActionTemplate", () => {
         })
         it("knows if none of its effect templates contribute", () => {
             const noMAP = ActionTemplateService.new({
+                id: "slap",
                 name: "quick slap",
                 actionEffectTemplates: [
                     ActionEffectMovementTemplateService.new({}),
@@ -109,6 +124,7 @@ describe("ActionTemplate", () => {
         })
         it("knows if at least one of its effect templates contributes", () => {
             const withMap = ActionTemplateService.new({
+                id: "sworded",
                 name: "sword strike",
                 actionEffectTemplates: [
                     ActionEffectMovementTemplateService.new({}),

@@ -5,7 +5,10 @@ import { Trait } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import { MissionFileFormat } from "../../dataLoader/missionLoader"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../campaign/squaddieTemplate"
 import { TeamStrategyType } from "../../battle/teamStrategy/teamStrategy"
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
@@ -14,6 +17,7 @@ import {
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionTemplate } from "../../action/template/actionTemplate"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -585,70 +589,49 @@ export const TestMissionData = () => {
         },
     }
 
-    const enemyDemonSlitherTemplate: SquaddieTemplate = {
-        squaddieId: {
-            name: "Slither Demon",
-            templateId: "enemy_demon_slither",
-            resources: {
-                mapIconResourceKey: "map icon demon slither",
-                actionSpritesByEmotion: {
-                    NEUTRAL: "combat-demon-slither-neutral",
-                    ATTACK: "combat-demon-slither-attack",
-                    TARGETED: "combat-demon-slither-targeted",
-                    DAMAGED: "combat-demon-slither-damaged",
-                    DEAD: "combat-demon-slither-dead",
+    const enemyDemonSlitherTemplate: SquaddieTemplate =
+        SquaddieTemplateService.new({
+            squaddieId: {
+                name: "Slither Demon",
+                templateId: "enemy_demon_slither",
+                resources: {
+                    mapIconResourceKey: "map icon demon slither",
+                    actionSpritesByEmotion: {
+                        NEUTRAL: "combat-demon-slither-neutral",
+                        ATTACK: "combat-demon-slither-attack",
+                        TARGETED: "combat-demon-slither-targeted",
+                        DAMAGED: "combat-demon-slither-damaged",
+                        DEAD: "combat-demon-slither-dead",
+                    },
+                },
+                traits: {
+                    booleanTraits: {
+                        DEMON: true,
+                    },
+                },
+                affiliation: SquaddieAffiliation.ENEMY,
+            },
+            attributes: {
+                maxHitPoints: 3,
+                armorClass: 5,
+                movement: {
+                    movementPerAction: 2,
+                    passThroughWalls: false,
+                    crossOverPits: false,
                 },
             },
-            traits: {
-                booleanTraits: {
-                    DEMON: true,
-                },
+            actionTemplateIds: ["demon_slither_bite"],
+        })
+    const enemyDemonSlitherTemplate2: SquaddieTemplate =
+        SquaddieTemplateService.new({
+            ...enemyDemonSlitherTemplate,
+            squaddieId: {
+                ...enemyDemonSlitherTemplate.squaddieId,
+                templateId: "enemyDemonSlitherTemplate2_id",
             },
-            affiliation: SquaddieAffiliation.ENEMY,
-        },
-        attributes: {
-            maxHitPoints: 3,
-            armorClass: 5,
-            movement: {
-                movementPerAction: 2,
-                passThroughWalls: false,
-                crossOverPits: false,
-            },
-        },
-        actionTemplates: [
-            {
-                id: "demon_slither_bite",
-                name: "Bite",
-                actionPoints: 1,
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: {
-                            booleanTraits: {
-                                [Trait.ATTACK]: true,
-                                [Trait.TARGET_ARMOR]: true,
-                            },
-                        },
-                        damageDescriptions: {
-                            [DamageType.BODY]: 1,
-                        },
-                        healingDescriptions: {},
-                        targetingShape: TargetingShape.SNAKE,
-                    }),
-                ],
-                buttonIconResourceKey: "decision-button-sword",
-            },
-        ],
-    }
-    const enemyDemonSlitherTemplate2: SquaddieTemplate = {
-        ...enemyDemonSlitherTemplate,
-        squaddieId: {
-            ...enemyDemonSlitherTemplate.squaddieId,
-            templateId: "enemyDemonSlitherTemplate2_id",
-        },
-    }
-    const allyGuardTemplate: SquaddieTemplate = {
+            actionTemplateIds: ["demon_slither_bite"],
+        })
+    const allyGuardTemplate: SquaddieTemplate = SquaddieTemplateService.new({
         squaddieId: {
             name: "Guard",
             templateId: "ally_guard",
@@ -676,84 +659,108 @@ export const TestMissionData = () => {
                 crossOverPits: false,
             },
         },
-        actionTemplates: [
-            {
-                id: "short_sword",
-                name: "Short sword",
-                actionPoints: 1,
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: {
-                            booleanTraits: {
-                                [Trait.ATTACK]: true,
-                            },
-                        },
-                        damageDescriptions: {
-                            [DamageType.BODY]: 1,
-                        },
-                        healingDescriptions: {},
-                        targetingShape: TargetingShape.SNAKE,
-                    }),
-                ],
-                buttonIconResourceKey: "decision-button-sword",
+        actionTemplateIds: ["short_sword"],
+    })
+    const noAffiliationLivingFlameTemplate: SquaddieTemplate =
+        SquaddieTemplateService.new({
+            squaddieId: {
+                name: "Living Flame",
+                templateId: "no_affiliation_living_flame",
+                resources: {
+                    mapIconResourceKey: "map icon demon slither",
+                    actionSpritesByEmotion: {
+                        NEUTRAL: "combat-demon-slither-neutral",
+                        ATTACK: "combat-demon-slither-attack",
+                        TARGETED: "combat-demon-slither-targeted",
+                        DAMAGED: "combat-demon-slither-damaged",
+                        DEAD: "combat-demon-slither-dead",
+                    },
+                },
+                traits: {
+                    booleanTraits: {},
+                },
+                affiliation: SquaddieAffiliation.ALLY,
             },
-        ],
-    }
-    const noAffiliationLivingFlameTemplate: SquaddieTemplate = {
-        squaddieId: {
-            name: "Living Flame",
-            templateId: "no_affiliation_living_flame",
-            resources: {
-                mapIconResourceKey: "map icon demon slither",
-                actionSpritesByEmotion: {
-                    NEUTRAL: "combat-demon-slither-neutral",
-                    ATTACK: "combat-demon-slither-attack",
-                    TARGETED: "combat-demon-slither-targeted",
-                    DAMAGED: "combat-demon-slither-damaged",
-                    DEAD: "combat-demon-slither-dead",
+            attributes: {
+                maxHitPoints: 3,
+                armorClass: 5,
+                movement: {
+                    movementPerAction: 2,
+                    passThroughWalls: false,
+                    crossOverPits: false,
                 },
             },
-            traits: {
-                booleanTraits: {},
-            },
-            affiliation: SquaddieAffiliation.ALLY,
-        },
-        attributes: {
-            maxHitPoints: 3,
-            armorClass: 5,
-            movement: {
-                movementPerAction: 2,
-                passThroughWalls: false,
-                crossOverPits: false,
-            },
-        },
-        actionTemplates: [
-            {
-                id: "ignition",
-                name: "Ignition",
-                actionPoints: 1,
-                actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: {
-                            booleanTraits: {
-                                [Trait.ATTACK]: true,
-                            },
+            actionTemplateIds: ["ignition"],
+        })
+    const npcActionTemplates: ActionTemplate[] = [
+        {
+            id: "demon_slither_bite",
+            name: "Bite",
+            actionPoints: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: {
+                        booleanTraits: {
+                            [Trait.ATTACK]: true,
+                            [Trait.TARGET_ARMOR]: true,
                         },
-                        damageDescriptions: {
-                            [DamageType.BODY]: 1,
+                    },
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                    healingDescriptions: {},
+                    targetingShape: TargetingShape.SNAKE,
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-sword",
+        },
+        {
+            id: "short_sword",
+            name: "Short sword",
+            actionPoints: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: {
+                        booleanTraits: {
+                            [Trait.ATTACK]: true,
                         },
-                        healingDescriptions: {},
-                        targetingShape: TargetingShape.SNAKE,
-                    }),
-                ],
-                buttonIconResourceKey: "decision-button-sword",
-            },
-        ],
-    }
+                    },
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                    healingDescriptions: {},
+                    targetingShape: TargetingShape.SNAKE,
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-sword",
+        },
+        {
+            id: "ignition",
+            name: "Ignition",
+            actionPoints: 1,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: {
+                        booleanTraits: {
+                            [Trait.ATTACK]: true,
+                        },
+                    },
+                    damageDescriptions: {
+                        [DamageType.BODY]: 1,
+                    },
+                    healingDescriptions: {},
+                    targetingShape: TargetingShape.SNAKE,
+                }),
+            ],
+            buttonIconResourceKey: "decision-button-sword",
+        },
+    ]
 
     return {
         missionData,
@@ -761,5 +768,6 @@ export const TestMissionData = () => {
         enemyDemonSlitherTemplate2,
         allyGuardTemplate,
         noAffiliationLivingFlameTemplate,
+        npcActionTemplates,
     }
 }

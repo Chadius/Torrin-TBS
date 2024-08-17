@@ -5,15 +5,22 @@ import {
     DefaultArmyAttributes,
 } from "../squaddie/armyAttributes"
 import { NewDummySquaddieID } from "../utils/test/squaddie"
-import {
-    ActionTemplate,
-    ActionTemplateService,
-} from "../action/template/actionTemplate"
+import { ActionTemplateService } from "../action/template/actionTemplate"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieResourceService } from "../squaddie/resource"
 import { SquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../battle/objectRepository"
 
 describe("Squaddie Template", () => {
+    let objectRepository: ObjectRepository
+
+    beforeEach(() => {
+        objectRepository = ObjectRepositoryService.new()
+    })
+
     describe("attributes", () => {
         it("will give static squaddie defaults", () => {
             const squaddieWithoutAttributes: SquaddieTemplate =
@@ -44,12 +51,11 @@ describe("Squaddie Template", () => {
                     affiliation: undefined,
                 },
                 attributes: null,
-                actionTemplates: undefined,
             })
 
         SquaddieTemplateService.sanitize(templateWithInvalidFields)
 
-        expect(templateWithInvalidFields.actionTemplates).toHaveLength(0)
+        expect(templateWithInvalidFields.actionTemplateIds).toHaveLength(0)
         expect(templateWithInvalidFields.attributes).toEqual(
             DefaultArmyAttributes()
         )
@@ -61,38 +67,11 @@ describe("Squaddie Template", () => {
         ).not.toBeUndefined()
         expect(templateWithInvalidFields.squaddieId.traits).not.toBeNull()
     })
-    it("will sanitize action templates", () => {
-        const actionTemplateSanitizeSpy = jest.spyOn(
-            ActionTemplateService,
-            "sanitize"
-        )
-
-        const actionTemplate: ActionTemplate = ActionTemplateService.new({
-            id: "actionTemplateId",
-            name: "must use raw object to test sanitization",
-            actionPoints: 1,
-            actionEffectTemplates: [],
-        })
-        SquaddieTemplateService.new({
-            squaddieId: {
-                templateId: "templateId",
-                name: "name",
-                resources: undefined,
-                traits: null,
-                affiliation: undefined,
-            },
-            attributes: null,
-            actionTemplates: [actionTemplate],
-        })
-
-        expect(actionTemplateSanitizeSpy).toBeCalledWith(actionTemplate)
-    })
     it("will throw an error if there is no squaddie id", () => {
         const throwErrorBecauseOfNoSquaddieId = () => {
             SquaddieTemplateService.new({
                 squaddieId: undefined,
                 attributes: null,
-                actionTemplates: undefined,
             })
         }
 
@@ -116,11 +95,17 @@ describe("Squaddie Template", () => {
                     },
                 }),
             }),
-            actionTemplates: [longswordActionTemplate],
+            actionTemplateIds: [longswordActionTemplate.id],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            longswordActionTemplate
+        )
 
-        const resourceKeys: string[] =
-            SquaddieTemplateService.getResourceKeys(squaddieTemplate)
+        const resourceKeys: string[] = SquaddieTemplateService.getResourceKeys(
+            squaddieTemplate,
+            objectRepository
+        )
 
         expect(resourceKeys).toEqual(
             expect.arrayContaining([
@@ -131,5 +116,30 @@ describe("Squaddie Template", () => {
                 ),
             ])
         )
+    })
+
+    it("will populate squaddieActionIds", () => {
+        const longswordActionTemplate = ActionTemplateService.new({
+            id: "longsword",
+            name: "longsword",
+            buttonIconResourceKey: "icon-sword",
+        })
+        const squaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
+                templateId: "squaddieTemplate",
+                name: "squaddieTemplate",
+                affiliation: SquaddieAffiliation.PLAYER,
+                resources: SquaddieResourceService.new({
+                    mapIconResourceKey: "mapIconResourceKey",
+                    actionSpritesByEmotion: {
+                        [SquaddieEmotion.NEUTRAL]: "SquaddieEmotion.NEUTRAL",
+                    },
+                }),
+            }),
+            actionTemplateIds: [longswordActionTemplate.id],
+        })
+        expect(squaddieTemplate.actionTemplateIds).toEqual([
+            longswordActionTemplate.id,
+        ])
     })
 })

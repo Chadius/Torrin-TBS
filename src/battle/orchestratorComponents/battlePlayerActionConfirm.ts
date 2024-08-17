@@ -13,7 +13,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { OrchestratorUtilities } from "./orchestratorUtils"
@@ -104,6 +103,9 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             SquaddieSummaryPopoverPosition.SELECT_TARGET
         )
 
+        if (this.hasCompleted(gameEngineState)) {
+            return
+        }
         this.drawConfirmWindow(gameEngineState, graphicsContext)
     }
 
@@ -234,7 +236,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }
 
     private drawConfirmWindow(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
         this.drawButton(
@@ -252,7 +254,8 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         let actingSquaddieModifiers: AttributeTypeAndAmount[] = []
         let { multipleAttackPenalty } =
             ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
-                state.battleOrchestratorState.battleState.actionsThisRound
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
             )
         if (multipleAttackPenalty !== 0) {
             actingSquaddieModifiers.push(
@@ -264,7 +267,9 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         }
 
         const { found, actionTemplate, actionEffectSquaddieTemplate } =
-            getActionEffectSquaddieTemplate({ gameEngineState: state })
+            getActionEffectSquaddieTemplate({
+                gameEngineState: gameEngineState,
+            })
         if (!found) {
             return
         }
@@ -273,9 +278,9 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             currentActionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
             actionTemplate,
             actingBattleSquaddieId:
-                state.battleOrchestratorState.battleState.actionsThisRound
-                    .battleSquaddieId,
-            squaddieRepository: state.repository,
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound.battleSquaddieId,
+            squaddieRepository: gameEngineState.repository,
             actingSquaddieModifiers,
         })
 
@@ -347,18 +352,10 @@ const getActionEffectSquaddieTemplate = ({
     actionTemplate: ActionTemplate
     actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
 } => {
-    const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
-        )
-    )
-    const actionTemplate = actingSquaddieTemplate.actionTemplates.find(
-        (template) =>
-            template.id ===
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .previewedActionTemplateId
+    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+        gameEngineState.repository,
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+            .previewedActionTemplateId
     )
     if (!isValidValue(actionTemplate)) {
         return {
