@@ -18,6 +18,8 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -422,31 +424,37 @@ const getSquaddieAtMapLocation = (param: {
 }
 
 const highlightSquaddieRange = (
-    state: GameEngineState,
+    gameEngineState: GameEngineState,
     battleSquaddieToHighlightId: string
 ) => {
     const { mapLocation: startLocation } =
-        state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
             battleSquaddieToHighlightId
         )
 
-    const { battleSquaddie } = getResultOrThrowError(
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            state.repository,
+            gameEngineState.repository,
             battleSquaddieToHighlightId
         )
     )
 
-    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
     const squaddieReachHighlightedOnMap =
         MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-            repository: state.repository,
-            missionMap: state.battleOrchestratorState.battleState.missionMap,
+            repository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startLocation: startLocation,
-            campaignResources: state.campaign.resources,
+            campaignResources: gameEngineState.campaign.resources,
+            squaddieTurnOverride:
+                squaddieTemplate.squaddieId.affiliation ===
+                SquaddieAffiliation.PLAYER
+                    ? undefined
+                    : SquaddieTurnService.new(),
         })
-    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
         squaddieReachHighlightedOnMap
     )
 }

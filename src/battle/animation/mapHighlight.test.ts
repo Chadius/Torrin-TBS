@@ -220,15 +220,15 @@ describe("map highlight generator", () => {
     })
 
     describe("shows movement for squaddie with no actions", () => {
-        let squaddieWithNoMovement: SquaddieTemplate
+        let squaddieWithMovement1: SquaddieTemplate
         let battleSquaddie: BattleSquaddie
 
-        beforeEach(() => {
-            squaddieWithNoMovement = SquaddieTemplateService.new({
+        const createSquaddie = (affiliation: SquaddieAffiliation) => {
+            squaddieWithMovement1 = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     templateId: "templateId",
                     name: "template",
-                    affiliation: SquaddieAffiliation.UNKNOWN,
+                    affiliation: affiliation,
                 }),
                 attributes: ArmyAttributesService.new({
                     movement: SquaddieMovementService.new({
@@ -238,19 +238,76 @@ describe("map highlight generator", () => {
             })
             ObjectRepositoryService.addSquaddieTemplate(
                 repository,
-                squaddieWithNoMovement
+                squaddieWithMovement1
             )
 
             battleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: "battleId",
-                squaddieTemplate: squaddieWithNoMovement,
+                squaddieTemplate: squaddieWithMovement1,
             })
             ObjectRepositoryService.addBattleSquaddie(
                 repository,
                 battleSquaddie
             )
-        })
+        }
+        const expectedMovementWith1Action = (
+            campaignResources: CampaignResources
+        ) => [
+            {
+                tiles: [{ q: 0, r: 2 }],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName: "",
+            },
+            {
+                tiles: [
+                    { q: 0, r: 1 },
+                    { q: 0, r: 3 },
+                ],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName:
+                    campaignResources.missionMapMovementIconResourceKeys
+                        .MOVE_1_ACTION,
+            },
+        ]
+        const expectedMovementWith3Actions = (
+            campaignResources: CampaignResources
+        ) => [
+            {
+                tiles: [{ q: 0, r: 2 }],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName: "",
+            },
+            {
+                tiles: [
+                    { q: 0, r: 1 },
+                    { q: 0, r: 3 },
+                ],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName:
+                    campaignResources.missionMapMovementIconResourceKeys
+                        .MOVE_1_ACTION,
+            },
+            {
+                tiles: [
+                    { q: 0, r: 0 },
+                    { q: 0, r: 4 },
+                ],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName:
+                    campaignResources.missionMapMovementIconResourceKeys
+                        .MOVE_2_ACTIONS,
+            },
+            {
+                tiles: [{ q: 0, r: 5 }],
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName:
+                    campaignResources.missionMapMovementIconResourceKeys
+                        .MOVE_3_ACTIONS,
+            },
+        ]
+
         it("highlights correct locations when squaddie has 1 action", () => {
+            createSquaddie(SquaddieAffiliation.PLAYER)
             SquaddieTurnService.spendActionPoints(
                 battleSquaddie.squaddieTurn,
                 2
@@ -268,25 +325,12 @@ describe("map highlight generator", () => {
                     campaignResources,
                 })
 
-            expect(highlightedDescription).toEqual([
-                {
-                    tiles: [{ q: 0, r: 2 }],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: "",
-                },
-                {
-                    tiles: [
-                        { q: 0, r: 1 },
-                        { q: 0, r: 3 },
-                    ],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_1_ACTION,
-                },
-            ])
+            expect(highlightedDescription).toEqual(
+                expectedMovementWith1Action(campaignResources)
+            )
         })
         it("highlights correct locations when squaddie has multiple actions", () => {
+            createSquaddie(SquaddieAffiliation.PLAYER)
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
 
             const highlightedDescription: HighlightTileDescription[] =
@@ -300,42 +344,35 @@ describe("map highlight generator", () => {
                     campaignResources,
                 })
 
-            expect(highlightedDescription).toEqual([
-                {
-                    tiles: [{ q: 0, r: 2 }],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: "",
-                },
-                {
-                    tiles: [
-                        { q: 0, r: 1 },
-                        { q: 0, r: 3 },
-                    ],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_1_ACTION,
-                },
-                {
-                    tiles: [
-                        { q: 0, r: 0 },
-                        { q: 0, r: 4 },
-                    ],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_2_ACTIONS,
-                },
-                {
-                    tiles: [{ q: 0, r: 5 }],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName:
-                        campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_3_ACTIONS,
-                },
-            ])
+            expect(highlightedDescription).toEqual(
+                expectedMovementWith3Actions(campaignResources)
+            )
+        })
+        it("highlights correct locations when applying the number of actions override", () => {
+            createSquaddie(SquaddieAffiliation.PLAYER)
+            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
+
+            const turnWith1Action = SquaddieTurnService.new()
+            SquaddieTurnService.spendActionPoints(turnWith1Action, 2)
+
+            const highlightedDescription: HighlightTileDescription[] =
+                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: terrainAllSingleMovement,
+                    }),
+                    startLocation: { q: 0, r: 2 },
+                    repository,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    campaignResources,
+                    squaddieTurnOverride: turnWith1Action,
+                })
+
+            expect(highlightedDescription).toEqual(
+                expectedMovementWith1Action(campaignResources)
+            )
         })
         it("highlights correct locations when squaddie has to deal with double movement terrain", () => {
+            createSquaddie(SquaddieAffiliation.PLAYER)
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
 
             const highlightedDescription: HighlightTileDescription[] =

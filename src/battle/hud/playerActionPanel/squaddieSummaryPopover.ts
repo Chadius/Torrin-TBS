@@ -237,16 +237,24 @@ export const SquaddieSummaryPopoverService = {
             graphicsBuffer
         )
 
-        drawActionPoints(
-            squaddieSummaryPopover,
-            gameEngineState,
-            graphicsBuffer
-        )
+        if (
+            shouldDrawActionPoints(
+                gameEngineState.repository,
+                squaddieSummaryPopover.battleSquaddieId
+            )
+        ) {
+            drawActionPoints(
+                squaddieSummaryPopover,
+                gameEngineState,
+                graphicsBuffer
+            )
+            TextBoxService.draw(
+                squaddieSummaryPopover.actionPointsTextBox,
+                graphicsBuffer
+            )
+        }
+
         drawHitPoints(squaddieSummaryPopover, gameEngineState, graphicsBuffer)
-        TextBoxService.draw(
-            squaddieSummaryPopover.actionPointsTextBox,
-            graphicsBuffer
-        )
         TextBoxService.draw(
             squaddieSummaryPopover.hitPointsTextBox,
             graphicsBuffer
@@ -358,7 +366,7 @@ const createActionPointsUIElements = (
     })
 
     squaddieSummaryPopover.actionPointsTextBox = TextBoxService.new({
-        text: `Act: ${actionPointsRemaining}`,
+        text: `AP: ${actionPointsRemaining}`,
         textSize: ACTION_POINTS_STYLE.text.height,
         fontColor: [
             HUE_BY_SQUADDIE_AFFILIATION[
@@ -943,4 +951,19 @@ const updateAttributeComparisonsAmount = ({
             height: ATTRIBUTE_ICON_DISPLAY.COMPARISON_AMOUNT_TEXT.textSize * 2,
         }),
     })
+}
+
+const shouldDrawActionPoints = (
+    repository: ObjectRepository,
+    battleSquaddieId: string
+) => {
+    const { squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            repository,
+            battleSquaddieId
+        )
+    )
+    return (
+        squaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
+    )
 }

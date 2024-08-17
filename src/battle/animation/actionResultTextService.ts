@@ -220,7 +220,7 @@ export const ActionResultTextService = {
                 targetModifiers.find(
                     (modifier) => modifier.type === AttributeType.ARMOR
                 )?.amount || 0
-            targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + armorModifier}`
+            targetBeforeActionText += `\nArmor ${targetBattle.inBattleAttributes.armyAttributes.armorClass + armorModifier}`
 
             if (armorModifier) {
                 targetBeforeActionText += `\n ${armorModifier > 0 ? "+" : ""}${armorModifier} Armor`

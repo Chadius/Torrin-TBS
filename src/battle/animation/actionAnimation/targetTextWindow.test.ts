@@ -140,7 +140,7 @@ describe("TargetTextWindow", () => {
         })
 
         expect(targetWindow.targetLabel.textBox.text).toContain(
-            `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+            `Armor ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
         )
     })
 
@@ -167,7 +167,7 @@ describe("TargetTextWindow", () => {
             })
 
             expect(targetWindow.targetLabel.textBox.text).toContain(
-                `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
+                `Armor ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
             )
             expect(targetWindow.targetLabel.textBox.text).toContain(
                 `${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
@@ -187,7 +187,7 @@ describe("TargetTextWindow", () => {
             })
 
             expect(targetWindow.targetLabel.textBox.text).toContain(
-                `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
+                `Armor ${targetBattle.inBattleAttributes.armyAttributes.armorClass + 9001}`
             )
             expect(targetWindow.targetLabel.textBox.text).toContain(
                 `${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
@@ -208,7 +208,7 @@ describe("TargetTextWindow", () => {
         })
 
         expect(targetWindow.targetLabel.textBox.text).not.toContain(
-            `AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
+            `Armor ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`
         )
     })
 

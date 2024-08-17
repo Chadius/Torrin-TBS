@@ -636,7 +636,7 @@ describe("Action Result Text Writer", () => {
         expect(outputStrings[2]).toBe("Rogue takes 1 damage")
     })
 
-    describe("AC bonus", () => {
+    describe("Armor bonus", () => {
         beforeEach(() => {
             thiefDynamic.inBattleAttributes.attributeModifiers.push(
                 AttributeModifierService.new({
@@ -648,7 +648,7 @@ describe("Action Result Text Writer", () => {
                 })
             )
         })
-        it("Shows AC bonuses against attacks", () => {
+        it("Shows Armor bonuses against attacks", () => {
             const outputString: string =
                 ActionResultTextService.getBeforeActionText({
                     targetTemplate: thiefStatic,
@@ -658,14 +658,14 @@ describe("Action Result Text Writer", () => {
                 })
 
             expect(outputString).toContain(
-                `AC ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
+                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
             )
             expect(outputString).toContain(
                 `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`
             )
             expect(outputString).toContain(`+9001 Armor`)
         })
-        it("Does not shows AC bonuses against non attacks", () => {
+        it("Does not shows Armor bonuses against non attacks", () => {
             const outputString: string =
                 ActionResultTextService.getBeforeActionText({
                     targetTemplate: thiefStatic,
@@ -675,7 +675,7 @@ describe("Action Result Text Writer", () => {
                 })
 
             expect(outputString).not.toContain(
-                `AC ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
+                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
             )
             expect(outputString).not.toContain(
                 `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`

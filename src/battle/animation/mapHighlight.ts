@@ -24,6 +24,7 @@ import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignResources } from "../../campaign/campaignResources"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { SquaddieTurn, SquaddieTurnService } from "../../squaddie/turn"
 
 export const MapHighlightHelper = {
     convertSearchPathToHighlightLocations: ({
@@ -88,12 +89,14 @@ export const MapHighlightHelper = {
         repository,
         battleSquaddieId,
         campaignResources,
+        squaddieTurnOverride,
     }: {
         startLocation: { q: number; r: number }
         missionMap: MissionMap
         repository: ObjectRepository
         battleSquaddieId: string
         campaignResources: CampaignResources
+        squaddieTurnOverride?: SquaddieTurn
     }): HighlightTileDescription[] => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -102,11 +105,15 @@ export const MapHighlightHelper = {
             )
         )
 
-        const { actionPointsRemaining } =
-            SquaddieService.getNumberOfActionPoints({
+        let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints(
+            {
                 battleSquaddie,
                 squaddieTemplate,
-            })
+            }
+        )
+        if (squaddieTurnOverride) {
+            actionPointsRemaining = squaddieTurnOverride.remainingActionPoints
+        }
 
         const reachableLocationSearch: SearchResult = PathfinderHelper.search({
             searchParameters: SearchParametersHelper.new({

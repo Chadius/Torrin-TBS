@@ -55,6 +55,7 @@ import {
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
+import { CampaignService } from "../../campaign/campaign"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -866,6 +867,89 @@ describe("Orchestration Utils", () => {
             )
 
             expect(messageBoardSpy).not.toBeCalled()
+        })
+    })
+
+    describe("highlightSquaddieRange", () => {
+        let gameEngineState: GameEngineState
+        let highlightSpy: jest.SpyInstance
+        beforeEach(() => {
+            highlightSpy = jest
+                .spyOn(map.terrainTileMap, "highlightTiles")
+                .mockImplementation(() => {})
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        missionMap: map,
+                        campaignId: "campaign",
+                        missionId: "mission",
+                    }),
+                }),
+                repository: squaddieRepository,
+                campaign: CampaignService.default({}),
+            })
+        })
+        it("highlights the range for a player controlled squaddie using their current actions", () => {
+            knightSquaddieTemplate.attributes.movement.movementPerAction = 1
+            SquaddieTurnService.endTurn(knightBattleSquaddie.squaddieTurn)
+
+            map = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 1 "],
+                }),
+            })
+            map.addSquaddie(
+                knightSquaddieTemplate.squaddieId.templateId,
+                knightBattleSquaddie.battleSquaddieId,
+                { q: 0, r: 3 }
+            )
+            gameEngineState.battleOrchestratorState.battleState.missionMap = map
+            highlightSpy = jest
+                .spyOn(map.terrainTileMap, "highlightTiles")
+                .mockImplementation(() => {})
+
+            OrchestratorUtilities.highlightSquaddieRange(
+                gameEngineState,
+                knightBattleSquaddie.battleSquaddieId
+            )
+            const highlightSpyArgs = highlightSpy.mock.calls[0][0]
+            expect(highlightSpyArgs).toHaveLength(1)
+        })
+        it("highlights the range for a non player controlled squaddie using a standard turn even if they are out of actions", () => {
+            const {
+                battleSquaddie: enemyBattleSquaddie,
+                squaddieTemplate: enemySquaddieTemplate,
+            } = CreateNewSquaddieAndAddToRepository({
+                squaddieRepository,
+                templateId: "enemy",
+                name: "enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                battleId: "enemy",
+            })
+            enemySquaddieTemplate.attributes.movement.movementPerAction = 1
+            SquaddieTurnService.endTurn(enemyBattleSquaddie.squaddieTurn)
+
+            map = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 1 "],
+                }),
+            })
+            map.addSquaddie(
+                enemySquaddieTemplate.squaddieId.templateId,
+                enemyBattleSquaddie.battleSquaddieId,
+                { q: 0, r: 3 }
+            )
+            gameEngineState.battleOrchestratorState.battleState.missionMap = map
+            highlightSpy = jest
+                .spyOn(map.terrainTileMap, "highlightTiles")
+                .mockImplementation(() => {})
+
+            OrchestratorUtilities.highlightSquaddieRange(
+                gameEngineState,
+                enemyBattleSquaddie.battleSquaddieId
+            )
+            const highlightSpyArgs = highlightSpy.mock.calls[0][0]
+            expect(highlightSpyArgs).toHaveLength(4)
         })
     })
 })
