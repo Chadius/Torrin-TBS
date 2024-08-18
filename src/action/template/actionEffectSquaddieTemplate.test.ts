@@ -8,6 +8,7 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "./actionEffectSquaddieTemplate"
+import { ActionDecisionType } from "./actionTemplate"
 
 describe("ActionEffectSquaddieTemplate", () => {
     it("can be constructed using data object", () => {
@@ -175,6 +176,23 @@ describe("ActionEffectSquaddieTemplate", () => {
                     quickAttack
                 )
             ).toEqual(0)
+        })
+    })
+
+    describe("actor decisions", () => {
+        it("defaults to choosing a target squaddie", () => {
+            const template = ActionEffectSquaddieTemplateService.new({})
+            expect(template.actionDecisions).toEqual([
+                ActionDecisionType.TARGET_SQUADDIE,
+            ])
+        })
+        it("can specify other types of decisions", () => {
+            const template = ActionEffectSquaddieTemplateService.new({
+                actionDecisions: [ActionDecisionType.ACTION_SELECTION],
+            })
+            expect(template.actionDecisions).toEqual([
+                ActionDecisionType.ACTION_SELECTION,
+            ])
         })
     })
 })

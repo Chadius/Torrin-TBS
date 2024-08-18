@@ -17,7 +17,10 @@ import {
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionTemplate } from "../../action/template/actionTemplate"
+import {
+    ActionDecisionType,
+    ActionTemplate,
+} from "../../action/template/actionTemplate"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -712,6 +715,7 @@ export const TestMissionData = () => {
                     },
                     healingDescriptions: {},
                     targetingShape: TargetingShape.SNAKE,
+                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
@@ -734,6 +738,7 @@ export const TestMissionData = () => {
                     },
                     healingDescriptions: {},
                     targetingShape: TargetingShape.SNAKE,
+                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",
@@ -756,6 +761,7 @@ export const TestMissionData = () => {
                     },
                     healingDescriptions: {},
                     targetingShape: TargetingShape.SNAKE,
+                    actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],
             buttonIconResourceKey: "decision-button-sword",

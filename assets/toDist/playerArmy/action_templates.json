@@ -18,7 +18,8 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-bow"
+    "buttonIconResourceKey": "decision-button-bow",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
     "id": "young_torrin_healing_touch",
@@ -41,7 +42,8 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-heart"
+    "buttonIconResourceKey": "decision-button-heart",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
     "id": "sir_camil_longsword",
@@ -62,7 +64,8 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-sword"
+    "buttonIconResourceKey": "decision-button-sword",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
     "id": "sir_camil_raise_shield",
@@ -89,7 +92,8 @@
         ]
       }
     ],
-    "buttonIconResourceKey": "decision-button-shield"
+    "buttonIconResourceKey": "decision-button-shield",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
     "id": "petra-shard-stab",
@@ -107,7 +111,8 @@
         },
         "damageDescriptions": {
           "BODY": 2
-        }
+        },
+        "actionDecisions": ["TARGET_SQUADDIE"]
       }
     ],
     "buttonIconResourceKey": "decision-button-sword"

@@ -199,23 +199,34 @@ describe("ActionTemplate", () => {
     })
 
     describe("actionDecisions", () => {
-        it("defaults to requiring a targeted squaddie", () => {
+        it("reads the decisions of action effect templates", () => {
             const bow = ActionTemplateService.new({
-                id: "bow",
-                name: "bow",
+                id: "run up and shoot bow",
+                name: "run up and shoot bow",
                 actionEffectTemplates: [
+                    ActionEffectMovementTemplateService.new({
+                        actionDecisions: [
+                            ActionDecisionType.LOCATION_SELECTION,
+                        ],
+                    }),
                     ActionEffectSquaddieTemplateService.new({
                         minimumRange: 1,
                         maximumRange: 3,
+                        actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
+                    }),
+                    ActionEffectEndTurnTemplateService.new({
+                        actionDecisions: [ActionDecisionType.ACTOR_SELECTION],
                     }),
                 ],
             })
 
             const requiredDecisions: ActionDecisionType[] =
-                ActionTemplateService.getRequiredDecisionTypes(bow)
+                ActionTemplateService.getActionTemplateDecisionTypes(bow)
 
             expect(requiredDecisions).toEqual([
+                ActionDecisionType.LOCATION_SELECTION,
                 ActionDecisionType.TARGET_SQUADDIE,
+                ActionDecisionType.ACTOR_SELECTION,
             ])
         })
     })

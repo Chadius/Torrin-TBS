@@ -14,6 +14,7 @@ export enum ActionDecisionType {
     TARGET_SQUADDIE = "TARGET_SQUADDIE",
     ACTOR_SELECTION = "ACTOR_SELECTION",
     ACTION_SELECTION = "ACTION_SELECTION",
+    LOCATION_SELECTION = "LOCATION_SELECTION",
 }
 
 export interface ActionTemplate {
@@ -161,10 +162,12 @@ export const ActionTemplateService = {
 
         return [Math.min(...minimumRanges), Math.max(...maximumRanges)]
     },
-    getRequiredDecisionTypes: (
+    getActionTemplateDecisionTypes: (
         actionTemplate: ActionTemplate
     ): ActionDecisionType[] => {
-        return [ActionDecisionType.TARGET_SQUADDIE]
+        return actionTemplate.actionEffectTemplates
+            .map((template) => template.actionDecisions)
+            .flat()
     },
     getAttributeModifiers: (
         actionTemplate: ActionTemplate

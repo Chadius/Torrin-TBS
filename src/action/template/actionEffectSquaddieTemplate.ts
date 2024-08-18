@@ -9,6 +9,7 @@ import { ActionRange } from "../../squaddie/actionRange"
 import { assertsInteger } from "../../utils/mathAssert"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { AttributeModifier } from "../../squaddie/attributeModifier"
+import { ActionDecisionType } from "./actionTemplate"
 
 export interface ActionEffectSquaddieTemplate {
     type: ActionEffectType.SQUADDIE
@@ -22,6 +23,7 @@ export interface ActionEffectSquaddieTemplate {
     targetingShape: TargetingShape
     buttonIconResourceKey?: string
     attributeModifiers: AttributeModifier[]
+    actionDecisions: ActionDecisionType[]
 }
 
 export const ActionEffectSquaddieTemplateService = {
@@ -34,6 +36,7 @@ export const ActionEffectSquaddieTemplateService = {
         targetingShape,
         buttonIconResourceKey,
         attributeModifiers,
+        actionDecisions,
     }: {
         traits?: {
             booleanTraits: { [key in Trait]?: boolean }
@@ -43,17 +46,21 @@ export const ActionEffectSquaddieTemplateService = {
         targetingShape?: TargetingShape
         attributeModifiers?: AttributeModifier[]
         buttonIconResourceKey?: string
+        actionDecisions?: ActionDecisionType[]
     } & Partial<ActionRange>): ActionEffectSquaddieTemplate => {
         const data: ActionEffectSquaddieTemplate = {
             type: ActionEffectType.SQUADDIE,
-            minimumRange: minimumRange ? minimumRange : 0,
-            maximumRange: maximumRange ? maximumRange : 0,
+            minimumRange: minimumRange || 0,
+            maximumRange: maximumRange || 0,
             traits: traits,
             damageDescriptions: damageDescriptions,
             healingDescriptions: healingDescriptions,
             targetingShape: targetingShape,
             attributeModifiers: attributeModifiers || [],
             buttonIconResourceKey,
+            actionDecisions: actionDecisions || [
+                ActionDecisionType.TARGET_SQUADDIE,
+            ],
         }
 
         sanitize(data)
@@ -134,5 +141,6 @@ const sanitize = (
     data.healingDescriptions = isValidValue(data.healingDescriptions)
         ? { ...data.healingDescriptions }
         : {}
+    data.actionDecisions = getValidValueOrDefault(data.actionDecisions, [])
     return data
 }

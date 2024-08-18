@@ -19,6 +19,7 @@
         }
       }
     ],
-    "buttonIconResourceKey": "decision-button-sword"
+    "buttonIconResourceKey": "decision-button-sword",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   }
 ]
