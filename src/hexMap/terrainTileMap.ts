@@ -12,7 +12,10 @@ import {
 import { ResourceHandler } from "../resource/resourceHandler"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import { MapLayer, MapLayerHelper } from "../missionMap/mapLayer"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "../missionMap/mapSearchDataLayer"
 import { MouseButton } from "../utils/mouseConfig"
 import { BattleCamera } from "../battle/battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
@@ -235,7 +238,7 @@ export const TerrainTileMapService = {
         canPassThroughWalls: boolean
         canCrossOverPits: boolean
         terrainTileMap: TerrainTileMap
-    }): MapLayer => {
+    }): MapSearchDataLayer => {
         const initialValueFill = (q: number, r: number): boolean | number => {
             const terrainType = terrainTileMap.getTileTerrainTypeAtLocation({
                 q,
@@ -254,7 +257,7 @@ export const TerrainTileMapService = {
             }
         }
 
-        return MapLayerHelper.new({
+        return MapSearchDataLayerService.new({
             terrainTileMap,
             initialValue: initialValueFill,
         })
@@ -263,7 +266,7 @@ export const TerrainTileMapService = {
         terrainTileMap,
     }: {
         terrainTileMap: TerrainTileMap
-    }): MapLayer => {
+    }): MapSearchDataLayer => {
         const initialValueFill = (q: number, r: number): boolean | number => {
             const terrainType = terrainTileMap.getTileTerrainTypeAtLocation({
                 q,
@@ -280,7 +283,7 @@ export const TerrainTileMapService = {
             }
         }
 
-        return MapLayerHelper.new({
+        return MapSearchDataLayerService.new({
             terrainTileMap,
             initialValue: initialValueFill,
         })

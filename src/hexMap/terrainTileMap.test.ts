@@ -2,7 +2,7 @@ import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { HexGridMovementCost } from "./hexGridMovementCost"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { MapLayer } from "../missionMap/mapLayer"
+import { MapSearchDataLayer } from "../missionMap/mapSearchDataLayer"
 import { MouseButton } from "../utils/mouseConfig"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { BattleCamera } from "../battle/battleCamera"
@@ -323,7 +323,7 @@ describe("hexMap", () => {
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             })
 
-            const mapWithLocationsThatCanBeVisitedByWalker: MapLayer =
+            const mapWithLocationsThatCanBeVisitedByWalker: MapSearchDataLayer =
                 TerrainTileMapService.createMapLayerForVisitableTiles({
                     terrainTileMap: terrain,
                     canCrossOverPits: false,
@@ -350,7 +350,7 @@ describe("hexMap", () => {
                 })
             })
 
-            const mapWithLocationsThatCanBeVisitedByFlyer: MapLayer =
+            const mapWithLocationsThatCanBeVisitedByFlyer: MapSearchDataLayer =
                 TerrainTileMapService.createMapLayerForVisitableTiles({
                     terrainTileMap: terrain,
                     canCrossOverPits: true,
@@ -377,7 +377,7 @@ describe("hexMap", () => {
                 })
             })
 
-            const mapWithLocationsThatCanBeVisitedByTeleport: MapLayer =
+            const mapWithLocationsThatCanBeVisitedByTeleport: MapSearchDataLayer =
                 TerrainTileMapService.createMapLayerForVisitableTiles({
                     terrainTileMap: terrain,
                     canCrossOverPits: true,
@@ -399,7 +399,7 @@ describe("hexMap", () => {
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             })
 
-            const mapWithLocationsThatCanBeStoppedOn: MapLayer =
+            const mapWithLocationsThatCanBeStoppedOn: MapSearchDataLayer =
                 TerrainTileMapService.createMapLayerForStoppableTiles({
                     terrainTileMap: terrain,
                 })

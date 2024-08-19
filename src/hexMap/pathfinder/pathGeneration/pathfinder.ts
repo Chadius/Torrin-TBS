@@ -9,7 +9,10 @@ import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { PriorityQueue } from "../../../utils/priorityQueue"
 import { SearchPath, SearchPathHelper } from "../searchPath"
 import { TargetingShapeGenerator } from "../../../battle/targeting/targetingShapeGenerator"
-import { MapLayer, MapLayerHelper } from "../../../missionMap/mapLayer"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "../../../missionMap/mapSearchDataLayer"
 import { MovingCostByTerrainType } from "../../hexGridMovementCost"
 import { AddPathCondition } from "../addPathConditions/addPathCondition"
 import { AddPathConditionNotInMapLayer } from "../addPathConditions/addPathConditionNotInMapLayer"
@@ -31,9 +34,9 @@ export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>
     shapeGenerator: TargetingShapeGenerator
     mapLayers: {
-        visited: MapLayer
-        queued: MapLayer
-        stopped: MapLayer
+        visited: MapSearchDataLayer
+        queued: MapSearchDataLayer
+        stopped: MapSearchDataLayer
     }
     shortestPathByLocation: SearchPathByLocation
     addPathConditions: AddPathCondition[]
@@ -59,15 +62,15 @@ export const PathfinderWorkingStateHelper = {
             ),
             shapeGenerator: searchParameters.shapeGenerator,
             mapLayers: {
-                visited: MapLayerHelper.new({
+                visited: MapSearchDataLayerService.new({
                     terrainTileMap,
                     initialValue: false,
                 }),
-                queued: MapLayerHelper.new({
+                queued: MapSearchDataLayerService.new({
                     terrainTileMap,
                     initialValue: false,
                 }),
-                stopped: MapLayerHelper.new({
+                stopped: MapSearchDataLayerService.new({
                     terrainTileMap,
                     initialValue: false,
                 }),
@@ -75,7 +78,7 @@ export const PathfinderWorkingStateHelper = {
             shortestPathByLocation: {},
             addPathConditions: [
                 new AddPathConditionIsInsideMap({
-                    terrainMapLayer: MapLayerHelper.new({
+                    terrainMapLayer: MapSearchDataLayerService.new({
                         terrainTileMap,
                         initialValue: false,
                     }),
@@ -172,7 +175,7 @@ const populateStartingLocations = ({
     workingState: PathfinderWorkingState
 }) => {
     searchParameters.startLocations.forEach((startLocation) => {
-        MapLayerHelper.setValueOfLocation({
+        MapSearchDataLayerService.setValueOfLocation({
             mapLayer: workingState.mapLayers.queued,
             q: startLocation.q,
             r: startLocation.r,
@@ -306,7 +309,7 @@ const generateValidPaths = ({
                     )
                 ) {
                     workingState.searchPathQueue.enqueue(candidatePath)
-                    MapLayerHelper.setValueOfLocation({
+                    MapSearchDataLayerService.setValueOfLocation({
                         mapLayer: workingState.mapLayers.queued,
                         q: nextLocation.q,
                         r: nextLocation.r,
@@ -336,7 +339,7 @@ const generateValidPaths = ({
             SearchPathHelper.getMostRecentLocation(
                 currentSearchPath
             ).hexCoordinate
-        MapLayerHelper.setValueOfLocation({
+        MapSearchDataLayerService.setValueOfLocation({
             mapLayer: workingState.mapLayers.visited,
             q: currentLocation.q,
             r: currentLocation.r,
@@ -344,7 +347,7 @@ const generateValidPaths = ({
         })
 
         if (canStopAtLocation({ currentSearchPath })) {
-            MapLayerHelper.setValueOfLocation({
+            MapSearchDataLayerService.setValueOfLocation({
                 mapLayer: workingState.mapLayers.stopped,
                 q: currentLocation.q,
                 r: currentLocation.r,

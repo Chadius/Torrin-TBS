@@ -1,12 +1,15 @@
 import { SearchParametersHelper } from "../searchParams"
 import { SearchPathHelper } from "../searchPath"
-import { MapLayer, MapLayerHelper } from "../../../missionMap/mapLayer"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "../../../missionMap/mapSearchDataLayer"
 import { TerrainTileMap } from "../../terrainTileMap"
 import { AddPathConditionIsInsideMap } from "./addPathConditionIsInsideMap"
 
 describe("AddPathConditionIsInsideMap", () => {
     it("knows when a path is inside the map boundary", () => {
-        const mapLayer: MapLayer = MapLayerHelper.new({
+        const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -35,7 +38,7 @@ describe("AddPathConditionIsInsideMap", () => {
     })
 
     it("knows when a path is out of bounds", () => {
-        const mapLayer: MapLayer = MapLayerHelper.new({
+        const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -64,7 +67,7 @@ describe("AddPathConditionIsInsideMap", () => {
     })
 
     it("returns undefined if there is no path", () => {
-        const mapLayer: MapLayer = MapLayerHelper.new({
+        const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
