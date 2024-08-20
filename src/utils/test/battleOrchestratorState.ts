@@ -1,9 +1,9 @@
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const NullMissionMap = () =>
     new MissionMap({
-        terrainTileMap: new TerrainTileMap({
+        terrainTileMap: TerrainTileMapService.new({
             movementCost: ["1 "],
         }),
     })

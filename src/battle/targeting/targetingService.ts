@@ -33,6 +33,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export class TargetingResults {
     constructor() {
@@ -322,8 +323,13 @@ const highlightTargetRange = (
     })
     const actionRange: HexCoordinate[] = targetingResults.locationsInRange
 
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+    TerrainTileMapService.stopHighlightingTiles(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap
+    )
+    TerrainTileMapService.highlightTiles(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap,
         [
             {
                 tiles: actionRange,

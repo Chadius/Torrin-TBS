@@ -118,7 +118,7 @@ describe("Battle HUD", () => {
         missionMap =
             missionMap ??
             new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
             })
@@ -966,8 +966,7 @@ describe("Battle HUD", () => {
             })
 
             highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
+                TerrainTileMapService,
                 "highlightTiles"
             )
 
@@ -1127,8 +1126,7 @@ describe("Battle HUD", () => {
             })
 
             highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
+                TerrainTileMapService,
                 "highlightTiles"
             )
 

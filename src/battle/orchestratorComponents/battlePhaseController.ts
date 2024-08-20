@@ -22,6 +22,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const BANNER_ANIMATION_TIME = 2000
 
@@ -172,7 +173,9 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     setBannerImage(state: GameEngineState) {
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopOutlineTiles()
+        TerrainTileMapService.stopOutlineTiles(
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+        )
 
         const currentSquaddieAffiliation =
             state.battleOrchestratorState.battleState.battlePhaseState

@@ -2,7 +2,10 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -67,7 +70,7 @@ describe("calculator", () => {
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 "],
             }),
         })

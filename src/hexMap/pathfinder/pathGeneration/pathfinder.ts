@@ -1,5 +1,5 @@
 import { SearchParameters } from "../searchParams"
-import { TerrainTileMap } from "../../terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../../terrainTileMap"
 import {
     SearchPathByLocation,
     SearchResult,
@@ -119,11 +119,18 @@ export const PathfinderWorkingStateHelper = {
             })
         )
 
-        for (let q = 0; q < terrainTileMap.getDimensions().numberOfRows; q++) {
+        for (
+            let q = 0;
+            q <
+            TerrainTileMapService.getDimensions(terrainTileMap).numberOfRows;
+            q++
+        ) {
             workingState.shortestPathByLocation[q] = {}
             for (
                 let r = 0;
-                r < terrainTileMap.getDimensions().widthOfWidestRow;
+                r <
+                TerrainTileMapService.getDimensions(terrainTileMap)
+                    .widthOfWidestRow;
                 r++
             ) {
                 workingState.shortestPathByLocation[q][r] = undefined
@@ -239,10 +246,11 @@ const generateValidPaths = ({
         }
 
         function makeNewCandidatePath(nextLocation: HexCoordinate) {
-            const terrainType = terrainTileMap.getTileTerrainTypeAtLocation({
-                q: nextLocation.q,
-                r: nextLocation.r,
-            })
+            const terrainType =
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    terrainTileMap,
+                    nextLocation
+                )
             let movementCostForThisTile = searchParameters.ignoreTerrainCost
                 ? 1
                 : MovingCostByTerrainType[terrainType]

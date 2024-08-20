@@ -1,5 +1,5 @@
 import { MissionMap } from "./missionMap"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 
 export interface MapSearchDataLayer {
     numberOfRows: number
@@ -31,8 +31,12 @@ export const MapSearchDataLayerService = {
         }
 
         const newMapLayer: MapSearchDataLayer = {
-            numberOfRows: terrainTileMap.getDimensions().numberOfRows,
-            widthOfWidestRow: terrainTileMap.getDimensions().widthOfWidestRow,
+            numberOfRows:
+                TerrainTileMapService.getDimensions(terrainTileMap)
+                    .numberOfRows,
+            widthOfWidestRow:
+                TerrainTileMapService.getDimensions(terrainTileMap)
+                    .widthOfWidestRow,
             valueByLocation: {},
         }
 

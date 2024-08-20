@@ -12,13 +12,14 @@ describe("hexMap", () => {
         let hexGrid: TerrainTileMap
 
         beforeEach(() => {
-            hexGrid = new TerrainTileMap({
+            hexGrid = TerrainTileMapService.new({
                 movementCost: ["x - x ", " - - - ", "  x - x "],
             })
         })
 
         it("should clear the outlined tile when you click off map", () => {
-            hexGrid.mouseClicked({
+            TerrainTileMapService.mouseClicked({
+                terrainTileMap: hexGrid,
                 mouseX: -100,
                 mouseY: -100,
                 cameraX: 0,
@@ -44,7 +45,8 @@ describe("hexMap", () => {
         it.each(tests)(
             `($q, $r): click on this region to select the tile`,
             ({ q, r }) => {
-                hexGrid.mouseClicked({
+                TerrainTileMapService.mouseClicked({
+                    terrainTileMap: hexGrid,
                     mouseButton: MouseButton.ACCEPT,
                     mouseX:
                         ScreenDimensions.SCREEN_WIDTH / 2 +
@@ -63,175 +65,266 @@ describe("hexMap", () => {
         )
     })
     it("can note which tiles are at which locations", () => {
-        const hexGrid = new TerrainTileMap({
+        const hexGrid = TerrainTileMapService.new({
             movementCost: ["x - x x ", " 1 - 2 x ", "  x 2 x x "],
         })
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 1, r: 1 })).toBe(
-            HexGridMovementCost.pit
-        )
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 1,
+            })
+        ).toBe(HexGridMovementCost.pit)
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
                 q: 1,
                 r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 1, r: 3 })).toBe(
-            HexGridMovementCost.wall
-        )
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 3,
+            })
+        ).toBe(HexGridMovementCost.wall)
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
                 q: 1,
                 r: 0,
             })
         ).toBe(HexGridMovementCost.singleMovement)
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
-                q: 2,
-                r: 1,
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 0, r: 1 })).toBe(
-            HexGridMovementCost.pit
-        )
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 0,
+                r: 1,
+            })
+        ).toBe(HexGridMovementCost.pit)
 
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({ q: 4, r: 4 })
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 4,
+                r: 4,
+            })
         ).toBeUndefined()
 
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 1 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 2 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 3 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 0 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 2, r: 1 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 0, r: 1 })).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 1, r: 1 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 1, r: 2 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 1, r: 3 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 1, r: 0 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 2, r: 1 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 0, r: 1 })
+        ).toBeTruthy()
 
-        expect(hexGrid.areCoordinatesOnMap({ q: 4, r: 4 })).toBeFalsy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(hexGrid, { q: 4, r: 4 })
+        ).toBeFalsy()
 
-        expect(hexGrid.areCoordinatesOnMap(undefined)).toBeFalsy()
+        expect(
+            TerrainTileMapService.areCoordinatesOnMap(undefined, { q: 0, r: 0 })
+        ).toBeFalsy()
     })
     describe("can create maps using text strings", () => {
         it("a single row", () => {
-            const mapFromSingleLine = new TerrainTileMap({
+            const mapFromSingleLine = TerrainTileMapService.new({
                 movementCost: ["1 2 - x 1122--xxOO"],
             })
 
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 2 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 2 }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 3 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 3 }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 4,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 4,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 5,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 5,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 6 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 6 }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 7 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 7 }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 8 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 8 }
+                )
             ).toEqual(HexGridMovementCost.pit)
         })
 
         it("multiple rows use offsets to place the 0 tile", () => {
-            const mapFromMultipleLines = new TerrainTileMap({
+            const mapFromMultipleLines = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 2 2 2 ", "  _ _ _ ", "   x x x "],
             })
 
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
         })
     })
@@ -240,7 +333,7 @@ describe("hexMap", () => {
         let bigMap: TerrainTileMap
 
         beforeEach(() => {
-            bigMap = new TerrainTileMap({
+            bigMap = TerrainTileMapService.new({
                 movementCost: [
                     "1 1 1 1 1 ",
                     " 1 1 1 1 1 ",
@@ -251,14 +344,14 @@ describe("hexMap", () => {
         })
 
         it("can calculate the bounding box dimension of a map", () => {
-            expect(bigMap.getDimensions()).toStrictEqual({
+            expect(TerrainTileMapService.getDimensions(bigMap)).toStrictEqual({
                 widthOfWidestRow: 5,
                 numberOfRows: 4,
             })
         })
 
         it("generates world locations of all tiles", () => {
-            const bigMap: TerrainTileMap = new TerrainTileMap({
+            const bigMap: TerrainTileMap = TerrainTileMapService.new({
                 movementCost: [
                     "1 1 1 1 1 ",
                     " 1 1 1 1 1 ",
@@ -319,7 +412,7 @@ describe("hexMap", () => {
 
     describe("can generate map layers based on the terrain", () => {
         it("can generate map layers based on whether you can visit them later on or it is not applicable", () => {
-            const terrain = new TerrainTileMap({
+            const terrain = TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             })
 
@@ -335,10 +428,13 @@ describe("hexMap", () => {
                         HexGridMovementCost.wall,
                         HexGridMovementCost.pit,
                     ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
+                        TerrainTileMapService.getTileTerrainTypeAtLocation(
+                            terrain,
+                            {
+                                q,
+                                r,
+                            }
+                        )
                     )
                         ? undefined
                         : false
@@ -361,10 +457,13 @@ describe("hexMap", () => {
                     const expectedValue: boolean | undefined = [
                         HexGridMovementCost.wall,
                     ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
+                        TerrainTileMapService.getTileTerrainTypeAtLocation(
+                            terrain,
+                            {
+                                q,
+                                r,
+                            }
+                        )
                     )
                         ? undefined
                         : false
@@ -395,7 +494,7 @@ describe("hexMap", () => {
             })
         })
         it("can generate map layers based on whether you can stop on them later on or it is not applicable", () => {
-            const terrain = new TerrainTileMap({
+            const terrain = TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             })
 
@@ -409,10 +508,13 @@ describe("hexMap", () => {
                         HexGridMovementCost.wall,
                         HexGridMovementCost.pit,
                     ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
+                        TerrainTileMapService.getTileTerrainTypeAtLocation(
+                            terrain,
+                            {
+                                q,
+                                r,
+                            }
+                        )
                     )
                         ? undefined
                         : false
@@ -429,7 +531,7 @@ describe("hexMap", () => {
         let map: TerrainTileMap
 
         beforeEach(() => {
-            map = new TerrainTileMap({
+            map = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             })
         })

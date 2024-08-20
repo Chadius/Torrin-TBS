@@ -16,6 +16,7 @@ import {
 import {
     HighlightTileDescription,
     TerrainTileMap,
+    TerrainTileMapService,
 } from "../../hexMap/terrainTileMap"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionMap } from "../../missionMap/missionMap"
@@ -211,7 +212,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 "],
                 }),
             })
@@ -315,7 +316,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
             })
@@ -488,10 +489,13 @@ describe("BattleComputerSquaddieSelector", () => {
         let camera: BattleCamera
 
         beforeEach(() => {
-            hexMap = new TerrainTileMap({
+            hexMap = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 "],
             })
-            hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles")
+            hexMapHighlightTilesSpy = jest.spyOn(
+                TerrainTileMapService,
+                "highlightTiles"
+            )
 
             missionMap = new MissionMap({
                 terrainTileMap: hexMap,
@@ -515,6 +519,9 @@ describe("BattleComputerSquaddieSelector", () => {
                     0
                 )
             )
+        })
+        afterEach(() => {
+            hexMapHighlightTilesSpy.mockRestore()
         })
 
         it("will prepare to move if computer controlled squaddie wants to move", () => {
@@ -656,9 +663,14 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("highlight the map target and its spread", () => {
                 expect(hexMapHighlightTilesSpy).toBeCalled()
-                const actualTiles = hexMapHighlightTilesSpy.mock
-                    .calls[0][0] as HighlightTileDescription[]
-                expect(actualTiles).toHaveLength(1)
+
+                const actualTiles: HighlightTileDescription[] =
+                    hexMapHighlightTilesSpy.mock.calls[0][1]
+                expect(
+                    actualTiles.map(
+                        (desc: HighlightTileDescription) => desc.tiles
+                    )
+                ).toHaveLength(1)
                 expect(actualTiles[0].tiles).toHaveLength(1)
                 expect(actualTiles[0].tiles[0]).toStrictEqual({ q: 0, r: 1 })
             })

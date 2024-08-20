@@ -73,6 +73,7 @@ import {
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { BattleHUDStateService } from "../hud/battleHUDState"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -202,14 +203,15 @@ export class BattlePlayerSquaddieSelector
         }
 
         this.reactToClicking({ gameEngineState, mouseX, mouseY, mouseButton })
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
-            {
-                mouseX,
-                mouseY,
-                mouseButton,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
-            }
-        )
+        TerrainTileMapService.mouseClicked({
+            terrainTileMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+            mouseX,
+            mouseY,
+            mouseButton,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+        })
     }
 
     mouseMoved(
@@ -282,7 +284,9 @@ export class BattlePlayerSquaddieSelector
                         MissionMapSquaddieLocationService.isValid(
                             squaddieInfo
                         ) &&
-                        gameEngineState.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(
+                        TerrainTileMapService.areCoordinatesOnMap(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap.terrainTileMap,
                             squaddieInfo.mapLocation
                         )
                     ) {
@@ -298,14 +302,16 @@ export class BattlePlayerSquaddieSelector
                             mouseX: squaddieScreenCoordinates[0],
                             mouseY: squaddieScreenCoordinates[1],
                         })
-                        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
-                            {
-                                mouseX: squaddieScreenCoordinates[0],
-                                mouseY: squaddieScreenCoordinates[1],
-                                mouseButton: MouseButton.ACCEPT,
-                                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
-                            }
-                        )
+
+                        TerrainTileMapService.mouseClicked({
+                            terrainTileMap:
+                                gameEngineState.battleOrchestratorState
+                                    .battleState.missionMap.terrainTileMap,
+                            mouseX: squaddieScreenCoordinates[0],
+                            mouseY: squaddieScreenCoordinates[1],
+                            mouseButton: MouseButton.ACCEPT,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                        })
                         return
                     }
                 }
@@ -646,7 +652,9 @@ export class BattlePlayerSquaddieSelector
             state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 battleSquaddieToHighlightId
             )
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.stopHighlightingTiles(
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+        )
         const squaddieReachHighlightedOnMap =
             MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
                 repository: state.repository,
@@ -656,7 +664,8 @@ export class BattlePlayerSquaddieSelector
                 startLocation: startLocation,
                 campaignResources: state.campaign.resources,
             })
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+        TerrainTileMapService.highlightTiles(
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
             squaddieReachHighlightedOnMap
         )
     }
@@ -1182,10 +1191,11 @@ const getMouseClickHexCoordinates = (
     }
 
     return {
-        areCoordinatesOnMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.areCoordinatesOnMap(
-                clickedHexCoordinate
-            ),
+        areCoordinatesOnMap: TerrainTileMapService.areCoordinatesOnMap(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            clickedHexCoordinate
+        ),
         clickedHexCoordinate,
     }
 }

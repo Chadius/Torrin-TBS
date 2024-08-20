@@ -7,7 +7,10 @@ import {
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
@@ -90,7 +93,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will move towards squaddie with given dynamic Id", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 "],
             }),
         })
@@ -146,7 +149,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will not change the currently acting squaddie", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 "],
             }),
         })
@@ -267,7 +270,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will give no instruction if it is already next to the target", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 ", " 1 1 1 1 1 1 1 1 1 "],
             }),
         })
@@ -302,7 +305,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will give no instruction if no targets are in range", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 "],
             }),
         })
@@ -337,7 +340,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will move towards closest squaddie of a given affiliation", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 "],
             }),
         })
@@ -411,7 +414,7 @@ describe("move towards closest squaddie in range", () => {
         })
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 "],
             }),
         })
@@ -466,7 +469,7 @@ describe("move towards closest squaddie in range", () => {
 
     it("will not follow dead squaddies", () => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 1 1 "],
             }),
         })

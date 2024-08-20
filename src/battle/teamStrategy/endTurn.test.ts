@@ -7,7 +7,10 @@ import {
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import { EndTurnTeamStrategy } from "./endTurn"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import {
@@ -70,7 +73,7 @@ describe("end turn team strategy", () => {
         ])
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 "] }),
+            terrainTileMap: TerrainTileMapService.new({ movementCost: ["1 "] }),
         })
     })
 

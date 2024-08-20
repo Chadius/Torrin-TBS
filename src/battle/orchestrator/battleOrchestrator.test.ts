@@ -13,7 +13,10 @@ import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/battlePlay
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleOrchestratorComponent } from "./battleOrchestratorComponent"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import { BattleSquaddieUsesActionOnSquaddie } from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { UIControlSettings } from "./uiControlSettings"
@@ -274,7 +277,7 @@ describe("Battle Orchestrator", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -364,7 +367,7 @@ describe("Battle Orchestrator", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -795,7 +798,7 @@ describe("Battle Orchestrator", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
+                            terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
                         }),
@@ -843,7 +846,7 @@ describe("Battle Orchestrator", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
+                            terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
                         }),
@@ -890,7 +893,7 @@ describe("Battle Orchestrator", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
+                            terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
                         }),

@@ -16,6 +16,7 @@ import {
 import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { MapHighlightHelper } from "../animation/mapHighlight"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const BattleSquaddieSelectorService = {
     createSearchPath: ({
@@ -100,8 +101,11 @@ export function createSearchPath(
             repository: state.repository,
             campaignResources: state.campaign.resources,
         })
-    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+    TerrainTileMapService.stopHighlightingTiles(
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+    )
+    TerrainTileMapService.highlightTiles(
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
         routeTilesByDistance
     )
 }

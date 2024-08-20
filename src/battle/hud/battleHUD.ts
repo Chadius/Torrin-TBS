@@ -77,6 +77,7 @@ import {
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -245,8 +246,13 @@ export const BattleHUDService = {
         const actionRange =
             TargetingResultsService.highlightTargetRange(gameEngineState)
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+        TerrainTileMapService.stopHighlightingTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
+        TerrainTileMapService.highlightTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
             [
                 {
                     tiles: actionRange,
@@ -282,7 +288,10 @@ export const BattleHUDService = {
 
         processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.stopHighlightingTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
 
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
@@ -413,7 +422,10 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.stopHighlightingTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
             false
 
@@ -471,7 +483,10 @@ export const BattleHUDService = {
             position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.stopHighlightingTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
     },
     playerConfirmsAction: (
         battleHUD: BattleHUD,
@@ -807,7 +822,10 @@ const processEndTurnAction = (
         targetLocation: mapLocation,
     })
 
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    TerrainTileMapService.stopHighlightingTiles(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap
+    )
     RecordingService.addEvent(
         gameEngineState.battleOrchestratorState.battleState.recording,
         BattleEventService.new({

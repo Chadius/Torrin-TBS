@@ -24,7 +24,7 @@ import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { makeResult } from "../utils/ResultOrError"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     BattlePhaseState,
     BattlePhaseStateService,
@@ -149,7 +149,7 @@ describe("User ends their turn", () => {
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -309,7 +309,7 @@ describe("User ends their turn", () => {
 
         beforeEach(() => {
             highlightTileSpy = jest.spyOn(
-                missionMap.terrainTileMap,
+                TerrainTileMapService,
                 "stopHighlightingTiles"
             )
             selector = new BattlePlayerSquaddieSelector()

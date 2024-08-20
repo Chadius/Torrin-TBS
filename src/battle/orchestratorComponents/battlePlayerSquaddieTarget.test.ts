@@ -1,7 +1,10 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattlePlayerSquaddieTarget } from "./battlePlayerSquaddieTarget"
 import { BattleSquaddie } from "../battleSquaddie"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -76,7 +79,7 @@ describe("BattleSquaddieTarget", () => {
         targetComponent = new BattlePlayerSquaddieTarget()
         objectRepository = ObjectRepositoryService.new()
         battleMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -344,7 +347,8 @@ describe("BattleSquaddieTarget", () => {
 
     it("should ignore if the user does not click off of the map", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            battleMap.terrainTileMap.getDimensions().numberOfRows + 1,
+            TerrainTileMapService.getDimensions(battleMap.terrainTileMap)
+                .numberOfRows + 1,
             0,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
         )

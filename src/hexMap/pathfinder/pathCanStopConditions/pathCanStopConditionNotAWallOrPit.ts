@@ -31,8 +31,7 @@ export class PathCanStopConditionNotAWallOrPit implements PathCanStopCondition {
             SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate
         const terrainType = TerrainTileMapService.getTileTerrainTypeAtLocation(
             this.missionMap.terrainTileMap,
-            coordinate.q,
-            coordinate.r
+            coordinate
         )
         return ![HexGridMovementCost.pit, HexGridMovementCost.wall].includes(
             terrainType

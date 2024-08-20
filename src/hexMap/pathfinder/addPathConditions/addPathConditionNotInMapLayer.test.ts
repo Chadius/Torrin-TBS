@@ -4,13 +4,13 @@ import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
-import { TerrainTileMap } from "../../terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../../terrainTileMap"
 import { AddPathConditionNotInMapLayer } from "./addPathConditionNotInMapLayer"
 
 describe("AddPathConditionNotInMapLayer", () => {
     it("knows when a path has not been enqueued yet", () => {
         const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
             initialValue: false,
@@ -38,7 +38,7 @@ describe("AddPathConditionNotInMapLayer", () => {
     })
     it("knows when a path has been enqueued", () => {
         const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
             initialValue: false,
@@ -67,7 +67,7 @@ describe("AddPathConditionNotInMapLayer", () => {
     })
     it("returns undefined if the path is out of bounds", () => {
         const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
             initialValue: false,
@@ -95,7 +95,7 @@ describe("AddPathConditionNotInMapLayer", () => {
     })
     it("returns undefined if there is no path", () => {
         const mapLayer: MapSearchDataLayer = MapSearchDataLayerService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
             initialValue: false,

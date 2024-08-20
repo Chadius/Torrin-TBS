@@ -19,6 +19,7 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -76,10 +77,12 @@ export const BattleSaveStateService = {
             battleSaveState.camera.yCoordinate
         )
         battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
-            battleOrchestratorState.battleState.missionMap.terrainTileMap.getDimensions()
-                .widthOfWidestRow,
-            battleOrchestratorState.battleState.missionMap.terrainTileMap.getDimensions()
-                .numberOfRows
+            TerrainTileMapService.getDimensions(
+                battleOrchestratorState.battleState.missionMap.terrainTileMap
+            ).widthOfWidestRow,
+            TerrainTileMapService.getDimensions(
+                battleOrchestratorState.battleState.missionMap.terrainTileMap
+            ).numberOfRows
         )
 
         battleOrchestratorState.battleState.battlePhaseState = {

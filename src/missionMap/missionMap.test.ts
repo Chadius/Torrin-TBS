@@ -1,4 +1,4 @@
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { SquaddieId } from "../squaddie/id"
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 import { TraitStatusStorageService } from "../trait/traitStatusStorage"
@@ -13,7 +13,7 @@ describe("Mission Map", () => {
     let map: TerrainTileMap
     let torrinSquaddie: SquaddieId
     beforeEach(() => {
-        map = new TerrainTileMap({
+        map = TerrainTileMapService.new({
             movementCost: ["1 1 2 "],
         })
 

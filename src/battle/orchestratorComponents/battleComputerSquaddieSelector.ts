@@ -67,6 +67,7 @@ import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionS
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -250,8 +251,11 @@ export class BattleComputerSquaddieSelector
         const tilesTargeted: HexCoordinate[] =
             SearchResultsService.getStoppableLocations(searchResult)
 
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
+        TerrainTileMapService.stopHighlightingTiles(
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+        )
+        TerrainTileMapService.highlightTiles(
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
             [
                 {
                     tiles: tilesTargeted,
@@ -391,7 +395,10 @@ export class BattleComputerSquaddieSelector
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.stopHighlightingTiles(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
 
         const { shouldEndTurn, actionPointCost } =
             this.calculateActionPointsSpentOnDecidedAction(

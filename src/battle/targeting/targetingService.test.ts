@@ -2,7 +2,11 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import {
+    HighlightTileDescription,
+    TerrainTileMap,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -75,7 +79,7 @@ describe("Targeting Service", () => {
 
     it("will indicate which locations to highlight", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -104,7 +108,7 @@ describe("Targeting Service", () => {
 
     it("will highlight nothing if the acting squaddie is not on the map", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -129,7 +133,7 @@ describe("Targeting Service", () => {
 
     it("will respect walls and ranged attacks", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -225,7 +229,7 @@ describe("Targeting Service", () => {
 
     it("will highlight unfriendly squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -277,7 +281,7 @@ describe("Targeting Service", () => {
 
     it("will highlight allied squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -366,7 +370,7 @@ describe("Targeting Service", () => {
         })
 
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["2 2 2 2 "],
             }),
         })
@@ -401,7 +405,7 @@ describe("Targeting Service", () => {
 
         beforeEach(() => {
             const battleMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
             })
@@ -430,8 +434,7 @@ describe("Targeting Service", () => {
             })
 
             highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
+                TerrainTileMapService,
                 "highlightTiles"
             )
         })
@@ -448,13 +451,17 @@ describe("Targeting Service", () => {
         it("will highlight the tiles", () => {
             const actionRange: HexCoordinate[] =
                 TargetingResultsService.highlightTargetRange(gameEngineState)
-            expect(highlightRangeSpy).toHaveBeenCalledWith([
-                {
-                    tiles: actionRange,
-                    pulseColor: HighlightPulseRedColor,
-                    overlayImageResourceName: "map icon attack 1 action",
-                },
-            ])
+            expect(highlightRangeSpy).toHaveBeenCalledWith(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                [
+                    {
+                        tiles: actionRange,
+                        pulseColor: HighlightPulseRedColor,
+                        overlayImageResourceName: "map icon attack 1 action",
+                    },
+                ]
+            )
         })
     })
 
