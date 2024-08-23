@@ -11,6 +11,7 @@ import {
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsTargetLocation,
+    MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -252,7 +253,6 @@ export const BattleHUDService = {
                 .terrainTileMap
         )
 
-        // TODO change map display so it draws based on the map layer combination
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: gameEngineState.battleOrchestratorState.battleState
                 .actionsThisRound.battleSquaddieId,
@@ -612,6 +612,16 @@ export const BattleHUDService = {
             })
         }
     },
+    summaryPopoverExpires: (
+        message: MessageBoardMessageSummaryPopoverExpires
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        const popoverType = message.popoverType
+        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -694,6 +704,8 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
+            case MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES:
+                BattleHUDService.summaryPopoverExpires(message)
         }
     }
 }

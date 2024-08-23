@@ -3,6 +3,8 @@ import {
     MessageBoardMessage,
     MessageBoardMessageType,
 } from "./messageBoardMessage"
+import { GameEngineState } from "../gameEngine/gameEngine"
+import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 
 export class MessageBoard {
     listeners: {

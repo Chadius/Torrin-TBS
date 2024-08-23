@@ -65,7 +65,7 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { SummaryHUDStateService } from "./summaryHUD"
+import { SummaryHUDStateService, SummaryPopoverType } from "./summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import {
@@ -1873,6 +1873,84 @@ describe("Battle HUD", () => {
                     maxHitPoints - longswordActionDamage
                 )
             })
+        })
+    })
+    describe("Popover window has expired", () => {
+        let missionMap: MissionMap
+        let gameEngineState: GameEngineState
+        let playerSoldierBattleSquaddie: BattleSquaddie
+        let battleSquaddie2: BattleSquaddie
+
+        beforeEach(() => {
+            missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 "],
+                }),
+            })
+
+            // TODO Highlight MissionMap
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie,
+                battleSquaddie2,
+            } = createGameEngineState({ missionMap }))
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES
+            )
+
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+                expirationTime: 999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: battleSquaddie2.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+                expirationTime: 1999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+        })
+        it("will close the summary window", () => {
+            const summaryHUDState =
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.MAIN,
+            })
+
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).not.toBeUndefined()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.TARGET,
+            })
+
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
         })
     })
 })
