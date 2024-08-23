@@ -230,12 +230,12 @@ describe("User clicks on a squaddie", () => {
         })
 
         it("Map should highlight all the tiles it can reach when BattlePlayerSquaddieSelector selects a squaddie", () => {
-            const highlightSpy = jest.spyOn(
+            const addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
-                "highlightTiles"
+                "addGraphicsLayer"
             )
             selectorClicksOnSquaddie(gameEngineState)
-            expect(highlightSpy).toBeCalled()
+            expect(addGraphicsLayerSpy).toBeCalled()
         })
     })
 

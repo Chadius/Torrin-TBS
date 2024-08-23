@@ -25,10 +25,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import {
-    TerrainTileMap,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     ActionsThisRound,
     ActionsThisRoundService,
@@ -929,7 +926,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             ;({
@@ -940,7 +937,7 @@ describe("Battle HUD", () => {
                 battleSquaddieLocation: { q: 1, r: 1 },
             }))
 
-            highlightRangeSpy = jest.spyOn(
+            addGraphicsLayerSpy = jest.spyOn(
                 DrawSquaddieUtilities,
                 "highlightSquaddieRange"
             )
@@ -949,7 +946,7 @@ describe("Battle HUD", () => {
         })
 
         afterEach(() => {
-            highlightRangeSpy.mockRestore()
+            addGraphicsLayerSpy.mockRestore()
         })
 
         const addActionsThisRoundThenCancelTargetSelection = (
@@ -965,9 +962,9 @@ describe("Battle HUD", () => {
                 actionTemplate: longswordAction,
             })
 
-            highlightRangeSpy = jest.spyOn(
+            addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
-                "highlightTiles"
+                "addGraphicsLayer"
             )
 
             battleHUDListener.receiveMessage({
@@ -1008,7 +1005,7 @@ describe("Battle HUD", () => {
                 ).toBeUndefined()
             })
             it("highlights the squaddie movement range", () => {
-                expect(highlightRangeSpy).toBeCalled()
+                expect(addGraphicsLayerSpy).toBeCalled()
             })
         })
         describe("Cancel targeting on the second action", () => {
@@ -1071,7 +1068,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             ;({
@@ -1081,11 +1078,6 @@ describe("Battle HUD", () => {
             } = createGameEngineState({
                 battleSquaddieLocation: { q: 1, r: 1 },
             }))
-
-            highlightRangeSpy = jest.spyOn(
-                DrawSquaddieUtilities,
-                "highlightSquaddieRange"
-            )
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
@@ -1125,9 +1117,9 @@ describe("Battle HUD", () => {
                 targetLocation: { q: 0, r: 1 },
             })
 
-            highlightRangeSpy = jest.spyOn(
+            addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
-                "highlightTiles"
+                "addGraphicsLayer"
             )
 
             battleHUDListener.receiveMessage({
@@ -1137,7 +1129,7 @@ describe("Battle HUD", () => {
         })
 
         afterEach(() => {
-            highlightRangeSpy.mockRestore()
+            addGraphicsLayerSpy.mockRestore()
         })
 
         it("keeps the previewed action", () => {
@@ -1148,7 +1140,7 @@ describe("Battle HUD", () => {
         })
 
         it("highlights the range", () => {
-            expect(highlightRangeSpy).toBeCalled()
+            expect(addGraphicsLayerSpy).toBeCalled()
         })
     })
     describe("Player ends their turn", () => {

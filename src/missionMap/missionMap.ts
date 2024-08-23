@@ -90,7 +90,7 @@ export class MissionMap {
     ): Error | undefined {
         if (
             location !== undefined &&
-            !TerrainTileMapService.areCoordinatesOnMap(
+            !TerrainTileMapService.isLocationOnMap(
                 this._terrainTileMap,
                 location
             )
@@ -162,7 +162,7 @@ export class MissionMap {
 
     getHexGridMovementAtLocation(location: HexCoordinate): HexGridMovementCost {
         if (
-            TerrainTileMapService.areCoordinatesOnMap(
+            TerrainTileMapService.isLocationOnMap(
                 this._terrainTileMap,
                 location
             )
@@ -196,7 +196,7 @@ export class MissionMap {
 
         if (
             location &&
-            !TerrainTileMapService.areCoordinatesOnMap(
+            !TerrainTileMapService.isLocationOnMap(
                 this._terrainTileMap,
                 location
             )

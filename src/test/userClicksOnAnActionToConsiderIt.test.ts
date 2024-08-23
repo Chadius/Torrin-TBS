@@ -55,6 +55,7 @@ import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/bat
 import { MouseButton } from "../utils/mouseConfig"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -273,20 +274,20 @@ describe("user clicks on an action to consider it", () => {
 
         const targeting = new BattlePlayerSquaddieTarget()
         const graphicsContext = new MockedP5GraphicsBuffer()
-        const highlightSpy: jest.SpyInstance = jest.spyOn(
+        const addGraphicsLayerSpy = jest.spyOn(
             TerrainTileMapService,
-            "highlightTiles"
+            "addGraphicsLayer"
         )
         targeting.update(gameEngineState, graphicsContext)
 
-        expect(highlightSpy).toHaveBeenCalled()
-        const highlightedTileDescriptions: HighlightTileDescription[] =
-            highlightSpy.mock.calls[0][1]
+        expect(addGraphicsLayerSpy).toHaveBeenCalled()
+        const addGraphicsLayerSpyLayer: MapGraphicsLayer =
+            addGraphicsLayerSpy.mock.calls[0][1]
         expect(
-            highlightedTileDescriptions.map(
-                (desc: HighlightTileDescription) => desc.tiles
+            addGraphicsLayerSpyLayer.highlights.map(
+                (highlight) => highlight.location
             )
-        ).toEqual([[{ q: 0, r: 1 }]])
+        ).toEqual([{ q: 0, r: 1 }])
     })
 
     it("Hides the action selector", () => {

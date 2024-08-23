@@ -68,6 +68,7 @@ import { ActionComponentCalculator } from "../actionDecision/actionComponentCalc
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -223,9 +224,10 @@ export class BattleComputerSquaddieSelector
     }
 
     private highlightTargetRange(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
-        targetLocation: HexCoordinate
+        targetLocation: HexCoordinate,
+        battleSquaddieId: string
     ) {
         const searchResult: SearchResult = PathfinderHelper.search({
             searchParameters: SearchParametersHelper.new({
@@ -245,24 +247,27 @@ export class BattleComputerSquaddieSelector
                 canPassThroughWalls: false,
                 numberOfActions: 1,
             }),
-            missionMap: state.battleOrchestratorState.battleState.missionMap,
-            repository: state.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            repository: gameEngineState.repository,
         })
         const tilesTargeted: HexCoordinate[] =
             SearchResultsService.getStoppableLocations(searchResult)
 
-        TerrainTileMapService.stopHighlightingTiles(
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap
-        )
-        TerrainTileMapService.highlightTiles(
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
-            [
+        const actionRangeOnMap = MapGraphicsLayerService.new({
+            id: battleSquaddieId,
+            highlightedTileDescriptions: [
                 {
                     tiles: tilesTargeted,
                     pulseColor: HighlightPulseRedColor,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
-            ]
+            ],
+        })
+        TerrainTileMapService.addGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            actionRangeOnMap
         )
     }
 
@@ -395,7 +400,7 @@ export class BattleComputerSquaddieSelector
             battleSquaddieId: battleSquaddie.battleSquaddieId,
         })
 
-        TerrainTileMapService.stopHighlightingTiles(
+        TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )
@@ -421,7 +426,8 @@ export class BattleComputerSquaddieSelector
                     this.highlightTargetRange(
                         gameEngineState,
                         decidedActionEffect.template,
-                        decidedActionEffect.target
+                        decidedActionEffect.target,
+                        battleSquaddie.battleSquaddieId
                     )
                     break
             }

@@ -158,7 +158,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                     .actionsThisRound.battleSquaddieId
             )
         )
-        TerrainTileMapService.stopHighlightingTiles(
+        TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )

@@ -310,7 +310,7 @@ describe("User ends their turn", () => {
         beforeEach(() => {
             highlightTileSpy = jest.spyOn(
                 TerrainTileMapService,
-                "stopHighlightingTiles"
+                "removeAllGraphicsLayers"
             )
             selector = new BattlePlayerSquaddieSelector()
             let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(

@@ -255,7 +255,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
                     const squaddieIsOnTheMap: boolean =
                         MissionMapSquaddieLocationService.isValid(datum) &&
-                        TerrainTileMapService.areCoordinatesOnMap(
+                        TerrainTileMapService.isLocationOnMap(
                             state.battleOrchestratorState.battleState.missionMap
                                 .terrainTileMap,
                             datum.mapLocation

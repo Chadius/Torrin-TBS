@@ -12,15 +12,11 @@ import {
 import { ResourceHandler } from "../resource/resourceHandler"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import {
-    MapSearchDataLayer,
-    MapSearchDataLayerService,
-} from "../missionMap/mapSearchDataLayer"
 import { MouseButton } from "../utils/mouseConfig"
 import { BattleCamera } from "../battle/battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { MapGraphicsLayer } from "./mapGraphicsLayer"
+import { MapGraphicsLayer, MapGraphicsLayerHighlight } from "./mapGraphicsLayer"
 
 export type HighlightTileDescription = {
     tiles: HexCoordinate[]
@@ -33,77 +29,11 @@ export interface TerrainTileMap {
     outlineTileCoordinates: HexCoordinate | undefined
     resourceHandler: ResourceHandler
     highlightLayers: MapGraphicsLayer[]
-    highlightedTiles: {
-        [coordinateKey: string]: {
-            pulseColor: PulseBlendColor
-            name: string
-        }
-    }
 }
 
 export const TerrainTileMapService = {
     new: ({ movementCost }: { movementCost: string[] }): TerrainTileMap => {
         return newTerrainTileMap({ movementCost })
-    },
-    createMapLayerForVisitableTiles: ({
-        canPassThroughWalls,
-        canCrossOverPits,
-        terrainTileMap,
-    }: {
-        canPassThroughWalls: boolean
-        canCrossOverPits: boolean
-        terrainTileMap: TerrainTileMap
-    }): MapSearchDataLayer => {
-        const initialValueFill = (q: number, r: number): boolean | number => {
-            const terrainType = getTileTerrainTypeAtLocation(
-                terrainTileMap,
-                q,
-                r
-            )
-            switch (terrainType) {
-                case HexGridMovementCost.singleMovement:
-                case HexGridMovementCost.doubleMovement:
-                    return false
-                case HexGridMovementCost.pit:
-                    return canCrossOverPits ? false : undefined
-                case HexGridMovementCost.wall:
-                    return canPassThroughWalls ? false : undefined
-                default:
-                    return undefined
-            }
-        }
-
-        return MapSearchDataLayerService.new({
-            terrainTileMap,
-            initialValue: initialValueFill,
-        })
-    },
-    createMapLayerForStoppableTiles: ({
-        terrainTileMap,
-    }: {
-        terrainTileMap: TerrainTileMap
-    }): MapSearchDataLayer => {
-        const initialValueFill = (q: number, r: number): boolean | number => {
-            const terrainType = getTileTerrainTypeAtLocation(
-                terrainTileMap,
-                q,
-                r
-            )
-            switch (terrainType) {
-                case HexGridMovementCost.singleMovement:
-                case HexGridMovementCost.doubleMovement:
-                    return false
-                case HexGridMovementCost.pit:
-                case HexGridMovementCost.wall:
-                default:
-                    return undefined
-            }
-        }
-
-        return MapSearchDataLayerService.new({
-            terrainTileMap,
-            initialValue: initialValueFill,
-        })
     },
     getTileTerrainTypeAtLocation: (
         terrainTileMap: TerrainTileMap,
@@ -115,79 +45,34 @@ export const TerrainTileMapService = {
         }
         return tile.terrainType
     },
-    getWorldLocation: (
-        terrainTileMap: TerrainTileMap,
-        q: number,
-        r: number
-    ): { x: number; y: number } => {
-        const dimensions = getDimensions(terrainTileMap)
-
-        if (
-            q < 0 ||
-            q > dimensions.numberOfRows ||
-            r < 0 ||
-            r > dimensions.widthOfWidestRow
-        ) {
-            return {
-                x: undefined,
-                y: undefined,
-            }
-        }
-
-        const tile = getTileAtLocation(terrainTileMap, { q, r })
-        if (tile === undefined) {
-            return {
-                x: undefined,
-                y: undefined,
-            }
-        }
-
-        return {
-            x: tile.worldLocation.x,
-            y: tile.worldLocation.y,
-        }
-    },
-    getWorldBoundingBox: (
+    isLocationOnScreen: ({
+        terrainTileMap,
+        location,
+        camera,
+    }: {
         terrainTileMap: TerrainTileMap
-    ): { width: number; height: number } => {
-        const terrainTileMapDimensions = getDimensions(terrainTileMap)
-        const dimensionsConvertedToWorldWithBuffer =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                terrainTileMapDimensions.numberOfRows + 1,
-                terrainTileMapDimensions.widthOfWidestRow + 1
-            )
-
-        return {
-            width: dimensionsConvertedToWorldWithBuffer[0],
-            height: dimensionsConvertedToWorldWithBuffer[1],
-        }
-    },
-    isTileOnScreen: (
-        terrainTileMap: TerrainTileMap,
-        q: number,
-        r: number,
+        location: HexCoordinate
         camera: BattleCamera
-    ): boolean => {
-        const hexGridTile = getTileAtLocation(terrainTileMap, { q, r })
-        const tileScreenCoordinates =
-            convertWorldCoordinatesToScreenCoordinates(
-                hexGridTile.worldLocation.x,
-                hexGridTile.worldLocation.y,
-                ...camera.getCoordinates()
-            )
-
-        const horizontallyOnScreen =
-            tileScreenCoordinates[0] + HEX_TILE_WIDTH >= 0 &&
-            tileScreenCoordinates[0] - HEX_TILE_WIDTH <=
-                ScreenDimensions.SCREEN_WIDTH
-
-        const verticallyOnScreen =
-            tileScreenCoordinates[1] + HEX_TILE_WIDTH >= 0 &&
-            tileScreenCoordinates[1] - HEX_TILE_WIDTH <=
-                ScreenDimensions.SCREEN_HEIGHT
-
-        return horizontallyOnScreen && verticallyOnScreen
-    },
+    }): boolean =>
+        isLocationOnScreen({
+            terrainTileMap,
+            location,
+            camera,
+        }),
+    getAllOnscreenLocations: ({
+        terrainTileMap,
+        camera,
+    }: {
+        terrainTileMap: TerrainTileMap
+        camera: BattleCamera
+    }): HexGridTile[] =>
+        terrainTileMap.tiles.filter((tile) =>
+            isLocationOnScreen({
+                terrainTileMap,
+                location: tile,
+                camera,
+            })
+        ),
     mouseClicked({
         terrainTileMap,
         mouseButton,
@@ -228,24 +113,6 @@ export const TerrainTileMapService = {
             terrainTileMap.outlineTileCoordinates = undefined
         }
     },
-    highlightTiles(
-        terrainTileMap: TerrainTileMap,
-        highlightTileDescriptions: HighlightTileDescription[]
-    ): void {
-        terrainTileMap.highlightedTiles = {}
-        highlightTileDescriptions.reverse().forEach((tileDesc) => {
-            tileDesc.tiles.forEach((tile) => {
-                const key = `${tile.q},${tile.r}`
-                terrainTileMap.highlightedTiles[key] = {
-                    pulseColor: tileDesc.pulseColor,
-                    name: tileDesc.overlayImageResourceName,
-                }
-            })
-        })
-    },
-    stopHighlightingTiles: (terrainTileMap: TerrainTileMap): void => {
-        terrainTileMap.highlightedTiles = {}
-    },
     stopOutlineTiles: (terrainTileMap: TerrainTileMap): void => {
         terrainTileMap.outlineTileCoordinates = undefined
     },
@@ -254,7 +121,7 @@ export const TerrainTileMapService = {
         hexCoordinate: HexCoordinate
     ): HexGridTile | undefined =>
         getTileAtLocation(terrainTileMap, hexCoordinate),
-    areCoordinatesOnMap: (
+    isLocationOnMap: (
         terrainTileMap: TerrainTileMap,
         hexCoordinate: HexCoordinate
     ): boolean =>
@@ -266,15 +133,44 @@ export const TerrainTileMapService = {
         widthOfWidestRow: number
         numberOfRows: number
     } => getDimensions(terrainTileMap),
-    // TODO add GraphicsLayer
-    // TODO remove GraphicsLayer
-    // TODO remove all GraphicsLayers
     addGraphicsLayer: (
         terrainTileMap: TerrainTileMap,
-        mapGraphicsLayer: MapGraphicsLayer,
-        id: string
-    ) => {},
-    // TODO Turn terrain map into an interface
+        mapGraphicsLayer: MapGraphicsLayer
+    ) => {
+        removeGraphicsLayer(terrainTileMap, mapGraphicsLayer.id)
+        terrainTileMap.highlightLayers.push(mapGraphicsLayer)
+    },
+    getGraphicsLayer: (
+        terrainTileMap: TerrainTileMap,
+        layerId: string
+    ): MapGraphicsLayer => {
+        return terrainTileMap.highlightLayers.find(
+            (layer) => layer.id === layerId
+        )
+    },
+    removeGraphicsLayer: (
+        terrainTileMap: TerrainTileMap,
+        mapGraphicsLayerId: string
+    ) => removeGraphicsLayer(terrainTileMap, mapGraphicsLayerId),
+    removeAllGraphicsLayers: (terrainTileMap: TerrainTileMap) => {
+        terrainTileMap.highlightLayers = []
+    },
+    computeHighlightedTiles: (
+        terrainTileMap: TerrainTileMap
+    ): MapGraphicsLayerHighlight[] => {
+        const highlightsByLocationKey: {
+            [locationKey: string]: MapGraphicsLayerHighlight
+        } = {}
+
+        terrainTileMap.highlightLayers.forEach((layer) =>
+            layer.highlights.forEach((highlight) => {
+                const key: string = `${highlight.location.q},${highlight.location.r}`
+                highlightsByLocationKey[key] = highlight
+            })
+        )
+
+        return Object.values(highlightsByLocationKey)
+    },
 }
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
@@ -322,8 +218,7 @@ const getTileAtLocation = (
     terrainTileMap: TerrainTileMap,
     hexCoordinate: HexCoordinate
 ): HexGridTile | undefined =>
-    terrainTileMap &&
-    terrainTileMap.tiles.find(
+    terrainTileMap?.tiles.find(
         (tile) => tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
     )
 
@@ -356,20 +251,7 @@ const newTerrainTileMap = ({
         outlineTileCoordinates: undefined,
         resourceHandler,
         highlightLayers: [],
-        highlightedTiles: {},
     }
-}
-
-const getTileTerrainTypeAtLocation = (
-    terrainTileMap: TerrainTileMap,
-    q: number,
-    r: number
-): HexGridMovementCost => {
-    const tile = getTileAtLocation(terrainTileMap, { q, r })
-    if (tile === undefined) {
-        return undefined
-    }
-    return tile.terrainType
 }
 
 const getDimensions = (
@@ -395,4 +277,42 @@ const getDimensions = (
         widthOfWidestRow,
         numberOfRows,
     }
+}
+
+const removeGraphicsLayer = (
+    terrainTileMap: TerrainTileMap,
+    mapGraphicsLayerId: string
+) => {
+    terrainTileMap.highlightLayers = terrainTileMap.highlightLayers.filter(
+        (layer) => layer.id !== mapGraphicsLayerId
+    )
+}
+
+const isLocationOnScreen = ({
+    terrainTileMap,
+    location,
+    camera,
+}: {
+    terrainTileMap: TerrainTileMap
+    location: HexCoordinate
+    camera: BattleCamera
+}): boolean => {
+    const hexGridTile = getTileAtLocation(terrainTileMap, location)
+    const tileScreenCoordinates = convertWorldCoordinatesToScreenCoordinates(
+        hexGridTile.worldLocation.x,
+        hexGridTile.worldLocation.y,
+        ...camera.getCoordinates()
+    )
+
+    const horizontallyOnScreen =
+        tileScreenCoordinates[0] + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates[0] - HEX_TILE_WIDTH <=
+            ScreenDimensions.SCREEN_WIDTH
+
+    const verticallyOnScreen =
+        tileScreenCoordinates[1] + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates[1] - HEX_TILE_WIDTH <=
+            ScreenDimensions.SCREEN_HEIGHT
+
+    return horizontallyOnScreen && verticallyOnScreen
 }

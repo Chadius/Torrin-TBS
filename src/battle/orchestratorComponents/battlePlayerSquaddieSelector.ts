@@ -74,6 +74,8 @@ import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddi
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -284,7 +286,7 @@ export class BattlePlayerSquaddieSelector
                         MissionMapSquaddieLocationService.isValid(
                             squaddieInfo
                         ) &&
-                        TerrainTileMapService.areCoordinatesOnMap(
+                        TerrainTileMapService.isLocationOnMap(
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap.terrainTileMap,
                             squaddieInfo.mapLocation
@@ -645,28 +647,35 @@ export class BattlePlayerSquaddieSelector
     }
 
     private highlightSquaddieOnMap = (
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         battleSquaddieToHighlightId: string
     ) => {
         const { mapLocation: startLocation } =
-            state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 battleSquaddieToHighlightId
             )
-        TerrainTileMapService.stopHighlightingTiles(
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
         )
         const squaddieReachHighlightedOnMap =
             MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-                repository: state.repository,
+                repository: gameEngineState.repository,
                 missionMap:
-                    state.battleOrchestratorState.battleState.missionMap,
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
                 battleSquaddieId: battleSquaddieToHighlightId,
                 startLocation: startLocation,
-                campaignResources: state.campaign.resources,
+                campaignResources: gameEngineState.campaign.resources,
             })
-        TerrainTileMapService.highlightTiles(
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
-            squaddieReachHighlightedOnMap
+        const actionRangeOnMap = MapGraphicsLayerService.new({
+            id: battleSquaddieToHighlightId,
+            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
+        })
+        TerrainTileMapService.addGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            actionRangeOnMap
         )
     }
 
@@ -1191,7 +1200,7 @@ const getMouseClickHexCoordinates = (
     }
 
     return {
-        areCoordinatesOnMap: TerrainTileMapService.areCoordinatesOnMap(
+        areCoordinatesOnMap: TerrainTileMapService.isLocationOnMap(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap,
             clickedHexCoordinate

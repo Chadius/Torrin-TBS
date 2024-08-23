@@ -59,7 +59,7 @@ export const SquaddiePhaseStartsService = {
         ) {
             return
         }
-        TerrainTileMapService.stopHighlightingTiles(
+        TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         )

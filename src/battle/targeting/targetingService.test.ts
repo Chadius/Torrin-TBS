@@ -2,11 +2,7 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
-import {
-    HighlightTileDescription,
-    TerrainTileMap,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -36,6 +32,7 @@ import { BattleStateService } from "../orchestrator/battleState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -401,7 +398,7 @@ describe("Targeting Service", () => {
 
     describe("highlightTargetRange using a gameEngineState", () => {
         let gameEngineState: GameEngineState
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             const battleMap: MissionMap = new MissionMap({
@@ -433,9 +430,9 @@ describe("Targeting Service", () => {
                 repository: objectRepository,
             })
 
-            highlightRangeSpy = jest.spyOn(
+            addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
-                "highlightTiles"
+                "addGraphicsLayer"
             )
         })
 
@@ -451,17 +448,24 @@ describe("Targeting Service", () => {
         it("will highlight the tiles", () => {
             const actionRange: HexCoordinate[] =
                 TargetingResultsService.highlightTargetRange(gameEngineState)
-            expect(highlightRangeSpy).toHaveBeenCalledWith(
+
+            expect(addGraphicsLayerSpy).toHaveBeenCalled()
+            const callArgs = addGraphicsLayerSpy.mock.calls[0]
+            expect(callArgs[0]).toEqual(
                 gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                [
-                    {
-                        tiles: actionRange,
-                        pulseColor: HighlightPulseRedColor,
-                        overlayImageResourceName: "map icon attack 1 action",
-                    },
-                ]
+                    .terrainTileMap
             )
+            expect(
+                MapGraphicsLayerService.getHighlightedTileDescriptions(
+                    callArgs[1]
+                )
+            ).toEqual([
+                {
+                    tiles: actionRange,
+                    pulseColor: HighlightPulseRedColor,
+                    overlayImageResourceName: "map icon attack 1 action",
+                },
+            ])
         })
     })
 

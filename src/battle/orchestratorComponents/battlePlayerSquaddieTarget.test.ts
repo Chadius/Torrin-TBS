@@ -24,7 +24,10 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import {
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../../utils/test/mocks"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
@@ -296,14 +299,24 @@ describe("BattleSquaddieTarget", () => {
             name: "map icon attack 1 action",
         }
 
-        expect(battleMap.terrainTileMap.highlightedTiles).toStrictEqual({
-            [HexCoordinateToKey({ q: 1, r: 0 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 1, r: 2 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 0, r: 1 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 2, r: 1 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 2, r: 0 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 0, r: 2 })]: highlightedTileDescription,
-        })
+        const highlightedTileLocations =
+            TerrainTileMapService.computeHighlightedTiles(
+                battleMap.terrainTileMap
+            ).map(
+                (highlightedTileDescription) =>
+                    highlightedTileDescription.location
+            )
+        expect(highlightedTileLocations).toHaveLength(6)
+        expect(highlightedTileLocations).toEqual(
+            expect.arrayContaining([
+                { q: 1, r: 0 },
+                { q: 1, r: 2 },
+                { q: 0, r: 1 },
+                { q: 2, r: 1 },
+                { q: 2, r: 0 },
+                { q: 0, r: 2 },
+            ])
+        )
     })
 
     describe("canceling after selecting action but before selecting target", () => {

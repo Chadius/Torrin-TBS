@@ -17,6 +17,8 @@ import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfin
 import { MapHighlightHelper } from "../animation/mapHighlight"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
+import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 
 export const BattleSquaddieSelectorService = {
     createSearchPath: ({
@@ -40,13 +42,13 @@ export const BattleSquaddieSelectorService = {
 }
 
 export function createSearchPath(
-    state: GameEngineState,
+    gameEngineState: GameEngineState,
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
     clickedHexCoordinate: HexCoordinate
 ) {
     const datum =
-        state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
             battleSquaddie.battleSquaddieId
         )
     const { actionPointsRemaining } = GetNumberOfActionPoints({
@@ -76,8 +78,9 @@ export function createSearchPath(
             stopLocations: [clickedHexCoordinate],
             numberOfActions: actionPointsRemaining,
         }),
-        missionMap: state.battleOrchestratorState.battleState.missionMap,
-        repository: state.repository,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        repository: gameEngineState.repository,
     })
 
     const closestRoute: SearchPath =
@@ -92,20 +95,27 @@ export function createSearchPath(
         return
     }
 
-    state.battleOrchestratorState.battleState.squaddieMovePath = closestRoute
+    gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
+        closestRoute
 
     const routeTilesByDistance =
         MapHighlightHelper.convertSearchPathToHighlightLocations({
             searchPath: closestRoute,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: state.repository,
-            campaignResources: state.campaign.resources,
+            repository: gameEngineState.repository,
+            campaignResources: gameEngineState.campaign.resources,
         })
-    TerrainTileMapService.stopHighlightingTiles(
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap
+    const actionRangeOnMap = MapGraphicsLayerService.new({
+        id: battleSquaddie.battleSquaddieId,
+        highlightedTileDescriptions: routeTilesByDistance,
+    })
+    TerrainTileMapService.removeAllGraphicsLayers(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap
     )
-    TerrainTileMapService.highlightTiles(
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap,
-        routeTilesByDistance
+    TerrainTileMapService.addGraphicsLayer(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap,
+        actionRangeOnMap
     )
 }
