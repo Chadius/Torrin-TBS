@@ -85,6 +85,7 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
 import { MapHighlightHelper } from "../animation/mapHighlight"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -418,6 +419,12 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 battleSquaddieId
             )
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
         const squaddieReachHighlightedOnMap =
             MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
                 repository: gameEngineState.repository,
@@ -427,6 +434,11 @@ export const BattleHUDService = {
                 battleSquaddieId: battleSquaddieId,
                 startLocation: startLocation,
                 campaignResources: gameEngineState.campaign.resources,
+                squaddieTurnOverride:
+                    squaddieTemplate.squaddieId.affiliation ===
+                    SquaddieAffiliation.PLAYER
+                        ? undefined
+                        : SquaddieTurnService.new(),
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: battleSquaddieId,

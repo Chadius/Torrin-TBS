@@ -538,7 +538,7 @@ export const TestMissionData = () => {
                             id: "turn5_1",
                             speakerName: "Torrin",
                             speakerText:
-                                "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
+                                "If you... hover the... mouse over them\nyou can see where they can move.",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             animationDuration: 0,

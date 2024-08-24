@@ -447,7 +447,7 @@
             "type": "DIALOGUE",
             "id": "turn3_1",
             "speakerName": "Sir Camil",
-            "speakerText": "Some of them like to travel in groups.\nClick on them to see the extent of their movement.",
+            "speakerText": "Some of them like to travel in groups.\nHover the mouse to see how far they can move.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
