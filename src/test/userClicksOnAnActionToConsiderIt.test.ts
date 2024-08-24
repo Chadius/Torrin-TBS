@@ -22,7 +22,7 @@ import {
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     BattlePhaseState,
     BattlePhaseStateService,
@@ -52,6 +52,7 @@ import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/bat
 import { MouseButton } from "../utils/mouseConfig"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -131,7 +132,7 @@ describe("user clicks on an action to consider it", () => {
             .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -270,15 +271,20 @@ describe("user clicks on an action to consider it", () => {
 
         const targeting = new BattlePlayerSquaddieTarget()
         const graphicsContext = new MockedP5GraphicsBuffer()
-        const highlightSpy = jest.spyOn(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
-            "highlightTiles"
+        const addGraphicsLayerSpy = jest.spyOn(
+            TerrainTileMapService,
+            "addGraphicsLayer"
         )
         targeting.update(gameEngineState, graphicsContext)
 
-        expect(highlightSpy).toHaveBeenCalled()
-        expect(highlightSpy.mock.calls[0][0][0].tiles).toEqual([{ q: 0, r: 1 }])
+        expect(addGraphicsLayerSpy).toHaveBeenCalled()
+        const addGraphicsLayerSpyLayer: MapGraphicsLayer =
+            addGraphicsLayerSpy.mock.calls[0][1]
+        expect(
+            addGraphicsLayerSpyLayer.highlights.map(
+                (highlight) => highlight.location
+            )
+        ).toEqual([{ q: 0, r: 1 }])
     })
 
     it("Hides the action selector", () => {

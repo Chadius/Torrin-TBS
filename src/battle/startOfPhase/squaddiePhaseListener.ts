@@ -20,6 +20,7 @@ export class SquaddiePhaseListener implements MessageBoardListener {
                 SquaddiePhaseEndsService.unTintSquaddieMapIconForEachSquaddie(
                     message
                 )
+                SquaddiePhaseEndsService.clearMapSquaddieGameplayLayers(message)
                 break
             case MessageBoardMessageType.SQUADDIE_PHASE_STARTS:
                 SquaddiePhaseStartsService.restoreTurnForAllSquaddies(message)

@@ -9,7 +9,7 @@ import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
     GameEngineState,
@@ -80,7 +80,7 @@ describe("battleMapDisplay", () => {
                         campaignId: "test campaign",
                         camera,
                         missionMap: new MissionMap({
-                            terrainTileMap: new TerrainTileMap({
+                            terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 "],
                             }),
                         }),

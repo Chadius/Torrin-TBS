@@ -1,19 +1,23 @@
 import { MissionMap } from "./missionMap"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
-import { MapLayer, MapLayerHelper } from "./mapLayer"
+import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "./mapSearchDataLayer"
 
-describe("MapLayer", () => {
+describe("MapSearchDataLayer", () => {
     it("can generate a layer based on a given map and initial value", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
 
-        const mapLayerFilledWithFalse: MapLayer = MapLayerHelper.new({
-            map: missionMap,
-            initialValue: false,
-        })
+        const mapLayerFilledWithFalse: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
+                map: missionMap,
+                initialValue: false,
+            })
 
         expect(mapLayerFilledWithFalse.widthOfWidestRow).toBe(5)
         expect(mapLayerFilledWithFalse.numberOfRows).toBe(2)
@@ -28,7 +32,7 @@ describe("MapLayer", () => {
 
     it("can generate a layer based on a given map and value filling function", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -37,12 +41,11 @@ describe("MapLayer", () => {
             return q + r
         }
 
-        const mapLayerFilledWithSumOfCoordinates: MapLayer = MapLayerHelper.new(
-            {
+        const mapLayerFilledWithSumOfCoordinates: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
                 map: missionMap,
                 initialValue: initialValueFill,
-            }
-        )
+            })
 
         expect(mapLayerFilledWithSumOfCoordinates.widthOfWidestRow).toBe(5)
         expect(mapLayerFilledWithSumOfCoordinates.numberOfRows).toBe(2)
@@ -57,15 +60,16 @@ describe("MapLayer", () => {
 
     it("can generate a layer based on a given map and use undefined if given", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
 
-        const mapLayerFilledWithUndefined: MapLayer = MapLayerHelper.new({
-            map: missionMap,
-            initialValue: undefined,
-        })
+        const mapLayerFilledWithUndefined: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
+                map: missionMap,
+                initialValue: undefined,
+            })
 
         expect(mapLayerFilledWithUndefined.widthOfWidestRow).toBe(5)
         expect(mapLayerFilledWithUndefined.numberOfRows).toBe(2)
@@ -80,15 +84,16 @@ describe("MapLayer", () => {
 
     it("can set the value of an individual tile on the layer", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
-        const mapLayerFilledWithFalse: MapLayer = MapLayerHelper.new({
-            map: missionMap,
-            initialValue: false,
-        })
-        MapLayerHelper.setValueOfLocation({
+        const mapLayerFilledWithFalse: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
+                map: missionMap,
+                initialValue: false,
+            })
+        MapSearchDataLayerService.setValueOfLocation({
             mapLayer: mapLayerFilledWithFalse,
             q: 1,
             r: 2,
@@ -99,17 +104,18 @@ describe("MapLayer", () => {
 
     it("throws an error if setting a location that is out of bounds", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
-        const mapLayerFilledWithFalse: MapLayer = MapLayerHelper.new({
-            map: missionMap,
-            initialValue: false,
-        })
+        const mapLayerFilledWithFalse: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
+                map: missionMap,
+                initialValue: false,
+            })
 
         const shouldThrowError = () => {
-            MapLayerHelper.setValueOfLocation({
+            MapSearchDataLayerService.setValueOfLocation({
                 mapLayer: mapLayerFilledWithFalse,
                 q: 9001,
                 r: -3,
@@ -124,18 +130,19 @@ describe("MapLayer", () => {
 
     it("knows when a location is out of bounds", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
-        const mapLayerFilledWithFalse: MapLayer = MapLayerHelper.new({
-            map: missionMap,
-            initialValue: false,
-        })
+        const mapLayerFilledWithFalse: MapSearchDataLayer =
+            MapSearchDataLayerService.new({
+                map: missionMap,
+                initialValue: false,
+            })
         ;[0, 1, 2, 3, 4].forEach((r) => {
             ;[0, 1].forEach((q) => {
                 expect(
-                    MapLayerHelper.outOfBounds({
+                    MapSearchDataLayerService.outOfBounds({
                         mapLayer: mapLayerFilledWithFalse,
                         q,
                         r,
@@ -144,28 +151,28 @@ describe("MapLayer", () => {
             })
         })
         expect(
-            MapLayerHelper.outOfBounds({
+            MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
                 q: -1,
                 r: 0,
             })
         ).toBe(true)
         expect(
-            MapLayerHelper.outOfBounds({
+            MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
                 q: -1,
                 r: mapLayerFilledWithFalse.widthOfWidestRow,
             })
         ).toBe(true)
         expect(
-            MapLayerHelper.outOfBounds({
+            MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
                 q: 0,
                 r: -1,
             })
         ).toBe(true)
         expect(
-            MapLayerHelper.outOfBounds({
+            MapSearchDataLayerService.outOfBounds({
                 mapLayer: mapLayerFilledWithFalse,
                 q: mapLayerFilledWithFalse.numberOfRows,
                 r: 0,

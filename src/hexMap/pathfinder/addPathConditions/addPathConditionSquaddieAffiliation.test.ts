@@ -1,7 +1,7 @@
 import { SearchParametersHelper } from "../searchParams"
 import { SearchPathHelper } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { TerrainTileMap } from "../../terrainTileMap"
+import { TerrainTileMapService } from "../../terrainTileMap"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -19,7 +19,7 @@ import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     it("returns true if squaddies are friendly, false if they are not", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -112,7 +112,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     })
     it("returns true if squaddies are not friendly but one is not alive", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -206,7 +206,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     })
     it("returns true if squaddies are not friendly but search parameters can stop on squaddies anyway", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -295,7 +295,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     })
     it("returns true if there is no squaddie at the location", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -340,7 +340,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     })
     it("returns true if the searching squaddie has an unknown affiliation", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -424,7 +424,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     })
     it("returns undefined if there is no path", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })

@@ -19,6 +19,7 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -91,14 +92,15 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         event: OrchestratorComponentMouseEvent
     ): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
-                {
-                    mouseX: event.mouseX,
-                    mouseY: event.mouseY,
-                    mouseButton: event.mouseButton,
-                    ...state.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
-                }
-            )
+            TerrainTileMapService.mouseClicked({
+                terrainTileMap:
+                    state.battleOrchestratorState.battleState.missionMap
+                        .terrainTileMap,
+                mouseX: event.mouseX,
+                mouseY: event.mouseY,
+                mouseButton: event.mouseButton,
+                ...state.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+            })
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
             this.moveCameraBasedOnMouseMovement(
@@ -253,7 +255,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
                     const squaddieIsOnTheMap: boolean =
                         MissionMapSquaddieLocationService.isValid(datum) &&
-                        state.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(
+                        TerrainTileMapService.isLocationOnMap(
+                            state.battleOrchestratorState.battleState.missionMap
+                                .terrainTileMap,
                             datum.mapLocation
                         )
                     const squaddieIsHidden: boolean =

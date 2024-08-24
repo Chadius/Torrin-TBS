@@ -1,7 +1,7 @@
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
@@ -45,7 +45,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
 
     beforeEach(() => {
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 "],
             }),
         })

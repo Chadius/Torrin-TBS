@@ -1,7 +1,7 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -50,7 +50,7 @@ describe("Action Result Text Writer", () => {
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new()
         battleMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })

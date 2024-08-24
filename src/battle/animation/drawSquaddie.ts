@@ -28,6 +28,11 @@ import { MapHighlightHelper } from "./mapHighlight"
 import { Campaign } from "../../campaign/campaign"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../squaddie/turn"
 import { isValidValue } from "../../utils/validityCheck"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    MapGraphicsLayerService,
+    MapGraphicsLayerType,
+} from "../../hexMap/mapGraphicsLayer"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -102,7 +107,15 @@ export const DrawSquaddieUtilities = {
                 startLocation: mapLocation,
                 campaignResources: campaign.resources,
             })
-        missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap)
+        const actionRangeOnMap = MapGraphicsLayerService.new({
+            id: battleSquaddieId,
+            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
+            type: MapGraphicsLayerType.UNKNOWN,
+        })
+        TerrainTileMapService.addGraphicsLayer(
+            missionMap.terrainTileMap,
+            actionRangeOnMap
+        )
     },
     updateSquaddieIconLocation: ({
         repository,

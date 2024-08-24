@@ -1,14 +1,13 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattlePlayerSquaddieTarget } from "./battlePlayerSquaddieTarget"
 import { BattleSquaddie } from "../battleSquaddie"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
-import { HexCoordinateToKey } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
@@ -76,7 +75,7 @@ describe("BattleSquaddieTarget", () => {
         targetComponent = new BattlePlayerSquaddieTarget()
         objectRepository = ObjectRepositoryService.new()
         battleMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -293,14 +292,24 @@ describe("BattleSquaddieTarget", () => {
             name: "map icon attack 1 action",
         }
 
-        expect(battleMap.terrainTileMap.highlightedTiles).toStrictEqual({
-            [HexCoordinateToKey({ q: 1, r: 0 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 1, r: 2 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 0, r: 1 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 2, r: 1 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 2, r: 0 })]: highlightedTileDescription,
-            [HexCoordinateToKey({ q: 0, r: 2 })]: highlightedTileDescription,
-        })
+        const highlightedTileLocations =
+            TerrainTileMapService.computeHighlightedTiles(
+                battleMap.terrainTileMap
+            ).map(
+                (highlightedTileDescription) =>
+                    highlightedTileDescription.location
+            )
+        expect(highlightedTileLocations).toHaveLength(6)
+        expect(highlightedTileLocations).toEqual(
+            expect.arrayContaining([
+                { q: 1, r: 0 },
+                { q: 1, r: 2 },
+                { q: 0, r: 1 },
+                { q: 2, r: 1 },
+                { q: 2, r: 0 },
+                { q: 0, r: 2 },
+            ])
+        )
     })
 
     describe("canceling after selecting action but before selecting target", () => {
@@ -344,7 +353,8 @@ describe("BattleSquaddieTarget", () => {
 
     it("should ignore if the user does not click off of the map", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            battleMap.terrainTileMap.getDimensions().numberOfRows + 1,
+            TerrainTileMapService.getDimensions(battleMap.terrainTileMap)
+                .numberOfRows + 1,
             0,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
         )

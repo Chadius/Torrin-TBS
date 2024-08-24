@@ -17,6 +17,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -157,7 +158,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                     .actionsThisRound.battleSquaddieId
             )
         )
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
         updateIconAndMapBasedOnWhetherSquaddieCanAct(
             gameEngineState,
             battleSquaddie,

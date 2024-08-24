@@ -4,7 +4,7 @@ import {
 } from "../../gameEngine/gameEngine"
 import { PlayerHudController } from "./playerHudController"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CampaignService } from "../../campaign/campaign"
 import * as mocks from "../..//utils/test/mocks"
@@ -40,7 +40,7 @@ describe("PlayerHUDController", () => {
 
     beforeEach(() => {
         missionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 "],
             }),
         })

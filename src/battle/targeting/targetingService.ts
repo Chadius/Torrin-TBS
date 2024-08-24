@@ -33,6 +33,11 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    MapGraphicsLayerService,
+    MapGraphicsLayerType,
+} from "../../hexMap/mapGraphicsLayer"
 
 export class TargetingResults {
     constructor() {
@@ -322,15 +327,28 @@ const highlightTargetRange = (
     })
     const actionRange: HexCoordinate[] = targetingResults.locationsInRange
 
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
-        [
+    TerrainTileMapService.removeAllGraphicsLayers(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap
+    )
+
+    const actionRangeOnMap = MapGraphicsLayerService.new({
+        id: gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+            .battleSquaddieId,
+        highlightedTileDescriptions: [
             {
                 tiles: actionRange,
                 pulseColor: HighlightPulseRedColor,
                 overlayImageResourceName: "map icon attack 1 action",
             },
-        ]
+        ],
+        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+    })
+    TerrainTileMapService.addGraphicsLayer(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap,
+        actionRangeOnMap
     )
+
     return actionRange
 }

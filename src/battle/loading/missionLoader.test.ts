@@ -1,4 +1,4 @@
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -92,7 +92,7 @@ describe("Mission Loader", () => {
 
         it("loaded the mission map", () => {
             expect(missionLoaderContext.missionMap.terrainTileMap).toEqual(
-                new TerrainTileMap({
+                TerrainTileMapService.new({
                     movementCost: [
                         "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
                         " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
@@ -113,7 +113,6 @@ describe("Mission Loader", () => {
                         "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
                         "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 ",
                     ],
-                    resourceHandler,
                 })
             )
         })

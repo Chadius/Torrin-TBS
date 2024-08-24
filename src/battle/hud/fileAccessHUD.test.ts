@@ -16,10 +16,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleStateService } from "../orchestrator/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import {
-    TerrainTileMap,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -39,7 +36,7 @@ describe("File Access HUD", () => {
         battlePhaseAffiliation: BattlePhase
     ): GameEngineState => {
         const missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })

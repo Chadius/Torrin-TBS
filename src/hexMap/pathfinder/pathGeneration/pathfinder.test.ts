@@ -42,7 +42,8 @@ describe("Pathfinder", () => {
                             HexGridMovementCost.pit,
                             HexGridMovementCost.wall,
                         ].includes(
-                            missionMap.terrainTileMap.getTileTerrainTypeAtLocation(
+                            TerrainTileMapService.getTileTerrainTypeAtLocation(
+                                missionMap.terrainTileMap,
                                 { q, r }
                             )
                         ) !== true
@@ -526,7 +527,9 @@ describe("Pathfinder", () => {
             ).toBe(0)
             for (
                 let r = 1;
-                r < missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
+                r <
+                TerrainTileMapService.getDimensions(missionMap.terrainTileMap)
+                    .widthOfWidestRow;
                 r++
             ) {
                 expect(

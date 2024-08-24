@@ -6,7 +6,7 @@ import {
     MissionCutsceneCollectionHelper,
 } from "../orchestrator/missionCutsceneCollection"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import {
@@ -84,7 +84,7 @@ describe("Mission Cutscene Service", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -125,7 +125,7 @@ describe("Mission Cutscene Service", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -161,7 +161,7 @@ describe("Mission Cutscene Service", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -221,7 +221,7 @@ describe("Mission Cutscene Service", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
                     }),
@@ -430,7 +430,7 @@ describe("Mission Cutscene Service", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap: new MissionMap({
-                                    terrainTileMap: new TerrainTileMap({
+                                    terrainTileMap: TerrainTileMapService.new({
                                         movementCost: ["1 1 "],
                                     }),
                                 }),

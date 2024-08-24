@@ -14,8 +14,8 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import {
-    HighlightTileDescription,
     TerrainTileMap,
+    TerrainTileMapService,
 } from "../../hexMap/terrainTileMap"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionMap } from "../../missionMap/missionMap"
@@ -76,6 +76,7 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -211,7 +212,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 "],
                 }),
             })
@@ -315,7 +316,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
             })
@@ -484,14 +485,17 @@ describe("BattleComputerSquaddieSelector", () => {
     describe("computer decides to act", () => {
         let missionMap: MissionMap
         let hexMap: TerrainTileMap
-        let hexMapHighlightTilesSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
         let camera: BattleCamera
 
         beforeEach(() => {
-            hexMap = new TerrainTileMap({
+            hexMap = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 "],
             })
-            hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles")
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
+            )
 
             missionMap = new MissionMap({
                 terrainTileMap: hexMap,
@@ -515,6 +519,9 @@ describe("BattleComputerSquaddieSelector", () => {
                     0
                 )
             )
+        })
+        afterEach(() => {
+            addGraphicsLayerSpy.mockRestore()
         })
 
         it("will prepare to move if computer controlled squaddie wants to move", () => {
@@ -583,7 +590,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 ).type
             ).toEqual(ActionEffectType.MOVEMENT)
 
-            expect(hexMapHighlightTilesSpy).toBeCalled()
+            expect(addGraphicsLayerSpy).toBeCalled()
         })
 
         describe("computer controlled squaddie acts with an action", () => {
@@ -655,12 +662,14 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("highlight the map target and its spread", () => {
-                expect(hexMapHighlightTilesSpy).toBeCalled()
-                const actualTiles = hexMapHighlightTilesSpy.mock
-                    .calls[0][0] as HighlightTileDescription[]
-                expect(actualTiles).toHaveLength(1)
-                expect(actualTiles[0].tiles).toHaveLength(1)
-                expect(actualTiles[0].tiles[0]).toStrictEqual({ q: 0, r: 1 })
+                expect(addGraphicsLayerSpy).toBeCalled()
+
+                const addGraphicsLayerSpyLayer: MapGraphicsLayer =
+                    addGraphicsLayerSpy.mock.calls[0][1]
+                expect(addGraphicsLayerSpyLayer.highlights).toHaveLength(1)
+                expect(
+                    addGraphicsLayerSpyLayer.highlights[0].location
+                ).toStrictEqual({ q: 0, r: 1 })
             })
 
             it("waits and then completes the component", () => {

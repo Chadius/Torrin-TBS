@@ -35,6 +35,7 @@ import {
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -378,15 +379,16 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const cameraCoordinates =
             gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(
-            {
-                mouseX,
-                mouseY,
-                mouseButton,
-                cameraX: cameraCoordinates[0],
-                cameraY: cameraCoordinates[1],
-            }
-        )
+        TerrainTileMapService.mouseClicked({
+            terrainTileMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+            mouseX,
+            mouseY,
+            mouseButton,
+            cameraX: cameraCoordinates[0],
+            cameraY: cameraCoordinates[1],
+        })
         this.hasSelectedValidTarget = true
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,

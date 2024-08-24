@@ -16,7 +16,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { LabelService } from "../../ui/label"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
@@ -474,7 +474,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
     it("hides dead squaddies after the action animates", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
 
         const state = usePowerAttackLongswordAndReturnState({ missionMap })
@@ -520,7 +522,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
     it("clears the action builder when the action finishes animating", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
 
         const actionBuilderSpy: jest.SpyInstance = jest.spyOn(
@@ -565,7 +569,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
     it("sends a message noting the animation is complete", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
 
         const gameEngineState = usePowerAttackLongswordAndReturnState({
@@ -614,7 +620,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         )
 
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
 
         const gameEngineState = usePowerAttackLongswordAndReturnState({
@@ -662,7 +670,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
     it("reopens HUD on squaddie when it finishes animating and can still act", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({ movementCost: ["1 1 1 "] }),
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
 
         const gameEngineState = usePowerAttackLongswordAndReturnState({

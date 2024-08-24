@@ -35,8 +35,7 @@ export class AddPathConditionPathLeadsToPit implements AddPathCondition {
             SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate
         const terrainType = TerrainTileMapService.getTileTerrainTypeAtLocation(
             this.missionMap.terrainTileMap,
-            coordinate.q,
-            coordinate.r
+            coordinate
         )
         return terrainType !== HexGridMovementCost.pit
     }

@@ -4,14 +4,21 @@ import {
 } from "./addPathCondition"
 import { SearchPath, SearchPathHelper } from "../searchPath"
 import { SearchParameters } from "../searchParams"
-import { MapLayer, MapLayerHelper } from "../../../missionMap/mapLayer"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "../../../missionMap/mapSearchDataLayer"
 import { LocationTraveled } from "../locationTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export class AddPathConditionNotInMapLayer implements AddPathCondition {
-    enqueuedMapLayer: MapLayer
+    enqueuedMapLayer: MapSearchDataLayer
 
-    constructor({ enqueuedMapLayer }: { enqueuedMapLayer: MapLayer }) {
+    constructor({
+        enqueuedMapLayer,
+    }: {
+        enqueuedMapLayer: MapSearchDataLayer
+    }) {
         this.enqueuedMapLayer = enqueuedMapLayer
     }
 
@@ -33,7 +40,7 @@ export class AddPathConditionNotInMapLayer implements AddPathCondition {
         const headLocation: LocationTraveled =
             SearchPathHelper.getMostRecentLocation(newPath)
         if (
-            MapLayerHelper.outOfBounds({
+            MapSearchDataLayerService.outOfBounds({
                 mapLayer: this.enqueuedMapLayer,
                 q: headLocation.hexCoordinate.q,
                 r: headLocation.hexCoordinate.r,

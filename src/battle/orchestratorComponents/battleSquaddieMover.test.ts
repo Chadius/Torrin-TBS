@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorState"
 import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
@@ -59,7 +59,7 @@ describe("BattleSquaddieMover", () => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepo = ObjectRepositoryService.new()
         map = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 ", " 1 1 "],
             }),
         })

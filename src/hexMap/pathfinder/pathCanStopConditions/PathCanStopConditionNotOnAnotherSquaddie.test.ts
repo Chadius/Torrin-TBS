@@ -1,7 +1,7 @@
 import { SearchParametersHelper } from "../searchParams"
 import { SearchPathHelper } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { TerrainTileMap } from "../../terrainTileMap"
+import { TerrainTileMapService } from "../../terrainTileMap"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -16,7 +16,7 @@ import { PathCanStopConditionNotOnAnotherSquaddie } from "./pathCanStopCondition
 describe("PathCanStopConditionNotOnASquaddie", () => {
     it("returns false if there is a squaddie at the location", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -88,7 +88,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
     })
     it("returns true because the squaddie can stop at its own location", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -145,7 +145,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
     })
     it("returns true if the squaddie is not alive", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -223,7 +223,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
     })
     it("returns true if squaddies are not friendly but search parameters can stop on squaddies anyway", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -297,7 +297,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
     })
     it("returns true if there is no squaddie at the location", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -342,7 +342,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
     })
     it("returns undefined if there is no path", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })

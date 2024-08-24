@@ -22,6 +22,8 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MissionMapService } from "../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 describe("squaddie phase ends", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
@@ -83,6 +85,11 @@ describe("squaddie phase ends", () => {
                     teams: teams,
                     missionId: "missionId",
                     campaignId: "test campaign",
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: TerrainTileMapService.new({
+                            movementCost: ["1 1 1 "],
+                        }),
+                    }),
                 }),
             }),
             repository,

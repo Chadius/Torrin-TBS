@@ -13,7 +13,7 @@ import {
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleEvent, BattleEventService } from "./battleEvent"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import { MissionStatistics } from "../missionStatistics/missionStatistics"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
@@ -303,7 +303,9 @@ describe("BattleSaveState", () => {
         expect(newCameraCoordinates[1]).toBe(200)
         expect(
             newBattleState.battleState.camera.mapDimensionBoundaries
-        ).toEqual(NullMissionMap().terrainTileMap.getDimensions())
+        ).toEqual(
+            TerrainTileMapService.getDimensions(NullMissionMap().terrainTileMap)
+        )
     })
 
     it("Can read the battle phase and create a similar one", () => {
@@ -447,7 +449,7 @@ describe("BattleSaveState", () => {
 
     it("Can read the squaddie placement on a mission map and create a similar one", () => {
         const missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 2 - x "],
             }),
         })
@@ -483,7 +485,7 @@ describe("BattleSaveState", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 2 - x "],
                         }),
                     }),
@@ -511,7 +513,9 @@ describe("BattleSaveState", () => {
         })
 
         expect(
-            newBattleState.battleState.missionMap.terrainTileMap.getDimensions()
+            TerrainTileMapService.getDimensions(
+                newBattleState.battleState.missionMap.terrainTileMap
+            )
         ).toStrictEqual({
             widthOfWidestRow: 4,
             numberOfRows: 1,
@@ -1010,7 +1014,7 @@ describe("BattleSaveState", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
+                        terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 2 - x "],
                         }),
                     }),
@@ -1052,7 +1056,7 @@ describe("BattleSaveState", () => {
 
         it("can export save data objects", () => {
             const missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 2 - x "],
                 }),
             })

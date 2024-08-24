@@ -1,13 +1,13 @@
 import { SearchParametersHelper } from "../searchParams"
 import { SearchPathHelper } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { TerrainTileMap } from "../../terrainTileMap"
+import { TerrainTileMapService } from "../../terrainTileMap"
 import { AddPathConditionPathLeadsToWall } from "./addPathConditionPathLeadsToWall"
 
 describe("addPathConditionPathLeadsToWall", () => {
     it("returns true if the path is not on a wall", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -37,7 +37,7 @@ describe("addPathConditionPathLeadsToWall", () => {
 
     it("returns false if the path is in a wall", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -72,7 +72,7 @@ describe("addPathConditionPathLeadsToWall", () => {
 
     it("returns true if the path is in a wall and search can pass through walls", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })
@@ -109,7 +109,7 @@ describe("addPathConditionPathLeadsToWall", () => {
 
     it("returns undefined if there is no path", () => {
         const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
         })

@@ -10,6 +10,7 @@ import {
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export const SquaddiePhaseStartsService = {
     restoreTurnForAllSquaddies: (
@@ -58,7 +59,10 @@ export const SquaddiePhaseStartsService = {
         ) {
             return
         }
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
     },
     unTintSquaddieMapIconForEachSquaddieWhoCanAct: (
         message: MessageBoardMessageSquaddiePhaseStarts

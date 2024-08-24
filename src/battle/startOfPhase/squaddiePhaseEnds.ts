@@ -8,6 +8,8 @@ import {
 } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { MapGraphicsLayerSquaddieTypes } from "../../hexMap/mapGraphicsLayer"
 
 export const SquaddiePhaseEndsService = {
     unTintSquaddieMapIconForEachSquaddie: (
@@ -22,6 +24,18 @@ export const SquaddiePhaseEndsService = {
                     battleSquaddie
                 )
             }
+        )
+    },
+    clearMapSquaddieGameplayLayers: (
+        message: MessageBoardMessageSquaddiePhaseEnds
+    ) => {
+        const gameEngineState: GameEngineState = message.gameEngineState
+        MapGraphicsLayerSquaddieTypes.forEach((t) =>
+            TerrainTileMapService.removeGraphicsLayerByType(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                t
+            )
         )
     },
 }

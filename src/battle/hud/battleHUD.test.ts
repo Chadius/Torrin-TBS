@@ -25,10 +25,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import {
-    TerrainTileMap,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     ActionsThisRound,
     ActionsThisRoundService,
@@ -68,7 +65,7 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { SummaryHUDStateService } from "./summaryHUD"
+import { SummaryHUDStateService, SummaryPopoverType } from "./summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import {
@@ -98,6 +95,14 @@ import { BattleActionSquaddieChangeService } from "../history/battleActionSquadd
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import {
+    MapGraphicsLayerService,
+    MapGraphicsLayerType,
+} from "../../hexMap/mapGraphicsLayer"
+import {
+    HighlightPulseBlueColor,
+    HighlightPulseRedColor,
+} from "../../hexMap/hexDrawingUtils"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -118,7 +123,7 @@ describe("Battle HUD", () => {
         missionMap =
             missionMap ??
             new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
             })
@@ -923,13 +928,35 @@ describe("Battle HUD", () => {
                     .summaryHUDState.squaddieSummaryPopoversByType.TARGET
             ).toBeUndefined()
         })
+
+        it("highlights the map with the squaddie's range", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouse: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                    id: battleSquaddie.battleSquaddieId,
+                })
+            ).not.toBeUndefined()
+        })
     })
     describe("Player cancels target selection they were considering", () => {
         let gameEngineState: GameEngineState
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             ;({
@@ -940,7 +967,7 @@ describe("Battle HUD", () => {
                 battleSquaddieLocation: { q: 1, r: 1 },
             }))
 
-            highlightRangeSpy = jest.spyOn(
+            addGraphicsLayerSpy = jest.spyOn(
                 DrawSquaddieUtilities,
                 "highlightSquaddieRange"
             )
@@ -949,7 +976,7 @@ describe("Battle HUD", () => {
         })
 
         afterEach(() => {
-            highlightRangeSpy.mockRestore()
+            addGraphicsLayerSpy.mockRestore()
         })
 
         const addActionsThisRoundThenCancelTargetSelection = (
@@ -965,10 +992,9 @@ describe("Battle HUD", () => {
                 actionTemplate: longswordAction,
             })
 
-            highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                "highlightTiles"
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
             )
 
             battleHUDListener.receiveMessage({
@@ -1009,7 +1035,7 @@ describe("Battle HUD", () => {
                 ).toBeUndefined()
             })
             it("highlights the squaddie movement range", () => {
-                expect(highlightRangeSpy).toBeCalled()
+                expect(addGraphicsLayerSpy).toBeCalled()
             })
         })
         describe("Cancel targeting on the second action", () => {
@@ -1072,7 +1098,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             ;({
@@ -1082,11 +1108,6 @@ describe("Battle HUD", () => {
             } = createGameEngineState({
                 battleSquaddieLocation: { q: 1, r: 1 },
             }))
-
-            highlightRangeSpy = jest.spyOn(
-                DrawSquaddieUtilities,
-                "highlightSquaddieRange"
-            )
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
@@ -1126,10 +1147,9 @@ describe("Battle HUD", () => {
                 targetLocation: { q: 0, r: 1 },
             })
 
-            highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                "highlightTiles"
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
             )
 
             battleHUDListener.receiveMessage({
@@ -1139,7 +1159,7 @@ describe("Battle HUD", () => {
         })
 
         afterEach(() => {
-            highlightRangeSpy.mockRestore()
+            addGraphicsLayerSpy.mockRestore()
         })
 
         it("keeps the previewed action", () => {
@@ -1150,7 +1170,7 @@ describe("Battle HUD", () => {
         })
 
         it("highlights the range", () => {
-            expect(highlightRangeSpy).toBeCalled()
+            expect(addGraphicsLayerSpy).toBeCalled()
         })
     })
     describe("Player ends their turn", () => {
@@ -1883,6 +1903,155 @@ describe("Battle HUD", () => {
                     maxHitPoints - longswordActionDamage
                 )
             })
+        })
+    })
+    describe("Popover window has expired", () => {
+        let missionMap: MissionMap
+        let gameEngineState: GameEngineState
+        let playerSoldierBattleSquaddie: BattleSquaddie
+        let battleSquaddie2: BattleSquaddie
+
+        beforeEach(() => {
+            missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 1 "],
+                }),
+            })
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie,
+                battleSquaddie2,
+            } = createGameEngineState({ missionMap }))
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES
+            )
+
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+                expirationTime: 999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                battleSquaddieId: battleSquaddie2.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                gameEngineState,
+                expirationTime: 1999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            TerrainTileMapService.addGraphicsLayer(
+                missionMap.terrainTileMap,
+                MapGraphicsLayerService.new({
+                    id: playerSoldierBattleSquaddie.battleSquaddieId,
+                    highlightedTileDescriptions: [
+                        {
+                            tiles: [
+                                { q: 0, r: 0 },
+                                { q: 0, r: 1 },
+                            ],
+                            pulseColor: HighlightPulseBlueColor,
+                        },
+                    ],
+                    type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                })
+            )
+            TerrainTileMapService.addGraphicsLayer(
+                missionMap.terrainTileMap,
+                MapGraphicsLayerService.new({
+                    id: battleSquaddie2.battleSquaddieId,
+                    highlightedTileDescriptions: [
+                        {
+                            tiles: [
+                                { q: 0, r: 2 },
+                                { q: 0, r: 3 },
+                            ],
+                            pulseColor: HighlightPulseRedColor,
+                        },
+                    ],
+                    type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                })
+            )
+        })
+        it("will close the summary window", () => {
+            const summaryHUDState =
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.MAIN,
+            })
+
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).not.toBeUndefined()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.TARGET,
+            })
+
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
+        })
+        it("will remove the map highlights", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.MAIN,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                    id: playerSoldierBattleSquaddie.battleSquaddieId,
+                })
+            ).toBeUndefined()
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                    id: battleSquaddie2.battleSquaddieId,
+                })
+            ).not.toBeUndefined()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.TARGET,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                    id: battleSquaddie2.battleSquaddieId,
+                })
+            ).toBeUndefined()
         })
     })
 })

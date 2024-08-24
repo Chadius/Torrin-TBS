@@ -32,6 +32,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -171,8 +172,10 @@ const getClosestSquaddieAndLocationToFollow = ({
     const maximumDistanceToConsider: number =
         movementPerAction > 0 && numberOfActions > 0
             ? movementPerAction * numberOfActions
-            : missionMap.terrainTileMap.getDimensions().numberOfRows +
-              missionMap.terrainTileMap.getDimensions().widthOfWidestRow
+            : TerrainTileMapService.getDimensions(missionMap.terrainTileMap)
+                  .numberOfRows +
+              TerrainTileMapService.getDimensions(missionMap.terrainTileMap)
+                  .widthOfWidestRow
 
     function getShortestRoutesThatLeadToSquaddie(
         closestReachableLocationsFromTheCandidate: HexCoordinate[],

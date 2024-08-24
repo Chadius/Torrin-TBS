@@ -2,7 +2,7 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
@@ -32,6 +32,7 @@ import { BattleStateService } from "../orchestrator/battleState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -75,7 +76,7 @@ describe("Targeting Service", () => {
 
     it("will indicate which locations to highlight", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -104,7 +105,7 @@ describe("Targeting Service", () => {
 
     it("will highlight nothing if the acting squaddie is not on the map", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
@@ -129,7 +130,7 @@ describe("Targeting Service", () => {
 
     it("will respect walls and ranged attacks", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -225,7 +226,7 @@ describe("Targeting Service", () => {
 
     it("will highlight unfriendly squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -277,7 +278,7 @@ describe("Targeting Service", () => {
 
     it("will highlight allied squaddies if they are in range", () => {
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
@@ -366,7 +367,7 @@ describe("Targeting Service", () => {
         })
 
         let battleMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["2 2 2 2 "],
             }),
         })
@@ -397,11 +398,11 @@ describe("Targeting Service", () => {
 
     describe("highlightTargetRange using a gameEngineState", () => {
         let gameEngineState: GameEngineState
-        let highlightRangeSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
             const battleMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
             })
@@ -429,10 +430,9 @@ describe("Targeting Service", () => {
                 repository: objectRepository,
             })
 
-            highlightRangeSpy = jest.spyOn(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                "highlightTiles"
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
             )
         })
 
@@ -448,7 +448,18 @@ describe("Targeting Service", () => {
         it("will highlight the tiles", () => {
             const actionRange: HexCoordinate[] =
                 TargetingResultsService.highlightTargetRange(gameEngineState)
-            expect(highlightRangeSpy).toHaveBeenCalledWith([
+
+            expect(addGraphicsLayerSpy).toHaveBeenCalled()
+            const callArgs = addGraphicsLayerSpy.mock.calls[0]
+            expect(callArgs[0]).toEqual(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            )
+            expect(
+                MapGraphicsLayerService.getHighlightedTileDescriptions(
+                    callArgs[1]
+                )
+            ).toEqual([
                 {
                     tiles: actionRange,
                     pulseColor: HighlightPulseRedColor,

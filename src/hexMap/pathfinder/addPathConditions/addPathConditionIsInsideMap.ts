@@ -4,14 +4,17 @@ import {
 } from "./addPathCondition"
 import { SearchPath, SearchPathHelper } from "../searchPath"
 import { SearchParameters } from "../searchParams"
-import { MapLayer, MapLayerHelper } from "../../../missionMap/mapLayer"
+import {
+    MapSearchDataLayer,
+    MapSearchDataLayerService,
+} from "../../../missionMap/mapSearchDataLayer"
 import { LocationTraveled } from "../locationTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export class AddPathConditionIsInsideMap implements AddPathCondition {
-    terrainMapLayer: MapLayer
+    terrainMapLayer: MapSearchDataLayer
 
-    constructor({ terrainMapLayer }: { terrainMapLayer: MapLayer }) {
+    constructor({ terrainMapLayer }: { terrainMapLayer: MapSearchDataLayer }) {
         this.terrainMapLayer = terrainMapLayer
     }
 
@@ -32,7 +35,7 @@ export class AddPathConditionIsInsideMap implements AddPathCondition {
 
         const headLocation: LocationTraveled =
             SearchPathHelper.getMostRecentLocation(newPath)
-        return !MapLayerHelper.outOfBounds({
+        return !MapSearchDataLayerService.outOfBounds({
             mapLayer: this.terrainMapLayer,
             q: headLocation.hexCoordinate.q,
             r: headLocation.hexCoordinate.r,

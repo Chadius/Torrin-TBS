@@ -28,7 +28,7 @@ import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { makeResult } from "../utils/ResultOrError"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     ActionsThisRound,
     ActionsThisRoundService,
@@ -167,7 +167,7 @@ describe("User Selects Target and Confirms", () => {
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 "],
             }),
         })

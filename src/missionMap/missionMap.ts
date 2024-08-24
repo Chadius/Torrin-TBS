@@ -1,4 +1,4 @@
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import {
@@ -83,10 +83,6 @@ export class MissionMap {
         return this._terrainTileMap
     }
 
-    areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
-        return this._terrainTileMap.areCoordinatesOnMap(hexCoordinate)
-    }
-
     addSquaddie(
         squaddieTemplateId: string,
         battleSquaddieId: string,
@@ -94,7 +90,10 @@ export class MissionMap {
     ): Error | undefined {
         if (
             location !== undefined &&
-            !this._terrainTileMap.areCoordinatesOnMap(location)
+            !TerrainTileMapService.isLocationOnMap(
+                this._terrainTileMap,
+                location
+            )
         ) {
             return new Error(
                 `cannot add ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`
@@ -162,8 +161,16 @@ export class MissionMap {
     }
 
     getHexGridMovementAtLocation(location: HexCoordinate): HexGridMovementCost {
-        if (this._terrainTileMap.areCoordinatesOnMap(location)) {
-            return this._terrainTileMap.getTileTerrainTypeAtLocation(location)
+        if (
+            TerrainTileMapService.isLocationOnMap(
+                this._terrainTileMap,
+                location
+            )
+        ) {
+            return TerrainTileMapService.getTileTerrainTypeAtLocation(
+                this._terrainTileMap,
+                location
+            )
         }
         return undefined
     }
@@ -187,7 +194,13 @@ export class MissionMap {
             )
         }
 
-        if (location && !this._terrainTileMap.areCoordinatesOnMap(location)) {
+        if (
+            location &&
+            !TerrainTileMapService.isLocationOnMap(
+                this._terrainTileMap,
+                location
+            )
+        ) {
             return new Error(
                 `cannot update position for ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`
             )

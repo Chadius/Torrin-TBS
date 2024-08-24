@@ -28,7 +28,7 @@ import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { makeResult } from "../utils/ResultOrError"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     ConvertCoordinateService,
     convertMapCoordinatesToScreenCoordinates,
@@ -118,7 +118,7 @@ describe("User clicks on a squaddie", () => {
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -230,12 +230,12 @@ describe("User clicks on a squaddie", () => {
         })
 
         it("Map should highlight all the tiles it can reach when BattlePlayerSquaddieSelector selects a squaddie", () => {
-            const highlightSpy = jest.spyOn(
-                missionMap.terrainTileMap,
-                "highlightTiles"
+            const addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
             )
             selectorClicksOnSquaddie(gameEngineState)
-            expect(highlightSpy).toBeCalled()
+            expect(addGraphicsLayerSpy).toBeCalled()
         })
     })
 

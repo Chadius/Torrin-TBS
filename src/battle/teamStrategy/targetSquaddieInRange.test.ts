@@ -10,7 +10,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TargetSquaddieInRange } from "./targetSquaddieInRange"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -104,7 +104,7 @@ describe("target a squaddie within reach of actions", () => {
         }))
 
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 "],
             }),
         })

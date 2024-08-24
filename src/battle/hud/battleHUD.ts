@@ -11,6 +11,7 @@ import {
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsTargetLocation,
+    MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import {
@@ -77,6 +78,13 @@ import {
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    MapGraphicsLayerService,
+    MapGraphicsLayerSquaddieTypes,
+    MapGraphicsLayerType,
+} from "../../hexMap/mapGraphicsLayer"
+import { MapHighlightHelper } from "../animation/mapHighlight"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -245,15 +253,30 @@ export const BattleHUDService = {
         const actionRange =
             TargetingResultsService.highlightTargetRange(gameEngineState)
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(
-            [
+        MapGraphicsLayerSquaddieTypes.forEach((t) =>
+            TerrainTileMapService.removeGraphicsLayerByType(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                t
+            )
+        )
+
+        const actionRangeOnMap = MapGraphicsLayerService.new({
+            id: gameEngineState.battleOrchestratorState.battleState
+                .actionsThisRound.battleSquaddieId,
+            highlightedTileDescriptions: [
                 {
                     tiles: actionRange,
                     pulseColor: HighlightPulseRedColor,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
-            ]
+            ],
+            type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+        })
+        TerrainTileMapService.addGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            actionRangeOnMap
         )
 
         BattleActionDecisionStepService.removeTarget({
@@ -282,7 +305,10 @@ export const BattleHUDService = {
 
         processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
 
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
@@ -388,6 +414,37 @@ export const BattleHUDService = {
             expirationTime: Date.now() + SUMMARY_POPOVER_PEEK_EXPIRATION_MS,
             position: squaddieSummaryPopoverPosition,
         }
+        const { mapLocation: startLocation } =
+            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+                battleSquaddieId
+            )
+        const squaddieReachHighlightedOnMap =
+            MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                repository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: battleSquaddieId,
+                startLocation: startLocation,
+                campaignResources: gameEngineState.campaign.resources,
+            })
+        const actionRangeOnMap = MapGraphicsLayerService.new({
+            id: battleSquaddieId,
+            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
+            type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+        })
+
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            MapGraphicsLayerType.HOVERED_OVER_SQUADDIE
+        )
+
+        TerrainTileMapService.addGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            actionRangeOnMap
+        )
 
         switch (true) {
             case !isValidValue(
@@ -413,7 +470,10 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
             false
 
@@ -471,7 +531,10 @@ export const BattleHUDService = {
             position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+        TerrainTileMapService.removeAllGraphicsLayers(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap
+        )
     },
     playerConfirmsAction: (
         battleHUD: BattleHUD,
@@ -481,10 +544,7 @@ export const BattleHUDService = {
 
         let actionsThisRound =
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        const {
-            squaddieTemplate: actingSquaddieTemplate,
-            battleSquaddie: actingBattleSquaddie,
-        } = getResultOrThrowError(
+        const { battleSquaddie: actingBattleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 actionsThisRound.battleSquaddieId
@@ -573,6 +633,10 @@ export const BattleHUDService = {
                 .battleActionQueue,
             squaddieBattleAction
         )
+        clearAllHoverAndClickedLayersExceptForThisSquaddie(
+            gameEngineState,
+            actingBattleSquaddie
+        )
     },
     enablePlayerCommand: (
         battleHUD: BattleHUD,
@@ -591,6 +655,26 @@ export const BattleHUDService = {
                         .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
             })
         }
+    },
+    summaryPopoverExpires: (
+        message: MessageBoardMessageSummaryPopoverExpires
+    ) => {
+        const gameEngineState = message.gameEngineState
+        const summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+        const popoverType = message.popoverType
+
+        TerrainTileMapService.removeGraphicsLayerWithIdAndType({
+            terrainTileMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+            id: summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+                .battleSquaddieId,
+            type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+        })
+
+        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
     },
 }
 
@@ -674,6 +758,8 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
+            case MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES:
+                BattleHUDService.summaryPopoverExpires(message)
         }
     }
 }
@@ -807,7 +893,13 @@ const processEndTurnAction = (
         targetLocation: mapLocation,
     })
 
-    gameEngineState.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles()
+    MapGraphicsLayerSquaddieTypes.forEach((t) =>
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            t
+        )
+    )
     RecordingService.addEvent(
         gameEngineState.battleOrchestratorState.battleState.recording,
         BattleEventService.new({
@@ -851,4 +943,31 @@ const addEventToRecording = (
         state.battleOrchestratorState.battleState.recording,
         newEvent
     )
+}
+
+const clearAllHoverAndClickedLayersExceptForThisSquaddie = (
+    gameEngineState: GameEngineState,
+    actingBattleSquaddie: BattleSquaddie
+) => {
+    const confirmLayer = TerrainTileMapService.getGraphicsLayer({
+        terrainTileMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+        id: actingBattleSquaddie.battleSquaddieId,
+        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+    })
+    MapGraphicsLayerSquaddieTypes.forEach((t) =>
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            t
+        )
+    )
+    if (confirmLayer) {
+        TerrainTileMapService.addGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            confirmLayer
+        )
+    }
 }

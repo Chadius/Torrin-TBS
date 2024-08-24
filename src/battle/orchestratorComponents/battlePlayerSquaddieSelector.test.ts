@@ -17,7 +17,7 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
@@ -94,7 +94,7 @@ describe("BattleSquaddieSelector", () => {
         selector = new BattlePlayerSquaddieSelector()
         squaddieRepo = ObjectRepositoryService.new()
         missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -210,7 +210,7 @@ describe("BattleSquaddieSelector", () => {
 
     it("recommends computer squaddie selector if the player cannot control the squaddies", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -255,7 +255,7 @@ describe("BattleSquaddieSelector", () => {
 
         beforeEach(() => {
             const missionMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
             })
@@ -372,7 +372,7 @@ describe("BattleSquaddieSelector", () => {
 
         beforeEach(() => {
             const missionMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
             })
@@ -455,7 +455,7 @@ describe("BattleSquaddieSelector", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
             const missionMap: MissionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
             })
@@ -700,7 +700,7 @@ describe("BattleSquaddieSelector", () => {
             })
 
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 "],
                 }),
             })
@@ -1111,7 +1111,7 @@ describe("BattleSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 1 "],
                 }),
             })
@@ -1306,7 +1306,7 @@ describe("BattleSquaddieSelector", () => {
 
     it("will accept commands even after canceling", () => {
         const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
         })
@@ -1400,7 +1400,7 @@ describe("BattleSquaddieSelector", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 "],
                 }),
             })

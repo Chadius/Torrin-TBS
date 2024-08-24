@@ -33,6 +33,7 @@ import {
 } from "./playerCommandHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -598,6 +599,7 @@ describe("summaryHUD", () => {
     describe("Timed expiration", () => {
         let dateSpy: jest.SpyInstance
         let gameEngineState: GameEngineState
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
             gameEngineState = GameEngineStateService.new({
@@ -613,202 +615,152 @@ describe("summaryHUD", () => {
                     y: 0,
                 },
             })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             dateSpy.mockRestore()
         })
 
-        describe("Main Popover", () => {
-            it("Does not expire if no expiration time is set", () => {
-                SummaryHUDStateService.setMainSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeFalsy()
-                SummaryHUDStateService.removeMainSummaryPopoverIfExpired({
-                    summaryHUDState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                ).not.toBeUndefined()
+        it("Does not expire if no expiration time is set", () => {
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            it("Does not expire if expiration time has not been reached yet", () => {
-                SummaryHUDStateService.setMainSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 2000,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                        .expirationTime
-                ).toEqual(2000)
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeFalsy()
-                SummaryHUDStateService.removeMainSummaryPopoverIfExpired({
+            dateSpy.mockReturnValue(1000)
+            expect(
+                SummaryHUDStateService.hasMainSummaryPopoverExpired({
                     summaryHUDState,
                 })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                ).not.toBeUndefined()
+            ).toBeFalsy()
+        })
+        it("Does not expire if expiration time has not been reached yet", () => {
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 2000,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            it("Will expire if expiration time has been reached", () => {
-                SummaryHUDStateService.setMainSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 999,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeTruthy()
-                SummaryHUDStateService.removeMainSummaryPopoverIfExpired({
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                    .expirationTime
+            ).toEqual(2000)
+            dateSpy.mockReturnValue(1000)
+            expect(
+                SummaryHUDStateService.hasMainSummaryPopoverExpired({
                     summaryHUDState,
                 })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                ).toBeUndefined()
+            ).toBeFalsy()
+        })
+        it("Will expire if expiration time has been reached", () => {
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            it("Will remove expired popovers over time", () => {
-                dateSpy.mockReturnValue(0)
+            dateSpy.mockReturnValue(1000)
+            expect(
+                SummaryHUDStateService.hasMainSummaryPopoverExpired({
+                    summaryHUDState,
+                })
+            ).toBeTruthy()
+        })
+        it("Will send a message if it has expired", () => {
+            dateSpy.mockReturnValue(0)
 
-                SummaryHUDStateService.setMainSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 999,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                SummaryHUDStateService.setTargetSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 1999,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                dateSpy.mockReturnValue(1000)
-                SummaryHUDStateService.draw({
-                    summaryHUDState,
-                    graphicsBuffer,
-                    gameEngineState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                ).toBeUndefined()
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                ).not.toBeUndefined()
-                dateSpy.mockReturnValue(2000)
-                SummaryHUDStateService.draw({
-                    summaryHUDState,
-                    graphicsBuffer,
-                    gameEngineState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                ).toBeUndefined()
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "enemy",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 1999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+            dateSpy.mockReturnValue(1000)
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.MAIN,
+            })
+
+            dateSpy.mockReturnValue(2000)
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.TARGET,
             })
         })
 
-        describe("Target Popover", () => {
-            it("Does not expire if no expiration time is set", () => {
-                SummaryHUDStateService.setTargetSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasTargetSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeFalsy()
-                SummaryHUDStateService.removeTargetSummaryPopoverIfExpired({
-                    summaryHUDState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                ).not.toBeUndefined()
+        it("will remove popovers when requested", () => {
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            it("Does not expire if expiration time has not been reached yet", () => {
-                SummaryHUDStateService.setTargetSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 2000,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                        .expirationTime
-                ).toEqual(2000)
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasTargetSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeFalsy()
-                SummaryHUDStateService.removeTargetSummaryPopoverIfExpired({
-                    summaryHUDState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                ).not.toBeUndefined()
+            SummaryHUDStateService.setTargetSummaryPopover({
+                summaryHUDState,
+                battleSquaddieId: "player",
+                resourceHandler,
+                objectRepository,
+                gameEngineState,
+                expirationTime: 1999,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
-            it("Will expire if expiration time has been reached", () => {
-                SummaryHUDStateService.setTargetSummaryPopover({
-                    summaryHUDState,
-                    battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    expirationTime: 999,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                dateSpy.mockReturnValue(1000)
-                expect(
-                    SummaryHUDStateService.hasTargetSummaryPopoverExpired({
-                        summaryHUDState,
-                    })
-                ).toBeTruthy()
-                SummaryHUDStateService.removeTargetSummaryPopoverIfExpired({
-                    summaryHUDState,
-                })
-                expect(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                ).toBeUndefined()
+
+            SummaryHUDStateService.removeSummaryPopover({
+                summaryHUDState,
+                popoverType: SummaryPopoverType.MAIN,
             })
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).not.toBeUndefined()
+
+            SummaryHUDStateService.removeSummaryPopover({
+                summaryHUDState,
+                popoverType: SummaryPopoverType.TARGET,
+            })
+            expect(
+                summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
         })
     })
 })

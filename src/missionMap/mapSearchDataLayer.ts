@@ -1,7 +1,7 @@
 import { MissionMap } from "./missionMap"
-import { TerrainTileMap } from "../hexMap/terrainTileMap"
+import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 
-export interface MapLayer {
+export interface MapSearchDataLayer {
     numberOfRows: number
     widthOfWidestRow: number
     valueByLocation: {
@@ -16,7 +16,7 @@ export type MapCoordinateValueGenerator = (
     r: number
 ) => boolean | number
 
-export const MapLayerHelper = {
+export const MapSearchDataLayerService = {
     new: ({
         map,
         terrainTileMap,
@@ -25,14 +25,18 @@ export const MapLayerHelper = {
         map?: MissionMap
         terrainTileMap?: TerrainTileMap
         initialValue: boolean | number | undefined | MapCoordinateValueGenerator
-    }): MapLayer => {
+    }): MapSearchDataLayer => {
         if (map) {
             terrainTileMap = map.terrainTileMap
         }
 
-        const newMapLayer: MapLayer = {
-            numberOfRows: terrainTileMap.getDimensions().numberOfRows,
-            widthOfWidestRow: terrainTileMap.getDimensions().widthOfWidestRow,
+        const newMapLayer: MapSearchDataLayer = {
+            numberOfRows:
+                TerrainTileMapService.getDimensions(terrainTileMap)
+                    .numberOfRows,
+            widthOfWidestRow:
+                TerrainTileMapService.getDimensions(terrainTileMap)
+                    .widthOfWidestRow,
             valueByLocation: {},
         }
 
@@ -66,7 +70,7 @@ export const MapLayerHelper = {
         r,
         value,
     }: {
-        mapLayer: MapLayer
+        mapLayer: MapSearchDataLayer
         q: number
         r: number
         value: boolean | number | undefined
@@ -84,7 +88,7 @@ export const MapLayerHelper = {
         q,
         r,
     }: {
-        mapLayer: MapLayer
+        mapLayer: MapSearchDataLayer
         q: number
         r: number
     }): boolean => {
@@ -97,7 +101,7 @@ const outOfBounds = ({
     q,
     r,
 }: {
-    mapLayer: MapLayer
+    mapLayer: MapSearchDataLayer
     q: number
     r: number
 }): boolean => {

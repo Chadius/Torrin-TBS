@@ -21,7 +21,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
@@ -105,7 +105,7 @@ describe("player phase listener", () => {
 
         beforeEach(() => {
             missionMap = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 "],
                 }),
             })

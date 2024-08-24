@@ -2,23 +2,30 @@ import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { HexGridMovementCost } from "./hexGridMovementCost"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { MapLayer } from "../missionMap/mapLayer"
 import { MouseButton } from "../utils/mouseConfig"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { BattleCamera } from "../battle/battleCamera"
+import {
+    MapGraphicsLayer,
+    MapGraphicsLayerHighlight,
+    MapGraphicsLayerService,
+    MapGraphicsLayerType,
+} from "./mapGraphicsLayer"
+import { HighlightPulseBlueColor } from "./hexDrawingUtils"
 
-describe("hexMap", () => {
+describe("Terrain Tile Map", () => {
     describe("mouseClicks on the map change the outlined tile", () => {
         let hexGrid: TerrainTileMap
 
         beforeEach(() => {
-            hexGrid = new TerrainTileMap({
+            hexGrid = TerrainTileMapService.new({
                 movementCost: ["x - x ", " - - - ", "  x - x "],
             })
         })
 
         it("should clear the outlined tile when you click off map", () => {
-            hexGrid.mouseClicked({
+            TerrainTileMapService.mouseClicked({
+                terrainTileMap: hexGrid,
                 mouseX: -100,
                 mouseY: -100,
                 cameraX: 0,
@@ -44,7 +51,8 @@ describe("hexMap", () => {
         it.each(tests)(
             `($q, $r): click on this region to select the tile`,
             ({ q, r }) => {
-                hexGrid.mouseClicked({
+                TerrainTileMapService.mouseClicked({
+                    terrainTileMap: hexGrid,
                     mouseButton: MouseButton.ACCEPT,
                     mouseX:
                         ScreenDimensions.SCREEN_WIDTH / 2 +
@@ -63,175 +71,266 @@ describe("hexMap", () => {
         )
     })
     it("can note which tiles are at which locations", () => {
-        const hexGrid = new TerrainTileMap({
+        const hexGrid = TerrainTileMapService.new({
             movementCost: ["x - x x ", " 1 - 2 x ", "  x 2 x x "],
         })
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 1, r: 1 })).toBe(
-            HexGridMovementCost.pit
-        )
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 1,
+            })
+        ).toBe(HexGridMovementCost.pit)
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
                 q: 1,
                 r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 1, r: 3 })).toBe(
-            HexGridMovementCost.wall
-        )
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 3,
+            })
+        ).toBe(HexGridMovementCost.wall)
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
                 q: 1,
                 r: 0,
             })
         ).toBe(HexGridMovementCost.singleMovement)
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({
-                q: 2,
-                r: 1,
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 1,
+                r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
-        expect(hexGrid.getTileTerrainTypeAtLocation({ q: 0, r: 1 })).toBe(
-            HexGridMovementCost.pit
-        )
+        expect(
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 0,
+                r: 1,
+            })
+        ).toBe(HexGridMovementCost.pit)
 
         expect(
-            hexGrid.getTileTerrainTypeAtLocation({ q: 4, r: 4 })
+            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+                q: 4,
+                r: 4,
+            })
         ).toBeUndefined()
 
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 1 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 2 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 3 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 1, r: 0 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 2, r: 1 })).toBeTruthy()
-        expect(hexGrid.areCoordinatesOnMap({ q: 0, r: 1 })).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 1 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 2 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 3 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 0 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 2, r: 1 })
+        ).toBeTruthy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 0, r: 1 })
+        ).toBeTruthy()
 
-        expect(hexGrid.areCoordinatesOnMap({ q: 4, r: 4 })).toBeFalsy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 4, r: 4 })
+        ).toBeFalsy()
 
-        expect(hexGrid.areCoordinatesOnMap(undefined)).toBeFalsy()
+        expect(
+            TerrainTileMapService.isLocationOnMap(undefined, { q: 0, r: 0 })
+        ).toBeFalsy()
     })
     describe("can create maps using text strings", () => {
         it("a single row", () => {
-            const mapFromSingleLine = new TerrainTileMap({
+            const mapFromSingleLine = TerrainTileMapService.new({
                 movementCost: ["1 2 - x 1122--xxOO"],
             })
 
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 2 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 2 }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 3 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 3 }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 4,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 4,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 5,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    {
+                        q: 0,
+                        r: 5,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 6 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 6 }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 7 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 7 }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromSingleLine.getTileTerrainTypeAtLocation({ q: 0, r: 8 })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromSingleLine,
+                    { q: 0, r: 8 }
+                )
             ).toEqual(HexGridMovementCost.pit)
         })
 
         it("multiple rows use offsets to place the 0 tile", () => {
-            const mapFromMultipleLines = new TerrainTileMap({
+            const mapFromMultipleLines = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 2 2 2 ", "  _ _ _ ", "   x x x "],
             })
 
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 0,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 0,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 1,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 1,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 2,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 2,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 0,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 0,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 1,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 1,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                mapFromMultipleLines.getTileTerrainTypeAtLocation({
-                    q: 3,
-                    r: 2,
-                })
+                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                    mapFromMultipleLines,
+                    {
+                        q: 3,
+                        r: 2,
+                    }
+                )
             ).toEqual(HexGridMovementCost.wall)
         })
     })
@@ -240,7 +339,7 @@ describe("hexMap", () => {
         let bigMap: TerrainTileMap
 
         beforeEach(() => {
-            bigMap = new TerrainTileMap({
+            bigMap = TerrainTileMapService.new({
                 movementCost: [
                     "1 1 1 1 1 ",
                     " 1 1 1 1 1 ",
@@ -251,176 +350,9 @@ describe("hexMap", () => {
         })
 
         it("can calculate the bounding box dimension of a map", () => {
-            expect(bigMap.getDimensions()).toStrictEqual({
+            expect(TerrainTileMapService.getDimensions(bigMap)).toStrictEqual({
                 widthOfWidestRow: 5,
                 numberOfRows: 4,
-            })
-        })
-
-        it("generates world locations of all tiles", () => {
-            const bigMap: TerrainTileMap = new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 1 1 ",
-                    " 1 1 1 1 1 ",
-                    "  1 1 1 1 1 ",
-                    "   1 1 1 1 ",
-                ],
-            })
-
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 0, 0).x
-            ).toBeCloseTo(0)
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 0, 0).y
-            ).toBeCloseTo(0)
-
-            const expectedLocationFor33 =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    3,
-                    3
-                )
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 3, 3).x
-            ).toBeCloseTo(expectedLocationFor33[0])
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 3, 3).y
-            ).toBeCloseTo(expectedLocationFor33[1])
-
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 3, 4).x
-            ).toBeUndefined()
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 3, 4).y
-            ).toBeUndefined()
-
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 5, 4).x
-            ).toBeUndefined()
-            expect(
-                TerrainTileMapService.getWorldLocation(bigMap, 5, 4).y
-            ).toBeUndefined()
-        })
-
-        it("calculates the bounding box using world coordinates", () => {
-            let expectedWorldBoundariesSize =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    4 + 1,
-                    5 + 1
-                )
-
-            const dimensions = TerrainTileMapService.getWorldBoundingBox(bigMap)
-
-            expect(dimensions.width).toBeCloseTo(expectedWorldBoundariesSize[0])
-            expect(dimensions.height).toBeCloseTo(
-                expectedWorldBoundariesSize[1]
-            )
-        })
-    })
-
-    describe("can generate map layers based on the terrain", () => {
-        it("can generate map layers based on whether you can visit them later on or it is not applicable", () => {
-            const terrain = new TerrainTileMap({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            })
-
-            const mapWithLocationsThatCanBeVisitedByWalker: MapLayer =
-                TerrainTileMapService.createMapLayerForVisitableTiles({
-                    terrainTileMap: terrain,
-                    canCrossOverPits: false,
-                    canPassThroughWalls: false,
-                })
-            ;[0, 1, 2, 3, 4].forEach((r) => {
-                ;[0, 1].forEach((q) => {
-                    const expectedValue: boolean | undefined = [
-                        HexGridMovementCost.wall,
-                        HexGridMovementCost.pit,
-                    ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
-                    )
-                        ? undefined
-                        : false
-
-                    expect(
-                        mapWithLocationsThatCanBeVisitedByWalker
-                            .valueByLocation[q][r]
-                    ).toBe(expectedValue)
-                })
-            })
-
-            const mapWithLocationsThatCanBeVisitedByFlyer: MapLayer =
-                TerrainTileMapService.createMapLayerForVisitableTiles({
-                    terrainTileMap: terrain,
-                    canCrossOverPits: true,
-                    canPassThroughWalls: false,
-                })
-            ;[0, 1, 2, 3, 4].forEach((r) => {
-                ;[0, 1].forEach((q) => {
-                    const expectedValue: boolean | undefined = [
-                        HexGridMovementCost.wall,
-                    ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
-                    )
-                        ? undefined
-                        : false
-
-                    expect(
-                        mapWithLocationsThatCanBeVisitedByFlyer.valueByLocation[
-                            q
-                        ][r]
-                    ).toBe(expectedValue)
-                })
-            })
-
-            const mapWithLocationsThatCanBeVisitedByTeleport: MapLayer =
-                TerrainTileMapService.createMapLayerForVisitableTiles({
-                    terrainTileMap: terrain,
-                    canCrossOverPits: true,
-                    canPassThroughWalls: true,
-                })
-            ;[0, 1, 2, 3, 4].forEach((r) => {
-                ;[0, 1].forEach((q) => {
-                    const expectedValue = false
-
-                    expect(
-                        mapWithLocationsThatCanBeVisitedByTeleport
-                            .valueByLocation[q][r]
-                    ).toBe(expectedValue)
-                })
-            })
-        })
-        it("can generate map layers based on whether you can stop on them later on or it is not applicable", () => {
-            const terrain = new TerrainTileMap({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            })
-
-            const mapWithLocationsThatCanBeStoppedOn: MapLayer =
-                TerrainTileMapService.createMapLayerForStoppableTiles({
-                    terrainTileMap: terrain,
-                })
-            ;[0, 1, 2, 3, 4].forEach((r) => {
-                ;[0, 1].forEach((q) => {
-                    const expectedValue: boolean | undefined = [
-                        HexGridMovementCost.wall,
-                        HexGridMovementCost.pit,
-                    ].includes(
-                        terrain.getTileTerrainTypeAtLocation({
-                            q,
-                            r,
-                        })
-                    )
-                        ? undefined
-                        : false
-
-                    expect(
-                        mapWithLocationsThatCanBeStoppedOn.valueByLocation[q][r]
-                    ).toBe(expectedValue)
-                })
             })
         })
     })
@@ -429,7 +361,7 @@ describe("hexMap", () => {
         let map: TerrainTileMap
 
         beforeEach(() => {
-            map = new TerrainTileMap({
+            map = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             })
         })
@@ -442,32 +374,101 @@ describe("hexMap", () => {
                 )
             const camera = new BattleCamera(centerOfMap[0], centerOfMap[1])
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 0, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 0 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 2, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 2 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 1, 0, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 1, r: 0 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 1, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 1, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 1, 2, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 1, r: 2 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 2, 0, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 2, r: 0 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 2, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 2, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 2, 2, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 2, r: 2 },
+                    camera,
+                })
             ).toBeTruthy()
+            expect(
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 2, r: -1 },
+                    camera,
+                })
+            ).toBeTruthy()
+
+            const onScreenLocations =
+                TerrainTileMapService.getAllOnscreenLocations({
+                    terrainTileMap: map,
+                    camera,
+                })
+            expect(onScreenLocations).toHaveLength(10)
+            expect(
+                onScreenLocations.map((location) => ({
+                    q: location.q,
+                    r: location.r,
+                }))
+            ).toEqual(
+                expect.arrayContaining([
+                    { q: 0, r: 0 },
+                    { q: 0, r: 1 },
+                    { q: 0, r: 2 },
+                    { q: 1, r: 0 },
+                    { q: 1, r: 1 },
+                    { q: 1, r: 2 },
+                    { q: 2, r: -1 },
+                    { q: 2, r: 0 },
+                    { q: 2, r: 1 },
+                    { q: 2, r: 2 },
+                ])
+            )
         })
 
         it("knows when tiles have scrolled off the top of the screen", () => {
@@ -483,10 +484,18 @@ describe("hexMap", () => {
                     HEX_TILE_WIDTH / 2
             )
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 1 },
+                    camera,
+                })
             ).toBeFalsy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 1, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 1, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
         })
 
@@ -503,10 +512,18 @@ describe("hexMap", () => {
                     HEX_TILE_WIDTH / 2
             )
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 1, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 1, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 2, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 2, r: 1 },
+                    camera,
+                })
             ).toBeFalsy()
         })
 
@@ -521,10 +538,18 @@ describe("hexMap", () => {
                 centerOfMap[1]
             )
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 0, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 0 },
+                    camera,
+                })
             ).toBeFalsy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
         })
 
@@ -541,11 +566,254 @@ describe("hexMap", () => {
                 centerOfMap[1]
             )
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 1, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 1 },
+                    camera,
+                })
             ).toBeTruthy()
             expect(
-                TerrainTileMapService.isTileOnScreen(map, 0, 2, camera)
+                TerrainTileMapService.isLocationOnScreen({
+                    terrainTileMap: map,
+                    location: { q: 0, r: 2 },
+                    camera,
+                })
             ).toBeFalsy()
+        })
+    })
+
+    describe("graphics layer", () => {
+        let map: TerrainTileMap
+        let clickedLayer: MapGraphicsLayer
+        let hoveredLayer: MapGraphicsLayer
+
+        beforeEach(() => {
+            map = TerrainTileMapService.new({
+                movementCost: ["1 1 2 ", " x 1 _ "],
+            })
+            clickedLayer = MapGraphicsLayerService.new({
+                id: "clickedLayer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [
+                            { q: 0, r: 1 },
+                            { q: 1, r: 2 },
+                        ],
+                    },
+                ],
+                type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+            })
+            hoveredLayer = MapGraphicsLayerService.new({
+                id: "hoveredLayer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [
+                            { q: 0, r: 2 },
+                            { q: 1, r: 1 },
+                        ],
+                    },
+                ],
+                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+            })
+        })
+
+        it("can add a layer and retrieve it", () => {
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayer)
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).toEqual(clickedLayer)
+        })
+        it("update an existing layer if it is added again", () => {
+            const clickedLayerAlternate = MapGraphicsLayerService.new({
+                id: "clickedLayer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [
+                            { q: 0, r: 2 },
+                            { q: 1, r: 1 },
+                        ],
+                    },
+                ],
+                type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+            })
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayerAlternate)
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).toEqual(clickedLayerAlternate)
+        })
+        it("can delete a layer given the id", () => {
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayer)
+            TerrainTileMapService.removeGraphicsLayerById(map, clickedLayer.id)
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).toBeUndefined()
+        })
+        it("can delete a layer of a given type", () => {
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayer)
+            TerrainTileMapService.addGraphicsLayer(map, hoveredLayer)
+            TerrainTileMapService.removeGraphicsLayerByType(
+                map,
+                MapGraphicsLayerType.HOVERED_OVER_SQUADDIE
+            )
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: hoveredLayer.id,
+                })
+            ).toBeUndefined()
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).not.toBeUndefined()
+        })
+        it("can delete a layer of a given id and type", () => {
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayer)
+            TerrainTileMapService.addGraphicsLayer(map, hoveredLayer)
+            TerrainTileMapService.removeGraphicsLayerWithIdAndType({
+                terrainTileMap: map,
+                id: clickedLayer.id,
+                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: hoveredLayer.id,
+                })
+            ).not.toBeUndefined()
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).not.toBeUndefined()
+
+            TerrainTileMapService.removeGraphicsLayerWithIdAndType({
+                terrainTileMap: map,
+                id: hoveredLayer.id,
+                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: hoveredLayer.id,
+                })
+            ).toBeUndefined()
+        })
+        it("can delete all layers", () => {
+            TerrainTileMapService.addGraphicsLayer(map, clickedLayer)
+            TerrainTileMapService.addGraphicsLayer(map, hoveredLayer)
+            TerrainTileMapService.removeAllGraphicsLayers(map)
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: clickedLayer.id,
+                })
+            ).toBeUndefined()
+            expect(
+                TerrainTileMapService.getGraphicsLayer({
+                    terrainTileMap: map,
+                    id: hoveredLayer.id,
+                })
+            ).toBeUndefined()
+        })
+        it("can generate a list of highlighted tiles by composing the graphics layers", () => {
+            const lowestLayer: MapGraphicsLayer = MapGraphicsLayerService.new({
+                id: "lowest layer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [
+                            { q: 0, r: 2 },
+                            { q: 1, r: 1 },
+                        ],
+                        overlayImageResourceName: "lowest layer",
+                    },
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [{ q: 0, r: 0 }],
+                    },
+                ],
+                type: MapGraphicsLayerType.UNKNOWN,
+            })
+            TerrainTileMapService.addGraphicsLayer(map, lowestLayer)
+
+            const midLayer: MapGraphicsLayer = MapGraphicsLayerService.new({
+                id: "mid layer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [{ q: 0, r: 2 }],
+                        overlayImageResourceName: "mid layer",
+                    },
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [{ q: 1, r: 2 }],
+                        overlayImageResourceName: "mid layer 2",
+                    },
+                ],
+                type: MapGraphicsLayerType.UNKNOWN,
+            })
+            TerrainTileMapService.addGraphicsLayer(map, midLayer)
+
+            const topLayer: MapGraphicsLayer = MapGraphicsLayerService.new({
+                id: "top layer",
+                highlightedTileDescriptions: [
+                    {
+                        pulseColor: HighlightPulseBlueColor,
+                        tiles: [{ q: 0, r: 2 }],
+                        overlayImageResourceName: "top layer",
+                    },
+                ],
+                type: MapGraphicsLayerType.UNKNOWN,
+            })
+            TerrainTileMapService.addGraphicsLayer(map, topLayer)
+
+            const computedHighlightedTiles: MapGraphicsLayerHighlight[] =
+                TerrainTileMapService.computeHighlightedTiles(map)
+            expect(computedHighlightedTiles).toEqual(
+                expect.arrayContaining([
+                    {
+                        location: { q: 0, r: 0 },
+                        pulseColor: HighlightPulseBlueColor,
+                    },
+                    {
+                        location: { q: 0, r: 2 },
+                        pulseColor: HighlightPulseBlueColor,
+                        overlayImageResourceName: "top layer",
+                    },
+                    {
+                        location: { q: 1, r: 1 },
+                        pulseColor: HighlightPulseBlueColor,
+                        overlayImageResourceName: "lowest layer",
+                    },
+                    {
+                        location: { q: 1, r: 2 },
+                        pulseColor: HighlightPulseBlueColor,
+                        overlayImageResourceName: "mid layer 2",
+                    },
+                ])
+            )
         })
     })
 })

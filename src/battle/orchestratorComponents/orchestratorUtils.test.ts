@@ -1,10 +1,7 @@
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import {
-    TerrainTileMap,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
@@ -56,6 +53,7 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -79,7 +77,7 @@ describe("Orchestration Utils", () => {
         }))
 
         map = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
         })
@@ -873,11 +871,13 @@ describe("Orchestration Utils", () => {
 
     describe("highlightSquaddieRange", () => {
         let gameEngineState: GameEngineState
-        let highlightSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: jest.SpyInstance
+
         beforeEach(() => {
-            highlightSpy = jest
-                .spyOn(map.terrainTileMap, "highlightTiles")
-                .mockImplementation(() => {})
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
+            )
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
@@ -890,12 +890,15 @@ describe("Orchestration Utils", () => {
                 campaign: CampaignService.default({}),
             })
         })
+        afterEach(() => {
+            addGraphicsLayerSpy.mockRestore()
+        })
         it("highlights the range for a player controlled squaddie using their current actions", () => {
             knightSquaddieTemplate.attributes.movement.movementPerAction = 1
             SquaddieTurnService.endTurn(knightBattleSquaddie.squaddieTurn)
 
             map = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 1 "],
                 }),
             })
@@ -905,16 +908,17 @@ describe("Orchestration Utils", () => {
                 { q: 0, r: 3 }
             )
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            highlightSpy = jest
-                .spyOn(map.terrainTileMap, "highlightTiles")
-                .mockImplementation(() => {})
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
+            )
 
             OrchestratorUtilities.highlightSquaddieRange(
                 gameEngineState,
                 knightBattleSquaddie.battleSquaddieId
             )
-            const highlightSpyArgs = highlightSpy.mock.calls[0][0]
-            expect(highlightSpyArgs).toHaveLength(1)
+            const addGraphicsLayerSpyArgs = addGraphicsLayerSpy.mock.calls[0][1]
+            expect(addGraphicsLayerSpyArgs.highlights).toHaveLength(1)
         })
         it("highlights the range for a non player controlled squaddie using a standard turn even if they are out of actions", () => {
             const {
@@ -932,7 +936,7 @@ describe("Orchestration Utils", () => {
             SquaddieTurnService.endTurn(enemyBattleSquaddie.squaddieTurn)
 
             map = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
+                terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 1 "],
                 }),
             })
@@ -942,16 +946,19 @@ describe("Orchestration Utils", () => {
                 { q: 0, r: 3 }
             )
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            highlightSpy = jest
-                .spyOn(map.terrainTileMap, "highlightTiles")
-                .mockImplementation(() => {})
+            addGraphicsLayerSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
+            )
 
             OrchestratorUtilities.highlightSquaddieRange(
                 gameEngineState,
                 enemyBattleSquaddie.battleSquaddieId
             )
-            const highlightSpyArgs = highlightSpy.mock.calls[0][0]
-            expect(highlightSpyArgs).toHaveLength(4)
+
+            const addGraphicsLayerSpyLayer: MapGraphicsLayer =
+                addGraphicsLayerSpy.mock.calls[0][1]
+            expect(addGraphicsLayerSpyLayer.highlights).toHaveLength(4)
         })
     })
 })

@@ -6,7 +6,7 @@ import {
     MissionFileFormat,
     NpcTeamMissionDeployment,
 } from "../../dataLoader/missionLoader"
-import { TerrainTileMap } from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MissionObjective,
     MissionObjectiveHelper,
@@ -119,9 +119,8 @@ export const MissionLoader = {
         missionLoaderContext.id = missionData.id
 
         missionLoaderContext.missionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
+            terrainTileMap: TerrainTileMapService.new({
                 movementCost: missionData.terrain,
-                resourceHandler,
             }),
         })
 
@@ -292,8 +291,9 @@ const initializeCameraPosition = ({
 }: {
     missionLoaderContext: MissionLoaderContext
 }) => {
-    const mapDimensions =
-        missionLoaderContext.missionMap.terrainTileMap.getDimensions()
+    const mapDimensions = TerrainTileMapService.getDimensions(
+        missionLoaderContext.missionMap.terrainTileMap
+    )
     missionLoaderContext.mapSettings.camera = new BattleCamera()
     missionLoaderContext.mapSettings.camera.setMapDimensionBoundaries(
         mapDimensions.widthOfWidestRow,

@@ -14,6 +14,7 @@ import {
     SquaddieSummaryPopoverService,
 } from "./playerActionPanel/squaddieSummaryPopover"
 import { isValidValue } from "../../utils/validityCheck"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export enum SummaryPopoverType {
     MAIN = "MAIN",
@@ -124,7 +125,11 @@ export const SummaryHUDStateService = {
                     !!summaryHUDState.squaddieSummaryPopoversByType[popoverType]
             )
             .map((popoverType) => {
-                removeSummaryPopoverIfExpired({ summaryHUDState, popoverType })
+                sendMessageIfPopoverExpired({
+                    summaryHUDState,
+                    popoverType,
+                    gameEngineState,
+                })
                 return popoverType
             })
             .filter(
@@ -275,35 +280,14 @@ export const SummaryHUDStateService = {
             popoverType: SummaryPopoverType.MAIN,
         })
     },
-    removeMainSummaryPopoverIfExpired: ({
+    removeSummaryPopover: ({
         summaryHUDState,
+        popoverType,
     }: {
         summaryHUDState: SummaryHUDState
+        popoverType: SummaryPopoverType
     }) => {
-        removeSummaryPopoverIfExpired({
-            summaryHUDState,
-            popoverType: SummaryPopoverType.MAIN,
-        })
-    },
-    hasTargetSummaryPopoverExpired: ({
-        summaryHUDState,
-    }: {
-        summaryHUDState: SummaryHUDState
-    }): boolean => {
-        return hasSummaryPopoverExpired({
-            summaryHUDState,
-            popoverType: SummaryPopoverType.TARGET,
-        })
-    },
-    removeTargetSummaryPopoverIfExpired: ({
-        summaryHUDState,
-    }: {
-        summaryHUDState: SummaryHUDState
-    }) => {
-        removeSummaryPopoverIfExpired({
-            summaryHUDState,
-            popoverType: SummaryPopoverType.TARGET,
-        })
+        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
     },
 }
 
@@ -361,15 +345,21 @@ const shouldReplacePopover = (
     )
 }
 
-const removeSummaryPopoverIfExpired = ({
+const sendMessageIfPopoverExpired = ({
     summaryHUDState,
     popoverType,
+    gameEngineState,
 }: {
     summaryHUDState: SummaryHUDState
     popoverType: SummaryPopoverType
+    gameEngineState: GameEngineState
 }) => {
     if (hasSummaryPopoverExpired({ summaryHUDState, popoverType })) {
-        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+            gameEngineState,
+            popoverType,
+        })
     }
 }
 
