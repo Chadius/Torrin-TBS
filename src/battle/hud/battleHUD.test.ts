@@ -95,6 +95,12 @@ import { BattleActionSquaddieChangeService } from "../history/battleActionSquadd
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
+import { PulseBlendColor } from "../../hexMap/colorUtils"
+import {
+    HighlightPulseBlueColor,
+    HighlightPulseRedColor,
+} from "../../hexMap/hexDrawingUtils"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1884,11 +1890,9 @@ describe("Battle HUD", () => {
         beforeEach(() => {
             missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 1 "],
+                    movementCost: ["1 1 1 1 "],
                 }),
             })
-
-            // TODO Highlight MissionMap
             ;({
                 gameEngineState,
                 playerSoldierBattleSquaddie,
@@ -1923,6 +1927,37 @@ describe("Battle HUD", () => {
                 expirationTime: 1999,
                 position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
+
+            TerrainTileMapService.addGraphicsLayer(
+                missionMap.terrainTileMap,
+                MapGraphicsLayerService.new({
+                    id: playerSoldierBattleSquaddie.battleSquaddieId,
+                    highlightedTileDescriptions: [
+                        {
+                            tiles: [
+                                { q: 0, r: 0 },
+                                { q: 0, r: 1 },
+                            ],
+                            pulseColor: HighlightPulseBlueColor,
+                        },
+                    ],
+                })
+            )
+            TerrainTileMapService.addGraphicsLayer(
+                missionMap.terrainTileMap,
+                MapGraphicsLayerService.new({
+                    id: battleSquaddie2.battleSquaddieId,
+                    highlightedTileDescriptions: [
+                        {
+                            tiles: [
+                                { q: 0, r: 2 },
+                                { q: 0, r: 3 },
+                            ],
+                            pulseColor: HighlightPulseRedColor,
+                        },
+                    ],
+                })
+            )
         })
         it("will close the summary window", () => {
             const summaryHUDState =
@@ -1950,6 +1985,43 @@ describe("Battle HUD", () => {
 
             expect(
                 summaryHUDState.squaddieSummaryPopoversByType.TARGET
+            ).toBeUndefined()
+        })
+        it("will remove the map highlights", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.MAIN,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                    playerSoldierBattleSquaddie.battleSquaddieId
+                )
+            ).toBeUndefined()
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                    battleSquaddie2.battleSquaddieId
+                )
+            ).not.toBeUndefined()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+                gameEngineState,
+                popoverType: SummaryPopoverType.TARGET,
+            })
+
+            expect(
+                TerrainTileMapService.getGraphicsLayer(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                    battleSquaddie2.battleSquaddieId
+                )
             ).toBeUndefined()
         })
     })

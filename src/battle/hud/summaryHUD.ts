@@ -345,8 +345,6 @@ const shouldReplacePopover = (
     )
 }
 
-// TODO BattleHUD will remove the map highlight
-
 const sendMessageIfPopoverExpired = ({
     summaryHUDState,
     popoverType,

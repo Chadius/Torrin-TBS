@@ -620,6 +620,14 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
         const popoverType = message.popoverType
+
+        TerrainTileMapService.removeGraphicsLayer(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+                .battleSquaddieId
+        )
+
         summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
     },
 }
