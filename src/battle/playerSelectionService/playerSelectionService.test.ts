@@ -47,6 +47,7 @@ import { DecidedActionService } from "../../action/decided/decidedAction"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
+import { SummaryHUDStateService } from "../hud/summaryHUD"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -211,7 +212,7 @@ describe("Player Selection Service", () => {
                 })
             })
 
-            it("knows the player wants to select the non playable squaddie", () => {
+            it("knows the player wants to select the playable squaddie", () => {
                 expect(actualContext.playerIntent).toEqual(
                     PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE
                 )
@@ -277,6 +278,60 @@ describe("Player Selection Service", () => {
                     expect(messageSpy).toBeCalled()
                     expect(messageSpy).toBeCalledWith(
                         expect.objectContaining(expectedMessage)
+                    )
+                })
+            })
+
+            describe("When the player selects a different squaddie before making any actions", () => {
+                let battleSquaddie2: BattleSquaddie
+                beforeEach(() => {
+                    ;({ battleSquaddie: battleSquaddie2 } = createSquaddie({
+                        objectRepository: gameEngineState.repository,
+                        squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    }))
+                    MissionMapService.addSquaddie({
+                        battleSquaddieId: battleSquaddie2.battleSquaddieId,
+                        squaddieTemplateId: battleSquaddie2.squaddieTemplateId,
+                        missionMap:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap,
+                        location: { q: 0, r: 2 },
+                    })
+
+                    BattleActionDecisionStepService.setActor({
+                        actionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerBattleActionBuilderState,
+                        battleSquaddieId: "PLAYER",
+                    })
+                    gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                        SummaryHUDStateService.new({
+                            mouseSelectionLocation: { x: 0, y: 0 },
+                        })
+                    SummaryHUDStateService.setMainSummaryPopover({
+                        objectRepository: gameEngineState.repository,
+                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                        resourceHandler: gameEngineState.resourceHandler,
+                        summaryHUDState:
+                            gameEngineState.battleOrchestratorState
+                                .battleHUDState.summaryHUDState,
+                        gameEngineState,
+                        battleSquaddieId: "PLAYER",
+                    })
+                    actualContext = clickOnMapCoordinate({
+                        q: 0,
+                        r: 2,
+                        gameEngineState,
+                    })
+                })
+
+                it("knows the player intends to select a different squaddie", () => {
+                    expect(actualContext.playerIntent).toEqual(
+                        PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE
+                    )
+
+                    expect(actualContext.battleSquaddieId).toEqual(
+                        battleSquaddie2.battleSquaddieId
                     )
                 })
             })

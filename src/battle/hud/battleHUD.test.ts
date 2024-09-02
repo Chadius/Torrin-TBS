@@ -81,7 +81,10 @@ import {
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { SquaddieTurnService } from "../../squaddie/turn"
+import {
+    DEFAULT_ACTION_POINTS_PER_TURN,
+    SquaddieTurnService,
+} from "../../squaddie/turn"
 import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
 import {
     DamageType,
@@ -104,6 +107,9 @@ import {
     HighlightPulseRedColor,
 } from "../../hexMap/hexDrawingUtils"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
+import { BattleOrchestratorChanges } from "../orchestrator/battleOrchestratorComponent"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -2196,6 +2202,442 @@ describe("Battle HUD", () => {
             )
         })
     })
-    // TODO MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
-    // TODO MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+    describe("Player wants to move a squaddie", () => {
+        let gameEngineState: GameEngineState
+        let battleHUDListener: BattleHUDListener
+        let battleSquaddie: BattleSquaddie
+        let movementCalculatorSpy: jest.SpyInstance
+        let messageSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: TerrainTileMapService.new({
+                            movementCost: ["1 1 1 1 "],
+                        }),
+                    }),
+                }))
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+            )
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouseClick: MouseClickService.new({
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    }),
+                },
+            })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        })
+        afterEach(() => {
+            movementCalculatorSpy.mockRestore()
+            messageSpy.mockRestore()
+        })
+
+        describe("calculator says the movement is invalid", () => {
+            beforeEach(() => {})
+
+            const sendMessageToMove = () => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    gameEngineState,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    targetLocation: { q: -100, r: 9001 },
+                })
+            }
+
+            it("sends a message stating the player selection is invalid", () => {
+                movementCalculatorSpy = jest
+                    .spyOn(MovementCalculatorService, "isMovementPossible")
+                    .mockReturnValue(false)
+
+                sendMessageToMove()
+
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                        gameEngineState,
+                        reason: "out of range",
+                    })
+                )
+            })
+
+            it("does not complete the action", () => {
+                movementCalculatorSpy = jest
+                    .spyOn(MovementCalculatorService, "isMovementPossible")
+                    .mockReturnValue(false)
+
+                sendMessageToMove()
+
+                expect(
+                    BattleActionDecisionStepService.isActionRecordReadyToAnimate(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeFalsy()
+            })
+        })
+
+        describe("calculator returns a valid path", () => {
+            beforeEach(() => {
+                movementCalculatorSpy = jest
+                    .spyOn(MovementCalculatorService, "isMovementPossible")
+                    .mockReturnValue(true)
+
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    gameEngineState,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    targetLocation: { q: 0, r: 2 },
+                })
+            })
+
+            it("sets the actor and is ready to animate", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                ).not.toBeUndefined()
+                expect(
+                    BattleActionDecisionStepService.isActorSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).battleSquaddieId
+                ).toEqual(battleSquaddie.battleSquaddieId)
+                expect(
+                    BattleActionDecisionStepService.isActionSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).movement
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConsidered(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConfirmed(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).targetLocation
+                ).toEqual({
+                    q: 0,
+                    r: 2,
+                })
+            })
+
+            it("adds a processed action to the history", () => {
+                const decidedActionMovementEffect =
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: { q: 0, r: 2 },
+                    })
+                const processedAction = ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        battleSquaddieId: "player_soldier_0",
+                        actionPointCost: 1,
+                        actionTemplateName: "Move",
+                        actionEffects: [decidedActionMovementEffect],
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionMovementEffectService.new({
+                            decidedActionEffect: decidedActionMovementEffect,
+                        }),
+                    ],
+                })
+
+                const history =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history
+                expect(history).toHaveLength(1)
+                expect(history[0]).toStrictEqual(
+                    BattleEventService.new({
+                        results: undefined,
+                        processedAction: processedAction,
+                    })
+                )
+            })
+
+            it("consumes the squaddie actions", () => {
+                expect(
+                    battleSquaddie.squaddieTurn.remainingActionPoints
+                ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)
+            })
+
+            it("adds a battle action to move", () => {
+                const squaddieBattleAction = BattleActionService.new({
+                    actor: {
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 2 },
+                        },
+                    },
+                })
+
+                expect(
+                    BattleActionQueueService.peek(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionQueue
+                    )
+                ).toEqual(squaddieBattleAction)
+            })
+
+            it("updates the squaddie location", () => {
+                const mapDatum = MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddie.battleSquaddieId
+                )
+                expect(mapDatum).not.toBeUndefined()
+                expect(mapDatum.mapLocation).toEqual({ q: 0, r: 2 })
+            })
+        })
+
+        describe("add an additional movement action during a turn", () => {
+            beforeEach(() => {
+                movementCalculatorSpy = jest
+                    .spyOn(MovementCalculatorService, "isMovementPossible")
+                    .mockReturnValue(true)
+
+                const decidedActionMovementEffect =
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: { q: 0, r: 1 },
+                    })
+                const processedAction = ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        battleSquaddieId: "player_soldier_0",
+                        actionPointCost: 1,
+                        actionTemplateName: "Move",
+                        actionEffects: [decidedActionMovementEffect],
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionMovementEffectService.new({
+                            decidedActionEffect: decidedActionMovementEffect,
+                        }),
+                    ],
+                })
+
+                gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                    ActionsThisRoundService.new({
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 0, r: 0 },
+                        previewedActionTemplateId: undefined,
+                        processedActions: [processedAction],
+                    })
+
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    gameEngineState,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    targetLocation: { q: 0, r: 2 },
+                })
+            })
+
+            it("when user clicks on new location, will add movement to existing instruction", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions
+                ).toHaveLength(2)
+                const decidedActionMovementEffect =
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: { q: 0, r: 2 },
+                    })
+                const processedAction = ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionPointCost: 1,
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        actionTemplateName: "Move",
+                        actionEffects: [decidedActionMovementEffect],
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionMovementEffectService.new({
+                            decidedActionEffect: decidedActionMovementEffect,
+                        }),
+                    ],
+                })
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound.processedActions[1]
+                ).toEqual(processedAction)
+                ActionsThisRoundService.nextProcessedActionEffectToShow(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
+                )
+                expect(
+                    ActionsThisRoundService.getProcessedActionEffectToShow(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound
+                    )
+                ).toEqual(
+                    ProcessedActionMovementEffectService.new({
+                        decidedActionEffect: decidedActionMovementEffect,
+                    })
+                )
+            })
+
+            it("adds a movement action and confirmed target to the action builder", () => {
+                expect(
+                    BattleActionDecisionStepService.isActionSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).movement
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConsidered(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConfirmed(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).targetLocation
+                ).toEqual({
+                    q: 0,
+                    r: 2,
+                })
+            })
+
+            it("will update squaddie location to destination and spend action points", () => {
+                expect(
+                    MissionMapService.getByBattleSquaddieId(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                        battleSquaddie.battleSquaddieId
+                    )
+                ).toEqual({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    squaddieTemplateId: battleSquaddie.squaddieTemplateId,
+                    mapLocation: { q: 0, r: 2 },
+                })
+                expect(
+                    battleSquaddie.squaddieTurn.remainingActionPoints
+                ).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1)
+                expect(
+                    ActionsThisRoundService.getProcessedActionEffectToShow(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound
+                    ).type
+                ).toEqual(ActionEffectType.MOVEMENT)
+            })
+        })
+    })
+    describe("player wants to cancel their squaddie selection", () => {
+        let gameEngineState: GameEngineState
+        let battleHUDListener: BattleHUDListener
+        let battleSquaddie: BattleSquaddie
+
+        beforeEach(() => {
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: TerrainTileMapService.new({
+                            movementCost: ["1 1 1 1 "],
+                        }),
+                    }),
+                }))
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+            )
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouseClick: MouseClickService.new({
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    }),
+                },
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                gameEngineState,
+            })
+        })
+        it("closes the HUD", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
+        })
+        it("clears the battle action builder", () => {
+            expect(
+                BattleActionDecisionStepService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeFalsy()
+        })
+    })
 })
