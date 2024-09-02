@@ -59,7 +59,7 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -78,6 +78,12 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+
+// TODO Make a helper service
+// TODO Get the context for clicking and the situation
+// TODO Use the context to get logic to figure out the situation
+// TODO Player Squaddie Selector gets the context and calculates the scenario
+// TODO Player Squaddie Selector just runs the scenario
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -129,6 +135,7 @@ export class BattlePlayerSquaddieSelector
         }
     }
 
+    // TODO Categorize the situations and understand why the user is clicking. Then you can refactor this.
     mouseClicked({
         gameEngineState,
         mouseX,
@@ -703,6 +710,11 @@ export class BattlePlayerSquaddieSelector
         const differentSquaddieWasSelected: boolean =
             battleSquaddieToHighlightId !==
             squaddieClickedOnInfoAndMapLocation.battleSquaddieId
+        // TODO Call utility function to see if a path is possible
+        // TODO -- is this an ally? Spend all actions
+        // TODO -- is this an enemy? Spend all but 1 action
+        // TODO -- calculate path to other squaddie using as many actions as needed
+        // TODO -- if there is a possible path, set the path and a movement action
 
         if (
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
@@ -711,6 +723,7 @@ export class BattlePlayerSquaddieSelector
             differentSquaddieWasSelected
         ) {
             gameEngineState.messageBoard.sendMessage({
+                // TODO rename this to PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN and no valid action
                 type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
                 gameEngineState,
             })
@@ -728,10 +741,11 @@ export class BattlePlayerSquaddieSelector
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieId,
             selectionMethod: {
-                mouse: {
+                mouseClick: MouseClickService.new({
                     x: mouseX,
                     y: mouseY,
-                },
+                    button: MouseButton.ACCEPT,
+                }),
             },
         })
     }
@@ -1143,7 +1157,7 @@ export class BattlePlayerSquaddieSelector
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieId,
             selectionMethod: {
-                mouse: {
+                mouseMovement: {
                     x: mouseX,
                     y: mouseY,
                 },
@@ -1213,9 +1227,10 @@ export class BattlePlayerSquaddieSelector
             gameEngineState,
             battleSquaddieSelectedId: nextBattleSquaddieId,
             selectionMethod: {
-                mouse: BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
-                    { gameEngineState }
-                ),
+                mouseClick:
+                    BattleHUDStateService.getPositionToOpenPlayerCommandWindow({
+                        gameEngineState,
+                    }),
             },
         })
     }

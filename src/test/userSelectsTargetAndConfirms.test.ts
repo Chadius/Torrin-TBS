@@ -171,15 +171,15 @@ describe("User Selects Target and Confirms", () => {
                 movementCost: ["1 1 1 1 "],
             }),
         })
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 1,
-            }
-        )
+            },
+        })
 
         enemySquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -225,15 +225,15 @@ describe("User Selects Target and Confirms", () => {
             actionTemplate: attackAction,
         })
 
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            enemySquaddieTemplate.squaddieId.templateId,
-            enemyBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: enemySquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 2,
-            }
-        )
+            },
+        })
 
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep: playerBattleActionBuilderState,
@@ -801,15 +801,15 @@ const clickOnEnemy = ({
         actionTemplate,
     })
 
-    MissionMapService.addSquaddie(
+    MissionMapService.addSquaddie({
         missionMap,
-        targetBattleTemplateId,
-        targetBattleSquaddieId,
-        {
+        squaddieTemplateId: targetBattleTemplateId,
+        battleSquaddieId: targetBattleSquaddieId,
+        location: {
             q: 0,
             r: 2,
-        }
-    )
+        },
+    })
 
     BattleActionDecisionStepService.setConsideredTarget({
         actionDecisionStep: playerBattleActionBuilderState,

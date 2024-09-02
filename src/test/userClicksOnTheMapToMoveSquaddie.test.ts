@@ -46,7 +46,7 @@ import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrato
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
-import { MouseButton } from "../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
@@ -135,15 +135,15 @@ describe("user clicks on the map to move", () => {
             MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
         )
 
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         selectorAndHUDClickOnSquaddie(
             selector,
@@ -187,15 +187,15 @@ describe("user clicks on the map to move", () => {
                 battleSquaddieId: "another player",
             })
             ObjectRepositoryService.addBattleSquaddie(repository, anotherPlayer)
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                anotherPlayer.squaddieTemplateId,
-                anotherPlayer.battleSquaddieId,
-                {
+                squaddieTemplateId: anotherPlayer.squaddieTemplateId,
+                battleSquaddieId: anotherPlayer.battleSquaddieId,
+                location: {
                     q: 0,
                     r: 2,
-                }
-            )
+                },
+            })
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 2)
             commonExpectations()
             expect(
@@ -375,7 +375,11 @@ const selectorAndHUDClickOnSquaddie = (
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddieId,
         selectionMethod: {
-            mouse: { x: 0, y: 0 },
+            mouseClick: MouseClickService.new({
+                x: 0,
+                y: 0,
+                button: MouseButton.ACCEPT,
+            }),
         },
     })
 }

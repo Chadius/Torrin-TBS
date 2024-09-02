@@ -78,15 +78,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     repository,
                     blockingSquaddieBattle
                 )
-                MissionMapService.addSquaddie(
+                MissionMapService.addSquaddie({
                     missionMap,
-                    blockingSquaddieTemplate.squaddieId.templateId,
-                    blockingSquaddieBattle.battleSquaddieId,
-                    {
+                    squaddieTemplateId:
+                        blockingSquaddieTemplate.squaddieId.templateId,
+                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
+                    location: {
                         q: 1,
                         r: 2,
-                    }
-                )
+                    },
+                })
 
                 const searchParameters = SearchParametersHelper.new({
                     squaddieAffiliation: searchingAffiliation,
@@ -171,15 +172,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     repository,
                     blockingSquaddieBattle
                 )
-                MissionMapService.addSquaddie(
+                MissionMapService.addSquaddie({
                     missionMap,
-                    blockingSquaddieTemplate.squaddieId.templateId,
-                    blockingSquaddieBattle.battleSquaddieId,
-                    {
+                    squaddieTemplateId:
+                        blockingSquaddieTemplate.squaddieId.templateId,
+                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
+                    location: {
                         q: 1,
                         r: 2,
-                    }
-                )
+                    },
+                })
                 SquaddieService.dealDamageToTheSquaddie({
                     squaddieTemplate: blockingSquaddieTemplate,
                     battleSquaddie: blockingSquaddieBattle,
@@ -265,15 +267,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     repository,
                     blockingSquaddieBattle
                 )
-                MissionMapService.addSquaddie(
+                MissionMapService.addSquaddie({
                     missionMap,
-                    blockingSquaddieTemplate.squaddieId.templateId,
-                    blockingSquaddieBattle.battleSquaddieId,
-                    {
+                    squaddieTemplateId:
+                        blockingSquaddieTemplate.squaddieId.templateId,
+                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
+                    location: {
                         q: 1,
                         r: 2,
-                    }
-                )
+                    },
+                })
 
                 const searchParameters = SearchParametersHelper.new({
                     squaddieAffiliation: searchingAffiliation,
@@ -396,15 +399,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 repository,
                 blockingSquaddieBattle
             )
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                blockingSquaddieTemplate.squaddieId.templateId,
-                blockingSquaddieBattle.battleSquaddieId,
-                {
+                squaddieTemplateId:
+                    blockingSquaddieTemplate.squaddieId.templateId,
+                battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
+                location: {
                     q: 1,
                     r: 2,
-                }
-            )
+                },
+            })
 
             const searchParameters = SearchParametersHelper.new({
                 squaddieAffiliation: searchingAffiliation,

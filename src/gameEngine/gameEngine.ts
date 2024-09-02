@@ -42,7 +42,10 @@ import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { FileState, FileStateService } from "./fileState"
 import { MessageBoard } from "../message/messageBoard"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
-import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import {
+    MessageBoardMessageSelectAndLockNextSquaddie,
+    MessageBoardMessageType,
+} from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
@@ -282,6 +285,8 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+            MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+            MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

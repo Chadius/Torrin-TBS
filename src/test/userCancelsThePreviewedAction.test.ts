@@ -134,15 +134,15 @@ describe("User cancels the previewed action", () => {
                 movementCost: ["1 1 "],
             }),
         })
-        MissionMapService.addSquaddie(
-            missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         targeting = new BattlePlayerSquaddieTarget()
         confirm = new BattlePlayerActionConfirm()
@@ -170,15 +170,18 @@ describe("User cancels the previewed action", () => {
             )
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-            MissionMapService.addSquaddie(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                playerSquaddieTemplate.squaddieId.templateId,
-                playerBattleSquaddie.battleSquaddieId,
-                {
+            MissionMapService.addSquaddie({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                squaddieTemplateId:
+                    playerSquaddieTemplate.squaddieId.templateId,
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                location: {
                     q: 0,
                     r: 0,
-                }
-            )
+                },
+            })
 
             targeting.update(gameEngineState, graphicsContext)
         })
@@ -309,15 +312,16 @@ describe("User cancels the previewed action", () => {
                 ],
             }),
         })
-        MissionMapService.addSquaddie(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+        MissionMapService.addSquaddie({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         targeting.update(gameEngineState, graphicsContext)
         targeting.mouseEventHappened(gameEngineState, {
@@ -395,24 +399,26 @@ describe("User cancels the previewed action", () => {
             actionsThisRound: actionsThisRound,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         })
-        MissionMapService.addSquaddie(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            enemySquaddieTemplate.squaddieId.templateId,
-            enemyBattleSquaddie.battleSquaddieId,
-            {
+        MissionMapService.addSquaddie({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieTemplateId: enemySquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 1,
-            }
-        )
-        MissionMapService.addSquaddie(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            },
+        })
+        MissionMapService.addSquaddie({
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         targeting.update(gameEngineState, graphicsContext)
 

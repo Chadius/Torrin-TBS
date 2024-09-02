@@ -180,7 +180,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         const currentSquaddieAffiliation =
             state.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
-        const teams = BattlePhaseService.FindTeamsOfAffiliation(
+        const teams = BattlePhaseService.findTeamsOfAffiliation(
             state.battleOrchestratorState.battleState.teams,
             BattlePhaseService.ConvertBattlePhaseToSquaddieAffiliation(
                 currentSquaddieAffiliation

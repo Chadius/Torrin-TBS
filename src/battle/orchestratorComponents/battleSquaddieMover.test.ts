@@ -45,6 +45,7 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -460,7 +461,11 @@ describe("BattleSquaddieMover", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_1",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseClick: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
                     },
                 })
 

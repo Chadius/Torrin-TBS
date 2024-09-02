@@ -37,7 +37,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
 
     reset(state: GameEngineState): void {
         const playerTeams: BattleSquaddieTeam[] =
-            BattlePhaseService.FindTeamsOfAffiliation(
+            BattlePhaseService.findTeamsOfAffiliation(
                 state.battleOrchestratorState.battleState.teams,
                 SquaddieAffiliation.PLAYER
             )

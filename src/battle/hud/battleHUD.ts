@@ -326,10 +326,10 @@ export const BattleHUDService = {
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new({
-                mouseSelectionLocation: message.selectionMethod.mouse
+                mouseSelectionLocation: message.selectionMethod.mouseClick
                     ? {
-                          x: message.selectionMethod.mouse.x,
-                          y: message.selectionMethod.mouse.y,
+                          x: message.selectionMethod.mouseClick.x,
+                          y: message.selectionMethod.mouseClick.y,
                       }
                     : { x: 0, y: 0 },
             })
@@ -345,6 +345,11 @@ export const BattleHUDService = {
                 squaddieTemplate,
                 battleSquaddie,
             })
+
+        OrchestratorUtilities.highlightSquaddieRange(
+            gameEngineState,
+            battleSquaddieId
+        )
 
         if (squaddieIsNormallyControllableByPlayer) {
             SummaryHUDStateService.setMainSummaryPopover({
@@ -395,10 +400,11 @@ export const BattleHUDService = {
         ) {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({
-                    mouseSelectionLocation: message.selectionMethod.mouse
+                    mouseSelectionLocation: message.selectionMethod
+                        .mouseMovement
                         ? {
-                              x: message.selectionMethod.mouse.x,
-                              y: message.selectionMethod.mouse.y,
+                              x: message.selectionMethod.mouseMovement.x,
+                              y: message.selectionMethod.mouseMovement.y,
                           }
                         : { x: 0, y: 0 },
                 })

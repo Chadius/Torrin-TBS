@@ -18,3 +18,27 @@ export const GetMouseButton = (physicalMouseButton: string): MouseButton => {
     }
     return MouseButton.NONE
 }
+
+export interface MouseClick {
+    x: number
+    y: number
+    button: MouseButton
+}
+
+export const MouseClickService = {
+    new: ({
+        x,
+        y,
+        button,
+    }: {
+        x: number
+        y: number
+        button: MouseButton
+    }): MouseClick => {
+        return {
+            x,
+            y,
+            button,
+        }
+    },
+}

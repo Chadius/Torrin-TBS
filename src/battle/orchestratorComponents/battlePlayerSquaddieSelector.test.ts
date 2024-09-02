@@ -59,7 +59,7 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
@@ -331,7 +331,7 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseMovement: { x: 0, y: 0 },
                     },
                     squaddieSummaryPopoverPosition:
                         SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -413,7 +413,11 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseClick: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
                     },
                 }
             )
@@ -490,7 +494,11 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseClick: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
                     },
                 }
             )
@@ -762,7 +770,11 @@ describe("BattleSquaddieSelector", () => {
                         gameEngineState,
                         battleSquaddieSelectedId: "player_soldier_0",
                         selectionMethod: {
-                            mouse: { x: 0, y: 0 },
+                            mouseClick: MouseClickService.new({
+                                x: 0,
+                                y: 0,
+                                button: MouseButton.ACCEPT,
+                            }),
                         },
                     }
                 )
@@ -922,7 +934,11 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseClick: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
                     },
                 }
             )
@@ -1206,7 +1222,11 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_soldier_0",
                     selectionMethod: {
-                        mouse: { x: 0, y: 0 },
+                        mouseClick: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
                     },
                 }
             )
@@ -1367,7 +1387,11 @@ describe("BattleSquaddieSelector", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
-                    mouse: { x: 0, y: 0 },
+                    mouseClick: MouseClickService.new({
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    }),
                 },
             }
         )
@@ -1422,12 +1446,15 @@ describe("BattleSquaddieSelector", () => {
             BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
                 "player_soldier_1",
             ])
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                "player_soldier",
-                "player_soldier_1",
-                { q: 0, r: 2 }
-            )
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_1",
+                location: {
+                    q: 0,
+                    r: 2,
+                },
+            })
 
             let mockResourceHandler = mocks.mockResourceHandler(
                 mockedP5GraphicsContext

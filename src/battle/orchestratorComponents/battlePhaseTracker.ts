@@ -25,7 +25,7 @@ export const BattlePhaseService = {
     ) => {
         return advanceToNextPhase(startingPhaseState, teams)
     },
-    FindTeamsOfAffiliation: (
+    findTeamsOfAffiliation: (
         teams: BattleSquaddieTeam[],
         affiliation: SquaddieAffiliation
     ): BattleSquaddieTeam[] => {

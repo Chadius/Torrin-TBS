@@ -3,6 +3,11 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import {
+    MouseButton,
+    MouseClick,
+    MouseClickService,
+} from "../../utils/mouseConfig"
 
 export interface BattleHUDState {
     summaryHUDState: SummaryHUDState
@@ -25,7 +30,7 @@ export const BattleHUDStateService = {
         gameEngineState,
     }: {
         gameEngineState: GameEngineState
-    }): { x: number; y: number } => {
+    }): MouseClick => {
         let repositionWindow = {
             mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
             mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
@@ -49,10 +54,11 @@ export const BattleHUDStateService = {
                 ) - HEX_TILE_WIDTH
         }
 
-        return {
+        return MouseClickService.new({
             x: repositionWindow.mouseX,
             y: repositionWindow.mouseY,
-        }
+            button: MouseButton.ACCEPT,
+        })
     },
 }
 

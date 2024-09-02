@@ -4,6 +4,7 @@ import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
+import { MouseClick } from "../utils/mouseConfig"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -24,6 +25,8 @@ export type MessageBoardMessage =
     | MessageBoardMessageSquaddiePhaseStarts
     | MessageBoardMessageSquaddiePhaseEnds
     | MessageBoardMessageSummaryPopoverExpires
+    | MessageBoardMessageSelectAndLockNextSquaddie
+    | MessageBoardMessageMoveSquaddieToLocation
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -44,6 +47,8 @@ export enum MessageBoardMessageType {
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
     SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
     SUMMARY_POPOVER_EXPIRES = "SUMMARY_POPOVER_EXPIRES",
+    SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
+    MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
 }
 
 export interface MessageBoardMessageBase {
@@ -103,10 +108,7 @@ export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: {
-        mouse: {
-            x: number
-            y: number
-        }
+        mouseClick: MouseClick
     }
 }
 
@@ -115,7 +117,7 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: {
-        mouse: {
+        mouseMovement: {
             x: number
             y: number
         }
@@ -163,4 +165,16 @@ export interface MessageBoardMessageSummaryPopoverExpires {
     type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES
     gameEngineState: GameEngineState
     popoverType: SummaryPopoverType
+}
+
+export interface MessageBoardMessageSelectAndLockNextSquaddie {
+    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageMoveSquaddieToLocation {
+    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+    battleSquaddieId: string
+    targetLocation: HexCoordinate
+    gameEngineState: GameEngineState
 }

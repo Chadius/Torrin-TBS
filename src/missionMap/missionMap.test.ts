@@ -288,12 +288,15 @@ describe("Mission Map", () => {
             terrainTileMap: map,
         })
 
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            torrinSquaddie.templateId,
-            "dynamic_squaddie_0",
-            { q: 0, r: 1 }
-        )
+            squaddieTemplateId: torrinSquaddie.templateId,
+            battleSquaddieId: "dynamic_squaddie_0",
+            location: {
+                q: 0,
+                r: 1,
+            },
+        })
         MissionMapService.updateBattleSquaddieLocation(
             missionMap,
             "dynamic_squaddie_0",

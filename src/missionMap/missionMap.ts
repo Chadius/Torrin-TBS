@@ -24,12 +24,17 @@ export const MissionMapService = {
     default: (): MissionMap => {
         return NullMissionMap()
     },
-    addSquaddie: (
-        missionMap: MissionMap,
-        squaddieTemplateId: string,
-        battleSquaddieId: string,
+    addSquaddie: ({
+        missionMap,
+        squaddieTemplateId,
+        battleSquaddieId,
+        location,
+    }: {
+        missionMap: MissionMap
+        squaddieTemplateId: string
+        battleSquaddieId: string
         location?: HexCoordinate
-    ): Error | undefined => {
+    }): Error | undefined => {
         return missionMap.addSquaddie(
             squaddieTemplateId,
             battleSquaddieId,

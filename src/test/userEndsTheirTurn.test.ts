@@ -63,7 +63,7 @@ import { ProcessedActionEndTurnEffectService } from "../action/processed/process
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { BattleEventService } from "../battle/history/battleEvent"
-import { MouseButton } from "../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
@@ -153,15 +153,15 @@ describe("User ends their turn", () => {
                 movementCost: ["1 1 "],
             }),
         })
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         gameEngineState = getGameEngineState({
             resourceHandler,
@@ -573,7 +573,11 @@ const selectSquaddieForTheHUD = ({
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
         selectionMethod: {
-            mouse: { x: 0, y: 0 },
+            mouseClick: MouseClickService.new({
+                x: 0,
+                y: 0,
+                button: MouseButton.ACCEPT,
+            }),
         },
     })
 }

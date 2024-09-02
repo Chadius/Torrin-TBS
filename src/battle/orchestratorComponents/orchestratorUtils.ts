@@ -25,6 +25,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -216,21 +217,23 @@ const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
     return canAct
 }
 
-const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
-    if (!isValidValue(state)) {
+const isSquaddieCurrentlyTakingATurn = (
+    gameEngineState: GameEngineState
+): boolean => {
+    if (!isValidValue(gameEngineState)) {
         return false
     }
 
-    if (!isValidValue(state.battleOrchestratorState)) {
+    if (!isValidValue(gameEngineState.battleOrchestratorState)) {
         return false
     }
 
-    if (!isValidValue(state.battleOrchestratorState.battleState)) {
+    if (!isValidValue(gameEngineState.battleOrchestratorState.battleState)) {
         return false
     }
 
     const actionsThisRound =
-        state.battleOrchestratorState.battleState.actionsThisRound
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
     if (!isValidValue(actionsThisRound)) {
         return false
     }
@@ -301,7 +304,11 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
                 .battleSquaddieId,
         selectionMethod: {
-            mouse: { x: mouseX, y: mouseY },
+            mouseClick: MouseClickService.new({
+                x: mouseX,
+                y: mouseY,
+                button: MouseButton.ACCEPT,
+            }),
         },
     })
 }

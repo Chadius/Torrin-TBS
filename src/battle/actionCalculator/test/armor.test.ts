@@ -95,12 +95,15 @@ describe("Armor Attribute affects Armor Attacks", () => {
             actingTemplate,
             actingSquaddie
         )
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            actingTemplate.squaddieId.templateId,
-            actingSquaddie.battleSquaddieId,
-            { q: 0, r: 0 }
-        )
+            squaddieTemplateId: actingTemplate.squaddieId.templateId,
+            battleSquaddieId: actingSquaddie.battleSquaddieId,
+            location: {
+                q: 0,
+                r: 0,
+            },
+        })
 
         const targetTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -118,12 +121,12 @@ describe("Armor Attribute affects Armor Attacks", () => {
             targetTemplate,
             targetSquaddie
         )
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            targetTemplate.squaddieId.templateId,
-            targetSquaddie.battleSquaddieId,
-            { q: 0, r: 1 }
-        )
+            squaddieTemplateId: targetTemplate.squaddieId.templateId,
+            battleSquaddieId: targetSquaddie.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
 
         gameEngineState = GameEngineStateService.new({
             repository,

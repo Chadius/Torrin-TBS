@@ -449,7 +449,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieId,
             selectionMethod: {
-                mouse: {
+                mouseMovement: {
                     x: mouseEvent.mouseX,
                     y: mouseEvent.mouseY,
                 },
