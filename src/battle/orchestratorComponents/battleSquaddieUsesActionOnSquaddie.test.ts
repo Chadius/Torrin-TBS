@@ -51,7 +51,7 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../history/squaddieSquaddieResults"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"

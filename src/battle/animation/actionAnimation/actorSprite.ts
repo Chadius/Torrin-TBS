@@ -16,7 +16,7 @@ import {
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { RectAreaService } from "../../../ui/rectArea"
 import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
-import { RollResultService } from "../../actionCalculator/rollResult"
+import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,

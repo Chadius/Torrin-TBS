@@ -38,7 +38,7 @@ PlayerSelectsATargetSquaddieToUseActionOn
 PlayerSelectsASquaddieMidTurnButItIsInvalid
  */
 
-import { MouseClick } from "../../utils/mouseConfig"
+import { MouseClick, ScreenCoordinate } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
@@ -65,6 +65,8 @@ import {
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -76,6 +78,7 @@ export enum PlayerIntent {
     PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION",
     SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
+    SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
 }
 
 export const PlayerSelectionService = {
@@ -103,6 +106,13 @@ export const PlayerSelectionService = {
         const hasAtLeastOnePlayerControllableSquaddie: boolean =
             playerCanControlAtLeastOneSquaddie(gameEngineState)
 
+        const clickedLocation: HexCoordinate = !!mouseClick
+            ? getClickedOnLocation({
+                  gameEngineState,
+                  screenCoordinate: { x: mouseClick.x, y: mouseClick.y },
+              })
+            : undefined
+
         const {
             clickedOnSquaddie,
             battleSquaddieId: clickedBattleSquaddieId,
@@ -126,6 +136,15 @@ export const PlayerSelectionService = {
             gameEngineState.battleOrchestratorState.battleState
                 .playerBattleActionBuilderState
         )
+
+        const mouseClickLocationIsOnMap: boolean =
+            !!mouseClick &&
+            !!clickedLocation &&
+            TerrainTileMapService.isLocationOnMap(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                clickedLocation
+            )
 
         switch (true) {
             case !hasAtLeastOnePlayerControllableSquaddie:
@@ -161,12 +180,19 @@ export const PlayerSelectionService = {
                     battleSquaddieId: clickedBattleSquaddieId,
                     mouseClick,
                 })
-            case squaddieActorIsSet && !!mouseClick:
+            case squaddieActorIsSet && mouseClickLocationIsOnMap:
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
                     battleSquaddieId: clickedBattleSquaddieId,
                     mouseClick,
+                })
+            case squaddieActorIsSet &&
+                !mouseClickLocationIsOnMap &&
+                !isSquaddieTakingATurn:
+                return PlayerSelectionContextService.new({
+                    playerIntent:
+                        PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
                 })
             case hoveredOverSquaddie:
                 return PlayerSelectionContextService.new({
@@ -263,6 +289,13 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION:
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                    gameEngineState,
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
         }
         return PlayerSelectionChangesService.new({})
     },
@@ -303,8 +336,10 @@ const getSquaddiePlayerClickedOn = ({
         }
     }
     const battleSquaddieId = getBattleSquaddieIdAtLocation({
-        x: mouseClick.x,
-        y: mouseClick.y,
+        screenCoordinate: {
+            x: mouseClick.x,
+            y: mouseClick.y,
+        },
         gameEngineState,
     })
 
@@ -353,8 +388,10 @@ const getSquaddiePlayerHoveredOver = ({
         }
     }
     const battleSquaddieId = getBattleSquaddieIdAtLocation({
-        x: mouseMovement.x,
-        y: mouseMovement.y,
+        screenCoordinate: {
+            x: mouseMovement.x,
+            y: mouseMovement.y,
+        },
         gameEngineState,
     })
 
@@ -365,24 +402,38 @@ const getSquaddiePlayerHoveredOver = ({
 }
 
 const getBattleSquaddieIdAtLocation = ({
-    x,
-    y,
+    screenCoordinate,
     gameEngineState,
 }: {
-    x: number
-    y: number
+    screenCoordinate?: ScreenCoordinate
     gameEngineState: GameEngineState
 }) => {
-    const { q, r } =
-        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
-            screenX: x,
-            screenY: y,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
-        })
+    const { q, r } = getClickedOnLocation({ screenCoordinate, gameEngineState })
 
     const { battleSquaddieId } = MissionMapService.getBattleSquaddieAtLocation(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         { q, r }
     )
     return battleSquaddieId
+}
+
+const getClickedOnLocation = ({
+    screenCoordinate,
+    gameEngineState,
+}: {
+    screenCoordinate: ScreenCoordinate
+    gameEngineState: GameEngineState
+}): HexCoordinate => {
+    if (!screenCoordinate) {
+        return undefined
+    }
+
+    const { q, r } =
+        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            screenX: screenCoordinate.x,
+            screenY: screenCoordinate.y,
+            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+        })
+
+    return { q, r }
 }

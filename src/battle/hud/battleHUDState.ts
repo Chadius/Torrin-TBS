@@ -10,6 +10,7 @@ import {
 } from "../../utils/mouseConfig"
 
 export interface BattleHUDState {
+    nextSquaddieBattleSquaddieIdsToCycleThrough: string[]
     summaryHUDState: SummaryHUDState
 }
 
@@ -69,6 +70,7 @@ const newBattleHUDState = ({
 }): BattleHUDState => {
     return sanitize({
         summaryHUDState,
+        nextSquaddieBattleSquaddieIdsToCycleThrough: [],
     })
 }
 

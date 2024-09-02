@@ -1,51 +1,54 @@
-import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionMap } from "../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { MissionMap } from "../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../squaddie/squaddieService"
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleSquaddie } from "../battleSquaddie"
+} from "../../../trait/traitStatusStorage"
+import { DamageType, HealingType } from "../../../squaddie/squaddieService"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
+import { BattleSquaddie } from "../../battleSquaddie"
 import {
     MissionStatistics,
     MissionStatisticsHandler,
-} from "../missionStatistics/missionStatistics"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { BattleStateService } from "../orchestrator/battleState"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { StreamNumberGenerator } from "../numberGenerator/stream"
-import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+} from "../../missionStatistics/missionStatistics"
+import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import { BattleStateService } from "../../orchestrator/battleState"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { StreamNumberGenerator } from "../../numberGenerator/stream"
+import { NumberGeneratorStrategy } from "../../numberGenerator/strategy"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { ActionCalculator } from "./calculator"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
-import { GameEngineStateService } from "../../gameEngine/gameEngine"
+import { GameEngineStateService } from "../../../gameEngine/gameEngine"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../action/template/actionTemplate"
+} from "../../../action/template/actionTemplate"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+} from "../../../action/template/actionEffectSquaddieTemplate"
 import {
     ActionsThisRound,
     ActionsThisRoundService,
-} from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
-import { DecidedActionService } from "../../action/decided/decidedAction"
+} from "../../history/actionsThisRound"
+import { ProcessedActionService } from "../../../action/processed/processedAction"
+import { ProcessedActionSquaddieEffectService } from "../../../action/processed/processedActionSquaddieEffect"
+import { DecidedActionSquaddieEffectService } from "../../../action/decided/decidedActionSquaddieEffect"
+import { DecidedActionService } from "../../../action/decided/decidedAction"
 import {
     AttributeModifier,
     AttributeModifierService,
     AttributeSource,
     AttributeType,
-} from "../../squaddie/attributeModifier"
+} from "../../../squaddie/attributeModifier"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository

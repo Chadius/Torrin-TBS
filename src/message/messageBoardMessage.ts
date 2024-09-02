@@ -27,6 +27,7 @@ export type MessageBoardMessage =
     | MessageBoardMessageSummaryPopoverExpires
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToLocation
+    | MessageBoardMessagePlayerCancelsSquaddieSelection
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -49,6 +50,7 @@ export enum MessageBoardMessageType {
     SUMMARY_POPOVER_EXPIRES = "SUMMARY_POPOVER_EXPIRES",
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
     MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
+    PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
 }
 
 export interface MessageBoardMessageBase {
@@ -176,5 +178,10 @@ export interface MessageBoardMessageMoveSquaddieToLocation {
     type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
     battleSquaddieId: string
     targetLocation: HexCoordinate
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
+    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
     gameEngineState: GameEngineState
 }

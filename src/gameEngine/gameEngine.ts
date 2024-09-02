@@ -271,6 +271,8 @@ export class GameEngine {
         const battleHUDListener: BattleHUDListener = new BattleHUDListener(
             "battleHUDListener"
         )
+
+        // TODO Make sure all of the MessageBoardMessageTypes are accounted for
         ;[
             MessageBoardMessageType.STARTED_PLAYER_PHASE,
             MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
@@ -287,6 +289,7 @@ export class GameEngine {
             MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
             MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+            MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

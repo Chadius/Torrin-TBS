@@ -90,7 +90,7 @@ import {
 } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
@@ -2076,4 +2076,126 @@ describe("Battle HUD", () => {
             ).toBeUndefined()
         })
     })
+    describe("Player wants to select the next squaddie", () => {
+        let gameEngineState: GameEngineState
+        let battleSquaddie: BattleSquaddie
+        let battleSquaddie2: BattleSquaddie
+        let battleHUDListener: BattleHUDListener
+        let messageSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            ;({
+                gameEngineState,
+                playerSoldierBattleSquaddie: battleSquaddie,
+                battleSquaddie2,
+            } = createGameEngineState({
+                missionMap: MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
+                    }),
+                }),
+            }))
+
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+            )
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        })
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        const getPlayerSelectsAndLocksSquaddieCalls = () => {
+            return messageSpy.mock.calls.filter(
+                (c) =>
+                    c[0].type ===
+                    MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+        }
+
+        it("selects any available squaddie", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                })
+            )
+
+            const calls = getPlayerSelectsAndLocksSquaddieCalls()
+            expect(calls[0][0].battleSquaddieSelectedId).toEqual(
+                battleSquaddie.battleSquaddieId
+            )
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+            ).toBeTruthy()
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .nextSquaddieBattleSquaddieIdsToCycleThrough
+            ).toContain(battleSquaddie2.battleSquaddieId)
+        })
+
+        it("skips any squaddie who took their turn", () => {
+            SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            expect(messageSpy).toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                })
+            )
+
+            const calls = getPlayerSelectsAndLocksSquaddieCalls()
+            expect(calls[0][0].battleSquaddieSelectedId).toEqual(
+                battleSquaddie2.battleSquaddieId
+            )
+        })
+
+        it("will reset to the first squaddie if it exhausts other choices", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            let calls = getPlayerSelectsAndLocksSquaddieCalls()
+            const firstSquaddieId = calls[0][0].battleSquaddieSelectedId
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+
+            calls = getPlayerSelectsAndLocksSquaddieCalls()
+            const secondSquaddieId = calls[1][0].battleSquaddieSelectedId
+
+            expect(firstSquaddieId).not.toEqual(secondSquaddieId)
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                gameEngineState,
+            })
+            calls = getPlayerSelectsAndLocksSquaddieCalls()
+            const thirdSquaddieId = calls[2][0].battleSquaddieSelectedId
+
+            expect(thirdSquaddieId).not.toBeUndefined()
+            expect([firstSquaddieId, secondSquaddieId]).toContain(
+                thirdSquaddieId
+            )
+        })
+    })
+    // TODO MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+    // TODO MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
 })

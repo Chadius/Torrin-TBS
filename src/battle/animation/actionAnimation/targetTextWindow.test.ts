@@ -15,7 +15,7 @@ import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { ActionAnimationPhase } from "./actionAnimationConstants"
 import { ActionTimer } from "./actionTimer"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
-import { DegreeOfSuccess } from "../../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     ActionTemplate,
     ActionTemplateService,

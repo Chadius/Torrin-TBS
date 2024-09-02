@@ -54,7 +54,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { DegreeOfSuccess } from "../battle/actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../battle/calculator/actionCalculator/degreeOfSuccess"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../battle/animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"

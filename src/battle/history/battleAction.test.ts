@@ -5,7 +5,7 @@ import {
     BattleActionQueueService,
     BattleActionService,
 } from "./battleAction"
-import { RollResultService } from "../actionCalculator/rollResult"
+import { RollResultService } from "../calculator/actionCalculator/rollResult"
 
 describe("BattleAction", () => {
     describe("Creation and Sanitization", () => {

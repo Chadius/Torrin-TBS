@@ -1,37 +1,37 @@
 import {
     ActionsThisRound,
     ActionsThisRoundService,
-} from "../history/actionsThisRound"
-import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { BattleSquaddie } from "../battleSquaddie"
+} from "../../history/actionsThisRound"
+import { DecidedActionSquaddieEffect } from "../../../action/decided/decidedActionSquaddieEffect"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { BattleSquaddie } from "../../battleSquaddie"
 import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
 import {
     AttributeModifier,
     AttributeType,
     AttributeTypeAndAmount,
     AttributeTypeAndAmountService,
-} from "../../squaddie/attributeModifier"
+} from "../../../squaddie/attributeModifier"
 import {
     BattleActionActionContext,
     BattleActionActionContextService,
-} from "../history/battleAction"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
+} from "../../history/battleAction"
+import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
+import { BattleOrchestratorState } from "../../orchestrator/battleOrchestratorState"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { DecidedActionMovementEffect } from "../../action/decided/decidedActionMovementEffect"
-import { DecidedActionEndTurnEffect } from "../../action/decided/decidedActionEndTurnEffect"
+} from "../../../trait/traitStatusStorage"
+import { DecidedActionMovementEffect } from "../../../action/decided/decidedActionMovementEffect"
+import { DecidedActionEndTurnEffect } from "../../../action/decided/decidedActionEndTurnEffect"
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
 import { CalculatedEffect } from "./calculator"
-import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { isValidValue } from "../../utils/validityCheck"
+import { DecidedActionEffect } from "../../../action/decided/decidedActionEffect"
+import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
+import { isValidValue } from "../../../utils/validityCheck"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
+import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({

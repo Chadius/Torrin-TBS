@@ -1,24 +1,24 @@
-import { ActionsThisRound } from "../history/actionsThisRound"
-import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { BattleSquaddie } from "../battleSquaddie"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { ActionsThisRound } from "../../history/actionsThisRound"
+import { DecidedActionSquaddieEffect } from "../../../action/decided/decidedActionSquaddieEffect"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { BattleSquaddie } from "../../battleSquaddie"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import {
     BattleActionActionContext,
     BattleActionActionContextService,
-} from "../history/battleAction"
+} from "../../history/battleAction"
 import { CalculatedEffect } from "./calculator"
-import { HealingType, SquaddieService } from "../../squaddie/squaddieService"
-import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
-import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
+import { DecidedActionEffect } from "../../../action/decided/decidedActionEffect"
+import { isValidValue } from "../../../utils/validityCheck"
+import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeModifier,
     AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
+} from "../../../squaddie/attributeModifier"
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({

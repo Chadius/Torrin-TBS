@@ -582,6 +582,73 @@ describe("Player Selection Service", () => {
         })
     })
 
+    describe("After selecting a squaddie, the user clicks off map", () => {
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            missionMap = createMap()
+            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+                objectRepository,
+                missionMap,
+                enemyMapLocation: { q: 0, r: 2 },
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: "PLAYER",
+            })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        })
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        describe("user clicks off the map to indicate intent", () => {
+            let actualContext: PlayerSelectionContext
+            beforeEach(() => {
+                actualContext = clickOnMapCoordinate({
+                    gameEngineState,
+                    q: -100,
+                    r: 9001,
+                })
+            })
+
+            it("knows the player intends to cancel selection", () => {
+                expect(actualContext.playerIntent).toEqual(
+                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION
+                )
+            })
+        })
+
+        it("sends a message indicating the squaddie wants to cancel their selection", () => {
+            const actualContext = PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
+            })
+
+            const actualChanges: PlayerSelectionChanges =
+                PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+
+            const expectedMessage: MessageBoardMessage = {
+                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                gameEngineState,
+            }
+
+            expect(
+                gameEngineState.messageBoard.sendMessage
+            ).toHaveBeenCalledWith(expectedMessage)
+            expect(actualChanges.messageSent).toEqual(expectedMessage)
+        })
+    })
+
     describe("user tries to command a different squaddie mid turn", () => {
         let x: number
         let y: number
@@ -742,10 +809,12 @@ describe("Player Selection Service", () => {
     })
 })
 
+// TODO Clicks off map
+
 // TODO I think you're up to feature parity at this point.
 
-// TODO ----------------- BattleHUD
-// TODO BattleHUD (or whatever HUD is handling this) now needs to pay attention to this.
+// TODO ----------------- BattleHUD needs to absorb player selector's actions
+// TODO BattleHUD (or whatever HUD is handling this) now needs to pay attention.
 // TODO Now, you can assume the player squaddie has been selected. Make sure the enemy is at (0,2)
 // TODO Clicking on the enemy
 // TODO Should see if movement is possible
@@ -762,6 +831,8 @@ describe("Player Selection Service", () => {
 // TODO Selecting an empty spot on the map
 // - TODO Movement code should be in BattleHUD, copy it there!
 // - TODO Selector's hasCompleted should wait for the action builder to be ready to animate OR waiting for a target
+
+// TODO When cancelling a turn, make sure to only cancel if the squaddie is not mid turn
 
 // TODO Finally delete stuff from battle player squaddie selector - it should just send signals and wait for a new instruction
 

@@ -20,7 +20,7 @@ import { RectAreaService } from "../../../ui/rectArea"
 import {
     DegreeOfSuccess,
     DegreeOfSuccessService,
-} from "../../actionCalculator/degreeOfSuccess"
+} from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
