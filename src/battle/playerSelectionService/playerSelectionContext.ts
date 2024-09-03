@@ -3,6 +3,7 @@ import { MouseClick } from "../../utils/mouseConfig"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 
 export interface PlayerSelectionContext {
+    actionTemplateId: string
     buttonPress: KeyButtonName
     mouseClick: MouseClick
     mouseMovement: { x: number; y: number }
@@ -17,12 +18,14 @@ export const PlayerSelectionContextService = {
         mouseClick,
         mouseMovement,
         buttonPress,
+        actionTemplateId,
     }: {
         playerIntent: PlayerIntent
         battleSquaddieId?: string
         mouseClick?: MouseClick
         mouseMovement?: { x: number; y: number }
         buttonPress?: KeyButtonName
+        actionTemplateId?: string
     }): PlayerSelectionContext => {
         return {
             playerIntent,
@@ -30,6 +33,7 @@ export const PlayerSelectionContextService = {
             mouseClick,
             mouseMovement,
             buttonPress,
+            actionTemplateId,
         }
     },
 }

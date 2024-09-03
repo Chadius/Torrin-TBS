@@ -208,52 +208,7 @@ describe("BattleSquaddieSelector", () => {
         }
     }
 
-    // TODO Many of these tests will need to be moved or refactored. This module has 2 main missions:
-
-    // TODO When the user gives input on the map, generate the PlayerSelectionContext, calculate the PlayerIntent, and apply it to get results
-    // TODO Know when the turn has ended because something just set the action
-
-    // TODO Move to BattleHUD
-    it("recommends computer squaddie selector if the player cannot control the squaddies", () => {
-        const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 "],
-            }),
-        })
-        const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap)
-
-        const camera: BattleCamera = new BattleCamera(
-            ...ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                0,
-                0
-            )
-        )
-        const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: undefined,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    battlePhaseState,
-                    teams,
-                    camera,
-                    missionMap,
-                }),
-            }),
-            repository: squaddieRepo,
-        })
-
-        selector.update(state, mockedP5GraphicsContext)
-
-        expect(selector.hasCompleted(state)).toBeTruthy()
-        const recommendation: BattleOrchestratorChanges =
-            selector.recommendStateChanges(state)
-        expect(recommendation.nextMode).toBe(
-            BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
-        )
-    })
-
-    // TODO Mixed Work
+    // DONE FOR NOW
     describe("player hovers over a squaddie", () => {
         let gameEngineState: GameEngineState
         let messageSpy: jest.SpyInstance
@@ -330,142 +285,9 @@ describe("BattleSquaddieSelector", () => {
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
         })
-
-        // TODO Move to BattleHUD
-        it("can still select squaddies afterward", () => {
-            BattleHUDService.playerPeeksAtSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "player_soldier_0",
-                    selectionMethod: {
-                        mouseMovement: { x: 0, y: 0 },
-                    },
-                    squaddieSummaryPopoverPosition:
-                        SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                }
-            )
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .expirationTime
-            ).not.toBeUndefined()
-            ;[battleSquaddieScreenPositionX, battleSquaddieScreenPositionY] =
-                convertMapCoordinatesToScreenCoordinates(
-                    0,
-                    0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-                )
-
-            selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: battleSquaddieScreenPositionX,
-                mouseY: battleSquaddieScreenPositionY,
-                mouseButton: MouseButton.ACCEPT,
-            })
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .expirationTime
-            ).toBeUndefined()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState
-            ).not.toBeUndefined()
-        })
     })
 
-    // TODO Add case to PlayerSelectionService, move test to BattleHUD
-    describe("player selects a squaddie and then clicks off the map", () => {
-        let gameEngineState: GameEngineState
-
-        beforeEach(() => {
-            const missionMap: MissionMap = new MissionMap({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 "],
-                }),
-            })
-            const battlePhaseState =
-                makeBattlePhaseTrackerWithPlayerTeam(missionMap)
-
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(
-                    mockedP5GraphicsContext
-                ),
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: new BattleCamera(),
-                        battlePhaseState,
-                        teams,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository: squaddieRepo,
-                campaign: CampaignService.default({}),
-            })
-
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-            })
-
-            BattleHUDService.playerSelectsSquaddie(
-                gameEngineState.battleOrchestratorState.battleHUD,
-                {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "player_soldier_0",
-                    selectionMethod: {
-                        mouseClick: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
-                }
-            )
-
-            clickOnMapCoordinate({
-                selector,
-                gameEngineState: gameEngineState,
-                q: 999,
-                r: 999,
-                camera: new BattleCamera(),
-            })
-        })
-
-        it("closes the HUD", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
-        })
-
-        it("clears the actor", () => {
-            expect(
-                BattleActionDecisionStepService.isActorSet(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeFalsy()
-        })
-
-        it("clears the actionsThisRound", () => {
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            ).toBeUndefined()
-        })
-    })
-
-    // TODO Mixed Work
+    // DONE FOR NOW
     describe("can make a movement action by clicking on the field", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
@@ -515,7 +337,6 @@ describe("BattleSquaddieSelector", () => {
             )
         })
 
-        // TODO Move to BattleHUD
         describe("user clicks on destination to start movement", () => {
             beforeEach(() => {
                 clickOnMapCoordinate({
@@ -527,36 +348,9 @@ describe("BattleSquaddieSelector", () => {
                 })
             })
 
-            it("sets the actor", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).not.toBeUndefined()
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    ).battleSquaddieId
-                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
-            })
-
-            // TODO Keep this test here but change the setup so the action is ready for movement
+            // TODO Keep this test here but change the setup so the action is already set and ready for movement
             it("set the selector to complete", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            })
-
-            it("Recommends the Player HUD controller component next", () => {
-                const recommendation: BattleOrchestratorChanges =
-                    selector.recommendStateChanges(gameEngineState)
-                expect(recommendation.nextMode).toBe(
-                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-                )
             })
         })
 
@@ -588,97 +382,7 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    // TODO Do I need this?
-    describe("adding movement mid turn instruction", () => {
-        let camera: BattleCamera
-        let missionMap: MissionMap
-        let gameEngineState: GameEngineState
-        let actionsThisRound: ActionsThisRound
-
-        beforeEach(() => {
-            camera = new BattleCamera()
-
-            const decidedActionMovementEffect =
-                DecidedActionMovementEffectService.new({
-                    template: ActionEffectMovementTemplateService.new({}),
-                    destination: { q: 0, r: 1 },
-                })
-            const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: "player_soldier_0",
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [decidedActionMovementEffect],
-                }),
-                processedActionEffects: [
-                    ProcessedActionMovementEffectService.new({
-                        decidedActionEffect: decidedActionMovementEffect,
-                    }),
-                ],
-            })
-
-            actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "player_soldier_0",
-                startingLocation: { q: 0, r: 0 },
-                previewedActionTemplateId: undefined,
-                processedActions: [processedAction],
-            })
-
-            missionMap = new MissionMap({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 1 "],
-                }),
-            })
-        })
-
-        const setUpGameEngineState = (
-            missionMap: MissionMap,
-            battlePhaseState: BattlePhaseState
-        ) => {
-            let mockResourceHandler = mocks.mockResourceHandler(
-                mockedP5GraphicsContext
-            )
-            mockResourceHandler.getResource = jest
-                .fn()
-                .mockReturnValue(makeResult(null))
-
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler: mockResourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera,
-                        battlePhaseState,
-                        teams,
-                        actionsThisRound,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository: squaddieRepo,
-                campaign: CampaignService.default({}),
-            })
-
-            return gameEngineState
-        }
-
-        // TODO KEEP
-        it("will not open the HUD if the character is not controllable", () => {
-            const battlePhaseState =
-                makeBattlePhaseTrackerWithEnemyTeam(missionMap)
-            setUpGameEngineState(missionMap, battlePhaseState)
-
-            selector.update(gameEngineState, mockedP5GraphicsContext)
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
-        })
-    })
-
-    // TODO KEEP
+    // DONE FOR NOW
     describe("player ends the squaddie turn", () => {
         let gameEngineState: GameEngineState
         let messageSpy: jest.SpyInstance
@@ -747,6 +451,8 @@ describe("BattleSquaddieSelector", () => {
             messageSpy.mockRestore()
         })
 
+        // TODO don't need this test, just send that it sent an action.
+        // TODO BattleHUD will figure out if it should end the turn or not.
         it("sends a message to end the turn", () => {
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_ENDS_TURN,
@@ -765,12 +471,6 @@ describe("BattleSquaddieSelector", () => {
             })
         })
     })
-
-    // TODO make test that says the turn is complete if the action is ready to animate
-    // it("marks this component as complete", () => {
-    //     selector.update(gameEngineState, mockedP5GraphicsContext)
-    //     expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-    // })
 
     // TODO Mixed Work
     describe("an action is selected that requires a target", () => {
@@ -878,24 +578,9 @@ describe("BattleSquaddieSelector", () => {
             messageSpy.mockRestore()
         })
 
+        // TODO change test so it tries to calculate intent
         it("will complete the selector", () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-        })
-        it("will recommend player HUD controller as the next phase", () => {
-            const recommendation: BattleOrchestratorChanges =
-                selector.recommendStateChanges(gameEngineState)
-            expect(recommendation.nextMode).toBe(
-                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-            )
-        })
-        it("sends a message that an action was selected that needs a target", () => {
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                gameEngineState,
-                actionTemplateId: longswordAction.id,
-                battleSquaddieId: "player_soldier_1",
-                mapStartingLocation: { q: 0, r: 1 },
-            })
         })
     })
 
@@ -1110,7 +795,7 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    // DONE KEEP but modify the expectations so it expects a message to be sent
+    // DONE FOR NOW - KEEP but modify the expectations so it expects a message to be sent
     it("will accept commands even after canceling", () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: TerrainTileMapService.new({
@@ -1203,81 +888,10 @@ describe("BattleSquaddieSelector", () => {
         ).toEqual(ActionEffectType.MOVEMENT)
     })
 
-    // TODO Mixed work
+    // DONE FOR NOW - Add new test
     describe("Next Squaddie button", () => {
         // TODO Make a new test saying when the button is pressed it sends a message to BattleHUD
-
-        // TODO Move to BattleHUD
-        it("should respond to keyboard presses for the next squaddie, even if the HUD is not open", () => {
-            const battleCamera = new BattleCamera(0, 0)
-            const battlePhaseState =
-                makeBattlePhaseTrackerWithPlayerTeam(missionMap)
-
-            ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepo,
-                BattleSquaddieService.new({
-                    battleSquaddieId: "player_soldier_1",
-                    squaddieTemplateId: "player_soldier",
-                })
-            )
-
-            BattleSquaddieTeamService.addBattleSquaddieIds(teams[0], [
-                "player_soldier_1",
-            ])
-
-            missionMap.addSquaddie("player_soldier", "player_soldier_1", {
-                q: 0,
-                r: 1,
-            })
-            const gameEngineState = GameEngineStateService.new({
-                resourceHandler: mocks.mockResourceHandler(
-                    mockedP5GraphicsContext
-                ),
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        missionMap,
-                        camera: battleCamera,
-                        battlePhaseState,
-                        teams,
-                        recording: { history: [] },
-                    }),
-                }),
-                repository: squaddieRepo,
-                campaign: CampaignService.default({}),
-            })
-
-            let messageSpy: jest.SpyInstance = jest.spyOn(
-                gameEngineState.messageBoard,
-                "sendMessage"
-            )
-
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState
-            ).toBeUndefined()
-            selector.keyEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentKeyEventType.PRESSED,
-                keyCode:
-                    config.KEYBOARD_SHORTCUTS[KeyButtonName.NEXT_SQUADDIE][0],
-            })
-
-            expect(messageSpy).toBeCalled()
-            expect(messageSpy).toBeCalledWith(
-                expect.objectContaining({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                })
-            )
-            expect(["player_soldier_0", "player_soldier_1"]).toContain(
-                messageSpy.mock.calls[0][0].battleSquaddieSelectedId
-            )
-
-            expect(battleCamera.isPanning()).toBeTruthy()
-            messageSpy.mockRestore()
-        })
+        it("TODO", () => {})
     })
 
     // TODO ---- NEW TESTS
@@ -1285,6 +899,15 @@ describe("BattleSquaddieSelector", () => {
     // "knows the component has completed when an action is ready to animate"
     // "knows the component has completed when an action requires a target"
     // "knows the component has completed when applied context has a recommended mode"
+    // TODO make test that says the turn is complete if the action is ready to animate
+    // it("marks this component as complete", () => {
+    //     selector.update(gameEngineState, mockedP5GraphicsContext)
+    //     expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+    // })
+
+    // TODO When the user gives input on the map, generate the PlayerSelectionContext, calculate the PlayerIntent, and apply it (don't read the results it may be delivered asynchronously)
+    // TODO Know when the turn has ended because something else just set the action
+    // TODO Use the change's recommended action when given (where is this stored?)
 })
 
 const clickOnMapCoordinate = ({

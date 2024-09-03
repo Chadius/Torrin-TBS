@@ -2596,11 +2596,117 @@ describe("Battle HUD", () => {
                         .playerBattleActionBuilderState,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
-
+            SummaryHUDStateService.setMainSummaryPopover({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                resourceHandler: gameEngineState.resourceHandler,
+                objectRepository: gameEngineState.repository,
+                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
                 MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+            )
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+        })
+        it("closes the HUD", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                gameEngineState,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
+        })
+        it("clears the battle action builder", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                gameEngineState,
+            })
+            expect(
+                BattleActionDecisionStepService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState
+                )
+            ).toBeFalsy()
+        })
+
+        describe("ignore attempts to cancel if the squaddie has already acted this round", () => {
+            beforeEach(() => {
+                gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                    ActionsThisRoundService.new({
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        startingLocation: { q: 0, r: 0 },
+                        processedActions: [
+                            ProcessedActionService.new({
+                                decidedAction: undefined,
+                                processedActionEffects: [
+                                    ProcessedActionMovementEffectService.new({
+                                        decidedActionEffect:
+                                            DecidedActionMovementEffectService.new(
+                                                {
+                                                    template: undefined,
+                                                    destination: { q: 0, r: 1 },
+                                                }
+                                            ),
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                    gameEngineState,
+                })
+            })
+            it("keeps the HUD open", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                ).not.toBeUndefined()
+            })
+            it("maintains the battle action builder", () => {
+                expect(
+                    BattleActionDecisionStepService.isActorSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toEqual({ battleSquaddieId: battleSquaddie.battleSquaddieId })
+            })
+        })
+    })
+    describe("player selects an empty tile at the start of the turn", () => {
+        let gameEngineState: GameEngineState
+        let battleSquaddie: BattleSquaddie
+        let battleHUDListener: BattleHUDListener
+        beforeEach(() => {
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({}))
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
             )
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
@@ -2619,10 +2725,17 @@ describe("Battle HUD", () => {
                     }),
                 },
             })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: "consider using this action",
+                })
 
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
                 gameEngineState,
+                location: { q: 1, r: 0 },
             })
         })
         it("closes the HUD", () => {
@@ -2638,6 +2751,12 @@ describe("Battle HUD", () => {
                         .playerBattleActionBuilderState
                 )
             ).toBeFalsy()
+        })
+        it("clears actionsThisRound", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            ).toBeUndefined()
         })
     })
 })

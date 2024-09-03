@@ -36,6 +36,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageType,
+    MessageBoarsMessagePlayerSelectsEmptyTile,
 } from "../../message/messageBoardMessage"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
@@ -48,6 +49,7 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { BattleOrchestratorChanges } from "../orchestrator/battleOrchestratorComponent"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -96,10 +98,58 @@ describe("Player Selection Service", () => {
             expect(actualContext.playerIntent).toEqual(
                 PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE
             )
+            expect(actualContext.mouseClick).toEqual(
+                MouseClickService.new({
+                    ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        {
+                            q: 0,
+                            r: 1,
+                            camera: gameEngineState.battleOrchestratorState
+                                .battleState.camera,
+                        }
+                    ),
+                    button: MouseButton.ACCEPT,
+                })
+            )
         })
-        // TODO Make a NEW message when the user clicks on an empty tile before starting their turn
-        // TODO Send a message indicating where the user clicked
-        // TODO Add a new test to BattleHUDListener to clear the summary HUD (copy tests to there)
+        describe("Apply Context", () => {
+            let actualContext: PlayerSelectionContext
+            let messageSpy: jest.SpyInstance
+            let changes: PlayerSelectionChanges
+            let expectedMessage: MessageBoarsMessagePlayerSelectsEmptyTile
+            beforeEach(() => {
+                actualContext = clickOnMapCoordinate({
+                    q: 0,
+                    r: 1,
+                    gameEngineState,
+                })
+                messageSpy = jest.spyOn(
+                    gameEngineState.messageBoard,
+                    "sendMessage"
+                )
+                changes = PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+                expectedMessage = {
+                    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
+                    gameEngineState,
+                    location: {
+                        q: 0,
+                        r: 1,
+                    },
+                }
+            })
+            afterEach(() => {
+                messageSpy.mockRestore()
+            })
+            it("will send a message to select an empty tile", () => {
+                expect(messageSpy).toHaveBeenCalledWith(expectedMessage)
+            })
+            it("changes will mention the sent message", () => {
+                expect(changes.messageSent).toEqual(expectedMessage)
+            })
+        })
     })
 
     describe("At the start of the turn, Player tries to select a squaddie but all playable squaddies have acted", () => {
@@ -862,32 +912,106 @@ describe("Player Selection Service", () => {
             expect(actualChanges.messageSent).toEqual(expectedMessage)
         })
     })
-})
 
-// TODO Clicks off map
+    describe("user selects an action that requires a target", () => {
+        let meleeActionId: string = "melee"
+        let actualContext: PlayerSelectionContext
+
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            missionMap = createMap()
+            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+                objectRepository,
+                missionMap,
+            })
+            clickOnMapCoordinate({
+                q: 0,
+                r: 0,
+                gameEngineState,
+            })
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: "PLAYER",
+            })
+
+            actualContext = PlayerSelectionService.calculateContext({
+                gameEngineState,
+                actionTemplateId: meleeActionId,
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
+            })
+        })
+
+        it("expects the player selected an action", () => {
+            expect(actualContext.playerIntent).toEqual(
+                PlayerIntent.PLAYER_SELECTS_AN_ACTION
+            )
+        })
+
+        it("knows which action was selected", () => {
+            expect(actualContext.actionTemplateId).toEqual(meleeActionId)
+        })
+
+        it("knows which squaddie is acting", () => {
+            expect(actualContext.battleSquaddieId).toEqual("PLAYER")
+        })
+
+        describe("apply context", () => {
+            let changes: PlayerSelectionChanges
+            let expectedMessage: MessageBoardMessage
+
+            beforeEach(() => {
+                messageSpy = jest.spyOn(
+                    gameEngineState.messageBoard,
+                    "sendMessage"
+                )
+
+                changes = PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+                expectedMessage = {
+                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                    gameEngineState,
+                    actionTemplateId: meleeActionId,
+                    battleSquaddieId: "PLAYER",
+                    mapStartingLocation: { q: 0, r: 0 },
+                }
+            })
+            afterEach(() => {
+                messageSpy.mockRestore()
+            })
+
+            it("will recommend player HUD controller as the next phase", () => {
+                expect(changes.battleOrchestratorMode).toBe(
+                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+                )
+            })
+
+            it("sends a message that an action was selected that needs a target", () => {
+                expect(messageSpy).toBeCalledWith(expectedMessage)
+            })
+        })
+    })
+
+    // TODO Need to figure out what happens when the player picks an action that doesn't need a target
+})
 
 // TODO I think you're up to feature parity at this point.
 
 // TODO ----------------- BattleHUD needs to absorb player selector's actions
-// TODO BattleHUD (or whatever HUD is handling this) now needs to pay attention.
-// TODO Now, you can assume the player squaddie has been selected. Make sure the enemy is at (0,2)
-// TODO Clicking on the enemy
-// TODO Should see if movement is possible
-// TODO If it isn't, send a popup
-// TODO If it is, create a move command
-
-// TODO BattleHUD needs to handle NEXT SQUADDIE squaddie selection logic
-
 // TODO Make sure the Battle HUD Listener sets the actor
 
-// TODO Add a Squaddie Movement Calculator
-// TODO BattleHUD needs to engage with this component
-
 // TODO Selecting an empty spot on the map
-// - TODO Movement code should be in BattleHUD, copy it there!
 // - TODO Selector's hasCompleted should wait for the action builder to be ready to animate OR waiting for a target
-
-// TODO When cancelling a turn, make sure to only cancel if the squaddie is not mid turn
 
 // TODO Finally delete stuff from battle player squaddie selector - it should just send signals and wait for a new instruction
 

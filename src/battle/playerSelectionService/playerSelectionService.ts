@@ -1,43 +1,3 @@
-/*
-CONTEXT
-
-The current team
-Can the player control any squaddie on this team?
-Is the click on the map
-Is the Main Summary Window open and it can expire
-Did you click on a squaddie?
-Is this squaddie controllable by the player
-Did you click on the squaddie who is taking their turn?
-Did you click on the same squaddie who is shown in the MAIN summary window?
-Did you click on the same squaddie who is shown in the TARGET summary window?
- */
-
-/*
-SCENARIO (TODO change these into result-oriented names)
-playerMakesMoveAction
-selectSquaddieAndOpenHUD
-reactToSelectingSquaddieThenSelectingSquaddieNotDuringTurn
-reactToSelectingSquaddieThenSelectingSquaddieDuringTurn
-reactToSelectingSquaddieThenSelectingSquaddie
-reactToSelectingSquaddieThenSelectingMap
-PlayerClickedOnAPlayableSquaddie
-PlayerClickedOnANonPlayableSquaddie
-PlayerClickedOnAnUnoccupiedTileOnTheMap
-PlayerClickedOffMapWhenNoOneIsTakingATurn
-PlayerCannotControlAnySquaddie
- */
-
-/*
-INTENT
-PlayerSelectsMap
-PlayerClearsMapHighlightAndSquaddieSelection
-PlayerSelectsSquaddieToStartTurn
-PlayerTriesToMoveSquaddie
-PlayerSelectsSquaddieToPreview
-PlayerSelectsATargetSquaddieToUseActionOn
-PlayerSelectsASquaddieMidTurnButItIsInvalid
- */
-
 import { MouseClick, ScreenCoordinate } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
@@ -79,6 +39,7 @@ export enum PlayerIntent {
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION",
     SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
+    PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
 }
 
 export const PlayerSelectionService = {
@@ -87,6 +48,7 @@ export const PlayerSelectionService = {
         mouseClick,
         mouseMovement,
         buttonPress,
+        actionTemplateId,
     }: {
         gameEngineState: GameEngineState
         mouseClick?: MouseClick
@@ -94,6 +56,7 @@ export const PlayerSelectionService = {
         buttonPress?: {
             keyButtonName: KeyButtonName
         }
+        actionTemplateId?: string
     }): PlayerSelectionContext => {
         const isSquaddieTakingATurn: boolean =
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
@@ -112,6 +75,18 @@ export const PlayerSelectionService = {
                   screenCoordinate: { x: mouseClick.x, y: mouseClick.y },
               })
             : undefined
+
+        const playerSelectedAnAction: boolean = !!actionTemplateId
+        const playerCurrentlyTryingToMakeADecision: string =
+            BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState
+            )
+                ? BattleActionDecisionStepService.getActor(
+                      gameEngineState.battleOrchestratorState.battleState
+                          .playerBattleActionBuilderState
+                  ).battleSquaddieId
+                : undefined
 
         const {
             clickedOnSquaddie,
@@ -147,6 +122,12 @@ export const PlayerSelectionService = {
             )
 
         switch (true) {
+            case playerCurrentlyTryingToMakeADecision && playerSelectedAnAction:
+                return PlayerSelectionContextService.new({
+                    playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
+                    actionTemplateId,
+                    battleSquaddieId: playerCurrentlyTryingToMakeADecision,
+                })
             case !hasAtLeastOnePlayerControllableSquaddie:
                 return PlayerSelectionContextService.new({
                     playerIntent: PlayerIntent.END_PHASE,
@@ -204,6 +185,7 @@ export const PlayerSelectionService = {
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE,
+                    mouseClick,
                 })
             case keyPressed === KeyButtonName.NEXT_SQUADDIE:
                 return PlayerSelectionContextService.new({
@@ -296,6 +278,19 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE:
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
+                    gameEngineState,
+                    location: { q, r },
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.PLAYER_SELECTS_AN_ACTION:
+                return playerSelectsAnAction({
+                    gameEngineState,
+                    context,
+                })
         }
         return PlayerSelectionChangesService.new({})
     },
@@ -436,4 +431,34 @@ const getClickedOnLocation = ({
         })
 
     return { q, r }
+}
+
+// TODO need a new Message type when a target is not required
+const playerSelectsAnAction = ({
+    gameEngineState,
+    context,
+}: {
+    gameEngineState: GameEngineState
+    context: PlayerSelectionContext
+}) => {
+    const actionBuilderState =
+        gameEngineState.battleOrchestratorState.battleState
+            .playerBattleActionBuilderState
+    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        BattleActionDecisionStepService.getActor(actionBuilderState)
+            .battleSquaddieId
+    )
+    const messageSent: MessageBoardMessage = {
+        type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+        gameEngineState,
+        actionTemplateId: context.actionTemplateId,
+        battleSquaddieId: context.battleSquaddieId,
+        mapStartingLocation: mapLocation,
+    }
+    gameEngineState.messageBoard.sendMessage(messageSent)
+    return PlayerSelectionChangesService.new({
+        messageSent,
+        battleOrchestratorMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+    })
 }

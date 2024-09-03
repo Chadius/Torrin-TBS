@@ -28,6 +28,8 @@ export type MessageBoardMessage =
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToLocation
     | MessageBoardMessagePlayerCancelsSquaddieSelection
+    | MessageBoarsMessagePlayerSelectsEmptyTile
+    | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -43,6 +45,7 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
+    PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET",
     PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
@@ -51,6 +54,7 @@ export enum MessageBoardMessageType {
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
     MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
+    PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
 }
 
 export interface MessageBoardMessageBase {
@@ -139,6 +143,13 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     battleSquaddieId: string
     mapStartingLocation: HexCoordinate
 }
+export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
+    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET
+    gameEngineState: GameEngineState
+    actionTemplateId: string
+    battleSquaddieId: string
+    mapStartingLocation: HexCoordinate
+}
 
 export interface MessageBoardMessagePlayerSelectsTargetLocation {
     type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
@@ -184,4 +195,10 @@ export interface MessageBoardMessageMoveSquaddieToLocation {
 export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
     type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
     gameEngineState: GameEngineState
+}
+
+export interface MessageBoarsMessagePlayerSelectsEmptyTile {
+    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
+    gameEngineState: GameEngineState
+    location: HexCoordinate
 }

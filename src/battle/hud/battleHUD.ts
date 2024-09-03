@@ -16,6 +16,7 @@ import {
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
+    MessageBoarsMessagePlayerSelectsEmptyTile,
 } from "../../message/messageBoardMessage"
 import {
     PopupWindow,
@@ -822,13 +823,32 @@ export const BattleHUDService = {
             destination
         )
     },
-    cancelSquaddieSelection: (
+    cancelSquaddieSelectionAtStartOfTurn: (
         message: MessageBoardMessagePlayerCancelsSquaddieSelection
+    ) => {
+        const gameEngineState = message.gameEngineState
+        if (
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                gameEngineState
+            )
+        ) {
+            return
+        }
+
+        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            BattleActionDecisionStepService.new()
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            undefined
+    },
+    clicksOnAnEmptyTileAtTheStartOfTheTurn: (
+        message: MessageBoarsMessagePlayerSelectsEmptyTile
     ) => {
         const gameEngineState = message.gameEngineState
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
             BattleActionDecisionStepService.new()
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            undefined
+        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
             undefined
     },
 }
@@ -923,7 +943,10 @@ export class BattleHUDListener implements MessageBoardListener {
                 BattleHUDService.tryToMoveSquaddieToLocation(message)
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION:
-                BattleHUDService.cancelSquaddieSelection(message)
+                BattleHUDService.cancelSquaddieSelectionAtStartOfTurn(message)
+                break
+            case MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE:
+                BattleHUDService.clicksOnAnEmptyTileAtTheStartOfTheTurn(message)
                 break
         }
     }
