@@ -349,16 +349,34 @@ export const BattleHUDService = {
                 battleSquaddieId
             )
         )
-        const { squaddieIsNormallyControllableByPlayer } =
-            SquaddieService.canPlayerControlSquaddieRightNow({
-                squaddieTemplate,
-                battleSquaddie,
-            })
+        const {
+            squaddieIsNormallyControllableByPlayer,
+            playerCanControlThisSquaddieRightNow,
+        } = SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
 
         OrchestratorUtilities.highlightSquaddieRange(
             gameEngineState,
             battleSquaddieId
         )
+
+        if (playerCanControlThisSquaddieRightNow) {
+            if (
+                gameEngineState.battleOrchestratorState.battleState
+                    .playerBattleActionBuilderState === undefined
+            ) {
+                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                    BattleActionDecisionStepService.new()
+            }
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+        }
 
         if (squaddieIsNormallyControllableByPlayer) {
             SummaryHUDStateService.setMainSummaryPopover({

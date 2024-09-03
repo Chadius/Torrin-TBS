@@ -644,6 +644,10 @@ describe("Player Selection Service", () => {
                 )
             })
 
+            it("knows which squaddie to move", () => {
+                expect(actualContext.battleSquaddieId).toEqual("PLAYER")
+            })
+
             it("knows where the player wants to move the squaddie", () => {
                 expect(actualContext.mouseClick).toEqual(
                     MouseClickService.new({
@@ -864,7 +868,7 @@ describe("Player Selection Service", () => {
 
             it("knows the player tried to move a different squaddie", () => {
                 expect(actualContext.playerIntent).toEqual(
-                    PlayerIntent.SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN
+                    PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN
                 )
             })
 
@@ -886,7 +890,7 @@ describe("Player Selection Service", () => {
         it("sends a message indicating the user tried to select another squaddie", () => {
             const actualContext = PlayerSelectionContextService.new({
                 playerIntent:
-                    PlayerIntent.SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
+                    PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
                 battleSquaddieId: "PLAYER2",
                 mouseClick: MouseClickService.new({
                     button: MouseButton.ACCEPT,

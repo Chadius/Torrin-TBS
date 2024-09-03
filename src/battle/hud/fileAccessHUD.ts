@@ -153,18 +153,27 @@ export const FileAccessHUDService = {
         mouseX: number
         mouseY: number
         fileState: FileState
-    }) => {
+    }): boolean => {
         if (mouseButton !== MouseButton.ACCEPT) {
             return
         }
-        fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {
-            fileAccessHUD,
-            fileState,
-        })
-        fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {
-            fileAccessHUD,
-            fileState,
-        })
+        const wasLoadButtonClicked = fileAccessHUD.loadButton.mouseClicked(
+            mouseX,
+            mouseY,
+            {
+                fileAccessHUD,
+                fileState,
+            }
+        )
+        const wasSaveButtonClicked = fileAccessHUD.saveButton.mouseClicked(
+            mouseX,
+            mouseY,
+            {
+                fileAccessHUD,
+                fileState,
+            }
+        )
+        return wasLoadButtonClicked || wasSaveButtonClicked
     },
     updateBasedOnGameEngineState: (
         fileAccessHUD: FileAccessHUD,

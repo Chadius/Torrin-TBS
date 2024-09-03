@@ -37,9 +37,43 @@ export enum PlayerIntent {
     START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE = "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
     PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION",
-    SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
+    SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
     PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
+}
+
+export interface PlayerSelectionContextCalculationArgs {
+    gameEngineState: GameEngineState
+    mouseClick?: MouseClick
+    mouseMovement?: ScreenCoordinate
+    buttonPress?: {
+        keyButtonName: KeyButtonName
+    }
+    actionTemplateId?: string
+}
+
+export const PlayerSelectionContextCalculationArgsService = {
+    new: ({
+        gameEngineState,
+        mouseClick,
+        mouseMovement,
+        buttonPress,
+        actionTemplateId,
+    }: {
+        gameEngineState: GameEngineState
+        mouseClick?: MouseClick
+        mouseMovement?: ScreenCoordinate
+        buttonPress?: {
+            keyButtonName: KeyButtonName
+        }
+        actionTemplateId?: string
+    }): PlayerSelectionContextCalculationArgs => ({
+        gameEngineState,
+        mouseClick,
+        mouseMovement,
+        buttonPress,
+        actionTemplateId,
+    }),
 }
 
 export const PlayerSelectionService = {
@@ -49,15 +83,7 @@ export const PlayerSelectionService = {
         mouseMovement,
         buttonPress,
         actionTemplateId,
-    }: {
-        gameEngineState: GameEngineState
-        mouseClick?: MouseClick
-        mouseMovement?: { x: number; y: number }
-        buttonPress?: {
-            keyButtonName: KeyButtonName
-        }
-        actionTemplateId?: string
-    }): PlayerSelectionContext => {
+    }: PlayerSelectionContextCalculationArgs): PlayerSelectionContext => {
         const isSquaddieTakingATurn: boolean =
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
                 gameEngineState
@@ -157,7 +183,7 @@ export const PlayerSelectionService = {
                 clickedOnSquaddie:
                 return PlayerSelectionContextService.new({
                     playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
+                        PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
                     battleSquaddieId: clickedBattleSquaddieId,
                     mouseClick,
                 })
@@ -165,10 +191,14 @@ export const PlayerSelectionService = {
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
-                    battleSquaddieId: clickedBattleSquaddieId,
+                    battleSquaddieId: BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).battleSquaddieId,
                     mouseClick,
                 })
             case squaddieActorIsSet &&
+                !!mouseClick &&
                 !mouseClickLocationIsOnMap &&
                 !isSquaddieTakingATurn:
                 return PlayerSelectionContextService.new({
@@ -264,7 +294,7 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
-            case PlayerIntent.SQUADDIE_SELECTED_SELECTED_DIFFERENT_SQUADDIE_MID_TURN:
+            case PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
                     gameEngineState,

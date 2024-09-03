@@ -78,12 +78,10 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
-
-// TODO Make a helper service
-// TODO Get the context for clicking and the situation
-// TODO Use the context to get logic to figure out the situation
-// TODO Player Squaddie Selector gets the context and calculates the scenario
-// TODO Player Squaddie Selector just runs the scenario
+import {
+    PlayerSelectionContextCalculationArgsService,
+    PlayerSelectionService,
+} from "../playerSelectionService/playerSelectionService"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -135,8 +133,98 @@ export class BattlePlayerSquaddieSelector
         }
     }
 
-    // TODO Categorize the situations and understand why the user is clicking. Then you can refactor this.
     mouseClicked({
+        gameEngineState,
+        mouseX,
+        mouseY,
+        mouseButton,
+    }: {
+        gameEngineState: GameEngineState
+        mouseX: number
+        mouseY: number
+        mouseButton: MouseButton
+    }): void {
+        const fileAccessHudWasClicked = FileAccessHUDService.mouseClicked({
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
+            mouseX,
+            mouseY,
+            mouseButton,
+            fileState: gameEngineState.fileState,
+        })
+        if (fileAccessHudWasClicked) {
+            return
+        }
+
+        const summaryHUDState =
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState
+
+        const playerCommandSelection: PlayerCommandSelection =
+            SummaryHUDStateService.mouseClicked({
+                mouseX,
+                mouseY,
+                gameEngineState,
+                mouseButton,
+                summaryHUDState,
+            })
+
+        if (summaryHUDState?.playerCommandState) {
+            // TODO Need to check on the various command selections
+            if (
+                [
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE,
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION,
+                ].includes(playerCommandSelection)
+            ) {
+                return
+            }
+        }
+
+        const context = PlayerSelectionService.calculateContext(
+            PlayerSelectionContextCalculationArgsService.new({
+                gameEngineState,
+                mouseClick: {
+                    x: mouseX,
+                    y: mouseY,
+                    button: mouseButton,
+                },
+            })
+        )
+        PlayerSelectionService.applyContextToGetChanges({
+            gameEngineState,
+            context,
+        })
+    }
+
+    mouseMoved(
+        gameEngineState: GameEngineState,
+        mouseX: number,
+        mouseY: number
+    ): void {
+        const context = PlayerSelectionService.calculateContext(
+            PlayerSelectionContextCalculationArgsService.new({
+                gameEngineState,
+                mouseMovement: {
+                    x: mouseX,
+                    y: mouseY,
+                },
+            })
+        )
+        PlayerSelectionService.applyContextToGetChanges({
+            gameEngineState,
+            context,
+        })
+    }
+
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentKeyEvent
+    ): void {}
+
+    // TODO Categorize the situations and understand why the user is clicking. Then you can refactor this.
+    mouseClickedOLD({
         gameEngineState,
         mouseX,
         mouseY,
@@ -225,7 +313,7 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    mouseMoved(
+    mouseMovedOLD(
         gameEngineState: GameEngineState,
         mouseX: number,
         mouseY: number
@@ -260,7 +348,7 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    keyEventHappened(
+    keyEventHappenedOLD(
         gameEngineState: GameEngineState,
         event: OrchestratorComponentKeyEvent
     ): void {
