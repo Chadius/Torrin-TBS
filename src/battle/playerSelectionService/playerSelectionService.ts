@@ -27,6 +27,7 @@ import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { BattleAction, BattleActionService } from "../history/battleAction"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -40,16 +41,18 @@ export enum PlayerIntent {
     SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
     PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
+    END_SQUADDIE_TURN = "END_SQUADDIE_TURN",
 }
 
 export interface PlayerSelectionContextCalculationArgs {
     gameEngineState: GameEngineState
     mouseClick?: MouseClick
     mouseMovement?: ScreenCoordinate
-    buttonPress?: {
+    keyPress?: {
         keyButtonName: KeyButtonName
     }
     actionTemplateId?: string
+    endTurnSelected?: boolean
 }
 
 export const PlayerSelectionContextCalculationArgsService = {
@@ -57,22 +60,25 @@ export const PlayerSelectionContextCalculationArgsService = {
         gameEngineState,
         mouseClick,
         mouseMovement,
-        buttonPress,
+        keyPress,
         actionTemplateId,
+        endTurnSelected,
     }: {
         gameEngineState: GameEngineState
         mouseClick?: MouseClick
         mouseMovement?: ScreenCoordinate
-        buttonPress?: {
+        keyPress?: {
             keyButtonName: KeyButtonName
         }
         actionTemplateId?: string
+        endTurnSelected?: boolean
     }): PlayerSelectionContextCalculationArgs => ({
         gameEngineState,
         mouseClick,
         mouseMovement,
-        buttonPress,
+        keyPress,
         actionTemplateId,
+        endTurnSelected,
     }),
 }
 
@@ -81,8 +87,9 @@ export const PlayerSelectionService = {
         gameEngineState,
         mouseClick,
         mouseMovement,
-        buttonPress,
+        keyPress,
         actionTemplateId,
+        endTurnSelected,
     }: PlayerSelectionContextCalculationArgs): PlayerSelectionContext => {
         const isSquaddieTakingATurn: boolean =
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
@@ -102,7 +109,8 @@ export const PlayerSelectionService = {
               })
             : undefined
 
-        const playerSelectedAnAction: boolean = !!actionTemplateId
+        const playerSelectsAnAction: boolean = !!actionTemplateId
+        const playerEndsTheirTurn: boolean = !!endTurnSelected
         const playerCurrentlyTryingToMakeADecision: string =
             BattleActionDecisionStepService.isActorSet(
                 gameEngineState.battleOrchestratorState.battleState
@@ -131,7 +139,7 @@ export const PlayerSelectionService = {
             mouseMovement,
         })
 
-        const keyPressed = buttonPress?.keyButtonName
+        const keyPressed = keyPress?.keyButtonName
 
         const squaddieActorIsSet = BattleActionDecisionStepService.isActorSet(
             gameEngineState.battleOrchestratorState.battleState
@@ -148,10 +156,15 @@ export const PlayerSelectionService = {
             )
 
         switch (true) {
-            case playerCurrentlyTryingToMakeADecision && playerSelectedAnAction:
+            case playerCurrentlyTryingToMakeADecision && playerSelectsAnAction:
                 return PlayerSelectionContextService.new({
                     playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                     actionTemplateId,
+                    battleSquaddieId: playerCurrentlyTryingToMakeADecision,
+                })
+            case playerCurrentlyTryingToMakeADecision && playerEndsTheirTurn:
+                return PlayerSelectionContextService.new({
+                    playerIntent: PlayerIntent.END_SQUADDIE_TURN,
                     battleSquaddieId: playerCurrentlyTryingToMakeADecision,
                 })
             case !hasAtLeastOnePlayerControllableSquaddie:
@@ -221,7 +234,7 @@ export const PlayerSelectionService = {
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                    buttonPress: KeyButtonName.NEXT_SQUADDIE,
+                    keyPress: { keyButtonName: KeyButtonName.NEXT_SQUADDIE },
                 })
         }
 
@@ -320,6 +333,27 @@ export const PlayerSelectionService = {
                 return playerSelectsAnAction({
                     gameEngineState,
                     context,
+                })
+            case PlayerIntent.END_SQUADDIE_TURN:
+                const endTurnBattleAction: BattleAction =
+                    BattleActionService.new({
+                        actor: {
+                            battleSquaddieId: context.battleSquaddieId,
+                        },
+                        action: { isEndTurn: true },
+                        effect: { endTurn: true },
+                    })
+
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                    gameEngineState,
+                    battleAction: endTurnBattleAction,
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({
+                    messageSent,
+                    battleOrchestratorMode:
+                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 })
         }
         return PlayerSelectionChangesService.new({})

@@ -50,6 +50,7 @@ import { ActionEffectMovementTemplateService } from "../../action/template/actio
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleOrchestratorChanges } from "../orchestrator/battleOrchestratorComponent"
+import { BattleActionService } from "../history/battleAction"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -532,7 +533,7 @@ describe("Player Selection Service", () => {
         })
 
         it("knows the button that was pressed", () => {
-            expect(actualContext.buttonPress).toEqual(
+            expect(actualContext.keyPress.keyButtonName).toEqual(
                 KeyButtonName.NEXT_SQUADDIE
             )
         })
@@ -1006,7 +1007,93 @@ describe("Player Selection Service", () => {
         })
     })
 
-    // TODO Need to figure out what happens when the player picks an action that doesn't need a target
+    describe("user ends the squaddie turn", () => {
+        let actualContext: PlayerSelectionContext
+
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            missionMap = createMap()
+            gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+                objectRepository,
+                missionMap,
+            })
+            clickOnMapCoordinate({
+                q: 0,
+                r: 0,
+                gameEngineState,
+            })
+            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .playerBattleActionBuilderState,
+                battleSquaddieId: "PLAYER",
+            })
+
+            actualContext = PlayerSelectionService.calculateContext({
+                gameEngineState,
+                endTurnSelected: true,
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
+            })
+        })
+
+        it("expects the player will end their turn", () => {
+            expect(actualContext.playerIntent).toEqual(
+                PlayerIntent.END_SQUADDIE_TURN
+            )
+        })
+
+        it("knows which squaddie is ending their turn", () => {
+            expect(actualContext.battleSquaddieId).toEqual("PLAYER")
+        })
+
+        describe("apply context", () => {
+            let changes: PlayerSelectionChanges
+            let expectedMessage: MessageBoardMessage
+
+            beforeEach(() => {
+                messageSpy = jest.spyOn(
+                    gameEngineState.messageBoard,
+                    "sendMessage"
+                )
+
+                changes = PlayerSelectionService.applyContextToGetChanges({
+                    gameEngineState,
+                    context: actualContext,
+                })
+                expectedMessage = {
+                    type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                    gameEngineState,
+                    battleAction: BattleActionService.new({
+                        actor: {
+                            battleSquaddieId: "PLAYER",
+                        },
+                        action: { isEndTurn: true },
+                        effect: { endTurn: true },
+                    }),
+                }
+            })
+            afterEach(() => {
+                messageSpy.mockRestore()
+            })
+
+            it("will recommend player HUD controller as the next phase", () => {
+                expect(changes.battleOrchestratorMode).toBe(
+                    BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+                )
+            })
+
+            it("sends a message that an action was selected that needs a target", () => {
+                expect(messageSpy).toBeCalledWith(expectedMessage)
+            })
+        })
+    })
 })
 
 // TODO I think you're up to feature parity at this point.
@@ -1202,7 +1289,7 @@ const pressButton = ({
 }): PlayerSelectionContext => {
     return PlayerSelectionService.calculateContext({
         gameEngineState,
-        buttonPress: {
+        keyPress: {
             keyButtonName,
         },
     })

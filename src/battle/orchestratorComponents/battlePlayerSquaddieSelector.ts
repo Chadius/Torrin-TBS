@@ -59,7 +59,11 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import {
+    MouseButton,
+    MouseClick,
+    MouseClickService,
+} from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -82,6 +86,8 @@ import {
     PlayerSelectionContextCalculationArgsService,
     PlayerSelectionService,
 } from "../playerSelectionService/playerSelectionService"
+import { PlayerSelectionChanges } from "../playerSelectionService/playerSelectionChanges"
+import { PlayerSelectionContext } from "../playerSelectionService/playerSelectionContext"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent
@@ -170,14 +176,18 @@ export class BattlePlayerSquaddieSelector
             })
 
         if (summaryHUDState?.playerCommandState) {
-            // TODO Need to check on the various command selections
-            if (
-                [
-                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE,
-                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
-                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION,
-                ].includes(playerCommandSelection)
-            ) {
+            const { didUserClickOnSummaryHUD, changes } =
+                processPlayerCommandSelection({
+                    playerCommandSelection,
+                    gameEngineState,
+                    mouseClick: MouseClickService.new({
+                        x: mouseX,
+                        y: mouseY,
+                        button: mouseButton,
+                    }),
+                })
+
+            if (didUserClickOnSummaryHUD) {
                 return
             }
         }
@@ -221,7 +231,26 @@ export class BattlePlayerSquaddieSelector
     keyEventHappened(
         gameEngineState: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        if (event.eventType !== OrchestratorComponentKeyEventType.PRESSED) {
+            return
+        }
+
+        if (KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, event.keyCode)) {
+            const context = PlayerSelectionService.calculateContext(
+                PlayerSelectionContextCalculationArgsService.new({
+                    gameEngineState,
+                    keyPress: {
+                        keyButtonName: KeyButtonName.NEXT_SQUADDIE,
+                    },
+                })
+            )
+            PlayerSelectionService.applyContextToGetChanges({
+                gameEngineState,
+                context,
+            })
+        }
+    }
 
     // TODO Categorize the situations and understand why the user is clicking. Then you can refactor this.
     mouseClickedOLD({
@@ -1411,4 +1440,62 @@ const isSquaddiePlayerControllableRightNow = (
         })
 
     return playerCanControlThisSquaddieRightNow
+}
+
+const processPlayerCommandSelection = ({
+    gameEngineState,
+    playerCommandSelection,
+    mouseClick,
+}: {
+    gameEngineState: GameEngineState
+    playerCommandSelection: PlayerCommandSelection
+    mouseClick: MouseClick
+}): {
+    didUserClickOnSummaryHUD: boolean
+    changes: PlayerSelectionChanges
+} => {
+    let changes: PlayerSelectionChanges
+    let context: PlayerSelectionContext
+    switch (playerCommandSelection) {
+        case PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN:
+            context = PlayerSelectionService.calculateContext(
+                PlayerSelectionContextCalculationArgsService.new({
+                    gameEngineState,
+                    mouseClick,
+                    endTurnSelected: true,
+                })
+            )
+            changes = PlayerSelectionService.applyContextToGetChanges({
+                gameEngineState,
+                context,
+            })
+            break
+        case PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION:
+            context = PlayerSelectionService.calculateContext(
+                PlayerSelectionContextCalculationArgsService.new({
+                    gameEngineState,
+                    mouseClick,
+                    actionTemplateId:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState.playerCommandState
+                            .selectedActionTemplateId,
+                })
+            )
+            changes = PlayerSelectionService.applyContextToGetChanges({
+                gameEngineState,
+                context,
+            })
+            break
+    }
+
+    const didUserClickOnSummaryHUD = [
+        PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE,
+        PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN,
+        PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION,
+    ].includes(playerCommandSelection)
+
+    return {
+        didUserClickOnSummaryHUD,
+        changes,
+    }
 }
