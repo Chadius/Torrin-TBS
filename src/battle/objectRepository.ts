@@ -103,14 +103,12 @@ export const ObjectRepositoryService = {
             battleSquaddie,
         })
     },
-    // TODO Test this
     hasSquaddieByBattleId: (
         repo: ObjectRepository,
         battleSquaddieId: string
     ): boolean => {
         return !!repo.battleSquaddies[battleSquaddieId]
     },
-    // TODO Test this
     hasSquaddieByTemplateId: (
         repo: ObjectRepository,
         squaddieTemplateId: string

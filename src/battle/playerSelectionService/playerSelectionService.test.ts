@@ -1097,16 +1097,6 @@ describe("Player Selection Service", () => {
     })
 })
 
-// TODO I think you're up to feature parity at this point.
-
-// TODO ----------------- BattleHUD needs to absorb player selector's actions
-// TODO Make sure the Battle HUD Listener sets the actor
-
-// TODO Selecting an empty spot on the map
-// - TODO Selector's hasCompleted should wait for the action builder to be ready to animate OR waiting for a target
-
-// TODO Finally delete stuff from battle player squaddie selector - it should just send signals and wait for a new instruction
-
 const createMap = (): MissionMap => {
     return MissionMapService.new({
         terrainTileMap: TerrainTileMapService.new({
