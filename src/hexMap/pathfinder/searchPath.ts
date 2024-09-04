@@ -9,7 +9,7 @@ export interface SearchPath {
     destination?: HexCoordinate
 }
 
-export const SearchPathHelper = {
+export const SearchPathService = {
     getTotalMovementCost: (path: SearchPath): number => {
         return path.totalMovementCost
     },

@@ -1,5 +1,5 @@
 import { SearchResultsService } from "./searchResult"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 
 describe("Search Results", () => {
@@ -8,7 +8,7 @@ describe("Search Results", () => {
             shortestPathByLocation: {
                 0: {
                     0: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -18,7 +18,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     1: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -32,7 +32,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     2: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -50,7 +50,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     3: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -93,7 +93,7 @@ describe("Search Results", () => {
             shortestPathByLocation: {
                 0: {
                     0: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -103,7 +103,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     1: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -117,7 +117,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     2: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -135,7 +135,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     3: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -159,7 +159,7 @@ describe("Search Results", () => {
                 },
                 1: {
                     0: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -169,7 +169,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     2: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -187,7 +187,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     3: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -277,7 +277,7 @@ describe("Search Results", () => {
             shortestPathByLocation: {
                 0: {
                     0: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -287,7 +287,7 @@ describe("Search Results", () => {
                         currentNumberOfMoveActions: 1,
                     },
                     1: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
@@ -302,7 +302,7 @@ describe("Search Results", () => {
                     },
                     2: undefined,
                     3: {
-                        ...SearchPathHelper.newSearchPath(),
+                        ...SearchPathService.newSearchPath(),
                         locationsTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },

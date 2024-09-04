@@ -650,12 +650,15 @@ export class BattleComputerSquaddieSelector
         decidedAction.actionEffects.forEach((decidedActionEffect) => {
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
-                    BattleSquaddieSelectorService.createSearchPath({
-                        state: gameEngineState,
-                        squaddieTemplate,
-                        battleSquaddie,
-                        clickedHexCoordinate: decidedActionEffect.destination,
-                    })
+                    BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
+                        {
+                            state: gameEngineState,
+                            squaddieTemplate,
+                            battleSquaddie,
+                            clickedHexCoordinate:
+                                decidedActionEffect.destination,
+                        }
+                    )
                     const locationsByMoveActions: {
                         [movementActions: number]: LocationTraveled[]
                     } =

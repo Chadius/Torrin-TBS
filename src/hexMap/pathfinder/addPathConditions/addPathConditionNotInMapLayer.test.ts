@@ -1,5 +1,5 @@
 import { SearchParametersHelper } from "../searchParams"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
@@ -20,8 +20,8 @@ describe("AddPathConditionNotInMapLayer", () => {
             enqueuedMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             0
@@ -49,8 +49,8 @@ describe("AddPathConditionNotInMapLayer", () => {
             enqueuedMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             0
@@ -77,8 +77,8 @@ describe("AddPathConditionNotInMapLayer", () => {
             enqueuedMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 2, r: -1 }, cumulativeMovementCost: 0 },
             0
@@ -105,7 +105,7 @@ describe("AddPathConditionNotInMapLayer", () => {
             enqueuedMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
+        const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersHelper.new({})
 

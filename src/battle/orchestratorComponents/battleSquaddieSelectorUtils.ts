@@ -23,7 +23,7 @@ import {
 } from "../../hexMap/mapGraphicsLayer"
 
 export const BattleSquaddieSelectorService = {
-    createSearchPath: ({
+    createSearchPathAndHighlightMovementPath: ({
         state,
         squaddieTemplate,
         battleSquaddie,

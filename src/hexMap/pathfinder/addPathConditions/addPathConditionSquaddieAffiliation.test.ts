@@ -1,5 +1,5 @@
 import { SearchParametersHelper } from "../searchParams"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import {
@@ -24,23 +24,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
             2
@@ -118,23 +118,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
             2
@@ -213,23 +213,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
             2
@@ -303,23 +303,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
             2
@@ -348,23 +348,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
             2
@@ -442,7 +442,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         })
         expect(
             condition.shouldAddNewPath({
-                newPath: SearchPathHelper.newSearchPath(),
+                newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })
         ).toBeUndefined()

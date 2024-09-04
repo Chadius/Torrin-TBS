@@ -1,6 +1,6 @@
 import { PriorityQueue } from "./priorityQueue"
 import { CostReportable } from "./costReportable"
-import { SearchPath, SearchPathHelper } from "../hexMap/pathfinder/searchPath"
+import { SearchPath, SearchPathService } from "../hexMap/pathfinder/searchPath"
 
 class PathWithCost implements CostReportable {
     cost: number
@@ -28,7 +28,7 @@ const comparison = (a: PathWithCost, b: PathWithCost) => {
 
 describe("Priority Queue", () => {
     it("knows when it is empty", () => {
-        const addedFirst: SearchPath = SearchPathHelper.newSearchPath()
+        const addedFirst: SearchPath = SearchPathService.newSearchPath()
         addedFirst.totalMovementCost = 0
 
         const pq = new PriorityQueue<PathWithCost>(comparison)

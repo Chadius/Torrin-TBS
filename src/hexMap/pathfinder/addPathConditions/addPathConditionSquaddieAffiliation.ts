@@ -2,7 +2,7 @@ import {
     AddPathCondition,
     AreValidParametersForAddPathCondition,
 } from "./addPathCondition"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import { MissionMap } from "../../../missionMap/missionMap"
 import {
@@ -52,7 +52,7 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true
         }
 
-        const head = SearchPathHelper.getMostRecentLocation(newPath)
+        const head = SearchPathService.getMostRecentLocation(newPath)
 
         const { battleSquaddieId } = this.missionMap.getSquaddieAtLocation({
             q: head.hexCoordinate.q,

@@ -1,48 +1,48 @@
-import { SearchPathHelper } from "./searchPath"
+import { SearchPathService } from "./searchPath"
 
 describe("SearchPath", () => {
     it("knows if two paths share the same ancestor", () => {
-        const path0 = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const path0 = SearchPathService.newSearchPath()
+        SearchPathService.add(
             path0,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             path0,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             path0,
             { hexCoordinate: { q: 2, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             path0,
             { hexCoordinate: { q: 3, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
 
-        const path1 = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const path1 = SearchPathService.newSearchPath()
+        SearchPathService.add(
             path1,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             path1,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             path1,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             0
         )
 
         expect(
-            SearchPathHelper.pathsHaveTheSameAncestor({
+            SearchPathService.pathsHaveTheSameAncestor({
                 pathA: path0,
                 pathB: path1,
                 ancestor: { q: 0, r: 0 },
@@ -50,7 +50,7 @@ describe("SearchPath", () => {
         ).toBeTruthy()
 
         expect(
-            SearchPathHelper.pathsHaveTheSameAncestor({
+            SearchPathService.pathsHaveTheSameAncestor({
                 pathA: path0,
                 pathB: path1,
                 ancestor: { q: 1, r: 0 },
@@ -58,7 +58,7 @@ describe("SearchPath", () => {
         ).toBeTruthy()
 
         expect(
-            SearchPathHelper.pathsHaveTheSameAncestor({
+            SearchPathService.pathsHaveTheSameAncestor({
                 pathA: path0,
                 pathB: path1,
                 ancestor: { q: 2, r: 0 },
@@ -66,7 +66,7 @@ describe("SearchPath", () => {
         ).toBeFalsy()
 
         expect(
-            SearchPathHelper.pathsHaveTheSameAncestor({
+            SearchPathService.pathsHaveTheSameAncestor({
                 pathA: path0,
                 pathB: path1,
                 ancestor: { q: 9001, r: 90210 },

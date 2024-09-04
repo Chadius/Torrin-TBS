@@ -2,7 +2,7 @@ import {
     AddPathCondition,
     AreValidParametersForAddPathCondition,
 } from "./addPathCondition"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import {
     MapSearchDataLayer,
@@ -34,7 +34,7 @@ export class AddPathConditionIsInsideMap implements AddPathCondition {
         }
 
         const headLocation: LocationTraveled =
-            SearchPathHelper.getMostRecentLocation(newPath)
+            SearchPathService.getMostRecentLocation(newPath)
         return !MapSearchDataLayerService.outOfBounds({
             mapLayer: this.terrainMapLayer,
             q: headLocation.hexCoordinate.q,

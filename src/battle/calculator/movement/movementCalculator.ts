@@ -38,7 +38,6 @@ import { DecidedActionService } from "../../../action/decided/decidedAction"
 import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
 
 export const MovementCalculatorService = {
-    // TODO Test the calculator to ask if the movement is possible
     isMovementPossible: ({
         gameEngineState,
         battleSquaddie,
@@ -103,7 +102,7 @@ export const MovementCalculatorService = {
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
     }) => {
-        BattleSquaddieSelectorService.createSearchPath({
+        BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath({
             state: gameEngineState,
             squaddieTemplate,
             battleSquaddie,
