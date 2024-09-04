@@ -184,6 +184,10 @@ describe("User ends their turn", () => {
             gameEngineState,
         })
         selector = new BattlePlayerSquaddieSelector()
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
 
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
@@ -373,11 +377,11 @@ describe("User ends their turn", () => {
             expect(highlightTileSpy).toBeCalled()
         })
 
-        it("Mode switches to player HUD controller", () => {
+        it("Mode switches to computer controller since there are no controllable squaddies remaining", () => {
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             const changes = selector.recommendStateChanges(gameEngineState)
             expect(changes.nextMode).toBe(
-                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+                BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
             )
         })
 

@@ -122,6 +122,12 @@ describe("User clicks on a squaddie", () => {
                 movementCost: ["1 1 "],
             }),
         })
+        MissionMapService.addSquaddie({
+            missionMap,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
+            location: { q: 0, r: 0 },
+        })
     })
 
     it("HUD produces a button for each ActionTemplate", () => {
@@ -185,6 +191,7 @@ describe("User clicks on a squaddie", () => {
 
     describe("BattlePlayerSquaddieSelector clicks on a squaddie to start their turn", () => {
         let gameEngineState: GameEngineState
+
         beforeEach(() => {
             gameEngineState = getGameEngineState({
                 resourceHandler,
@@ -206,9 +213,19 @@ describe("User clicks on a squaddie", () => {
                     r: 0,
                 },
             })
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
         })
         const selectorClicksOnSquaddie = (gameEngineState: GameEngineState) => {
             const selector = new BattlePlayerSquaddieSelector()
+            gameEngineState.messageBoard.addListener(
+                selector,
+                MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+            )
+
             let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
                 0,
                 0,
@@ -278,6 +295,11 @@ describe("User clicks on a squaddie", () => {
         })
 
         const selector = new BattlePlayerSquaddieSelector()
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
+
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             0,
             0,
@@ -310,6 +332,11 @@ describe("User clicks on a squaddie", () => {
 
         const selectorHoversOnSquaddie = (gameEngineState: GameEngineState) => {
             const selector = new BattlePlayerSquaddieSelector()
+            gameEngineState.messageBoard.addListener(
+                selector,
+                MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+            )
+
             let { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
@@ -407,6 +434,11 @@ describe("User clicks on a squaddie", () => {
             )
 
             const selector = new BattlePlayerSquaddieSelector()
+            gameEngineState.messageBoard.addListener(
+                selector,
+                MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+            )
+
             let { x, y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {

@@ -553,7 +553,7 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState,
             battleSquaddieSelectedId: citizenDynamic.battleSquaddieId,
             selectionMethod: {
-                mouse: {
+                mouseMovement: {
                     x: mouseX,
                     y: mouseY,
                 },

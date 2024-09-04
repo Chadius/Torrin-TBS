@@ -612,11 +612,11 @@ describe("BattleSquaddieSelector", () => {
                 expectedPlayerSelectionContextCalculationArgs:
                     PlayerSelectionContextCalculationArgsService.new({
                         gameEngineState,
-                        mouseClick: {
+                        mouseClick: MouseClickService.new({
                             x: x,
                             y: y,
                             button: MouseButton.ACCEPT,
-                        },
+                        }),
                         actionTemplateId: "melee",
                     }),
                 expectedPlayerSelectionContext:
@@ -624,6 +624,11 @@ describe("BattleSquaddieSelector", () => {
                         playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                         battleSquaddieId: "battleSquaddieId",
                         actionTemplateId: "melee",
+                        mouseClick: MouseClickService.new({
+                            x: x,
+                            y: y,
+                            button: MouseButton.ACCEPT,
+                        }),
                     }),
                 expectedPlayerSelectionChanges:
                     PlayerSelectionChangesService.new({
@@ -635,6 +640,7 @@ describe("BattleSquaddieSelector", () => {
                             battleSquaddieId: "battleSquaddieId",
                             actionTemplateId: "melee",
                             mapStartingLocation: { q: 0, r: 0 },
+                            mouseLocation: { x, y },
                         },
                     }),
             })
@@ -647,6 +653,7 @@ describe("BattleSquaddieSelector", () => {
                 battleSquaddieId: "battleSquaddieId",
                 actionTemplateId: "melee",
                 mapStartingLocation: { q: 0, r: 0 },
+                mouseLocation: { x, y },
             })
         })
     })

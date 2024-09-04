@@ -327,6 +327,9 @@ export const BattleHUDService = {
             battleAction
         )
 
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showSummaryHUD =
+            false
+
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             gameEngineState,
@@ -522,6 +525,34 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                message.battleSquaddieId
+            )
+        )
+        const { actionPointsRemaining } =
+            SquaddieService.getNumberOfActionPoints({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            message.actionTemplateId
+        )
+        if (actionPointsRemaining < actionTemplate.actionPoints) {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                gameEngineState,
+                reason: `Need ${actionTemplate.actionPoints} action points`,
+                selectionLocation: {
+                    x: message.mouseLocation.x,
+                    y: message.mouseLocation.y,
+                },
+            })
+            return
+        }
+
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
@@ -547,10 +578,7 @@ export const BattleHUDService = {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            actionTemplate: ObjectRepositoryService.getActionTemplateById(
-                gameEngineState.repository,
-                message.actionTemplateId
-            ),
+            actionTemplate,
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -853,6 +881,9 @@ export const BattleHUDService = {
             battleSquaddie.battleSquaddieId,
             destination
         )
+
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showSummaryHUD =
+            false
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,

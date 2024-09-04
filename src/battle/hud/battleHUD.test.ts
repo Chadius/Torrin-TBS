@@ -1465,6 +1465,7 @@ describe("Battle HUD", () => {
                     battleSquaddieId:
                         playerSoldierBattleSquaddie.battleSquaddieId,
                     mapStartingLocation: { q: 0, r: 0 },
+                    mouseLocation: { x: 0, y: 0 },
                 })
             })
 
@@ -1550,7 +1551,45 @@ describe("Battle HUD", () => {
                 expect(messageSpy).toBeCalledWith(expectedMessage)
             })
         })
+
+        describe("Player does not have enough action points to perform action", () => {
+            beforeEach(() => {
+                battleHUDListener = new BattleHUDListener("battleHUDListener")
+                gameEngineState.messageBoard.addListener(
+                    battleHUDListener,
+                    MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+                )
+                gameEngineState.repository.actionTemplatesById[
+                    longswordAction.id
+                ].actionPoints = 3
+                SquaddieTurnService.spendActionPoints(
+                    playerSoldierBattleSquaddie.squaddieTurn,
+                    2
+                )
+
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                    gameEngineState,
+                    actionTemplateId: longswordAction.id,
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    mapStartingLocation: { q: 0, r: 0 },
+                    mouseLocation: { x: 0, y: 0 },
+                })
+            })
+
+            it("sends a message stating the player selection is invalid", () => {
+                expect(messageSpy).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                        gameEngineState,
+                        reason: "Need 3 action points",
+                    })
+                )
+            })
+        })
     })
+
     describe("Player selects a target", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState

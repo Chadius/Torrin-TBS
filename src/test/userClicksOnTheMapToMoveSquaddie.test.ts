@@ -117,8 +117,6 @@ describe("user clicks on the map to move", () => {
             }),
         })
 
-        selector = new BattlePlayerSquaddieSelector()
-
         gameEngineState = getGameEngineState({
             resourceHandler,
             missionMap,
@@ -129,10 +127,25 @@ describe("user clicks on the map to move", () => {
                 turnCount: 0,
             }),
         })
+
+        selector = new BattlePlayerSquaddieSelector()
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
+
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
             MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+        )
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+        )
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
         )
 
         MissionMapService.addSquaddie({
@@ -219,6 +232,28 @@ describe("user clicks on the map to move", () => {
 
     describe("When user clicks on map to make a legal move", () => {
         beforeEach(() => {
+            const playerBattleSquaddie2 = BattleSquaddieService.new({
+                squaddieTemplateId:
+                    playerSquaddieTemplate.squaddieId.templateId,
+                battleSquaddieId: "player 2",
+            })
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                playerBattleSquaddie2
+            )
+            MissionMapService.addSquaddie({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
+                squaddieTemplateId: playerBattleSquaddie2.squaddieTemplateId,
+                location: { q: 0, r: 1 },
+            })
+            BattleSquaddieTeamService.addBattleSquaddieIds(
+                gameEngineState.battleOrchestratorState.battleState.teams[0],
+                [playerBattleSquaddie2.battleSquaddieId]
+            )
+
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 3)
         })
 

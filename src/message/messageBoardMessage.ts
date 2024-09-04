@@ -4,7 +4,7 @@ import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
-import { MouseClick } from "../utils/mouseConfig"
+import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 
 export type MessageBoardMessage =
@@ -57,7 +57,6 @@ export enum MessageBoardMessageType {
     MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
-    // TODO Add a listener for BattleSquaddieSelector
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
 }
 
@@ -146,6 +145,7 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     actionTemplateId: string
     battleSquaddieId: string
     mapStartingLocation: HexCoordinate
+    mouseLocation: ScreenCoordinate
 }
 export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET

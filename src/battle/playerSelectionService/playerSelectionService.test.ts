@@ -989,6 +989,7 @@ describe("Player Selection Service", () => {
                     actionTemplateId: meleeActionId,
                     battleSquaddieId: "PLAYER",
                     mapStartingLocation: { q: 0, r: 0 },
+                    mouseLocation: { x: 0, y: 0 },
                 }
             })
             afterEach(() => {

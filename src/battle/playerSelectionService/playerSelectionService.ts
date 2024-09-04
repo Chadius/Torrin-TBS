@@ -102,7 +102,7 @@ export const PlayerSelectionService = {
         const hasAtLeastOnePlayerControllableSquaddie: boolean =
             playerCanControlAtLeastOneSquaddie(gameEngineState)
 
-        const clickedLocation: HexCoordinate = !!mouseClick
+        const clickedLocation: HexCoordinate = mouseClick
             ? getClickedOnLocation({
                   gameEngineState,
                   screenCoordinate: { x: mouseClick.x, y: mouseClick.y },
@@ -161,6 +161,7 @@ export const PlayerSelectionService = {
                     playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                     actionTemplateId,
                     battleSquaddieId: playerCurrentlyTryingToMakeADecision,
+                    mouseClick,
                 })
             case playerCurrentlyTryingToMakeADecision && playerEndsTheirTurn:
                 return PlayerSelectionContextService.new({
@@ -250,7 +251,7 @@ export const PlayerSelectionService = {
         gameEngineState: GameEngineState
     }): PlayerSelectionChanges => {
         let messageSent: MessageBoardMessage
-        const { q, r } = !!context.mouseClick
+        const { q, r } = context.mouseClick
             ? ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates(
                   {
                       screenX: context.mouseClick.x,
@@ -260,6 +261,7 @@ export const PlayerSelectionService = {
                   }
               )
             : { q: 0, r: 0 }
+        let endTurnBattleAction: BattleAction
 
         switch (context.playerIntent) {
             case PlayerIntent.END_PHASE:
@@ -335,14 +337,13 @@ export const PlayerSelectionService = {
                     context,
                 })
             case PlayerIntent.END_SQUADDIE_TURN:
-                const endTurnBattleAction: BattleAction =
-                    BattleActionService.new({
-                        actor: {
-                            battleSquaddieId: context.battleSquaddieId,
-                        },
-                        action: { isEndTurn: true },
-                        effect: { endTurn: true },
-                    })
+                endTurnBattleAction = BattleActionService.new({
+                    actor: {
+                        battleSquaddieId: context.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
+                })
 
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_ENDS_TURN,
@@ -497,7 +498,6 @@ const getClickedOnLocation = ({
     return { q, r }
 }
 
-// TODO need a new Message type when a target is not required
 const playerSelectsAnAction = ({
     gameEngineState,
     context,
@@ -519,6 +519,10 @@ const playerSelectsAnAction = ({
         actionTemplateId: context.actionTemplateId,
         battleSquaddieId: context.battleSquaddieId,
         mapStartingLocation: mapLocation,
+        mouseLocation: {
+            x: context.mouseClick.x,
+            y: context.mouseClick.y,
+        },
     }
     gameEngineState.messageBoard.sendMessage(messageSent)
     return PlayerSelectionChangesService.new({
