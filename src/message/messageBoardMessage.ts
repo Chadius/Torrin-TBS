@@ -5,6 +5,7 @@ import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 import { MouseClick } from "../utils/mouseConfig"
+import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -28,8 +29,9 @@ export type MessageBoardMessage =
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToLocation
     | MessageBoardMessagePlayerCancelsSquaddieSelection
-    | MessageBoarsMessagePlayerSelectsEmptyTile
+    | MessageBoardMessagePlayerSelectsEmptyTile
     | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
+    | MessageBoardMessagePlayerConfirmsDecisionStepActor
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -55,6 +57,8 @@ export enum MessageBoardMessageType {
     MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
+    // TODO Add a listener for BattleSquaddieSelector
+    PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
 }
 
 export interface MessageBoardMessageBase {
@@ -197,8 +201,14 @@ export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
     gameEngineState: GameEngineState
 }
 
-export interface MessageBoarsMessagePlayerSelectsEmptyTile {
+export interface MessageBoardMessagePlayerSelectsEmptyTile {
     type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
     gameEngineState: GameEngineState
     location: HexCoordinate
+}
+
+export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
+    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+    gameEngineState: GameEngineState
+    recommendedMode: BattleOrchestratorMode
 }

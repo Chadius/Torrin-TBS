@@ -16,7 +16,7 @@ import {
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
-    MessageBoarsMessagePlayerSelectsEmptyTile,
+    MessageBoardMessagePlayerSelectsEmptyTile,
 } from "../../message/messageBoardMessage"
 import {
     PopupWindow,
@@ -93,6 +93,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -325,6 +326,12 @@ export const BattleHUDService = {
                 .battleActionQueue,
             battleAction
         )
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+            gameEngineState,
+            recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+        })
     },
     playerSelectsSquaddie: (
         battleHUD: BattleHUD,
@@ -544,6 +551,12 @@ export const BattleHUDService = {
                 gameEngineState.repository,
                 message.actionTemplateId
             ),
+        })
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+            gameEngineState,
+            recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
     },
     playerSelectsTargetLocation: (
@@ -840,6 +853,12 @@ export const BattleHUDService = {
             battleSquaddie.battleSquaddieId,
             destination
         )
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+            gameEngineState,
+            recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+        })
     },
     cancelSquaddieSelectionAtStartOfTurn: (
         message: MessageBoardMessagePlayerCancelsSquaddieSelection
@@ -859,7 +878,7 @@ export const BattleHUDService = {
             undefined
     },
     clicksOnAnEmptyTileAtTheStartOfTheTurn: (
-        message: MessageBoarsMessagePlayerSelectsEmptyTile
+        message: MessageBoardMessagePlayerSelectsEmptyTile
     ) => {
         const gameEngineState = message.gameEngineState
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =

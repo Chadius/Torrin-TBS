@@ -36,7 +36,7 @@ import {
     MessageBoardMessage,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessageType,
-    MessageBoarsMessagePlayerSelectsEmptyTile,
+    MessageBoardMessagePlayerSelectsEmptyTile,
 } from "../../message/messageBoardMessage"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
@@ -117,7 +117,7 @@ describe("Player Selection Service", () => {
             let actualContext: PlayerSelectionContext
             let messageSpy: jest.SpyInstance
             let changes: PlayerSelectionChanges
-            let expectedMessage: MessageBoarsMessagePlayerSelectsEmptyTile
+            let expectedMessage: MessageBoardMessagePlayerSelectsEmptyTile
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
                     q: 0,

@@ -330,6 +330,11 @@ export class GameEngine {
             cutsceneMessageListener,
             MessageBoardMessageType.SQUADDIE_IS_INJURED
         )
+
+        this.gameEngineState.messageBoard.addListener(
+            this._battleOrchestrator.playerSquaddieSelector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
     }
 
     private async lazyLoadResourceHandler({

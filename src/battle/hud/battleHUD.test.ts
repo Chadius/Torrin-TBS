@@ -4,7 +4,10 @@ import {
     BattleHUDService,
     PopupWindowType,
 } from "./battleHUD"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import {
+    MessageBoardMessage,
+    MessageBoardMessageType,
+} from "../../message/messageBoardMessage"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import {
     GameEngineState,
@@ -108,6 +111,7 @@ import {
 } from "../../hexMap/hexDrawingUtils"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1249,53 +1253,6 @@ describe("Battle HUD", () => {
             messageSpy.mockRestore()
         })
 
-        it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
-            battleHUDListener.receiveMessage({
-                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                gameEngineState,
-                battleAction: endTurnBattleAction,
-            })
-
-            const decidedActionEndTurnEffect =
-                DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({}),
-                })
-            const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionPointCost: 1,
-                    battleSquaddieId: "player_soldier_0",
-                    actionTemplateName: "End Turn",
-                    actionEffects: [decidedActionEndTurnEffect],
-                }),
-                processedActionEffects: [
-                    ProcessedActionEndTurnEffectService.new({
-                        decidedActionEffect: decidedActionEndTurnEffect,
-                    }),
-                ],
-            })
-
-            expect(
-                ActionsThisRoundService.getProcessedActionToShow(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).processedActionEffects[0].type
-            ).toEqual(ActionEffectType.END_TURN)
-
-            const history =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            expect(history).toHaveLength(1)
-            expect(history[0]).toStrictEqual(
-                BattleEventService.new({
-                    results: undefined,
-                    processedAction,
-                })
-            )
-            expect(
-                playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints
-            ).toEqual(0)
-        })
-
         it("will add end turn to existing instruction", () => {
             const decidedActionMovementEffect =
                 DecidedActionMovementEffectService.new({
@@ -1349,61 +1306,112 @@ describe("Battle HUD", () => {
             ).toEqual(ActionEffectType.END_TURN)
         })
 
-        it("tells the Action Builder to set end turn", () => {
-            battleHUDListener.receiveMessage({
-                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                gameEngineState,
-                battleAction: endTurnBattleAction,
+        describe("End turn", () => {
+            beforeEach(() => {
+                battleHUDListener.receiveMessage({
+                    type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                    gameEngineState,
+                    battleAction: endTurnBattleAction,
+                })
             })
 
-            expect(
-                BattleActionDecisionStepService.isActionSet(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                BattleActionDecisionStepService.getAction(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).endTurn
-            ).toBeTruthy()
-            expect(
-                BattleActionDecisionStepService.isTargetConsidered(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                BattleActionDecisionStepService.isTargetConfirmed(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                )
-            ).toBeTruthy()
-            expect(
-                BattleActionDecisionStepService.getTarget(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).targetLocation
-            ).toEqual({
-                q: 0,
-                r: 0,
-            })
-        })
+            it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
+                const decidedActionEndTurnEffect =
+                    DecidedActionEndTurnEffectService.new({
+                        template: ActionEffectEndTurnTemplateService.new({}),
+                    })
+                const processedAction = ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionPointCost: 1,
+                        battleSquaddieId: "player_soldier_0",
+                        actionTemplateName: "End Turn",
+                        actionEffects: [decidedActionEndTurnEffect],
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionEndTurnEffectService.new({
+                            decidedActionEffect: decidedActionEndTurnEffect,
+                        }),
+                    ],
+                })
 
-        it("adds the Battle Action to the Battle Action Queue", () => {
-            battleHUDListener.receiveMessage({
-                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
-                gameEngineState,
-                battleAction: endTurnBattleAction,
+                expect(
+                    ActionsThisRoundService.getProcessedActionToShow(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound
+                    ).processedActionEffects[0].type
+                ).toEqual(ActionEffectType.END_TURN)
+
+                const history =
+                    gameEngineState.battleOrchestratorState.battleState
+                        .recording.history
+                expect(history).toHaveLength(1)
+                expect(history[0]).toStrictEqual(
+                    BattleEventService.new({
+                        results: undefined,
+                        processedAction,
+                    })
+                )
+                expect(
+                    playerSoldierBattleSquaddie.squaddieTurn
+                        .remainingActionPoints
+                ).toEqual(0)
             })
 
-            expect(
-                BattleActionQueueService.peek(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
-                )
-            ).toEqual(endTurnBattleAction)
+            it("tells the Action Builder to set end turn", () => {
+                expect(
+                    BattleActionDecisionStepService.isActionSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).endTurn
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConsidered(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.isTargetConfirmed(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).targetLocation
+                ).toEqual({
+                    q: 0,
+                    r: 0,
+                })
+            })
+
+            it("adds the Battle Action to the Battle Action Queue", () => {
+                expect(
+                    BattleActionQueueService.peek(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionQueue
+                    )
+                ).toEqual(endTurnBattleAction)
+            })
+
+            it("will submit an event saying the action is ready", () => {
+                const expectedMessage: MessageBoardMessage = {
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+                    gameEngineState,
+                    recommendedMode:
+                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                }
+
+                expect(messageSpy).toBeCalledWith(expectedMessage)
+            })
         })
     })
     describe("Player selects an action", () => {
@@ -1411,6 +1419,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let playerSoldierBattleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
             ;({
@@ -1420,6 +1429,7 @@ describe("Battle HUD", () => {
             } = createGameEngineState({}))
 
             const repository = gameEngineState.repository
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             SummaryHUDStateService.setMainSummaryPopover({
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
@@ -1527,6 +1537,17 @@ describe("Battle HUD", () => {
                     q: 0,
                     r: 0,
                 })
+            })
+
+            it("will submit an event saying the action is ready", () => {
+                const expectedMessage: MessageBoardMessage = {
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+                    gameEngineState,
+                    recommendedMode:
+                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                }
+
+                expect(messageSpy).toBeCalledWith(expectedMessage)
             })
         })
     })
@@ -2447,6 +2468,17 @@ describe("Battle HUD", () => {
                 )
                 expect(mapDatum).not.toBeUndefined()
                 expect(mapDatum.mapLocation).toEqual({ q: 0, r: 2 })
+            })
+
+            it("will submit an event saying the action is ready", () => {
+                const expectedMessage: MessageBoardMessage = {
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+                    gameEngineState,
+                    recommendedMode:
+                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                }
+
+                expect(messageSpy).toBeCalledWith(expectedMessage)
             })
         })
 

@@ -65,7 +65,10 @@ import {
     MouseClickService,
 } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import {
+    MessageBoardMessage,
+    MessageBoardMessageType,
+} from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService, SummaryPopoverType } from "../hud/summaryHUD"
 import { PlayerCommandSelection } from "../hud/playerCommandHUD"
@@ -88,9 +91,10 @@ import {
 } from "../playerSelectionService/playerSelectionService"
 import { PlayerSelectionChanges } from "../playerSelectionService/playerSelectionChanges"
 import { PlayerSelectionContext } from "../playerSelectionService/playerSelectionContext"
+import { MessageBoardListener } from "../../message/messageBoardListener"
 
 export class BattlePlayerSquaddieSelector
-    implements BattleOrchestratorComponent
+    implements BattleOrchestratorComponent, MessageBoardListener
 {
     nextBattleSquaddieIds: string[]
     private gaveMovementAction: boolean
@@ -98,9 +102,21 @@ export class BattlePlayerSquaddieSelector
     constructor() {
         this.gaveMovementAction = false
         this.nextBattleSquaddieIds = []
+
+        this.messageBoardListenerId = "BattlePlayerSquaddieSelectorListener"
     }
 
     hasCompleted(gameEngineState: GameEngineState): boolean {
+        if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
+            return true
+        }
+
+        const cameraIsNotPanning =
+            !gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
+        return this.componentCompleted && cameraIsNotPanning
+    }
+
+    hasCompletedOLD(gameEngineState: GameEngineState): boolean {
         if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
             return true
         }
@@ -469,18 +485,9 @@ export class BattlePlayerSquaddieSelector
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        let nextMode: BattleOrchestratorMode = undefined
+        let nextMode: BattleOrchestratorMode = this.recommendedNextMode
 
-        if (
-            this.gaveMovementAction ||
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.playerCommandState
-                ?.playerSelectedSquaddieAction ||
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.playerCommandState?.playerSelectedEndTurn
-        ) {
-            nextMode = BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-        } else if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
+        if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
         }
 
@@ -1350,6 +1357,21 @@ export class BattlePlayerSquaddieSelector
                     }),
             },
         })
+    }
+
+    messageBoardListenerId: string
+    componentCompleted: boolean
+    recommendedNextMode: BattleOrchestratorMode
+
+    receiveMessage(message: MessageBoardMessage): void {
+        if (
+            message.type !==
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        ) {
+            return
+        }
+        this.componentCompleted = true
+        this.recommendedNextMode = message.recommendedMode
     }
 }
 

@@ -105,7 +105,9 @@ describe("BattleSquaddieSelector", () => {
         )
     })
     afterEach(() => {
-        messageSpy.mockRestore()
+        if (messageSpy) {
+            messageSpy.mockRestore()
+        }
         calculateContextSpy.mockRestore()
         applyContextSpy.mockRestore()
     })
@@ -799,7 +801,6 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    // TODO - Add new test
     describe("Next Squaddie button", () => {
         let gameEngineState: GameEngineState
 
@@ -854,7 +855,7 @@ describe("BattleSquaddieSelector", () => {
                         gameEngineState,
                         keyPress: {
                             keyButtonName: KeyButtonName.NEXT_SQUADDIE,
-                        }, // TODO Rename ButtonPress to KeyPress
+                        },
                     }),
                 expectedPlayerSelectionContext:
                     PlayerSelectionContextService.new({
@@ -882,20 +883,37 @@ describe("BattleSquaddieSelector", () => {
         })
     })
 
-    // TODO ---- NEW TESTS
+    it("will mark the component complete and recommend the message", () => {
+        let gameEngineState: GameEngineState
 
-    // "knows the component has completed when an action is ready to animate"
-    // "knows the component has completed when an action requires a target"
-    // "knows the component has completed when applied context has a recommended mode"
-    // TODO make test that says the turn is complete if the action is ready to animate
-    // it("marks this component as complete", () => {
-    //     selector.update(gameEngineState, mockedP5GraphicsContext)
-    //     expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-    // })
+        const battlePhaseState =
+            makeBattlePhaseTrackerWithPlayerTeam(missionMap)
 
-    // TODO When the user gives input on the map, generate the PlayerSelectionContext, calculate the PlayerIntent, and apply it (don't read the results it may be delivered asynchronously)
-    // TODO Know when the turn has ended because something else just set the action
-    // TODO Use the change's recommended action when given (where is this stored?)
+        gameEngineState = createGameEngineState({
+            battlePhaseState,
+            missionMap,
+        })
+
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
+
+        expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+            gameEngineState,
+            recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+        })
+
+        expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
+
+        const stateChanges = selector.recommendStateChanges(gameEngineState)
+        expect(stateChanges.nextMode).toEqual(
+            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+        )
+    })
 })
 
 const clickOnMapCoordinate = ({
