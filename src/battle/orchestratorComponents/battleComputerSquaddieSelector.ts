@@ -11,7 +11,7 @@ import {
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -34,7 +34,7 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
@@ -234,8 +234,8 @@ export class BattleComputerSquaddieSelector
         targetLocation: HexCoordinate,
         battleSquaddieId: string
     ) {
-        const searchResult: SearchResult = PathfinderHelper.search({
-            searchParameters: SearchParametersHelper.new({
+        const searchResult: SearchResult = PathfinderService.search({
+            searchParameters: SearchParametersService.new({
                 startLocations: [targetLocation],
                 squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
                 maximumDistanceMoved: 0,

@@ -1,7 +1,7 @@
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     FriendlyAffiliationsByAffiliation,
@@ -21,7 +21,7 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
@@ -146,8 +146,8 @@ const findValidTargets = ({
         return new TargetingResults()
     }
 
-    const allLocationsInRange: SearchResult = PathfinderHelper.search({
-        searchParameters: SearchParametersHelper.new({
+    const allLocationsInRange: SearchResult = PathfinderService.search({
+        searchParameters: SearchParametersService.new({
             startLocations:
                 sourceTiles && sourceTiles.length > 0
                     ? sourceTiles

@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { PathCanStopConditionMinimumDistance } from "./pathCanStopConditionMinimumDistance"
 
@@ -23,7 +23,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             minimumDistanceMoved: 3,
         })
 
@@ -60,7 +60,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             minimumDistanceMoved: 3,
         })
 
@@ -102,7 +102,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -116,7 +116,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
         const condition = new PathCanStopConditionMinimumDistance()
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             minimumDistanceMoved: 3,
         })
 

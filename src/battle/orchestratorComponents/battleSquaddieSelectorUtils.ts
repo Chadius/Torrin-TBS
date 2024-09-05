@@ -1,8 +1,11 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { GetNumberOfActionPoints } from "../../squaddie/squaddieService"
+import {
+    GetNumberOfActionPoints,
+    SquaddieService,
+} from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import {
     GetTargetingShapeGenerator,
     TargetingShape,
@@ -13,14 +16,28 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { MapHighlightHelper } from "../animation/mapHighlight"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { MapHighlightService } from "../animation/mapHighlight"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    HighlightTileDescription,
+    TerrainTileMapService,
+} from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+import { HexGridService } from "../../hexMap/hexGridDirection"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { MissionMap } from "../../missionMap/missionMap"
+import { CampaignResources } from "../../campaign/campaignResources"
+import { isValidValue } from "../../utils/validityCheck"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
@@ -41,6 +58,143 @@ export const BattleSquaddieSelectorService = {
             clickedHexCoordinate
         )
     },
+    getClosestRouteForSquaddieToReachDestination: ({
+        gameEngineState,
+        battleSquaddie,
+        squaddieTemplate,
+        stopLocation,
+        distanceRangeFromDestination,
+    }: {
+        gameEngineState: GameEngineState
+        battleSquaddie: BattleSquaddie
+        squaddieTemplate: SquaddieTemplate
+        stopLocation: HexCoordinate
+        distanceRangeFromDestination: {
+            minimum: number
+            maximum: number
+        }
+    }): SearchPath => {
+        const searchResults = getAllTilesSquaddieCanReach({
+            gameEngineState,
+            battleSquaddie,
+            squaddieTemplate,
+            stopLocation,
+        })
+
+        const maximumDistanceOfMap: number =
+            TerrainTileMapService.getDimensions(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            ).widthOfWidestRow +
+            TerrainTileMapService.getDimensions(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            ).numberOfRows
+
+        let coordinatesToConsider: HexCoordinate[] = []
+        const distanceIsBelowMaximum = (distance: number) =>
+            (distanceRangeFromDestination.maximum === undefined ||
+                distance <= distanceRangeFromDestination.maximum) &&
+            distance <= maximumDistanceOfMap
+
+        for (
+            let distanceFromStopLocation =
+                distanceRangeFromDestination.minimum || 0;
+            coordinatesToConsider.length === 0 &&
+            distanceIsBelowMaximum(distanceFromStopLocation);
+            distanceFromStopLocation++
+        ) {
+            coordinatesToConsider =
+                HexGridService.GetCoordinatesForRingAroundCoordinate(
+                    stopLocation,
+                    distanceFromStopLocation
+                )
+                    .filter((coordinate) =>
+                        TerrainTileMapService.isLocationOnMap(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .missionMap.terrainTileMap,
+                            coordinate
+                        )
+                    )
+                    .filter(
+                        (coordinate) =>
+                            searchResults.shortestPathByLocation?.[
+                                coordinate.q
+                            ]?.[coordinate.r]
+                    )
+                    .filter(
+                        (coordinate) =>
+                            searchResults.shortestPathByLocation[coordinate.q][
+                                coordinate.r
+                            ].currentNumberOfMoveActions > 0
+                    )
+        }
+
+        coordinatesToConsider.sort((a, b) => {
+            const searchPathA = searchResults.shortestPathByLocation[a.q][a.r]
+            const searchPathB = searchResults.shortestPathByLocation[b.q][b.r]
+
+            if (
+                searchPathA.currentNumberOfMoveActions <
+                searchPathB.currentNumberOfMoveActions
+            ) {
+                return -1
+            }
+
+            if (
+                searchPathA.currentNumberOfMoveActions >
+                searchPathB.currentNumberOfMoveActions
+            ) {
+                return 1
+            }
+
+            return 0
+        })
+
+        if (coordinatesToConsider.length === 0) {
+            return undefined
+        }
+
+        const closestRouteThatCostsFewestActions = coordinatesToConsider[0]
+        return searchResults.shortestPathByLocation[
+            closestRouteThatCostsFewestActions.q
+        ][closestRouteThatCostsFewestActions.r]
+    },
+    getAttackLocations: ({
+        objectRepository,
+        battleSquaddieId,
+        reachableLocationSearch,
+        missionMap,
+    }: {
+        objectRepository: ObjectRepository
+        battleSquaddieId: string
+        reachableLocationSearch: SearchResult
+        missionMap: MissionMap
+    }): HexCoordinate[] => {
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                battleSquaddieId
+            )
+        )
+
+        const { actionPointsRemaining } =
+            SquaddieService.getNumberOfActionPoints({
+                battleSquaddie,
+                squaddieTemplate,
+            })
+
+        const allLocationsSquaddieCanMoveTo: HexCoordinate[] =
+            SearchResultsService.getStoppableLocations(reachableLocationSearch)
+        return getSquaddieAttackLocations(
+            squaddieTemplate,
+            objectRepository,
+            allLocationsSquaddieCanMoveTo,
+            reachableLocationSearch,
+            actionPointsRemaining,
+            missionMap
+        )
+    },
 }
 
 const createSearchPath = (
@@ -49,40 +203,11 @@ const createSearchPath = (
     battleSquaddie: BattleSquaddie,
     clickedHexCoordinate: HexCoordinate
 ) => {
-    const datum =
-        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-            battleSquaddie.battleSquaddieId
-        )
-    const { actionPointsRemaining } = GetNumberOfActionPoints({
-        squaddieTemplate,
+    const searchResults = getAllTilesSquaddieCanReach({
+        gameEngineState,
         battleSquaddie,
-    })
-    const searchResults: SearchResult = PathfinderHelper.search({
-        searchParameters: SearchParametersHelper.new({
-            startLocations: [
-                {
-                    q: datum.mapLocation.q,
-                    r: datum.mapLocation.r,
-                },
-            ],
-            movementPerAction:
-                squaddieTemplate.attributes.movement.movementPerAction,
-            canPassThroughWalls:
-                squaddieTemplate.attributes.movement.passThroughWalls,
-            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-            shapeGenerator: getResultOrThrowError(
-                GetTargetingShapeGenerator(TargetingShape.SNAKE)
-            ),
-            maximumDistanceMoved: undefined,
-            minimumDistanceMoved: undefined,
-            canStopOnSquaddies: undefined,
-            ignoreTerrainCost: undefined,
-            stopLocations: [clickedHexCoordinate],
-            numberOfActions: actionPointsRemaining,
-        }),
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        repository: gameEngineState.repository,
+        squaddieTemplate,
+        stopLocation: clickedHexCoordinate,
     })
 
     const closestRoute: SearchPath =
@@ -101,7 +226,7 @@ const createSearchPath = (
         closestRoute
 
     const routeTilesByDistance =
-        MapHighlightHelper.convertSearchPathToHighlightLocations({
+        MapHighlightService.convertSearchPathToHighlightLocations({
             searchPath: closestRoute,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             repository: gameEngineState.repository,
@@ -121,4 +246,157 @@ const createSearchPath = (
             .terrainTileMap,
         actionRangeOnMap
     )
+}
+
+const getAllTilesSquaddieCanReach = ({
+    gameEngineState,
+    battleSquaddie,
+    squaddieTemplate,
+    stopLocation,
+}: {
+    gameEngineState: GameEngineState
+    battleSquaddie: BattleSquaddie
+    squaddieTemplate: SquaddieTemplate
+    stopLocation?: HexCoordinate
+}): SearchResult => {
+    const mapLocation =
+        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            battleSquaddie.battleSquaddieId
+        ).mapLocation
+    const { actionPointsRemaining } = GetNumberOfActionPoints({
+        squaddieTemplate,
+        battleSquaddie,
+    })
+    return PathfinderService.search({
+        searchParameters: SearchParametersService.new({
+            startLocations: [
+                {
+                    q: mapLocation.q,
+                    r: mapLocation.r,
+                },
+            ],
+            movementPerAction:
+                squaddieTemplate.attributes.movement.movementPerAction,
+            canPassThroughWalls:
+                squaddieTemplate.attributes.movement.passThroughWalls,
+            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+            shapeGenerator: getResultOrThrowError(
+                GetTargetingShapeGenerator(TargetingShape.SNAKE)
+            ),
+            maximumDistanceMoved: undefined,
+            minimumDistanceMoved: undefined,
+            canStopOnSquaddies: undefined,
+            ignoreTerrainCost: undefined,
+            stopLocations: stopLocation ? [stopLocation] : [],
+            numberOfActions: actionPointsRemaining,
+        }),
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        repository: gameEngineState.repository,
+    })
+}
+
+const getSquaddieAttackLocations = (
+    squaddieTemplate: SquaddieTemplate,
+    repository: ObjectRepository,
+    allLocationsSquaddieCanMoveTo: HexCoordinate[],
+    reachableLocationSearch: SearchResult,
+    actionPointsRemaining: number,
+    missionMap: MissionMap
+): HexCoordinate[] => {
+    const attackLocations: HexCoordinate[] = []
+    squaddieTemplate.actionTemplateIds
+        .map((id) =>
+            ObjectRepositoryService.getActionTemplateById(repository, id)
+        )
+        .forEach((actionTemplate) => {
+            allLocationsSquaddieCanMoveTo
+                .filter((coordinate) => {
+                    const path: SearchPath =
+                        reachableLocationSearch.shortestPathByLocation[
+                            coordinate.q
+                        ][coordinate.r]
+                    const numberOfMoveActionsToReachEndOfPath: number =
+                        isValidValue(path) ? path.currentNumberOfMoveActions : 0
+
+                    return (
+                        numberOfMoveActionsToReachEndOfPath +
+                            actionTemplate.actionPoints <=
+                        actionPointsRemaining
+                    )
+                })
+                .forEach((coordinate) => {
+                    actionTemplate.actionEffectTemplates
+                        .filter(
+                            (actionEffectTemplate) =>
+                                actionEffectTemplate.type ===
+                                ActionEffectType.SQUADDIE
+                        )
+                        .forEach((actionSquaddieEffectTemplate) => {
+                            let uniqueLocations: HexCoordinate[] = []
+
+                            if (
+                                actionSquaddieEffectTemplate.type !==
+                                ActionEffectType.SQUADDIE
+                            ) {
+                                return
+                            }
+
+                            const actionRangeResults = PathfinderService.search(
+                                {
+                                    searchParameters:
+                                        SearchParametersService.new({
+                                            startLocations: [coordinate],
+                                            canStopOnSquaddies: true,
+                                            canPassOverPits: true,
+                                            canPassThroughWalls:
+                                                TraitStatusStorageService.getStatus(
+                                                    actionSquaddieEffectTemplate.traits,
+                                                    Trait.PASS_THROUGH_WALLS
+                                                ),
+                                            minimumDistanceMoved:
+                                                actionSquaddieEffectTemplate.minimumRange,
+                                            maximumDistanceMoved:
+                                                actionSquaddieEffectTemplate.maximumRange,
+                                            squaddieAffiliation:
+                                                SquaddieAffiliation.UNKNOWN,
+                                            ignoreTerrainCost: true,
+                                            shapeGenerator:
+                                                getResultOrThrowError(
+                                                    GetTargetingShapeGenerator(
+                                                        actionSquaddieEffectTemplate.targetingShape
+                                                    )
+                                                ),
+                                        }),
+                                    missionMap,
+                                    repository,
+                                }
+                            )
+
+                            uniqueLocations =
+                                SearchResultsService.getStoppableLocations(
+                                    actionRangeResults
+                                )
+                                    .filter(
+                                        (location) =>
+                                            !attackLocations.some(
+                                                (attackLoc) =>
+                                                    attackLoc.q ===
+                                                        location.q &&
+                                                    attackLoc.r === location.r
+                                            )
+                                    )
+                                    .filter(
+                                        (location) =>
+                                            !allLocationsSquaddieCanMoveTo.some(
+                                                (moveLoc) =>
+                                                    moveLoc.q === location.q &&
+                                                    moveLoc.r === location.r
+                                            )
+                                    )
+                            attackLocations.push(...uniqueLocations)
+                        })
+                })
+        })
+    return attackLocations
 }

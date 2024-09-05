@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -73,7 +73,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             2
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
@@ -130,7 +130,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             },
         })
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
@@ -208,7 +208,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             damageType: DamageType.UNKNOWN,
         })
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
@@ -280,7 +280,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             2
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             canStopOnSquaddies: true,
         })
 
@@ -325,7 +325,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
         )
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
         })
 
@@ -348,7 +348,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
         })
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,

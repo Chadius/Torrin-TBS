@@ -141,7 +141,7 @@ export const PathfinderWorkingStateHelper = {
     },
 }
 
-export const PathfinderHelper = {
+export const PathfinderService = {
     search: ({
         searchParameters,
         missionMap,

@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -24,7 +24,7 @@ describe("addPathConditionPathLeadsToPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToPit({ missionMap })
         expect(
@@ -64,7 +64,7 @@ describe("addPathConditionPathLeadsToPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToPit({ missionMap })
         expect(
@@ -104,7 +104,7 @@ describe("addPathConditionPathLeadsToPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             canPassOverPits: true,
         })
 
@@ -124,7 +124,7 @@ describe("addPathConditionPathLeadsToPit", () => {
             }),
         })
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToPit({ missionMap })
         expect(

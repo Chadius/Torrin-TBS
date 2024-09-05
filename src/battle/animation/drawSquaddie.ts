@@ -24,7 +24,7 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ImageUI } from "../../ui/imageUI"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { MapHighlightHelper } from "./mapHighlight"
+import { MapHighlightService } from "./mapHighlight"
 import { Campaign } from "../../campaign/campaign"
 import { DEFAULT_ACTION_POINTS_PER_TURN } from "../../squaddie/turn"
 import { isValidValue } from "../../utils/validityCheck"
@@ -100,7 +100,7 @@ export const DrawSquaddieUtilities = {
             battleSquaddieId
         )
         const squaddieReachHighlightedOnMap =
-            MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                 repository: repository,
                 missionMap,
                 battleSquaddieId,

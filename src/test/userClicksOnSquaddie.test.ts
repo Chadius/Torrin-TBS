@@ -119,7 +119,7 @@ describe("User clicks on a squaddie", () => {
 
         missionMap = new MissionMap({
             terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 "],
+                movementCost: ["1 1 x x x x x x 1 "],
             }),
         })
         MissionMapService.addSquaddie({
@@ -425,7 +425,7 @@ describe("User clicks on a squaddie", () => {
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: "player 1",
-                location: { q: 0, r: 1 },
+                location: { q: 0, r: 8 },
             })
 
             BattleSquaddieTeamService.addBattleSquaddieIds(
@@ -457,7 +457,7 @@ describe("User clicks on a squaddie", () => {
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
-                        r: 1,
+                        r: 8,
                         ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
                     }
                 ))

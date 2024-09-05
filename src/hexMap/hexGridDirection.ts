@@ -71,15 +71,15 @@ export const MoveCoordinatesInOneDirection = (
     }
 }
 
-export const HexGridHelper = {
+export const HexGridService = {
     GetCoordinatesForRingAroundOrigin: (radius: number): HexCoordinate[] => {
-        return GetCoordinatesForRingAroundOrigin(radius)
+        return getCoordinatesForRingAroundOrigin(radius)
     },
     GetCoordinatesForRingAroundCoordinate: (
         coordinate: HexCoordinate,
         radius: number
     ): HexCoordinate[] => {
-        return GetCoordinatesForRingAroundOrigin(radius).map(
+        return getCoordinatesForRingAroundOrigin(radius).map(
             (ringCoordinate) => {
                 return {
                     q: ringCoordinate.q + coordinate.q,
@@ -90,7 +90,7 @@ export const HexGridHelper = {
     },
 }
 
-const GetCoordinatesForRingAroundOrigin = (radius: number): HexCoordinate[] => {
+const getCoordinatesForRingAroundOrigin = (radius: number): HexCoordinate[] => {
     if (radius === 0) {
         return [{ q: 0, r: 0 }]
     }

@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -24,7 +24,7 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotAWallOrPit({ missionMap })
         expect(
@@ -59,7 +59,7 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotAWallOrPit({ missionMap })
         expect(
@@ -99,7 +99,7 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotAWallOrPit({ missionMap })
         expect(
@@ -117,7 +117,7 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             }),
         })
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new PathCanStopConditionNotAWallOrPit({ missionMap })
         expect(

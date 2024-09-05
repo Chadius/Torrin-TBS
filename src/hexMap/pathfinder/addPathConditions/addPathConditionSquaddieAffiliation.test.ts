@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -89,7 +89,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     },
                 })
 
-                const searchParameters = SearchParametersHelper.new({
+                const searchParameters = SearchParametersService.new({
                     squaddieAffiliation: searchingAffiliation,
                 })
 
@@ -189,7 +189,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     damageType: DamageType.UNKNOWN,
                 })
 
-                const searchParameters = SearchParametersHelper.new({
+                const searchParameters = SearchParametersService.new({
                     squaddieAffiliation: searchingAffiliation,
                 })
 
@@ -278,7 +278,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     },
                 })
 
-                const searchParameters = SearchParametersHelper.new({
+                const searchParameters = SearchParametersService.new({
                     squaddieAffiliation: searchingAffiliation,
                     canStopOnSquaddies: true,
                 })
@@ -326,7 +326,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         )
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
         })
 
@@ -410,7 +410,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 },
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 squaddieAffiliation: searchingAffiliation,
             })
 
@@ -434,7 +434,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         })
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionSquaddieAffiliation({
             missionMap,

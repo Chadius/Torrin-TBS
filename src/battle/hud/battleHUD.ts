@@ -88,7 +88,7 @@ import {
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
-import { MapHighlightHelper } from "../animation/mapHighlight"
+import { MapHighlightService } from "../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
 import { BattleHUDStateService } from "./battleHUDState"
@@ -161,7 +161,7 @@ export const BattleHUDService = {
         battleHUD: BattleHUD,
         gameEngineState: GameEngineState
     ) => {
-        let { popupText, labelArea, camera } = calculateMidTurnPopup(
+        let { popupText, labelArea, camera } = calculatePopupMessage(
             gameEngineState.battleOrchestratorState.battleState
                 .actionsThisRound,
             gameEngineState
@@ -469,7 +469,7 @@ export const BattleHUDService = {
             )
         )
         const squaddieReachHighlightedOnMap =
-            MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                 repository: gameEngineState.repository,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
@@ -941,12 +941,6 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.gameEngineState
                 )
                 break
-            case MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN:
-                BattleHUDService.createPlayerSelectsDifferentSquaddieMidTurnPopup(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message.gameEngineState
-                )
-                break
             case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
                 BattleHUDService.createPlayerInvalidSelectionPopup(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
@@ -1020,11 +1014,11 @@ export class BattleHUDListener implements MessageBoardListener {
     }
 }
 
-const calculateMidTurnPopup = (
+const calculatePopupMessage = (
     actionsThisRound: ActionsThisRound,
     gameEngineState: GameEngineState
 ) => {
-    let popupText: string = `PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN but there is no actor`
+    let popupText: string = `no actor`
     let camera: BattleCamera = undefined
 
     let left = Math.round(Math.random() * ScreenDimensions.SCREEN_WIDTH)

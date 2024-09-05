@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { AddPathConditionPathIsLessThanTotalMovement } from "./addPathConditionPathIsLessThanTotalMovement"
 
@@ -26,7 +26,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             2
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             numberOfActions: 3,
             movementPerAction: 2,
         })
@@ -72,7 +72,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             2
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             numberOfActions: 3,
             movementPerAction: 2,
         })
@@ -118,7 +118,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             2
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             numberOfActions: undefined,
             movementPerAction: undefined,
         })
@@ -134,7 +134,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     it("returns undefined if there is no path", () => {
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             numberOfActions: undefined,
             movementPerAction: undefined,
         })

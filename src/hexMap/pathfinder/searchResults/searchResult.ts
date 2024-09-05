@@ -1,7 +1,7 @@
 import { SearchPath } from "../searchPath"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../../utils/validityCheck"
-import { HexGridHelper } from "../../hexGridDirection"
+import { HexGridService } from "../../hexGridDirection"
 
 export type SearchPathByLocation = {
     [q: number]: {
@@ -88,7 +88,7 @@ export const SearchResultsService = {
         distanceFromLocation: number
     ): HexCoordinate[] => {
         const possibleLocationsThatAreADistanceFromTheLocation: HexCoordinate[] =
-            HexGridHelper.GetCoordinatesForRingAroundCoordinate(
+            HexGridService.GetCoordinatesForRingAroundCoordinate(
                 location,
                 distanceFromLocation
             )

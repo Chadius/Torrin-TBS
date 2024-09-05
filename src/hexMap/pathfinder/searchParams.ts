@@ -40,7 +40,7 @@ export interface SearchParameters {
     canStopOnSquaddies: boolean
 }
 
-export const SearchParametersHelper = {
+export const SearchParametersService = {
     newUsingSearchSetupMovementStop: ({
         setup,
         movement,

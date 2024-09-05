@@ -12,21 +12,14 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator"
-import { isValidValue } from "../../utils/validityCheck"
 import { CampaignResources } from "../../campaign/campaignResources"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { SquaddieTurn } from "../../squaddie/turn"
+import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 
-export const MapHighlightHelper = {
+export const MapHighlightService = {
     convertSearchPathToHighlightLocations: ({
         searchPath,
         repository,
@@ -115,8 +108,8 @@ export const MapHighlightHelper = {
             actionPointsRemaining = squaddieTurnOverride.remainingActionPoints
         }
 
-        const reachableLocationSearch: SearchResult = PathfinderHelper.search({
-            searchParameters: SearchParametersHelper.new({
+        const reachableLocationSearch: SearchResult = PathfinderService.search({
+            searchParameters: SearchParametersService.new({
                 startLocations: [startLocation],
                 numberOfActions: actionPointsRemaining,
                 movementPerAction:
@@ -138,7 +131,7 @@ export const MapHighlightHelper = {
             campaignResources,
         })
         const attackRange = addAttackRangeOntoMovementRange({
-            repository,
+            objectRepository: repository,
             battleSquaddieId,
             reachableLocationSearch,
             missionMap,
@@ -209,123 +202,24 @@ const highlightAllLocationsWithinSquaddieMovementRange = ({
 }
 
 const addAttackRangeOntoMovementRange = ({
-    repository,
+    objectRepository,
     battleSquaddieId,
     reachableLocationSearch,
     missionMap,
     campaignResources,
 }: {
-    repository: ObjectRepository
+    objectRepository: ObjectRepository
     battleSquaddieId: string
     reachableLocationSearch: SearchResult
     missionMap: MissionMap
     campaignResources: CampaignResources
 }): HighlightTileDescription => {
-    const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            repository,
-            battleSquaddieId
-        )
-    )
-
-    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-        battleSquaddie,
-        squaddieTemplate,
+    const attackLocations = BattleSquaddieSelectorService.getAttackLocations({
+        objectRepository,
+        battleSquaddieId,
+        reachableLocationSearch,
+        missionMap,
     })
-
-    const allLocationsSquaddieCanMoveTo: HexCoordinate[] =
-        SearchResultsService.getStoppableLocations(reachableLocationSearch)
-
-    const attackLocations: HexCoordinate[] = []
-    squaddieTemplate.actionTemplateIds
-        .map((id) =>
-            ObjectRepositoryService.getActionTemplateById(repository, id)
-        )
-        .forEach((actionTemplate) => {
-            allLocationsSquaddieCanMoveTo
-                .filter((coordinate) => {
-                    const path: SearchPath =
-                        reachableLocationSearch.shortestPathByLocation[
-                            coordinate.q
-                        ][coordinate.r]
-                    const numberOfMoveActionsToReachEndOfPath: number =
-                        isValidValue(path) ? path.currentNumberOfMoveActions : 0
-
-                    return (
-                        numberOfMoveActionsToReachEndOfPath +
-                            actionTemplate.actionPoints <=
-                        actionPointsRemaining
-                    )
-                })
-                .forEach((coordinate) => {
-                    actionTemplate.actionEffectTemplates
-                        .filter(
-                            (actionEffectTemplate) =>
-                                actionEffectTemplate.type ===
-                                ActionEffectType.SQUADDIE
-                        )
-                        .forEach((actionSquaddieEffectTemplate) => {
-                            let uniqueLocations: HexCoordinate[] = []
-
-                            if (
-                                actionSquaddieEffectTemplate.type !==
-                                ActionEffectType.SQUADDIE
-                            ) {
-                                return
-                            }
-
-                            const actionRangeResults = PathfinderHelper.search({
-                                searchParameters: SearchParametersHelper.new({
-                                    startLocations: [coordinate],
-                                    canStopOnSquaddies: true,
-                                    canPassOverPits: true,
-                                    canPassThroughWalls:
-                                        TraitStatusStorageService.getStatus(
-                                            actionSquaddieEffectTemplate.traits,
-                                            Trait.PASS_THROUGH_WALLS
-                                        ),
-                                    minimumDistanceMoved:
-                                        actionSquaddieEffectTemplate.minimumRange,
-                                    maximumDistanceMoved:
-                                        actionSquaddieEffectTemplate.maximumRange,
-                                    squaddieAffiliation:
-                                        SquaddieAffiliation.UNKNOWN,
-                                    ignoreTerrainCost: true,
-                                    shapeGenerator: getResultOrThrowError(
-                                        GetTargetingShapeGenerator(
-                                            actionSquaddieEffectTemplate.targetingShape
-                                        )
-                                    ),
-                                }),
-                                missionMap,
-                                repository,
-                            })
-
-                            uniqueLocations =
-                                SearchResultsService.getStoppableLocations(
-                                    actionRangeResults
-                                )
-                                    .filter(
-                                        (location) =>
-                                            !attackLocations.some(
-                                                (attackLoc) =>
-                                                    attackLoc.q ===
-                                                        location.q &&
-                                                    attackLoc.r === location.r
-                                            )
-                                    )
-                                    .filter(
-                                        (location) =>
-                                            !allLocationsSquaddieCanMoveTo.some(
-                                                (moveLoc) =>
-                                                    moveLoc.q === location.q &&
-                                                    moveLoc.r === location.r
-                                            )
-                                    )
-                            attackLocations.push(...uniqueLocations)
-                        })
-                })
-        })
 
     return {
         tiles: attackLocations,

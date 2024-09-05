@@ -4,8 +4,8 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { SearchParametersHelper } from "../../../hexMap/pathfinder/searchParams"
+import { PathfinderService } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { SearchParametersService } from "../../../hexMap/pathfinder/searchParams"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import {
@@ -58,8 +58,8 @@ export const MovementCalculatorService = {
                 squaddieTemplate,
                 battleSquaddie,
             })
-        const searchResults: SearchResult = PathfinderHelper.search({
-            searchParameters: SearchParametersHelper.new({
+        const searchResults: SearchResult = PathfinderService.search({
+            searchParameters: SearchParametersService.new({
                 startLocations: [squaddieDatum.mapLocation],
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 movementPerAction:

@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import {
     MapSearchDataLayer,
@@ -27,7 +27,7 @@ describe("AddPathConditionIsInsideMap", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         expect(
             condition.shouldAddNewPath({
@@ -56,7 +56,7 @@ describe("AddPathConditionIsInsideMap", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         expect(
             condition.shouldAddNewPath({
@@ -80,7 +80,7 @@ describe("AddPathConditionIsInsideMap", () => {
 
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         expect(
             condition.shouldAddNewPath({

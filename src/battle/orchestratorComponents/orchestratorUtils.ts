@@ -11,7 +11,7 @@ import {
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
-import { MapHighlightHelper } from "../animation/mapHighlight"
+import { MapHighlightService } from "../animation/mapHighlight"
 import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -357,7 +357,7 @@ const drawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (
                 battleSquaddie.battleSquaddieId
             )
         const squaddieReachHighlightedOnMap =
-            MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                 repository: gameEngineState.repository,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
@@ -465,7 +465,7 @@ const highlightSquaddieRange = (
     )
 
     const squaddieReachHighlightedOnMap =
-        MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+        MapHighlightService.highlightAllLocationsWithinSquaddieRange({
             repository: gameEngineState.repository,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,

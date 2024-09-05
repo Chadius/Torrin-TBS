@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -24,7 +24,7 @@ describe("addPathConditionPathLeadsToWall", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToWall({ missionMap })
         expect(
@@ -59,7 +59,7 @@ describe("addPathConditionPathLeadsToWall", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToWall({ missionMap })
         expect(
@@ -94,7 +94,7 @@ describe("addPathConditionPathLeadsToWall", () => {
             1
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             canPassThroughWalls: true,
         })
 
@@ -114,7 +114,7 @@ describe("addPathConditionPathLeadsToWall", () => {
             }),
         })
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         const condition = new AddPathConditionPathLeadsToWall({ missionMap })
         expect(

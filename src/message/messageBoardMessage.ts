@@ -11,7 +11,6 @@ export type MessageBoardMessage =
     | MessageBoardMessageBase
     | MessageBoardMessageStartedPlayerPhase
     | MessageBoardMessagePlayerCanControlDifferentSquaddie
-    | MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn
     | MessageBoardMessageSquaddieIsInjured
     | MessageBoardMessagePlayerSelectionIsInvalid
     | MessageBoardMessagePlayerCancelsTargetSelection
@@ -38,7 +37,6 @@ export enum MessageBoardMessageType {
     STARTED_PLAYER_PHASE = "STARTED_PLAYER_PHASE",
     PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE = "PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE",
     SQUADDIE_IS_INJURED = "SQUADDIE_IS_INJURED",
-    PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN = "PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN",
     PLAYER_SELECTION_IS_INVALID = "PLAYER_SELECTION_IS_INVALID",
     PLAYER_CANCELS_TARGET_SELECTION = "PLAYER_CANCELS_TARGET_SELECTION",
     PLAYER_CANCELS_TARGET_CONFIRMATION = "PLAYER_CANCELS_TARGET_CONFIRMATION",
@@ -72,11 +70,6 @@ export interface MessageBoardMessageStartedPlayerPhase {
 
 export interface MessageBoardMessagePlayerCanControlDifferentSquaddie {
     type: MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE
-    gameEngineState: GameEngineState
-}
-
-export interface MessageBoardMessagePlayerSelectsDifferentSquaddieMidTurn {
-    type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN
     gameEngineState: GameEngineState
 }
 

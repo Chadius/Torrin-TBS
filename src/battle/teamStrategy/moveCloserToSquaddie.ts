@@ -3,7 +3,7 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
     GetTargetingShapeGenerator,
@@ -17,7 +17,7 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
@@ -192,8 +192,8 @@ const getClosestSquaddieAndLocationToFollow = ({
         shortestRoute: SearchPath
     }[] {
         const routesThatEndCloseToCandidate: SearchResult =
-            PathfinderHelper.search({
-                searchParameters: SearchParametersHelper.new({
+            PathfinderService.search({
+                searchParameters: SearchParametersService.new({
                     startLocations: [actorLocation],
                     squaddieAffiliation:
                         actorSquaddieTemplate.squaddieId.affiliation,
@@ -366,8 +366,8 @@ const getAllPossibleMovements = ({
     missionMap: MissionMap
     repository: ObjectRepository
 }) => {
-    return PathfinderHelper.search({
-        searchParameters: SearchParametersHelper.new({
+    return PathfinderService.search({
+        searchParameters: SearchParametersService.new({
             startLocations: [mapLocation],
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             movementPerAction: movementPerActionThisRound,

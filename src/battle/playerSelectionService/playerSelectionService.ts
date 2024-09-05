@@ -28,6 +28,9 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -38,10 +41,12 @@ export enum PlayerIntent {
     START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE = "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
     PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION",
+    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE",
     SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
     PLAYER_SELECTS_AN_ACTION = "PLAYER_SELECTS_AN_ACTION",
     END_SQUADDIE_TURN = "END_SQUADDIE_TURN",
+    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE",
 }
 
 export interface PlayerSelectionContextCalculationArgs {
@@ -80,6 +85,38 @@ export const PlayerSelectionContextCalculationArgsService = {
         actionTemplateId,
         endTurnSelected,
     }),
+}
+
+const isDifferentSquaddieInRange = (
+    battleSquaddieTryingToStartAnAction: string,
+    gameEngineState: GameEngineState,
+    clickedLocation: HexCoordinate
+) => {
+    if (!battleSquaddieTryingToStartAnAction) {
+        return false
+    }
+
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieTryingToStartAnAction
+        )
+    )
+
+    return (
+        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+            {
+                gameEngineState,
+                battleSquaddie,
+                squaddieTemplate,
+                stopLocation: clickedLocation,
+                distanceRangeFromDestination: {
+                    minimum: 1,
+                    maximum: 1,
+                },
+            }
+        ) !== undefined
+    )
 }
 
 export const PlayerSelectionService = {
@@ -154,6 +191,10 @@ export const PlayerSelectionService = {
                 clickedLocation
             )
 
+        const playerClickedOnADifferentSquaddieThanTheActingSquaddie: boolean =
+            clickedOnSquaddie &&
+            clickedBattleSquaddieId !== battleSquaddieTryingToStartAnAction
+
         switch (true) {
             case battleSquaddieTryingToStartAnAction && playerSelectsAnAction:
                 return PlayerSelectionContextService.new({
@@ -171,6 +212,31 @@ export const PlayerSelectionService = {
                 return PlayerSelectionContextService.new({
                     playerIntent: PlayerIntent.END_PHASE,
                 })
+            case isSquaddieTakingATurn &&
+                battleSquaddieTryingToStartAnAction &&
+                clickedOnSquaddie &&
+                squaddieIsNormallyControllableByPlayer:
+                if (
+                    !isDifferentSquaddieInRange(
+                        battleSquaddieTryingToStartAnAction,
+                        gameEngineState,
+                        clickedLocation
+                    )
+                ) {
+                    return PlayerSelectionContextService.new({
+                        playerIntent:
+                            PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE,
+                        battleSquaddieId: battleSquaddieTryingToStartAnAction,
+                        mouseClick,
+                    })
+                }
+
+                return PlayerSelectionContextService.new({
+                    playerIntent:
+                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
+                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
+                    mouseClick,
+                })
             case !isSquaddieTakingATurn &&
                 clickedOnSquaddie &&
                 squaddieIsNormallyControllableByPlayer:
@@ -178,6 +244,30 @@ export const PlayerSelectionService = {
                     playerIntent:
                         PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE,
                     battleSquaddieId: clickedBattleSquaddieId,
+                    mouseClick,
+                })
+            case battleSquaddieTryingToStartAnAction &&
+                clickedOnSquaddie &&
+                !squaddieIsNormallyControllableByPlayer:
+                if (
+                    !isDifferentSquaddieInRange(
+                        battleSquaddieTryingToStartAnAction,
+                        gameEngineState,
+                        clickedLocation
+                    )
+                ) {
+                    return PlayerSelectionContextService.new({
+                        playerIntent:
+                            PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE,
+                        battleSquaddieId: battleSquaddieTryingToStartAnAction,
+                        mouseClick,
+                    })
+                }
+
+                return PlayerSelectionContextService.new({
+                    playerIntent:
+                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
+                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
                 })
             case !isSquaddieTakingATurn &&
@@ -190,10 +280,8 @@ export const PlayerSelectionService = {
                     mouseClick,
                 })
             case isSquaddieTakingATurn &&
-                clickedBattleSquaddieId !==
-                    battleSquaddieIdCurrentlyTakingATurn &&
-                !!mouseClick &&
-                clickedOnSquaddie:
+                playerClickedOnADifferentSquaddieThanTheActingSquaddie &&
+                !!mouseClick:
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
@@ -259,6 +347,23 @@ export const PlayerSelectionService = {
               )
             : { q: 0, r: 0 }
         let endTurnBattleAction: BattleAction
+        const { squaddieTemplate: targetSquaddieTemplate } =
+            getSquaddiePlayerClickedOn({
+                gameEngineState,
+                mouseClick: context.mouseClick,
+            })
+        const {
+            battleSquaddie: contextBattleSquaddie,
+            squaddieTemplate: contextSquaddieTemplate,
+        } = context.battleSquaddieId
+            ? getResultOrThrowError(
+                  ObjectRepositoryService.getSquaddieByBattleId(
+                      gameEngineState.repository,
+                      context.battleSquaddieId
+                  )
+              )
+            : { battleSquaddie: undefined, squaddieTemplate: undefined }
+        let closestRoute: SearchPath
 
         switch (context.playerIntent) {
             case PlayerIntent.END_PHASE:
@@ -306,13 +411,6 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
-            case PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN:
-                messageSent = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_DIFFERENT_SQUADDIE_MID_TURN,
-                    gameEngineState,
-                }
-                gameEngineState.messageBoard.sendMessage(messageSent)
-                return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
@@ -353,6 +451,41 @@ export const PlayerSelectionService = {
                     battleOrchestratorMode:
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 })
+            case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE:
+                closestRoute =
+                    BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+                        {
+                            gameEngineState,
+                            battleSquaddie: contextBattleSquaddie,
+                            squaddieTemplate: contextSquaddieTemplate,
+                            stopLocation: { q, r },
+                            distanceRangeFromDestination: {
+                                minimum: 1,
+                                maximum: 1,
+                            },
+                        }
+                    )
+
+                messageSent = {
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    battleSquaddieId: context.battleSquaddieId,
+                    targetLocation: closestRoute.destination,
+                    gameEngineState,
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                    gameEngineState,
+                    reason: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
+                    selectionLocation: {
+                        x: context.mouseClick.x,
+                        y: context.mouseClick.y,
+                    },
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
         }
         return PlayerSelectionChangesService.new({})
     },
@@ -384,12 +517,14 @@ const getSquaddiePlayerClickedOn = ({
     clickedOnSquaddie: boolean
     squaddieIsNormallyControllableByPlayer: boolean
     battleSquaddieId: string
+    squaddieTemplate: SquaddieTemplate
 } => {
     if (mouseClick === undefined) {
         return {
             clickedOnSquaddie: false,
             squaddieIsNormallyControllableByPlayer: false,
             battleSquaddieId: undefined,
+            squaddieTemplate: undefined,
         }
     }
     const battleSquaddieId = getBattleSquaddieIdAtLocation({
@@ -405,6 +540,7 @@ const getSquaddiePlayerClickedOn = ({
             clickedOnSquaddie: false,
             squaddieIsNormallyControllableByPlayer: false,
             battleSquaddieId: undefined,
+            squaddieTemplate: undefined,
         }
     }
 
@@ -425,6 +561,7 @@ const getSquaddiePlayerClickedOn = ({
         clickedOnSquaddie: true,
         squaddieIsNormallyControllableByPlayer,
         battleSquaddieId,
+        squaddieTemplate,
     }
 }
 
@@ -531,5 +668,33 @@ const playerSelectsAnAction = ({
     return PlayerSelectionChangesService.new({
         messageSent,
         battleOrchestratorMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+    })
+}
+
+const getPlayerIntentWhenClickingOnTwoSquaddies = ({
+    battleSquaddieTryingToStartAnAction,
+    gameEngineState,
+    clickedLocation,
+    mouseClick,
+}: {
+    battleSquaddieTryingToStartAnAction: string
+    gameEngineState: GameEngineState
+    clickedLocation: HexCoordinate
+    mouseClick: MouseClick
+}): PlayerSelectionContext => {
+    if (
+        !isDifferentSquaddieInRange(
+            battleSquaddieTryingToStartAnAction,
+            gameEngineState,
+            clickedLocation
+        )
+    ) {
+        return undefined
+    }
+
+    return PlayerSelectionContextService.new({
+        playerIntent: PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
+        battleSquaddieId: battleSquaddieTryingToStartAnAction,
+        mouseClick,
     })
 }

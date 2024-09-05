@@ -113,7 +113,7 @@ describe("user clicks on the map to move", () => {
 
         missionMap = new MissionMap({
             terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 1 1 ", " x x x x x "],
+                movementCost: ["1 1 1 1 1 ", " x x x x x ", "  x x 1 x x "],
             }),
         })
 
@@ -193,7 +193,7 @@ describe("user clicks on the map to move", () => {
             ).toBeTruthy()
         })
 
-        it("When User clicks in range on another squaddie", () => {
+        it("When User clicks out of range on another squaddie", () => {
             const anotherPlayer = BattleSquaddieService.new({
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
@@ -205,11 +205,11 @@ describe("user clicks on the map to move", () => {
                 squaddieTemplateId: anotherPlayer.squaddieTemplateId,
                 battleSquaddieId: anotherPlayer.battleSquaddieId,
                 location: {
-                    q: 0,
+                    q: 2,
                     r: 2,
                 },
             })
-            selectorClicksOnMapLocation(selector, gameEngineState, 0, 2)
+            selectorClicksOnMapLocation(selector, gameEngineState, 2, 2)
             commonExpectations()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState

@@ -25,7 +25,7 @@ import {
     HighlightPulseBlueColor,
     HighlightPulseRedColor,
 } from "../../hexMap/hexDrawingUtils"
-import { MapHighlightHelper } from "./mapHighlight"
+import { MapHighlightService } from "./mapHighlight"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import {
@@ -179,7 +179,7 @@ describe("map highlight generator", () => {
         )
 
         const highlightedTiles: HighlightTileDescription[] =
-            MapHighlightHelper.convertSearchPathToHighlightLocations({
+            MapHighlightService.convertSearchPathToHighlightLocations({
                 searchPath: pathToDraw,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 repository: objectRepository,
@@ -322,7 +322,7 @@ describe("map highlight generator", () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1)
 
             const highlightedDescription: HighlightTileDescription[] =
-                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
@@ -341,7 +341,7 @@ describe("map highlight generator", () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
 
             const highlightedDescription: HighlightTileDescription[] =
-                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
@@ -363,7 +363,7 @@ describe("map highlight generator", () => {
             SquaddieTurnService.spendActionPoints(turnWith1Action, 2)
 
             const highlightedDescription: HighlightTileDescription[] =
-                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllSingleMovement,
                     }),
@@ -383,7 +383,7 @@ describe("map highlight generator", () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3)
 
             const highlightedDescription: HighlightTileDescription[] =
-                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAllDoubleMovement,
                     }),
@@ -448,7 +448,7 @@ describe("map highlight generator", () => {
 
         it("highlights correct locations when squaddie has a ranged weapon", () => {
             const highlightedDescription: HighlightTileDescription[] =
-                MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
                     missionMap: MissionMapService.new({
                         terrainTileMap: terrainAlternatingPits,
                     }),

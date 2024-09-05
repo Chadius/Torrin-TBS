@@ -1,6 +1,6 @@
 import {
     HexDirection,
-    HexGridHelper,
+    HexGridService,
     MoveCoordinatesInOneDirection,
     moveOneTileInDirection,
 } from "./hexGridDirection"
@@ -152,13 +152,13 @@ describe("Hex Grid Helper", () => {
     describe("Generate offsets of a certain radius", () => {
         it("generates a ring of 0 around the origin", () => {
             const radius0: HexCoordinate[] =
-                HexGridHelper.GetCoordinatesForRingAroundOrigin(0)
+                HexGridService.GetCoordinatesForRingAroundOrigin(0)
             expect(radius0).toHaveLength(1)
             expect(radius0).toContainEqual({ q: 0, r: 0 })
         })
         it("generates a ring of 1 around the origin", () => {
             const radius1: HexCoordinate[] =
-                HexGridHelper.GetCoordinatesForRingAroundOrigin(1)
+                HexGridService.GetCoordinatesForRingAroundOrigin(1)
             expect(radius1).toHaveLength(6)
             expect(radius1).toContainEqual({ q: 0, r: 1 })
             expect(radius1).toContainEqual({ q: -1, r: 1 })
@@ -170,7 +170,7 @@ describe("Hex Grid Helper", () => {
         })
         it("generates a ring of 2 around the origin", () => {
             const radius2: HexCoordinate[] =
-                HexGridHelper.GetCoordinatesForRingAroundOrigin(2)
+                HexGridService.GetCoordinatesForRingAroundOrigin(2)
             expect(radius2).toHaveLength(12)
             expect(radius2).toContainEqual({ q: 0, r: 2 })
 
@@ -193,7 +193,7 @@ describe("Hex Grid Helper", () => {
         })
         it("generates a ring around a given coordinate", () => {
             const radius2: HexCoordinate[] =
-                HexGridHelper.GetCoordinatesForRingAroundCoordinate(
+                HexGridService.GetCoordinatesForRingAroundCoordinate(
                     { q: 3, r: 5 },
                     2
                 )

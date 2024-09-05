@@ -9,7 +9,7 @@ import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
-import { SearchParametersHelper } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
 import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
 import {
@@ -28,7 +28,7 @@ import {
     SearchResult,
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
-import { PathfinderHelper } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -89,8 +89,8 @@ describe("BattleSquaddieMover", () => {
     it("is complete once enough time passes and the squaddie finishes moving", () => {
         map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
 
-        const searchResults: SearchResult = PathfinderHelper.search({
-            searchParameters: SearchParametersHelper.new({
+        const searchResults: SearchResult = PathfinderService.search({
+            searchParameters: SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 canStopOnSquaddies: true,
@@ -166,8 +166,8 @@ describe("BattleSquaddieMover", () => {
     it("sends a message once the squaddie finishes moving", () => {
         map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
 
-        const searchResults: SearchResult = PathfinderHelper.search({
-            searchParameters: SearchParametersHelper.new({
+        const searchResults: SearchResult = PathfinderService.search({
+            searchParameters: SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 canStopOnSquaddies: true,
@@ -255,8 +255,8 @@ describe("BattleSquaddieMover", () => {
             squaddieAffiliation: SquaddieAffiliation
             actionsThisRound?: ActionsThisRound
         }): BattleOrchestratorState => {
-            const searchResults: SearchResult = PathfinderHelper.search({
-                searchParameters: SearchParametersHelper.new({
+            const searchResults: SearchResult = PathfinderService.search({
+                searchParameters: SearchParametersService.new({
                     startLocations: [{ q: 0, r: 0 }],
                     squaddieAffiliation: squaddieAffiliation,
                     canStopOnSquaddies: true,

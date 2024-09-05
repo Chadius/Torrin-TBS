@@ -1,4 +1,4 @@
-import { SearchParametersHelper } from "../searchParams"
+import { SearchParametersService } from "../searchParams"
 import { SearchPathService } from "../searchPath"
 import { AddPathConditionMaximumDistance } from "./addPathConditionMaximumDistance"
 
@@ -33,7 +33,7 @@ describe("addPathConditionMaximumDistance", () => {
     it("knows when a path is less than the maximum distance", () => {
         const { condition, pathAtHead } = createSearchPathFixture()
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             maximumDistanceMoved: 3,
         })
 
@@ -53,7 +53,7 @@ describe("addPathConditionMaximumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             maximumDistanceMoved: 3,
         })
 
@@ -73,7 +73,7 @@ describe("addPathConditionMaximumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersHelper.new({})
+        const searchParameters = SearchParametersService.new({})
 
         expect(
             condition.shouldAddNewPath({
@@ -87,7 +87,7 @@ describe("addPathConditionMaximumDistance", () => {
         const condition = new AddPathConditionMaximumDistance()
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersHelper.new({
+        const searchParameters = SearchParametersService.new({
             maximumDistanceMoved: 3,
         })
 

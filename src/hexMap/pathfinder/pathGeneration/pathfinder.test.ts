@@ -1,13 +1,13 @@
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { SearchParameters, SearchParametersHelper } from "../searchParams"
+import { SearchParameters, SearchParametersService } from "../searchParams"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
 import { SearchPath, SearchPathService } from "../searchPath"
 import {
     SearchResult,
     SearchResultsService,
 } from "../searchResults/searchResult"
-import { PathfinderHelper } from "./pathfinder"
+import { PathfinderService } from "./pathfinder"
 import { ObjectRepositoryService } from "../../../battle/objectRepository"
 
 describe("Pathfinder", () => {
@@ -23,11 +23,11 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            searchParameters = SearchParametersHelper.new({
+            searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 2 }],
             })
 
-            searchResults = PathfinderHelper.search({
+            searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -85,8 +85,8 @@ describe("Pathfinder", () => {
 
     it("throws an error when no start location is given", () => {
         const shouldThrowError = () => {
-            PathfinderHelper.search({
-                searchParameters: SearchParametersHelper.new({}),
+            PathfinderService.search({
+                searchParameters: SearchParametersService.new({}),
                 missionMap: MissionMapService.default(),
                 repository: ObjectRepositoryService.new(),
             })
@@ -105,13 +105,13 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 movementPerAction: 3,
                 numberOfActions: 2,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -150,13 +150,13 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 movementPerAction: 3,
                 numberOfActions: 2,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -185,14 +185,14 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 movementPerAction: 3,
                 numberOfActions: 2,
                 ignoreTerrainCost: true,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -224,11 +224,11 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -254,12 +254,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 canPassOverPits: false,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -285,12 +285,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 canPassOverPits: true,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -316,12 +316,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 canPassThroughWalls: true,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -350,12 +350,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 movementPerAction: 2,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -446,13 +446,13 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 numberOfActions: 3,
                 movementPerAction: 2,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -508,11 +508,11 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -551,12 +551,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 maximumDistanceMoved: 3,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -585,12 +585,12 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 minimumDistanceMoved: 3,
             })
 
-            const searchResults = PathfinderHelper.search({
+            const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -632,14 +632,14 @@ describe("Pathfinder", () => {
                 }),
             })
 
-            searchParameters = SearchParametersHelper.new({
+            searchParameters = SearchParametersService.new({
                 startLocations: [
                     { q: 0, r: 0 },
                     { q: 1, r: 4 },
                 ],
             })
 
-            searchResults = PathfinderHelper.search({
+            searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -702,7 +702,7 @@ describe("Pathfinder", () => {
         })
 
         it("can use minimum and maximum distance to generate a spreading effect", () => {
-            searchParameters = SearchParametersHelper.new({
+            searchParameters = SearchParametersService.new({
                 startLocations: [
                     { q: 0, r: 1 },
                     { q: 0, r: 2 },
@@ -712,7 +712,7 @@ describe("Pathfinder", () => {
                 canPassOverPits: true,
             })
 
-            searchResults = PathfinderHelper.search({
+            searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),
@@ -744,7 +744,7 @@ describe("Pathfinder", () => {
         })
 
         it("will acknowledge that the search ended when it reached all stop locations", () => {
-            const searchParameters = SearchParametersHelper.new({
+            const searchParameters = SearchParametersService.new({
                 startLocations: [{ q: 0, r: 0 }],
                 stopLocations: [
                     { q: 0, r: 0 },
@@ -753,7 +753,7 @@ describe("Pathfinder", () => {
                 ],
             })
 
-            const searchResults: SearchResult = PathfinderHelper.search({
+            const searchResults: SearchResult = PathfinderService.search({
                 searchParameters,
                 missionMap,
                 repository: ObjectRepositoryService.new(),

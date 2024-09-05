@@ -1,4 +1,4 @@
-import { PathfinderHelper } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
+import { PathfinderService } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { SearchResultsService } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { MovementCalculatorService } from "./movementCalculator"
 import {
@@ -73,7 +73,7 @@ describe("movement calculator", () => {
     describe("isMovementPossible", () => {
         it("is not possible if the pathfinder says it is not", () => {
             pathfinderSpy = jest
-                .spyOn(PathfinderHelper, "search")
+                .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
                         stopLocationsReached: [],
@@ -113,7 +113,7 @@ describe("movement calculator", () => {
             )
 
             pathfinderSpy = jest
-                .spyOn(PathfinderHelper, "search")
+                .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
                         stopLocationsReached: [],
