@@ -1,5 +1,5 @@
 import { SearchParameters } from "../searchParams"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export interface AddPathCondition {
@@ -21,11 +21,11 @@ export const AreValidParametersForAddPathCondition = ({
         return false
     }
 
-    if (!isValidValue(SearchPathHelper.getMostRecentLocation(newPath))) {
+    if (!isValidValue(SearchPathService.getMostRecentLocation(newPath))) {
         return false
     }
 
     return isValidValue(
-        SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate
+        SearchPathService.getMostRecentLocation(newPath).hexCoordinate
     )
 }

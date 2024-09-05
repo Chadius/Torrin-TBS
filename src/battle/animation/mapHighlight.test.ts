@@ -10,7 +10,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import {
     SearchPath,
-    SearchPathHelper,
+    SearchPathService,
 } from "../../hexMap/pathfinder/searchPath"
 import {
     SquaddieTemplate,
@@ -48,7 +48,7 @@ describe("map highlight generator", () => {
     let campaignResources: CampaignResources
 
     beforeEach(() => {
-        campaignResources = CampaignResourcesService.default({})
+        campaignResources = CampaignResourcesService.default()
 
         objectRepository = ObjectRepositoryService.new()
         terrainAllSingleMovement = TerrainTileMapService.new({
@@ -83,8 +83,8 @@ describe("map highlight generator", () => {
     })
 
     it("can draw a search path based on the number of actions spent", () => {
-        const pathToDraw: SearchPath = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathToDraw: SearchPath = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -95,7 +95,7 @@ describe("map highlight generator", () => {
             },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -106,7 +106,7 @@ describe("map highlight generator", () => {
             },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -117,7 +117,7 @@ describe("map highlight generator", () => {
             },
             2
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -128,7 +128,7 @@ describe("map highlight generator", () => {
             },
             2
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {
@@ -139,7 +139,7 @@ describe("map highlight generator", () => {
             },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathToDraw,
             {
                 hexCoordinate: {

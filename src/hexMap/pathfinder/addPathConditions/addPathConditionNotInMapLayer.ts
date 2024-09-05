@@ -2,7 +2,7 @@ import {
     AddPathCondition,
     AreValidParametersForAddPathCondition,
 } from "./addPathCondition"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import {
     MapSearchDataLayer,
@@ -38,7 +38,7 @@ export class AddPathConditionNotInMapLayer implements AddPathCondition {
         }
 
         const headLocation: LocationTraveled =
-            SearchPathHelper.getMostRecentLocation(newPath)
+            SearchPathService.getMostRecentLocation(newPath)
         if (
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: this.enqueuedMapLayer,

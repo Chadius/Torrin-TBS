@@ -77,7 +77,9 @@ export class BattleSquaddieUsesActionOnSquaddie
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
@@ -211,10 +213,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(
             state.battleState.recording
         )
-        if (
-            mostRecentEvent === undefined ||
-            mostRecentEvent.processedAction === undefined
-        ) {
+        if (mostRecentEvent?.processedAction === undefined) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator()
             return
         }

@@ -103,6 +103,18 @@ export const ObjectRepositoryService = {
             battleSquaddie,
         })
     },
+    hasSquaddieByBattleId: (
+        repo: ObjectRepository,
+        battleSquaddieId: string
+    ): boolean => {
+        return !!repo.battleSquaddies[battleSquaddieId]
+    },
+    hasSquaddieByTemplateId: (
+        repo: ObjectRepository,
+        squaddieTemplateId: string
+    ): boolean => {
+        return !!repo.squaddieTemplates[squaddieTemplateId]
+    },
     getSquaddieTemplateIterator: (
         repo: ObjectRepository
     ): {
@@ -156,6 +168,12 @@ export const ObjectRepositoryService = {
             )
         }
         return actionTemplate
+    },
+    hasActionTemplateId: (
+        repository: ObjectRepository,
+        actionTemplateId: string
+    ): boolean => {
+        return repository.actionTemplatesById[actionTemplateId] !== undefined
     },
 }
 

@@ -36,7 +36,7 @@ export interface NpcTeamMissionDeployment {
 }
 
 export const NpcTeamMissionDeploymentService = {
-    new: ({}): NpcTeamMissionDeployment => {
+    new: (): NpcTeamMissionDeployment => {
         return {
             templateIds: [],
             mapPlacements: [],
@@ -165,15 +165,15 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
     data.npcDeployments = getValidValueOrDefault(data.npcDeployments, {})
     data.npcDeployments.enemy = getValidValueOrDefault(
         data.npcDeployments?.enemy,
-        NpcTeamMissionDeploymentService.new({})
+        NpcTeamMissionDeploymentService.new()
     )
     data.npcDeployments.ally = getValidValueOrDefault(
         data.npcDeployments?.ally,
-        NpcTeamMissionDeploymentService.new({})
+        NpcTeamMissionDeploymentService.new()
     )
     data.npcDeployments.noAffiliation = getValidValueOrDefault(
         data.npcDeployments?.noAffiliation,
-        NpcTeamMissionDeploymentService.new({})
+        NpcTeamMissionDeploymentService.new()
     )
 
     data.phaseBannersByAffiliation = isValidValue(

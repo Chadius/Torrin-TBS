@@ -17,8 +17,5 @@ export const KeyWasPressed = (
         CANCEL: config.KEYBOARD_SHORTCUTS["CANCEL"],
     }
 
-    return (
-        KeyboardShortcuts[desiredKey] !== undefined &&
-        KeyboardShortcuts[desiredKey].includes(keyCode)
-    )
+    return KeyboardShortcuts[desiredKey]?.includes(keyCode)
 }

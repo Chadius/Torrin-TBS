@@ -134,7 +134,6 @@ export class BattleCamera {
         if (this.yCoord > RectAreaService.bottom(coordinateLimits)) {
             this.yCoord = RectAreaService.bottom(coordinateLimits)
             this.setYVelocity(0)
-            return
         }
     }
 
@@ -169,7 +168,6 @@ export class BattleCamera {
         if (this.xCoord > RectAreaService.right(coordinateLimits)) {
             this.xCoord = RectAreaService.right(coordinateLimits)
             this.setXVelocity(0)
-            return
         }
     }
 

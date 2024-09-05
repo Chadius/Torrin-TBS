@@ -1,6 +1,6 @@
 import * as p5 from "p5"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "./constants"
-import { isValidValue } from "../utils/validityCheck"
+import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
 
 export enum HorizontalAnchor {
     NONE,
@@ -238,72 +238,109 @@ export const RectAreaService = {
     },
 }
 
-const setRectTop = (rectArea: RectArea, params: RectTop): void => {
-    const baseRectangleIsValid =
-        (params as BaseRectangle).baseRectangle &&
-        isValidValue((params as BaseRectangle).baseRectangle.top)
-    const paramIsValid = {
-        baseRectangle: baseRectangleIsValid,
-        positionTop:
-            (params as PositionTop) &&
-            isValidValue((params as PositionTop).top),
+const getBaseRectangleFromParams = (
+    params: RectTop | RectLeft | RectHeight | RectWidth
+): RectArea => {
+    return (params as BaseRectangle).baseRectangle
+}
+
+const getPositionParams = (
+    params: RectTop | RectLeft | RectHeight | RectWidth
+): {
+    top: number
+    left: number
+    height: number
+    width: number
+} => {
+    return {
+        top:
+            (params as PositionTop) !== undefined
+                ? (params as PositionTop).top
+                : undefined,
+        left:
+            (params as PositionLeft) !== undefined
+                ? (params as PositionLeft).left
+                : undefined,
+        height:
+            (params as PositionHeight) !== undefined
+                ? (params as PositionHeight).height
+                : undefined,
+        width:
+            (params as PositionWidth) !== undefined
+                ? (params as PositionWidth).width
+                : undefined,
+    }
+}
+
+const getPercentageParams = (
+    params: RectTop | RectLeft | RectHeight | RectWidth
+): {
+    screenHeight: number
+    screenWidth: number
+    percentTop: number
+    percentLeft: number
+} => {
+    return {
         percentTop:
-            (params as ScreenHeight & ScreenPercentTop) &&
-            isValidValue(
-                (params as ScreenHeight & ScreenPercentTop).percentTop
-            ) &&
-            isValidValue(
-                (params as ScreenHeight & ScreenPercentTop).screenHeight
-            ),
+            (params as ScreenHeight & ScreenPercentTop) !== undefined
+                ? (params as ScreenHeight & ScreenPercentTop).percentTop
+                : undefined,
+        screenHeight:
+            (params as ScreenHeight & ScreenPercentTop) !== undefined
+                ? (params as ScreenHeight & ScreenPercentTop).screenHeight
+                : undefined,
+        screenWidth:
+            (params as ScreenWidth & ScreenPercentLeft) !== undefined
+                ? (params as ScreenWidth & ScreenPercentLeft).screenWidth
+                : undefined,
+        percentLeft:
+            (params as ScreenWidth & ScreenPercentLeft) !== undefined
+                ? (params as ScreenWidth & ScreenPercentLeft).percentLeft
+                : undefined,
+    }
+}
+
+const setRectTop = (rectArea: RectArea, params: RectTop): void => {
+    const baseRectangleTop: number = getBaseRectangleFromParams(params)?.top
+    const baseRectangleHeight: number =
+        getBaseRectangleFromParams(params)?.height
+    const positionTop: number = getPositionParams(params)?.top
+    const { screenHeight, percentTop } = getValidValueOrDefault(
+        getPercentageParams(params),
+        {
+            screenHeight: undefined,
+            screenWidth: undefined,
+            percentTop: undefined,
+            percentLeft: undefined,
+        }
+    )
+
+    const paramIsValid = {
         anchorTop:
-            baseRectangleIsValid &&
+            isValidValue(baseRectangleTop) &&
             (params as AnchorTop) &&
             isValidValue((params as AnchorTop).anchorTop) &&
             (params as AnchorTop).anchorTop != VerticalAnchor.NONE,
     }
 
     const paramValue = {
-        baseRectangle: paramIsValid.baseRectangle
-            ? (params as BaseRectangle).baseRectangle
-            : undefined,
-        positionTop: paramIsValid.positionTop ? (params as PositionTop).top : 0,
-        percentTop: paramIsValid.percentTop
-            ? {
-                  screenHeight: (params as ScreenHeight & ScreenPercentTop)
-                      .screenHeight,
-                  percentTop: (params as ScreenHeight & ScreenPercentTop)
-                      .percentTop,
-              }
-            : {
-                  screenHeight: 0,
-                  percentTop: 0,
-              },
         anchorTop: paramIsValid.anchorTop
             ? (params as AnchorTop).anchorTop
             : VerticalAnchor.NONE,
     }
 
-    let top = 0
-    if (paramIsValid.baseRectangle) {
-        top = paramValue.baseRectangle.top
-    }
+    let top = getValidValueOrDefault(baseRectangleTop, 0)
+    top += positionTop || 0
 
-    if (paramIsValid.positionTop) {
-        top += paramValue.positionTop
-    }
-
-    if (paramIsValid.percentTop) {
-        top +=
-            (paramValue.percentTop.screenHeight *
-                paramValue.percentTop.percentTop) /
-            100
+    if (isValidValue(percentTop) && isValidValue(screenHeight)) {
+        top += (screenHeight * percentTop) / 100
     }
 
     if (paramIsValid.anchorTop) {
         if (paramValue.anchorTop == VerticalAnchor.CENTER) {
-            top += paramValue.baseRectangle.height / 2
+            top += baseRectangleHeight / 2
         } else if (paramValue.anchorTop == VerticalAnchor.BOTTOM) {
-            top += paramValue.baseRectangle.height
+            top += baseRectangleHeight
         }
     }
 
@@ -318,22 +355,20 @@ const setRectTop = (rectArea: RectArea, params: RectTop): void => {
 }
 
 const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
-    const baseRectangleIsValid =
-        (params as BaseRectangle).baseRectangle &&
-        isValidValue((params as BaseRectangle).baseRectangle.left)
+    const baseRectangleLeft: number = getBaseRectangleFromParams(params)?.left
+    const baseRectangleWidth: number = getBaseRectangleFromParams(params)?.width
+    const positionLeft: number = getPositionParams(params).left
+    const { screenWidth, percentLeft } = getValidValueOrDefault(
+        getPercentageParams(params),
+        {
+            screenHeight: undefined,
+            screenWidth: undefined,
+            percentTop: undefined,
+            percentLeft: undefined,
+        }
+    )
+
     const paramIsValid = {
-        baseRectangle: baseRectangleIsValid,
-        positionLeft:
-            (params as PositionLeft) &&
-            isValidValue((params as PositionLeft).left),
-        percentLeft:
-            (params as ScreenWidth & ScreenPercentLeft) &&
-            isValidValue(
-                (params as ScreenWidth & ScreenPercentLeft).percentLeft
-            ) &&
-            isValidValue(
-                (params as ScreenWidth & ScreenPercentLeft).screenWidth
-            ),
         columnLeft:
             (params as ScreenWidth & TwelvePointColumnStart) &&
             isValidValue(
@@ -343,30 +378,13 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
                 (params as ScreenWidth & TwelvePointColumnStart).startColumn
             ),
         anchorLeft:
-            baseRectangleIsValid &&
+            isValidValue(baseRectangleLeft) &&
             (params as AnchorLeft) &&
             isValidValue((params as AnchorLeft).anchorLeft) &&
             (params as AnchorLeft).anchorLeft != HorizontalAnchor.NONE,
     }
 
     const paramValue = {
-        baseRectangle: paramIsValid.baseRectangle
-            ? (params as BaseRectangle).baseRectangle
-            : undefined,
-        positionLeft: paramIsValid.positionLeft
-            ? (params as PositionLeft).left
-            : 0,
-        percentLeft: paramIsValid.percentLeft
-            ? {
-                  screenWidth: (params as ScreenWidth & ScreenPercentLeft)
-                      .screenWidth,
-                  percentLeft: (params as ScreenWidth & ScreenPercentLeft)
-                      .percentLeft,
-              }
-            : {
-                  screenWidth: 0,
-                  percentLeft: 0,
-              },
         columnLeft: paramIsValid.columnLeft
             ? {
                   screenWidth: (params as ScreenWidth & TwelvePointColumnStart)
@@ -383,20 +401,11 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
             : HorizontalAnchor.NONE,
     }
 
-    let left = 0
-    if (paramIsValid.baseRectangle) {
-        left = paramValue.baseRectangle.left
-    }
+    let left = getValidValueOrDefault(baseRectangleLeft, 0)
+    left += positionLeft || 0
 
-    if (paramIsValid.positionLeft) {
-        left += paramValue.positionLeft
-    }
-
-    if (paramIsValid.percentLeft) {
-        left +=
-            (paramValue.percentLeft.screenWidth *
-                paramValue.percentLeft.percentLeft) /
-            100
+    if (isValidValue(percentLeft) && isValidValue(screenWidth)) {
+        left += (screenWidth * percentLeft) / 100
     }
 
     if (paramIsValid.columnLeft) {
@@ -408,9 +417,9 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
 
     if (paramIsValid.anchorLeft) {
         if (paramValue.anchorLeft == HorizontalAnchor.MIDDLE) {
-            left += paramValue.baseRectangle.width / 2
+            left += baseRectangleWidth / 2
         } else if (paramValue.anchorLeft == HorizontalAnchor.RIGHT) {
-            left += paramValue.baseRectangle.width
+            left += baseRectangleWidth
         }
     }
 
@@ -425,13 +434,10 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
 }
 
 const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
+    const baseRectangleHeight: number =
+        getBaseRectangleFromParams(params)?.height
+    const positionHeight: number = getPositionParams(params).height
     const paramIsValid = {
-        baseRectangle:
-            (params as BaseRectangle).baseRectangle &&
-            isValidValue((params as BaseRectangle).baseRectangle.height),
-        positionHeight:
-            (params as PositionHeight) &&
-            isValidValue((params as PositionHeight).height),
         topBottom:
             (params as RectHeightTopBottom) &&
             isValidValue(rectArea.top) &&
@@ -450,12 +456,6 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
     }
 
     const paramValue = {
-        baseRectangle: paramIsValid.baseRectangle
-            ? (params as BaseRectangle).baseRectangle
-            : undefined,
-        positionHeight: paramIsValid.positionHeight
-            ? (params as PositionHeight).height
-            : 0,
         topBottom: paramIsValid.topBottom
             ? (params as RectHeightTopBottom).bottom
             : 0,
@@ -483,12 +483,12 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
               },
     }
 
-    if (paramIsValid.baseRectangle) {
-        rectArea.height = paramValue.baseRectangle.height
+    if (isValidValue(baseRectangleHeight)) {
+        rectArea.height = baseRectangleHeight
     }
 
-    if (paramIsValid.positionHeight) {
-        rectArea.height = paramValue.positionHeight
+    if (isValidValue(positionHeight)) {
+        rectArea.height = positionHeight
     } else if (paramIsValid.topBottom) {
         rectArea.height = paramValue.topBottom - rectArea.top
     } else if (paramIsValid.percentHeight) {
@@ -507,10 +507,9 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
     const marginsAll = params as Margins
     if (marginsAreValid(marginsAll)) {
         const marginValues1 = marginValues(marginsAll)
-        if (paramIsValid.baseRectangle) {
-            const { baseRectangle } = params as BaseRectangle
+        if (isValidValue(baseRectangleHeight)) {
             rectArea.height =
-                baseRectangle.height - marginValues1[0] - marginValues1[2]
+                baseRectangleHeight - marginValues1[0] - marginValues1[2]
         } else {
             rectArea.height = rectArea.height - marginValues1[2]
         }
@@ -518,13 +517,10 @@ const setRectHeight = (rectArea: RectArea, params: RectHeight): void => {
 }
 
 const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
+    const baseRectangleWidth: number = getBaseRectangleFromParams(params)?.width
+    const positionWidth: number = getPositionParams(params).width
+
     const paramIsValid = {
-        baseRectangle:
-            (params as BaseRectangle).baseRectangle &&
-            isValidValue((params as BaseRectangle).baseRectangle.width),
-        positionWidth:
-            (params as PositionWidth) &&
-            isValidValue((params as PositionWidth).width),
         leftRight:
             (params as RectWidthLeftRight) &&
             isValidValue(rectArea.left) &&
@@ -546,12 +542,6 @@ const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
     }
 
     const paramValue = {
-        baseRectangle: paramIsValid.baseRectangle
-            ? (params as BaseRectangle).baseRectangle
-            : undefined,
-        positionWidth: paramIsValid.positionWidth
-            ? (params as PositionWidth).width
-            : 0,
         leftRight: paramIsValid.leftRight
             ? (params as RectWidthLeftRight).right
             : 0,
@@ -586,12 +576,12 @@ const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
               },
     }
 
-    if (paramIsValid.baseRectangle) {
-        rectArea.width = paramValue.baseRectangle.width
+    if (isValidValue(baseRectangleWidth)) {
+        rectArea.width = baseRectangleWidth
     }
 
-    if (paramIsValid.positionWidth) {
-        rectArea.width = paramValue.positionWidth
+    if (isValidValue(positionWidth)) {
+        rectArea.width = positionWidth
     } else if (paramIsValid.leftRight) {
         rectArea.width = paramValue.leftRight - rectArea.left
     } else if (paramIsValid.percentWidth) {
@@ -616,11 +606,9 @@ const setRectWidth = (rectArea: RectArea, params: RectWidth): void => {
     const marginsAll = params as Margins
     if (marginsAreValid(marginsAll)) {
         const marginValues1 = marginValues(marginsAll)
-        if (paramIsValid.baseRectangle) {
+        if (isValidValue(baseRectangleWidth)) {
             rectArea.width =
-                paramValue.baseRectangle.width -
-                marginValues1[1] -
-                marginValues1[3]
+                baseRectangleWidth - marginValues1[1] - marginValues1[3]
         } else {
             rectArea.width = rectArea.width - marginValues1[1]
         }
@@ -632,12 +620,8 @@ const alignHorizontally = (rectArea: RectArea, params: Alignment): void => {
         return
     }
 
-    switch (params.horizAlign) {
-        case HORIZONTAL_ALIGN.CENTER:
-            rectArea.left -= rectArea.width / 2
-            break
-        default:
-            break
+    if (params.horizAlign === HORIZONTAL_ALIGN.CENTER) {
+        rectArea.left -= rectArea.width / 2
     }
 }
 
@@ -646,12 +630,8 @@ const alignVertically = (rectArea: RectArea, params: Alignment): void => {
         return
     }
 
-    switch (params.vertAlign) {
-        case VERTICAL_ALIGN.CENTER:
-            rectArea.top -= rectArea.height / 2
-            break
-        default:
-            break
+    if (params.vertAlign === VERTICAL_ALIGN.CENTER) {
+        rectArea.top -= rectArea.height / 2
     }
 }
 

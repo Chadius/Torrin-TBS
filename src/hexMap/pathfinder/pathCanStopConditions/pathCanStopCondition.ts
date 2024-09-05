@@ -1,4 +1,4 @@
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import { isValidValue } from "../../../utils/validityCheck"
 
@@ -21,11 +21,11 @@ export const AreValidParametersForPathCanStopCondition = ({
         return false
     }
 
-    if (!isValidValue(SearchPathHelper.getMostRecentLocation(newPath))) {
+    if (!isValidValue(SearchPathService.getMostRecentLocation(newPath))) {
         return false
     }
 
     return isValidValue(
-        SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate
+        SearchPathService.getMostRecentLocation(newPath).hexCoordinate
     )
 }

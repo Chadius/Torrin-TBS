@@ -17,8 +17,8 @@ export const SaveFile = {
         fileName: string
         contentType: string
     }) => {
-        var a = document.createElement("a")
-        var file = new Blob([content], { type: contentType })
+        let a = document.createElement("a")
+        let file = new Blob([content], { type: contentType })
         a.href = URL.createObjectURL(file)
         a.download = fileName
         a.click()
@@ -47,13 +47,13 @@ async function OpenFileDialogToSelectAFile() {
                 } catch (e) {
                     console.error(`Failed to load saveState`)
                     console.error(e)
-                    reject(`Failed to load saveState`)
+                    reject(new Error(`Failed to load saveState`))
                 }
             }
             reader.readAsText(file, "UTF-8")
         }
         input.oncancel = (e) => {
-            reject("user canceled")
+            reject(new Error("user canceled"))
         }
         input.click()
     })

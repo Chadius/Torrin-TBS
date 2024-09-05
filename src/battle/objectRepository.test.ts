@@ -70,6 +70,19 @@ describe("BattleSquaddieRepository", () => {
             battleSquaddieBase
         )
 
+        expect(
+            ObjectRepositoryService.hasSquaddieByBattleId(
+                objectRepository,
+                "player_young_torrin_0"
+            )
+        ).toBeTruthy()
+        expect(
+            ObjectRepositoryService.hasSquaddieByTemplateId(
+                objectRepository,
+                squaddieTemplateBase.squaddieId.templateId
+            )
+        ).toBeTruthy()
+
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
@@ -81,7 +94,7 @@ describe("BattleSquaddieRepository", () => {
         expect(battleSquaddie).toStrictEqual(battleSquaddie)
     })
 
-    it("should throw error if you add already existing static squaddie", () => {
+    it("should throw error if you add already existing squaddie template", () => {
         const shouldThrowError = () => {
             ObjectRepositoryService.addSquaddieTemplate(
                 objectRepository,

@@ -44,7 +44,7 @@ describe("playerCommandHUD", () => {
         gameEngineState = GameEngineStateService.new({
             resourceHandler,
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
         resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
         resourceHandler.getResource = jest
@@ -184,7 +184,7 @@ describe("playerCommandHUD", () => {
                 let gameEngineState = GameEngineStateService.new({
                     resourceHandler,
                     repository: objectRepository,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 SummaryHUDStateService.setMainSummaryPopover({
                     summaryHUDState,

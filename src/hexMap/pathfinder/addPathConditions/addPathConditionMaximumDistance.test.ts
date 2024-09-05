@@ -1,32 +1,37 @@
 import { SearchParametersHelper } from "../searchParams"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import { AddPathConditionMaximumDistance } from "./addPathConditionMaximumDistance"
+
+const createSearchPathFixture = () => {
+    const condition = new AddPathConditionMaximumDistance()
+
+    const pathAtHead = SearchPathService.newSearchPath()
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
+        0
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
+        0
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
+        0
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
+        0
+    )
+    return { condition, pathAtHead }
+}
 
 describe("addPathConditionMaximumDistance", () => {
     it("knows when a path is less than the maximum distance", () => {
-        const condition = new AddPathConditionMaximumDistance({})
-
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
-            0
-        )
+        const { condition, pathAtHead } = createSearchPathFixture()
 
         const searchParameters = SearchParametersHelper.new({
             maximumDistanceMoved: 3,
@@ -41,30 +46,8 @@ describe("addPathConditionMaximumDistance", () => {
     })
 
     it("knows when a path is more than the maximum distance", () => {
-        const condition = new AddPathConditionMaximumDistance({})
-
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
+        const { condition, pathAtHead } = createSearchPathFixture()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 3 }, cumulativeMovementCost: 0 },
             0
@@ -83,30 +66,8 @@ describe("addPathConditionMaximumDistance", () => {
     })
 
     it("always returns true if no maximum distance is given", () => {
-        const condition = new AddPathConditionMaximumDistance({})
-
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathHelper.add(
+        const { condition, pathAtHead } = createSearchPathFixture()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 3 }, cumulativeMovementCost: 0 },
             0
@@ -123,8 +84,8 @@ describe("addPathConditionMaximumDistance", () => {
     })
 
     it("returns undefined if there is no path", () => {
-        const condition = new AddPathConditionMaximumDistance({})
-        const pathAtHead = SearchPathHelper.newSearchPath()
+        const condition = new AddPathConditionMaximumDistance()
+        const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersHelper.new({
             maximumDistanceMoved: 3,

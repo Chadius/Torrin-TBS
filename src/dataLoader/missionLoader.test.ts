@@ -74,13 +74,13 @@ describe("missionLoader", () => {
         it("makes empty enemy section if it is missing", () => {
             MissionFileFormatService.sanitize(validMission)
             expect(validMission.npcDeployments.enemy).toEqual(
-                NpcTeamMissionDeploymentService.new({})
+                NpcTeamMissionDeploymentService.new()
             )
             expect(validMission.npcDeployments.ally).toEqual(
-                NpcTeamMissionDeploymentService.new({})
+                NpcTeamMissionDeploymentService.new()
             )
             expect(validMission.npcDeployments.noAffiliation).toEqual(
-                NpcTeamMissionDeploymentService.new({})
+                NpcTeamMissionDeploymentService.new()
             )
         })
         it("makes empty phase banner by affiliation section if it is missing", () => {

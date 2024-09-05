@@ -120,11 +120,24 @@ const createNewSquaddieAndAddToRepository: (params: {
         battleSquaddieId: battleId,
         squaddieTurn: SquaddieTurnService.new(),
     })
-    ObjectRepositoryService.addSquaddie(
-        objectRepository,
-        squaddieTemplate,
-        battleSquaddie
-    )
+
+    if (
+        ObjectRepositoryService.hasSquaddieByTemplateId(
+            objectRepository,
+            templateId
+        )
+    ) {
+        ObjectRepositoryService.addBattleSquaddie(
+            objectRepository,
+            battleSquaddie
+        )
+    } else {
+        ObjectRepositoryService.addSquaddie(
+            objectRepository,
+            squaddieTemplate,
+            battleSquaddie
+        )
+    }
 
     return {
         squaddieTemplate,

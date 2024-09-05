@@ -59,7 +59,7 @@ describe("PlayerHUDController", () => {
                 new MockedP5GraphicsBuffer()
             ),
             repository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         controller = new PlayerHudController()
@@ -119,12 +119,15 @@ describe("PlayerHUDController", () => {
                 objectRepository: repository,
                 actionTemplateIds: [singleTargetAction.id],
             }))
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                "player_soldier",
-                playerBattleSquaddieId,
-                { q: 0, r: 0 }
-            )
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: playerBattleSquaddieId,
+                location: {
+                    q: 0,
+                    r: 0,
+                },
+            })
             const playerTeam = BattleSquaddieTeamService.new({
                 id: "player_team",
                 name: "player_team",
@@ -145,12 +148,15 @@ describe("PlayerHUDController", () => {
                 objectRepository: repository,
                 actionTemplateIds: [singleTargetAction.id],
             }))
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                "enemy_soldier",
-                enemyBattleSquaddieId,
-                { q: 0, r: 2 }
-            )
+                squaddieTemplateId: "enemy_soldier",
+                battleSquaddieId: enemyBattleSquaddieId,
+                location: {
+                    q: 0,
+                    r: 2,
+                },
+            })
             const enemyTeam = BattleSquaddieTeamService.new({
                 id: "enemy_team",
                 name: "enemy_team",

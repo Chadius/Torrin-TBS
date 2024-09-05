@@ -18,3 +18,30 @@ export const GetMouseButton = (physicalMouseButton: string): MouseButton => {
     }
     return MouseButton.NONE
 }
+
+export interface ScreenCoordinate {
+    x: number
+    y: number
+}
+
+export interface MouseClick extends ScreenCoordinate {
+    button: MouseButton
+}
+
+export const MouseClickService = {
+    new: ({
+        x,
+        y,
+        button,
+    }: {
+        x: number
+        y: number
+        button: MouseButton
+    }): MouseClick => {
+        return {
+            x,
+            y,
+            button,
+        }
+    },
+}

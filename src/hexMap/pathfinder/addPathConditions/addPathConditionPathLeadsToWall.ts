@@ -3,7 +3,7 @@ import {
     AreValidParametersForAddPathCondition,
 } from "./addPathCondition"
 import { MissionMap } from "../../../missionMap/missionMap"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
@@ -32,7 +32,7 @@ export class AddPathConditionPathLeadsToWall implements AddPathCondition {
         }
 
         const coordinate: HexCoordinate =
-            SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate
+            SearchPathService.getMostRecentLocation(newPath).hexCoordinate
         const terrainType = TerrainTileMapService.getTileTerrainTypeAtLocation(
             this.missionMap.terrainTileMap,
             coordinate

@@ -11,15 +11,15 @@ export const convertStringToMovementCost = (
     switch (true) {
         case text.length === 0:
             return HexGridMovementCost.wall
-        case text[0] === "1":
+        case text.startsWith("1"):
             return HexGridMovementCost.singleMovement
-        case text[0] === "2":
+        case text.startsWith("2"):
             return HexGridMovementCost.doubleMovement
-        case text[0] === "O":
+        case text.startsWith("O"):
             return HexGridMovementCost.pit
-        case text[0] === "-":
+        case text.startsWith("-"):
             return HexGridMovementCost.pit
-        case text[0] === "_":
+        case text.startsWith("_"):
             return HexGridMovementCost.pit
         default:
             return HexGridMovementCost.wall

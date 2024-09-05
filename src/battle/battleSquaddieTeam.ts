@@ -142,7 +142,7 @@ export const BattleSquaddieTeamService = {
         squaddieRepository: ObjectRepository
     ) => {
         team.battleSquaddieIds.forEach((battleSquaddieId) => {
-            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+            const { battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     squaddieRepository,
                     battleSquaddieId

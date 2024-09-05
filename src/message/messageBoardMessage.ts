@@ -4,6 +4,8 @@ import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
+import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
+import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -24,6 +26,12 @@ export type MessageBoardMessage =
     | MessageBoardMessageSquaddiePhaseStarts
     | MessageBoardMessageSquaddiePhaseEnds
     | MessageBoardMessageSummaryPopoverExpires
+    | MessageBoardMessageSelectAndLockNextSquaddie
+    | MessageBoardMessageMoveSquaddieToLocation
+    | MessageBoardMessagePlayerCancelsSquaddieSelection
+    | MessageBoardMessagePlayerSelectsEmptyTile
+    | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
+    | MessageBoardMessagePlayerConfirmsDecisionStepActor
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -39,11 +47,17 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
+    PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET",
     PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
     SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
     SUMMARY_POPOVER_EXPIRES = "SUMMARY_POPOVER_EXPIRES",
+    SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
+    MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
+    PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
+    PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
+    PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
 }
 
 export interface MessageBoardMessageBase {
@@ -103,10 +117,7 @@ export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: {
-        mouse: {
-            x: number
-            y: number
-        }
+        mouseClick: MouseClick
     }
 }
 
@@ -115,7 +126,7 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: {
-        mouse: {
+        mouseMovement: {
             x: number
             y: number
         }
@@ -130,6 +141,14 @@ export interface MessageBoardBattleActionFinishesAnimation {
 
 export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
+    gameEngineState: GameEngineState
+    actionTemplateId: string
+    battleSquaddieId: string
+    mapStartingLocation: HexCoordinate
+    mouseLocation: ScreenCoordinate
+}
+export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
+    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET
     gameEngineState: GameEngineState
     actionTemplateId: string
     battleSquaddieId: string
@@ -163,4 +182,33 @@ export interface MessageBoardMessageSummaryPopoverExpires {
     type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES
     gameEngineState: GameEngineState
     popoverType: SummaryPopoverType
+}
+
+export interface MessageBoardMessageSelectAndLockNextSquaddie {
+    type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageMoveSquaddieToLocation {
+    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+    battleSquaddieId: string
+    targetLocation: HexCoordinate
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
+    type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerSelectsEmptyTile {
+    type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
+    gameEngineState: GameEngineState
+    location: HexCoordinate
+}
+
+export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
+    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+    gameEngineState: GameEngineState
+    recommendedMode: BattleOrchestratorMode
 }

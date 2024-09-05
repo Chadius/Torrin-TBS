@@ -16,12 +16,16 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     mouseEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentMouseEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     recommendStateChanges(
         state: GameEngineState
@@ -29,11 +33,15 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         return {}
     }
 
-    reset(state: GameEngineState): void {}
+    reset(state: GameEngineState): void {
+        // Required by inheritance
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return undefined
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {}
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+        // Required by inheritance
+    }
 }

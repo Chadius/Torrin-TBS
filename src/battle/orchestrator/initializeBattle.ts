@@ -22,12 +22,16 @@ export class InitializeBattle implements BattleOrchestratorComponent {
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     mouseEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentMouseEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     recommendStateChanges(
         state: GameEngineState
@@ -37,7 +41,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
 
     reset(state: GameEngineState): void {
         const playerTeams: BattleSquaddieTeam[] =
-            BattlePhaseService.FindTeamsOfAffiliation(
+            BattlePhaseService.findTeamsOfAffiliation(
                 state.battleOrchestratorState.battleState.teams,
                 SquaddieAffiliation.PLAYER
             )
@@ -63,5 +67,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         return undefined
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {}
+    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+        // Required by inheritance
+    }
 }

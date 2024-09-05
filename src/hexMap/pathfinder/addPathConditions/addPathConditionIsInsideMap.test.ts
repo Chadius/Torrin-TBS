@@ -1,5 +1,5 @@
 import { SearchParametersHelper } from "../searchParams"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
@@ -20,8 +20,8 @@ describe("AddPathConditionIsInsideMap", () => {
             terrainMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             0
@@ -49,8 +49,8 @@ describe("AddPathConditionIsInsideMap", () => {
             terrainMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 9001, r: -5 }, cumulativeMovementCost: 0 },
             0
@@ -78,7 +78,7 @@ describe("AddPathConditionIsInsideMap", () => {
             terrainMapLayer: mapLayer,
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
+        const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersHelper.new({})
 

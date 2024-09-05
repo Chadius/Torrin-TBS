@@ -51,12 +51,12 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../history/squaddieSquaddieResults"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
-import { MouseButton } from "../../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
@@ -249,7 +249,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -257,7 +257,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
             selectionMethod: {
-                mouse: { x: 0, y: 0 },
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
             },
         })
 
@@ -323,15 +327,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         RecordingService.addEvent(battleEventRecording, newEvent)
 
         if (isValidValue(missionMap)) {
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                squaddieTemplateBase.squaddieId.templateId,
-                battleSquaddieBase.battleSquaddieId,
-                {
+                squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
+                battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                location: {
                     q: 0,
                     r: 0,
-                }
-            )
+                },
+            })
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.new({
@@ -349,7 +353,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -357,7 +361,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
             selectionMethod: {
-                mouse: { x: 0, y: 0 },
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
             },
         })
 
@@ -427,15 +435,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         RecordingService.addEvent(battleEventRecording, newEvent)
 
         if (isValidValue(missionMap)) {
-            MissionMapService.addSquaddie(
+            MissionMapService.addSquaddie({
                 missionMap,
-                squaddieTemplateBase.squaddieId.templateId,
-                battleSquaddieBase.battleSquaddieId,
-                {
+                squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
+                battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                location: {
                     q: 0,
                     r: 0,
-                }
-            )
+                },
+            })
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.new({
@@ -453,7 +461,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -461,7 +469,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
             selectionMethod: {
-                mouse: { x: 0, y: 0 },
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
             },
         })
 

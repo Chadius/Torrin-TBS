@@ -85,7 +85,7 @@ export const GameEngineStateService = {
                 battleOrchestratorState ??
                 BattleOrchestratorStateService.new({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            fileState: FileStateService.new({}),
+            fileState: FileStateService.new(),
             campaign,
             campaignIdThatWasLoaded: isValidValue(campaign)
                 ? campaign.id
@@ -268,6 +268,7 @@ export class GameEngine {
         const battleHUDListener: BattleHUDListener = new BattleHUDListener(
             "battleHUDListener"
         )
+
         ;[
             MessageBoardMessageType.STARTED_PLAYER_PHASE,
             MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
@@ -282,6 +283,11 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
+            MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+            MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+            MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+            MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
+            MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,
@@ -320,6 +326,11 @@ export class GameEngine {
         this.gameEngineState.messageBoard.addListener(
             cutsceneMessageListener,
             MessageBoardMessageType.SQUADDIE_IS_INJURED
+        )
+
+        this.gameEngineState.messageBoard.addListener(
+            this._battleOrchestrator.playerSquaddieSelector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
         )
     }
 

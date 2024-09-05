@@ -104,7 +104,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         }
     }
 
-    start(state: GameEngineState) {}
+    start(state: GameEngineState) {
+        // Required by inheritance
+    }
 
     resetInternalState() {
         this._actionAnimationTimer = new ActionTimer()
@@ -283,11 +285,6 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     )
                 )
 
-                const processedActionToShow =
-                    ActionsThisRoundService.getProcessedActionToShow(
-                        state.battleOrchestratorState.battleState
-                            .actionsThisRound
-                    )
                 const processedActionEffectToShow =
                     ActionsThisRoundService.getProcessedActionEffectToShow(
                         state.battleOrchestratorState.battleState
@@ -378,10 +375,6 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     ) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer)
 
-        const processedActionToShow =
-            ActionsThisRoundService.getProcessedActionToShow(
-                state.battleState.actionsThisRound
-            )
         const processedActionEffectToShow =
             ActionsThisRoundService.getProcessedActionEffectToShow(
                 state.battleState.actionsThisRound

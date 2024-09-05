@@ -13,8 +13,6 @@ import { isValidValue } from "../../utils/validityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
-    constructor() {}
-
     private _currentCutscene: Cutscene
 
     get currentCutscene(): Cutscene {
@@ -61,7 +59,6 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
                 event.mouseY,
                 { battleOrchestratorState: state.battleOrchestratorState }
             )
-            return
         }
     }
 
@@ -75,7 +72,6 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
                 event.keyCode,
                 { battleOrchestratorState: state.battleOrchestratorState }
             )
-            return
         }
     }
 

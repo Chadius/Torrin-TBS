@@ -20,7 +20,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
-import { ActionCalculator } from "../actionCalculator/calculator"
+import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { RecordingService } from "../history/recording"
@@ -131,7 +131,9 @@ export class BattleComputerSquaddieSelector
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance but does nothing
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
@@ -390,7 +392,7 @@ export class BattleComputerSquaddieSelector
         gameEngineState: GameEngineState,
         decidedAction: DecidedAction
     ) {
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 decidedAction.battleSquaddieId
@@ -572,10 +574,11 @@ export class BattleComputerSquaddieSelector
         })
 
         let results: SquaddieSquaddieResults
+        let decidedActionMovementEffect: DecidedActionMovementEffect
         decidedAction.actionEffects.forEach((decidedActionEffect) => {
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
-                    const decidedActionMovementEffect =
+                    decidedActionMovementEffect =
                         DecidedActionMovementEffectService.new({
                             template: undefined,
                             destination: decidedActionEffect.destination,
@@ -647,18 +650,23 @@ export class BattleComputerSquaddieSelector
 
         let actionPointCost = 0
         let addActionPointCostForTemplate = false
+        let locationsByMoveActions: {
+            [movementActions: number]: LocationTraveled[]
+        } = {}
+        let numberOfActionPointsSpentMoving: number
         decidedAction.actionEffects.forEach((decidedActionEffect) => {
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
-                    BattleSquaddieSelectorService.createSearchPath({
-                        state: gameEngineState,
-                        squaddieTemplate,
-                        battleSquaddie,
-                        clickedHexCoordinate: decidedActionEffect.destination,
-                    })
-                    const locationsByMoveActions: {
-                        [movementActions: number]: LocationTraveled[]
-                    } =
+                    BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
+                        {
+                            state: gameEngineState,
+                            squaddieTemplate,
+                            battleSquaddie,
+                            clickedHexCoordinate:
+                                decidedActionEffect.destination,
+                        }
+                    )
+                    locationsByMoveActions =
                         SquaddieService.searchPathLocationsByNumberOfMovementActions(
                             {
                                 searchPath:
@@ -669,7 +677,7 @@ export class BattleComputerSquaddieSelector
                                 repository: gameEngineState.repository,
                             }
                         )
-                    const numberOfActionPointsSpentMoving: number =
+                    numberOfActionPointsSpentMoving =
                         Math.max(
                             ...Object.keys(locationsByMoveActions).map((str) =>
                                 Number(str)

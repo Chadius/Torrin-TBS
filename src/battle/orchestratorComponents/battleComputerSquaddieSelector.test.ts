@@ -552,7 +552,7 @@ describe("BattleComputerSquaddieSelector", () => {
                         },
                     }),
                 }),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             jest.spyOn(

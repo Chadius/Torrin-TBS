@@ -118,7 +118,7 @@ export interface FileAccessHUD {
 }
 
 export const FileAccessHUDService = {
-    new: ({}: {}): FileAccessHUD => {
+    new: (): FileAccessHUD => {
         const fileAccessHUD: FileAccessHUD = {
             loadButton: undefined,
             saveButton: undefined,
@@ -153,18 +153,27 @@ export const FileAccessHUDService = {
         mouseX: number
         mouseY: number
         fileState: FileState
-    }) => {
+    }): boolean => {
         if (mouseButton !== MouseButton.ACCEPT) {
             return
         }
-        fileAccessHUD.loadButton.mouseClicked(mouseX, mouseY, {
-            fileAccessHUD,
-            fileState,
-        })
-        fileAccessHUD.saveButton.mouseClicked(mouseX, mouseY, {
-            fileAccessHUD,
-            fileState,
-        })
+        const wasLoadButtonClicked = fileAccessHUD.loadButton.mouseClicked(
+            mouseX,
+            mouseY,
+            {
+                fileAccessHUD,
+                fileState,
+            }
+        )
+        const wasSaveButtonClicked = fileAccessHUD.saveButton.mouseClicked(
+            mouseX,
+            mouseY,
+            {
+                fileAccessHUD,
+                fileState,
+            }
+        )
+        return wasLoadButtonClicked || wasSaveButtonClicked
     },
     updateBasedOnGameEngineState: (
         fileAccessHUD: FileAccessHUD,
@@ -214,37 +223,28 @@ const updateStatusMessage = (
     fileAccessHUD: FileAccessHUD,
     fileState: FileState
 ): string => {
-    switch (didCurrentMessageExpire(fileAccessHUD)) {
-        case true:
-            if (
-                SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(
-                    fileState.saveSaveState
-                )
-            ) {
-                SaveSaveStateService.userFinishesRequestingSave(
-                    fileState.saveSaveState
-                )
-            }
-            if (
-                LoadSaveStateService.didUserRequestLoadAndLoadHasConcluded(
-                    fileState.loadSaveState
-                )
-            ) {
-                LoadSaveStateService.userFinishesRequestingLoad(
-                    fileState.loadSaveState
-                )
-            }
-            clearMessage(fileAccessHUD)
-            enableButtons(fileAccessHUD)
-            break
-        default:
-            const messageToShow = calculateMessageToShow(
-                fileState,
-                fileAccessHUD
-            )
-            updateMessageLabel(fileAccessHUD, messageToShow)
-            break
+    if (!didCurrentMessageExpire(fileAccessHUD)) {
+        const messageToShow = calculateMessageToShow(fileState, fileAccessHUD)
+        updateMessageLabel(fileAccessHUD, messageToShow)
+        return fileAccessHUD.message
     }
+
+    if (
+        SaveSaveStateService.didUserRequestSaveAndSaveHasConcluded(
+            fileState.saveSaveState
+        )
+    ) {
+        SaveSaveStateService.userFinishesRequestingSave(fileState.saveSaveState)
+    }
+    if (
+        LoadSaveStateService.didUserRequestLoadAndLoadHasConcluded(
+            fileState.loadSaveState
+        )
+    ) {
+        LoadSaveStateService.userFinishesRequestingLoad(fileState.loadSaveState)
+    }
+    clearMessage(fileAccessHUD)
+    enableButtons(fileAccessHUD)
     return fileAccessHUD.message
 }
 

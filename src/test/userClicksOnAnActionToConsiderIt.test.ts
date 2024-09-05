@@ -136,15 +136,15 @@ describe("user clicks on an action to consider it", () => {
                 movementCost: ["1 1 "],
             }),
         })
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         gameEngineState = getGameEngineState({
             resourceHandler,
@@ -166,17 +166,11 @@ describe("user clicks on an action to consider it", () => {
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
         )
 
-        selectSquaddieForTheHUD({
-            battleSquaddie: playerBattleSquaddie,
-            gameEngineState,
-        })
-
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
-
         selector = new BattlePlayerSquaddieSelector()
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
     })
 
     it("If the action costs too many ActionPoints, do not select it", () => {
@@ -188,13 +182,18 @@ describe("user clicks on an action to consider it", () => {
         const attackButtonAction =
             ObjectRepositoryService.getActionTemplateById(
                 gameEngineState.repository,
-                attackButton.actionTemplateId
+                attackAction.id
             )
         expect(
             playerBattleSquaddie.squaddieTurn.remainingActionPoints
         ).toBeLessThan(attackButtonAction.actionPoints)
 
         selectorClicksOnSquaddie(selector, gameEngineState)
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplateId === attackAction.id
+            )
+
         selector.mouseClicked({
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
@@ -207,14 +206,17 @@ describe("user clicks on an action to consider it", () => {
                 .summaryHUDState.squaddieSummaryPopoversByType.MAIN
                 .battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
-        expect(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.playerCommandState.playerSelectedSquaddieAction
-        ).toBeFalsy()
+        expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
     })
 
     it("ActionsThisRound should mark it as being considered when HUD selects an action", () => {
         selectorClicksOnSquaddie(selector, gameEngineState)
+
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplateId === attackAction.id
+            )
+
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
@@ -243,6 +245,12 @@ describe("user clicks on an action to consider it", () => {
 
     it("Squaddie Selector is Complete and recommends Player HUD Controller phase", () => {
         selectorClicksOnSquaddie(selector, gameEngineState)
+
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplateId === attackAction.id
+            )
+
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
@@ -260,6 +268,12 @@ describe("user clicks on an action to consider it", () => {
 
     it("Squaddie Target should tell Map to highlight targetable squares", () => {
         selectorClicksOnSquaddie(selector, gameEngineState)
+
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplateId === attackAction.id
+            )
+
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
@@ -289,6 +303,12 @@ describe("user clicks on an action to consider it", () => {
 
     it("Hides the action selector", () => {
         selectorClicksOnSquaddie(selector, gameEngineState)
+
+        attackButton =
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                (button) => button.actionTemplateId === attackAction.id
+            )
+
         selector.mouseClicked({
             mouseX: RectAreaService.centerX(attackButton.buttonArea),
             mouseY: RectAreaService.centerY(attackButton.buttonArea),
@@ -332,24 +352,7 @@ const getGameEngineState = ({
             }),
         }),
         repository,
-        campaign: CampaignService.default({}),
-    })
-}
-
-const selectSquaddieForTheHUD = ({
-    battleSquaddie,
-    gameEngineState,
-}: {
-    battleSquaddie: BattleSquaddie
-    gameEngineState: GameEngineState
-}) => {
-    gameEngineState.messageBoard.sendMessage({
-        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-        gameEngineState,
-        battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-        selectionMethod: {
-            mouse: { x: 0, y: 0 },
-        },
+        campaign: CampaignService.default(),
     })
 }
 

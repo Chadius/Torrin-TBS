@@ -349,7 +349,7 @@ describe("orchestratorState", () => {
                     }),
                 }),
                 repository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
         }
 

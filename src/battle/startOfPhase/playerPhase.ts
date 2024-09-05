@@ -20,7 +20,7 @@ export const PlayerPhaseService = {
     ) => {
         const gameEngineState: GameEngineState = message.gameEngineState
         const playerTeam: BattleSquaddieTeam =
-            BattlePhaseService.FindTeamsOfAffiliation(
+            BattlePhaseService.findTeamsOfAffiliation(
                 gameEngineState.battleOrchestratorState.battleState.teams,
                 SquaddieAffiliation.PLAYER
             )[0]
@@ -77,7 +77,6 @@ export const PlayerPhaseService = {
                 timeToPan: BANNER_ANIMATION_TIME - 500,
                 respectConstraints: true,
             })
-            return
         }
     },
 }

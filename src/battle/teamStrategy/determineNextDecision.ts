@@ -55,7 +55,7 @@ const determineNextDecision = ({
             calculator = new TargetSquaddieInRange(strategy.options)
             break
         default:
-            calculator = new EndTurnTeamStrategy(strategy.options)
+            calculator = new EndTurnTeamStrategy()
             break
     }
     return calculator.DetermineNextInstruction({

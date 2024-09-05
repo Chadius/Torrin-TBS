@@ -54,7 +54,6 @@ import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoord
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
-import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import {
     ACTION_COMPLETED_WAIT_TIME_MS,
     BattleSquaddieUsesActionOnMap,
@@ -63,7 +62,7 @@ import { ProcessedActionEndTurnEffectService } from "../action/processed/process
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { BattleEventService } from "../battle/history/battleEvent"
-import { MouseButton } from "../utils/mouseConfig"
+import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
@@ -153,15 +152,15 @@ describe("User ends their turn", () => {
                 movementCost: ["1 1 "],
             }),
         })
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            playerSquaddieTemplate.squaddieId.templateId,
-            playerBattleSquaddie.battleSquaddieId,
-            {
+            squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            location: {
                 q: 0,
                 r: 0,
-            }
-        )
+            },
+        })
 
         gameEngineState = getGameEngineState({
             resourceHandler,
@@ -184,6 +183,10 @@ describe("User ends their turn", () => {
             gameEngineState,
         })
         selector = new BattlePlayerSquaddieSelector()
+        gameEngineState.messageBoard.addListener(
+            selector,
+            MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
 
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
@@ -215,7 +218,6 @@ describe("User ends their turn", () => {
     })
 
     it("EndTurn adds a ProcessedAction to end the turn", () => {
-        const selector = new BattlePlayerSquaddieSelector()
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             0,
             0,
@@ -272,7 +274,6 @@ describe("User ends their turn", () => {
     })
 
     it("adds the Battle Action to the Battle Action Queue", () => {
-        const selector = new BattlePlayerSquaddieSelector()
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
@@ -304,7 +305,6 @@ describe("User ends their turn", () => {
     })
 
     describe("player squaddie selector reacts to ending the turn", () => {
-        let selector: BattlePlayerSquaddieSelector
         let highlightTileSpy: jest.SpyInstance
 
         beforeEach(() => {
@@ -312,7 +312,6 @@ describe("User ends their turn", () => {
                 TerrainTileMapService,
                 "removeAllGraphicsLayers"
             )
-            selector = new BattlePlayerSquaddieSelector()
             let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
                 0,
                 0,
@@ -371,14 +370,6 @@ describe("User ends their turn", () => {
 
         it("tells the map to stop highlighting tiles", () => {
             expect(highlightTileSpy).toBeCalled()
-        })
-
-        it("Mode switches to player HUD controller", () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            const changes = selector.recommendStateChanges(gameEngineState)
-            expect(changes.nextMode).toBe(
-                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
-            )
         })
 
         it("It adds an event showing the processed action", () => {
@@ -462,7 +453,7 @@ describe("User ends their turn", () => {
                         }),
                     }),
                 }),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             BattleSquaddieService.endTurn(playerBattleSquaddie)
             tintSpy = jest.spyOn(
@@ -557,7 +548,7 @@ const getGameEngineState = ({
             }),
         }),
         repository,
-        campaign: CampaignService.default({}),
+        campaign: CampaignService.default(),
     })
 }
 
@@ -573,7 +564,11 @@ const selectSquaddieForTheHUD = ({
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
         selectionMethod: {
-            mouse: { x: 0, y: 0 },
+            mouseClick: MouseClickService.new({
+                x: 0,
+                y: 0,
+                button: MouseButton.ACCEPT,
+            }),
         },
     })
 }

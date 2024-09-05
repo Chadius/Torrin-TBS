@@ -16,7 +16,7 @@ import {
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { RectAreaService } from "../../../ui/rectArea"
 import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
-import { RollResultService } from "../../actionCalculator/rollResult"
+import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
@@ -25,8 +25,6 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults
-
-    constructor() {}
 
     private _squaddieRepository: ObjectRepository
 
@@ -200,13 +198,12 @@ export class ActorSprite {
             .NEUTRAL
             ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 16
             : ScreenDimensions.SCREEN_HEIGHT / 24
+        let attackTime: number = 0
         switch (timer.currentPhase) {
             case ActionAnimationPhase.BEFORE_ACTION:
-                horizontalDistance = 0
                 break
             case ActionAnimationPhase.DURING_ACTION:
-                const attackTime =
-                    timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME
+                attackTime = timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME
                 if (
                     RollResultService.isACriticalSuccess(
                         this.squaddieResult.actingContext.actingSquaddieRoll
@@ -214,7 +211,6 @@ export class ActorSprite {
                 ) {
                     const revUpTime = ACTION_ANIMATION_ACTION_TIME / 2
                     if (attackTime < revUpTime) {
-                        horizontalDistance = 0
                         const angle = (attackTime / revUpTime) * 8 * Math.PI
                         verticalDistance =
                             Math.sin(angle) * maximumVerticalDistance

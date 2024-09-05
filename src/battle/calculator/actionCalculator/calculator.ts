@@ -1,39 +1,39 @@
-import { BattleSquaddie } from "../battleSquaddie"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { DamageType } from "../../squaddie/squaddieService"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
+import { BattleSquaddie } from "../../battleSquaddie"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { DamageType } from "../../../squaddie/squaddieService"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { MissionStatisticsHandler } from "../../missionStatistics/missionStatistics"
 import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
-} from "../history/squaddieSquaddieResults"
+} from "../../history/squaddieSquaddieResults"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { ObjectRepositoryService } from "../objectRepository"
+} from "../../../trait/traitStatusStorage"
+import { ObjectRepositoryService } from "../../objectRepository"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ActionsThisRound } from "../history/actionsThisRound"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
-import { MissionMapService } from "../../missionMap/missionMap"
-import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { ActionsThisRound } from "../../history/actionsThisRound"
+import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
+import { DecidedActionEffect } from "../../../action/decided/decidedActionEffect"
+import { MissionMapService } from "../../../missionMap/missionMap"
+import { MissionMapSquaddieLocationService } from "../../../missionMap/squaddieLocation"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
-} from "../history/battleActionSquaddieChange"
-import { BattleActionActionContext } from "../history/battleAction"
+} from "../../history/battleActionSquaddieChange"
+import { BattleActionActionContext } from "../../history/battleAction"
 import {
     AttributeModifier,
     AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
-import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
+} from "../../../squaddie/attributeModifier"
+import { DecidedActionSquaddieEffect } from "../../../action/decided/decidedActionSquaddieEffect"
 import { CalculatorAttack } from "./attack"
 import { CalculatorMiscellaneous } from "./miscellaneous"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 
 export interface CalculatedEffect {
     damageDealt: number

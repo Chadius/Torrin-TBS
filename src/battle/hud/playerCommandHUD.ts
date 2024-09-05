@@ -93,7 +93,7 @@ export interface PlayerCommandState {
 }
 
 export const PlayerCommandStateService = {
-    new: ({}: {}): PlayerCommandState => {
+    new: (): PlayerCommandState => {
         return {
             playerSelectedSquaddieAction: false,
             selectedActionTemplateId: undefined,
@@ -303,37 +303,36 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
             playerCommandWindowArea.left = HEX_TILE_WIDTH
             break
         case mouseSelectionLocation.x < ScreenDimensions.SCREEN_WIDTH / 2:
-            playerCommandWindowArea.left =
-                mouseSelectionLocation.x - HEX_TILE_WIDTH
-            break
-        case RectAreaService.right(playerCommandWindowArea) >
-            ScreenDimensions.SCREEN_WIDTH - HEX_TILE_WIDTH:
-            RectAreaService.setRight(
-                playerCommandWindowArea,
-                ScreenDimensions.SCREEN_WIDTH - HEX_TILE_WIDTH
-            )
-            break
         case mouseSelectionLocation.x >= ScreenDimensions.SCREEN_WIDTH / 2:
             playerCommandWindowArea.left =
                 mouseSelectionLocation.x - HEX_TILE_WIDTH
             break
     }
 
-    switch (true) {
-        case mouseSelectionLocation.y +
+    if (
+        RectAreaService.right(playerCommandWindowArea) >
+        ScreenDimensions.SCREEN_WIDTH - HEX_TILE_WIDTH
+    ) {
+        RectAreaService.setRight(
+            playerCommandWindowArea,
+            ScreenDimensions.SCREEN_WIDTH - HEX_TILE_WIDTH
+        )
+    }
+
+    if (
+        mouseSelectionLocation.y +
             HEX_TILE_WIDTH +
             playerCommandWindowArea.height >
-            ScreenDimensions.SCREEN_HEIGHT:
-            RectAreaService.setBottom(
-                playerCommandWindowArea,
-                ScreenDimensions.SCREEN_HEIGHT
-            )
-            break
-        default:
-            playerCommandWindowArea.top =
-                mouseSelectionLocation.y + HEX_TILE_WIDTH
-            break
+        ScreenDimensions.SCREEN_HEIGHT
+    ) {
+        RectAreaService.setBottom(
+            playerCommandWindowArea,
+            ScreenDimensions.SCREEN_HEIGHT
+        )
+        return playerCommandWindowArea
     }
+
+    playerCommandWindowArea.top = mouseSelectionLocation.y + HEX_TILE_WIDTH
 
     return playerCommandWindowArea
 }

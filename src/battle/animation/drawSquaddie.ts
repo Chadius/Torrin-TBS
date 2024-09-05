@@ -12,7 +12,7 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import {
     SearchPath,
-    SearchPathHelper,
+    SearchPathService,
 } from "../../hexMap/pathfinder/searchPath"
 import {
     getSquaddiePositionAlongPath,
@@ -460,7 +460,7 @@ const hasMovementAnimationFinished = (
         return true
     }
 
-    if (SearchPathHelper.getLocations(squaddieMovePath).length <= 1) {
+    if (SearchPathService.getLocations(squaddieMovePath).length <= 1) {
         return true
     }
 
@@ -482,7 +482,7 @@ export const moveSquaddieAlongPath = (
     const timePassed = Date.now() - timeMovementStarted
     const squaddieDrawCoordinates: [number, number] =
         getSquaddiePositionAlongPath(
-            SearchPathHelper.getLocations(squaddieMovePath).map(
+            SearchPathService.getLocations(squaddieMovePath).map(
                 (tile) => tile.hexCoordinate
             ),
             timePassed,

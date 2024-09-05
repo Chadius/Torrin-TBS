@@ -1,5 +1,5 @@
 import { SearchParametersHelper } from "../searchParams"
-import { SearchPathHelper } from "../searchPath"
+import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { PathCanStopConditionNotAWallOrPit } from "./pathCanStopConditionNotAWallOrPit"
@@ -12,13 +12,13 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
@@ -42,18 +42,18 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             1
@@ -77,23 +77,23 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
             }),
         })
 
-        const pathAtHead = SearchPathHelper.newSearchPath()
-        SearchPathHelper.add(
+        const pathAtHead = SearchPathService.newSearchPath()
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
             0
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             1
         )
-        SearchPathHelper.add(
+        SearchPathService.add(
             pathAtHead,
             { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
             1
@@ -122,7 +122,7 @@ describe("pathCanStopConditionNotAWallOrPit", () => {
         const condition = new PathCanStopConditionNotAWallOrPit({ missionMap })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
-                newPath: SearchPathHelper.newSearchPath(),
+                newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })
         ).toBeUndefined()

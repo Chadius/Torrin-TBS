@@ -1,46 +1,49 @@
-import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
-import { StreamNumberGenerator } from "../../numberGenerator/stream"
+import { BattleSquaddie, BattleSquaddieService } from "../../../battleSquaddie"
+import { StreamNumberGenerator } from "../../../numberGenerator/stream"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../../action/template/actionTemplate"
+} from "../../../../action/template/actionTemplate"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../../gameEngine/gameEngine"
-import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+} from "../../../../gameEngine/gameEngine"
+import {
+    MissionMap,
+    MissionMapService,
+} from "../../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
-import { DamageType } from "../../../squaddie/squaddieService"
+} from "../../../../action/template/actionEffectSquaddieTemplate"
+import { DamageType } from "../../../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../../trait/traitStatusStorage"
+} from "../../../../trait/traitStatusStorage"
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../objectRepository"
-import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../../../squaddie/id"
-import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { CampaignService } from "../../../campaign/campaign"
-import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../orchestrator/battleState"
-import { ActionsThisRoundService } from "../../history/actionsThisRound"
-import { ProcessedActionService } from "../../../action/processed/processedAction"
-import { DecidedActionService } from "../../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../../action/decided/decidedActionSquaddieEffect"
+} from "../../../objectRepository"
+import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
+import { SquaddieIdService } from "../../../../squaddie/id"
+import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+import { CampaignService } from "../../../../campaign/campaign"
+import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../../../orchestrator/battleState"
+import { ActionsThisRoundService } from "../../../history/actionsThisRound"
+import { ProcessedActionService } from "../../../../action/processed/processedAction"
+import { DecidedActionService } from "../../../../action/decided/decidedAction"
+import { DecidedActionSquaddieEffectService } from "../../../../action/decided/decidedActionSquaddieEffect"
 import { ActionCalculator } from "../calculator"
 import { DegreeOfSuccess } from "../degreeOfSuccess"
-import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
     AttributeType,
-} from "../../../squaddie/attributeModifier"
+} from "../../../../squaddie/attributeModifier"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -95,12 +98,15 @@ describe("Armor Attribute affects Armor Attacks", () => {
             actingTemplate,
             actingSquaddie
         )
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            actingTemplate.squaddieId.templateId,
-            actingSquaddie.battleSquaddieId,
-            { q: 0, r: 0 }
-        )
+            squaddieTemplateId: actingTemplate.squaddieId.templateId,
+            battleSquaddieId: actingSquaddie.battleSquaddieId,
+            location: {
+                q: 0,
+                r: 0,
+            },
+        })
 
         const targetTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -118,12 +124,12 @@ describe("Armor Attribute affects Armor Attacks", () => {
             targetTemplate,
             targetSquaddie
         )
-        MissionMapService.addSquaddie(
+        MissionMapService.addSquaddie({
             missionMap,
-            targetTemplate.squaddieId.templateId,
-            targetSquaddie.battleSquaddieId,
-            { q: 0, r: 1 }
-        )
+            squaddieTemplateId: targetTemplate.squaddieId.templateId,
+            battleSquaddieId: targetSquaddie.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
 
         gameEngineState = GameEngineStateService.new({
             repository,
@@ -134,7 +140,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     campaignId: "calculator campaign",
                 }),
             }),
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
     })
 

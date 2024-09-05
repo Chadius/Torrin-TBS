@@ -1,5 +1,5 @@
 import { InBattleAttributes } from "../stats/inBattleAttributes"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { isValidValue } from "../../utils/validityCheck"
 
 export interface BattleActionSquaddieChange {

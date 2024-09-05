@@ -12,7 +12,7 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../history/squaddieSquaddieResults"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
 import {
     ActionEffectSquaddieTemplate,

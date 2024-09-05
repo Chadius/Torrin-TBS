@@ -95,10 +95,9 @@ export const SearchResultsService = {
 
         return possibleLocationsThatAreADistanceFromTheLocation.filter(
             (candidate) =>
-                searchResult.shortestPathByLocation[candidate.q] != undefined &&
-                searchResult.shortestPathByLocation[candidate.q][
+                !!searchResult.shortestPathByLocation?.[candidate.q]?.[
                     candidate.r
-                ] !== undefined
+                ]
         )
     },
     getStoppableLocations: (searchResult: SearchResult): HexCoordinate[] => {
@@ -121,8 +120,5 @@ const isLocationReachable = (
     q: number,
     r: number
 ): boolean => {
-    return (
-        searchResult.shortestPathByLocation[q] != undefined &&
-        searchResult.shortestPathByLocation[q][r] !== undefined
-    )
+    return !!searchResult.shortestPathByLocation?.[q]?.[r]
 }

@@ -90,7 +90,7 @@ describe("end turn team strategy", () => {
             ],
         })
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({})
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
             missionMap,
@@ -110,7 +110,7 @@ describe("end turn team strategy", () => {
                 iconResourceKey: "icon_player_team",
             })
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({})
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: noSquaddieTeam,
             missionMap,
@@ -123,7 +123,7 @@ describe("end turn team strategy", () => {
     it("is undefined when squaddies have no actions", () => {
         BattleSquaddieService.endTurn(playerBattleSquaddie)
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({})
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
             missionMap,

@@ -23,14 +23,10 @@ const TargetingShapeToName: { [value in TargetingShape]: string } = {
 export const GetTargetingShapeGenerator = (
     shape: TargetingShape
 ): ResultOrError<TargetingShapeGenerator, Error> => {
-    switch (shape) {
-        case TargetingShape.SNAKE:
-            return makeResult(new SnakeShapeGenerator())
-        default:
-            return makeError(
-                new Error(
-                    `Unexpected shape generator: ${TargetingShapeToName[shape]}`
-                )
-            )
+    if (shape === TargetingShape.SNAKE) {
+        return makeResult(new SnakeShapeGenerator())
     }
+    return makeError(
+        new Error(`Unexpected shape generator: ${TargetingShapeToName[shape]}`)
+    )
 }

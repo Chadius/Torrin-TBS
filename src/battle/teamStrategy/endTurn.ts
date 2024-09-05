@@ -4,7 +4,6 @@ import {
 } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { ObjectRepository } from "../objectRepository"
-import { TeamStrategyOptions } from "./teamStrategy"
 import {
     DecidedAction,
     DecidedActionService,
@@ -16,8 +15,6 @@ import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedA
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
-    constructor(options: TeamStrategyOptions) {}
-
     DetermineNextInstruction({
         team,
         missionMap,

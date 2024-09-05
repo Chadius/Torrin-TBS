@@ -10,12 +10,18 @@ export const ConvertCoordinateService = {
         r,
         cameraX,
         cameraY,
+        camera,
     }: {
         q: number
         r: number
-        cameraX: number
-        cameraY: number
+        cameraX?: number
+        cameraY?: number
+        camera?: BattleCamera
     }): { x: number; y: number } => {
+        if (isValidValue(camera)) {
+            ;({ cameraX, cameraY } = camera.getCoordinatesAsObject())
+        }
+
         const [screenX, screenY] = convertMapCoordinatesToScreenCoordinates(
             q,
             r,

@@ -131,7 +131,7 @@ describe("summaryHUD", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             summaryHUDState = SummaryHUDStateService.new({
@@ -173,7 +173,7 @@ describe("summaryHUD", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             summaryHUDState = SummaryHUDStateService.new({
@@ -209,7 +209,7 @@ describe("summaryHUD", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             summaryHUDState = SummaryHUDStateService.new({
                 mouseSelectionLocation: { x: 0, y: 0 },
@@ -322,7 +322,7 @@ describe("summaryHUD", () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             summaryHUDState = SummaryHUDStateService.new({
@@ -479,7 +479,7 @@ describe("summaryHUD", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
@@ -520,7 +520,7 @@ describe("summaryHUD", () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
@@ -605,7 +605,7 @@ describe("summaryHUD", () => {
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             dateSpy = jest.spyOn(Date, "now")

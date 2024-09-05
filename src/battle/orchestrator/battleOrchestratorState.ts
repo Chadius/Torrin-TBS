@@ -76,7 +76,7 @@ export class BattleOrchestratorState {
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.battleState = BattleStateService.clone(other.battleState)
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
-            fileAccessHUD: FileAccessHUDService.new({}),
+            fileAccessHUD: FileAccessHUDService.new(),
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
                 [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,

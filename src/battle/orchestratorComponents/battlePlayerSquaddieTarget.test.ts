@@ -202,7 +202,7 @@ describe("BattleSquaddieTarget", () => {
                 }),
             }),
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
@@ -553,7 +553,7 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState,
             battleSquaddieSelectedId: citizenDynamic.battleSquaddieId,
             selectionMethod: {
-                mouse: {
+                mouseMovement: {
                     x: mouseX,
                     y: mouseY,
                 },

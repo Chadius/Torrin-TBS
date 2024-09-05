@@ -7,10 +7,10 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { ActionResultText } from "./actionAnimation/actionResultText"
-import { DegreeOfSuccess } from "../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
-import { RollResultService } from "../actionCalculator/rollResult"
+import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionEffectSquaddieTemplate,

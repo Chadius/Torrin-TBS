@@ -17,7 +17,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { DegreeOfSuccess } from "../../actionCalculator/degreeOfSuccess"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     ActionTemplate,
     ActionTemplateService,

@@ -7,7 +7,7 @@ import {
 } from "../searchResults/searchResult"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { PriorityQueue } from "../../../utils/priorityQueue"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import { TargetingShapeGenerator } from "../../../battle/targeting/targetingShapeGenerator"
 import {
     MapSearchDataLayer,
@@ -58,7 +58,7 @@ export const PathfinderWorkingStateHelper = {
     }): PathfinderWorkingState => {
         const workingState: PathfinderWorkingState = {
             searchPathQueue: new PriorityQueue<SearchPath>(
-                SearchPathHelper.compare
+                SearchPathService.compare
             ),
             shapeGenerator: searchParameters.shapeGenerator,
             mapLayers: {
@@ -85,8 +85,8 @@ export const PathfinderWorkingStateHelper = {
                 }),
                 new AddPathConditionPathLeadsToWall({ missionMap }),
                 new AddPathConditionPathLeadsToPit({ missionMap }),
-                new AddPathConditionPathIsLessThanTotalMovement({}),
-                new AddPathConditionMaximumDistance({}),
+                new AddPathConditionPathIsLessThanTotalMovement(),
+                new AddPathConditionMaximumDistance(),
                 new AddPathConditionSquaddieAffiliation({
                     missionMap,
                     repository,
@@ -94,7 +94,7 @@ export const PathfinderWorkingStateHelper = {
             ],
             pathCanStopConditions: [
                 new PathCanStopConditionNotAWallOrPit({ missionMap }),
-                new PathCanStopConditionMinimumDistance({}),
+                new PathCanStopConditionMinimumDistance(),
                 new PathCanStopConditionNotOnAnotherSquaddie({
                     missionMap,
                     repository,
@@ -188,9 +188,9 @@ const populateStartingLocations = ({
             r: startLocation.r,
             value: true,
         })
-        const startingPath = SearchPathHelper.newSearchPath()
-        SearchPathHelper.startNewMovementAction(startingPath, false)
-        SearchPathHelper.add(
+        const startingPath = SearchPathService.newSearchPath()
+        SearchPathService.startNewMovementAction(startingPath, false)
+        SearchPathService.add(
             startingPath,
             {
                 hexCoordinate: {
@@ -239,9 +239,9 @@ const generateValidPaths = ({
         searchParameters: SearchParameters
     }) => {
         const current: HexCoordinate = {
-            q: SearchPathHelper.getMostRecentLocation(currentSearchPath)
+            q: SearchPathService.getMostRecentLocation(currentSearchPath)
                 .hexCoordinate.q,
-            r: SearchPathHelper.getMostRecentLocation(currentSearchPath)
+            r: SearchPathService.getMostRecentLocation(currentSearchPath)
                 .hexCoordinate.r,
         }
 
@@ -256,7 +256,7 @@ const generateValidPaths = ({
                 : MovingCostByTerrainType[terrainType]
 
             const candidatePath: SearchPath =
-                SearchPathHelper.clone(currentSearchPath)
+                SearchPathService.clone(currentSearchPath)
 
             const updateNumberOfMovementActions = ({
                 searchPathMovementCost,
@@ -288,7 +288,7 @@ const generateValidPaths = ({
                 searchParameters,
             })
 
-            SearchPathHelper.add(
+            SearchPathService.add(
                 candidatePath,
                 {
                     hexCoordinate: { ...nextLocation },
@@ -344,7 +344,7 @@ const generateValidPaths = ({
         const currentSearchPath: SearchPath =
             workingState.searchPathQueue.dequeue()
         const currentLocation: HexCoordinate =
-            SearchPathHelper.getMostRecentLocation(
+            SearchPathService.getMostRecentLocation(
                 currentSearchPath
             ).hexCoordinate
         MapSearchDataLayerService.setValueOfLocation({

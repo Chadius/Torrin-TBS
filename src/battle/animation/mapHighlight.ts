@@ -49,7 +49,7 @@ export const MapHighlightHelper = {
                 const numberOfMoveActions: number = Number(
                     numberOfMoveActionsStr
                 )
-                let imageOverlayName = ""
+                let imageOverlayName: string
                 switch (numberOfMoveActions) {
                     case 0:
                         imageOverlayName = ""
@@ -267,66 +267,61 @@ const addAttackRangeOntoMovementRange = ({
                         .forEach((actionSquaddieEffectTemplate) => {
                             let uniqueLocations: HexCoordinate[] = []
 
-                            switch (actionSquaddieEffectTemplate.type) {
-                                case ActionEffectType.SQUADDIE:
-                                    const actionRangeResults =
-                                        PathfinderHelper.search({
-                                            searchParameters:
-                                                SearchParametersHelper.new({
-                                                    startLocations: [
-                                                        coordinate,
-                                                    ],
-                                                    canStopOnSquaddies: true,
-                                                    canPassOverPits: true,
-                                                    canPassThroughWalls:
-                                                        TraitStatusStorageService.getStatus(
-                                                            actionSquaddieEffectTemplate.traits,
-                                                            Trait.PASS_THROUGH_WALLS
-                                                        ),
-                                                    minimumDistanceMoved:
-                                                        actionSquaddieEffectTemplate.minimumRange,
-                                                    maximumDistanceMoved:
-                                                        actionSquaddieEffectTemplate.maximumRange,
-                                                    squaddieAffiliation:
-                                                        SquaddieAffiliation.UNKNOWN,
-                                                    ignoreTerrainCost: true,
-                                                    shapeGenerator:
-                                                        getResultOrThrowError(
-                                                            GetTargetingShapeGenerator(
-                                                                actionSquaddieEffectTemplate.targetingShape
-                                                            )
-                                                        ),
-                                                }),
-                                            missionMap,
-                                            repository,
-                                        })
-
-                                    uniqueLocations =
-                                        SearchResultsService.getStoppableLocations(
-                                            actionRangeResults
-                                        )
-                                            .filter(
-                                                (location) =>
-                                                    !attackLocations.some(
-                                                        (attackLoc) =>
-                                                            attackLoc.q ===
-                                                                location.q &&
-                                                            attackLoc.r ===
-                                                                location.r
-                                                    )
-                                            )
-                                            .filter(
-                                                (location) =>
-                                                    !allLocationsSquaddieCanMoveTo.some(
-                                                        (moveLoc) =>
-                                                            moveLoc.q ===
-                                                                location.q &&
-                                                            moveLoc.r ===
-                                                                location.r
-                                                    )
-                                            )
-                                    break
+                            if (
+                                actionSquaddieEffectTemplate.type !==
+                                ActionEffectType.SQUADDIE
+                            ) {
+                                return
                             }
+
+                            const actionRangeResults = PathfinderHelper.search({
+                                searchParameters: SearchParametersHelper.new({
+                                    startLocations: [coordinate],
+                                    canStopOnSquaddies: true,
+                                    canPassOverPits: true,
+                                    canPassThroughWalls:
+                                        TraitStatusStorageService.getStatus(
+                                            actionSquaddieEffectTemplate.traits,
+                                            Trait.PASS_THROUGH_WALLS
+                                        ),
+                                    minimumDistanceMoved:
+                                        actionSquaddieEffectTemplate.minimumRange,
+                                    maximumDistanceMoved:
+                                        actionSquaddieEffectTemplate.maximumRange,
+                                    squaddieAffiliation:
+                                        SquaddieAffiliation.UNKNOWN,
+                                    ignoreTerrainCost: true,
+                                    shapeGenerator: getResultOrThrowError(
+                                        GetTargetingShapeGenerator(
+                                            actionSquaddieEffectTemplate.targetingShape
+                                        )
+                                    ),
+                                }),
+                                missionMap,
+                                repository,
+                            })
+
+                            uniqueLocations =
+                                SearchResultsService.getStoppableLocations(
+                                    actionRangeResults
+                                )
+                                    .filter(
+                                        (location) =>
+                                            !attackLocations.some(
+                                                (attackLoc) =>
+                                                    attackLoc.q ===
+                                                        location.q &&
+                                                    attackLoc.r === location.r
+                                            )
+                                    )
+                                    .filter(
+                                        (location) =>
+                                            !allLocationsSquaddieCanMoveTo.some(
+                                                (moveLoc) =>
+                                                    moveLoc.q === location.q &&
+                                                    moveLoc.r === location.r
+                                            )
+                                    )
                             attackLocations.push(...uniqueLocations)
                         })
                 })

@@ -2,7 +2,7 @@ import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { SearchParameters, SearchParametersHelper } from "../searchParams"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
-import { SearchPath, SearchPathHelper } from "../searchPath"
+import { SearchPath, SearchPathService } from "../searchPath"
 import {
     SearchResult,
     SearchResultsService,
@@ -65,9 +65,9 @@ describe("Pathfinder", () => {
                     0,
                     2
                 )
-            expect(SearchPathHelper.getTotalMovementCost(path2_0)).toEqual(0)
-            expect(SearchPathHelper.getLocations(path2_0)).toHaveLength(1)
-            expect(SearchPathHelper.getTotalDistance(path2_0)).toEqual(0)
+            expect(SearchPathService.getTotalMovementCost(path2_0)).toEqual(0)
+            expect(SearchPathService.getLocations(path2_0)).toHaveLength(1)
+            expect(SearchPathService.getTotalDistance(path2_0)).toEqual(0)
         })
 
         it("path to further locations costs movement", () => {
@@ -77,9 +77,9 @@ describe("Pathfinder", () => {
                     1,
                     4
                 )
-            expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(4)
-            expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(4)
-            expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(3)
+            expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(4)
+            expect(SearchPathService.getLocations(path1_4)).toHaveLength(4)
+            expect(SearchPathService.getTotalDistance(path1_4)).toEqual(3)
         })
     })
 
@@ -653,9 +653,9 @@ describe("Pathfinder", () => {
                     0,
                     0
                 )
-            expect(SearchPathHelper.getTotalMovementCost(path0_0)).toEqual(0)
-            expect(SearchPathHelper.getLocations(path0_0)).toHaveLength(1)
-            expect(SearchPathHelper.getTotalDistance(path0_0)).toEqual(0)
+            expect(SearchPathService.getTotalMovementCost(path0_0)).toEqual(0)
+            expect(SearchPathService.getLocations(path0_0)).toHaveLength(1)
+            expect(SearchPathService.getTotalDistance(path0_0)).toEqual(0)
 
             const path1_4: SearchPath =
                 SearchResultsService.getShortestPathToLocation(
@@ -663,9 +663,9 @@ describe("Pathfinder", () => {
                     1,
                     4
                 )
-            expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(0)
-            expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(1)
-            expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(0)
+            expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(0)
+            expect(SearchPathService.getLocations(path1_4)).toHaveLength(1)
+            expect(SearchPathService.getTotalDistance(path1_4)).toEqual(0)
         })
 
         it("path to further locations refers to starting location with least movement cost", () => {
@@ -676,14 +676,14 @@ describe("Pathfinder", () => {
                     2
                 )
 
-            const route0_2 = SearchPathHelper.getLocations(path0_2)
+            const route0_2 = SearchPathService.getLocations(path0_2)
             expect(route0_2).toHaveLength(3)
             expect(route0_2[0].hexCoordinate).toEqual({ q: 0, r: 0 })
             expect(route0_2[1].hexCoordinate).toEqual({ q: 0, r: 1 })
             expect(route0_2[2].hexCoordinate).toEqual({ q: 0, r: 2 })
 
-            expect(SearchPathHelper.getTotalMovementCost(path0_2)).toEqual(3)
-            expect(SearchPathHelper.getTotalDistance(path0_2)).toEqual(2)
+            expect(SearchPathService.getTotalMovementCost(path0_2)).toEqual(3)
+            expect(SearchPathService.getTotalDistance(path0_2)).toEqual(2)
 
             const path1_3: SearchPath =
                 SearchResultsService.getShortestPathToLocation(
@@ -692,13 +692,13 @@ describe("Pathfinder", () => {
                     3
                 )
 
-            const route1_3 = SearchPathHelper.getLocations(path1_3)
+            const route1_3 = SearchPathService.getLocations(path1_3)
             expect(route1_3).toHaveLength(2)
             expect(route1_3[0].hexCoordinate).toEqual({ q: 1, r: 4 })
             expect(route1_3[1].hexCoordinate).toEqual({ q: 1, r: 3 })
 
-            expect(SearchPathHelper.getTotalMovementCost(path1_3)).toEqual(2)
-            expect(SearchPathHelper.getTotalDistance(path1_3)).toEqual(1)
+            expect(SearchPathService.getTotalMovementCost(path1_3)).toEqual(2)
+            expect(SearchPathService.getTotalDistance(path1_3)).toEqual(1)
         })
 
         it("can use minimum and maximum distance to generate a spreading effect", () => {

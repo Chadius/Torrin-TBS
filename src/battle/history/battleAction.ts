@@ -1,7 +1,7 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
-import { RollResult } from "../actionCalculator/rollResult"
+import { RollResult } from "../calculator/actionCalculator/rollResult"
 import { AttributeTypeAndAmount } from "../../squaddie/attributeModifier"
 
 export interface BattleActionActor {

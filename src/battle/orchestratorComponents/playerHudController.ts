@@ -21,12 +21,16 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     keyEventHappened(
         gameEngineState: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     mouseEventHappened(
         gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     recommendStateChanges(
         gameEngineState: GameEngineState
@@ -118,7 +122,9 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     update(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 }
 
 const playerCanControlAtLeastOneSquaddie = (

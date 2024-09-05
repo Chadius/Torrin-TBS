@@ -57,13 +57,13 @@ describe("File Access HUD", () => {
                 }),
             }),
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
     }
 
     beforeEach(() => {
-        fileAccessHUD = FileAccessHUDService.new({})
-        fileState = FileStateService.new({})
+        fileAccessHUD = FileAccessHUDService.new()
+        fileState = FileStateService.new()
     })
 
     describe("has buttons during turn", () => {

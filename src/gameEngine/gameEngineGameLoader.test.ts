@@ -424,7 +424,7 @@ describe("GameEngineGameLoader", () => {
                         missionCompletionStatus: {},
                     }),
                 }),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             LoadSaveStateService.userRequestsLoad(
                 originalState.fileState.loadSaveState
@@ -644,7 +644,7 @@ describe("GameEngineGameLoader", () => {
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({}),
                 titleScreenState: TitleScreenStateHelper.new(),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             LoadSaveStateService.userRequestsLoad(
                 originalState.fileState.loadSaveState
@@ -655,7 +655,7 @@ describe("GameEngineGameLoader", () => {
                 resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.new({}),
                 titleScreenState: TitleScreenStateHelper.new(),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             LoadSaveStateService.userRequestsLoad(
                 currentState.fileState.loadSaveState

@@ -45,7 +45,7 @@ export const SummaryHUDStateService = {
         mouseSelectionLocation: { x: number; y: number }
     }): SummaryHUDState => {
         return {
-            playerCommandState: PlayerCommandStateService.new({}),
+            playerCommandState: PlayerCommandStateService.new(),
             showPlayerCommand: false,
             showSummaryHUD: false,
             mouseSelectionLocation,

@@ -12,7 +12,9 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     mouseEventHappened(
         state: GameEngineState,
         mouseEvent: OrchestratorComponentMouseEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     reset(gameEngineState: GameEngineState): void {
         BattleActionDecisionStepService.setAnimationCompleted({
@@ -23,7 +25,11 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
         })
     }
 
-    start(state: GameEngineState): void {}
+    start(state: GameEngineState): void {
+        // Required by inheritance
+    }
 
-    update(state: GameEngineState, graphics: GraphicsBuffer): void {}
+    update(state: GameEngineState, graphics: GraphicsBuffer): void {
+        // Required by inheritance
+    }
 }
