@@ -202,7 +202,7 @@ describe("BattleSquaddieTarget", () => {
                 }),
             }),
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =

@@ -140,7 +140,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     campaignId: "calculator campaign",
                 }),
             }),
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
     })
 

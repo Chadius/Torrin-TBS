@@ -85,8 +85,8 @@ export const PathfinderWorkingStateHelper = {
                 }),
                 new AddPathConditionPathLeadsToWall({ missionMap }),
                 new AddPathConditionPathLeadsToPit({ missionMap }),
-                new AddPathConditionPathIsLessThanTotalMovement({}),
-                new AddPathConditionMaximumDistance({}),
+                new AddPathConditionPathIsLessThanTotalMovement(),
+                new AddPathConditionMaximumDistance(),
                 new AddPathConditionSquaddieAffiliation({
                     missionMap,
                     repository,
@@ -94,7 +94,7 @@ export const PathfinderWorkingStateHelper = {
             ],
             pathCanStopConditions: [
                 new PathCanStopConditionNotAWallOrPit({ missionMap }),
-                new PathCanStopConditionMinimumDistance({}),
+                new PathCanStopConditionMinimumDistance(),
                 new PathCanStopConditionNotOnAnotherSquaddie({
                     missionMap,
                     repository,

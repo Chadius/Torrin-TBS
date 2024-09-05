@@ -83,12 +83,16 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     mouseEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentMouseEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({

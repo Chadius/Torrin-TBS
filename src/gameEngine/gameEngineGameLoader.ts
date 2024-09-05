@@ -170,16 +170,22 @@ export class GameEngineGameLoader implements GameEngineComponent {
         this.resetInternalFields()
     }
 
-    keyPressed(state: GameEngineState, keyCode: number): void {}
+    keyPressed(state: GameEngineState, keyCode: number): void {
+        // Required by inheritance
+    }
 
     mouseClicked(
         state: GameEngineState,
         mouseButton: MouseButton,
         mouseX: number,
         mouseY: number
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
-    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {}
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {
+        // Required by inheritance
+    }
 
     private applySaveStateToBattleOrchestratorState(
         gameEngineState: GameEngineState

@@ -7,8 +7,6 @@ import { SearchParameters } from "../searchParams"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export class AddPathConditionMaximumDistance implements AddPathCondition {
-    constructor({}: {}) {}
-
     shouldAddNewPath({
         newPath,
         searchParameters,

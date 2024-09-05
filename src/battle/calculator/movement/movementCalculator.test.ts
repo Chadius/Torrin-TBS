@@ -61,7 +61,7 @@ describe("movement calculator", () => {
                     campaignId: "test campaign",
                 }),
             }),
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
     })
     afterEach(() => {

@@ -131,7 +131,9 @@ export class BattleComputerSquaddieSelector
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance but does nothing
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
@@ -390,7 +392,7 @@ export class BattleComputerSquaddieSelector
         gameEngineState: GameEngineState,
         decidedAction: DecidedAction
     ) {
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 decidedAction.battleSquaddieId
@@ -572,10 +574,11 @@ export class BattleComputerSquaddieSelector
         })
 
         let results: SquaddieSquaddieResults
+        let decidedActionMovementEffect: DecidedActionMovementEffect
         decidedAction.actionEffects.forEach((decidedActionEffect) => {
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
-                    const decidedActionMovementEffect =
+                    decidedActionMovementEffect =
                         DecidedActionMovementEffectService.new({
                             template: undefined,
                             destination: decidedActionEffect.destination,
@@ -647,6 +650,10 @@ export class BattleComputerSquaddieSelector
 
         let actionPointCost = 0
         let addActionPointCostForTemplate = false
+        let locationsByMoveActions: {
+            [movementActions: number]: LocationTraveled[]
+        } = {}
+        let numberOfActionPointsSpentMoving: number
         decidedAction.actionEffects.forEach((decidedActionEffect) => {
             switch (decidedActionEffect.type) {
                 case ActionEffectType.MOVEMENT:
@@ -659,9 +666,7 @@ export class BattleComputerSquaddieSelector
                                 decidedActionEffect.destination,
                         }
                     )
-                    const locationsByMoveActions: {
-                        [movementActions: number]: LocationTraveled[]
-                    } =
+                    locationsByMoveActions =
                         SquaddieService.searchPathLocationsByNumberOfMovementActions(
                             {
                                 searchPath:
@@ -672,7 +677,7 @@ export class BattleComputerSquaddieSelector
                                 repository: gameEngineState.repository,
                             }
                         )
-                    const numberOfActionPointsSpentMoving: number =
+                    numberOfActionPointsSpentMoving =
                         Math.max(
                             ...Object.keys(locationsByMoveActions).map((str) =>
                                 Number(str)

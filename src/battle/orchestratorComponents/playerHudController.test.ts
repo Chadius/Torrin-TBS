@@ -59,7 +59,7 @@ describe("PlayerHUDController", () => {
                 new MockedP5GraphicsBuffer()
             ),
             repository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         controller = new PlayerHudController()

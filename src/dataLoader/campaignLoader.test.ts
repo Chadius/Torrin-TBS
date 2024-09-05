@@ -30,7 +30,7 @@ describe("campaign loader", () => {
             delete validCampaign["resources"]
             CampaignLoaderService.sanitize(validCampaign)
             expect(validCampaign.resources).toEqual(
-                CampaignResourcesService.default({})
+                CampaignResourcesService.default()
             )
         })
     })

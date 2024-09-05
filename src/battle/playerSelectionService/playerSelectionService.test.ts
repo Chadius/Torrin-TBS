@@ -85,7 +85,7 @@ describe("Player Selection Service", () => {
                     }),
                 }),
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
         })
         it("knows what spot the user clicked on", () => {
@@ -191,7 +191,7 @@ describe("Player Selection Service", () => {
                     }),
                 }),
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
         })
 
@@ -511,7 +511,7 @@ describe("Player Selection Service", () => {
                     }),
                 }),
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -814,7 +814,7 @@ describe("Player Selection Service", () => {
                     }),
                 }),
                 repository: objectRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
 
             const movementActionEffect =
@@ -1449,6 +1449,6 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
             }),
         }),
         repository: objectRepository,
-        campaign: CampaignService.default({}),
+        campaign: CampaignService.default(),
     })
 }

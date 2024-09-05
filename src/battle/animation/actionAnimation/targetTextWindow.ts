@@ -16,8 +16,6 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../../history/battleActionSquaddieChange"
 
 export class TargetTextWindow {
-    constructor() {}
-
     private _result: BattleActionSquaddieChange
 
     get result(): BattleActionSquaddieChange {

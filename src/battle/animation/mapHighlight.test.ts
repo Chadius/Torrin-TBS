@@ -48,7 +48,7 @@ describe("map highlight generator", () => {
     let campaignResources: CampaignResources
 
     beforeEach(() => {
-        campaignResources = CampaignResourcesService.default({})
+        campaignResources = CampaignResourcesService.default()
 
         objectRepository = ObjectRepositoryService.new()
         terrainAllSingleMovement = TerrainTileMapService.new({

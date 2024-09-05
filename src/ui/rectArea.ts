@@ -632,12 +632,8 @@ const alignHorizontally = (rectArea: RectArea, params: Alignment): void => {
         return
     }
 
-    switch (params.horizAlign) {
-        case HORIZONTAL_ALIGN.CENTER:
-            rectArea.left -= rectArea.width / 2
-            break
-        default:
-            break
+    if (params.horizAlign === HORIZONTAL_ALIGN.CENTER) {
+        rectArea.left -= rectArea.width / 2
     }
 }
 
@@ -646,12 +642,8 @@ const alignVertically = (rectArea: RectArea, params: Alignment): void => {
         return
     }
 
-    switch (params.vertAlign) {
-        case VERTICAL_ALIGN.CENTER:
-            rectArea.top -= rectArea.height / 2
-            break
-        default:
-            break
+    if (params.vertAlign === VERTICAL_ALIGN.CENTER) {
+        rectArea.top -= rectArea.height / 2
     }
 }
 

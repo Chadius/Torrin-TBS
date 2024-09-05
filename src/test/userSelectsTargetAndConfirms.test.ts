@@ -692,7 +692,7 @@ const getGameEngineState = ({
         }),
         repository,
         resourceHandler,
-        campaign: CampaignService.default({}),
+        campaign: CampaignService.default(),
     })
 
     const battleHUDListener = new BattleHUDListener("testBattleListener")

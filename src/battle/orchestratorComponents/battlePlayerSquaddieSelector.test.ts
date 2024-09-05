@@ -236,7 +236,7 @@ describe("BattleSquaddieSelector", () => {
                 }),
             }),
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
     }
 

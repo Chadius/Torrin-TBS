@@ -228,7 +228,7 @@ describe("Battle HUD", () => {
                 }),
             }),
             repository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
         ObjectRepositoryService.addActionTemplate(
             gameEngineState.repository,
@@ -263,7 +263,7 @@ describe("Battle HUD", () => {
 
         beforeEach(() => {
             fileAccessHUDSpy = jest.spyOn(FileAccessHUDService, "enableButtons")
-            fileAccessHUD = FileAccessHUDService.new({})
+            fileAccessHUD = FileAccessHUDService.new()
             fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED)
             fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED)
             battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -612,7 +612,7 @@ describe("Battle HUD", () => {
                         }),
                     }),
                 }),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
                 repository,
             })
 

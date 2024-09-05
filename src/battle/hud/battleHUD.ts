@@ -135,7 +135,7 @@ export const BattleHUDService = {
         return {
             fileAccessHUD: getValidValueOrDefault(
                 fileAccessHUD,
-                FileAccessHUDService.new({})
+                FileAccessHUDService.new()
             ),
             popupWindows: {
                 [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,

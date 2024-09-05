@@ -7,8 +7,6 @@ import { PathCanStopCondition } from "./pathCanStopCondition"
 export class PathCanStopConditionMinimumDistance
     implements PathCanStopCondition
 {
-    constructor({}: {}) {}
-
     shouldMarkPathLocationAsStoppable({
         newPath,
         searchParameters,

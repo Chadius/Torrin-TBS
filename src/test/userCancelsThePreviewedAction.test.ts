@@ -226,7 +226,7 @@ describe("User cancels the previewed action", () => {
 
         it.each(cancelMethods)(
             `completes the targeting module via $name`,
-            ({ name, action }) => {
+            ({ action }) => {
                 action()
                 expect(targeting.hasCompleted(gameEngineState)).toBeTruthy()
             }
@@ -234,7 +234,7 @@ describe("User cancels the previewed action", () => {
 
         it.each(cancelMethods)(
             "sends a message it was canceled $name",
-            ({ name, action }) => {
+            ({ action }) => {
                 action()
                 expect(messageSpy).toBeCalledWith({
                     type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
@@ -245,7 +245,7 @@ describe("User cancels the previewed action", () => {
 
         it.each(cancelMethods)(
             "Sees if it should send a message if the player controlled squaddie has not started their turn via $name",
-            ({ name, action }) => {
+            ({ action }) => {
                 action()
                 targeting.recommendStateChanges(gameEngineState)
                 expect(orchestratorSpy).toBeCalledWith(gameEngineState)
@@ -254,7 +254,7 @@ describe("User cancels the previewed action", () => {
 
         it.each(cancelMethods)(
             "Shows a summary window and a player command via $name",
-            ({ name, action }) => {
+            ({ action }) => {
                 action()
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -480,7 +480,7 @@ const getGameEngineState = ({
             }),
         }),
         repository,
-        campaign: CampaignService.default({}),
+        campaign: CampaignService.default(),
         resourceHandler,
     })
 

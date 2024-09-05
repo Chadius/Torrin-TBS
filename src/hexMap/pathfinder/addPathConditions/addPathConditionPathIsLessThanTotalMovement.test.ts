@@ -31,7 +31,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             movementPerAction: 2,
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement({})
+        const condition = new AddPathConditionPathIsLessThanTotalMovement()
         expect(
             condition.shouldAddNewPath({
                 newPath: pathAtHead,
@@ -77,7 +77,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             movementPerAction: 2,
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement({})
+        const condition = new AddPathConditionPathIsLessThanTotalMovement()
         expect(
             condition.shouldAddNewPath({
                 newPath: pathAtHead,
@@ -123,7 +123,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             movementPerAction: undefined,
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement({})
+        const condition = new AddPathConditionPathIsLessThanTotalMovement()
         expect(
             condition.shouldAddNewPath({
                 newPath: pathAtHead,
@@ -139,7 +139,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             movementPerAction: undefined,
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement({})
+        const condition = new AddPathConditionPathIsLessThanTotalMovement()
         expect(
             condition.shouldAddNewPath({
                 newPath: pathAtHead,

@@ -887,7 +887,7 @@ describe("Orchestration Utils", () => {
                     }),
                 }),
                 repository: squaddieRepository,
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
         })
         afterEach(() => {

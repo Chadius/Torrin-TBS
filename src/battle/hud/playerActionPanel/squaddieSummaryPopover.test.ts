@@ -163,7 +163,7 @@ describe("squaddieSummaryPopover", () => {
                 let gameEngineState = GameEngineStateService.new({
                     resourceHandler,
                     repository: objectRepository,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 panel = SquaddieSummaryPopoverService.new({
                     startingColumn: 0,
@@ -204,7 +204,7 @@ describe("squaddieSummaryPopover", () => {
                 let gameEngineState = GameEngineStateService.new({
                     resourceHandler,
                     repository: objectRepository,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 panel = SquaddieSummaryPopoverService.new({
                     battleSquaddieId: "player",
@@ -230,7 +230,7 @@ describe("squaddieSummaryPopover", () => {
                 let gameEngineState = GameEngineStateService.new({
                     resourceHandler,
                     repository: objectRepository,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 panel = SquaddieSummaryPopoverService.new({
                     battleSquaddieId: "player",
@@ -336,7 +336,7 @@ describe("squaddieSummaryPopover", () => {
         let gameEngineState = GameEngineStateService.new({
             resourceHandler,
             repository: objectRepository,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
         panel = SquaddieSummaryPopoverService.new({
             battleSquaddieId: "player",
@@ -464,7 +464,7 @@ describe("squaddieSummaryPopover", () => {
                     let gameEngineState = GameEngineStateService.new({
                         resourceHandler,
                         repository: objectRepository,
-                        campaign: CampaignService.default({}),
+                        campaign: CampaignService.default(),
                     })
                     const { battleSquaddie } = getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
@@ -591,7 +591,7 @@ describe("squaddieSummaryPopover", () => {
                     let gameEngineState = GameEngineStateService.new({
                         resourceHandler,
                         repository: objectRepository,
-                        campaign: CampaignService.default({}),
+                        campaign: CampaignService.default(),
                     })
                     const { battleSquaddie } = getResultOrThrowError(
                         ObjectRepositoryService.getSquaddieByBattleId(
@@ -673,7 +673,7 @@ describe("squaddieSummaryPopover", () => {
                 gameEngineState = GameEngineStateService.new({
                     resourceHandler,
                     repository: objectRepository,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 ;({ battleSquaddie } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(

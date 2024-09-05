@@ -6,15 +6,9 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import {
-    BattleSquaddieTeam,
-    BattleSquaddieTeamService,
-} from "../battleSquaddieTeam"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { BattleStateService } from "../orchestrator/battleState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { isValidValue } from "../../utils/validityCheck"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import {
     MouseButton,
@@ -211,7 +205,9 @@ export class BattlePlayerSquaddieSelector
     update(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     recommendStateChanges(
         gameEngineState: GameEngineState

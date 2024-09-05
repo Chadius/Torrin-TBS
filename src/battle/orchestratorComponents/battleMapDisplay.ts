@@ -114,7 +114,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     keyEventHappened(
         state: GameEngineState,
         event: OrchestratorComponentKeyEvent
-    ): void {}
+    ): void {
+        // Required by inheritance
+    }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({})
@@ -231,7 +233,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         return undefined
     }
 
-    reset(state: GameEngineState) {}
+    reset(state: GameEngineState) {
+        // Required by inheritance
+    }
 
     private drawSquaddieMapIcons(
         state: GameEngineState,

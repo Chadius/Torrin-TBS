@@ -149,7 +149,7 @@ describe("BattleSquaddieMover", () => {
                     actionsThisRound,
                 }),
             }),
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         jest.spyOn(Date, "now").mockImplementation(() => 1)
@@ -226,7 +226,7 @@ describe("BattleSquaddieMover", () => {
                     actionsThisRound,
                 }),
             }),
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
         const messageSpy: jest.SpyInstance = jest.spyOn(
             gameEngineState.messageBoard,
@@ -430,7 +430,7 @@ describe("BattleSquaddieMover", () => {
                     }),
                     resourceHandler: mockResourceHandler,
                     repository: squaddieRepo,
-                    campaign: CampaignService.default({}),
+                    campaign: CampaignService.default(),
                 })
                 gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
                     BattleActionDecisionStepService.new()

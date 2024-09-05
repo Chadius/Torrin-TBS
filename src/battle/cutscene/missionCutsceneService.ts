@@ -221,31 +221,30 @@ export class CutsceneMessageListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        switch (message.type) {
-            case MessageBoardMessageType.SQUADDIE_IS_INJURED:
-                let result: SquaddieSquaddieResults
-                const actionEffectToShow: ProcessedActionEffect =
-                    ActionsThisRoundService.getProcessedActionEffectToShow(
-                        message.gameEngineState.battleOrchestratorState
-                            .battleState.actionsThisRound
-                    )
-                if (actionEffectToShow.type === ActionEffectType.SQUADDIE) {
-                    result = actionEffectToShow.results
-                }
-
-                const cutsceneTriggers =
-                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
-                        {
-                            gameEngineState: message.gameEngineState,
-                            squaddieSquaddieResult: result,
-                        }
-                    )
-
-                message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay =
-                    message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay.concat(
-                        ...cutsceneTriggers.map((trigger) => trigger.cutsceneId)
-                    )
-                break
+        if (message.type !== MessageBoardMessageType.SQUADDIE_IS_INJURED) {
+            return
         }
+        let result: SquaddieSquaddieResults
+        const actionEffectToShow: ProcessedActionEffect =
+            ActionsThisRoundService.getProcessedActionEffectToShow(
+                message.gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
+            )
+        if (actionEffectToShow.type === ActionEffectType.SQUADDIE) {
+            result = actionEffectToShow.results
+        }
+
+        const cutsceneTriggers =
+            MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                {
+                    gameEngineState: message.gameEngineState,
+                    squaddieSquaddieResult: result,
+                }
+            )
+
+        message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay =
+            message.gameEngineState.battleOrchestratorState.cutsceneIdsToPlay.concat(
+                ...cutsceneTriggers.map((trigger) => trigger.cutsceneId)
+            )
     }
 }

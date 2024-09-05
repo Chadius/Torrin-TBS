@@ -250,7 +250,7 @@ describe("Mission Loader", () => {
                             val.squaddieTemplateId ===
                             enemyDemonSlitherTemplate.squaddieId.templateId
                     )
-                )
+                ).toBeTruthy()
                 expect(
                     ObjectRepositoryService.getSquaddieTemplateIterator(
                         objectRepository
@@ -259,7 +259,7 @@ describe("Mission Loader", () => {
                             val.squaddieTemplateId ===
                             enemyDemonSlitherTemplate2.squaddieId.templateId
                     )
-                )
+                ).toBeTruthy()
             })
             it("adds battle squaddies to the repository", () => {
                 const npcDeployments: NpcTeamMissionDeployment[] = [
@@ -680,7 +680,7 @@ describe("Mission Loader", () => {
                         val.squaddieTemplateId ===
                         enemyDemonSlitherTemplate.squaddieId.templateId
                 )
-            )
+            ).toBeTruthy()
             expect(
                 ObjectRepositoryService.getSquaddieTemplateIterator(
                     objectRepository
@@ -689,7 +689,7 @@ describe("Mission Loader", () => {
                         val.squaddieTemplateId ===
                         enemyDemonSlitherTemplate2.squaddieId.templateId
                 )
-            )
+            ).toBeTruthy()
         })
 
         it("copies the banner by squaddie affiliation information", () => {

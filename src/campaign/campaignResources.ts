@@ -52,7 +52,7 @@ export interface CampaignResources {
 }
 
 export const CampaignResourcesService = {
-    default: ({}: {}): CampaignResources => {
+    default: (): CampaignResources => {
         return {
             missionMapMovementIconResourceKeys: {
                 [MissionMapMovementIconKey.MOVE_1_ACTION]:

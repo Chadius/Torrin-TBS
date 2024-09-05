@@ -13,7 +13,7 @@ export interface FileState {
 }
 
 export const FileStateService = {
-    new: ({}: {}): FileState => {
+    new: (): FileState => {
         return {
             saveSaveState: SaveSaveStateService.new({}),
             loadSaveState: LoadSaveStateService.new({}),

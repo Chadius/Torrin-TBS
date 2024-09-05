@@ -4,7 +4,7 @@ import { PathCanStopConditionMinimumDistance } from "./pathCanStopConditionMinim
 
 describe("PathCanStopConditionMinimumDistance", () => {
     it("knows when a path is less than the minimum distance", () => {
-        const condition = new PathCanStopConditionMinimumDistance({})
+        const condition = new PathCanStopConditionMinimumDistance()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -36,7 +36,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("knows when a path is more than the minimum distance", () => {
-        const condition = new PathCanStopConditionMinimumDistance({})
+        const condition = new PathCanStopConditionMinimumDistance()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -73,7 +73,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("always returns true if no minimum distance is given", () => {
-        const condition = new PathCanStopConditionMinimumDistance({})
+        const condition = new PathCanStopConditionMinimumDistance()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -113,7 +113,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("returns undefined if there is no path", () => {
-        const condition = new PathCanStopConditionMinimumDistance({})
+        const condition = new PathCanStopConditionMinimumDistance()
         const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersHelper.new({

@@ -42,10 +42,7 @@ import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { FileState, FileStateService } from "./fileState"
 import { MessageBoard } from "../message/messageBoard"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
-import {
-    MessageBoardMessageSelectAndLockNextSquaddie,
-    MessageBoardMessageType,
-} from "../message/messageBoardMessage"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
@@ -88,7 +85,7 @@ export const GameEngineStateService = {
                 battleOrchestratorState ??
                 BattleOrchestratorStateService.new({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
-            fileState: FileStateService.new({}),
+            fileState: FileStateService.new(),
             campaign,
             campaignIdThatWasLoaded: isValidValue(campaign)
                 ? campaign.id

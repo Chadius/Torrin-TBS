@@ -61,7 +61,7 @@ const sanitize = (data: CampaignFileFormat): CampaignFileFormat => {
     }
 
     if (!isValidValue(data.resources)) {
-        data.resources = CampaignResourcesService.default({})
+        data.resources = CampaignResourcesService.default()
     }
 
     return data

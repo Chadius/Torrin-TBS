@@ -8,8 +8,6 @@ import { SearchParameters } from "../searchParams"
 export class AddPathConditionPathIsLessThanTotalMovement
     implements AddPathCondition
 {
-    constructor({}) {}
-
     shouldAddNewPath({
         newPath,
         searchParameters,

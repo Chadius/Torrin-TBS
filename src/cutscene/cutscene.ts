@@ -42,8 +42,8 @@ export type CutsceneDirectionPlayerState =
 
 export interface Cutscene {
     directions: CutsceneDirection[]
-    directionIndex?: number | undefined
-    currentDirection?: CutsceneDirection | undefined
+    directionIndex?: number
+    currentDirection?: CutsceneDirection
 
     cutscenePlayerStateById?: {
         [t: string]: CutsceneDirectionPlayerState
@@ -52,7 +52,7 @@ export interface Cutscene {
     decisionTriggers?: CutsceneDecisionTrigger[]
 
     fastForwardButton?: Button
-    fastForwardPreviousTimeTick?: number | undefined
+    fastForwardPreviousTimeTick?: number
 
     allResourceLocators?: ResourceLocator[]
     allResourceKeys?: string[]
@@ -371,7 +371,6 @@ export const CutsceneService = {
                 deactivateFastForwardMode(cutscene)
                 cutscene.fastForwardButton.setStatus(ButtonStatus.READY)
             }
-            return
         }
     },
     isFastForward: (cutscene: Cutscene): boolean => {
@@ -496,7 +495,7 @@ const collectResourceLocatorsAndKeys = (cutscene: Cutscene) => {
     cutscene.allResourceLocators = cutscene.directions
         .map((action) => getResourceLocators(cutscene, action))
         .flat()
-        .filter((x) => x && x.key)
+        .filter((x) => x?.key)
         .filter(onlyUnique)
 
     cutscene.allResourceKeys = cutscene.allResourceLocators.map(
@@ -528,7 +527,6 @@ const toggleFastForwardAndUpdateFFButton = (
     } else {
         button.setStatus(ButtonStatus.READY)
     }
-    return
 }
 
 const setUpFastForwardButton = (cutscene: Cutscene) => {

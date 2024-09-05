@@ -453,7 +453,7 @@ describe("User ends their turn", () => {
                         }),
                     }),
                 }),
-                campaign: CampaignService.default({}),
+                campaign: CampaignService.default(),
             })
             BattleSquaddieService.endTurn(playerBattleSquaddie)
             tintSpy = jest.spyOn(
@@ -548,7 +548,7 @@ const getGameEngineState = ({
             }),
         }),
         repository,
-        campaign: CampaignService.default({}),
+        campaign: CampaignService.default(),
     })
 }
 

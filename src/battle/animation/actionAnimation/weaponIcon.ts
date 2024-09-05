@@ -27,7 +27,9 @@ export class WeaponIcon {
         this._attackingLabel = undefined
     }
 
-    start() {}
+    start() {
+        // Required by inheritance
+    }
 
     draw({
         actionEffectSquaddieTemplate,
@@ -68,7 +70,7 @@ export class WeaponIcon {
     ) {
         const labelBackgroundColor = [0, 10, 80]
 
-        let labelText: string = "(Using)"
+        let labelText: string
         if (ActionEffectSquaddieTemplateService.doesItTargetFoes(action)) {
             labelText = "Attacking!"
         } else if (

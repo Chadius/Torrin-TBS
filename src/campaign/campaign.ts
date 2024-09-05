@@ -24,14 +24,14 @@ export const CampaignService = {
             id: isValidValue(id) ? id : undefined,
             resources: isValidValue(resources)
                 ? resources
-                : CampaignResourcesService.default({}),
+                : CampaignResourcesService.default(),
             missionIds: isValidValue(missionIds) ? missionIds : ["0000"],
         }
     },
-    default: ({}: {}): Campaign => {
+    default: (): Campaign => {
         return {
             id: "default",
-            resources: CampaignResourcesService.default({}),
+            resources: CampaignResourcesService.default(),
             missionIds: ["0000"],
         }
     },

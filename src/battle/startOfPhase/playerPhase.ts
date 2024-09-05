@@ -77,7 +77,6 @@ export const PlayerPhaseService = {
                 timeToPan: BANNER_ANIMATION_TIME - 500,
                 respectConstraints: true,
             })
-            return
         }
     },
 }

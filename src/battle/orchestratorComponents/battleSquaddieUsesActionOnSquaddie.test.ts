@@ -249,7 +249,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -353,7 +353,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
@@ -461,7 +461,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: CampaignService.default(),
         })
 
         gameEngineState.messageBoard.sendMessage({
