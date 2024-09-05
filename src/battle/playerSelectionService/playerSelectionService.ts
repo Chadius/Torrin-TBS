@@ -111,7 +111,7 @@ export const PlayerSelectionService = {
 
         const playerSelectsAnAction: boolean = !!actionTemplateId
         const playerEndsTheirTurn: boolean = !!endTurnSelected
-        const playerCurrentlyTryingToMakeADecision: string =
+        const battleSquaddieIdCurrentlyMakingADecision: string =
             BattleActionDecisionStepService.isActorSet(
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState
@@ -121,6 +121,10 @@ export const PlayerSelectionService = {
                           .playerBattleActionBuilderState
                   ).battleSquaddieId
                 : undefined
+
+        const battleSquaddieTryingToStartAnAction: string =
+            battleSquaddieIdCurrentlyMakingADecision ||
+            battleSquaddieIdCurrentlyTakingATurn
 
         const {
             clickedOnSquaddie,
@@ -141,11 +145,6 @@ export const PlayerSelectionService = {
 
         const keyPressed = keyPress?.keyButtonName
 
-        const squaddieActorIsSet = BattleActionDecisionStepService.isActorSet(
-            gameEngineState.battleOrchestratorState.battleState
-                .playerBattleActionBuilderState
-        )
-
         const mouseClickLocationIsOnMap: boolean =
             !!mouseClick &&
             !!clickedLocation &&
@@ -156,17 +155,17 @@ export const PlayerSelectionService = {
             )
 
         switch (true) {
-            case playerCurrentlyTryingToMakeADecision && playerSelectsAnAction:
+            case battleSquaddieTryingToStartAnAction && playerSelectsAnAction:
                 return PlayerSelectionContextService.new({
                     playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                     actionTemplateId,
-                    battleSquaddieId: playerCurrentlyTryingToMakeADecision,
+                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
                 })
-            case playerCurrentlyTryingToMakeADecision && playerEndsTheirTurn:
+            case battleSquaddieTryingToStartAnAction && playerEndsTheirTurn:
                 return PlayerSelectionContextService.new({
                     playerIntent: PlayerIntent.END_SQUADDIE_TURN,
-                    battleSquaddieId: playerCurrentlyTryingToMakeADecision,
+                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
                 })
             case !hasAtLeastOnePlayerControllableSquaddie:
                 return PlayerSelectionContextService.new({
@@ -201,17 +200,15 @@ export const PlayerSelectionService = {
                     battleSquaddieId: clickedBattleSquaddieId,
                     mouseClick,
                 })
-            case squaddieActorIsSet && mouseClickLocationIsOnMap:
+            case battleSquaddieTryingToStartAnAction &&
+                mouseClickLocationIsOnMap:
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
-                    battleSquaddieId: BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    ).battleSquaddieId,
+                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
                 })
-            case squaddieActorIsSet &&
+            case battleSquaddieTryingToStartAnAction &&
                 !!mouseClick &&
                 !mouseClickLocationIsOnMap &&
                 !isSquaddieTakingATurn:
@@ -508,10 +505,16 @@ const playerSelectsAnAction = ({
     const actionBuilderState =
         gameEngineState.battleOrchestratorState.battleState
             .playerBattleActionBuilderState
+    const battleSquaddieId = BattleActionDecisionStepService.getActor(
+        actionBuilderState
+    )
+        ? BattleActionDecisionStepService.getActor(actionBuilderState)
+              .battleSquaddieId
+        : gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+              .battleSquaddieId
     const { mapLocation } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
-        BattleActionDecisionStepService.getActor(actionBuilderState)
-            .battleSquaddieId
+        battleSquaddieId
     )
     const messageSent: MessageBoardMessage = {
         type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,

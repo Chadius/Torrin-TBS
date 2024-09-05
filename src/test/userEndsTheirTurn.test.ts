@@ -54,7 +54,6 @@ import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoord
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
-import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import {
     ACTION_COMPLETED_WAIT_TIME_MS,
     BattleSquaddieUsesActionOnMap,
@@ -219,7 +218,6 @@ describe("User ends their turn", () => {
     })
 
     it("EndTurn adds a ProcessedAction to end the turn", () => {
-        const selector = new BattlePlayerSquaddieSelector()
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             0,
             0,
@@ -276,7 +274,6 @@ describe("User ends their turn", () => {
     })
 
     it("adds the Battle Action to the Battle Action Queue", () => {
-        const selector = new BattlePlayerSquaddieSelector()
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
@@ -308,7 +305,6 @@ describe("User ends their turn", () => {
     })
 
     describe("player squaddie selector reacts to ending the turn", () => {
-        let selector: BattlePlayerSquaddieSelector
         let highlightTileSpy: jest.SpyInstance
 
         beforeEach(() => {
@@ -316,7 +312,6 @@ describe("User ends their turn", () => {
                 TerrainTileMapService,
                 "removeAllGraphicsLayers"
             )
-            selector = new BattlePlayerSquaddieSelector()
             let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
                 0,
                 0,
@@ -375,14 +370,6 @@ describe("User ends their turn", () => {
 
         it("tells the map to stop highlighting tiles", () => {
             expect(highlightTileSpy).toBeCalled()
-        })
-
-        it("Mode switches to computer controller since there are no controllable squaddies remaining", () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            const changes = selector.recommendStateChanges(gameEngineState)
-            expect(changes.nextMode).toBe(
-                BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
-            )
         })
 
         it("It adds an event showing the processed action", () => {

@@ -49,10 +49,6 @@ export class BattlePlayerSquaddieSelector
     }
 
     hasCompleted(gameEngineState: GameEngineState): boolean {
-        if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
-            return true
-        }
-
         const cameraIsNotPanning =
             !gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
         return this.componentCompleted && cameraIsNotPanning
@@ -162,6 +158,22 @@ export class BattlePlayerSquaddieSelector
             gameEngineState,
             context,
         })
+
+        if (
+            !gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState?.showSummaryHUD
+        ) {
+            return
+        }
+
+        SummaryHUDStateService.mouseMoved({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            mouseY,
+            mouseX,
+            gameEngineState,
+        })
     }
 
     keyEventHappened(
@@ -199,22 +211,12 @@ export class BattlePlayerSquaddieSelector
     update(
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
-    ): void {
-        if (
-            !this.playerCanControlAnySquaddiesOnTheCurrentTeam(gameEngineState)
-        ) {
-            return
-        }
-    }
+    ): void {}
 
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode = this.recommendedNextMode
-
-        if (!this.playerCanControlAtLeastOneSquaddie(gameEngineState)) {
-            nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR
-        }
 
         return {
             displayMap: true,
@@ -225,42 +227,6 @@ export class BattlePlayerSquaddieSelector
     reset(gameEngineState: GameEngineState) {
         this.componentCompleted = false
         this.recommendedNextMode = BattleOrchestratorMode.UNKNOWN
-    }
-
-    private playerCanControlAnySquaddiesOnTheCurrentTeam(
-        gameEngineState: GameEngineState
-    ): boolean {
-        const currentTeam: BattleSquaddieTeam =
-            BattleStateService.getCurrentTeam(
-                gameEngineState.battleOrchestratorState.battleState,
-                gameEngineState.repository
-            )
-        return (
-            BattleSquaddieTeamService.hasAnActingSquaddie(
-                currentTeam,
-                gameEngineState.repository
-            ) &&
-            BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
-                currentTeam,
-                gameEngineState.repository
-            )
-        )
-    }
-
-    private playerCanControlAtLeastOneSquaddie(
-        state: GameEngineState
-    ): boolean {
-        const currentTeam = BattleStateService.getCurrentTeam(
-            state.battleOrchestratorState.battleState,
-            state.repository
-        )
-        if (!isValidValue(currentTeam)) {
-            return false
-        }
-        return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
-            currentTeam,
-            state.repository
-        )
     }
 
     receiveMessage(message: MessageBoardMessage): void {

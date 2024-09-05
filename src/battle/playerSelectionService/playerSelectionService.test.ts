@@ -35,8 +35,8 @@ import {
 import {
     MessageBoardMessage,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
-    MessageBoardMessageType,
     MessageBoardMessagePlayerSelectsEmptyTile,
+    MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
@@ -49,7 +49,6 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { BattleOrchestratorChanges } from "../orchestrator/battleOrchestratorComponent"
 import { BattleActionService } from "../history/battleAction"
 
 describe("Player Selection Service", () => {
@@ -934,6 +933,9 @@ describe("Player Selection Service", () => {
                 r: 0,
                 gameEngineState,
             })
+        })
+
+        const playerActsImmediately = () => {
             gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
                 BattleActionDecisionStepService.new()
 
@@ -953,20 +955,108 @@ describe("Player Selection Service", () => {
                     button: MouseButton.ACCEPT,
                 }),
             })
-        })
+        }
 
-        it("expects the player selected an action", () => {
-            expect(actualContext.playerIntent).toEqual(
-                PlayerIntent.PLAYER_SELECTS_AN_ACTION
-            )
-        })
+        const playerIsPartwayThroughTheirTurn = () => {
+            const decidedActionMovementEffect =
+                DecidedActionMovementEffectService.new({
+                    destination: { q: 0, r: 1 },
+                    template: ActionEffectMovementTemplateService.new({}),
+                })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: "PLAYER",
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: undefined,
+                    processedActions: [
+                        ProcessedActionService.new({
+                            decidedAction: DecidedActionService.new({
+                                actionPointCost: 1,
+                                battleSquaddieId: "PLAYER",
+                                actionTemplateName: "Move",
+                                actionEffects: [decidedActionMovementEffect],
+                            }),
+                            processedActionEffects: [
+                                ProcessedActionMovementEffectService.new({
+                                    decidedActionEffect:
+                                        decidedActionMovementEffect,
+                                }),
+                            ],
+                        }),
+                    ],
+                })
+            actualContext = PlayerSelectionService.calculateContext({
+                gameEngineState,
+                actionTemplateId: meleeActionId,
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
+            })
+        }
 
-        it("knows which action was selected", () => {
+        const tests = [
+            {
+                name: "player acts immediately",
+                setup: playerActsImmediately,
+            },
+            {
+                name: "player is partway through their turn",
+                setup: playerIsPartwayThroughTheirTurn,
+            },
+        ]
+
+        it.each(tests)(
+            `$name expects the player selected an action`,
+            ({ setup }) => {
+                setup()
+                expect(actualContext.playerIntent).toEqual(
+                    PlayerIntent.PLAYER_SELECTS_AN_ACTION
+                )
+
+                actualContext = PlayerSelectionService.calculateContext({
+                    gameEngineState,
+                    actionTemplateId: meleeActionId,
+                    mouseClick: MouseClickService.new({
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    }),
+                })
+            }
+        )
+
+        it.each(tests)(`$name knows which action was selected`, ({ setup }) => {
+            setup()
+
             expect(actualContext.actionTemplateId).toEqual(meleeActionId)
+
+            actualContext = PlayerSelectionService.calculateContext({
+                gameEngineState,
+                actionTemplateId: meleeActionId,
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
+            })
         })
 
-        it("knows which squaddie is acting", () => {
+        it.each(tests)(`$name knows which squaddie is acting`, ({ setup }) => {
+            setup()
+
             expect(actualContext.battleSquaddieId).toEqual("PLAYER")
+
+            actualContext = PlayerSelectionService.calculateContext({
+                gameEngineState,
+                actionTemplateId: meleeActionId,
+                mouseClick: MouseClickService.new({
+                    x: 0,
+                    y: 0,
+                    button: MouseButton.ACCEPT,
+                }),
+            })
         })
 
         describe("apply context", () => {
@@ -979,6 +1069,16 @@ describe("Player Selection Service", () => {
                     "sendMessage"
                 )
 
+                playerActsImmediately()
+                actualContext = PlayerSelectionService.calculateContext({
+                    gameEngineState,
+                    actionTemplateId: meleeActionId,
+                    mouseClick: MouseClickService.new({
+                        x: 0,
+                        y: 0,
+                        button: MouseButton.ACCEPT,
+                    }),
+                })
                 changes = PlayerSelectionService.applyContextToGetChanges({
                     gameEngineState,
                     context: actualContext,

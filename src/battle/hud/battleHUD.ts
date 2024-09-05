@@ -12,11 +12,11 @@ import {
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
+    MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessagePlayerSelectsTargetLocation,
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
-    MessageBoardMessagePlayerSelectsEmptyTile,
 } from "../../message/messageBoardMessage"
 import {
     PopupWindow,
