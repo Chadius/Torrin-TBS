@@ -1,5 +1,5 @@
 import { MissionMap } from "./missionMap"
-import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,

@@ -1,5 +1,3 @@
-import { config } from "../configuration/config"
-
 export enum KeyButtonName {
     UNKNOWN = "UNKNOWN",
     NEXT_SQUADDIE = "NEXT_SQUADDIE",
@@ -12,9 +10,11 @@ export const KeyWasPressed = (
     keyCode: number
 ): boolean => {
     const KeyboardShortcuts: { [key in KeyButtonName]?: number[] } = {
-        NEXT_SQUADDIE: config.KEYBOARD_SHORTCUTS["NEXT_SQUADDIE"],
-        ACCEPT: config.KEYBOARD_SHORTCUTS["ACCEPT"],
-        CANCEL: config.KEYBOARD_SHORTCUTS["CANCEL"],
+        NEXT_SQUADDIE: JSON.parse(
+            process.env.KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE
+        ),
+        ACCEPT: JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT),
+        CANCEL: JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL),
     }
 
     return KeyboardShortcuts[desiredKey]?.includes(keyCode)

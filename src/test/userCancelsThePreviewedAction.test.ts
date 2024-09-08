@@ -50,8 +50,6 @@ import { DecidedActionSquaddieEffectService } from "../action/decided/decidedAct
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
 import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
-import { config } from "../configuration/config"
-import { KeyButtonName } from "../utils/keyboardConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
@@ -217,8 +215,9 @@ describe("User cancels the previewed action", () => {
                 action: () => {
                     targeting.keyEventHappened(gameEngineState, {
                         eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode:
-                            config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                        keyCode: JSON.parse(
+                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL
+                        )[0],
                     })
                 },
             },

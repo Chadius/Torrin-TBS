@@ -45,9 +45,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
     startedLoading: boolean
     finishedLoading: boolean
 
-    constructor(campaignId: string) {
+    constructor() {
         this.resetInternalFields()
-        this.campaignLoaderContext.campaignIdToLoad = campaignId
+        this.campaignLoaderContext.campaignIdToLoad = process.env.CAMPAIGN_ID
     }
 
     async update(state: GameEngineState) {

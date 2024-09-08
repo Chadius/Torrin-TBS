@@ -1,8 +1,9 @@
-import { config } from "../../configuration/config"
+const screenWidth = process.env.SCREEN_WIDTH
+const screenHeight = process.env.SCREEN_HEIGHT
 
 export const ScreenDimensions = {
-    SCREEN_WIDTH: config.SCREEN_WIDTH,
-    SCREEN_HEIGHT: config.SCREEN_HEIGHT,
+    SCREEN_WIDTH: Number(screenWidth),
+    SCREEN_HEIGHT: Number(screenHeight),
 }
 
 export const GraphicsConfig = {

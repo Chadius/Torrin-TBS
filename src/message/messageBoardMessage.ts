@@ -140,6 +140,7 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     mapStartingLocation: HexCoordinate
     mouseLocation: ScreenCoordinate
 }
+
 export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
     type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET
     gameEngineState: GameEngineState

@@ -1,12 +1,10 @@
 import p5 from "p5"
 import { ScreenDimensions } from "./utils/graphics/graphicsConfig"
 import { GameEngine } from "./gameEngine/gameEngine"
-import { StartupMode } from "./utils/startupConfig"
 import { GetMouseButton, MouseButton } from "./utils/mouseConfig"
+import { GameModeEnum } from "./utils/startupConfig"
 
 let gameEngine: GameEngine
-const CAMPAIGN_ID: string = "templeDefense"
-const VERSION: string = "0.0.005"
 const mousePressedTracker: { [buttonName in string]: boolean } = {}
 
 let canvas: p5.Renderer
@@ -29,22 +27,25 @@ export const sketch = (p: p5) => {
             "contextmenu",
             (e: { preventDefault: () => any }) => e.preventDefault()
         )
+
         gameEngine = new GameEngine({
             graphicsBuffer: frameBuffer,
-            startupMode: StartupMode,
+            startupMode:
+                (process.env.STARTUP_MODE as GameModeEnum) ||
+                GameModeEnum.TITLE_SCREEN,
         })
         gameEngine
             .setup({
                 graphicsBuffer: frameBuffer,
-                campaignId: CAMPAIGN_ID,
+                campaignId: process.env.CAMPAIGN_ID,
                 p5Instance: p,
-                version: VERSION,
+                version: process.env.VERSION,
             })
             .then(() => {})
     }
 
     p.draw = () => {
-        gameEngine.draw().then((r) => {
+        gameEngine.draw().then(() => {
             p.image(frameBuffer, 0, 0)
         })
     }

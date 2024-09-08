@@ -1,5 +1,3 @@
-import { config } from "../configuration/config"
-
 export enum MouseButton {
     NONE = "NONE",
     ACCEPT = "ACCEPT",
@@ -9,11 +7,11 @@ export enum MouseButton {
 
 export const GetMouseButton = (physicalMouseButton: string): MouseButton => {
     switch (physicalMouseButton) {
-        case config.MOUSE_BUTTON_BINDINGS[MouseButton.ACCEPT]:
+        case process.env.MOUSE_BUTTON_BINDINGS_ACCEPT:
             return MouseButton.ACCEPT
-        case config.MOUSE_BUTTON_BINDINGS[MouseButton.CANCEL]:
+        case process.env.MOUSE_BUTTON_BINDINGS_CANCEL:
             return MouseButton.CANCEL
-        case config.MOUSE_BUTTON_BINDINGS[MouseButton.INFO]:
+        case process.env.MOUSE_BUTTON_BINDINGS_INFO:
             return MouseButton.INFO
     }
     return MouseButton.NONE

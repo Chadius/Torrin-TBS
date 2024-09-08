@@ -47,7 +47,6 @@ import { PlayerHudController } from "../battle/orchestratorComponents/playerHudC
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneService"
 import { BattleStateListener } from "../battle/orchestrator/battleState"
-import { config } from "../configuration/config"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 
@@ -93,7 +92,7 @@ export const GameEngineStateService = {
             repository,
             resourceHandler,
             messageBoard: new MessageBoard({
-                logMessages: config.LOG_MESSAGES,
+                logMessages: process.env.LOG_MESSAGES === "true",
             }),
         }
     },
@@ -192,7 +191,7 @@ export class GameEngine {
             resourceHandler: this.resourceHandler,
             version,
         })
-        this.gameEngineGameLoader = new GameEngineGameLoader(campaignId)
+        this.gameEngineGameLoader = new GameEngineGameLoader()
         this.resetComponentStates()
     }
 

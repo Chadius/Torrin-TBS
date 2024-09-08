@@ -1,0 +1,177 @@
+{
+  "id": "sandbox",
+  "terrain": [
+    "1 1 1 1 1 ",
+    " 1 1 1 1 1 ",
+    "  1 1 1 1 1 "
+  ],
+  "objectives": [
+    {
+      "id": "victory",
+      "reward": {
+        "rewardType": "VICTORY"
+      },
+      "hasGivenReward": false,
+      "conditions": [
+        {
+          "id": "defeat_all_enemies",
+          "type": "DEFEAT_ALL_ENEMIES"
+        }
+      ],
+      "numberOfRequiredConditionsToComplete": "all"
+    },
+    {
+      "id": "defeat",
+      "reward": {
+        "rewardType": "DEFEAT"
+      },
+      "hasGivenReward": false,
+      "conditions": [
+        {
+          "id": "defeat_all_players",
+          "type": "DEFEAT_ALL_PLAYERS"
+        }
+      ],
+      "numberOfRequiredConditionsToComplete": "all"
+    }
+  ],
+  "player": {
+    "teamId": "playerCrusaders",
+    "teamName": "Crusaders",
+    "iconResourceKey": "affiliate_icon_crusaders",
+    "deployment": {
+      "affiliation": "PLAYER",
+      "optional": [],
+      "required": [
+        {
+          "squaddieTemplateId": "player_young_torrin",
+          "battleSquaddieId": "player_young_torrin",
+          "location": {
+            "q": 0,
+            "r": 0
+          }
+        },
+        {
+          "squaddieTemplateId": "player_sir_camil",
+          "battleSquaddieId": "player_sir_camil",
+          "location": {
+            "q": 0,
+            "r": 1
+          }
+        }
+      ]
+    }
+  },
+  "npcDeployments": {
+    "enemy": {
+      "templateIds": [
+        "enemy_demon_slither"
+      ],
+      "mapPlacements": [
+        {
+          "squaddieTemplateId": "enemy_demon_slither",
+          "battleSquaddieId": "enemy_demon_slither_0",
+          "location": {
+            "q": 0,
+            "r": 2
+          }
+        }
+      ],
+      "teams": [
+        {
+          "id": "enemy0",
+          "name": "Infiltrators",
+          "iconResourceKey": "affiliate_icon_infiltrators",
+          "battleSquaddieIds": [
+            "enemy_demon_slither_0"
+          ],
+          "strategies": [
+            {
+              "type": "TARGET_SQUADDIE_IN_RANGE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            },
+            {
+              "type": "MOVE_CLOSER_TO_SQUADDIE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "phaseBannersByAffiliation": {
+    "PLAYER": "phase banner player",
+    "ENEMY": "phase banner enemy"
+  },
+  "cutscene": {
+    "cutsceneTriggers": [
+      {
+        "triggeringEvent": "MISSION_VICTORY",
+        "cutsceneId": "default_victory",
+        "systemReactedToTrigger": false
+      },
+      {
+        "triggeringEvent": "MISSION_DEFEAT",
+        "cutsceneId": "default_defeat",
+        "systemReactedToTrigger": false
+      },
+      {
+        "triggeringEvent": "START_OF_TURN",
+        "systemReactedToTrigger": false,
+        "cutsceneId": "introduction",
+        "turn": 0
+      }
+    ],
+    "cutsceneById": {
+      "default_victory": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "victory_1",
+            "speakerName": "Torrin",
+            "speakerText": "Yay! We did it!",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "victory_report_0",
+            "speakerName": "Mission Report",
+            "speakerText": "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "victory_report_1",
+            "speakerName": "Mission Report",
+            "speakerText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            "animationDuration": 0
+          }
+        ]
+      },
+      "default_defeat": {
+        "directions": [
+          {
+            "type": "SPLASH_SCREEN",
+            "id": "defeat_final",
+            "screenImageResourceKey": "splash defeat"
+          }
+        ]
+      },
+      "introduction": {
+        "directions": [
+          {
+            "type": "DIALOGUE",
+            "id": "sandbox_0",
+            "speakerName": "SANDBOX",
+            "speakerText": "Developer's sandbox!"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,16 +1,26 @@
 import { GetMouseButton, MouseButton } from "./mouseConfig"
-import { config } from "../configuration/config"
 
 describe("Mouse Config", () => {
+    let mouseButtonAcceptMouseButtonName: string
+    let mouseButtonInfoMouseButtonName: string
+    let mouseButtonCancelMouseButtonName: string
+    beforeEach(() => {
+        mouseButtonAcceptMouseButtonName =
+            process.env.MOUSE_BUTTON_BINDINGS_ACCEPT
+        mouseButtonInfoMouseButtonName = process.env.MOUSE_BUTTON_BINDINGS_INFO
+        mouseButtonCancelMouseButtonName =
+            process.env.MOUSE_BUTTON_BINDINGS_CANCEL
+    })
+
     it("knows when the mouse button was clicked and what functional button to assign it to", () => {
-        expect(
-            GetMouseButton(config.MOUSE_BUTTON_BINDINGS[MouseButton.ACCEPT])
-        ).toBe(MouseButton.ACCEPT)
-        expect(
-            GetMouseButton(config.MOUSE_BUTTON_BINDINGS[MouseButton.INFO])
-        ).toBe(MouseButton.INFO)
-        expect(
-            GetMouseButton(config.MOUSE_BUTTON_BINDINGS[MouseButton.CANCEL])
-        ).toBe(MouseButton.CANCEL)
+        expect(GetMouseButton(mouseButtonAcceptMouseButtonName)).toBe(
+            MouseButton.ACCEPT
+        )
+        expect(GetMouseButton(mouseButtonInfoMouseButtonName)).toBe(
+            MouseButton.INFO
+        )
+        expect(GetMouseButton(mouseButtonCancelMouseButtonName)).toBe(
+            MouseButton.CANCEL
+        )
     })
 })

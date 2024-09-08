@@ -62,8 +62,6 @@ import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkipsAnimationAnimator"
 import { DecidedActionService } from "../action/decided/decidedAction"
 import { MouseButton } from "../utils/mouseConfig"
-import { config } from "../configuration/config"
-import { KeyButtonName } from "../utils/keyboardConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import {
@@ -507,8 +505,9 @@ describe("User Selects Target and Confirms", () => {
                 action: () => {
                     confirm.keyEventHappened(gameEngineState, {
                         eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode:
-                            config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                        keyCode: JSON.parse(
+                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL
+                        )[0],
                     })
                 },
             },
@@ -871,7 +870,7 @@ const keyboardPressToConfirmTarget = ({
 }) => {
     const confirmSelectionPress: OrchestratorComponentKeyEvent = {
         eventType: OrchestratorComponentKeyEventType.PRESSED,
-        keyCode: config.KEYBOARD_SHORTCUTS.ACCEPT[0],
+        keyCode: JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0],
     }
 
     confirm.keyEventHappened(gameEngineState, confirmSelectionPress)

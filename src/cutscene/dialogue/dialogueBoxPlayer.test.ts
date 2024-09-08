@@ -8,8 +8,6 @@ import { BattleStateService } from "../../battle/orchestrator/battleState"
 import { Dialogue, DialogueService } from "./dialogue"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { config } from "../../configuration/config"
-import { KeyButtonName } from "../../utils/keyboardConfig"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 
 describe("dialogue box player", () => {
@@ -81,7 +79,7 @@ describe("dialogue box player", () => {
 
             DialoguePlayerService.keyPressed(
                 dialoguePlayerState,
-                config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0]
+                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
             )
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)

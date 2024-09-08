@@ -19,10 +19,7 @@ import {
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { MapHighlightService } from "../animation/mapHighlight"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import {
-    HighlightTileDescription,
-    TerrainTileMapService,
-} from "../../hexMap/terrainTileMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
@@ -30,7 +27,6 @@ import {
 import { HexGridService } from "../../hexMap/hexGridDirection"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap } from "../../missionMap/missionMap"
-import { CampaignResources } from "../../campaign/campaignResources"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import {

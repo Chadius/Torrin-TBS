@@ -21,8 +21,6 @@ import {
     mockResourceHandler,
 } from "../utils/test/mocks"
 import { RectAreaService } from "../ui/rectArea"
-import { config } from "../configuration/config"
-import { KeyButtonName } from "../utils/keyboardConfig"
 
 describe("Cutscene", () => {
     let splash1: SplashScreen
@@ -124,7 +122,7 @@ describe("Cutscene", () => {
         expect(dinnerDate.currentDirection).toEqual(splash1)
         CutsceneService.keyboardPressed(
             dinnerDate,
-            config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0],
+            JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0],
             {}
         )
         expect(dinnerDate.currentDirection).toEqual(splash2)
@@ -451,7 +449,7 @@ describe("Cutscene", () => {
             )
             CutsceneService.keyboardPressed(
                 dinnerDate,
-                config.KEYBOARD_SHORTCUTS[KeyButtonName.CANCEL][0],
+                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL)[0],
                 {}
             )
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()

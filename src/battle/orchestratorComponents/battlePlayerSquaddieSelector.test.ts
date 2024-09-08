@@ -62,7 +62,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
-import { config } from "../../configuration/config"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -686,8 +685,9 @@ describe("BattleSquaddieSelector", () => {
 
             selector.keyEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentKeyEventType.PRESSED,
-                keyCode:
-                    config.KEYBOARD_SHORTCUTS[KeyButtonName.NEXT_SQUADDIE][0],
+                keyCode: JSON.parse(
+                    process.env.KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE
+                )[0],
             })
         })
 

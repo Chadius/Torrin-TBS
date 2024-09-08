@@ -5,8 +5,6 @@ import { TitleScreenState } from "./titleScreenState"
 import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { KeyButtonName } from "../utils/keyboardConfig"
-import { config } from "../configuration/config"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { makeResult } from "../utils/ResultOrError"
 import { RectAreaService } from "../ui/rectArea"
@@ -95,7 +93,7 @@ describe("Title Screen", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.keyPressed(
             gameEngineState,
-            config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0]
+            JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")

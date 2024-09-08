@@ -4,8 +4,6 @@ import {
 } from "./splashScreenPlayer"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { config } from "../configuration/config"
-import { KeyButtonName } from "../utils/keyboardConfig"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 
 describe("splash screen", () => {
@@ -44,7 +42,7 @@ describe("splash screen", () => {
 
             SplashScreenPlayerService.keyPressed(
                 player,
-                config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0]
+                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
             )
 
             expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy()

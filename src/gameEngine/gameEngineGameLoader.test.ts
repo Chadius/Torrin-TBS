@@ -47,7 +47,7 @@ describe("GameEngineGameLoader", () => {
     const campaignId = "coolCampaign"
 
     beforeEach(() => {
-        loader = new GameEngineGameLoader(campaignId)
+        loader = new GameEngineGameLoader()
 
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
@@ -348,7 +348,7 @@ describe("GameEngineGameLoader", () => {
         let currentState: GameEngineState
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader(campaignId)
+            loader = new GameEngineGameLoader()
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
@@ -605,7 +605,7 @@ describe("GameEngineGameLoader", () => {
         let currentState: GameEngineState
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader(campaignId)
+            loader = new GameEngineGameLoader()
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
