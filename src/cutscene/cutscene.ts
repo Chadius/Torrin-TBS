@@ -80,20 +80,18 @@ export const CutsceneService = {
             currentDirection: undefined,
         }
 
-        const sanitizedDirections: CutsceneDirection[] =
-            cutscene.directions.map((rawDirection) => {
-                switch (rawDirection.type) {
-                    case CutsceneActionPlayerType.DIALOGUE:
-                        return DialogueService.new({ ...rawDirection })
-                    case CutsceneActionPlayerType.SPLASH_SCREEN:
-                        return SplashScreenService.new({ ...rawDirection })
-                    default:
-                        throw new Error(
-                            `CutsceneService.new: unknown direction type: ${rawDirection}`
-                        )
-                }
-            })
-        cutscene.directions = sanitizedDirections
+        cutscene.directions = cutscene.directions.map((rawDirection) => {
+            switch (rawDirection.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    return DialogueService.new({ ...rawDirection })
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    return SplashScreenService.new({ ...rawDirection })
+                default:
+                    throw new Error(
+                        `CutsceneService.new: unknown direction type: ${rawDirection}`
+                    )
+            }
+        })
 
         cutscene.directions.forEach((direction) => {
             switch (direction.type) {

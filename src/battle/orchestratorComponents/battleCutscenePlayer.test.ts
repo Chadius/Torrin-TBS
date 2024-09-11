@@ -18,7 +18,7 @@ describe("BattleCutscenePlayer", () => {
                 DialogueService.new({
                     id: "1",
                     speakerName: "Doorman",
-                    speakerText: "Welcome, come inside",
+                    dialogueText: "Welcome, come inside",
                     speakerPortraitResourceKey: undefined,
                     animationDuration: 0,
                 }),
@@ -29,7 +29,7 @@ describe("BattleCutscenePlayer", () => {
                 DialogueService.new({
                     id: "2",
                     speakerName: "Doorman",
-                    speakerText: "Lunch time!",
+                    dialogueText: "Lunch time!",
                     animationDuration: 0,
                     speakerPortraitResourceKey: undefined,
                 }),

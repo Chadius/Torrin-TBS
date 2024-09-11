@@ -313,30 +313,40 @@
             "type": "DIALOGUE",
             "id": "victory_0",
             "speakerName": "Sir Camil",
-            "speakerText": "That's the last of them.",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "That's the last of them.",
+            "dialogueTextPosition": "CENTER",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerPortraitPosition": "CENTER",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "victory_1",
-            "speakerName": "Torrin",
-            "speakerText": "Yay! We did it!",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitPosition": "CENTER",
+            "speakerName": "Torrin",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "Yay! We did it!",
+            "dialogueTextPosition": "CENTER",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "victory_report_0",
             "speakerName": "Mission Report",
-            "speakerText": "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
+            "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "victory_report_1",
             "speakerName": "Mission Report",
-            "speakerText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
           {
@@ -352,7 +362,7 @@
             "type": "DIALOGUE",
             "id": "defeat_0",
             "speakerName": "Torrin",
-            "speakerText": "We have to retreat!",
+            "dialogueText": "We have to retreat!",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -360,7 +370,7 @@
             "type": "DIALOGUE",
             "id": "defeat_1",
             "speakerName": "Sir Camil",
-            "speakerText": "Right. When we come back, let me take the lead, and let's take it slow.",
+            "dialogueText": "Right. When we come back, let me take the lead, and let's take it slow.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -376,18 +386,24 @@
           {
             "type": "DIALOGUE",
             "id": "how_to_play_0",
-            "speakerName": "How to play",
-            "speakerText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click (or Escape, Delete, Backspace)",
             "speakerPortraitResourceKey": "tutorial-confirm-cancel",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "How to play",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click (or Escape, Delete, Backspace)",
+            "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "backgroundColor": [280,6,52]
           },
           {
             "type": "DIALOGUE",
             "id": "how_to_play_1",
-            "speakerName": "How to play",
-            "speakerText": "Click on Torrin and Sir Camil.\nSpend 3 Action Points to move or act.\nMore movement costs more Action Points.",
             "speakerPortraitResourceKey": "tutorial-action-points",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "How to play",
+            "speakerNamePosition": "CENTER",
+            "dialogueText": "Click on Torrin and Sir Camil.\nSpend 3 Action Points to move or act.\nMore movement costs more Action Points.",
+            "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "backgroundColor": [280,6,52]
           }
@@ -399,7 +415,7 @@
             "type": "DIALOGUE",
             "id": "turn1_0",
             "speakerName": "Torrin",
-            "speakerText": "We have to destroy all of these demons!\nI can attack from range.\nI can also heal.",
+            "dialogueText": "We have to destroy all of these demons!\nI can attack from range.\nI can also heal.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -407,7 +423,7 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "speakerText": "I'll take the lead, stay behind me.\nI'll destroy these demons with my longsword.\nAnd Raise my Shield for more armor.",
+            "dialogueText": "I'll take the lead, stay behind me.\nI'll destroy these demons with my longsword.\nAnd Raise my Shield for more armor.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -419,16 +435,19 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "speakerText": "All of this bright yellow sand is slowing us down.",
+            "dialogueText": "All of this bright yellow sand is slowing us down.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn2_1",
-            "speakerName": "Torrin",
-            "speakerText": "Cuts our movement in half.\nBut it slows the demons down as well.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "Torrin",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Cuts our movement in half.\nBut it slows the demons down as well.",
+            "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           }
         ]
@@ -438,16 +457,19 @@
           {
             "type": "DIALOGUE",
             "id": "turn3_0",
-            "speakerName": "Torrin",
-            "speakerText": "If you move the pointer to the edge of the screen, we can see more demons.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitPosition": "LEFT",
+            "speakerName": "Torrin",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "If you move the pointer to the edge of the screen, we can see more demons.",
+            "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn3_1",
             "speakerName": "Sir Camil",
-            "speakerText": "Some of them like to travel in groups.\nHover the mouse to see how far they can move.",
+            "dialogueText": "Some of them like to travel in groups.\nHover the mouse to see how far they can move.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -459,7 +481,7 @@
             "type": "DIALOGUE",
             "id": "turn5_0",
             "speakerName": "Torrin",
-            "speakerText": "Multiple Attack Penalty.\nTry not to attack 3 times in a single turn.",
+            "dialogueText": "Your first attack is the most accurate.\nThen you are more likely to miss.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -467,7 +489,7 @@
             "type": "DIALOGUE",
             "id": "turn5_1",
             "speakerName": "Sir Camil",
-            "speakerText": "Follow up attacks are less accurate.\nSometimes it's better to back away and let the enemy waste actions.",
+            "dialogueText": "Right, the 3rd attack will almost always miss.\nInstead, I'll Raise my Shield.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -479,7 +501,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_0",
             "speakerName": "Torrin",
-            "speakerText": "Ow!\nI should heal myself.",
+            "dialogueText": "Ow!\nI should heal myself.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -487,7 +509,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_1",
             "speakerName": "Torrin",
-            "speakerText": "I can use Healing Touch on myself.\nIt costs 2 action points.",
+            "dialogueText": "I can use Healing Touch on myself.\nIt costs 2 action points.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }
@@ -499,7 +521,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_0",
             "speakerName": "Sir Camil",
-            "speakerText": "Those demons got through my armor.\nTorrin, can you heal me?",
+            "dialogueText": "Those demons got through my armor.\nTorrin, can you heal me?",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -507,7 +529,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
             "speakerName": "Torrin",
-            "speakerText": "I can use Healing Touch if I'm right next to you.\nI need 2 action points.\nThat leaves 1 action point to move or attack.",
+            "dialogueText": "I can use Healing Touch if I'm right next to you.\nI need 2 action points.\nThat leaves 1 action point to move or attack.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }

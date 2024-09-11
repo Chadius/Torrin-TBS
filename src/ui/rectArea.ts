@@ -94,6 +94,7 @@ type Margins = {
         | [number, number]
         | [number, number, number]
         | [number, number, number, number]
+        | number[]
 }
 
 type Alignment = {

@@ -319,7 +319,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_0",
                             speakerName: "Sir Camil",
-                            speakerText: "That's the last of them.",
+                            dialogueText: "That's the last of them.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
                             animationDuration: 0,
@@ -328,7 +328,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_1",
                             speakerName: "Torrin",
-                            speakerText: "Yay! We did it!",
+                            dialogueText: "Yay! We did it!",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             animationDuration: 0,
@@ -337,7 +337,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_1",
                             speakerName: "Torrin",
-                            speakerText: "Yay! We did it!",
+                            dialogueText: "Yay! We did it!",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             animationDuration: 0,
@@ -346,7 +346,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_report_0",
                             speakerName: "Mission Report",
-                            speakerText:
+                            dialogueText:
                                 "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
                             animationDuration: 0,
                         },
@@ -354,7 +354,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_report_1",
                             speakerName: "Mission Report",
-                            speakerText:
+                            dialogueText:
                                 "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
                             animationDuration: 0,
                         },
@@ -372,7 +372,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "defeat_0",
                             speakerName: "Torrin",
-                            speakerText: "We have to retreat!",
+                            dialogueText: "We have to retreat!",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             animationDuration: 0,
@@ -381,7 +381,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "defeat_1",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "Right. When we come back, let me take the lead, and let's take it slow.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -400,7 +400,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "how_to_play_0",
                             speakerName: "How to play",
-                            speakerText:
+                            dialogueText:
                                 "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
                             speakerPortraitResourceKey:
                                 "tutorial-confirm-cancel",
@@ -411,7 +411,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "how_to_play_1",
                             speakerName: "How to play",
-                            speakerText:
+                            dialogueText:
                                 "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
                             speakerPortraitResourceKey:
                                 "tutorial-spend-action-points",
@@ -421,7 +421,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "how_to_play_2",
                             speakerName: "How to play",
-                            speakerText:
+                            dialogueText:
                                 "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
                             speakerPortraitResourceKey:
                                 "tutorial-spend-action-points",
@@ -433,7 +433,7 @@ export const TestMissionData = () => {
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "Torrin can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nBut it can heal one target.",
                             animationDuration: 0,
                         },
@@ -441,7 +441,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "how_to_play_4",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "Sir Camil has more Health and Armor than Torrin.\nHe has a longsword for melee attacks.\nRaise Shield to improve his Armor until the start of his next turn.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -455,7 +455,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn1_0",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
@@ -465,7 +465,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn1_1",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "I'll take the lead.\nI can Raise Shield to briefly my armor.\nHeal me if I get injured.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -479,7 +479,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn2_0",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "And all of this sand poured in this morning... I can barely move through it.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -489,7 +489,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn2_1",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
@@ -503,7 +503,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn4_0",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "I can barely see ahead of us. What's going on down there?",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
@@ -513,7 +513,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn4_1",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "If you move the pointer to the edges of the screen, we can move the camera a bit.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -527,7 +527,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn5_0",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "What are those demons thinking? I don't know how far they can reach.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -537,7 +537,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn5_1",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "If you... hover the... mouse over them\nyou can see where they can move.",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
@@ -547,7 +547,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn5_2",
                             speakerName: "Torrin",
-                            speakerText:
+                            dialogueText:
                                 "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
@@ -561,7 +561,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn7_0",
                             speakerName: "Torrin",
-                            speakerText: "Ah! I missed again!",
+                            dialogueText: "Ah! I missed again!",
                             speakerPortraitResourceKey:
                                 "young torrin cutscene portrait",
                             animationDuration: 0,
@@ -570,7 +570,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn7_1",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
@@ -580,7 +580,7 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn7_2",
                             speakerName: "Sir Camil",
-                            speakerText:
+                            dialogueText:
                                 "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",

@@ -18,7 +18,7 @@ describe("dialogue box player", () => {
             dialogue = DialogueService.new({
                 id: "1",
                 speakerName: "Doorman",
-                speakerText: "Welcome, come inside",
+                dialogueText: "Welcome, come inside",
                 animationDuration: 500,
                 speakerPortraitResourceKey: "",
             })
@@ -98,7 +98,7 @@ describe("dialogue box player", () => {
             dialogue = DialogueService.new({
                 id: "buy my stuff",
                 speakerName: "Sales Clerk",
-                speakerText: "Would you like to buy this sword?",
+                dialogueText: "Would you like to buy this sword?",
                 animationDuration: 500,
                 answers: ["Yes", "No"],
                 speakerPortraitResourceKey: "",
@@ -203,7 +203,8 @@ describe("dialogue box player", () => {
             const dialogue = DialogueService.new({
                 id: "1",
                 speakerName: "Turn count",
-                speakerText: "How many turns did this take? $$TURN_COUNT turns",
+                dialogueText:
+                    "How many turns did this take? $$TURN_COUNT turns",
                 answers: ["Yes, $$TURN_COUNT", "No, $$TURN_COUNT"],
                 speakerPortraitResourceKey: "",
             })
@@ -237,7 +238,7 @@ describe("dialogue box player", () => {
         })
 
         it("will set the text to the substituted text", () => {
-            expect(dialoguePlayerState.textBox.speakerText).toContain(
+            expect(dialoguePlayerState.textBox.dialogueText).toContain(
                 "How many turns did this take? 5 turns"
             )
             expect(dialoguePlayerState.answerButtons[0].answerText).toContain(
@@ -293,7 +294,7 @@ describe("dialogue box player", () => {
         it("will draw the background when it is set", () => {
             const dialogueWithBackgroundState = DialogueService.new({
                 id: "dialogue",
-                speakerText: "I'm saying something",
+                dialogueText: "I'm saying something",
                 backgroundColor: [1, 2, 3],
             })
 
@@ -317,7 +318,7 @@ describe("dialogue box player", () => {
         it("will not draw the background when it is not set", () => {
             const dialogueWithoutBackgroundState = DialogueService.new({
                 id: "dialogue",
-                speakerText: "I'm saying something",
+                dialogueText: "I'm saying something",
             })
 
             const dialoguePlayerState = DialoguePlayerService.new({

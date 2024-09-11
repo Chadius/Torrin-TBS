@@ -9,6 +9,7 @@ export type TextBoxMargin = {
         | [number, number]
         | [number, number, number]
         | [number, number, number, number]
+        | number[]
 }
 
 export interface Label {

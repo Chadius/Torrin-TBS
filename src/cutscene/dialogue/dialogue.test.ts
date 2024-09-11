@@ -5,7 +5,7 @@ describe("dialogue", () => {
         const dialogue: Dialogue = DialogueService.new({
             id: "the talk",
             speakerPortraitResourceKey: "talking",
-            speakerText: "I'm saying something",
+            dialogueText: "I'm saying something",
             backgroundColor: [1, 2, 3],
         })
 
@@ -14,7 +14,7 @@ describe("dialogue", () => {
 
         expect(dialogue.id).toEqual("the talk")
         expect(dialogue.speakerPortraitResourceKey).toEqual("talking")
-        expect(dialogue.speakerText).toEqual("I'm saying something")
+        expect(dialogue.dialogueText).toEqual("I'm saying something")
         expect(dialogue.backgroundColor).toEqual([1, 2, 3])
     })
 })

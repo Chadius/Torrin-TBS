@@ -1,8 +1,7 @@
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { CutsceneActionPlayerType } from "../cutsceneAction"
 import { DialogueTextBox } from "./dialogueTextBox"
-import { DialogueSpeakerNameBox } from "./dialogueSpeakerNameBox"
-import { DialogueSpeakerImage } from "./dialogueSpeakerImage"
+import { DialoguePortraitImage } from "./dialoguePortraitImage"
 import { DialogueAnswerButton } from "./dialogueAnswerButton"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
@@ -14,6 +13,11 @@ import { Dialogue, DialogueService } from "./dialogue"
 import { isValidValue } from "../../utils/validityCheck"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import p5 from "p5"
+import {
+    DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
+    DialogueComponent,
+    DialogueTextService,
+} from "./constants"
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE
@@ -25,9 +29,9 @@ export interface DialoguePlayerState {
 
     answerButtons: DialogueAnswerButton[]
     textBox: DialogueTextBox
-    speakerNameBox: DialogueSpeakerNameBox
+    speakerNameBox: DialogueTextBox
     speakerPortrait: p5.Image
-    speakerImage: DialogueSpeakerImage
+    speakerImage: DialoguePortraitImage
 }
 
 export const DialoguePlayerService = {
@@ -48,9 +52,9 @@ export const DialoguePlayerService = {
         answerSelected?: number
         answerButtons?: DialogueAnswerButton[]
         textBox?: DialogueTextBox
-        speakerNameBox?: DialogueSpeakerNameBox
+        speakerNameBox?: DialogueTextBox
         speakerPortrait?: p5.Image
-        speakerImage?: DialogueSpeakerImage
+        speakerImage?: DialoguePortraitImage
     }): DialoguePlayerState => {
         return {
             type: CutsceneActionPlayerType.DIALOGUE,
@@ -117,10 +121,10 @@ export const DialoguePlayerService = {
     draw: (state: DialoguePlayerState, graphicsContext: GraphicsBuffer) => {
         graphicsContext.push()
         drawBackground(state, graphicsContext)
-
-        state.textBox?.draw(graphicsContext)
-        state.speakerNameBox?.draw(graphicsContext)
         state.speakerImage?.draw(graphicsContext)
+        state.textBox?.draw(graphicsContext)
+
+        state.speakerNameBox?.draw(graphicsContext)
         state.answerButtons.forEach((answer) => answer.draw(graphicsContext))
 
         graphicsContext.pop()
@@ -178,18 +182,16 @@ const createUIObjects = (
     context: TextSubstitutionContext
 ) => {
     state.textBox = new DialogueTextBox({
-        text: SubstituteText(state.dialogue.speakerText, context),
-        screenDimensions: [
-            ScreenDimensions.SCREEN_WIDTH,
-            ScreenDimensions.SCREEN_HEIGHT,
-        ],
+        text: SubstituteText(state.dialogue.dialogueText, context),
+        position: state.dialogue.dialogueTextPosition,
+        fontStyle: state.dialogue.dialogueTextFontStyle,
+        component: DialogueComponent.DIALOGUE_BOX,
     })
-    state.speakerNameBox = new DialogueSpeakerNameBox({
-        name: state.dialogue.speakerName,
-        screenDimensions: [
-            ScreenDimensions.SCREEN_WIDTH,
-            ScreenDimensions.SCREEN_HEIGHT,
-        ],
+    state.speakerNameBox = new DialogueTextBox({
+        text: state.dialogue.speakerName,
+        position: state.dialogue.speakerNamePosition,
+        fontStyle: state.dialogue.speakerNameFontStyle,
+        component: DialogueComponent.SPEAKER_NAME,
     })
 
     const answerButtonPositions: RectArea[] = getAnswerButtonPositions(state)
@@ -206,8 +208,9 @@ const createUIObjects = (
 
 const setSpeakerUI = (state: DialoguePlayerState) => {
     if (state.speakerPortrait) {
-        state.speakerImage = new DialogueSpeakerImage({
+        state.speakerImage = new DialoguePortraitImage({
             speakerPortrait: state.speakerPortrait,
+            position: state.dialogue.speakerPortraitPosition,
         })
     }
 }
@@ -220,10 +223,25 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
     const buttonTop = ScreenDimensions.SCREEN_WIDTH * 0.9
     const buttonHeight = ScreenDimensions.SCREEN_HEIGHT * 0.1
 
+    const rectStyle =
+        DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS[
+            state.dialogue.dialogueTextPosition
+        ]
+    const speakerBoxWidth = rectStyle.maxWidth
+        ? Math.min(ScreenDimensions.SCREEN_WIDTH, rectStyle.maxWidth) -
+          rectStyle.horizontalMargin * 2
+        : ScreenDimensions.SCREEN_WIDTH * rectStyle.widthFraction
+    let dialogueTextLabelLeft: number =
+        DialogueTextService.calculateLeftAlignSide({
+            rectStyle,
+            dialogueBoxWidth: speakerBoxWidth,
+            horizontalMargin: 0,
+        })
+
     if (state.dialogue.answers.length == 1) {
         return [
             RectAreaService.new({
-                left: 0,
+                left: dialogueTextLabelLeft,
                 top: buttonTop,
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: buttonHeight,
@@ -247,9 +265,10 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
     let totalButtonSpace = ScreenDimensions.SCREEN_WIDTH - totalButtonGap
     let buttonWidth = totalButtonSpace / state.dialogue.answers.length
 
-    return state.dialogue.answers.map((text, index): RectArea => {
+    return state.dialogue.answers.map((_, index): RectArea => {
         return RectAreaService.new({
-            left: (buttonWidth + buttonGapWidth) * index,
+            left:
+                dialogueTextLabelLeft + (buttonWidth + buttonGapWidth) * index,
             top: buttonTop,
             width: buttonWidth,
             height: buttonHeight,

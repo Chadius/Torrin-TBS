@@ -14,7 +14,7 @@ describe("MissionCutsceneCollection", () => {
                 DialogueService.new({
                     id: "1",
                     speakerName: "Doorman",
-                    speakerText: "Welcome, come inside",
+                    dialogueText: "Welcome, come inside",
                     speakerPortraitResourceKey: undefined,
                     animationDuration: 0,
                 }),

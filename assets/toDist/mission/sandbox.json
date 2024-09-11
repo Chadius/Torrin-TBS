@@ -168,7 +168,11 @@
             "type": "DIALOGUE",
             "id": "sandbox_0",
             "speakerName": "SANDBOX",
-            "speakerText": "Developer's sandbox!"
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Developer's sandbox!",
+            "speakerPortraitResourceKey": "tutorial-action-points",
+            "speakerPortraitPosition": "LEFT",
+            "backgroundColor": [280,6,52]
           }
         ]
       }

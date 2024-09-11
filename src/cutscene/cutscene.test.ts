@@ -42,7 +42,7 @@ describe("Cutscene", () => {
         frontDoorGreeting = DialogueService.new({
             id: "1",
             speakerName: "Doorman",
-            speakerText: "Welcome, come inside",
+            dialogueText: "Welcome, come inside",
             animationDuration: 0,
             speakerPortraitResourceKey: undefined,
         })
@@ -50,7 +50,7 @@ describe("Cutscene", () => {
         hostGreeting = DialogueService.new({
             id: "1",
             speakerName: "Host",
-            speakerText: "Someone will lead you to your table shortly.",
+            dialogueText: "Someone will lead you to your table shortly.",
             animationDuration: 0,
             speakerPortraitResourceKey: undefined,
         })
@@ -156,7 +156,7 @@ describe("Cutscene", () => {
             const dialoguePrompt = DialogueService.new({
                 id: "buy my stuff",
                 speakerName: "Sales Clerk",
-                speakerText: "Would you like to buy this sword?",
+                dialogueText: "Would you like to buy this sword?",
                 answers: ["Yes", "No"],
                 speakerPortraitResourceKey: undefined,
             })
@@ -166,13 +166,14 @@ describe("Cutscene", () => {
                     DialogueService.new({
                         id: "test failed",
                         speakerName: "No",
-                        speakerText: "The cutscene should not have gotten here",
+                        dialogueText:
+                            "The cutscene should not have gotten here",
                         speakerPortraitResourceKey: undefined,
                     }),
                     DialogueService.new({
                         id: "test passes",
                         speakerName: "Clerk",
-                        speakerText: "Thank you for your business",
+                        dialogueText: "Thank you for your business",
                         speakerPortraitResourceKey: undefined,
                     }),
                 ],
@@ -217,7 +218,7 @@ describe("Cutscene", () => {
             const dialoguePrompt = DialogueService.new({
                 id: "buy my stuff",
                 speakerName: "Sales Clerk",
-                speakerText: "Would you like to buy this sword?",
+                dialogueText: "Would you like to buy this sword?",
                 answers: ["Yes", "No"],
             })
             const purchasePrompt = CutsceneService.new({
@@ -226,12 +227,12 @@ describe("Cutscene", () => {
                     DialogueService.new({
                         id: "test passed",
                         speakerName: "Clerk",
-                        speakerText: "Okay, here you go!",
+                        dialogueText: "Okay, here you go!",
                     }),
                     DialogueService.new({
                         id: "test failed",
                         speakerName: "No",
-                        speakerText: "Test should not have gone here",
+                        dialogueText: "Test should not have gone here",
                     }),
                 ],
                 decisionTriggers: [
@@ -277,17 +278,17 @@ describe("Cutscene", () => {
                     DialogueService.new({
                         id: "act serious",
                         speakerName: "your brain",
-                        speakerText: "Do not embarrass yourself. Easy.",
+                        dialogueText: "Do not embarrass yourself. Easy.",
                     }),
                     DialogueService.new({
                         id: "test failed",
                         speakerName: "Fart",
-                        speakerText: "Ack! You farted! The test has failed!",
+                        dialogueText: "Ack! You farted! The test has failed!",
                     }),
                     DialogueService.new({
                         id: "test passes",
                         speakerName: "Handshake",
-                        speakerText:
+                        dialogueText:
                             "An easy handshake to set a professional meeting.",
                     }),
                 ],
@@ -314,7 +315,7 @@ describe("Cutscene", () => {
             const dialoguePrompt = DialogueService.new({
                 id: "buy my stuff",
                 speakerName: "Sales Clerk",
-                speakerText: "Would you like to buy this sword?",
+                dialogueText: "Would you like to buy this sword?",
                 answers: ["Yes", "No"],
             })
             const purchasePrompt = CutsceneService.new({
@@ -323,17 +324,18 @@ describe("Cutscene", () => {
                     DialogueService.new({
                         id: "reconsider",
                         speakerName: "Sales Clerk",
-                        speakerText: "I implore you to reconsider...",
+                        dialogueText: "I implore you to reconsider...",
                     }),
                     DialogueService.new({
                         id: "test failed",
                         speakerName: "No",
-                        speakerText: "The cutscene should not have gotten here",
+                        dialogueText:
+                            "The cutscene should not have gotten here",
                     }),
                     DialogueService.new({
                         id: "test passes",
                         speakerName: "Clerk",
-                        speakerText: "Thank you for your business",
+                        dialogueText: "Thank you for your business",
                     }),
                 ],
                 decisionTriggers: [
@@ -398,21 +400,21 @@ describe("Cutscene", () => {
             waiterGreets = DialogueService.new({
                 id: "waiterGreets",
                 speakerName: "Waiter",
-                speakerText: "Hello, I'm your Waiter for the evening.",
+                dialogueText: "Hello, I'm your Waiter for the evening.",
                 animationDuration: 100,
             })
 
             waiterHandsMenu = DialogueService.new({
                 id: "waiterHandsMenu",
                 speakerName: "Waiter",
-                speakerText: "Here is your menu.",
+                dialogueText: "Here is your menu.",
                 animationDuration: 100,
             })
 
             waiterAsks = DialogueService.new({
                 id: "waiterAsks",
                 speakerName: "Waiter",
-                speakerText: "Would you like some bread?",
+                dialogueText: "Would you like some bread?",
                 animationDuration: 100,
                 answers: ["Yes", "No"],
             })
@@ -515,7 +517,7 @@ describe("Cutscene", () => {
                     waiterAsks,
                     DialogueService.new({
                         id: "testFailed",
-                        speakerText: "failure",
+                        dialogueText: "failure",
                     }),
                 ],
                 decisionTriggers: [
