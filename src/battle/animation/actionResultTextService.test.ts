@@ -37,8 +37,7 @@ describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
     let knightStatic: SquaddieTemplate
     let knightDynamic: BattleSquaddie
-    let citizenStatic: SquaddieTemplate
-    let citizenDynamic: BattleSquaddie
+    let citizenBattleSquaddie: BattleSquaddie
     let thiefStatic: SquaddieTemplate
     let thiefDynamic: BattleSquaddie
     let rogueStatic: SquaddieTemplate
@@ -105,7 +104,7 @@ describe("Action Result Text Writer", () => {
             knightDynamic.battleSquaddieId,
             { q: 1, r: 1 }
         )
-        ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
+        ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
                 templateId: "Citizen",
@@ -200,7 +199,7 @@ describe("Action Result Text Writer", () => {
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 targetedBattleSquaddieIds: [
                     knightDynamic.battleSquaddieId,
-                    citizenDynamic.battleSquaddieId,
+                    citizenBattleSquaddie.battleSquaddieId,
                 ],
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
@@ -210,7 +209,8 @@ describe("Action Result Text Writer", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                     BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: citizenDynamic.battleSquaddieId,
+                        battleSquaddieId:
+                            citizenBattleSquaddie.battleSquaddieId,
                         damageTaken: 0,
                         healingReceived: 2,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
@@ -307,6 +307,59 @@ describe("Action Result Text Writer", () => {
             expect(outputStrings).toHaveLength(2)
             expect(outputStrings[0]).toBe("Knight uses Raise Shield")
             expect(outputStrings[1]).toBe("Knight Armor +1 (Circumstance)")
+        })
+        it("Shows No Change if there is no change in bonus", () => {
+            const armorBonusResult: SquaddieSquaddieResults =
+                SquaddieSquaddieResultsService.new({
+                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                    targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId],
+                    squaddieChanges: [
+                        BattleActionSquaddieChangeService.new({
+                            battleSquaddieId: knightDynamic.battleSquaddieId,
+                            damageTaken: 0,
+                            healingReceived: 0,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                            attributesBefore: InBattleAttributesService.new({
+                                attributeModifiers: [
+                                    AttributeModifierService.new({
+                                        type: AttributeType.ARMOR,
+                                        source: AttributeSource.CIRCUMSTANCE,
+                                        amount: 1,
+                                    }),
+                                ],
+                            }),
+                            attributesAfter: InBattleAttributesService.new({
+                                attributeModifiers: [
+                                    AttributeModifierService.new({
+                                        type: AttributeType.ARMOR,
+                                        source: AttributeSource.CIRCUMSTANCE,
+                                        amount: 1,
+                                    }),
+                                ],
+                            }),
+                        }),
+                    ],
+                    actionContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: [],
+                    }),
+                })
+
+            const outputStrings: string[] =
+                ActionResultTextService.outputResultForTextOnly({
+                    actionTemplateName: "Raise Shield",
+                    currentActionEffectSquaddieTemplate: raiseShieldAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    result: armorBonusResult,
+                    squaddieRepository,
+                })
+
+            expect(outputStrings).toHaveLength(2)
+            expect(outputStrings[0]).toBe("Knight uses Raise Shield")
+            expect(outputStrings[1]).toBe("Knight Armor NO CHANGE")
         })
     })
 

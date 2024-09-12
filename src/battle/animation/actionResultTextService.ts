@@ -291,10 +291,55 @@ const getAttributeModifierChanges = ({
         [AttributeSource.CIRCUMSTANCE]: "Circumstance",
     }
 
-    return squaddieChange.attributesAfter.attributeModifiers.map(
-        (attribute) =>
-            `${targetSquaddieTemplate.squaddieId.name} ${attributeTypeToStringMapping[attribute.type] || attribute.type} ${attribute.amount > 0 ? "+" : ""}${attribute.amount} (${attributeSourceToStringMapping[attribute.source] || attribute.source})`
-    )
+    const attributeModifierDifferences: AttributeTypeAndAmount[] =
+        InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+            squaddieChange.attributesBefore,
+            squaddieChange.attributesAfter
+        )
+
+    const getAttributeAmountMessage = (
+        attributeModifierDifference: AttributeTypeAndAmount
+    ) => {
+        let attributeAmountAsString: string
+        switch (true) {
+            case attributeModifierDifference.amount > 0:
+                attributeAmountAsString = `+${attributeModifierDifference.amount}`
+                break
+            case attributeModifierDifference.amount < 0:
+                attributeAmountAsString = `${attributeModifierDifference.amount}`
+                break
+            default:
+                attributeAmountAsString = "NO CHANGE"
+                break
+        }
+        return attributeAmountAsString
+    }
+    const getAttributeSourceMessage = (
+        attributeModifierDifference: AttributeTypeAndAmount
+    ) => {
+        const afterAttribute =
+            squaddieChange.attributesAfter.attributeModifiers.find(
+                (attributeModifier) =>
+                    attributeModifier.type === attributeModifierDifference.type
+            )
+        let attributeSourceAsString: string = ` (${attributeSourceToStringMapping[afterAttribute.source] || afterAttribute.source})`
+        if (attributeModifierDifference.amount === 0) {
+            attributeSourceAsString = ""
+        }
+        return attributeSourceAsString
+    }
+    return attributeModifierDifferences.map((attributeModifierDifference) => {
+        const attributeTypeAsString: string =
+            attributeTypeToStringMapping[attributeModifierDifference.type] ||
+            attributeModifierDifference.type
+        let attributeAmountAsString = getAttributeAmountMessage(
+            attributeModifierDifference
+        )
+        let attributeSourceAsString = getAttributeSourceMessage(
+            attributeModifierDifference
+        )
+        return `${targetSquaddieTemplate.squaddieId.name} ${attributeTypeAsString} ${attributeAmountAsString}${attributeSourceAsString}`
+    })
 }
 
 const outputResultForTextOnly = ({

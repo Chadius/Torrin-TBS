@@ -91,6 +91,44 @@ export const InBattleAttributesService = {
         attributes.attributeModifiers =
             getAllActiveAttributeModifiers(attributes)
     },
+    calculateAttributeModifiersGainedAfterChanges: (
+        before: InBattleAttributes,
+        after: InBattleAttributes
+    ): AttributeTypeAndAmount[] => {
+        const beforeAttributeTypesAndAmounts: AttributeTypeAndAmount[] = before
+            ? AttributeModifierService.calculateCurrentAttributeModifiers(
+                  before.attributeModifiers
+              )
+            : []
+        const afterAttributeTypesAndAmounts: AttributeTypeAndAmount[] = after
+            ? AttributeModifierService.calculateCurrentAttributeModifiers(
+                  after.attributeModifiers
+              )
+            : []
+
+        const differences: AttributeTypeAndAmount[] = []
+        afterAttributeTypesAndAmounts.forEach(
+            (afterAttributeTypesAndAmount) => {
+                const beforeAttributeTypesAndAmount: AttributeTypeAndAmount =
+                    beforeAttributeTypesAndAmounts.find(
+                        (beforeAttributeTypesAndAmount) =>
+                            beforeAttributeTypesAndAmount.type ===
+                            afterAttributeTypesAndAmount.type
+                    )
+                if (beforeAttributeTypesAndAmount === undefined) {
+                    differences.push(afterAttributeTypesAndAmount)
+                    return
+                }
+                differences.push({
+                    type: afterAttributeTypesAndAmount.type,
+                    amount:
+                        afterAttributeTypesAndAmount.amount -
+                        beforeAttributeTypesAndAmount.amount,
+                })
+            }
+        )
+        return differences
+    },
 }
 
 const getAllActiveAttributeModifiers = (

@@ -52,16 +52,14 @@ export const AttributeModifierService = {
         duration?: number
         numberOfUses?: number
         description?: string
-    }): AttributeModifier => {
-        return {
-            type,
-            source,
-            amount,
-            duration,
-            numberOfUses,
-            description,
-        }
-    },
+    }): AttributeModifier => ({
+        type,
+        source,
+        amount,
+        duration,
+        numberOfUses,
+        description,
+    }),
     isActive: (modifier: AttributeModifier): boolean => {
         if (modifier.duration !== undefined && modifier.duration <= 0) {
             return false

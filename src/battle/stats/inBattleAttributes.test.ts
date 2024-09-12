@@ -14,6 +14,7 @@ import {
     AttributeModifierService,
     AttributeSource,
     AttributeType,
+    AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 
 describe("inBattleAttributes", () => {
@@ -658,6 +659,135 @@ describe("inBattleAttributes", () => {
                 )
 
                 expect(attributes.attributeModifiers).toEqual([activeModifier])
+            })
+        })
+        describe("can calculate the difference between two", () => {
+            it("knows when a item type is added", () => {
+                const before: InBattleAttributes =
+                    InBattleAttributesService.new({})
+                const after: InBattleAttributes = InBattleAttributesService.new(
+                    {}
+                )
+                InBattleAttributesService.addActiveAttributeModifier(
+                    after,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
+                )
+                const difference: AttributeTypeAndAmount[] =
+                    InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+                        before,
+                        after
+                    )
+                expect(difference).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: 1,
+                    },
+                ])
+            })
+            it("will still show the type when there is no change in amount", () => {
+                const inBattleAttributes: InBattleAttributes =
+                    InBattleAttributesService.new({})
+                InBattleAttributesService.addActiveAttributeModifier(
+                    inBattleAttributes,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
+                )
+                const difference: AttributeTypeAndAmount[] =
+                    InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+                        inBattleAttributes,
+                        inBattleAttributes
+                    )
+                expect(difference).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: 0,
+                    },
+                ])
+            })
+            it("knows where is no change even if the sources differ", () => {
+                const before: InBattleAttributes =
+                    InBattleAttributesService.new({})
+                InBattleAttributesService.addActiveAttributeModifier(
+                    before,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.STATUS,
+                        amount: 1,
+                    })
+                )
+                const after: InBattleAttributes = InBattleAttributesService.new(
+                    {}
+                )
+                InBattleAttributesService.addActiveAttributeModifier(
+                    after,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
+                )
+                const difference: AttributeTypeAndAmount[] =
+                    InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+                        before,
+                        after
+                    )
+                expect(difference).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: 0,
+                    },
+                ])
+            })
+            it("knows when no modifiers were added", () => {
+                const inBattleAttributes: InBattleAttributes =
+                    InBattleAttributesService.new({})
+                const difference: AttributeTypeAndAmount[] =
+                    InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+                        inBattleAttributes,
+                        inBattleAttributes
+                    )
+                expect(difference).toHaveLength(0)
+            })
+            it("ignores attribute modifiers that are only in the before state", () => {
+                const before: InBattleAttributes =
+                    InBattleAttributesService.new({})
+                InBattleAttributesService.addActiveAttributeModifier(
+                    before,
+                    AttributeModifierService.new({
+                        type: AttributeType.TEMPORARY_HIT_POINTS,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
+                )
+                const after: InBattleAttributes = InBattleAttributesService.new(
+                    {}
+                )
+                InBattleAttributesService.addActiveAttributeModifier(
+                    after,
+                    AttributeModifierService.new({
+                        type: AttributeType.ARMOR,
+                        source: AttributeSource.CIRCUMSTANCE,
+                        amount: 1,
+                    })
+                )
+                const difference: AttributeTypeAndAmount[] =
+                    InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+                        before,
+                        after
+                    )
+                expect(difference).toEqual([
+                    {
+                        type: AttributeType.ARMOR,
+                        amount: 1,
+                    },
+                ])
             })
         })
     })
