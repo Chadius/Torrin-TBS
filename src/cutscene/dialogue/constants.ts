@@ -21,6 +21,7 @@ export interface ThirdOfScreenAlignment {
     thirdOfScreenAlignment: HORIZONTAL_ALIGN
     thirdOfScreenSubAlignment: HORIZONTAL_ALIGN
 }
+
 export interface StyleTextBoxConstants extends ThirdOfScreenAlignment {
     fillColor: number[]
     maxWidth?: number
@@ -110,12 +111,14 @@ export const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 export enum DialogueFontStyle {
     BLACK = "BLACK",
 }
+
 export interface StyleFontConstants {
     color: number[]
     textSize: number
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
 }
+
 export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     [t in DialogueFontStyle]: StyleFontConstants
 } = {
@@ -132,6 +135,7 @@ export interface StylePortraitConstants extends ThirdOfScreenAlignment {
     bottomOffset?: number
     bottomFraction?: number
 }
+
 export const DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS: {
     [t in DialoguePosition]: StylePortraitConstants
 } = {

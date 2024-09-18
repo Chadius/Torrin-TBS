@@ -80,7 +80,7 @@ describe("Action Builder", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: actionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
         })
         it("can set the action template without setting a target", () => {
@@ -98,7 +98,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             expect(
                 BattleActionDecisionStepService.isActionRecordComplete(
@@ -129,7 +129,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
@@ -167,7 +167,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
@@ -217,7 +217,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
             ).toEqual({
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
@@ -360,7 +360,7 @@ describe("Action Builder", () => {
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep: actionBuilderState,
-            actionTemplate: singleTargetAction,
+            actionTemplateId: singleTargetAction.id,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionBuilderState,
@@ -393,7 +393,7 @@ describe("Action Builder", () => {
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep: actionBuilderState,
-            actionTemplate: singleTargetAction,
+            actionTemplateId: singleTargetAction.id,
         })
         BattleActionDecisionStepService.removeAction({
             actionDecisionStep: actionBuilderState,
@@ -411,7 +411,7 @@ describe("Action Builder", () => {
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep: actionBuilderState,
-            actionTemplate: singleTargetAction,
+            actionTemplateId: singleTargetAction.id,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionBuilderState,

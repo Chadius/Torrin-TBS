@@ -15,9 +15,10 @@ import {
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 describe("end turn team strategy", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -80,14 +81,15 @@ describe("end turn team strategy", () => {
             r: 0,
         })
 
-        const expectedInstruction = DecidedActionService.new({
-            actionTemplateName: "End Turn",
+        const endTurnStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: endTurnStep,
             battleSquaddieId: "new_dynamic_squaddie",
-            actionEffects: [
-                DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({}),
-                }),
-            ],
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: endTurnStep,
+            endTurn: true,
         })
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
@@ -97,7 +99,7 @@ describe("end turn team strategy", () => {
             repository,
         })
 
-        expect(actualInstruction).toStrictEqual(expectedInstruction)
+        expect(actualInstruction).toStrictEqual([endTurnStep])
     })
 
     it("is undefined when there are no squaddies", () => {

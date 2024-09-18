@@ -196,7 +196,7 @@ describe("BattleActionConfirm", () => {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            actionTemplate: longswordAction,
+            actionTemplateId: longswordAction.id,
         })
 
         const { mapLocation } = MissionMapService.getByBattleSquaddieId(

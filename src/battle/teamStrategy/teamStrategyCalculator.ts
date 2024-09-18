@@ -1,5 +1,4 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { DecidedAction } from "../../action/decided/decidedAction"
 import { MissionMap } from "../../missionMap/missionMap"
 import {
     BattleSquaddieTeam,
@@ -9,6 +8,7 @@ import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 
 export interface TeamStrategyCalculator {
     DetermineNextInstruction({
@@ -21,7 +21,7 @@ export interface TeamStrategyCalculator {
         missionMap: MissionMap
         repository: ObjectRepository
         actionsThisRound: ActionsThisRound
-    }): DecidedAction
+    }): BattleActionDecisionStep[]
 }
 
 export const TeamStrategyService = {

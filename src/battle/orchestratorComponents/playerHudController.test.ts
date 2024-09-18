@@ -262,7 +262,7 @@ describe("PlayerHUDController", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
 
             const recommendedChanges =
@@ -282,7 +282,7 @@ describe("PlayerHUDController", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep:
@@ -310,7 +310,7 @@ describe("PlayerHUDController", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .playerBattleActionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep:

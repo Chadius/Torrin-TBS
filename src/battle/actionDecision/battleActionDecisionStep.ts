@@ -1,7 +1,8 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionTemplate } from "../../action/template/actionTemplate"
 
+// TODO: Where do we store these?
+// TODO: What should keep track of the animation? Feels like Battle State should do that
 export interface BattleActionDecisionStep {
     actor: BattleActionDecisionStepActor
     action: BattleActionDecisionStepAction
@@ -14,7 +15,7 @@ export interface BattleActionDecisionStepActor {
 }
 
 export interface BattleActionDecisionStepAction {
-    actionTemplate?: ActionTemplate
+    actionTemplateId?: string
     movement?: boolean
     endTurn?: boolean
 }
@@ -63,7 +64,7 @@ const isTargetConfirmed = (actionBuilderState: BattleActionDecisionStep) =>
 const isActionSet = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.action) &&
-    (isValidValue(actionBuilderState.action.actionTemplate) ||
+    (isValidValue(actionBuilderState.action.actionTemplateId) ||
         actionBuilderState.action.endTurn ||
         actionBuilderState.action.movement)
 
@@ -80,14 +81,12 @@ const setConfirmedTarget = (
 }
 
 export const BattleActionDecisionStepService = {
-    new: (): BattleActionDecisionStep => {
-        return {
-            actor: undefined,
-            action: undefined,
-            target: undefined,
-            animation: undefined,
-        }
-    },
+    new: (): BattleActionDecisionStep => ({
+        actor: undefined,
+        action: undefined,
+        target: undefined,
+        animation: undefined,
+    }),
     isSquaddieActionRecordNotSet: (
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {
@@ -144,19 +143,19 @@ export const BattleActionDecisionStepService = {
     },
     addAction: ({
         actionDecisionStep,
-        actionTemplate,
+        actionTemplateId,
         movement,
         endTurn,
     }: {
         actionDecisionStep: BattleActionDecisionStep
-        actionTemplate?: ActionTemplate
+        actionTemplateId?: string
         movement?: boolean
         endTurn?: boolean
     }) => {
         if (!isValidValue(actionDecisionStep)) {
             return
         }
-        const actionTemplateIsSet = isValidValue(actionTemplate)
+        const actionTemplateIsSet = isValidValue(actionTemplateId)
         const movementIsSet = movement === true || movement === false
         const endTurnIsSet = endTurn === true || endTurn === false
 
@@ -167,7 +166,7 @@ export const BattleActionDecisionStepService = {
         }
 
         actionDecisionStep.action = {
-            actionTemplate,
+            actionTemplateId,
             movement,
             endTurn,
         }

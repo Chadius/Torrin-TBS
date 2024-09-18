@@ -44,15 +44,17 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../history/battleAction"
+import {
+    BattleActionActionContextService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
-    let squaddieRepository: ObjectRepository
+    let objectRepository: ObjectRepository
     let knightBattleSquaddie: BattleSquaddie
     let knightBattleSquaddieId = "knight_0"
     let knightTemplateId = "knight_0"
@@ -73,9 +75,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        squaddieRepository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         ;({ thiefBattleSquaddie } = CreateNewThiefSquaddie({
-            squaddieRepository,
+            squaddieRepository: objectRepository,
             templateId: thiefStaticId,
             battleId: thiefDynamicId,
         }))
@@ -97,8 +99,12 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            longswordActionTemplate
+        )
         ;({ knightBattleSquaddie } = CreateNewKnightSquaddie({
-            squaddieRepository,
+            squaddieRepository: objectRepository,
             templateId: knightTemplateId,
             battleId: knightBattleSquaddieId,
             actionTemplates: [longswordActionTemplate],
@@ -107,23 +113,24 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
 
         const oneDecisionInstruction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                actionPointCost: 1,
-                battleSquaddieId: knightBattleSquaddieId,
-                actionTemplateName: longswordActionTemplate.name,
-                actionTemplateId: longswordActionTemplate.id,
+            actionPointCost: 1,
+            battleAction: BattleActionService.new({
+                actor: { battleSquaddieId: knightBattleSquaddieId },
+                action: { id: longswordActionTemplate.id },
+                effect: { squaddie: [] },
             }),
             processedActionEffects: [
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            template: longswordActionTemplate
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 0 },
-                        }
-                    ),
-                    results: undefined,
-                }),
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                template: longswordActionTemplate
+                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: { q: 0, r: 0 },
+                            }),
+                        results: undefined,
+                    }
+                ),
             ],
         })
 
@@ -173,8 +180,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             knightHitsThiefWithLongswordEvent
         )
         jest.spyOn(Date, "now").mockImplementation(() => 0)
-        const state: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepository,
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -186,8 +193,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        animator.reset(state)
-        animator.update(state, mockedP5GraphicsContext)
+        animator.reset(gameEngineState)
+        animator.update(gameEngineState, mockedP5GraphicsContext)
 
         expect(animator.actorSprite).not.toBeUndefined()
         expect(animator.actorSprite.battleSquaddieId).toBe(
@@ -209,7 +216,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             ActionAnimationPhase.INITIALIZED
         )
         const state: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -254,7 +261,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             ActionAnimationPhase.INITIALIZED
         )
         const state: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -280,7 +287,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     it("will set the action builder animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -305,7 +312,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            actionTemplate: longswordActionTemplate,
+            actionTemplateId: longswordActionTemplate.id,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep:

@@ -35,7 +35,6 @@ import {
     ProcessedAction,
     ProcessedActionService,
 } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { BattlePhaseStateService } from "./battlePhaseController"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -54,6 +53,7 @@ import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
+import { BattleActionService } from "../history/battleAction"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -211,19 +211,17 @@ describe("Orchestration Utils", () => {
             })
 
             movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: "battle",
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [
-                        DecidedActionMovementEffectService.new({
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }),
-                    ],
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: "battle" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 1 },
+                        },
+                    },
                 }),
+                actionPointCost: 1,
             })
         })
 
@@ -360,17 +358,27 @@ describe("Orchestration Utils", () => {
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            actionPointCost: 0,
-                            actionTemplateName: "Move",
-                            actionEffects: [decidedActionMovementEffect],
-                            battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        battleAction: BattleActionService.new({
+                            actor: {
+                                battleSquaddieId:
+                                    battleSquaddie.battleSquaddieId,
+                            },
+                            action: { isMovement: true },
+                            effect: {
+                                movement: {
+                                    startLocation: { q: 0, r: 0 },
+                                    endLocation: { q: 0, r: 1 },
+                                },
+                            },
                         }),
+                        actionPointCost: 0,
                         processedActionEffects: [
-                            ProcessedActionMovementEffectService.new({
-                                decidedActionEffect:
-                                    decidedActionMovementEffect,
-                            }),
+                            ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        decidedActionMovementEffect,
+                                }
+                            ),
                         ],
                     }),
                 ],
@@ -502,7 +510,7 @@ describe("Orchestration Utils", () => {
                     actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
-                    actionTemplate: singleTargetAction,
+                    actionTemplateId: singleTargetAction.id,
                 })
                 BattleActionDecisionStepService.setConfirmedTarget({
                     actionDecisionStep:
@@ -542,7 +550,7 @@ describe("Orchestration Utils", () => {
                     actionDecisionStep:
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState,
-                    actionTemplate: singleTargetAction,
+                    actionTemplateId: singleTargetAction.id,
                 })
                 BattleActionDecisionStepService.setConfirmedTarget({
                     actionDecisionStep:
@@ -780,20 +788,19 @@ describe("Orchestration Utils", () => {
                 2,
                 0
             )
+
             const movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: playerSquaddieIds[0],
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [
-                        DecidedActionMovementEffectService.new({
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }),
-                    ],
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: playerSquaddieIds[0] },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 1 },
+                        },
+                    },
                 }),
+                actionPointCost: 1,
             })
             SquaddieTurnService.spendActionPoints(
                 getResultOrThrowError(

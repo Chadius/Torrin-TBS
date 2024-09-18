@@ -4,10 +4,10 @@ import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { TargetSquaddieInRange } from "./targetSquaddieInRange"
 import { EndTurnTeamStrategy } from "./endTurn"
 import { TeamStrategyCalculator } from "./teamStrategyCalculator"
-import { DecidedAction } from "../../action/decided/decidedAction"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { MissionMap } from "../../missionMap/missionMap"
 import { ActionsThisRound } from "../history/actionsThisRound"
+import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 
 export const DetermineNextDecisionService = {
     determineNextDecision: ({
@@ -22,7 +22,7 @@ export const DetermineNextDecisionService = {
         repository: ObjectRepository
         actionsThisRound: ActionsThisRound
         strategy: TeamStrategy
-    }): DecidedAction => {
+    }): BattleActionDecisionStep[] => {
         return determineNextDecision({
             team,
             missionMap,
@@ -45,7 +45,7 @@ const determineNextDecision = ({
     repository: ObjectRepository
     actionsThisRound: ActionsThisRound
     strategy: TeamStrategy
-}): DecidedAction => {
+}): BattleActionDecisionStep[] => {
     let calculator: TeamStrategyCalculator
     switch (strategy.type) {
         case TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE:

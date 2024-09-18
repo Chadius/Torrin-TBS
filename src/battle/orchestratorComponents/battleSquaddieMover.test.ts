@@ -32,7 +32,6 @@ import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfi
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import {
     ActionsThisRound,
@@ -46,6 +45,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { BattleActionService } from "../history/battleAction"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -118,19 +118,28 @@ describe("BattleSquaddieMover", () => {
                 destination: { q: 0, r: 3 },
                 template: ActionEffectMovementTemplateService.new({}),
             })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                battleSquaddieId: "player_1",
-                actionPointCost: 3,
-                actionTemplateName: "Move",
-                actionEffects: [decidedActionMovementEffect],
+            actionPointCost: 3,
+            battleAction: BattleActionService.new({
+                actor: { battleSquaddieId: "player_1" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 3 },
+                    },
+                },
             }),
             processedActionEffects: [
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                }),
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect: decidedActionMovementEffect,
+                    }
+                ),
             ],
         })
+
         const actionsThisRound = ActionsThisRoundService.new({
             battleSquaddieId: "player_1",
             startingLocation: { q: 0, r: 0 },
@@ -195,17 +204,25 @@ describe("BattleSquaddieMover", () => {
                 destination: { q: 0, r: 3 },
                 template: ActionEffectMovementTemplateService.new({}),
             })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                battleSquaddieId: "player_1",
-                actionPointCost: 3,
-                actionTemplateName: "Move",
-                actionEffects: [decidedActionMovementEffect],
+            actionPointCost: 3,
+            battleAction: BattleActionService.new({
+                actor: { battleSquaddieId: "player_1" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 3 },
+                    },
+                },
             }),
             processedActionEffects: [
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                }),
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect: decidedActionMovementEffect,
+                    }
+                ),
             ],
         })
         const actionsThisRound = ActionsThisRoundService.new({
@@ -312,19 +329,29 @@ describe("BattleSquaddieMover", () => {
                         destination: { q: 1, r: 1 },
                         template: ActionEffectMovementTemplateService.new({}),
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_1",
-                        actionPointCost: 3,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
+                    actionPointCost: 3,
+                    battleAction: BattleActionService.new({
+                        actor: { battleSquaddieId: "player_1" },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 0 },
+                                endLocation: { q: 1, r: 1 },
+                            },
+                        },
                     }),
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
+
                 const actionsThisRound = ActionsThisRoundService.new({
                     battleSquaddieId: "player_1",
                     startingLocation: { q: 0, r: 0 },
@@ -398,19 +425,29 @@ describe("BattleSquaddieMover", () => {
                         destination: { q: 1, r: 1 },
                         template: ActionEffectMovementTemplateService.new({}),
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_1",
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
+                    actionPointCost: 1,
+                    battleAction: BattleActionService.new({
+                        actor: { battleSquaddieId: "player_1" },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 0 },
+                                endLocation: { q: 1, r: 1 },
+                            },
+                        },
                     }),
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
+
                 const actionsThisRound = ActionsThisRoundService.new({
                     battleSquaddieId: "player_1",
                     startingLocation: { q: 0, r: 0 },

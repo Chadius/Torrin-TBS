@@ -22,6 +22,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionService } from "../history/battleAction"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -69,19 +70,33 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                         startingLocation: { q: 0, r: 0 },
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: undefined,
+                                actionPointCost: 0,
+                                battleAction: BattleActionService.new({
+                                    actor: {
+                                        battleSquaddieId: "dynamic_squaddie",
+                                    },
+                                    action: { isMovement: true },
+                                    effect: {
+                                        movement: {
+                                            startLocation: { q: 0, r: 0 },
+                                            endLocation: { q: 0, r: 0 },
+                                        },
+                                    },
+                                }),
                                 processedActionEffects: [
-                                    ProcessedActionEndTurnEffectService.new({
-                                        decidedActionEffect:
-                                            DecidedActionEndTurnEffectService.new(
-                                                {
-                                                    template:
-                                                        ActionEffectEndTurnTemplateService.new(
-                                                            {}
-                                                        ),
-                                                }
-                                            ),
-                                    }),
+                                    ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
+                                        {
+                                            decidedActionEffect:
+                                                DecidedActionEndTurnEffectService.new(
+                                                    {
+                                                        template:
+                                                            ActionEffectEndTurnTemplateService.new(
+                                                                {}
+                                                            ),
+                                                    }
+                                                ),
+                                        }
+                                    ),
                                 ],
                             }),
                         ],

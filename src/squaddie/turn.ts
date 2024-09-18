@@ -1,4 +1,5 @@
 import { ActionTemplate } from "../action/template/actionTemplate"
+import { ActionPointCost } from "../action/processed/processedAction"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
@@ -15,8 +16,16 @@ export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return { remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN }
     },
-    spendActionPoints: (data: SquaddieTurn, number: number) => {
-        data.remainingActionPoints = data.remainingActionPoints - number
+    spendActionPoints: (
+        data: SquaddieTurn,
+        actionPointCost: ActionPointCost
+    ) => {
+        if (actionPointCost === "End Turn") {
+            data.remainingActionPoints = 0
+            return
+        }
+        data.remainingActionPoints =
+            data.remainingActionPoints - actionPointCost
     },
     canPerformAction: (
         data: SquaddieTurn,

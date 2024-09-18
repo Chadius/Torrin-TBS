@@ -1,9 +1,7 @@
 import { Recording, RecordingService } from "./recording"
 import { BattleEvent, BattleEventService } from "./battleEvent"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
+import { BattleActionService } from "./battleAction"
 
 describe("Recording", () => {
     it("placeholder once you rewrite this", () => {
@@ -15,20 +13,19 @@ describe("Recording", () => {
             history: [],
         }
 
-        const decidedActionMovementEffect =
-            DecidedActionMovementEffectService.new({
-                template: ActionEffectMovementTemplateService.new({}),
-                destination: { q: 0, r: 1 },
-            })
-
         const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                actionPointCost: 1,
-                battleSquaddieId: "playerSoldierBattleSquaddie",
-                actionTemplateName: "Move",
-                actionEffects: [decidedActionMovementEffect],
-            }),
+            actionPointCost: 1,
             processedActionEffects: [],
+            battleAction: BattleActionService.new({
+                actor: { battleSquaddieId: "playerSoldierBattleSquaddie" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 1 },
+                    },
+                },
+            }),
         })
 
         RecordingService.addEvent(

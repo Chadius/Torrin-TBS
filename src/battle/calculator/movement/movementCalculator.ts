@@ -25,7 +25,10 @@ import { BattleSquaddieSelectorService } from "../../orchestratorComponents/batt
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { ActionsThisRoundService } from "../../history/actionsThisRound"
 import { MissionMapService } from "../../../missionMap/missionMap"
-import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../actionDecision/battleActionDecisionStep"
 import { RecordingService } from "../../history/recording"
 import { BattleEventService } from "../../history/battleEvent"
 import {
@@ -33,8 +36,6 @@ import {
     ProcessedActionService,
 } from "../../../action/processed/processedAction"
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
-import { DecidedActionMovementEffectService } from "../../../action/decided/decidedActionMovementEffect"
-import { DecidedActionService } from "../../../action/decided/decidedAction"
 import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
 
 export const MovementCalculatorService = {
@@ -186,7 +187,7 @@ export const MovementCalculatorService = {
     }) => {
         SquaddieTurnService.spendActionPoints(
             battleSquaddie.squaddieTurn,
-            processedAction.decidedAction.actionPointCost
+            processedAction.actionPointCost
         )
     },
     queueBattleActionToMove: ({
@@ -245,21 +246,41 @@ const createMovementProcessedAction = ({
             ...Object.keys(locationsByMoveActions).map((str) => Number(str))
         ) || 1
 
-    const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
-        template: undefined,
-        destination: destination,
+    const { mapLocation } =
+        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            battleSquaddie.battleSquaddieId
+        )
+
+    const movementStep: BattleActionDecisionStep =
+        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep: movementStep,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+    })
+    BattleActionDecisionStepService.addAction({
+        actionDecisionStep: movementStep,
+        movement: true,
+    })
+    BattleActionDecisionStepService.setConfirmedTarget({
+        actionDecisionStep: movementStep,
+        targetLocation: destination,
     })
 
     return ProcessedActionService.new({
-        decidedAction: DecidedActionService.new({
-            actionTemplateName: "Move",
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            actionPointCost: numberOfActionPointsSpentMoving,
-            actionEffects: [decidedActionMovementEffect],
+        actionPointCost: numberOfActionPointsSpentMoving,
+        battleAction: BattleActionService.new({
+            actor: { battleSquaddieId: battleSquaddie.battleSquaddieId },
+            action: { isMovement: true },
+            effect: {
+                movement: {
+                    startLocation: mapLocation,
+                    endLocation: destination,
+                },
+            },
         }),
         processedActionEffects: [
             ProcessedActionMovementEffectService.new({
-                decidedActionEffect: decidedActionMovementEffect,
+                battleActionDecisionStep: movementStep,
             }),
         ],
     })

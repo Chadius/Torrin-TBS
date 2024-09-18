@@ -40,17 +40,19 @@ import {
 } from "../../cutscene/cutsceneTrigger"
 import { SAVE_VERSION } from "../../utils/fileHandling/saveFile"
 import { BattleStateService } from "../orchestrator/battleState"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { ActionsThisRound, ActionsThisRoundService } from "./actionsThisRound"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { BattleActionSquaddieChangeService } from "./battleActionSquaddieChange"
-import { BattleActionActionContextService } from "./battleAction"
+import {
+    BattleActionActionContextService,
+    BattleActionService,
+} from "./battleAction"
 import { SquaddieSquaddieResultsService } from "./squaddieSquaddieResults"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording
@@ -66,23 +68,21 @@ describe("BattleSaveState", () => {
     beforeEach(() => {
         eventRecording0 = { history: [] }
 
+        const actionTemplate: ActionTemplate = ActionTemplateService.new({
+            actionPoints: 1,
+            name: "attack",
+            id: "attackId",
+        })
+
         firstBattleEvent = BattleEventService.new({
             processedAction: ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionPointCost: 1,
-                    battleSquaddieId: "actor 1",
-                    actionTemplateName: "attack",
-                    actionTemplateId: "attackId",
-                    actionEffects: [
-                        DecidedActionSquaddieEffectService.new({
-                            template: ActionEffectSquaddieTemplateService.new(
-                                {}
-                            ),
-                            target: { q: 0, r: 0 },
-                        }),
-                    ],
-                }),
+                actionPointCost: 1,
                 processedActionEffects: [],
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: "actor 1" },
+                    action: { id: actionTemplate.id },
+                    effect: { squaddie: [] },
+                }),
             }),
             results: {
                 actingBattleSquaddieId: "actor 1",
@@ -360,17 +360,16 @@ describe("BattleSaveState", () => {
             startingLocation: { q: 0, r: 4 },
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 3,
-                        actionTemplateName: "Move",
-                        battleSquaddieId: "actor 2",
-                        actionEffects: [
-                            DecidedActionMovementEffectService.new({
-                                destination: { q: 1, r: 6 },
-                                template:
-                                    ActionEffectMovementTemplateService.new({}),
-                            }),
-                        ],
+                    actionPointCost: 3,
+                    battleAction: BattleActionService.new({
+                        actor: { battleSquaddieId: "actor 2" },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 4 },
+                                endLocation: { q: 1, r: 6 },
+                            },
+                        },
                     }),
                 }),
             ],

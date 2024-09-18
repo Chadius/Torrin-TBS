@@ -45,7 +45,10 @@ import { ProcessedActionSquaddieEffectService } from "../../action/processed/pro
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
-import { BattleActionActionContextService } from "../history/battleAction"
+import {
+    BattleActionActionContextService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -404,18 +407,25 @@ describe("Mission Cutscene Service", () => {
                         startingLocation: { q: 0, r: 0 },
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: undefined,
+                                battleAction: BattleActionService.new({
+                                    actor: { battleSquaddieId: "attacker" },
+                                    action: { id: "attack" },
+                                    effect: { squaddie: [] },
+                                }),
+                                actionPointCost: 0,
                                 processedActionEffects: [
-                                    ProcessedActionSquaddieEffectService.new({
-                                        results: targetWasInjuredResult,
-                                        decidedActionEffect:
-                                            DecidedActionSquaddieEffectService.new(
-                                                {
-                                                    template: undefined,
-                                                    target: undefined,
-                                                }
-                                            ),
-                                    }),
+                                    ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                        {
+                                            results: targetWasInjuredResult,
+                                            decidedActionEffect:
+                                                DecidedActionSquaddieEffectService.new(
+                                                    {
+                                                        template: undefined,
+                                                        target: undefined,
+                                                    }
+                                                ),
+                                        }
+                                    ),
                                 ],
                             }),
                         ],

@@ -33,14 +33,9 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -49,12 +44,13 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionService } from "../history/battleAction"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
     let targetComponent: BattlePlayerSquaddieTarget
     let knightStatic: SquaddieTemplate
-    let knightDynamic: BattleSquaddie
+    let knightBattleSquaddie: BattleSquaddie
     let citizenStatic: SquaddieTemplate
     let citizenDynamic: BattleSquaddie
     let thiefStatic: SquaddieTemplate
@@ -125,18 +121,20 @@ describe("BattleSquaddieTarget", () => {
             objectRepository,
             bandageWoundsAction
         )
-        ;({ squaddieTemplate: knightStatic, battleSquaddie: knightDynamic } =
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                name: "Knight",
-                templateId: "Knight",
-                battleId: "Knight 0",
-                affiliation: SquaddieAffiliation.PLAYER,
-                objectRepository: objectRepository,
-                actionTemplateIds: [longswordAction.id, bandageWoundsAction.id],
-            }))
+        ;({
+            squaddieTemplate: knightStatic,
+            battleSquaddie: knightBattleSquaddie,
+        } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+            name: "Knight",
+            templateId: "Knight",
+            battleId: "Knight 0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            objectRepository: objectRepository,
+            actionTemplateIds: [longswordAction.id, bandageWoundsAction.id],
+        }))
         battleMap.addSquaddie(
             knightStatic.squaddieId.templateId,
-            knightDynamic.battleSquaddieId,
+            knightBattleSquaddie.battleSquaddieId,
             { q: 1, r: 1 }
         )
         ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
@@ -179,7 +177,7 @@ describe("BattleSquaddieTarget", () => {
         )
 
         const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: knightDynamic.battleSquaddieId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
             startingLocation: { q: 1, r: 1 },
             previewedActionTemplateId: longswordActionId,
         })
@@ -211,13 +209,13 @@ describe("BattleSquaddieTarget", () => {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            battleSquaddieId: knightDynamic.battleSquaddieId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .playerBattleActionBuilderState,
-            actionTemplate: longswordAction,
+            actionTemplateId: longswordAction.id,
         })
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
@@ -228,7 +226,7 @@ describe("BattleSquaddieTarget", () => {
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
-            battleSquaddieId: knightDynamic.battleSquaddieId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
             resourceHandler: gameEngineState.resourceHandler,
             objectRepository: gameEngineState.repository,
             gameEngineState,
@@ -473,23 +471,18 @@ describe("BattleSquaddieTarget", () => {
                 })
 
                 const actionsThisRound = ActionsThisRoundService.new({
-                    battleSquaddieId: knightDynamic.battleSquaddieId,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                     startingLocation: { q: 1, r: 1 },
                     processedActions: [
                         ProcessedActionService.new({
-                            decidedAction: DecidedActionService.new({
-                                battleSquaddieId:
-                                    knightDynamic.battleSquaddieId,
-                                actionPointCost: action.actionPoints,
-                                actionTemplateName: name,
-                                actionTemplateId: name,
-                                actionEffects: [
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: action
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 0 },
-                                    }),
-                                ],
+                            actionPointCost: action.actionPoints,
+                            battleAction: BattleActionService.new({
+                                actor: {
+                                    battleSquaddieId:
+                                        knightBattleSquaddie.battleSquaddieId,
+                                },
+                                action: { id: action.id },
+                                effect: { squaddie: [] },
                             }),
                         }),
                     ],

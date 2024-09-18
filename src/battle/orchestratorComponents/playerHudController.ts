@@ -78,7 +78,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             }
         }
 
-        if (isValidValue(actionBuilderState.action.actionTemplate)) {
+        if (actionBuilderState?.action?.actionTemplateId) {
             if (
                 BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState

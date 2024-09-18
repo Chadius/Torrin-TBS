@@ -7,14 +7,15 @@ import {
 } from "../../action/processed/processedAction"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { ProcessedActionEffect } from "../../action/processed/processedActionEffect"
-import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
+import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 
 export interface ActionsThisRound {
     battleSquaddieId: string
     startingLocation: HexCoordinate
     processedActions: ProcessedAction[]
+    battleActionDecisionSteps: BattleActionDecisionStep[]
     previewedActionTemplateId: string
     processedActionEffectIteratorIndex: number
 }
@@ -25,16 +26,19 @@ export const ActionsThisRoundService = {
         startingLocation,
         processedActions,
         previewedActionTemplateId,
+        battleActionDecisionSteps,
     }: {
         battleSquaddieId: string
         startingLocation: HexCoordinate
         processedActions?: ProcessedAction[]
+        battleActionDecisionSteps?: BattleActionDecisionStep[]
         previewedActionTemplateId?: string
     }): ActionsThisRound => {
         return sanitize({
             battleSquaddieId,
             startingLocation,
             processedActions,
+            battleActionDecisionSteps: battleActionDecisionSteps ?? [],
             previewedActionTemplateId: previewedActionTemplateId,
             processedActionEffectIteratorIndex: 0,
         })
@@ -58,41 +62,6 @@ export const ActionsThisRoundService = {
     ): ProcessedActionEffect => {
         return getProcessedActionAndActionEffectToShow(actionsThisRound)
             .processedActionEffect
-    },
-    getDecidedButNotProcessedActionEffect: (
-        actionsThisRound: ActionsThisRound
-    ): {
-        processedAction: ProcessedAction
-        decidedActionEffect: DecidedActionEffect
-    } => {
-        if (!isValidValue(actionsThisRound)) {
-            return {
-                processedAction: undefined,
-                decidedActionEffect: undefined,
-            }
-        }
-
-        const firstPendingProcessedAction =
-            actionsThisRound.processedActions.find(
-                (processedAction) =>
-                    processedAction.decidedAction &&
-                    processedAction.processedActionEffects.length === 0
-            )
-
-        if (firstPendingProcessedAction === undefined) {
-            return {
-                processedAction: undefined,
-                decidedActionEffect: undefined,
-            }
-        }
-
-        return {
-            processedAction: firstPendingProcessedAction,
-            decidedActionEffect:
-                firstPendingProcessedAction.decidedAction.actionEffects[
-                    firstPendingProcessedAction.processedActionEffects.length
-                ],
-        }
     },
     nextProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound) => {
         if (!isValidValue(actionsThisRound)) {

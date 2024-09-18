@@ -13,10 +13,7 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../../../action/template/actionEffectSquaddieTemplate"
 import { DamageType } from "../../../../squaddie/squaddieService"
 import {
     Trait,
@@ -34,8 +31,6 @@ import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrch
 import { BattleStateService } from "../../../orchestrator/battleState"
 import { ActionsThisRoundService } from "../../../history/actionsThisRound"
 import { ProcessedActionService } from "../../../../action/processed/processedAction"
-import { DecidedActionService } from "../../../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../../../action/decided/decidedActionSquaddieEffect"
 import { ActionCalculator } from "../calculator"
 import { DegreeOfSuccess } from "../degreeOfSuccess"
 import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
@@ -44,6 +39,11 @@ import {
     AttributeSource,
     AttributeType,
 } from "../../../../squaddie/attributeModifier"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../../../actionDecision/battleActionDecisionStep"
+import { BattleActionService } from "../../../history/battleAction"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -52,6 +52,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
     let numberGenerator: StreamNumberGenerator
     let gameEngineState: GameEngineState
     let missionMap: MissionMap
+    let objectRepository: ObjectRepository
 
     beforeEach(() => {
         missionMap = MissionMapService.new({
@@ -60,6 +61,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             }),
         })
 
+        objectRepository = ObjectRepositoryService.new()
         armorAttackingAction = ActionTemplateService.new({
             id: "armorAttackingAction",
             name: "ArmorAttackingAction",
@@ -79,7 +81,10 @@ describe("Armor Attribute affects Armor Attacks", () => {
             ],
         })
 
-        const repository: ObjectRepository = ObjectRepositoryService.new()
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            armorAttackingAction
+        )
 
         const actingTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
@@ -94,7 +99,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             battleSquaddieId: "actingSquaddie",
         })
         ObjectRepositoryService.addSquaddie(
-            repository,
+            objectRepository,
             actingTemplate,
             actingSquaddie
         )
@@ -120,7 +125,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             battleSquaddieId: "targetSquaddie",
         })
         ObjectRepositoryService.addSquaddie(
-            repository,
+            objectRepository,
             targetTemplate,
             targetSquaddie
         )
@@ -132,7 +137,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
 
         gameEngineState = GameEngineStateService.new({
-            repository,
+            repository: objectRepository,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.new({
                     missionMap: missionMap,
@@ -150,18 +155,13 @@ describe("Armor Attribute affects Armor Attacks", () => {
             startingLocation: { q: 0, r: 0 },
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionTemplateName: action.name,
-                        actionTemplateId: action.id,
-                        battleSquaddieId: actingSquaddie.battleSquaddieId,
-                        actionPointCost: action.actionPoints,
-                        actionEffects: [
-                            DecidedActionSquaddieEffectService.new({
-                                template: action
-                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                target: { q: 0, r: 1 },
-                            }),
-                        ],
+                    actionPointCost: 1,
+                    battleAction: BattleActionService.new({
+                        actor: {
+                            battleSquaddieId: actingSquaddie.battleSquaddieId,
+                        },
+                        action: { id: action.id },
+                        effect: { squaddie: [] },
                     }),
                 }),
             ],
@@ -189,16 +189,27 @@ describe("Armor Attribute affects Armor Attacks", () => {
             })
         )
 
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: actingSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: armorAttackingAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 1 },
+        })
+
         const results = ActionCalculator.calculateResults({
             gameEngineState,
             actionsThisRound:
                 gameEngineState.battleOrchestratorState.battleState
                     .actionsThisRound,
-            actionEffect:
-                ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).decidedActionEffect,
+            battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
             validTargetLocation: { q: 0, r: 1 },
         })
@@ -236,6 +247,10 @@ describe("Armor Attribute affects Armor Attacks", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            armorIgnoringAction
+        )
 
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
             createActionsThisRound(armorIgnoringAction)
@@ -250,17 +265,27 @@ describe("Armor Attribute affects Armor Attacks", () => {
                 description: "Impenetrable Armor",
             })
         )
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: actingSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: armorIgnoringAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 1 },
+        })
 
         const results = ActionCalculator.calculateResults({
             gameEngineState,
             actionsThisRound:
                 gameEngineState.battleOrchestratorState.battleState
                     .actionsThisRound,
-            actionEffect:
-                ActionsThisRoundService.getDecidedButNotProcessedActionEffect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).decidedActionEffect,
+            battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
             validTargetLocation: { q: 0, r: 1 },
         })

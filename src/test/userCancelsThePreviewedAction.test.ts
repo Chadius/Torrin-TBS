@@ -55,6 +55,7 @@ import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
+import { BattleActionService } from "../battle/history/battleAction"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -295,17 +296,27 @@ describe("User cancels the previewed action", () => {
                 previewedActionTemplateId: attackAction.id,
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: undefined,
+                        actionPointCost: 0,
+                        battleAction: BattleActionService.new({
+                            actor: {
+                                battleSquaddieId:
+                                    playerBattleSquaddie.battleSquaddieId,
+                            },
+                            action: { id: attackAction.id },
+                            effect: { squaddie: [] },
+                        }),
                         processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.new({
-                                decidedActionEffect:
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: attackAction
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 1 },
-                                    }),
-                                results: undefined,
-                            }),
+                            ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        DecidedActionSquaddieEffectService.new({
+                                            template: attackAction
+                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                            target: { q: 0, r: 1 },
+                                        }),
+                                    results: undefined,
+                                }
+                            ),
                         ],
                     }),
                 ],
@@ -376,17 +387,27 @@ describe("User cancels the previewed action", () => {
             previewedActionTemplateId: attackAction.name,
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: undefined,
+                    actionPointCost: 0,
+                    battleAction: BattleActionService.new({
+                        actor: {
+                            battleSquaddieId:
+                                playerBattleSquaddie.battleSquaddieId,
+                        },
+                        action: { id: attackAction.id },
+                        effect: { squaddie: [] },
+                    }),
                     processedActionEffects: [
-                        ProcessedActionSquaddieEffectService.new({
-                            decidedActionEffect:
-                                DecidedActionSquaddieEffectService.new({
-                                    template: attackAction
-                                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                    target: { q: 0, r: 1 },
-                                }),
-                            results: undefined,
-                        }),
+                        ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    DecidedActionSquaddieEffectService.new({
+                                        template: attackAction
+                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                        target: { q: 0, r: 1 },
+                                    }),
+                                results: undefined,
+                            }
+                        ),
                     ],
                 }),
             ],

@@ -45,13 +45,11 @@ import {
 import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionService } from "../history/battleAction"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -598,18 +596,16 @@ describe("Battle Orchestrator", () => {
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            battleSquaddieId: "new dynamic squaddie",
-                            actionPointCost: 2,
-                            actionEffects: [
-                                DecidedActionMovementEffectService.new({
-                                    destination: { q: 1, r: 2 },
-                                    template:
-                                        ActionEffectMovementTemplateService.new(
-                                            {}
-                                        ),
-                                }),
-                            ],
+                        actionPointCost: 2,
+                        battleAction: BattleActionService.new({
+                            actor: { battleSquaddieId: "new dynamic squaddie" },
+                            action: { isMovement: true },
+                            effect: {
+                                movement: {
+                                    startLocation: { q: 0, r: 0 },
+                                    endLocation: { q: 1, r: 2 },
+                                },
+                            },
                         }),
                     }),
                 ],

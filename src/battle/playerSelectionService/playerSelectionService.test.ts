@@ -44,7 +44,6 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -1043,32 +1042,35 @@ describe("Player Selection Service", () => {
             })
 
             const movementActionEffect =
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: DecidedActionMovementEffectService.new(
-                        {
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }
-                    ),
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionMovementEffectService.new({
+                                destination: { q: 0, r: 1 },
+                                template:
+                                    ActionEffectMovementTemplateService.new({}),
+                            }),
+                    }
+                )
+
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId: "PLAYER",
                     startingLocation: { q: 0, r: 0 },
                     processedActions: [
                         ProcessedActionService.new({
-                            processedActionEffects: [movementActionEffect],
-                            decidedAction: DecidedActionService.new({
-                                battleSquaddieId: "PLAYER",
-                                actionPointCost: 1,
-                                actionTemplateName: "movement",
-                                actionTemplateId: "movement id",
-                                actionEffects: [
-                                    movementActionEffect.decidedActionEffect,
-                                ],
+                            battleAction: BattleActionService.new({
+                                actor: { battleSquaddieId: "PLAYER" },
+                                action: { isMovement: true },
+                                effect: {
+                                    movement: {
+                                        startLocation: { q: 0, r: 0 },
+                                        endLocation: { q: 0, r: 1 },
+                                    },
+                                },
                             }),
+                            actionPointCost: 1,
+                            processedActionEffects: [movementActionEffect],
                         }),
                     ],
                 })
@@ -1262,6 +1264,7 @@ describe("Player Selection Service", () => {
                     destination: { q: 0, r: 1 },
                     template: ActionEffectMovementTemplateService.new({}),
                 })
+
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId: "PLAYER",
@@ -1269,17 +1272,24 @@ describe("Player Selection Service", () => {
                     previewedActionTemplateId: undefined,
                     processedActions: [
                         ProcessedActionService.new({
-                            decidedAction: DecidedActionService.new({
-                                actionPointCost: 1,
-                                battleSquaddieId: "PLAYER",
-                                actionTemplateName: "Move",
-                                actionEffects: [decidedActionMovementEffect],
+                            battleAction: BattleActionService.new({
+                                actor: { battleSquaddieId: "PLAYER" },
+                                action: { isMovement: true },
+                                effect: {
+                                    movement: {
+                                        startLocation: { q: 0, r: 0 },
+                                        endLocation: { q: 0, r: 1 },
+                                    },
+                                },
                             }),
+                            actionPointCost: 1,
                             processedActionEffects: [
-                                ProcessedActionMovementEffectService.new({
-                                    decidedActionEffect:
-                                        decidedActionMovementEffect,
-                                }),
+                                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                                    {
+                                        decidedActionEffect:
+                                            decidedActionMovementEffect,
+                                    }
+                                ),
                             ],
                         }),
                     ],

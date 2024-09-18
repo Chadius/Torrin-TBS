@@ -42,7 +42,6 @@ import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { RectAreaService } from "../ui/rectArea"
-import { DecidedActionService } from "../action/decided/decidedAction"
 import {
     DecidedActionEndTurnEffect,
     DecidedActionEndTurnEffectService,
@@ -260,15 +259,17 @@ describe("User ends their turn", () => {
             })
         expect(processedAction.processedActionEffects).toHaveLength(1)
         expect(processedAction.processedActionEffects[0]).toEqual(
-            ProcessedActionEndTurnEffectService.new({
+            ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
                 decidedActionEffect: decidedActionEndTurnEffect,
             })
         )
-        expect(processedAction.decidedAction).toEqual(
-            DecidedActionService.new({
-                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                actionTemplateName: "End Turn",
-                actionEffects: [decidedActionEndTurnEffect],
+        expect(processedAction.battleAction).toEqual(
+            BattleActionService.new({
+                actor: {
+                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                },
+                action: { isEndTurn: true },
+                effect: { endTurn: true },
             })
         )
     })
@@ -384,16 +385,22 @@ describe("User ends their turn", () => {
             ).toContainEqual(
                 BattleEventService.new({
                     processedAction: ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            battleSquaddieId:
-                                playerBattleSquaddie.battleSquaddieId,
-                            actionTemplateName: "End Turn",
-                            actionEffects: [decidedActionEndTurnEffect],
+                        battleAction: BattleActionService.new({
+                            actor: {
+                                battleSquaddieId:
+                                    playerBattleSquaddie.battleSquaddieId,
+                            },
+                            action: { isEndTurn: true },
+                            effect: { endTurn: true },
                         }),
+                        actionPointCost: "End Turn",
                         processedActionEffects: [
-                            ProcessedActionEndTurnEffectService.new({
-                                decidedActionEffect: decidedActionEndTurnEffect,
-                            }),
+                            ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        decidedActionEndTurnEffect,
+                                }
+                            ),
                         ],
                     }),
                     results: undefined,
@@ -415,6 +422,7 @@ describe("User ends their turn", () => {
             })
             graphicsContext = new MockedP5GraphicsBuffer()
             mapAction = new BattleSquaddieUsesActionOnMap()
+
             gameEngineState = GameEngineStateService.new({
                 repository: objectRepository,
                 resourceHandler,
@@ -433,15 +441,17 @@ describe("User ends their turn", () => {
                             startingLocation: { q: 0, r: 0 },
                             processedActions: [
                                 ProcessedActionService.new({
-                                    decidedAction: DecidedActionService.new({
-                                        battleSquaddieId:
-                                            playerBattleSquaddie.battleSquaddieId,
-                                        actionEffects: [
-                                            decidedActionEndTurnEffect,
-                                        ],
+                                    battleAction: BattleActionService.new({
+                                        actor: {
+                                            battleSquaddieId:
+                                                playerBattleSquaddie.battleSquaddieId,
+                                        },
+                                        action: { isEndTurn: true },
+                                        effect: { endTurn: true },
                                     }),
+                                    actionPointCost: "End Turn",
                                     processedActionEffects: [
-                                        ProcessedActionEndTurnEffectService.new(
+                                        ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
                                             {
                                                 decidedActionEffect:
                                                     decidedActionEndTurnEffect,
@@ -489,7 +499,7 @@ describe("User ends their turn", () => {
                         .actionsThisRound
                 )
             expect(nextAction).toEqual(
-                ProcessedActionEndTurnEffectService.new({
+                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
                     decidedActionEffect: decidedActionEndTurnEffect,
                 })
             )

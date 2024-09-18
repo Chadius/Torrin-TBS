@@ -41,10 +41,7 @@ import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker
 import { CampaignService } from "../campaign/campaign"
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
-import {
-    DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService,
-} from "../action/decided/decidedActionSquaddieEffect"
+import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
 import {
@@ -60,13 +57,13 @@ import { SquaddieTargetsOtherSquaddiesAnimator } from "../battle/animation/squad
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkipsAnimationAnimator"
-import { DecidedActionService } from "../action/decided/decidedAction"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import {
     BattleActionActionContextService,
     BattleActionQueueService,
+    BattleActionService,
 } from "../battle/history/battleAction"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
@@ -220,7 +217,7 @@ describe("User Selects Target and Confirms", () => {
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep: playerBattleActionBuilderState,
-            actionTemplate: attackAction,
+            actionTemplateId: attackAction.id,
         })
 
         MissionMapService.addSquaddie({
@@ -268,20 +265,14 @@ describe("User Selects Target and Confirms", () => {
         ).toHaveLength(1)
         expect(
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions[0].decidedAction
+                .processedActions[0].battleAction
         ).toEqual(
-            DecidedActionService.new({
-                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                actionTemplateName: attackAction.name,
-                actionTemplateId: attackAction.id,
-                actionPointCost: attackAction.actionPoints,
-                actionEffects: [
-                    DecidedActionSquaddieEffectService.new({
-                        template: attackAction
-                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                        target: { q: 0, r: 2 },
-                    }),
-                ],
+            BattleActionService.new({
+                actor: {
+                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                },
+                action: { id: attackAction.id },
+                effect: { squaddie: [] },
             })
         )
         expect(
@@ -336,83 +327,91 @@ describe("User Selects Target and Confirms", () => {
                         previewedActionTemplateId: undefined,
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction:
+                                actionPointCost:
                                     actionsThisRound.processedActions[0]
-                                        .decidedAction,
+                                        .actionPointCost,
+                                battleAction:
+                                    actionsThisRound.processedActions[0]
+                                        .battleAction,
                                 processedActionEffects: [
-                                    ProcessedActionSquaddieEffectService.new({
-                                        decidedActionEffect: actionsThisRound
-                                            .processedActions[0].decidedAction
-                                            .actionEffects[0] as DecidedActionSquaddieEffect,
-                                        results:
-                                            SquaddieSquaddieResultsService.new({
-                                                actingBattleSquaddieId:
-                                                    "player 0",
-                                                actionContext:
-                                                    BattleActionActionContextService.new(
-                                                        {
-                                                            targetSquaddieModifiers:
+                                    ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                        {
+                                            decidedActionEffect:
+                                                DecidedActionSquaddieEffectService.new(
+                                                    {
+                                                        template: attackAction
+                                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                                        target: { q: 0, r: 2 },
+                                                    }
+                                                ),
+                                            results:
+                                                SquaddieSquaddieResultsService.new(
+                                                    {
+                                                        actingBattleSquaddieId:
+                                                            "player 0",
+                                                        actionContext:
+                                                            BattleActionActionContextService.new(
                                                                 {
-                                                                    "enemy 0":
-                                                                        [],
-                                                                },
-                                                        }
-                                                    ),
-                                                squaddieChanges: [
-                                                    BattleActionSquaddieChangeService.new(
-                                                        {
-                                                            actorDegreeOfSuccess:
-                                                                DegreeOfSuccess.SUCCESS,
-                                                            damageTaken: 1,
-                                                            healingReceived: 0,
-                                                            attributesAfter:
-                                                                InBattleAttributesService.new(
-                                                                    {
-                                                                        armyAttributes:
+                                                                    targetSquaddieModifiers:
+                                                                        {},
+                                                                }
+                                                            ),
+                                                        squaddieChanges: [
+                                                            BattleActionSquaddieChangeService.new(
+                                                                {
+                                                                    actorDegreeOfSuccess:
+                                                                        DegreeOfSuccess.SUCCESS,
+                                                                    damageTaken: 1,
+                                                                    healingReceived: 0,
+                                                                    attributesAfter:
+                                                                        InBattleAttributesService.new(
                                                                             {
-                                                                                armorClass: 0,
-                                                                                maxHitPoints: 5,
-                                                                                movement:
+                                                                                armyAttributes:
                                                                                     {
-                                                                                        crossOverPits:
-                                                                                            false,
-                                                                                        movementPerAction: 2,
-                                                                                        passThroughWalls:
-                                                                                            false,
+                                                                                        armorClass: 0,
+                                                                                        maxHitPoints: 5,
+                                                                                        movement:
+                                                                                            {
+                                                                                                crossOverPits:
+                                                                                                    false,
+                                                                                                movementPerAction: 2,
+                                                                                                passThroughWalls:
+                                                                                                    false,
+                                                                                            },
                                                                                     },
-                                                                            },
-                                                                        currentHitPoints: 4,
-                                                                    }
-                                                                ),
-                                                            attributesBefore:
-                                                                InBattleAttributesService.new(
-                                                                    {
-                                                                        armyAttributes:
+                                                                                currentHitPoints: 4,
+                                                                            }
+                                                                        ),
+                                                                    attributesBefore:
+                                                                        InBattleAttributesService.new(
                                                                             {
-                                                                                armorClass: 0,
-                                                                                maxHitPoints: 5,
-                                                                                movement:
+                                                                                armyAttributes:
                                                                                     {
-                                                                                        crossOverPits:
-                                                                                            false,
-                                                                                        movementPerAction: 2,
-                                                                                        passThroughWalls:
-                                                                                            false,
+                                                                                        armorClass: 0,
+                                                                                        maxHitPoints: 5,
+                                                                                        movement:
+                                                                                            {
+                                                                                                crossOverPits:
+                                                                                                    false,
+                                                                                                movementPerAction: 2,
+                                                                                                passThroughWalls:
+                                                                                                    false,
+                                                                                            },
                                                                                     },
-                                                                            },
-                                                                        currentHitPoints: 5,
-                                                                    }
-                                                                ),
-                                                            battleSquaddieId:
-                                                                enemyBattleSquaddie.battleSquaddieId,
-                                                        }
-                                                    ),
-                                                ],
-                                                targetedBattleSquaddieIds: [
-                                                    "enemy 0",
-                                                ],
-                                            }),
-                                    }),
+                                                                                currentHitPoints: 5,
+                                                                            }
+                                                                        ),
+                                                                    battleSquaddieId:
+                                                                        enemyBattleSquaddie.battleSquaddieId,
+                                                                }
+                                                            ),
+                                                        ],
+                                                        targetedBattleSquaddieIds:
+                                                            ["enemy 0"],
+                                                    }
+                                                ),
+                                        }
+                                    ),
                                 ],
                             }),
                         ],
@@ -744,18 +743,13 @@ const useActionTemplateOnLocation = ({
         previewedActionTemplateId: actionTemplate.id,
         processedActions: [
             ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: attackerBattleSquaddieId,
-                    actionTemplateName: actionTemplate.name,
-                    actionTemplateId: actionTemplate.id,
-                    actionPointCost: actionTemplate.actionPoints,
-                    actionEffects: [
-                        DecidedActionSquaddieEffectService.new({
-                            template: actionTemplate
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: targetLocation,
-                        }),
-                    ],
+                actionPointCost: actionTemplate.actionPoints,
+                battleAction: BattleActionService.new({
+                    actor: {
+                        battleSquaddieId: attackerBattleSquaddieId,
+                    },
+                    action: { id: actionTemplate.id },
+                    effect: { squaddie: [] },
                 }),
                 processedActionEffects: [],
             }),
@@ -797,7 +791,7 @@ const clickOnEnemy = ({
     })
     BattleActionDecisionStepService.addAction({
         actionDecisionStep: playerBattleActionBuilderState,
-        actionTemplate,
+        actionTemplateId: actionTemplate.id,
     })
 
     MissionMapService.addSquaddie({

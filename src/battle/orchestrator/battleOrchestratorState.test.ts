@@ -47,7 +47,6 @@ import {
     DecidedActionEndTurnEffectService,
 } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
@@ -67,7 +66,10 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { BattleHUDService } from "../hud/battleHUD"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../history/battleAction"
+import {
+    BattleActionActionContextService,
+    BattleActionService,
+} from "../history/battleAction"
 
 describe("orchestratorState", () => {
     let validBattleState: BattleState
@@ -246,13 +248,24 @@ describe("orchestratorState", () => {
                     template: ActionEffectMovementTemplateService.new({}),
                 })
             movementProcessedActionMovementEffect =
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: movementDecidedActionMovementEffect,
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            movementDecidedActionMovementEffect,
+                    }
+                )
+
             movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [movementDecidedActionMovementEffect],
-                    battleSquaddieId: "battleSquaddie",
+                actionPointCost: 0,
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: "battleSquaddie" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 2 },
+                        },
+                    },
                 }),
                 processedActionEffects: [movementProcessedActionMovementEffect],
             })
@@ -263,22 +276,30 @@ describe("orchestratorState", () => {
                     template: ActionEffectSquaddieTemplateService.new({}),
                 })
             squaddieProcessedActionSquaddieEffect =
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: squaddieDecidedActionSquaddieEffect,
-                    results: SquaddieSquaddieResultsService.new({
-                        targetedBattleSquaddieIds: [],
-                        actingBattleSquaddieId: "",
-                        actionContext: BattleActionActionContextService.new({
-                            actingSquaddieModifiers: [],
-                            actingSquaddieRoll: undefined,
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            squaddieDecidedActionSquaddieEffect,
+                        results: SquaddieSquaddieResultsService.new({
+                            targetedBattleSquaddieIds: [],
+                            actingBattleSquaddieId: "",
+                            actionContext: BattleActionActionContextService.new(
+                                {
+                                    actingSquaddieModifiers: [],
+                                    actingSquaddieRoll: undefined,
+                                }
+                            ),
+                            squaddieChanges: [],
                         }),
-                        squaddieChanges: [],
-                    }),
-                })
+                    }
+                )
+
             squaddieProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [squaddieDecidedActionSquaddieEffect],
-                    battleSquaddieId: "battleSquaddie",
+                actionPointCost: 1,
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: "battleSquaddie" },
+                    action: { id: "action" },
+                    effect: { squaddie: [] },
                 }),
                 processedActionEffects: [squaddieProcessedActionSquaddieEffect],
             })
@@ -288,14 +309,17 @@ describe("orchestratorState", () => {
                     template: ActionEffectEndTurnTemplateService.new({}),
                 })
             endTurnProcessedActionEndTurnEffect =
-                ProcessedActionEndTurnEffectService.new({
+                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
                     decidedActionEffect: endTurnDecidedActionEndTurnEffect,
                 })
+
             endTurnProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [endTurnDecidedActionEndTurnEffect],
-                    battleSquaddieId: "battleSquaddie",
+                battleAction: BattleActionService.new({
+                    actor: { battleSquaddieId: "battleSquaddie" },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
                 }),
+                actionPointCost: "End Turn",
                 processedActionEffects: [endTurnProcessedActionEndTurnEffect],
             })
         })
