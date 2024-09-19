@@ -58,11 +58,7 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
-import {
-    BattleAction,
-    BattleActionQueueService,
-    BattleActionService,
-} from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
@@ -85,6 +81,7 @@ import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -673,7 +670,7 @@ export const BattleHUDService = {
             results.squaddieChanges
         )
 
-        const squaddieBattleAction = BattleActionService.new({
+        const squaddieBattleAction: BattleAction = BattleActionService.new({
             actor: {
                 battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
             },

@@ -24,9 +24,10 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -163,11 +164,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     reset(gameEngineState: GameEngineState) {
         this.resetInternalState()
-
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
     }

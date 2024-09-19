@@ -62,7 +62,6 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import {
     BattleActionActionContextService,
-    BattleActionQueueService,
     BattleActionService,
 } from "../battle/history/battleAction"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
@@ -75,6 +74,7 @@ import {
 import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
+import { BattleActionQueueService } from "../battle/history/battleActionQueue"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository

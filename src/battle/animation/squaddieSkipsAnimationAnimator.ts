@@ -11,9 +11,10 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionResultTextService } from "./actionResultTextService"
 import { RecordingService } from "../history/recording"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
@@ -44,10 +45,11 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     reset(gameEngineState: GameEngineState): void {
         this.resetInternalState()
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
     }

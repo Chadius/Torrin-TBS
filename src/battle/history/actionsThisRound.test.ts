@@ -29,6 +29,7 @@ import { ActionEffectEndTurnTemplateService } from "../../action/template/action
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { BattleActionService } from "./battleAction"
+import { BattleActionQueueService } from "./battleActionQueue"
 
 describe("Actions This Round", () => {
     it("can create object with actor Id, starting location and a previewTemplateId", () => {
@@ -44,6 +45,9 @@ describe("Actions This Round", () => {
         expect(actionsThisRound.previewedActionTemplateId).toEqual(
             "consider using this action"
         )
+        expect(
+            BattleActionQueueService.isEmpty(actionsThisRound.battleActionQueue)
+        ).toBeTruthy()
     })
 
     describe("sanitize", () => {

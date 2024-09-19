@@ -80,7 +80,6 @@ import {
 import {
     BattleAction,
     BattleActionActionContextService,
-    BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
@@ -114,6 +113,7 @@ import {
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1838,6 +1838,47 @@ describe("Battle HUD", () => {
             expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
         })
 
+        it("should add an action to the action builder", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            expect(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        battleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { id: longswordAction.id },
+                    effect: {
+                        squaddie: [
+                            {
+                                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                attributesAfter: {
+                                    ...InBattleAttributesService.new({}),
+                                    currentHitPoints: 3,
+                                },
+                                attributesBefore: InBattleAttributesService.new(
+                                    {}
+                                ),
+                                battleSquaddieId: "Thief 0",
+                                damageTaken: 2,
+                                healingReceived: 0,
+                            },
+                        ],
+                    },
+                    animation: {
+                        completed: false,
+                    },
+                })
+            )
+        })
+
         describe("confirming an action mid turn", () => {
             beforeEach(() => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
@@ -2325,11 +2366,11 @@ describe("Battle HUD", () => {
                 sendMessageToMove()
 
                 expect(
-                    BattleActionDecisionStepService.isActionRecordReadyToAnimate(
+                    BattleActionQueueService.isEmpty(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionQueue
                     )
-                ).toBeFalsy()
+                ).toBeTruthy()
             })
         })
 

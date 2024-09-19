@@ -588,7 +588,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         const actionBuilderSpy: jest.SpyInstance = jest.spyOn(
             OrchestratorUtilities,
-            "resetActionBuilderIfActionIsComplete"
+            "resetActionBuilderIfBattleActionHasFinishedAnimating"
         )
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,

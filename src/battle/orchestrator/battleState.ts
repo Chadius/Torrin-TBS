@@ -31,10 +31,6 @@ import { isValidValue } from "../../utils/validityCheck"
 import { ObjectRepository } from "../objectRepository"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
-import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleAction"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardBattleActionFinishesAnimation,
@@ -42,6 +38,10 @@ import {
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import {
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "../history/battleActionQueue"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",

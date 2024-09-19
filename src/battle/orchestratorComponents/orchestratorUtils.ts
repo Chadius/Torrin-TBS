@@ -16,7 +16,6 @@ import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -26,6 +25,8 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -44,17 +45,30 @@ export const OrchestratorUtilities = {
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
     },
-    resetActionBuilderIfActionIsComplete: (
+    resetActionBuilderIfBattleActionHasFinishedAnimating: (
         gameEngineState: GameEngineState
     ): void => {
         if (
-            !BattleActionDecisionStepService.isActionRecordComplete(
+            BattleActionQueueService.isEmpty(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+                    .battleActionQueue
             )
         ) {
             return
         }
+
+        const battleAction: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+
+        if (!BattleActionService.isAnimationComplete(battleAction)) {
+            return
+        }
+        BattleActionQueueService.dequeue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
         gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
             undefined
     },

@@ -45,7 +45,8 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import { BattleActionService } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -469,26 +470,22 @@ describe("BattleSquaddieMover", () => {
                     repository: squaddieRepo,
                     campaign: CampaignService.default(),
                 })
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    battleSquaddieId: "player_1",
+
+                const battleAction: BattleAction = BattleActionService.new({
+                    actor: { battleSquaddieId: "player_1" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 0 },
+                        },
+                    },
                 })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    movement: true,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    targetLocation: { q: 0, r: 0 },
-                })
+                BattleActionQueueService.add(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue,
+                    battleAction
+                )
 
                 const battleHUDListener = new BattleHUDListener(
                     "battleHUDListener"
@@ -529,14 +526,16 @@ describe("BattleSquaddieMover", () => {
 
             it("should tell the action builder the animation is complete and check if it needs to be reset", () => {
                 expect(
-                    BattleActionDecisionStepService.isAnimationComplete(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                    BattleActionService.isAnimationComplete(
+                        BattleActionQueueService.peek(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionQueue
+                        )
                     )
                 ).toBeTruthy()
                 const actionBuilderSpy = jest.spyOn(
                     OrchestratorUtilities,
-                    "resetActionBuilderIfActionIsComplete"
+                    "resetActionBuilderIfBattleActionHasFinishedAnimating"
                 )
 
                 mover.reset(gameEngineState)

@@ -49,9 +49,11 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import {
+    BattleAction,
     BattleActionActionContextService,
     BattleActionService,
 } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -285,7 +287,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         expect(animator.hasCompleted(state)).toBeTruthy()
     })
 
-    it("will set the action builder animation to true when it resets", () => {
+    it("will set the battle action animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
             resourceHandler: mockResourceHandler,
@@ -300,33 +302,25 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             }),
         })
 
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+        const battleAction: BattleAction = BattleActionService.new({
+            actor: { battleSquaddieId: knightBattleSquaddie.battleSquaddieId },
+            action: { id: longswordActionTemplate.id },
+            effect: { squaddie: [] },
         })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            actionTemplateId: longswordActionTemplate.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: { q: 0, r: 1 },
-        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            battleAction
+        )
 
         animator.reset(gameEngineState)
 
         expect(
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
             )
         ).toBeTruthy()
     })

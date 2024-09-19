@@ -14,10 +14,11 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -116,7 +117,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
             undefined
         this.animationStartTime = undefined
-        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
+        OrchestratorUtilities.resetActionBuilderIfBattleActionHasFinishedAnimating(
             gameEngineState
         )
     }
@@ -172,10 +173,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             squaddieTemplate,
             graphicsContext
         )
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
         gameEngineState.messageBoard.sendMessage({

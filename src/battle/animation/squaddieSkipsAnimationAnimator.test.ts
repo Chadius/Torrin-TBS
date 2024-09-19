@@ -44,11 +44,13 @@ import {
 import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import {
+    BattleAction,
     BattleActionActionContextService,
     BattleActionService,
 } from "../history/battleAction"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -236,7 +238,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         expect(animator.hasCompleted(state)).toBeTruthy()
     })
 
-    it("will set the action builder animation to true when it resets", () => {
+    it("will set the battle action animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -250,33 +252,25 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             repository: objectRepository,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: monkBattleSquaddieId,
+        const battleAction: BattleAction = BattleActionService.new({
+            actor: { battleSquaddieId: monkBattleSquaddieId },
+            action: { id: monkKoanAction.id },
+            effect: { squaddie: [] },
         })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            actionTemplateId: monkKoanAction.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: { q: 0, r: 0 },
-        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            battleAction
+        )
 
         animator.reset(gameEngineState)
 
         expect(
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
             )
         ).toBeTruthy()
     })

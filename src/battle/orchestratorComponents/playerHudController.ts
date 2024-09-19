@@ -12,6 +12,8 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -105,11 +107,17 @@ export class PlayerHudController implements BattleOrchestratorComponent {
 
     reset(gameEngineState: GameEngineState): void {
         if (
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
             )
         ) {
+            BattleActionQueueService.dequeue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            )
             gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
                 undefined
         }

@@ -29,11 +29,8 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "./battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import {
-    BattleAction,
-    BattleActionQueueService,
-    BattleActionService,
-} from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {

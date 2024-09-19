@@ -65,10 +65,8 @@ import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
-import {
-    BattleActionQueueService,
-    BattleActionService,
-} from "../battle/history/battleAction"
+import { BattleActionService } from "../battle/history/battleAction"
+import { BattleActionQueueService } from "../battle/history/battleActionQueue"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository

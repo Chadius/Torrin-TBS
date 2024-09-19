@@ -30,6 +30,8 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState
@@ -318,10 +320,21 @@ describe("PlayerHUDController", () => {
                         .playerBattleActionBuilderState,
                 targetLocation: { q: 0, r: 2 },
             })
-            BattleActionDecisionStepService.setAnimationCompleted({
-                actionDecisionStep:
+            const battleAction: BattleAction = BattleActionService.new({
+                actor: { battleSquaddieId: playerBattleSquaddieId },
+                action: { id: singleTargetAction.id },
+                effect: { squaddie: [] },
+            })
+            BattleActionQueueService.add(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue,
+                battleAction
+            )
+            BattleActionService.setAnimationCompleted({
+                battleAction: BattleActionQueueService.peek(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionQueue
+                ),
                 animationCompleted: true,
             })
 

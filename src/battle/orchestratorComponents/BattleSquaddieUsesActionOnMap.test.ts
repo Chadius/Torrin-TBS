@@ -22,7 +22,8 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleActionService } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -104,27 +105,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 }),
             }),
         })
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: "dynamic_squaddie",
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            endTurn: true,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: { q: 0, r: 1 },
-        })
 
+        const battleAction: BattleAction = BattleActionService.new({
+            actor: { battleSquaddieId: "dynamic_squaddie" },
+            action: { isEndTurn: true },
+            effect: { endTurn: true },
+        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            battleAction
+        )
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
@@ -177,9 +168,11 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         dateSpy.mockImplementation(() => 500)
         mapAction.update(gameEngineState, mockedP5GraphicsContext)
         expect(
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
             )
         ).toBeTruthy()
     })
@@ -208,7 +201,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         beforeEach(() => {
             actionBuilderSpy = jest.spyOn(
                 OrchestratorUtilities,
-                "resetActionBuilderIfActionIsComplete"
+                "resetActionBuilderIfBattleActionHasFinishedAnimating"
             )
             mapAction.update(gameEngineState, mockedP5GraphicsContext)
             dateSpy.mockImplementation(() => 500)

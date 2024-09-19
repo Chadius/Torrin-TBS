@@ -3,6 +3,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
 import { RollResult } from "../calculator/actionCalculator/rollResult"
 import { AttributeTypeAndAmount } from "../../squaddie/attributeModifier"
+import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 
 export interface BattleActionActor {
     battleSquaddieId: string
@@ -24,10 +25,15 @@ export interface BattleActionEffect {
     endTurn?: boolean
 }
 
+export interface BattleActionAnimation {
+    completed: boolean
+}
+
 export interface BattleAction {
     actor: BattleActionActor
     action: BattleActionAction
     effect: BattleActionEffect
+    animation: BattleActionAnimation
 }
 
 export interface BattleActionActionContext {
@@ -64,16 +70,36 @@ export const BattleActionService = {
         actor,
         action,
         effect,
+        animation,
     }: {
         actor: BattleActionActor
         action: BattleActionAction
         effect: BattleActionEffect
+        animation?: BattleActionAnimation
     }): BattleAction => {
         return sanitize({
             actor,
             action,
             effect,
+            animation,
         })
+    },
+    isAnimationComplete: (battleAction: BattleAction): boolean => {
+        return isAnimationComplete(battleAction)
+    },
+    setAnimationCompleted: ({
+        battleAction,
+        animationCompleted,
+    }: {
+        animationCompleted: boolean
+        battleAction: BattleAction
+    }) => {
+        if (!isValidValue(battleAction)) {
+            return
+        }
+        battleAction.animation = {
+            completed: animationCompleted,
+        }
     },
 }
 
@@ -98,39 +124,16 @@ const sanitize = (battleAction: BattleAction): BattleAction => {
         )
     }
 
+    if (!isValidValue(battleAction.animation)) {
+        battleAction.animation = {
+            completed: false,
+        }
+    }
+
     return battleAction
 }
 
-export interface BattleActionQueue {
-    actions: BattleAction[]
-}
-
-export const BattleActionQueueService = {
-    new: (): BattleActionQueue => {
-        return {
-            actions: [],
-        }
-    },
-    isEmpty: (queue: BattleActionQueue): boolean => {
-        return queue?.actions.length === 0
-    },
-    add: (queue: BattleActionQueue, battleAction: BattleAction) => {
-        queue.actions.unshift(battleAction)
-    },
-    peek: (queue: BattleActionQueue): BattleAction | undefined => {
-        return queue?.actions.length > 0 ? queue.actions[0] : undefined
-    },
-    dequeue: (queue: BattleActionQueue): BattleAction | undefined => {
-        if (!isValidValue(queue?.actions)) {
-            return undefined
-        }
-
-        return queue.actions.shift()
-    },
-    length: (queue: BattleActionQueue): number => {
-        return isValidValue(queue) ? queue.actions.length : 0
-    },
-    deleteAll: (queue: BattleActionQueue) => {
-        queue.actions = []
-    },
-}
+const isAnimationComplete = (battleAction: BattleAction) =>
+    isValidValue(battleAction) &&
+    isValidValue(battleAction.animation) &&
+    battleAction.animation.completed

@@ -10,12 +10,20 @@ import { ProcessedActionEffect } from "../../action/processed/processedActionEff
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "./battleActionQueue"
 
+// TODO battle state has an battleActionQueue? We should use that instead.
 export interface ActionsThisRound {
     battleSquaddieId: string
     startingLocation: HexCoordinate
     processedActions: ProcessedAction[]
-    battleActionDecisionSteps: BattleActionDecisionStep[]
+    // TODO Move this to the BattleState
+    battleActionDecisionSteps: BattleActionDecisionStep[] // TODO When stuff gets added to this, also add it to battle action queue
+    // TODO Move this to the BattleState
+    battleActionQueue: BattleActionQueue // TODO
     previewedActionTemplateId: string
     processedActionEffectIteratorIndex: number
 }
@@ -27,11 +35,13 @@ export const ActionsThisRoundService = {
         processedActions,
         previewedActionTemplateId,
         battleActionDecisionSteps,
+        battleActionQueue,
     }: {
         battleSquaddieId: string
         startingLocation: HexCoordinate
         processedActions?: ProcessedAction[]
         battleActionDecisionSteps?: BattleActionDecisionStep[]
+        battleActionQueue?: BattleActionQueue
         previewedActionTemplateId?: string
     }): ActionsThisRound => {
         return sanitize({
@@ -41,6 +51,7 @@ export const ActionsThisRoundService = {
             battleActionDecisionSteps: battleActionDecisionSteps ?? [],
             previewedActionTemplateId: previewedActionTemplateId,
             processedActionEffectIteratorIndex: 0,
+            battleActionQueue,
         })
     },
     getMultipleAttackPenaltyForProcessedActions: (
@@ -136,6 +147,11 @@ const sanitize = (actions: ActionsThisRound): ActionsThisRound => {
     actions.processedActions = getValidValueOrDefault(
         actions.processedActions,
         []
+    )
+
+    actions.battleActionQueue = getValidValueOrDefault(
+        actions.battleActionQueue,
+        BattleActionQueueService.new()
     )
 
     return actions

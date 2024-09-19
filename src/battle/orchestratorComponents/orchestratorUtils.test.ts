@@ -53,7 +53,8 @@ import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
-import { BattleActionService } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -492,7 +493,7 @@ describe("Orchestration Utils", () => {
                     undefined
 
                 expect(() =>
-                    OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
+                    OrchestratorUtilities.resetActionBuilderIfBattleActionHasFinishedAnimating(
                         gameEngineState
                     )
                 ).not.toThrow()
@@ -529,7 +530,7 @@ describe("Orchestration Utils", () => {
                     )
                 ).toBeFalsy()
 
-                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
+                OrchestratorUtilities.resetActionBuilderIfBattleActionHasFinishedAnimating(
                     gameEngineState
                 )
                 expect(
@@ -537,47 +538,80 @@ describe("Orchestration Utils", () => {
                         .playerBattleActionBuilderState
                 ).toEqual(expectedActionBuilderState)
             })
-            it("will clear if the action has finished", () => {
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep:
+
+            describe("will clear if the action has finished and animation is complete", () => {
+                beforeEach(() => {
+                    gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+                        BattleActionDecisionStepService.new()
+                    BattleActionDecisionStepService.setActor({
+                        actionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerBattleActionBuilderState,
+                        battleSquaddieId: "battle squaddie",
+                    })
+                    BattleActionDecisionStepService.addAction({
+                        actionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerBattleActionBuilderState,
+                        actionTemplateId: singleTargetAction.id,
+                    })
+                    BattleActionDecisionStepService.setConfirmedTarget({
+                        actionDecisionStep:
+                            gameEngineState.battleOrchestratorState.battleState
+                                .playerBattleActionBuilderState,
+                        targetLocation: { q: 0, r: 1 },
+                    })
+
+                    const battleAction: BattleAction = BattleActionService.new({
+                        actor: { battleSquaddieId: "battle squaddie" },
+                        action: { id: singleTargetAction.id },
+                        effect: { squaddie: [] },
+                    })
+                    BattleActionQueueService.add(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    battleSquaddieId: "battle squaddie",
+                            .battleActionQueue,
+                        battleAction
+                    )
                 })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    actionTemplateId: singleTargetAction.id,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    targetLocation: { q: 0, r: 1 },
-                })
-                BattleActionDecisionStepService.setAnimationCompleted({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    animationCompleted: true,
-                })
-                expect(
-                    BattleActionDecisionStepService.isActionRecordComplete(
+
+                it("will not clear if the animation is unfinished", () => {
+                    OrchestratorUtilities.resetActionBuilderIfBattleActionHasFinishedAnimating(
+                        gameEngineState
+                    )
+                    expect(
                         gameEngineState.battleOrchestratorState.battleState
                             .playerBattleActionBuilderState
-                    )
-                ).toBeTruthy()
+                    ).not.toBeUndefined()
+                    expect(
+                        BattleActionQueueService.isEmpty(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionQueue
+                        )
+                    ).toBeFalsy()
+                })
+                it("will clear if the action has finished and animation is complete", () => {
+                    BattleActionService.setAnimationCompleted({
+                        battleAction: BattleActionQueueService.peek(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionQueue
+                        ),
+                        animationCompleted: true,
+                    })
 
-                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-                    gameEngineState
-                )
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).toBeUndefined()
+                    OrchestratorUtilities.resetActionBuilderIfBattleActionHasFinishedAnimating(
+                        gameEngineState
+                    )
+                    expect(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .playerBattleActionBuilderState
+                    ).toBeUndefined()
+                    expect(
+                        BattleActionQueueService.isEmpty(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionQueue
+                        )
+                    ).toBeTruthy()
+                })
             })
         })
 
