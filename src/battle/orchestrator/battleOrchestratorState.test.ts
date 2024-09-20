@@ -47,7 +47,6 @@ import {
     DecidedActionEndTurnEffectService,
 } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
@@ -246,14 +245,15 @@ describe("orchestratorState", () => {
                     template: ActionEffectMovementTemplateService.new({}),
                 })
             movementProcessedActionMovementEffect =
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: movementDecidedActionMovementEffect,
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            movementDecidedActionMovementEffect,
+                    }
+                )
+
             movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [movementDecidedActionMovementEffect],
-                    battleSquaddieId: "battleSquaddie",
-                }),
+                actionPointCost: 0,
                 processedActionEffects: [movementProcessedActionMovementEffect],
             })
 
@@ -263,23 +263,26 @@ describe("orchestratorState", () => {
                     template: ActionEffectSquaddieTemplateService.new({}),
                 })
             squaddieProcessedActionSquaddieEffect =
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: squaddieDecidedActionSquaddieEffect,
-                    results: SquaddieSquaddieResultsService.new({
-                        targetedBattleSquaddieIds: [],
-                        actingBattleSquaddieId: "",
-                        actionContext: BattleActionActionContextService.new({
-                            actingSquaddieModifiers: [],
-                            actingSquaddieRoll: undefined,
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            squaddieDecidedActionSquaddieEffect,
+                        results: SquaddieSquaddieResultsService.new({
+                            targetedBattleSquaddieIds: [],
+                            actingBattleSquaddieId: "",
+                            actionContext: BattleActionActionContextService.new(
+                                {
+                                    actingSquaddieModifiers: [],
+                                    actingSquaddieRoll: undefined,
+                                }
+                            ),
+                            squaddieChanges: [],
                         }),
-                        squaddieChanges: [],
-                    }),
-                })
+                    }
+                )
+
             squaddieProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [squaddieDecidedActionSquaddieEffect],
-                    battleSquaddieId: "battleSquaddie",
-                }),
+                actionPointCost: 1,
                 processedActionEffects: [squaddieProcessedActionSquaddieEffect],
             })
 
@@ -288,14 +291,12 @@ describe("orchestratorState", () => {
                     template: ActionEffectEndTurnTemplateService.new({}),
                 })
             endTurnProcessedActionEndTurnEffect =
-                ProcessedActionEndTurnEffectService.new({
+                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
                     decidedActionEffect: endTurnDecidedActionEndTurnEffect,
                 })
+
             endTurnProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionEffects: [endTurnDecidedActionEndTurnEffect],
-                    battleSquaddieId: "battleSquaddie",
-                }),
+                actionPointCost: "End Turn",
                 processedActionEffects: [endTurnProcessedActionEndTurnEffect],
             })
         })

@@ -151,11 +151,11 @@ export const PlayerSelectionService = {
         const battleSquaddieIdCurrentlyMakingADecision: string =
             BattleActionDecisionStepService.isActorSet(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+                    .battleActionDecisionStep
             )
                 ? BattleActionDecisionStepService.getActor(
                       gameEngineState.battleOrchestratorState.battleState
-                          .playerBattleActionBuilderState
+                          .battleActionDecisionStep
                   ).battleSquaddieId
                 : undefined
 
@@ -434,7 +434,7 @@ export const PlayerSelectionService = {
             case PlayerIntent.END_SQUADDIE_TURN:
                 endTurnBattleAction = BattleActionService.new({
                     actor: {
-                        battleSquaddieId: context.battleSquaddieId,
+                        actorBattleSquaddieId: context.battleSquaddieId,
                     },
                     action: { isEndTurn: true },
                     effect: { endTurn: true },
@@ -641,7 +641,7 @@ const playerSelectsAnAction = ({
 }) => {
     const actionBuilderState =
         gameEngineState.battleOrchestratorState.battleState
-            .playerBattleActionBuilderState
+            .battleActionDecisionStep
     const battleSquaddieId = BattleActionDecisionStepService.getActor(
         actionBuilderState
     )

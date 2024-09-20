@@ -18,27 +18,23 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
-import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
     let enemyBanditStatic: SquaddieTemplate
-    let enemyBanditDynamic: BattleSquaddie
+    let enemyBattleSquaddie: BattleSquaddie
     let playerKnightStatic: SquaddieTemplate
     let playerKnightDynamic: BattleSquaddie
     let allyClericStatic: SquaddieTemplate
@@ -71,7 +67,7 @@ describe("target a squaddie within reach of actions", () => {
         )
         ;({
             squaddieTemplate: enemyBanditStatic,
-            battleSquaddie: enemyBanditDynamic,
+            battleSquaddie: enemyBattleSquaddie,
         } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "enemy_bandit",
             battleId: "enemy_bandit_0",
@@ -111,7 +107,7 @@ describe("target a squaddie within reach of actions", () => {
 
         missionMap.addSquaddie(
             enemyBanditStatic.squaddieId.templateId,
-            enemyBanditDynamic.battleSquaddieId,
+            enemyBattleSquaddie.battleSquaddieId,
             {
                 q: 0,
                 r: 0,
@@ -126,7 +122,7 @@ describe("target a squaddie within reach of actions", () => {
             iconResourceKey: "icon_enemy_team",
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [
-            enemyBanditDynamic.battleSquaddieId,
+            enemyBattleSquaddie.battleSquaddieId,
         ])
     })
 
@@ -204,20 +200,21 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             repository: objectRepository,
         })
-        const decidedActionSquaddieEffect =
-            DecidedActionSquaddieEffectService.new({
-                template: shortBowAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                target: { q: 0, r: 1 },
-            })
-        const decidedAction: DecidedAction = DecidedActionService.new({
-            actionPointCost: shortBowAction.actionPoints,
-            actionTemplateName: shortBowAction.name,
-            actionTemplateId: shortBowAction.id,
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-            actionEffects: [decidedActionSquaddieEffect],
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         })
-        expect(actualInstruction).toStrictEqual(decidedAction)
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: shortBowAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 1 },
+        })
+        expect(actualInstruction).toStrictEqual([actionStep])
     })
 
     it("will target squaddie by affiliation", () => {
@@ -246,20 +243,21 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             repository: objectRepository,
         })
-        const decidedActionSquaddieEffect =
-            DecidedActionSquaddieEffectService.new({
-                template: shortBowAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                target: { q: 0, r: 2 },
-            })
-        const decidedAction: DecidedAction = DecidedActionService.new({
-            actionPointCost: shortBowAction.actionPoints,
-            actionTemplateName: shortBowAction.name,
-            actionTemplateId: shortBowAction.id,
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-            actionEffects: [decidedActionSquaddieEffect],
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         })
-        expect(actualInstruction).toStrictEqual(decidedAction)
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: shortBowAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 2 },
+        })
+        expect(actualInstruction).toStrictEqual([actionStep])
     })
 
     it("will pass if there are no squaddies of the desired affiliation", () => {
@@ -302,7 +300,7 @@ describe("target a squaddie within reach of actions", () => {
             }
         )
         SquaddieTurnService.spendActionPoints(
-            enemyBanditDynamic.squaddieTurn,
+            enemyBattleSquaddie.squaddieTurn,
             4 - shortBowAction.actionPoints
         )
 
@@ -337,21 +335,20 @@ describe("target a squaddie within reach of actions", () => {
             DecidedActionMovementEffectService.new({
                 template: ActionEffectMovementTemplateService.new({}),
             })
+
         const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
             startingLocation: { q: 0, r: 0 },
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 }),
             ],
@@ -363,20 +360,21 @@ describe("target a squaddie within reach of actions", () => {
             repository: objectRepository,
             actionsThisRound,
         })
-        const decidedActionSquaddieEffect =
-            DecidedActionSquaddieEffectService.new({
-                template: shortBowAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                target: { q: 0, r: 1 },
-            })
-        const decidedAction: DecidedAction = DecidedActionService.new({
-            actionPointCost: shortBowAction.actionPoints,
-            actionTemplateName: shortBowAction.name,
-            actionTemplateId: shortBowAction.id,
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-            actionEffects: [decidedActionSquaddieEffect],
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         })
-        expect(actualInstruction).toStrictEqual(decidedAction)
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: shortBowAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 1 },
+        })
+        expect(actualInstruction).toStrictEqual([actionStep])
     })
 
     it("will not change the currently acting squaddie", () => {
@@ -427,24 +425,30 @@ describe("target a squaddie within reach of actions", () => {
             }
         )
 
-        const decidedActionMovementEffect =
-            DecidedActionMovementEffectService.new({
-                template: ActionEffectMovementTemplateService.new({}),
-            })
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 0, r: 0 },
+        })
+
         const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
             startingLocation: { q: 0, r: 0 },
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
                         ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
+                            battleActionDecisionStep: movementStep,
                         }),
                     ],
                 }),
@@ -460,20 +464,21 @@ describe("target a squaddie within reach of actions", () => {
             repository: objectRepository,
             actionsThisRound,
         })
-        const decidedActionSquaddieEffect =
-            DecidedActionSquaddieEffectService.new({
-                template: shortBowAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                target: { q: 0, r: 2 },
-            })
-        const decidedAction: DecidedAction = DecidedActionService.new({
-            actionPointCost: shortBowAction.actionPoints,
-            actionTemplateName: shortBowAction.name,
-            actionTemplateId: shortBowAction.id,
-            battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
-            actionEffects: [decidedActionSquaddieEffect],
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         })
-        expect(actualInstruction).toStrictEqual(decidedAction)
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: shortBowAction.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 2 },
+        })
+        expect(actualInstruction).toStrictEqual([actionStep])
     })
 
     it("should pass if there are no squaddies to act", () => {

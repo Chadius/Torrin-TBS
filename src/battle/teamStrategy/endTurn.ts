@@ -4,15 +4,13 @@ import {
 } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { ObjectRepository } from "../objectRepository"
-import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
 import { MissionMap } from "../../missionMap/missionMap"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     DetermineNextInstruction({
@@ -25,21 +23,24 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         missionMap: MissionMap
         repository: ObjectRepository
         actionsThisRound?: ActionsThisRound
-    }): DecidedAction {
+    }): BattleActionDecisionStep[] {
         const battleSquaddieIdToAct =
             TeamStrategyService.getBattleSquaddieWhoCanAct(team, repository)
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }
 
-        const endTurnDecidedActionEffect =
-            DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({}),
-            })
-        return DecidedActionService.new({
-            actionTemplateName: "End Turn",
+        const endTurnStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: endTurnStep,
             battleSquaddieId: battleSquaddieIdToAct,
-            actionEffects: [endTurnDecidedActionEffect],
         })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: endTurnStep,
+            endTurn: true,
+        })
+
+        return [endTurnStep]
     }
 }

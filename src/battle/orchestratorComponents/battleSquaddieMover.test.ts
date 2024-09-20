@@ -32,7 +32,6 @@ import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfi
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import {
     ActionsThisRound,
@@ -42,10 +41,11 @@ import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -118,26 +118,25 @@ describe("BattleSquaddieMover", () => {
                 destination: { q: 0, r: 3 },
                 template: ActionEffectMovementTemplateService.new({}),
             })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                battleSquaddieId: "player_1",
-                actionPointCost: 3,
-                actionTemplateName: "Move",
-                actionEffects: [decidedActionMovementEffect],
-            }),
+            actionPointCost: 3,
             processedActionEffects: [
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                }),
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect: decidedActionMovementEffect,
+                    }
+                ),
             ],
         })
+
         const actionsThisRound = ActionsThisRoundService.new({
             battleSquaddieId: "player_1",
             startingLocation: { q: 0, r: 0 },
             processedActions: [processedAction],
         })
 
-        const state: GameEngineState = GameEngineStateService.new({
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -153,13 +152,13 @@ describe("BattleSquaddieMover", () => {
         })
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         jest.spyOn(Date, "now").mockImplementation(() => 1)
-        mover.update(state, mockedP5GraphicsContext)
-        expect(mover.hasCompleted(state)).toBeFalsy()
+        mover.update(gameEngineState, mockedP5GraphicsContext)
+        expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
         jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
-        mover.update(state, mockedP5GraphicsContext)
-        expect(mover.hasCompleted(state)).toBeTruthy()
-        mover.reset(state)
+        mover.update(gameEngineState, mockedP5GraphicsContext)
+        expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
+        mover.reset(gameEngineState)
         expect(mover.animationStartTime).toBeUndefined()
     })
 
@@ -195,17 +194,15 @@ describe("BattleSquaddieMover", () => {
                 destination: { q: 0, r: 3 },
                 template: ActionEffectMovementTemplateService.new({}),
             })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                battleSquaddieId: "player_1",
-                actionPointCost: 3,
-                actionTemplateName: "Move",
-                actionEffects: [decidedActionMovementEffect],
-            }),
+            actionPointCost: 3,
             processedActionEffects: [
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                }),
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect: decidedActionMovementEffect,
+                    }
+                ),
             ],
         })
         const actionsThisRound = ActionsThisRoundService.new({
@@ -312,19 +309,19 @@ describe("BattleSquaddieMover", () => {
                         destination: { q: 1, r: 1 },
                         template: ActionEffectMovementTemplateService.new({}),
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_1",
-                        actionPointCost: 3,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 3,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
+
                 const actionsThisRound = ActionsThisRoundService.new({
                     battleSquaddieId: "player_1",
                     startingLocation: { q: 0, r: 0 },
@@ -398,19 +395,19 @@ describe("BattleSquaddieMover", () => {
                         destination: { q: 1, r: 1 },
                         template: ActionEffectMovementTemplateService.new({}),
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_1",
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
+
                 const actionsThisRound = ActionsThisRoundService.new({
                     battleSquaddieId: "player_1",
                     startingLocation: { q: 0, r: 0 },
@@ -432,26 +429,22 @@ describe("BattleSquaddieMover", () => {
                     repository: squaddieRepo,
                     campaign: CampaignService.default(),
                 })
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    battleSquaddieId: "player_1",
+
+                const battleAction: BattleAction = BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "player_1" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 0 },
+                        },
+                    },
                 })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    movement: true,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    targetLocation: { q: 0, r: 0 },
-                })
+                BattleActionQueueService.add(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue,
+                    battleAction
+                )
 
                 const battleHUDListener = new BattleHUDListener(
                     "battleHUDListener"
@@ -488,30 +481,6 @@ describe("BattleSquaddieMover", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState.showSummaryHUD
                 ).toBeTruthy()
-            })
-
-            it("should tell the action builder the animation is complete and check if it needs to be reset", () => {
-                expect(
-                    BattleActionDecisionStepService.isAnimationComplete(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeTruthy()
-                const actionBuilderSpy = jest.spyOn(
-                    OrchestratorUtilities,
-                    "resetActionBuilderIfActionIsComplete"
-                )
-
-                mover.reset(gameEngineState)
-
-                expect(actionBuilderSpy).toBeCalledWith(gameEngineState)
-                expect(
-                    BattleActionDecisionStepService.isActionRecordComplete(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeFalsy()
-                actionBuilderSpy.mockRestore()
             })
         })
     })

@@ -1,5 +1,10 @@
 import { ActionEffectType } from "../template/actionEffectTemplate"
-import { DecidedActionEndTurnEffect } from "../decided/decidedActionEndTurnEffect"
+import {
+    DecidedActionEndTurnEffect,
+    DecidedActionEndTurnEffectService,
+} from "../decided/decidedActionEndTurnEffect"
+import { BattleActionDecisionStep } from "../../battle/actionDecision/battleActionDecisionStep"
+import { ActionEffectEndTurnTemplateService } from "../template/actionEffectEndTurnTemplate"
 
 export interface ProcessedActionEndTurnEffect {
     type: ActionEffectType.END_TURN
@@ -8,6 +13,16 @@ export interface ProcessedActionEndTurnEffect {
 
 export const ProcessedActionEndTurnEffectService = {
     new: ({
+        battleActionDecisionStep,
+    }: {
+        battleActionDecisionStep: BattleActionDecisionStep
+    }): ProcessedActionEndTurnEffect =>
+        ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
+            decidedActionEffect: DecidedActionEndTurnEffectService.new({
+                template: ActionEffectEndTurnTemplateService.new({}),
+            }),
+        }),
+    newFromDecidedActionEffect: ({
         decidedActionEffect,
     }: {
         decidedActionEffect: DecidedActionEndTurnEffect

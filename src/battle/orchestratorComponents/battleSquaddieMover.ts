@@ -14,32 +14,29 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
+    finishedCleanup: boolean
 
     constructor() {
         this.animationStartTime = undefined
+        this.finishedCleanup = false
     }
 
-    hasCompleted(state: GameEngineState): boolean {
+    hasCompleted(gameEngineState: GameEngineState): boolean {
         if (
-            state.battleOrchestratorState.battleState.squaddieMovePath ===
-            undefined
+            gameEngineState.battleOrchestratorState.battleState
+                .squaddieMovePath === undefined
         ) {
             return true
         }
-        return (
-            this.animationStartTime &&
-            DrawSquaddieUtilities.hasMovementAnimationFinished(
-                this.animationStartTime,
-                state.battleOrchestratorState.battleState.squaddieMovePath
-            )
-        )
+        return this.finishedCleanup
     }
 
     mouseEventHappened(
@@ -76,7 +73,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             )
         ) {
             this.updateWhileAnimationIsInProgress(state, graphicsContext)
-        } else {
+            return
+        }
+
+        if (!this.finishedCleanup) {
             this.updateWhenAnimationCompletes(state, graphicsContext)
         }
     }
@@ -113,12 +113,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     reset(gameEngineState: GameEngineState) {
-        gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
-            undefined
         this.animationStartTime = undefined
-        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-            gameEngineState
-        )
+        this.finishedCleanup = false
     }
 
     private updateWhileAnimationIsInProgress(
@@ -172,51 +168,58 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             squaddieTemplate,
             graphicsContext
         )
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
         })
+        this.finishedCleanup = true
+        gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
+            undefined
     }
 }
 
 const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
-    state: GameEngineState,
+    gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
     squaddieTemplate: SquaddieTemplate,
     graphicsContext: GraphicsBuffer
 ) => {
     const mapIcon =
-        state.repository.imageUIByBattleSquaddieId[
+        gameEngineState.repository.imageUIByBattleSquaddieId[
             battleSquaddie.battleSquaddieId
         ]
     if (!mapIcon) {
         return
     }
+    const destination = BattleActionQueueService.peek(
+        gameEngineState.battleOrchestratorState.battleState.battleActionQueue
+    ).effect.movement.endLocation
+
     DrawSquaddieUtilities.updateSquaddieIconLocation({
-        repository: state.repository,
+        repository: gameEngineState.repository,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        destination:
-            state.battleOrchestratorState.battleState.squaddieMovePath
-                .destination,
-        camera: state.battleOrchestratorState.battleState.camera,
+        destination,
+        camera: gameEngineState.battleOrchestratorState.battleState.camera,
     })
     DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
         battleSquaddie,
         squaddieTemplate,
-        missionMap: state.battleOrchestratorState.battleState.missionMap,
-        repository: state.repository,
-        campaign: state.campaign,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        repository: gameEngineState.repository,
+        campaign: gameEngineState.campaign,
     })
     DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
         battleSquaddie,
         squaddieTemplate,
-        state.repository
+        gameEngineState.repository
     )
     mapIcon.draw(graphicsContext)
 }

@@ -404,18 +404,20 @@ describe("Mission Cutscene Service", () => {
                         startingLocation: { q: 0, r: 0 },
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: undefined,
+                                actionPointCost: 0,
                                 processedActionEffects: [
-                                    ProcessedActionSquaddieEffectService.new({
-                                        results: targetWasInjuredResult,
-                                        decidedActionEffect:
-                                            DecidedActionSquaddieEffectService.new(
-                                                {
-                                                    template: undefined,
-                                                    target: undefined,
-                                                }
-                                            ),
-                                    }),
+                                    ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                        {
+                                            results: targetWasInjuredResult,
+                                            decidedActionEffect:
+                                                DecidedActionSquaddieEffectService.new(
+                                                    {
+                                                        template: undefined,
+                                                        target: undefined,
+                                                    }
+                                                ),
+                                        }
+                                    ),
                                 ],
                             }),
                         ],

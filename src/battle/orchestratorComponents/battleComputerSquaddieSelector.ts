@@ -10,7 +10,6 @@ import {
     convertMapCoordinatesToScreenCoordinates,
 } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import {
     BattleSquaddieTeam,
@@ -20,10 +19,8 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
-import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { RecordingService } from "../history/recording"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -36,34 +33,18 @@ import {
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
-import { MissionMapService } from "../../missionMap/missionMap"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
-import { BattleEventService } from "../history/battleEvent"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import {
+    ActionPointCost,
     ProcessedAction,
     ProcessedActionService,
 } from "../../action/processed/processedAction"
-import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
-import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import {
-    DecidedActionMovementEffect,
-    DecidedActionMovementEffectService,
-} from "../../action/decided/decidedActionMovementEffect"
-import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { DecidedActionSquaddieEffect } from "../../action/decided/decidedActionSquaddieEffect"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
@@ -72,6 +53,19 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+import { BattleActionService } from "../history/battleAction"
+import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
+import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
+import { SquaddieService } from "../../squaddie/squaddieService"
+import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
+import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
+import { ActionCalculator } from "../calculator/actionCalculator/calculator"
+import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
+import { MissionMapService } from "../../missionMap/missionMap"
+import { ActionsThisRoundService } from "../history/actionsThisRound"
+import { RecordingService } from "../history/recording"
+import { BattleEventService } from "../history/battleEvent"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -79,27 +73,12 @@ export const SHOW_SELECTED_ACTION_TIME = 500
 export class BattleComputerSquaddieSelector
     implements BattleOrchestratorComponent
 {
-    mostRecentDecision: DecidedAction
+    mostRecentDecisionSteps: BattleActionDecisionStep[]
     private showSelectedActionWaitTime?: number
     private clickedToSkipActionDescription: boolean
 
     constructor() {
         this.resetInternalState()
-    }
-
-    private static endTurnOrSpendActionPoints(
-        shouldEndTurn: boolean,
-        battleSquaddie: BattleSquaddie,
-        actionPointCost: number
-    ) {
-        if (shouldEndTurn) {
-            BattleSquaddieService.endTurn(battleSquaddie)
-        } else {
-            SquaddieTurnService.spendActionPoints(
-                battleSquaddie.squaddieTurn,
-                actionPointCost
-            )
-        }
     }
 
     hasCompleted(state: GameEngineState): boolean {
@@ -150,7 +129,7 @@ export class BattleComputerSquaddieSelector
                 state.repository
             )
         if (
-            this.mostRecentDecision === undefined &&
+            this.mostRecentDecisionSteps === undefined &&
             currentTeam &&
             BattleSquaddieTeamService.hasAnActingSquaddie(
                 currentTeam,
@@ -166,7 +145,7 @@ export class BattleComputerSquaddieSelector
 
         if (
             state.battleOrchestratorState.battleState.camera.isPanning() &&
-            this.mostRecentDecision !== undefined
+            this.mostRecentDecisionSteps !== undefined
         ) {
             drawSquaddieAtInitialPositionAsCameraPans(state, graphicsContext)
         }
@@ -176,7 +155,7 @@ export class BattleComputerSquaddieSelector
         state: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode
-        if (this.mostRecentDecision !== undefined) {
+        if (this.mostRecentDecisionSteps !== undefined) {
             nextMode =
                 ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
                     state.battleOrchestratorState.battleState.actionsThisRound
@@ -211,12 +190,17 @@ export class BattleComputerSquaddieSelector
     }
 
     private isPauseToShowSquaddieSelectionRequired(state: GameEngineState) {
-        if (this.mostRecentDecision === undefined) {
+        if (
+            this.mostRecentDecisionSteps === undefined ||
+            this.mostRecentDecisionSteps.length === 0
+        ) {
             return false
         }
 
-        return this.mostRecentDecision.actionEffects.some(
-            (actionEffect) => actionEffect.type === ActionEffectType.SQUADDIE
+        return (
+            this.mostRecentDecisionSteps[
+                this.mostRecentDecisionSteps.length - 1
+            ].action.actionTemplateId !== undefined
         )
     }
 
@@ -278,16 +262,16 @@ export class BattleComputerSquaddieSelector
     }
 
     private resetInternalState() {
-        this.mostRecentDecision = undefined
+        this.mostRecentDecisionSteps = undefined
         this.showSelectedActionWaitTime = undefined
         this.clickedToSkipActionDescription = false
     }
 
     private askComputerControlSquaddie(gameEngineState: GameEngineState) {
-        if (this.mostRecentDecision !== undefined) {
+        if (this.mostRecentDecisionSteps !== undefined) {
             return
         }
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             undefined
 
         const currentTeam: BattleSquaddieTeam =
@@ -299,19 +283,25 @@ export class BattleComputerSquaddieSelector
             gameEngineState.battleOrchestratorState.battleState
                 .teamStrategiesById[currentTeam.id] || []
         let strategyIndex = 0
-        let decidedAction: DecidedAction = undefined
-        while (!decidedAction && strategyIndex < currentTeamStrategies.length) {
+        let battleActionDecisionSteps: BattleActionDecisionStep[] = undefined
+        while (
+            !battleActionDecisionSteps &&
+            strategyIndex < currentTeamStrategies.length
+        ) {
             const nextStrategy: TeamStrategy =
                 currentTeamStrategies[strategyIndex]
-            decidedAction = this.askTeamStrategyToInstructSquaddie(
+            battleActionDecisionSteps = this.askTeamStrategyToInstructSquaddie(
                 gameEngineState,
                 currentTeam,
                 nextStrategy
             )
             strategyIndex++
         }
-        if (decidedAction) {
-            this.reactToComputerSelectedAction(gameEngineState, decidedAction)
+        if (battleActionDecisionSteps) {
+            this.reactToComputerSelectedAction(
+                gameEngineState,
+                battleActionDecisionSteps
+            )
             this.panToSquaddieIfOffscreen(gameEngineState)
         } else {
             this.defaultSquaddieToEndTurn(gameEngineState, currentTeam)
@@ -328,19 +318,25 @@ export class BattleComputerSquaddieSelector
                 state.repository
             )
 
-        const decidedAction = DecidedActionService.new({
-            actionTemplateName: "End Turn",
-            battleSquaddieId,
-            actionEffects: [ActionEffectEndTurnTemplateService.new({})],
+        const endTurnStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: endTurnStep,
+            battleSquaddieId: battleSquaddieId,
         })
-        this.reactToComputerSelectedAction(state, decidedAction)
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: endTurnStep,
+            endTurn: true,
+        })
+
+        this.reactToComputerSelectedAction(state, [endTurnStep])
     }
 
     private askTeamStrategyToInstructSquaddie(
         state: GameEngineState,
         currentTeam: BattleSquaddieTeam,
         currentTeamStrategy: TeamStrategy
-    ): DecidedAction {
+    ): BattleActionDecisionStep[] {
         return DetermineNextDecisionService.determineNextDecision({
             strategy: currentTeamStrategy,
             team: currentTeam,
@@ -390,21 +386,16 @@ export class BattleComputerSquaddieSelector
 
     private reactToComputerSelectedAction(
         gameEngineState: GameEngineState,
-        decidedAction: DecidedAction
+        battleActionDecisionSteps: BattleActionDecisionStep[]
     ) {
+        const battleActionDecisionStep: BattleActionDecisionStep =
+            battleActionDecisionSteps[0]
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                decidedAction.battleSquaddieId
+                battleActionDecisionStep.actor.battleSquaddieId
             )
         )
-
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-        })
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -412,35 +403,125 @@ export class BattleComputerSquaddieSelector
         )
 
         const { shouldEndTurn, actionPointCost } =
-            this.calculateActionPointsSpentOnDecidedAction(
+            this.calculateActionPointsSpentOnDecisionSteps(
                 gameEngineState,
-                decidedAction
+                battleActionDecisionSteps
             )
-        const { processedAction, results } =
-            this.createProcessedActionAndResults(gameEngineState, decidedAction)
 
-        decidedAction.actionEffects.forEach((decidedActionEffect) => {
-            switch (decidedActionEffect.type) {
-                case ActionEffectType.MOVEMENT:
-                    gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
-                        battleSquaddie.battleSquaddieId,
-                        decidedActionEffect.destination
-                    )
-                    break
-                case ActionEffectType.SQUADDIE:
-                    this.showSelectedActionWaitTime = Date.now()
-                    this.highlightTargetRange(
-                        gameEngineState,
-                        decidedActionEffect.template,
-                        decidedActionEffect.target,
-                        battleSquaddie.battleSquaddieId
-                    )
-                    break
+        const { processedAction, results } =
+            this.createProcessedActionAndResults(
+                actionPointCost,
+                gameEngineState,
+                battleActionDecisionSteps
+            )
+
+        battleActionDecisionSteps.forEach((battleActionDecisionStep) => {
+            if (battleActionDecisionStep.action.movement) {
+                gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+                    battleSquaddie.battleSquaddieId,
+                    battleActionDecisionStep.target.targetLocation
+                )
+                this.setActionBuilderStateToMove(
+                    gameEngineState,
+                    battleActionDecisionStep.target.targetLocation
+                )
+
+                const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleActionDecisionStep.actor.battleSquaddieId
+                )
+
+                const battleAction = BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            battleActionDecisionStep.actor.battleSquaddieId,
+                    },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: mapLocation,
+                            endLocation:
+                                battleActionDecisionStep.target.targetLocation,
+                        },
+                    },
+                })
+
+                BattleActionQueueService.add(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue,
+                    battleAction
+                )
+                return
+            }
+
+            if (
+                battleActionDecisionStep.action.actionTemplateId !== undefined
+            ) {
+                const action = ObjectRepositoryService.getActionTemplateById(
+                    gameEngineState.repository,
+                    battleActionDecisionStep.action.actionTemplateId
+                )
+
+                this.showSelectedActionWaitTime = Date.now()
+                this.highlightTargetRange(
+                    gameEngineState,
+                    action
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    battleActionDecisionStep.target.targetLocation,
+                    battleSquaddie.battleSquaddieId
+                )
+                this.setActionBuilderStateToAffectSquaddie({
+                    gameEngineState,
+                    targetLocation:
+                        battleActionDecisionStep.target.targetLocation,
+                    actionTemplateId:
+                        battleActionDecisionStep.action.actionTemplateId,
+                })
+
+                BattleActionQueueService.add(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue,
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                battleSquaddie.battleSquaddieId,
+                        },
+                        action: {
+                            actionTemplateId:
+                                battleActionDecisionStep.action
+                                    .actionTemplateId,
+                        },
+                        effect: { squaddie: [...results.squaddieChanges] },
+                    })
+                )
             }
         })
-        BattleComputerSquaddieSelector.endTurnOrSpendActionPoints(
-            shouldEndTurn,
-            battleSquaddie,
+
+        if (
+            battleActionDecisionSteps.some(
+                (battleActionDecisionStep) =>
+                    battleActionDecisionStep.action.endTurn
+            )
+        ) {
+            BattleActionQueueService.add(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue,
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            battleActionDecisionStep.actor.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: {
+                        endTurn: true,
+                    },
+                })
+            )
+        }
+
+        SquaddieTurnService.spendActionPoints(
+            battleSquaddie.squaddieTurn,
             actionPointCost
         )
 
@@ -453,23 +534,6 @@ export class BattleComputerSquaddieSelector
                 gameEngineState,
                 startingLocation
             )
-        } else {
-            const decidedActionEffectToUse = decidedAction?.actionEffects[0]
-            switch (decidedActionEffectToUse.type) {
-                case ActionEffectType.MOVEMENT:
-                    this.setActionBuilderStateToMove(
-                        gameEngineState,
-                        decidedActionEffectToUse
-                    )
-                    break
-                case ActionEffectType.SQUADDIE:
-                    this.setActionBuilderStateToAffectSquaddie({
-                        gameEngineState,
-                        decidedActionEffectToUse,
-                        actionTemplateId: decidedAction.actionTemplateId,
-                    })
-                    break
-            }
         }
 
         ActionsThisRoundService.updateActionsThisRound({
@@ -478,6 +542,7 @@ export class BattleComputerSquaddieSelector
             startingLocation,
             processedAction,
         })
+
         RecordingService.addEvent(
             gameEngineState.battleOrchestratorState.battleState.recording,
             BattleEventService.new({
@@ -485,8 +550,7 @@ export class BattleComputerSquaddieSelector
                 processedAction,
             })
         )
-
-        this.mostRecentDecision = decidedAction
+        this.mostRecentDecisionSteps = battleActionDecisionSteps
     }
 
     private setActionBuilderStateToEndTurn(
@@ -496,25 +560,25 @@ export class BattleComputerSquaddieSelector
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             endTurn: true,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             targetLocation: startingLocation,
         })
     }
 
     private setActionBuilderStateToAffectSquaddie({
         gameEngineState,
-        decidedActionEffectToUse,
         actionTemplateId,
+        targetLocation,
     }: {
         gameEngineState: GameEngineState
-        decidedActionEffectToUse: DecidedActionSquaddieEffect
         actionTemplateId: string
+        targetLocation: HexCoordinate
     }) {
         const actionTemplate: ActionTemplate =
             ObjectRepositoryService.getActionTemplateById(
@@ -525,180 +589,166 @@ export class BattleComputerSquaddieSelector
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            actionTemplate: actionTemplate,
+                    .battleActionDecisionStep,
+            actionTemplateId: actionTemplate.id,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: decidedActionEffectToUse.target,
+                    .battleActionDecisionStep,
+            targetLocation,
         })
     }
 
     private setActionBuilderStateToMove(
         gameEngineState: GameEngineState,
-        decidedActionEffectToUse: DecidedActionMovementEffect
+        targetLocation: HexCoordinate
     ) {
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             movement: true,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: decidedActionEffectToUse.destination,
+                    .battleActionDecisionStep,
+            targetLocation,
         })
     }
 
     private createProcessedActionAndResults(
+        actionPointCost: ActionPointCost,
         gameEngineState: GameEngineState,
-        decidedAction: DecidedAction
+        battleActionDecisionSteps: BattleActionDecisionStep[]
     ): {
         processedAction: ProcessedAction
         results: SquaddieSquaddieResults
     } {
-        const { battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                decidedAction.battleSquaddieId
-            )
-        )
-
         const processedAction: ProcessedAction = ProcessedActionService.new({
-            decidedAction,
+            actionPointCost,
             processedActionEffects: [],
         })
 
         let results: SquaddieSquaddieResults
-        let decidedActionMovementEffect: DecidedActionMovementEffect
-        decidedAction.actionEffects.forEach((decidedActionEffect) => {
-            switch (decidedActionEffect.type) {
-                case ActionEffectType.MOVEMENT:
-                    decidedActionMovementEffect =
-                        DecidedActionMovementEffectService.new({
-                            template: undefined,
-                            destination: decidedActionEffect.destination,
-                        })
-                    processedAction.processedActionEffects.push(
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        })
-                    )
-                    break
-                case ActionEffectType.SQUADDIE:
-                    results = ActionCalculator.calculateResults({
-                        gameEngineState: gameEngineState,
-                        actingBattleSquaddie: battleSquaddie,
-                        validTargetLocation: decidedActionEffect.target,
-                        actionsThisRound:
-                            gameEngineState.battleOrchestratorState.battleState
-                                .actionsThisRound,
-                        actionEffect: decidedActionEffect,
+        battleActionDecisionSteps.forEach((step) => {
+            if (step.action.movement) {
+                processedAction.processedActionEffects.push(
+                    ProcessedActionMovementEffectService.new({
+                        battleActionDecisionStep: step,
                     })
+                )
+            }
+            if (step.action.endTurn) {
+                processedAction.processedActionEffects.push(
+                    ProcessedActionEndTurnEffectService.new({
+                        battleActionDecisionStep: step,
+                    })
+                )
+            }
+            if (step.action.actionTemplateId !== undefined) {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        step.actor.battleSquaddieId
+                    )
+                )
 
-                    processedAction.processedActionEffects.push(
-                        ProcessedActionSquaddieEffectService.new({
-                            decidedActionEffect: decidedActionEffect,
-                            results,
-                        })
-                    )
-                    break
-                case ActionEffectType.END_TURN:
-                    processedAction.processedActionEffects.push(
-                        ProcessedActionEndTurnEffectService.new({
-                            decidedActionEffect: decidedActionEffect,
-                        })
-                    )
-                    break
+                results = ActionCalculator.calculateResults({
+                    gameEngineState: gameEngineState,
+                    actingBattleSquaddie: battleSquaddie,
+                    validTargetLocation: step.target.targetLocation,
+                    actionsThisRound:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .actionsThisRound,
+                    battleActionDecisionStep: step,
+                })
+
+                processedAction.processedActionEffects.push(
+                    ProcessedActionSquaddieEffectService.new({
+                        battleActionDecisionStep: step,
+                        battleActionSquaddieChange: results.squaddieChanges[0],
+                        objectRepository: gameEngineState.repository,
+                    })
+                )
             }
         })
+
         return {
             processedAction,
             results,
         }
     }
 
-    private calculateActionPointsSpentOnDecidedAction(
+    private calculateActionPointsSpentOnDecisionSteps(
         gameEngineState: GameEngineState,
-        decidedAction: DecidedAction
+        battleActionDecisionSteps: BattleActionDecisionStep[]
     ): {
         shouldEndTurn: boolean
-        actionPointCost: number
+        actionPointCost: ActionPointCost
     } {
+        if (battleActionDecisionSteps.some((step) => step.action.endTurn)) {
+            return {
+                shouldEndTurn: true,
+                actionPointCost: "End Turn",
+            }
+        }
+
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                decidedAction.battleSquaddieId
+                battleActionDecisionSteps[0].actor.battleSquaddieId
             )
         )
 
-        if (
-            decidedAction.actionEffects.some(
-                (decidedActionEffect) =>
-                    decidedActionEffect.type === ActionEffectType.END_TURN
-            )
-        ) {
-            return {
-                shouldEndTurn: true,
-                actionPointCost: undefined,
-            }
-        }
-
         let actionPointCost = 0
-        let addActionPointCostForTemplate = false
-        let locationsByMoveActions: {
-            [movementActions: number]: LocationTraveled[]
-        } = {}
-        let numberOfActionPointsSpentMoving: number
-        decidedAction.actionEffects.forEach((decidedActionEffect) => {
-            switch (decidedActionEffect.type) {
-                case ActionEffectType.MOVEMENT:
-                    BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
-                        {
-                            state: gameEngineState,
-                            squaddieTemplate,
-                            battleSquaddie,
-                            clickedHexCoordinate:
-                                decidedActionEffect.destination,
-                        }
-                    )
-                    locationsByMoveActions =
-                        SquaddieService.searchPathLocationsByNumberOfMovementActions(
-                            {
-                                searchPath:
-                                    gameEngineState.battleOrchestratorState
-                                        .battleState.squaddieMovePath,
-                                battleSquaddieId:
-                                    battleSquaddie.battleSquaddieId,
-                                repository: gameEngineState.repository,
-                            }
-                        )
-                    numberOfActionPointsSpentMoving =
-                        Math.max(
-                            ...Object.keys(locationsByMoveActions).map((str) =>
-                                Number(str)
-                            )
-                        ) || 1
-                    actionPointCost += numberOfActionPointsSpentMoving
-                    break
-                case ActionEffectType.SQUADDIE:
-                    addActionPointCostForTemplate = true
-                    break
-            }
-        })
 
-        if (addActionPointCostForTemplate) {
+        let actionTemplateIdUsed: string = battleActionDecisionSteps.find(
+            (step) => step.action.actionTemplateId !== undefined
+        )?.action.actionTemplateId
+        if (actionTemplateIdUsed !== undefined) {
             const actionTemplate =
                 ObjectRepositoryService.getActionTemplateById(
                     gameEngineState.repository,
-                    decidedAction.actionTemplateId
+                    actionTemplateIdUsed
                 )
             actionPointCost += actionTemplate.actionPoints
         }
+
+        battleActionDecisionSteps
+            .filter((step) => step.action.movement === true)
+            .forEach((movementStep) => {
+                let numberOfActionPointsSpentMoving: number
+                BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
+                    {
+                        state: gameEngineState,
+                        squaddieTemplate,
+                        battleSquaddie,
+                        clickedHexCoordinate:
+                            movementStep.target.targetLocation,
+                    }
+                )
+                let locationsByMoveActions: {
+                    [movementActions: number]: LocationTraveled[]
+                } =
+                    SquaddieService.searchPathLocationsByNumberOfMovementActions(
+                        {
+                            searchPath:
+                                gameEngineState.battleOrchestratorState
+                                    .battleState.squaddieMovePath,
+                            battleSquaddieId: battleSquaddie.battleSquaddieId,
+                            repository: gameEngineState.repository,
+                        }
+                    )
+                numberOfActionPointsSpentMoving =
+                    Math.max(
+                        ...Object.keys(locationsByMoveActions).map((str) =>
+                            Number(str)
+                        )
+                    ) || 1
+                actionPointCost += numberOfActionPointsSpentMoving
+            })
 
         return {
             actionPointCost,

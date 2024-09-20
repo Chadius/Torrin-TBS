@@ -22,18 +22,19 @@ import {
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
-import { BattleSquaddieService } from "../battleSquaddie"
+import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "./battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import {
-    BattleAction,
-    BattleActionQueueService,
-    BattleActionService,
-} from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieTurnService } from "../../squaddie/turn"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -453,9 +454,30 @@ describe("Battle State", () => {
     describe("battle action animation", () => {
         let gameEngineState: GameEngineState
         let moveAction: BattleAction
+        let objectRepository: ObjectRepository
+        let battleSquaddie: BattleSquaddie
 
         beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            ;({ battleSquaddie } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    attributes: {
+                        maxHitPoints: 5,
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 2,
+                        }),
+                        armorClass: 0,
+                    },
+                    battleId: "battleSquaddieId",
+                    name: "actor",
+                    objectRepository: objectRepository,
+                    templateId: "actor",
+                    actionTemplateIds: [],
+                }))
+
             gameEngineState = GameEngineStateService.new({
+                repository: objectRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -465,7 +487,7 @@ describe("Battle State", () => {
             })
 
             moveAction = BattleActionService.new({
-                actor: { battleSquaddieId: "battleSquaddieId" },
+                actor: { actorBattleSquaddieId: "battleSquaddieId" },
                 action: { isMovement: true },
                 effect: {
                     movement: {
@@ -474,7 +496,11 @@ describe("Battle State", () => {
                     },
                 },
             })
-
+            BattleActionQueueService.add(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue,
+                moveAction
+            )
             const battleStateListener: BattleStateListener =
                 new BattleStateListener("battleStateListener")
             gameEngineState.messageBoard.addListener(
@@ -484,11 +510,6 @@ describe("Battle State", () => {
         })
 
         it("clears the Battle Action Queue when it finishes animating", () => {
-            BattleActionQueueService.add(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
-                moveAction
-            )
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
@@ -500,6 +521,35 @@ describe("Battle State", () => {
                         .battleActionQueue
                 )
             ).toBeTruthy()
+        })
+
+        it("If the squaddie still has a turn, makes the decision to select the squaddie", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).not.toBeUndefined()
+            expect(
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
+            ).toEqual("battleSquaddieId")
+        })
+
+        it("If the squaddie turn is over, do not make the decision to select the squaddie", () => {
+            SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).toBeUndefined()
         })
     })
 })

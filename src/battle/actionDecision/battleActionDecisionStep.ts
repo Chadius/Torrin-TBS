@@ -1,12 +1,10 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionTemplate } from "../../action/template/actionTemplate"
 
 export interface BattleActionDecisionStep {
     actor: BattleActionDecisionStepActor
     action: BattleActionDecisionStepAction
     target: BattleActionDecisionStepTarget
-    animation: BattleActionDecisionStepAnimation
 }
 
 export interface BattleActionDecisionStepActor {
@@ -14,7 +12,7 @@ export interface BattleActionDecisionStepActor {
 }
 
 export interface BattleActionDecisionStepAction {
-    actionTemplate?: ActionTemplate
+    actionTemplateId?: string
     movement?: boolean
     endTurn?: boolean
 }
@@ -22,10 +20,6 @@ export interface BattleActionDecisionStepAction {
 export interface BattleActionDecisionStepTarget {
     targetLocation?: HexCoordinate
     confirmed: boolean
-}
-
-export interface BattleActionDecisionStepAnimation {
-    completed: boolean
 }
 
 const isTargetConsidered = (actionBuilderState: BattleActionDecisionStep) =>
@@ -51,11 +45,6 @@ const isActorSet = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState.actor.battleSquaddieId) &&
     actionBuilderState.actor.battleSquaddieId !== ""
 
-const isAnimationComplete = (actionBuilderState: BattleActionDecisionStep) =>
-    isValidValue(actionBuilderState) &&
-    isValidValue(actionBuilderState.animation) &&
-    actionBuilderState.animation.completed
-
 const isTargetConfirmed = (actionBuilderState: BattleActionDecisionStep) =>
     isTargetConsidered(actionBuilderState) &&
     actionBuilderState.target.confirmed
@@ -63,7 +52,7 @@ const isTargetConfirmed = (actionBuilderState: BattleActionDecisionStep) =>
 const isActionSet = (actionBuilderState: BattleActionDecisionStep) =>
     isValidValue(actionBuilderState) &&
     isValidValue(actionBuilderState.action) &&
-    (isValidValue(actionBuilderState.action.actionTemplate) ||
+    (isValidValue(actionBuilderState.action.actionTemplateId) ||
         actionBuilderState.action.endTurn ||
         actionBuilderState.action.movement)
 
@@ -80,14 +69,11 @@ const setConfirmedTarget = (
 }
 
 export const BattleActionDecisionStepService = {
-    new: (): BattleActionDecisionStep => {
-        return {
-            actor: undefined,
-            action: undefined,
-            target: undefined,
-            animation: undefined,
-        }
-    },
+    new: (): BattleActionDecisionStep => ({
+        actor: undefined,
+        action: undefined,
+        target: undefined,
+    }),
     isSquaddieActionRecordNotSet: (
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {
@@ -95,8 +81,7 @@ export const BattleActionDecisionStepService = {
             !isValidValue(actionBuilderState) ||
             (!isActorSet(actionBuilderState) &&
                 !isActionSet(actionBuilderState) &&
-                !isTargetConfirmed(actionBuilderState) &&
-                !isAnimationComplete(actionBuilderState))
+                !isTargetConfirmed(actionBuilderState))
         )
     },
     isActionRecordComplete: (
@@ -106,8 +91,7 @@ export const BattleActionDecisionStepService = {
             isValidValue(actionBuilderState) &&
             isActorSet(actionBuilderState) &&
             isActionSet(actionBuilderState) &&
-            isTargetConfirmed(actionBuilderState) &&
-            isAnimationComplete(actionBuilderState)
+            isTargetConfirmed(actionBuilderState)
         )
     },
     isActorSet: (actionBuilderState: BattleActionDecisionStep): boolean => {
@@ -117,11 +101,6 @@ export const BattleActionDecisionStepService = {
         actionBuilderState: BattleActionDecisionStep
     ): boolean => {
         return isTargetConfirmed(actionBuilderState)
-    },
-    isAnimationComplete: (
-        actionBuilderState: BattleActionDecisionStep
-    ): boolean => {
-        return isAnimationComplete(actionBuilderState)
     },
     setActor: ({
         actionDecisionStep,
@@ -144,19 +123,19 @@ export const BattleActionDecisionStepService = {
     },
     addAction: ({
         actionDecisionStep,
-        actionTemplate,
+        actionTemplateId,
         movement,
         endTurn,
     }: {
         actionDecisionStep: BattleActionDecisionStep
-        actionTemplate?: ActionTemplate
+        actionTemplateId?: string
         movement?: boolean
         endTurn?: boolean
     }) => {
         if (!isValidValue(actionDecisionStep)) {
             return
         }
-        const actionTemplateIsSet = isValidValue(actionTemplate)
+        const actionTemplateIsSet = isValidValue(actionTemplateId)
         const movementIsSet = movement === true || movement === false
         const endTurnIsSet = endTurn === true || endTurn === false
 
@@ -167,7 +146,7 @@ export const BattleActionDecisionStepService = {
         }
 
         actionDecisionStep.action = {
-            actionTemplate,
+            actionTemplateId,
             movement,
             endTurn,
         }
@@ -203,20 +182,6 @@ export const BattleActionDecisionStepService = {
         actionDecisionStep: BattleActionDecisionStep
     ): BattleActionDecisionStepAction => {
         return actionDecisionStep?.action
-    },
-    setAnimationCompleted: ({
-        actionDecisionStep,
-        animationCompleted,
-    }: {
-        animationCompleted: boolean
-        actionDecisionStep: BattleActionDecisionStep
-    }) => {
-        if (!isValidValue(actionDecisionStep)) {
-            return
-        }
-        actionDecisionStep.animation = {
-            completed: animationCompleted,
-        }
     },
     isTargetConsidered: (
         actionDecisionStep: BattleActionDecisionStep
@@ -259,15 +224,5 @@ export const BattleActionDecisionStepService = {
             return
         }
         actionDecisionStep.target = undefined
-    },
-    isActionRecordReadyToAnimate: (
-        actionDecisionStep: BattleActionDecisionStep
-    ) => {
-        return (
-            isActorSet(actionDecisionStep) &&
-            isActionSet(actionDecisionStep) &&
-            isTargetConfirmed(actionDecisionStep) &&
-            !isAnimationComplete(actionDecisionStep)
-        )
     },
 }

@@ -2,7 +2,8 @@ import { OrchestratorComponentMouseEvent } from "../orchestrator/battleOrchestra
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     hasCompleted(state: GameEngineState): boolean {
@@ -17,10 +18,11 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     }
 
     reset(gameEngineState: GameEngineState): void {
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
     }

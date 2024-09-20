@@ -25,7 +25,6 @@ import {
     ActionsThisRoundService,
 } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 
 describe("ActionComponentCalculator", () => {
     let actionBuilderState: BattleActionDecisionStep
@@ -117,7 +116,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: actionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
 
             const nextMode: BattleOrchestratorMode =
@@ -136,7 +135,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: actionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep: actionBuilderState,
@@ -159,7 +158,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: actionBuilderState,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
@@ -183,92 +182,74 @@ describe("ActionComponentCalculator", () => {
         let squaddieActionsThisRound: ActionsThisRound
 
         beforeEach(() => {
-            const endTurnActionEffect = ProcessedActionEndTurnEffectService.new(
-                {
+            const endTurnActionEffect =
+                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
                     decidedActionEffect: DecidedActionEndTurnEffectService.new({
                         template: ActionEffectEndTurnTemplateService.new({}),
                     }),
-                }
-            )
+                })
 
             endTurnActionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
+                        actionPointCost: "End Turn",
                         processedActionEffects: [endTurnActionEffect],
-                        decidedAction: DecidedActionService.new({
-                            battleSquaddieId: "soldier",
-                            actionPointCost: 3,
-                            actionTemplateName: "action",
-                            actionTemplateId: "id",
-                            actionEffects: [
-                                endTurnActionEffect.decidedActionEffect,
-                            ],
-                        }),
                     }),
                 ],
             })
 
             const movementActionEffect =
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: DecidedActionMovementEffectService.new(
-                        {
-                            destination: { q: 0, r: 2 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }
-                    ),
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionMovementEffectService.new({
+                                destination: { q: 0, r: 2 },
+                                template:
+                                    ActionEffectMovementTemplateService.new({}),
+                            }),
+                    }
+                )
 
             moveActionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
+                        actionPointCost: 3,
                         processedActionEffects: [movementActionEffect],
-                        decidedAction: DecidedActionService.new({
-                            battleSquaddieId: "soldier",
-                            actionPointCost: 3,
-                            actionTemplateName: "action",
-                            actionTemplateId: "id",
-                            actionEffects: [
-                                movementActionEffect.decidedActionEffect,
-                            ],
-                        }),
                     }),
                 ],
             })
 
             const squaddieActionEffect =
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            target: { q: 0, r: 2 },
-                            template: ActionEffectSquaddieTemplateService.new(
-                                {}
-                            ),
-                        }
-                    ),
-                    results: undefined,
-                })
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                target: { q: 0, r: 2 },
+                                template:
+                                    ActionEffectSquaddieTemplateService.new({}),
+                            }),
+                        results: undefined,
+                    }
+                )
+
+            const actionTemplate: ActionTemplate = ActionTemplateService.new({
+                id: "actionTemplate",
+                actionPoints: 3,
+                name: "action",
+                actionEffectTemplates: [],
+            })
 
             squaddieActionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
+                        actionPointCost: 3,
                         processedActionEffects: [squaddieActionEffect],
-                        decidedAction: DecidedActionService.new({
-                            battleSquaddieId: "soldier",
-                            actionPointCost: 3,
-                            actionTemplateName: "action",
-                            actionTemplateId: "id",
-                            actionEffects: [
-                                squaddieActionEffect.decidedActionEffect,
-                            ],
-                        }),
                     }),
                 ],
             })
@@ -352,7 +333,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: builderStateWithActor,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
 
             expect(
@@ -371,7 +352,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep: builderStateWithActor,
-                actionTemplate: singleTargetAction,
+                actionTemplateId: singleTargetAction.id,
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: builderStateWithActor,

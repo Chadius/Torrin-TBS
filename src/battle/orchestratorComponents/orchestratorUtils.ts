@@ -16,7 +16,6 @@ import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattlePhase } from "./battlePhaseTracker"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -43,20 +42,6 @@ export const OrchestratorUtilities = {
     },
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
-    },
-    resetActionBuilderIfActionIsComplete: (
-        gameEngineState: GameEngineState
-    ): void => {
-        if (
-            !BattleActionDecisionStepService.isActionRecordComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
-            )
-        ) {
-            return
-        }
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            undefined
     },
     clearActionsThisRoundIfSquaddieCannotAct: (
         gameEngineState: GameEngineState

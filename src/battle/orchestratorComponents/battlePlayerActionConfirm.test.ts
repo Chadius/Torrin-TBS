@@ -160,12 +160,12 @@ describe("BattleActionConfirm", () => {
             campaign: CampaignService.default(),
         })
 
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
         })
 
@@ -195,8 +195,8 @@ describe("BattleActionConfirm", () => {
         BattleActionDecisionStepService.addAction({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            actionTemplate: longswordAction,
+                    .battleActionDecisionStep,
+            actionTemplateId: longswordAction.id,
         })
 
         const { mapLocation } = MissionMapService.getByBattleSquaddieId(
@@ -207,7 +207,7 @@ describe("BattleActionConfirm", () => {
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             targetLocation: mapLocation,
         })
 

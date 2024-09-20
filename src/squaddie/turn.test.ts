@@ -57,6 +57,10 @@ describe("Squaddie turn and resources", () => {
             )
             expect(turn.remainingActionPoints).toBe(1)
         })
+        it("will remove all action when you spend the entire round", () => {
+            SquaddieTurnService.spendActionPoints(turn, "End Turn")
+            expect(turn.remainingActionPoints).toBe(0)
+        })
         it("should report when an action cannot be spent", () => {
             SquaddieTurnService.spendActionPoints(
                 turn,

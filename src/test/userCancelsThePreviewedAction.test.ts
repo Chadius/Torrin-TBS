@@ -295,17 +295,19 @@ describe("User cancels the previewed action", () => {
                 previewedActionTemplateId: attackAction.id,
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: undefined,
+                        actionPointCost: 0,
                         processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.new({
-                                decidedActionEffect:
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: attackAction
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 1 },
-                                    }),
-                                results: undefined,
-                            }),
+                            ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        DecidedActionSquaddieEffectService.new({
+                                            template: attackAction
+                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                            target: { q: 0, r: 1 },
+                                        }),
+                                    results: undefined,
+                                }
+                            ),
                         ],
                     }),
                 ],
@@ -376,17 +378,19 @@ describe("User cancels the previewed action", () => {
             previewedActionTemplateId: attackAction.name,
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: undefined,
+                    actionPointCost: 0,
                     processedActionEffects: [
-                        ProcessedActionSquaddieEffectService.new({
-                            decidedActionEffect:
-                                DecidedActionSquaddieEffectService.new({
-                                    template: attackAction
-                                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                    target: { q: 0, r: 1 },
-                                }),
-                            results: undefined,
-                        }),
+                        ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    DecidedActionSquaddieEffectService.new({
+                                        template: attackAction
+                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                        target: { q: 0, r: 1 },
+                                    }),
+                                results: undefined,
+                            }
+                        ),
                     ],
                 }),
             ],

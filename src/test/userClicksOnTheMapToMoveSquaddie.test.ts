@@ -39,7 +39,6 @@ import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/batt
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { ProcessedActionMovementEffectService } from "../action/processed/processedActionMovementEffect"
-import { DecidedActionService } from "../action/decided/decidedAction"
 import { DecidedActionMovementEffectService } from "../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../action/template/actionEffectMovementTemplate"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
@@ -49,6 +48,12 @@ import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../battle/actionDecision/battleActionDecisionStep"
+import { BattleActionService } from "../battle/history/battleAction"
+import { BattleActionQueueService } from "../battle/history/battleActionQueue"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -278,17 +283,44 @@ describe("user clicks on the map to move", () => {
                 0
             )
 
+            const movementStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: movementStep,
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: movementStep,
+                movement: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: movementStep,
+                targetLocation: { q: 0, r: 3 },
+            })
+
             const decidedActionMovementEffect =
                 DecidedActionMovementEffectService.new({
                     destination: { q: 0, r: 3 },
                     template: ActionEffectMovementTemplateService.new({}),
                 })
-            expect(actionsThisRound.processedActions[0].decidedAction).toEqual(
-                DecidedActionService.new({
-                    actionPointCost: 3,
-                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                    actionTemplateName: "Move",
-                    actionEffects: [decidedActionMovementEffect],
+            expect(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 3 },
+                        },
+                    },
                 })
             )
 
@@ -298,9 +330,11 @@ describe("user clicks on the map to move", () => {
             expect(
                 actionsThisRound.processedActions[0].processedActionEffects[0]
             ).toEqual(
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect: decidedActionMovementEffect,
+                    }
+                )
             )
         })
 

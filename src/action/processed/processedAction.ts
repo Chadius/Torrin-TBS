@@ -1,4 +1,3 @@
-import { DecidedAction } from "../decided/decidedAction"
 import { ProcessedActionEffect } from "./processedActionEffect"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
 import { ActionEffectType } from "../template/actionEffectTemplate"
@@ -7,21 +6,23 @@ import { ProcessedActionSquaddieEffectService } from "./processedActionSquaddieE
 export const MULTIPLE_ATTACK_PENALTY = -3
 export const MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX = 2
 
+export type ActionPointCost = number | "End Turn"
+
 export interface ProcessedAction {
-    decidedAction: DecidedAction
+    actionPointCost: ActionPointCost
     processedActionEffects: ProcessedActionEffect[]
 }
 
 export const ProcessedActionService = {
     new: ({
-        decidedAction,
+        actionPointCost,
         processedActionEffects,
     }: {
-        decidedAction: DecidedAction
+        actionPointCost: number | "End Turn"
         processedActionEffects?: ProcessedActionEffect[]
     }): ProcessedAction => {
         return sanitize({
-            decidedAction,
+            actionPointCost,
             processedActionEffects,
         })
     },

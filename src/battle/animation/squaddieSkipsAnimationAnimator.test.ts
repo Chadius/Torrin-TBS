@@ -41,17 +41,20 @@ import {
     ActionsThisRound,
     ActionsThisRoundService,
 } from "../history/actionsThisRound"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../history/battleAction"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleAction,
+    BattleActionActionContextService,
+    BattleActionService,
+} from "../history/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
 
-    let squaddieRepository: ObjectRepository
+    let objectRepository: ObjectRepository
     let monkStaticId = "monk static"
     let monkBattleSquaddieId = "monk dynamic"
     let monkKoanAction: ActionTemplate
@@ -70,6 +73,8 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             .fn()
             .mockReturnValue(makeResult(null))
 
+        objectRepository = ObjectRepositoryService.new()
+
         monkKoanAction = ActionTemplateService.new({
             id: "koan",
             name: "koan",
@@ -83,36 +88,36 @@ describe("SquaddieSkipsAnimationAnimator", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            monkKoanAction
+        )
 
-        squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             actionTemplateIds: [monkKoanAction.id],
             affiliation: SquaddieAffiliation.PLAYER,
             battleId: monkBattleSquaddieId,
             name: "Monk",
             templateId: monkStaticId,
-            objectRepository: squaddieRepository,
+            objectRepository: objectRepository,
         })
 
         battleEventRecording = { history: [] }
+
         const oneDecisionInstruction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                actionPointCost: 1,
-                battleSquaddieId: monkBattleSquaddieId,
-                actionTemplateName: monkKoanAction.name,
-                actionTemplateId: monkKoanAction.id,
-            }),
+            actionPointCost: 1,
             processedActionEffects: [
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            template: monkKoanAction
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 0 },
-                        }
-                    ),
-                    results: undefined,
-                }),
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                template: monkKoanAction
+                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: { q: 0, r: 0 },
+                            }),
+                        results: undefined,
+                    }
+                ),
             ],
         })
 
@@ -132,12 +137,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             }),
         })
         RecordingService.addEvent(battleEventRecording, monkMeditatesEvent)
-
         animator = new SquaddieSkipsAnimationAnimator()
     })
 
     it("will create a text window with the action results", () => {
-        const state: GameEngineState = GameEngineStateService.new({
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -147,8 +151,17 @@ describe("SquaddieSkipsAnimationAnimator", () => {
                     actionsThisRound: monkMeditatesInstruction,
                 }),
             }),
-            repository: squaddieRepository,
+            repository: objectRepository,
         })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: monkBattleSquaddieId },
+                action: { actionTemplateId: monkKoanAction.id },
+                effect: { squaddie: [] },
+            })
+        )
 
         const outputResultForTextOnlySpy = jest.spyOn(
             ActionResultTextService.ActionResultTextService,
@@ -156,15 +169,15 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         )
         const drawLabelSpy = jest.spyOn(LabelService, "draw")
 
-        animator.reset(state)
-        animator.update(state, mockedP5GraphicsContext)
+        animator.reset(gameEngineState)
+        animator.update(gameEngineState, mockedP5GraphicsContext)
 
         expect(animator.outputTextDisplay).not.toBeUndefined()
         expect(outputResultForTextOnlySpy).toBeCalled()
         expect(outputResultForTextOnlySpy).toBeCalledWith({
             currentActionEffectSquaddieTemplate:
                 monkKoanAction.actionEffectTemplates[0],
-            squaddieRepository,
+            squaddieRepository: objectRepository,
             actionTemplateName: monkKoanAction.name,
             result: monkMeditatesEvent.results,
         })
@@ -173,61 +186,6 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
     it("will complete at the end of the display time", () => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
-        const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    actionsThisRound: monkMeditatesInstruction,
-                    recording: battleEventRecording,
-                }),
-            }),
-            repository: squaddieRepository,
-        })
-        animator.reset(state)
-        animator.update(state, mockedP5GraphicsContext)
-        expect(animator.hasCompleted(state)).toBeFalsy()
-
-        jest.spyOn(Date, "now").mockImplementation(
-            () => ANIMATE_TEXT_WINDOW_WAIT_TIME
-        )
-
-        animator.update(state, mockedP5GraphicsContext)
-        expect(animator.hasCompleted(state)).toBeTruthy()
-    })
-
-    it("will skip displaying the results if the user clicks", () => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
-        const state: GameEngineState = GameEngineStateService.new({
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                    actionsThisRound: monkMeditatesInstruction,
-                    recording: battleEventRecording,
-                }),
-            }),
-            repository: squaddieRepository,
-        })
-        animator.reset(state)
-        animator.update(state, mockedP5GraphicsContext)
-        expect(animator.hasCompleted(state)).toBeFalsy()
-
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0,
-            mouseButton: MouseButton.ACCEPT,
-        }
-        animator.mouseEventHappened(state, mouseEvent)
-
-        animator.update(state, mockedP5GraphicsContext)
-        expect(animator.hasCompleted(state)).toBeTruthy()
-    })
-
-    it("will set the action builder animation to true when it resets", () => {
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -238,36 +196,103 @@ describe("SquaddieSkipsAnimationAnimator", () => {
                     recording: battleEventRecording,
                 }),
             }),
-            repository: squaddieRepository,
+            repository: objectRepository,
+        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: monkBattleSquaddieId },
+                action: { actionTemplateId: monkKoanAction.id },
+                effect: { squaddie: [] },
+            })
+        )
+
+        animator.reset(gameEngineState)
+        animator.update(gameEngineState, mockedP5GraphicsContext)
+        expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
+
+        jest.spyOn(Date, "now").mockImplementation(
+            () => ANIMATE_TEXT_WINDOW_WAIT_TIME
+        )
+
+        animator.update(gameEngineState, mockedP5GraphicsContext)
+        expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
+    })
+
+    it("will skip displaying the results if the user clicks", () => {
+        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
+            }),
+            repository: objectRepository,
+        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: monkBattleSquaddieId },
+                action: { actionTemplateId: monkKoanAction.id },
+                effect: { squaddie: [] },
+            })
+        )
+
+        animator.reset(gameEngineState)
+        animator.update(gameEngineState, mockedP5GraphicsContext)
+        expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
+
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: 0,
+            mouseY: 0,
+            mouseButton: MouseButton.ACCEPT,
+        }
+        animator.mouseEventHappened(gameEngineState, mouseEvent)
+
+        animator.update(gameEngineState, mockedP5GraphicsContext)
+        expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
+    })
+
+    it("will set the battle action animation to true when it resets", () => {
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    campaignId: "test campaign",
+                    actionsThisRound: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
+            }),
+            repository: objectRepository,
         })
 
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            battleSquaddieId: monkBattleSquaddieId,
+        const battleAction: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: monkBattleSquaddieId },
+            action: { actionTemplateId: monkKoanAction.id },
+            effect: { squaddie: [] },
         })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            actionTemplate: monkKoanAction,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
-            targetLocation: { q: 0, r: 0 },
-        })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            battleAction
+        )
 
         animator.reset(gameEngineState)
 
         expect(
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
             )
         ).toBeTruthy()
     })

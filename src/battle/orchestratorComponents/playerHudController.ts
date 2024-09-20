@@ -12,6 +12,8 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -37,16 +39,29 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     ): BattleOrchestratorChanges | undefined {
         const actionBuilderState =
             gameEngineState.battleOrchestratorState.battleState
-                .playerBattleActionBuilderState
+                .battleActionDecisionStep
+
+        const battleActionQueueIsEmpty = BattleActionQueueService.isEmpty(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+
+        const battleActionHasAnimated =
+            !battleActionQueueIsEmpty &&
+            BattleActionService.isAnimationComplete(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            )
 
         if (
             !playerCanControlAtLeastOneSquaddie(gameEngineState) &&
             (BattleActionDecisionStepService.isSquaddieActionRecordNotSet(
                 actionBuilderState
             ) ||
-                BattleActionDecisionStepService.isActionRecordComplete(
-                    actionBuilderState
-                ))
+                battleActionQueueIsEmpty ||
+                battleActionHasAnimated)
         ) {
             return {
                 displayMap: true,
@@ -78,7 +93,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             }
         }
 
-        if (isValidValue(actionBuilderState.action.actionTemplate)) {
+        if (actionBuilderState?.action?.actionTemplateId) {
             if (
                 BattleActionDecisionStepService.isTargetConfirmed(
                     actionBuilderState
@@ -104,15 +119,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
     }
 
     reset(gameEngineState: GameEngineState): void {
-        if (
-            BattleActionDecisionStepService.isAnimationComplete(
-                gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
-            )
-        ) {
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                undefined
-        }
+        // Required by inheritance
     }
 
     uiControlSettings(gameEngineState: GameEngineState): UIControlSettings {

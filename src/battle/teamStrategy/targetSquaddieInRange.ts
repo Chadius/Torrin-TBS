@@ -15,17 +15,16 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
-import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { isValidValue } from "../../utils/validityCheck"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -46,7 +45,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         missionMap: MissionMap
         repository: ObjectRepository
         actionsThisRound?: ActionsThisRound
-    }): DecidedAction {
+    }): BattleActionDecisionStep[] {
         if (
             !this.desiredBattleSquaddieId &&
             (!this.desiredAffiliation ||
@@ -112,7 +111,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 missionMap,
                 this.desiredBattleSquaddieId
             )
-            return createDecidedAction(
+            return createBattleActionDecisionSteps(
                 actionTemplate,
                 mapLocation,
                 battleSquaddieIdToAct
@@ -153,7 +152,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             missionMap,
             battleSquaddieIdToTarget
         )
-        return createDecidedAction(
+        return createBattleActionDecisionSteps(
             actionTemplate,
             mapLocation,
             battleSquaddieIdToAct
@@ -213,21 +212,25 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
     }
 }
 
-const createDecidedAction = (
+const createBattleActionDecisionSteps = (
     actionTemplate: ActionTemplate,
     mapLocation: HexCoordinate,
     battleSquaddieIdToAct: string
-) => {
-    const decidedActionSquaddieEffect = DecidedActionSquaddieEffectService.new({
-        template: actionTemplate
-            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-        target: mapLocation,
-    })
-    return DecidedActionService.new({
-        actionTemplateName: actionTemplate.name,
-        actionTemplateId: actionTemplate.id,
+): BattleActionDecisionStep[] => {
+    const actionStep: BattleActionDecisionStep =
+        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep: actionStep,
         battleSquaddieId: battleSquaddieIdToAct,
-        actionEffects: [decidedActionSquaddieEffect],
-        actionPointCost: actionTemplate.actionPoints,
     })
+    BattleActionDecisionStepService.addAction({
+        actionDecisionStep: actionStep,
+        actionTemplateId: actionTemplate.id,
+    })
+    BattleActionDecisionStepService.setConfirmedTarget({
+        actionDecisionStep: actionStep,
+        targetLocation: mapLocation,
+    })
+
+    return [actionStep]
 }

@@ -126,9 +126,6 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.squaddieActionAnimator.reset(gameEngineState)
         this._squaddieActionAnimator = undefined
         this.resetInternalState()
-        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-            gameEngineState
-        )
     }
 
     update(

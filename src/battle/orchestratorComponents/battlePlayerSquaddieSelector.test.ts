@@ -62,6 +62,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -319,7 +320,7 @@ describe("BattleSquaddieSelector", () => {
                 battlePhaseState,
                 missionMap,
             })
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleHUDService.playerSelectsSquaddie(
@@ -422,11 +423,11 @@ describe("BattleSquaddieSelector", () => {
 
             expect(playerCommandSpy).toBeCalled()
             expect(
-                BattleActionDecisionStepService.isActionRecordReadyToAnimate(
+                BattleActionQueueService.isEmpty(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionQueue
                 )
-            ).toBeFalsy()
+            ).toBeTruthy()
 
             playerCommandSpy.mockRestore()
         })
@@ -510,7 +511,7 @@ describe("BattleSquaddieSelector", () => {
                             gameEngineState,
                             battleAction: BattleActionService.new({
                                 actor: {
-                                    battleSquaddieId: "battleSquaddieId",
+                                    actorBattleSquaddieId: "battleSquaddieId",
                                 },
                                 action: { isEndTurn: true },
                                 effect: { endTurn: true },
@@ -529,7 +530,7 @@ describe("BattleSquaddieSelector", () => {
                         isEndTurn: true,
                     },
                     actor: {
-                        battleSquaddieId: "battleSquaddieId",
+                        actorBattleSquaddieId: "battleSquaddieId",
                     },
                     effect: {
                         endTurn: true,

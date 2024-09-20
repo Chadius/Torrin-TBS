@@ -7,7 +7,6 @@ import {
 } from "../../action/processed/processedAction"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { ProcessedActionEffect } from "../../action/processed/processedActionEffect"
-import { DecidedActionEffect } from "../../action/decided/decidedActionEffect"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 
@@ -58,41 +57,6 @@ export const ActionsThisRoundService = {
     ): ProcessedActionEffect => {
         return getProcessedActionAndActionEffectToShow(actionsThisRound)
             .processedActionEffect
-    },
-    getDecidedButNotProcessedActionEffect: (
-        actionsThisRound: ActionsThisRound
-    ): {
-        processedAction: ProcessedAction
-        decidedActionEffect: DecidedActionEffect
-    } => {
-        if (!isValidValue(actionsThisRound)) {
-            return {
-                processedAction: undefined,
-                decidedActionEffect: undefined,
-            }
-        }
-
-        const firstPendingProcessedAction =
-            actionsThisRound.processedActions.find(
-                (processedAction) =>
-                    processedAction.decidedAction &&
-                    processedAction.processedActionEffects.length === 0
-            )
-
-        if (firstPendingProcessedAction === undefined) {
-            return {
-                processedAction: undefined,
-                decidedActionEffect: undefined,
-            }
-        }
-
-        return {
-            processedAction: firstPendingProcessedAction,
-            decidedActionEffect:
-                firstPendingProcessedAction.decidedAction.actionEffects[
-                    firstPendingProcessedAction.processedActionEffects.length
-                ],
-        }
     },
     nextProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound) => {
         if (!isValidValue(actionsThisRound)) {

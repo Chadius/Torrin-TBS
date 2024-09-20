@@ -3,7 +3,18 @@ import {
     DecidedActionSquaddieEffect,
     DecidedActionSquaddieEffectService,
 } from "../decided/decidedActionSquaddieEffect"
-import { SquaddieSquaddieResults } from "../../battle/history/squaddieSquaddieResults"
+import {
+    SquaddieSquaddieResults,
+    SquaddieSquaddieResultsService,
+} from "../../battle/history/squaddieSquaddieResults"
+import { BattleActionSquaddieChange } from "../../battle/history/battleActionSquaddieChange"
+import { BattleActionDecisionStep } from "../../battle/actionDecision/battleActionDecisionStep"
+import { ActionEffectSquaddieTemplate } from "../template/actionEffectSquaddieTemplate"
+import { BattleActionActionContextService } from "../../battle/history/battleAction"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../battle/objectRepository"
 
 export interface ProcessedActionSquaddieEffect {
     type: ActionEffectType.SQUADDIE
@@ -13,6 +24,37 @@ export interface ProcessedActionSquaddieEffect {
 
 export const ProcessedActionSquaddieEffectService = {
     new: ({
+        battleActionDecisionStep,
+        battleActionSquaddieChange,
+        objectRepository,
+    }: {
+        battleActionDecisionStep: BattleActionDecisionStep
+        battleActionSquaddieChange: BattleActionSquaddieChange
+        objectRepository: ObjectRepository
+    }): ProcessedActionSquaddieEffect => {
+        const action = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            battleActionDecisionStep.action.actionTemplateId
+        )
+
+        return ProcessedActionSquaddieEffectService.newFromDecidedActionEffect({
+            decidedActionEffect: DecidedActionSquaddieEffectService.new({
+                target: battleActionDecisionStep.target.targetLocation,
+                template: action
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            }),
+            results: SquaddieSquaddieResultsService.new({
+                actingBattleSquaddieId:
+                    battleActionDecisionStep.actor.battleSquaddieId,
+                squaddieChanges: [battleActionSquaddieChange],
+                targetedBattleSquaddieIds: [
+                    battleActionSquaddieChange.battleSquaddieId,
+                ],
+                actionContext: BattleActionActionContextService.new({}),
+            }),
+        })
+    },
+    newFromDecidedActionEffect: ({
         decidedActionEffect,
         results,
     }: {

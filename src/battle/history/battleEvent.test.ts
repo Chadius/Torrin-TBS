@@ -30,7 +30,7 @@ describe("BattleEvent", () => {
             }),
             battleAction: BattleActionService.new({
                 actor: {
-                    battleSquaddieId: "actor",
+                    actorBattleSquaddieId: "actor",
                 },
                 action: {
                     isEndTurn: true,

@@ -38,7 +38,10 @@ import { ProcessedActionMovementEffectService } from "../../action/processed/pro
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -60,7 +63,6 @@ import {
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { BattleCamera } from "../battleCamera"
@@ -78,7 +80,6 @@ import {
 import {
     BattleAction,
     BattleActionActionContextService,
-    BattleActionQueueService,
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
@@ -112,6 +113,7 @@ import {
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -235,13 +237,13 @@ describe("Battle HUD", () => {
             longswordAction
         )
 
-        gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
 
         BattleActionDecisionStepService.setActor({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionDecisionStep,
             battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
         })
 
@@ -560,13 +562,13 @@ describe("Battle HUD", () => {
             expect(
                 BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toBeTruthy()
             expect(
                 BattleActionDecisionStepService.getActor(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 ).battleSquaddieId
             ).toEqual(battleSquaddie.battleSquaddieId)
         })
@@ -929,8 +931,8 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                actionTemplate: longswordAction,
+                        .battleActionDecisionStep,
+                actionTemplateId: longswordAction.id,
             })
 
             addGraphicsLayerSpy = jest.spyOn(
@@ -971,7 +973,7 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeUndefined()
             })
@@ -981,6 +983,21 @@ describe("Battle HUD", () => {
         })
         describe("Cancel targeting on the second action", () => {
             beforeEach(() => {
+                const actionStep: BattleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: actionStep,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: actionStep,
+                    actionTemplateId: longswordAction.id,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: actionStep,
+                    targetLocation: { q: 0, r: 1 },
+                })
+
                 addActionsThisRoundThenCancelTargetSelection(
                     ActionsThisRoundService.new({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -988,19 +1005,22 @@ describe("Battle HUD", () => {
                         previewedActionTemplateId: longswordAction.id,
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: undefined,
+                                actionPointCost: 0,
                                 processedActionEffects: [
-                                    ProcessedActionSquaddieEffectService.new({
-                                        decidedActionEffect:
-                                            DecidedActionSquaddieEffectService.new(
-                                                {
-                                                    template: longswordAction
-                                                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                                    target: { q: 0, r: 1 },
-                                                }
-                                            ),
-                                        results: undefined,
-                                    }),
+                                    ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                        {
+                                            decidedActionEffect:
+                                                DecidedActionSquaddieEffectService.new(
+                                                    {
+                                                        template:
+                                                            longswordAction
+                                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                                        target: { q: 0, r: 1 },
+                                                    }
+                                                ),
+                                            results: undefined,
+                                        }
+                                    ),
                                 ],
                             }),
                         ],
@@ -1028,7 +1048,7 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).battleSquaddieId
                 ).toEqual(battleSquaddie.battleSquaddieId)
             })
@@ -1052,6 +1072,21 @@ describe("Battle HUD", () => {
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
+            const actionStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionStep,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionStep,
+                actionTemplateId: longswordAction.id,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionStep,
+                targetLocation: { q: 0, r: 1 },
+            })
+
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -1059,18 +1094,7 @@ describe("Battle HUD", () => {
                     previewedActionTemplateId: longswordAction.id,
                     processedActions: [
                         ProcessedActionService.new({
-                            decidedAction: undefined,
-                            processedActionEffects: [
-                                ProcessedActionSquaddieEffectService.new({
-                                    decidedActionEffect:
-                                        DecidedActionSquaddieEffectService.new({
-                                            template: longswordAction
-                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                            target: { q: 0, r: 1 },
-                                        }),
-                                    results: undefined,
-                                }),
-                            ],
+                            actionPointCost: 0,
                         }),
                     ],
                 })
@@ -1078,13 +1102,13 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                actionTemplate: longswordAction,
+                        .battleActionDecisionStep,
+                actionTemplateId: longswordAction.id,
             })
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 targetLocation: { q: 0, r: 1 },
             })
 
@@ -1142,7 +1166,7 @@ describe("Battle HUD", () => {
 
             endTurnBattleAction = BattleActionService.new({
                 actor: {
-                    battleSquaddieId:
+                    actorBattleSquaddieId:
                         playerSoldierBattleSquaddie.battleSquaddieId,
                 },
                 action: { isEndTurn: true },
@@ -1155,11 +1179,6 @@ describe("Battle HUD", () => {
         })
 
         it("will add end turn to existing instruction", () => {
-            const decidedActionMovementEffect =
-                DecidedActionMovementEffectService.new({
-                    template: ActionEffectMovementTemplateService.new({}),
-                    destination: { q: 0, r: 1 },
-                })
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId:
@@ -1168,13 +1187,7 @@ describe("Battle HUD", () => {
                     previewedActionTemplateId: undefined,
                     processedActions: [
                         ProcessedActionService.new({
-                            decidedAction: DecidedActionService.new({
-                                actionPointCost: 1,
-                                battleSquaddieId:
-                                    playerSoldierBattleSquaddie.battleSquaddieId,
-                                actionTemplateName: "Move",
-                                actionEffects: [decidedActionMovementEffect],
-                            }),
+                            actionPointCost: 1,
                             processedActionEffects: [],
                         }),
                     ],
@@ -1221,17 +1234,15 @@ describe("Battle HUD", () => {
                     DecidedActionEndTurnEffectService.new({
                         template: ActionEffectEndTurnTemplateService.new({}),
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        battleSquaddieId: "player_soldier_0",
-                        actionTemplateName: "End Turn",
-                        actionEffects: [decidedActionEndTurnEffect],
-                    }),
+                    actionPointCost: "End Turn",
                     processedActionEffects: [
-                        ProcessedActionEndTurnEffectService.new({
-                            decidedActionEffect: decidedActionEndTurnEffect,
-                        }),
+                        ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect: decidedActionEndTurnEffect,
+                            }
+                        ),
                     ],
                 })
 
@@ -1262,31 +1273,31 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).endTurn
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).targetLocation
                 ).toEqual({
                     q: 0,
@@ -1381,13 +1392,13 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).battleSquaddieId
                 ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
             })
@@ -1396,14 +1407,14 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    ).actionTemplate.id
+                            .battleActionDecisionStep
+                    ).actionTemplateId
                 ).toEqual(longswordAction.id)
             })
 
@@ -1411,7 +1422,7 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeFalsy()
             })
@@ -1502,8 +1513,8 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                actionTemplate: longswordAction,
+                        .battleActionDecisionStep,
+                actionTemplateId: longswordAction.id,
             })
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -1522,13 +1533,13 @@ describe("Battle HUD", () => {
             expect(
                 BattleActionDecisionStepService.isTargetConsidered(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toBeTruthy()
             expect(
                 BattleActionDecisionStepService.getTarget(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toEqual({
                 targetLocation: { q: 0, r: 1 },
@@ -1587,7 +1598,7 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 targetLocation: { q: 1, r: 2 },
             })
 
@@ -1605,8 +1616,8 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.addAction({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                actionTemplate: longswordAction,
+                        .battleActionDecisionStep,
+                actionTemplateId: longswordAction.id,
             })
 
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
@@ -1643,77 +1654,86 @@ describe("Battle HUD", () => {
                 previewedActionTemplateId: undefined,
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            actionPointCost: 1,
-                            battleSquaddieId:
-                                playerSoldierBattleSquaddie.battleSquaddieId,
-                            actionTemplateName: longswordAction.name,
-                            actionTemplateId: longswordAction.id,
-                            actionEffects: [decidedActionSquaddieEffect],
-                        }),
+                        actionPointCost: 1,
                         processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.new({
-                                decidedActionEffect:
-                                    decidedActionSquaddieEffect,
-                                results: SquaddieSquaddieResultsService.new({
-                                    actingBattleSquaddieId:
-                                        playerSoldierBattleSquaddie.battleSquaddieId,
-                                    actionContext:
-                                        BattleActionActionContextService.new({
-                                            actingSquaddieModifiers: [],
-                                            actingSquaddieRoll: {
-                                                occurred: false,
-                                                rolls: [],
-                                            },
-                                            targetSquaddieModifiers: {
-                                                [thiefBattleSquaddie.battleSquaddieId]:
-                                                    [],
-                                            },
-                                        }),
-                                    squaddieChanges: [
-                                        BattleActionSquaddieChangeService.new({
-                                            actorDegreeOfSuccess:
-                                                DegreeOfSuccess.SUCCESS,
-                                            damageTaken: 2,
-                                            healingReceived: 0,
-                                            attributesAfter:
-                                                InBattleAttributesService.new({
-                                                    armyAttributes: {
-                                                        armorClass: 0,
-                                                        maxHitPoints: 5,
-                                                        movement: {
-                                                            crossOverPits:
-                                                                false,
-                                                            movementPerAction: 2,
-                                                            passThroughWalls:
-                                                                false,
+                            ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        decidedActionSquaddieEffect,
+                                    results: SquaddieSquaddieResultsService.new(
+                                        {
+                                            actingBattleSquaddieId:
+                                                playerSoldierBattleSquaddie.battleSquaddieId,
+                                            actionContext:
+                                                BattleActionActionContextService.new(
+                                                    {
+                                                        actingSquaddieModifiers:
+                                                            [],
+                                                        actingSquaddieRoll: {
+                                                            occurred: false,
+                                                            rolls: [],
                                                         },
-                                                    },
-                                                    currentHitPoints: 3,
-                                                }),
-                                            attributesBefore:
-                                                InBattleAttributesService.new({
-                                                    armyAttributes: {
-                                                        armorClass: 0,
-                                                        maxHitPoints: 5,
-                                                        movement: {
-                                                            crossOverPits:
-                                                                false,
-                                                            movementPerAction: 2,
-                                                            passThroughWalls:
-                                                                false,
-                                                        },
-                                                    },
-                                                    currentHitPoints: 5,
-                                                }),
-                                            battleSquaddieId: "Thief 0",
-                                        }),
-                                    ],
-                                    targetedBattleSquaddieIds: [
-                                        thiefBattleSquaddie.battleSquaddieId,
-                                    ],
-                                }),
-                            }),
+                                                        targetSquaddieModifiers:
+                                                            {},
+                                                    }
+                                                ),
+                                            squaddieChanges: [
+                                                BattleActionSquaddieChangeService.new(
+                                                    {
+                                                        actorDegreeOfSuccess:
+                                                            DegreeOfSuccess.SUCCESS,
+                                                        damageTaken: 2,
+                                                        healingReceived: 0,
+                                                        attributesAfter:
+                                                            InBattleAttributesService.new(
+                                                                {
+                                                                    armyAttributes:
+                                                                        {
+                                                                            armorClass: 0,
+                                                                            maxHitPoints: 5,
+                                                                            movement:
+                                                                                {
+                                                                                    crossOverPits:
+                                                                                        false,
+                                                                                    movementPerAction: 2,
+                                                                                    passThroughWalls:
+                                                                                        false,
+                                                                                },
+                                                                        },
+                                                                    currentHitPoints: 3,
+                                                                }
+                                                            ),
+                                                        attributesBefore:
+                                                            InBattleAttributesService.new(
+                                                                {
+                                                                    armyAttributes:
+                                                                        {
+                                                                            armorClass: 0,
+                                                                            maxHitPoints: 5,
+                                                                            movement:
+                                                                                {
+                                                                                    crossOverPits:
+                                                                                        false,
+                                                                                    movementPerAction: 2,
+                                                                                    passThroughWalls:
+                                                                                        false,
+                                                                                },
+                                                                        },
+                                                                    currentHitPoints: 5,
+                                                                }
+                                                            ),
+                                                        battleSquaddieId:
+                                                            "Thief 0",
+                                                    }
+                                                ),
+                                            ],
+                                            targetedBattleSquaddieIds: [
+                                                thiefBattleSquaddie.battleSquaddieId,
+                                            ],
+                                        }
+                                    ),
+                                }
+                            ),
                         ],
                     }),
                 ],
@@ -1732,7 +1752,7 @@ describe("Battle HUD", () => {
             expect(
                 BattleActionDecisionStepService.isTargetConfirmed(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toBeTruthy()
         })
@@ -1756,6 +1776,47 @@ describe("Battle HUD", () => {
             expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
         })
 
+        it("should add an action to the action builder", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+            expect(
+                BattleActionQueueService.peek(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { actionTemplateId: longswordAction.id },
+                    effect: {
+                        squaddie: [
+                            {
+                                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                attributesAfter: {
+                                    ...InBattleAttributesService.new({}),
+                                    currentHitPoints: 3,
+                                },
+                                attributesBefore: InBattleAttributesService.new(
+                                    {}
+                                ),
+                                battleSquaddieId: "Thief 0",
+                                damageTaken: 2,
+                                healingReceived: 0,
+                            },
+                        ],
+                    },
+                    animation: {
+                        completed: false,
+                    },
+                })
+            )
+        })
+
         describe("confirming an action mid turn", () => {
             beforeEach(() => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
@@ -1766,21 +1827,7 @@ describe("Battle HUD", () => {
                         previewedActionTemplateId: longswordAction.id,
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: DecidedActionService.new({
-                                    battleSquaddieId:
-                                        playerSoldierBattleSquaddie.battleSquaddieId,
-                                    actionPointCost:
-                                        longswordAction.actionPoints,
-                                    actionTemplateName: longswordAction.name,
-                                    actionTemplateId: longswordAction.id,
-                                    actionEffects: [
-                                        DecidedActionSquaddieEffectService.new({
-                                            template: longswordAction
-                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                            target: { q: 0, r: 0 },
-                                        }),
-                                    ],
-                                }),
+                                actionPointCost: longswordAction.actionPoints,
                             }),
                         ],
                     })
@@ -1798,31 +1845,6 @@ describe("Battle HUD", () => {
                 const newProcessedAction =
                     gameEngineState.battleOrchestratorState.battleState
                         .actionsThisRound.processedActions[1]
-                expect(
-                    newProcessedAction.decidedAction.actionTemplateId
-                ).toEqual(longswordAction.id)
-                expect(
-                    newProcessedAction.decidedAction.actionTemplateName
-                ).toEqual(longswordAction.name)
-                expect(
-                    newProcessedAction.decidedAction.battleSquaddieId
-                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
-
-                expect(
-                    newProcessedAction.decidedAction.actionEffects
-                ).toHaveLength(1)
-                expect(
-                    newProcessedAction.decidedAction.actionEffects[0].type
-                ).toEqual(ActionEffectType.SQUADDIE)
-                const newDecidedActionEffect = newProcessedAction.decidedAction
-                    .actionEffects[0] as DecidedActionSquaddieEffect
-                expect(newDecidedActionEffect.target).toEqual({ q: 1, r: 2 })
-                expect(newDecidedActionEffect.type).toEqual(
-                    ActionEffectType.SQUADDIE
-                )
-                expect(newDecidedActionEffect.template).toEqual(
-                    longswordAction.actionEffectTemplates[0]
-                )
             })
 
             it("should add the results to the history", () => {
@@ -2200,7 +2222,7 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
 
@@ -2266,11 +2288,11 @@ describe("Battle HUD", () => {
                 sendMessageToMove()
 
                 expect(
-                    BattleActionDecisionStepService.isActionRecordReadyToAnimate(
+                    BattleActionQueueService.isEmpty(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionQueue
                     )
-                ).toBeFalsy()
+                ).toBeTruthy()
             })
         })
 
@@ -2291,48 +2313,48 @@ describe("Battle HUD", () => {
             it("sets the actor and is ready to animate", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 ).not.toBeUndefined()
                 expect(
                     BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).battleSquaddieId
                 ).toEqual(battleSquaddie.battleSquaddieId)
                 expect(
                     BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).movement
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).targetLocation
                 ).toEqual({
                     q: 0,
@@ -2346,17 +2368,16 @@ describe("Battle HUD", () => {
                         template: ActionEffectMovementTemplateService.new({}),
                         destination: { q: 0, r: 2 },
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_soldier_0",
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
 
@@ -2381,7 +2402,7 @@ describe("Battle HUD", () => {
             it("adds a battle action to move", () => {
                 const squaddieBattleAction = BattleActionService.new({
                     actor: {
-                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        actorBattleSquaddieId: battleSquaddie.battleSquaddieId,
                     },
                     action: { isMovement: true },
                     effect: {
@@ -2433,17 +2454,16 @@ describe("Battle HUD", () => {
                         template: ActionEffectMovementTemplateService.new({}),
                         destination: { q: 0, r: 1 },
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        battleSquaddieId: "player_soldier_0",
-                        actionPointCost: 1,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
 
@@ -2473,17 +2493,16 @@ describe("Battle HUD", () => {
                         template: ActionEffectMovementTemplateService.new({}),
                         destination: { q: 0, r: 2 },
                     })
+
                 const processedAction = ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        battleSquaddieId: battleSquaddie.battleSquaddieId,
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                     processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            decidedActionEffect: decidedActionMovementEffect,
-                        }),
+                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                            {
+                                decidedActionEffect:
+                                    decidedActionMovementEffect,
+                            }
+                        ),
                     ],
                 })
                 expect(
@@ -2500,9 +2519,11 @@ describe("Battle HUD", () => {
                             .actionsThisRound
                     )
                 ).toEqual(
-                    ProcessedActionMovementEffectService.new({
-                        decidedActionEffect: decidedActionMovementEffect,
-                    })
+                    ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                        {
+                            decidedActionEffect: decidedActionMovementEffect,
+                        }
+                    )
                 )
             })
 
@@ -2510,31 +2531,31 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isActionSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getAction(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).movement
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConsidered(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.isTargetConfirmed(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     ).targetLocation
                 ).toEqual({
                     q: 0,
@@ -2583,7 +2604,7 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
             SummaryHUDStateService.setMainSummaryPopover({
@@ -2624,30 +2645,50 @@ describe("Battle HUD", () => {
             expect(
                 BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toBeFalsy()
         })
 
         describe("ignore attempts to cancel if the squaddie has already acted this round", () => {
             beforeEach(() => {
+                const movementStep: BattleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: movementStep,
+                    battleSquaddieId: "player_soldier_0",
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: movementStep,
+                    movement: true,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: movementStep,
+                    targetLocation: { q: 0, r: 2 },
+                })
+
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                     ActionsThisRoundService.new({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
                         startingLocation: { q: 0, r: 0 },
                         processedActions: [
                             ProcessedActionService.new({
-                                decidedAction: undefined,
+                                actionPointCost: 0,
                                 processedActionEffects: [
-                                    ProcessedActionMovementEffectService.new({
-                                        decidedActionEffect:
-                                            DecidedActionMovementEffectService.new(
-                                                {
-                                                    template: undefined,
-                                                    destination: { q: 0, r: 1 },
-                                                }
-                                            ),
-                                    }),
+                                    ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                                        {
+                                            decidedActionEffect:
+                                                DecidedActionMovementEffectService.new(
+                                                    {
+                                                        template: undefined,
+                                                        destination: {
+                                                            q: 0,
+                                                            r: 1,
+                                                        },
+                                                    }
+                                                ),
+                                        }
+                                    ),
                                 ],
                             }),
                         ],
@@ -2667,13 +2708,13 @@ describe("Battle HUD", () => {
                 expect(
                     BattleActionDecisionStepService.isActorSet(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toBeTruthy()
                 expect(
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
+                            .battleActionDecisionStep
                     )
                 ).toEqual({ battleSquaddieId: battleSquaddie.battleSquaddieId })
             })
@@ -2690,7 +2731,7 @@ describe("Battle HUD", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
             })
 
@@ -2738,7 +2779,7 @@ describe("Battle HUD", () => {
             expect(
                 BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
+                        .battleActionDecisionStep
                 )
             ).toBeFalsy()
         })

@@ -35,7 +35,6 @@ import {
     ProcessedAction,
     ProcessedActionService,
 } from "../../action/processed/processedAction"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { BattlePhaseStateService } from "./battlePhaseController"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -44,13 +43,6 @@ import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import {
-    ActionTemplate,
-    ActionTemplateService,
-} from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
@@ -211,19 +203,7 @@ describe("Orchestration Utils", () => {
             })
 
             movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: "battle",
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [
-                        DecidedActionMovementEffectService.new({
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }),
-                    ],
-                }),
+                actionPointCost: 1,
             })
         })
 
@@ -360,17 +340,14 @@ describe("Orchestration Utils", () => {
                 startingLocation: { q: 0, r: 0 },
                 processedActions: [
                     ProcessedActionService.new({
-                        decidedAction: DecidedActionService.new({
-                            actionPointCost: 0,
-                            actionTemplateName: "Move",
-                            actionEffects: [decidedActionMovementEffect],
-                            battleSquaddieId: battleSquaddie.battleSquaddieId,
-                        }),
+                        actionPointCost: 0,
                         processedActionEffects: [
-                            ProcessedActionMovementEffectService.new({
-                                decidedActionEffect:
-                                    decidedActionMovementEffect,
-                            }),
+                            ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                                {
+                                    decidedActionEffect:
+                                        decidedActionMovementEffect,
+                                }
+                            ),
                         ],
                     }),
                 ],
@@ -455,120 +432,6 @@ describe("Orchestration Utils", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
                         .actionsThisRound
-                ).toBeUndefined()
-            })
-        })
-
-        describe("resetActionBuilderIfSquaddieCompletedTheirTurn", () => {
-            let singleTargetAction: ActionTemplate
-
-            beforeEach(() => {
-                singleTargetAction = ActionTemplateService.new({
-                    id: "single target",
-                    name: "single target",
-                    actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
-                            damageDescriptions: { [DamageType.BODY]: 2 },
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    TARGETS_FOE: true,
-                                }
-                            ),
-                        }),
-                    ],
-                })
-            })
-
-            it("will not throw an error if there is no ActionBuilderState", () => {
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    undefined
-
-                expect(() =>
-                    OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-                        gameEngineState
-                    )
-                ).not.toThrow()
-            })
-            it("will not clear if the action has not completed yet", () => {
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    battleSquaddieId: "battle squaddie",
-                })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    actionTemplate: singleTargetAction,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    targetLocation: { q: 0, r: 1 },
-                })
-                const expectedActionBuilderState = {
-                    ...gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
-                }
-                expect(
-                    BattleActionDecisionStepService.isActionRecordComplete(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeFalsy()
-
-                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-                    gameEngineState
-                )
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
-                ).toEqual(expectedActionBuilderState)
-            })
-            it("will clear if the action has finished", () => {
-                gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
-                    BattleActionDecisionStepService.new()
-                BattleActionDecisionStepService.setActor({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    battleSquaddieId: "battle squaddie",
-                })
-                BattleActionDecisionStepService.addAction({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    actionTemplate: singleTargetAction,
-                })
-                BattleActionDecisionStepService.setConfirmedTarget({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    targetLocation: { q: 0, r: 1 },
-                })
-                BattleActionDecisionStepService.setAnimationCompleted({
-                    actionDecisionStep:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
-                    animationCompleted: true,
-                })
-                expect(
-                    BattleActionDecisionStepService.isActionRecordComplete(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState
-                    )
-                ).toBeTruthy()
-
-                OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-                    gameEngineState
-                )
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState
                 ).toBeUndefined()
             })
         })
@@ -780,20 +643,9 @@ describe("Orchestration Utils", () => {
                 2,
                 0
             )
+
             const movementProcessedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    battleSquaddieId: playerSquaddieIds[0],
-                    actionPointCost: 1,
-                    actionTemplateName: "Move",
-                    actionEffects: [
-                        DecidedActionMovementEffectService.new({
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }),
-                    ],
-                }),
+                actionPointCost: 1,
             })
             SquaddieTurnService.spendActionPoints(
                 getResultOrThrowError(

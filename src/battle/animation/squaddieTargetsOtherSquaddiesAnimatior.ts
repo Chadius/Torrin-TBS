@@ -24,9 +24,10 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { BattleActionService } from "../history/battleAction"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -163,38 +164,35 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     reset(gameEngineState: GameEngineState) {
         this.resetInternalState()
-
-        BattleActionDecisionStepService.setAnimationCompleted({
-            actionDecisionStep:
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState,
+                    .battleActionQueue
+            ),
             animationCompleted: true,
         })
     }
 
-    private setupActionAnimation(state: GameEngineState) {
+    private setupActionAnimation(gameEngineState: GameEngineState) {
         this._actorTextWindow = new ActorTextWindow()
         this._weaponIcon = new WeaponIcon()
         this._actorSprite = new ActorSprite()
 
         const mostRecentResults = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
+            gameEngineState.battleOrchestratorState.battleState.recording
         )
         const { battleSquaddie: actorBattle, squaddieTemplate: actorTemplate } =
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    state.repository,
+                    gameEngineState.repository,
                     mostRecentResults.results.actingBattleSquaddieId
                 )
             )
 
-        const processedActionToShow =
-            ActionsThisRoundService.getProcessedActionToShow(
-                state.battleOrchestratorState.battleState.actionsThisRound
-            )
         const processedActionEffectToShow =
             ActionsThisRoundService.getProcessedActionEffectToShow(
-                state.battleOrchestratorState.battleState.actionsThisRound
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
             )
         if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
             return
@@ -209,18 +207,25 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         const actionEffectSquaddieTemplate =
             processedActionEffectToShow.decidedActionEffect.template
 
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            BattleActionQueueService.peek(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            ).action.actionTemplateId
+        )
+
         this.actorTextWindow.start({
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
-            actionTemplateName:
-                processedActionToShow.decidedAction.actionTemplateName,
+            actionTemplateName: actionTemplate.name,
             results: mostRecentResults.results,
         })
 
         this.actorSprite.start({
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
-            squaddieRepository: state.repository,
-            resourceHandler: state.resourceHandler,
+            squaddieRepository: gameEngineState.repository,
+            resourceHandler: gameEngineState.resourceHandler,
             startingPosition:
                 (2 * ScreenDimensions.SCREEN_WIDTH) / 12 +
                 WINDOW_SPACING.SPACING1,
@@ -229,15 +234,18 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this.weaponIcon.start()
 
         const resultPerTarget = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
+            gameEngineState.battleOrchestratorState.battleState.recording
         ).results.squaddieChanges
-        this.setupAnimationForTargetTextWindows(state, resultPerTarget)
+        this.setupAnimationForTargetTextWindows(
+            gameEngineState,
+            resultPerTarget
+        )
         this.setupAnimationForTargetSprites(
-            state,
+            gameEngineState,
             actionEffectSquaddieTemplate,
             resultPerTarget
         )
-        this.setupAnimationForTargetHitPointMeters(state)
+        this.setupAnimationForTargetHitPointMeters(gameEngineState)
     }
 
     private setupAnimationForTargetSprites(

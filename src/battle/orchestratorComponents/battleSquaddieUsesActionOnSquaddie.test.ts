@@ -57,7 +57,10 @@ import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
@@ -196,17 +199,18 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         missionMap?: MissionMap
     }): GameEngineState => {
         const processedAction = ProcessedActionService.new({
-            decidedAction: undefined,
+            actionPointCost: 0,
             processedActionEffects: [
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            template: monkKoanAction
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 0 },
-                        }
-                    ),
-                }),
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                template: monkKoanAction
+                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: { q: 0, r: 0 },
+                            }),
+                    }
+                ),
             ],
         })
 
@@ -297,19 +301,21 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                 ],
             })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: undefined,
+            actionPointCost: 0,
             processedActionEffects: [
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            template: powerAttackLongswordAction
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 0 },
-                        }
-                    ),
-                    results,
-                }),
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                template: powerAttackLongswordAction
+                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: { q: 0, r: 0 },
+                            }),
+                        results,
+                    }
+                ),
             ],
         })
 
@@ -405,19 +411,36 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                 ],
             })
+
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: actionTemplate.id,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetLocation: { q: 0, r: 0 },
+        })
+
         const processedAction = ProcessedActionService.new({
-            decidedAction: undefined,
+            actionPointCost: 0,
             processedActionEffects: [
-                ProcessedActionSquaddieEffectService.new({
-                    decidedActionEffect: DecidedActionSquaddieEffectService.new(
-                        {
-                            template: actionTemplate
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 0 },
-                        }
-                    ),
-                    results,
-                }),
+                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionSquaddieEffectService.new({
+                                template: actionTemplate
+                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                                target: { q: 0, r: 0 },
+                            }),
+                        results,
+                    }
+                ),
             ],
         })
 
@@ -539,10 +562,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             }),
         })
 
-        const actionBuilderSpy: jest.SpyInstance = jest.spyOn(
-            OrchestratorUtilities,
-            "resetActionBuilderIfActionIsComplete"
-        )
         const gameEngineState = usePowerAttackLongswordAndReturnState({
             missionMap,
         })
@@ -570,11 +589,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
         squaddieUsesActionOnSquaddie.reset(gameEngineState)
 
-        expect(actionBuilderSpy).toBeCalledWith(gameEngineState)
         expect(
             BattleActionDecisionStepService.isActionRecordComplete(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+                    .battleActionDecisionStep
             )
         ).toBeFalsy()
     })

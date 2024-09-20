@@ -44,7 +44,6 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { DecidedActionService } from "../../action/decided/decidedAction"
 import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -355,7 +354,7 @@ describe("Player Selection Service", () => {
                     BattleActionDecisionStepService.setActor({
                         actionDecisionStep:
                             gameEngineState.battleOrchestratorState.battleState
-                                .playerBattleActionBuilderState,
+                                .battleActionDecisionStep,
                         battleSquaddieId: "PLAYER",
                     })
                     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
@@ -593,13 +592,13 @@ describe("Player Selection Service", () => {
                 enemyMapLocation: { q: 0, r: 2 },
             })
 
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: "PLAYER",
             })
 
@@ -694,13 +693,13 @@ describe("Player Selection Service", () => {
                 enemyMapLocation: { q: 0, r: 2 },
             })
 
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: "PLAYER",
             })
 
@@ -921,13 +920,13 @@ describe("Player Selection Service", () => {
                 enemyMapLocation: { q: 0, r: 2 },
             })
 
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: "PLAYER",
             })
 
@@ -1043,32 +1042,25 @@ describe("Player Selection Service", () => {
             })
 
             const movementActionEffect =
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: DecidedActionMovementEffectService.new(
-                        {
-                            destination: { q: 0, r: 1 },
-                            template: ActionEffectMovementTemplateService.new(
-                                {}
-                            ),
-                        }
-                    ),
-                })
+                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                    {
+                        decidedActionEffect:
+                            DecidedActionMovementEffectService.new({
+                                destination: { q: 0, r: 1 },
+                                template:
+                                    ActionEffectMovementTemplateService.new({}),
+                            }),
+                    }
+                )
+
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId: "PLAYER",
                     startingLocation: { q: 0, r: 0 },
                     processedActions: [
                         ProcessedActionService.new({
+                            actionPointCost: 1,
                             processedActionEffects: [movementActionEffect],
-                            decidedAction: DecidedActionService.new({
-                                battleSquaddieId: "PLAYER",
-                                actionPointCost: 1,
-                                actionTemplateName: "movement",
-                                actionTemplateId: "movement id",
-                                actionEffects: [
-                                    movementActionEffect.decidedActionEffect,
-                                ],
-                            }),
                         }),
                     ],
                 })
@@ -1235,13 +1227,13 @@ describe("Player Selection Service", () => {
         })
 
         const playerActsImmediately = () => {
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: "PLAYER",
             })
 
@@ -1262,6 +1254,7 @@ describe("Player Selection Service", () => {
                     destination: { q: 0, r: 1 },
                     template: ActionEffectMovementTemplateService.new({}),
                 })
+
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 ActionsThisRoundService.new({
                     battleSquaddieId: "PLAYER",
@@ -1269,17 +1262,14 @@ describe("Player Selection Service", () => {
                     previewedActionTemplateId: undefined,
                     processedActions: [
                         ProcessedActionService.new({
-                            decidedAction: DecidedActionService.new({
-                                actionPointCost: 1,
-                                battleSquaddieId: "PLAYER",
-                                actionTemplateName: "Move",
-                                actionEffects: [decidedActionMovementEffect],
-                            }),
+                            actionPointCost: 1,
                             processedActionEffects: [
-                                ProcessedActionMovementEffectService.new({
-                                    decidedActionEffect:
-                                        decidedActionMovementEffect,
-                                }),
+                                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
+                                    {
+                                        decidedActionEffect:
+                                            decidedActionMovementEffect,
+                                    }
+                                ),
                             ],
                         }),
                     ],
@@ -1422,13 +1412,13 @@ describe("Player Selection Service", () => {
                 r: 0,
                 gameEngineState,
             })
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
 
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
-                        .playerBattleActionBuilderState,
+                        .battleActionDecisionStep,
                 battleSquaddieId: "PLAYER",
             })
 
@@ -1472,7 +1462,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     battleAction: BattleActionService.new({
                         actor: {
-                            battleSquaddieId: "PLAYER",
+                            actorBattleSquaddieId: "PLAYER",
                         },
                         action: { isEndTurn: true },
                         effect: { endTurn: true },

@@ -13,12 +13,13 @@ import { BattleSquaddie } from "../battleSquaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
-import { DecidedActionService } from "../../action/decided/decidedAction"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -119,16 +120,19 @@ describe("move towards closest squaddie in range", () => {
             }
         )
 
-        const expectedInstruction = DecidedActionService.new({
-            actionPointCost: 1,
-            actionTemplateName: "Move",
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
             battleSquaddieId: "searching_squaddie_0",
-            actionEffects: [
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 0, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                }),
-            ],
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 0, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -141,7 +145,7 @@ describe("move towards closest squaddie in range", () => {
             repository,
         })
 
-        expect(actualInstruction).toStrictEqual(expectedInstruction)
+        expect(actualInstruction).toStrictEqual([movementStep])
     })
 
     it("will not change the currently acting squaddie", () => {
@@ -153,7 +157,7 @@ describe("move towards closest squaddie in range", () => {
 
         const {
             squaddieTemplate: searchingSquaddieStatic2,
-            battleSquaddie: searchingSquaddieDynamic2,
+            battleSquaddie: searchingBattleSquaddie2,
         } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             templateId: "searching_squaddie_2",
             battleId: "searching_squaddie_2",
@@ -172,7 +176,7 @@ describe("move towards closest squaddie in range", () => {
             actionTemplateIds: [],
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(allyTeam, [
-            searchingSquaddieDynamic2.battleSquaddieId,
+            searchingBattleSquaddie2.battleSquaddieId,
         ])
 
         missionMap.addSquaddie(
@@ -185,7 +189,7 @@ describe("move towards closest squaddie in range", () => {
         )
         missionMap.addSquaddie(
             searchingSquaddieStatic2.squaddieId.templateId,
-            searchingSquaddieDynamic2.battleSquaddieId,
+            searchingBattleSquaddie2.battleSquaddieId,
             {
                 q: 0,
                 r: 3,
@@ -200,36 +204,29 @@ describe("move towards closest squaddie in range", () => {
             }
         )
 
-        const decidedActionMovementEffect =
-            DecidedActionMovementEffectService.new({
-                destination: { q: 0, r: 3 },
-                template: ActionEffectMovementTemplateService.new({}),
-            })
         const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
+            battleSquaddieId: searchingBattleSquaddie2.battleSquaddieId,
             startingLocation: { q: 0, r: 5 },
             processedActions: [
                 ProcessedActionService.new({
-                    decidedAction: DecidedActionService.new({
-                        actionPointCost: 1,
-                        battleSquaddieId: "searching_squaddie_0",
-                        actionTemplateName: "Move",
-                        actionEffects: [decidedActionMovementEffect],
-                    }),
+                    actionPointCost: 1,
                 }),
             ],
         })
 
-        const expectedInstruction = DecidedActionService.new({
-            actionPointCost: 1,
-            actionTemplateName: "Move",
-            battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
-            actionEffects: [
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 0, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                }),
-            ],
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
+            battleSquaddieId: searchingBattleSquaddie2.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 0, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -242,7 +239,7 @@ describe("move towards closest squaddie in range", () => {
             repository,
         })
 
-        expect(actualInstruction).toStrictEqual(expectedInstruction)
+        expect(actualInstruction).toStrictEqual([movementStep])
     })
 
     it("will raise an error if there is no target", () => {
@@ -367,16 +364,19 @@ describe("move towards closest squaddie in range", () => {
             }
         )
 
-        const expectedInstruction = DecidedActionService.new({
-            actionPointCost: 1,
-            actionTemplateName: "Move",
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
             battleSquaddieId: "searching_squaddie_0",
-            actionEffects: [
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 0, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                }),
-            ],
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 0, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -388,7 +388,7 @@ describe("move towards closest squaddie in range", () => {
             repository,
         })
 
-        expect(actualInstruction).toStrictEqual(expectedInstruction)
+        expect(actualInstruction).toStrictEqual([movementStep])
     })
 
     it("will find an alternate destination if a squaddie is blocking its first space", () => {
@@ -441,16 +441,19 @@ describe("move towards closest squaddie in range", () => {
             }
         )
 
-        const expectedInstruction = DecidedActionService.new({
-            actionPointCost: 2,
-            actionTemplateName: "Move",
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
             battleSquaddieId: "searching_squaddie_0",
-            actionEffects: [
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 1, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                }),
-            ],
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 1, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -461,7 +464,7 @@ describe("move towards closest squaddie in range", () => {
             missionMap,
             repository,
         })
-        expect(actualInstruction).toStrictEqual(expectedInstruction)
+        expect(actualInstruction).toStrictEqual([movementStep])
     })
 
     it("will not follow dead squaddies", () => {

@@ -54,16 +54,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
-import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
@@ -73,10 +64,14 @@ import { ActionEffectEndTurnTemplateService } from "../../action/template/action
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -188,17 +183,23 @@ describe("BattleComputerSquaddieSelector", () => {
 
     const makeSquaddieMoveAction = (
         battleSquaddieId: string
-    ): DecidedAction => {
-        return DecidedActionService.new({
-            battleSquaddieId,
-            actionTemplateName: "Move",
-            actionEffects: [
-                DecidedActionMovementEffectService.new({
-                    template: undefined,
-                    destination: { q: 1, r: 1 },
-                }),
-            ],
+    ): BattleActionDecisionStep[] => {
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
+            battleSquaddieId: battleSquaddieId,
         })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: { q: 1, r: 1 },
+        })
+
+        return [movementStep]
     }
 
     describe("before making a decision", () => {
@@ -218,20 +219,25 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             makeBattlePhaseTrackerWithEnemyTeam(missionMap)
+
+            const movementStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: movementStep,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: movementStep,
+                movement: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: movementStep,
+                targetLocation: { q: 0, r: 0 },
+            })
+
             strategySpy = jest
                 .spyOn(DetermineNextDecisionService, "determineNextDecision")
-                .mockReturnValue(
-                    DecidedActionService.new({
-                        battleSquaddieId:
-                            enemyDemonBattleSquaddie.battleSquaddieId,
-                        actionTemplateName: "End Turn",
-                        actionEffects: [
-                            DecidedActionEndTurnEffectService.new({
-                                template: undefined,
-                            }),
-                        ],
-                    })
-                )
+                .mockReturnValue([movementStep])
 
             squaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
@@ -264,6 +270,7 @@ describe("BattleComputerSquaddieSelector", () => {
                         recording: { history: [] },
                     }),
                 }),
+                campaign: CampaignService.default(),
             })
 
             dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
@@ -278,6 +285,7 @@ describe("BattleComputerSquaddieSelector", () => {
         afterEach(() => {
             dateSpy.mockRestore()
             drawSquaddieUtilitiesSpy.mockRestore()
+            strategySpy.mockRestore()
         })
 
         it("moves camera to an uncontrollable squaddie before before moving", () => {
@@ -301,12 +309,12 @@ describe("BattleComputerSquaddieSelector", () => {
         })
 
         it("clears the action builder", () => {
-            gameEngineState.battleOrchestratorState.battleState.playerBattleActionBuilderState =
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             selector.update(gameEngineState, mockedP5GraphicsContext)
             expect(
                 gameEngineState.battleOrchestratorState.battleState
-                    .playerBattleActionBuilderState
+                    .battleActionDecisionStep
             ).toBeUndefined()
         })
     })
@@ -329,56 +337,56 @@ describe("BattleComputerSquaddieSelector", () => {
                 "determineNextDecision"
             )
 
-            const state: GameEngineState = GameEngineStateService.new({
-                repository: objectRepository,
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        battlePhaseState,
-                        missionMap,
-                        recording: { history: [] },
-                        teams,
-                        teamStrategiesById: {
-                            teamId: [
-                                {
-                                    type: TeamStrategyType.END_TURN,
-                                    options: {},
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    repository: objectRepository,
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                battlePhaseState,
+                                missionMap,
+                                recording: { history: [] },
+                                teams,
+                                teamStrategiesById: {
+                                    teamId: [
+                                        {
+                                            type: TeamStrategyType.END_TURN,
+                                            options: {},
+                                        },
+                                    ],
                                 },
-                            ],
-                        },
-                    }),
-                }),
-            })
+                            }),
+                        }
+                    ),
+                    campaign: CampaignService.default(),
+                }
+            )
 
-            selector.update(state, mockedP5GraphicsContext)
-            expect(selector.hasCompleted(state)).toBeTruthy()
+            selector.update(gameEngineState, mockedP5GraphicsContext)
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
             const processedAction = ProcessedActionService.new({
-                decidedAction: DecidedActionService.new({
-                    actionTemplateName: "End Turn",
-                    battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-                    actionEffects: [
-                        DecidedActionEndTurnEffectService.new({
-                            template: ActionEffectEndTurnTemplateService.new(
-                                {}
-                            ),
-                        }),
-                    ],
-                }),
+                actionPointCost: "End Turn",
                 processedActionEffects: [
-                    ProcessedActionEndTurnEffectService.new({
-                        decidedActionEffect:
-                            DecidedActionEndTurnEffectService.new({
-                                template:
-                                    ActionEffectEndTurnTemplateService.new({}),
-                            }),
-                    }),
+                    ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
+                        {
+                            decidedActionEffect:
+                                DecidedActionEndTurnEffectService.new({
+                                    template:
+                                        ActionEffectEndTurnTemplateService.new(
+                                            {}
+                                        ),
+                                }),
+                        }
+                    ),
                 ],
             })
             expect(
-                state.battleOrchestratorState.battleState.actionsThisRound
+                gameEngineState.battleOrchestratorState.battleState
+                    .actionsThisRound
             ).toEqual(
                 ActionsThisRoundService.new({
                     battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
@@ -388,13 +396,14 @@ describe("BattleComputerSquaddieSelector", () => {
             )
 
             const recommendation: BattleOrchestratorChanges =
-                selector.recommendStateChanges(state)
+                selector.recommendStateChanges(gameEngineState)
             expect(recommendation.nextMode).toBe(
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             )
 
             const history =
-                state.battleOrchestratorState.battleState.recording.history
+                gameEngineState.battleOrchestratorState.battleState.recording
+                    .history
             expect(history).toHaveLength(1)
             expect(history[0]).toStrictEqual(
                 BattleEventService.new({
@@ -407,7 +416,8 @@ describe("BattleComputerSquaddieSelector", () => {
             strategySpy.mockClear()
             expect(
                 ActionsThisRoundService.getProcessedActionEffectToShow(
-                    state.battleOrchestratorState.battleState.actionsThisRound
+                    gameEngineState.battleOrchestratorState.battleState
+                        .actionsThisRound
                 )
             ).toEqual(processedAction.processedActionEffects[0])
         })
@@ -453,10 +463,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.processedActions[0].decidedAction
-                        .actionEffects[0].type
-                ).toEqual(ActionEffectType.END_TURN)
+                    BattleActionQueueService.peek(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionQueue
+                    ).action.isEndTurn
+                ).toBeTruthy()
 
                 const recommendation: BattleOrchestratorChanges =
                     selector.recommendStateChanges(gameEngineState)
@@ -595,21 +606,24 @@ describe("BattleComputerSquaddieSelector", () => {
 
         describe("computer controlled squaddie acts with an action", () => {
             let gameEngineState: GameEngineState
-            let demonBiteDecision: DecidedAction
+            let demonBiteDecisionSteps: BattleActionDecisionStep[]
 
             beforeEach(() => {
-                demonBiteDecision = DecidedActionService.new({
+                const actionStep: BattleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: actionStep,
                     battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-                    actionTemplateName: demonBiteAction.name,
-                    actionTemplateId: demonBiteAction.id,
-                    actionEffects: [
-                        DecidedActionSquaddieEffectService.new({
-                            template: demonBiteAction
-                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: { q: 0, r: 1 },
-                        }),
-                    ],
                 })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: actionStep,
+                    actionTemplateId: demonBiteAction.id,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: actionStep,
+                    targetLocation: { q: 0, r: 1 },
+                })
+                demonBiteDecisionSteps = [actionStep]
 
                 gameEngineState = GameEngineStateService.new({
                     repository: objectRepository,
@@ -639,7 +653,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 jest.spyOn(
                     DetermineNextDecisionService,
                     "determineNextDecision"
-                ).mockReturnValue(demonBiteDecision)
+                ).mockReturnValue(demonBiteDecisionSteps)
 
                 jest.spyOn(Date, "now").mockImplementation(() => 0)
                 selector.update(gameEngineState, mockedP5GraphicsContext)

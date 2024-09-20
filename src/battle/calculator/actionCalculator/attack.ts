@@ -2,7 +2,6 @@ import {
     ActionsThisRound,
     ActionsThisRoundService,
 } from "../../history/actionsThisRound"
-import { DecidedActionSquaddieEffect } from "../../../action/decided/decidedActionSquaddieEffect"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
@@ -22,12 +21,8 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
-import { DecidedActionMovementEffect } from "../../../action/decided/decidedActionMovementEffect"
-import { DecidedActionEndTurnEffect } from "../../../action/decided/decidedActionEndTurnEffect"
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
 import { CalculatedEffect } from "./calculator"
-import { DecidedActionEffect } from "../../../action/decided/decidedActionEffect"
-import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../../utils/validityCheck"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -35,18 +30,18 @@ import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({
-        actionEffect,
+        actionEffectSquaddieTemplate,
         actionContext,
         actingBattleSquaddie,
         targetedBattleSquaddie,
     }: {
-        actionEffect: DecidedActionSquaddieEffect
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         targetedBattleSquaddie: BattleSquaddie
         actionContext: BattleActionActionContext
         actingBattleSquaddie: BattleSquaddie
     }): DegreeOfSuccess =>
         getDegreeOfSuccess({
-            actionEffect,
+            actionEffectSquaddieTemplate,
             actionContext,
             actingBattleSquaddie,
             targetedBattleSquaddie,
@@ -56,39 +51,42 @@ export const CalculatorAttack = {
     ): AttributeTypeAndAmount[] =>
         getActingSquaddieModifiersForAttack(actionsThisRound),
     calculateEffectBasedOnDegreeOfSuccess: ({
-        actionEffect,
+        actionEffectSquaddieTemplate,
         actionContext,
         degreeOfSuccess,
         targetedSquaddieTemplate,
         targetedBattleSquaddie,
     }: {
-        actionEffect: DecidedActionSquaddieEffect
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         actionContext: BattleActionActionContext
         degreeOfSuccess: DegreeOfSuccess
         targetedSquaddieTemplate: SquaddieTemplate
         targetedBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
         calculateEffectBasedOnDegreeOfSuccess({
-            actionEffect,
+            actionEffectSquaddieTemplate,
             actionContext,
             degreeOfSuccess,
             targetedSquaddieTemplate,
             targetedBattleSquaddie,
         }),
     getTargetSquaddieModifiers: ({
-        actionEffect,
+        actionEffectSquaddieTemplate,
         targetedBattleSquaddie,
     }: {
-        actionEffect: DecidedActionSquaddieEffect
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         targetedBattleSquaddie: BattleSquaddie
     }): AttributeTypeAndAmount[] =>
-        getTargetSquaddieModifiers({ actionEffect, targetedBattleSquaddie }),
+        getTargetSquaddieModifiers({
+            actionEffectSquaddieTemplate,
+            targetedBattleSquaddie,
+        }),
     getActorContext: ({
-        actionEffect,
+        actionEffectSquaddieTemplate,
         gameEngineState,
         actionsThisRound,
     }: {
-        actionEffect: DecidedActionSquaddieEffect
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         gameEngineState: GameEngineState
         actionsThisRound: ActionsThisRound
     }): BattleActionActionContext => {
@@ -98,7 +96,7 @@ export const CalculatorAttack = {
             )
         let actingSquaddieRoll: RollResult
         actingSquaddieRoll = maybeMakeAttackRoll(
-            actionEffect.template,
+            actionEffectSquaddieTemplate,
             gameEngineState.battleOrchestratorState
         )
 
@@ -160,25 +158,21 @@ const doesActionNeedAnAttackRoll = (
     ) !== true
 
 const isActionAgainstArmor = (
-    actionEffect:
-        | DecidedActionSquaddieEffect
-        | DecidedActionMovementEffect
-        | DecidedActionEndTurnEffect
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
 ): boolean =>
-    actionEffect.type === ActionEffectType.SQUADDIE &&
     TraitStatusStorageService.getStatus(
-        actionEffect.template.traits,
+        actionEffectSquaddieTemplate.traits,
         Trait.TARGET_ARMOR
     ) === true
 
 const getTargetSquaddieModifiers = ({
-    actionEffect,
+    actionEffectSquaddieTemplate,
     targetedBattleSquaddie,
 }: {
-    actionEffect: DecidedActionSquaddieEffect
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     targetedBattleSquaddie: BattleSquaddie
 }): AttributeTypeAndAmount[] => {
-    if (isActionAgainstArmor(actionEffect)) {
+    if (isActionAgainstArmor(actionEffectSquaddieTemplate)) {
         return CalculateAgainstArmor.getTargetSquaddieModifierTotal(
             targetedBattleSquaddie
         )
@@ -254,12 +248,12 @@ const compareAttackRollToGetDegreeOfSuccess = ({
 }
 
 const getDegreeOfSuccess = ({
-    actionEffect,
+    actionEffectSquaddieTemplate,
     targetedBattleSquaddie,
     actionContext,
     actingBattleSquaddie,
 }: {
-    actionEffect: DecidedActionSquaddieEffect
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     targetedBattleSquaddie: BattleSquaddie
     actingBattleSquaddie: BattleSquaddie
     actionContext: BattleActionActionContext
@@ -283,7 +277,7 @@ const getDegreeOfSuccess = ({
         )
 
     return compareAttackRollToGetDegreeOfSuccess({
-        actionEffectSquaddieTemplate: actionEffect.template,
+        actionEffectSquaddieTemplate,
         actor: actingBattleSquaddie,
         target: targetedBattleSquaddie,
         actingSquaddieRoll: actionContext.actingSquaddieRoll,
@@ -293,20 +287,19 @@ const getDegreeOfSuccess = ({
 }
 
 const calculateEffectBasedOnDegreeOfSuccess = ({
-    actionEffect,
+    actionEffectSquaddieTemplate,
     actionContext,
     degreeOfSuccess,
     targetedSquaddieTemplate,
     targetedBattleSquaddie,
 }: {
-    actionEffect: DecidedActionSquaddieEffect
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     actionContext: BattleActionActionContext
     degreeOfSuccess: DegreeOfSuccess
     targetedSquaddieTemplate: SquaddieTemplate
     targetedBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
     let damageDealt = 0
-    const actionEffectSquaddieTemplate = actionEffect.template
 
     Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach(
         (damageType: DamageType) => {
@@ -332,7 +325,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 
     let attributeModifiersToAddToTarget: AttributeModifier[] =
         calculateAttributeModifiers({
-            actionEffect,
+            actionEffectSquaddieTemplate,
         })
 
     return {
@@ -344,17 +337,13 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }
 
 const calculateAttributeModifiers = ({
-    actionEffect,
+    actionEffectSquaddieTemplate,
 }: {
-    actionEffect: DecidedActionEffect
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
 }): AttributeModifier[] => {
-    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
+    if (!isValidValue(actionEffectSquaddieTemplate.attributeModifiers)) {
         return []
     }
 
-    if (!isValidValue(actionEffect.template.attributeModifiers)) {
-        return []
-    }
-
-    return [...actionEffect.template.attributeModifiers]
+    return [...actionEffectSquaddieTemplate.attributeModifiers]
 }

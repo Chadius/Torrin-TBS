@@ -23,16 +23,14 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleSquaddie } from "../battleSquaddie"
-import {
-    DecidedAction,
-    DecidedActionService,
-} from "../../action/decided/decidedAction"
 import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -53,7 +51,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         missionMap: MissionMap
         repository: ObjectRepository
         actionsThisRound?: ActionsThisRound
-    }): DecidedAction {
+    }): BattleActionDecisionStep[] {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target")
         }
@@ -114,18 +112,22 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined
         }
 
-        const movementDecidedActionEffect =
-            DecidedActionMovementEffectService.new({
-                template: ActionEffectMovementTemplateService.new({}),
-                destination: shortestRoute.destination,
-            })
-
-        return DecidedActionService.new({
-            actionPointCost: shortestRoute.currentNumberOfMoveActions,
-            actionTemplateName: "Move",
+        const movementStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: movementStep,
             battleSquaddieId: battleSquaddieIdToAct,
-            actionEffects: [movementDecidedActionEffect],
         })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: movementStep,
+            movement: true,
+        })
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: movementStep,
+            targetLocation: shortestRoute.destination,
+        })
+
+        return [movementStep]
     }
 }
 

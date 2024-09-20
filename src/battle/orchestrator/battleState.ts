@@ -28,13 +28,12 @@ import {
     BattlePhaseService,
 } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
-import { ObjectRepository } from "../objectRepository"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRound } from "../history/actionsThisRound"
-import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
 import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleAction"
+    BattleActionDecisionStep,
+    BattleActionDecisionStepService,
+} from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardBattleActionFinishesAnimation,
@@ -42,6 +41,12 @@ import {
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import {
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "../history/battleActionQueue"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -62,7 +67,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     actionsThisRound: ActionsThisRound
-    playerBattleActionBuilderState: BattleActionDecisionStep
+    battleActionDecisionStep: BattleActionDecisionStep
 }
 
 export const BattleStateService = {
@@ -240,7 +245,7 @@ const newBattleState = ({
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
-        playerBattleActionBuilderState: undefined,
+        battleActionDecisionStep: undefined,
         battleActionQueue: BattleActionQueueService.new(),
     }
 }
@@ -288,7 +293,37 @@ const battleActionFinishesAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {
     const gameEngineState: GameEngineState = message.gameEngineState
+
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            BattleActionQueueService.peek(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            ).actor.actorBattleSquaddieId
+        )
+    )
     BattleActionQueueService.dequeue(
         gameEngineState.battleOrchestratorState.battleState.battleActionQueue
     )
+    if (
+        battleSquaddie &&
+        SquaddieService.canSquaddieActRightNow({
+            battleSquaddie,
+            squaddieTemplate,
+        }).canAct
+    ) {
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+        })
+        return
+    }
+
+    gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+        undefined
 }

@@ -12,9 +12,10 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionService } from "../history/battleAction"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 
@@ -86,9 +87,6 @@ export class BattleSquaddieUsesActionOnMap
 
     reset(gameEngineState: GameEngineState): void {
         this.animationCompleteStartTime = undefined
-        OrchestratorUtilities.resetActionBuilderIfActionIsComplete(
-            gameEngineState
-        )
     }
 
     update(
@@ -97,10 +95,11 @@ export class BattleSquaddieUsesActionOnMap
     ): void {
         if (this.animationCompleteStartTime !== undefined) {
             if (animationTimeHasExpired(this.animationCompleteStartTime)) {
-                BattleActionDecisionStepService.setAnimationCompleted({
-                    actionDecisionStep:
+                BattleActionService.setAnimationCompleted({
+                    battleAction: BattleActionQueueService.peek(
                         gameEngineState.battleOrchestratorState.battleState
-                            .playerBattleActionBuilderState,
+                            .battleActionQueue
+                    ),
                     animationCompleted: true,
                 })
                 gameEngineState.messageBoard.sendMessage({
