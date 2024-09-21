@@ -74,13 +74,14 @@ describe("inBattleAttributes", () => {
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
-        const actualDamageTaken = InBattleAttributesService.takeDamage({
-            inBattleAttributes,
-            damageToTake: 9001,
-            damageType: DamageType.BODY,
-        })
+        const actualDamageTaken: DamageExplanation =
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes,
+                damageToTake: 9001,
+                damageType: DamageType.BODY,
+            })
 
-        expect(actualDamageTaken).toBe(soldierAttributes.maxHitPoints)
+        expect(actualDamageTaken.net).toBe(soldierAttributes.maxHitPoints)
         expect(inBattleAttributes.currentHitPoints).toBe(0)
     })
     it("receive healing up to maximum", () => {

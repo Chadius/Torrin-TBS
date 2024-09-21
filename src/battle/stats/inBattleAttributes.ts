@@ -194,10 +194,6 @@ const useAbsorbToReduceDamageTaken = (
     inBattleAttributes: InBattleAttributes,
     damageToTake: number
 ): DamageExplanation => {
-    const explanation: DamageExplanation = DamageExplanationService.new({
-        raw: damageToTake,
-    })
-
     const absorbAttributeTypeAndAmount =
         InBattleAttributesService.calculateCurrentAttributeModifiers(
             inBattleAttributes
@@ -208,6 +204,10 @@ const useAbsorbToReduceDamageTaken = (
             type: AttributeType.ABSORB,
             amount: damageToTake,
         })
+
+        const explanation: DamageExplanation = DamageExplanationService.new({
+            raw: damageToTake,
+        })
         if (absorbAttributeTypeAndAmount.amount >= damageToTake) {
             explanation.absorbed = damageToTake
             explanation.net = 0
@@ -215,6 +215,11 @@ const useAbsorbToReduceDamageTaken = (
             explanation.absorbed = absorbAttributeTypeAndAmount.amount
             explanation.net = damageToTake - absorbAttributeTypeAndAmount.amount
         }
+        return explanation
     }
-    return explanation
+    return DamageExplanationService.new({
+        raw: damageToTake,
+        net: damageToTake,
+        absorbed: 0,
+    })
 }

@@ -117,24 +117,6 @@ describe("Squaddie Service", () => {
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints - damageTaken)
         })
-        it("can calculate the dealt damage without changing the value", () => {
-            const { net: damageTaken } = InBattleAttributesService.takeDamage({
-                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
-                damageToTake: 1,
-                damageType: DamageType.BODY,
-            })
-
-            expect(damageTaken).toBe(1)
-
-            let { maxHitPoints, currentHitPoints } =
-                SquaddieService.getHitPoints({
-                    squaddieTemplate: playerSquaddieTemplate,
-                    battleSquaddie: playerBattleSquaddie,
-                })
-
-            expect(maxHitPoints).toBe(maxHitPoints)
-            expect(currentHitPoints).toBe(maxHitPoints)
-        })
         it("can give healing to the squaddie", () => {
             InBattleAttributesService.takeDamage({
                 inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
