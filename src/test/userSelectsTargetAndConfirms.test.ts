@@ -349,6 +349,7 @@ describe("User Selects Target and Confirms", () => {
                                                                     damageExplanation:
                                                                         DamageExplanationService.new(
                                                                             {
+                                                                                raw: 1,
                                                                                 net: 1,
                                                                             }
                                                                         ),
@@ -451,6 +452,7 @@ describe("User Selects Target and Confirms", () => {
                     BattleActionSquaddieChangeService.new({
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         damageExplanation: DamageExplanationService.new({
+                            raw: 1,
                             net: 1,
                         }),
                         healingReceived: 0,

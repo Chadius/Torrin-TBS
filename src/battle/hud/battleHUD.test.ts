@@ -1688,6 +1688,7 @@ describe("Battle HUD", () => {
                                                         damageExplanation:
                                                             DamageExplanationService.new(
                                                                 {
+                                                                    raw: 2,
                                                                     net: 2,
                                                                 }
                                                             ),
@@ -1815,6 +1816,7 @@ describe("Battle HUD", () => {
                                 battleSquaddieId: "Thief 0",
                                 damageExplanation: DamageExplanationService.new(
                                     {
+                                        raw: 2,
                                         net: 2,
                                     }
                                 ),
