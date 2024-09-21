@@ -15,7 +15,10 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../battle/actionDecision/battleActionDecisionStep"
-import { BattleActionSquaddieChangeService } from "../../battle/history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../../battle/history/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../../battle/calculator/actionCalculator/degreeOfSuccess"
 import { InBattleAttributesService } from "../../battle/stats/inBattleAttributes"
 import {
@@ -160,7 +163,9 @@ describe("Processed Action Squaddie Effect", () => {
             BattleActionSquaddieChangeService.new({
                 battleSquaddieId: "target",
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                damageTaken: 2,
+                damageExplanation: DamageExplanationService.new({
+                    net: 2,
+                }),
                 healingReceived: 1,
                 attributesBefore: InBattleAttributesService.new({
                     currentHitPoints: 3,

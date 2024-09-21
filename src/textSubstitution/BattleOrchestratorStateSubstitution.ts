@@ -73,6 +73,16 @@ const substitutions: BattleOrchestratorStateSubstitution[] = [
                 : "MISSING MISSION STATISTICS",
     },
     {
+        name: "Damage absorbed by player team",
+        token: "$$DAMAGE_ABSORBED_BY_PLAYER_TEAM",
+        description:
+            "The amount of damage player squaddies absorbed and did not take damage.",
+        substitute: (state: BattleOrchestratorState) =>
+            state.battleState.missionStatistics
+                ? `${state.battleState.missionStatistics.damageAbsorbedByPlayerTeam}`
+                : "MISSING MISSION STATISTICS",
+    },
+    {
         name: "Healing received by player team",
         token: "$$HEALING_RECEIVED_BY_PLAYER_TEAM",
         description: "The amount of healing player squaddies received.",

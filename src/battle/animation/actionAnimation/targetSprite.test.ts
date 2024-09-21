@@ -30,6 +30,7 @@ import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
+    DamageExplanationService,
 } from "../../history/battleActionSquaddieChange"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 
@@ -77,31 +78,41 @@ describe("Target Sprite", () => {
 
         resultTookDamage = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
-            damageTaken: 1,
+            damageExplanation: DamageExplanationService.new({
+                net: 1,
+            }),
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
         resultTookLethalDamage = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
-            damageTaken: squaddieTemplate.attributes.maxHitPoints,
+            damageExplanation: DamageExplanationService.new({
+                net: squaddieTemplate.attributes.maxHitPoints,
+            }),
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
         resultMissed = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
-            damageTaken: 0,
+            damageExplanation: DamageExplanationService.new({
+                net: 0,
+            }),
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
         })
         resultDealsNoDamage = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
-            damageTaken: 0,
+            damageExplanation: DamageExplanationService.new({
+                net: 0,
+            }),
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })
         resultHealsSquaddie = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
-            damageTaken: 0,
+            damageExplanation: DamageExplanationService.new({
+                net: 0,
+            }),
             healingReceived: 1,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
         })

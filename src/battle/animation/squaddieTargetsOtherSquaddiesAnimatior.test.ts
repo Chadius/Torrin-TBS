@@ -45,7 +45,10 @@ import { ProcessedActionSquaddieEffectService } from "../../action/processed/pro
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { MouseButton } from "../../utils/mouseConfig"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import {
     BattleAction,
@@ -150,7 +153,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: thiefDynamicId,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),

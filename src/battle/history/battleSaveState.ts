@@ -1,7 +1,10 @@
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { BattleCamera } from "../battleCamera"
 import { Recording } from "./recording"
-import { MissionStatistics } from "../missionStatistics/missionStatistics"
+import {
+    MissionStatistics,
+    MissionStatisticsService,
+} from "../missionStatistics/missionStatistics"
 import { InBattleAttributes } from "../stats/inBattleAttributes"
 import { SquaddieTurn } from "../../squaddie/turn"
 import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
@@ -246,12 +249,7 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
             yCoordinate: 0,
         },
         battleEventRecording: { history: [] },
-        missionStatistics: {
-            timeElapsedInMilliseconds: undefined,
-            damageDealtByPlayerTeam: undefined,
-            damageTakenByPlayerTeam: undefined,
-            healingReceivedByPlayerTeam: undefined,
-        },
+        missionStatistics: MissionStatisticsService.new({}),
         inBattleAttributesBySquaddieBattleId: {},
         squaddieMapPlacements: [],
         teams: [],

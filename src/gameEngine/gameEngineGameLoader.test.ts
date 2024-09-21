@@ -18,7 +18,7 @@ import {
 } from "../battle/history/battleSaveState"
 import { NullMissionMap } from "../utils/test/battleOrchestratorState"
 import { MissionObjectiveHelper } from "../battle/missionResult/missionObjective"
-import { MissionStatisticsHandler } from "../battle/missionStatistics/missionStatistics"
+import { MissionStatisticsService } from "../battle/missionStatistics/missionStatistics"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { SaveFile } from "../utils/fileHandling/saveFile"
 import { BattleCamera } from "../battle/battleCamera"
@@ -352,7 +352,7 @@ describe("GameEngineGameLoader", () => {
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
+                    ...MissionStatisticsService.new({}),
                     timeElapsedInMilliseconds: 1,
                 },
                 teams: [
@@ -394,7 +394,7 @@ describe("GameEngineGameLoader", () => {
                         camera: new BattleCamera(100, 200),
                         missionMap: NullMissionMap(),
                         missionStatistics: {
-                            ...MissionStatisticsHandler.new(),
+                            ...MissionStatisticsService.new({}),
                             timeElapsedInMilliseconds: 9001,
                         },
                         objectives: [
@@ -609,7 +609,7 @@ describe("GameEngineGameLoader", () => {
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
                 missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
+                    ...MissionStatisticsService.new({}),
                     timeElapsedInMilliseconds: 1,
                 },
                 teams: [

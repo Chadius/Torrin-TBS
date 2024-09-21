@@ -345,7 +345,16 @@
             "id": "victory_report_1",
             "speakerName": "Mission Report",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            "dialogueText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM",
+            "dialogueTextPosition": "LEFT",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "victory_report_2",
+            "speakerName": "Mission Report",
+            "speakerNamePosition": "LEFT",
+            "dialogueText": "Healing: $$HEALING_RECEIVED_BY_PLAYER_TEAM\nDamage Absorbed: $$DAMAGE_ABSORBED_BY_PLAYER_TEAM",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },

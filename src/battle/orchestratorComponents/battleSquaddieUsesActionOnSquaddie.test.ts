@@ -62,7 +62,10 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 
@@ -294,7 +297,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
-                        damageTaken: 9001,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 9001,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: "target_dynamic_squaddie",
@@ -405,7 +410,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: targetDynamicSquaddieBattleSquaddieId,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),

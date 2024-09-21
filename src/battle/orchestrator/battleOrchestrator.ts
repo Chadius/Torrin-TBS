@@ -35,7 +35,7 @@ import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { GameModeEnum } from "../../utils/startupConfig"
 import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
 import { FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat } from "../cutscene/missionCutsceneService"
-import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
+import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
@@ -269,18 +269,18 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
 
         if (
-            !MissionStatisticsHandler.hasStarted(
+            !MissionStatisticsService.hasStarted(
                 gameEngineState.battleOrchestratorState.battleState
                     .missionStatistics
             )
         ) {
-            MissionStatisticsHandler.startRecording(
+            MissionStatisticsService.startRecording(
                 gameEngineState.battleOrchestratorState.battleState
                     .missionStatistics
             )
         } else if (this.uiControlSettings.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
-                MissionStatisticsHandler.addTimeElapsed(
+                MissionStatisticsService.addTimeElapsed(
                     gameEngineState.battleOrchestratorState.battleState
                         .missionStatistics,
                     Date.now() - this.previousUpdateTimestamp

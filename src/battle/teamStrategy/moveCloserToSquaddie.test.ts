@@ -20,6 +20,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -490,10 +491,10 @@ describe("move towards closest squaddie in range", () => {
                 r: 3,
             }
         )
-        SquaddieService.dealDamageToTheSquaddie({
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-            damage: 9001,
+
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes: targetBattleSquaddie.inBattleAttributes,
+            damageToTake: 9001,
             damageType: DamageType.UNKNOWN,
         })
 

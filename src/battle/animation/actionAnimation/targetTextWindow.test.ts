@@ -28,6 +28,7 @@ import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
+    DamageExplanationService,
 } from "../../history/battleActionSquaddieChange"
 import {
     AttributeModifierService,
@@ -105,7 +106,9 @@ describe("TargetTextWindow", () => {
 
         targetResultTakenDamage = BattleActionSquaddieChangeService.new({
             healingReceived: 0,
-            damageTaken: 2,
+            damageExplanation: DamageExplanationService.new({
+                net: 2,
+            }),
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
             battleSquaddieId: "targetBattleId",
         })
@@ -228,7 +231,7 @@ describe("TargetTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(targetWindow.targetLabel.textBox.text).toContain(
-            `${targetResultTakenDamage.damageTaken} damage`
+            `${targetResultTakenDamage.damage.net} damage`
         )
     })
 
@@ -252,7 +255,7 @@ describe("TargetTextWindow", () => {
 
         expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL HIT!`)
         expect(targetWindow.targetLabel.textBox.text).toContain(
-            `${targetResultTakenDamage.damageTaken} damage`
+            `${targetResultTakenDamage.damage.net} damage`
         )
     })
 
@@ -260,11 +263,13 @@ describe("TargetTextWindow", () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            result: {
+            result: BattleActionSquaddieChangeService.new({
                 ...targetResultTakenDamage,
-                damageTaken: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
-            },
+            }),
             actionEffectSquaddieTemplate: attackAction
                 .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         })
@@ -288,7 +293,9 @@ describe("TargetTextWindow", () => {
                 .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
-                damageTaken: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
                 healingReceived: 0,
                 battleSquaddieId: targetBattle.battleSquaddieId,
             }),
@@ -311,7 +318,9 @@ describe("TargetTextWindow", () => {
                 .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                damageTaken: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
                 healingReceived: 0,
                 battleSquaddieId: targetBattle.battleSquaddieId,
             }),
@@ -329,7 +338,9 @@ describe("TargetTextWindow", () => {
     it("shows the healing received", () => {
         targetResultHealingReceived = BattleActionSquaddieChangeService.new({
             healingReceived: 2,
-            damageTaken: 0,
+            damageExplanation: DamageExplanationService.new({
+                net: 0,
+            }),
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
             battleSquaddieId: targetBattle.battleSquaddieId,
         })
@@ -349,7 +360,7 @@ describe("TargetTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(targetWindow.targetLabel.textBox.text).toBe(
-            `${targetSquaddie.squaddieId.name}\n${targetResultTakenDamage.damageTaken} healed`
+            `${targetSquaddie.squaddieId.name}\n${targetResultTakenDamage.damage.net} healed`
         )
     })
 })

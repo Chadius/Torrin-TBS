@@ -247,7 +247,7 @@ const generateMessagesBasedOnSquaddieSquaddieResults = (
     if (actionEffectJustShown?.type === ActionEffectType.SQUADDIE) {
         const damagedBattleSquaddieIds: string[] =
             actionEffectJustShown.results.squaddieChanges
-                .filter((change) => change.damageTaken > 0)
+                .filter((change) => change.damage.net > 0)
                 .map((change) => change.battleSquaddieId)
         if (gameEngineState.messageBoard) {
             gameEngineState.messageBoard.sendMessage({

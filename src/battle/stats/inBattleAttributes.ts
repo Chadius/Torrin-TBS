@@ -9,6 +9,10 @@ import {
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
+import {
+    DamageExplanation,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 
 export interface InBattleAttributes {
     armyAttributes: ArmyAttributes
@@ -40,19 +44,21 @@ export const InBattleAttributesService = {
         inBattleAttributes: InBattleAttributes
         damageToTake: number
         damageType: DamageType
-    }): number {
+    }): DamageExplanation {
         const startingHitPoints = inBattleAttributes.currentHitPoints
-        damageToTake = useAbsorbToReduceDamageTaken(
-            inBattleAttributes,
-            damageToTake
-        )
+        const absorbedDamageExplanation: DamageExplanation =
+            useAbsorbToReduceDamageTaken(inBattleAttributes, damageToTake)
 
-        inBattleAttributes.currentHitPoints -= damageToTake
+        inBattleAttributes.currentHitPoints -= absorbedDamageExplanation.net
         if (inBattleAttributes.currentHitPoints < 0) {
             inBattleAttributes.currentHitPoints = 0
         }
 
-        return startingHitPoints - inBattleAttributes.currentHitPoints
+        return {
+            net: startingHitPoints - inBattleAttributes.currentHitPoints,
+            raw: damageToTake,
+            absorbed: absorbedDamageExplanation.absorbed,
+        }
     },
     receiveHealing(data: InBattleAttributes, amountHealed: number): number {
         const startingHitPoints = data.currentHitPoints
@@ -187,7 +193,11 @@ const newAttributeModifier = ({
 const useAbsorbToReduceDamageTaken = (
     inBattleAttributes: InBattleAttributes,
     damageToTake: number
-) => {
+): DamageExplanation => {
+    const explanation: DamageExplanation = DamageExplanationService.new({
+        raw: damageToTake,
+    })
+
     const absorbAttributeTypeAndAmount =
         InBattleAttributesService.calculateCurrentAttributeModifiers(
             inBattleAttributes
@@ -199,10 +209,12 @@ const useAbsorbToReduceDamageTaken = (
             amount: damageToTake,
         })
         if (absorbAttributeTypeAndAmount.amount >= damageToTake) {
-            damageToTake = 0
+            explanation.absorbed = damageToTake
+            explanation.net = 0
         } else {
-            damageToTake -= absorbAttributeTypeAndAmount.amount
+            explanation.absorbed = absorbAttributeTypeAndAmount.amount
+            explanation.net = damageToTake - absorbAttributeTypeAndAmount.amount
         }
     }
-    return damageToTake
+    return explanation
 }

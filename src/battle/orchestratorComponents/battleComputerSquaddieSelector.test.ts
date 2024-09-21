@@ -791,7 +791,7 @@ describe("BattleComputerSquaddieSelector", () => {
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
                     )
-                expect(demonOneBitesDemonTwoResults.damageTaken).toBe(
+                expect(demonOneBitesDemonTwoResults.damage.net).toBe(
                     demonBiteActionDamage
                 )
 

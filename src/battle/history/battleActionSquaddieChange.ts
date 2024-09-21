@@ -2,11 +2,33 @@ import { InBattleAttributes } from "../stats/inBattleAttributes"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { isValidValue } from "../../utils/validityCheck"
 
+export interface DamageExplanation {
+    raw: number
+    absorbed: number
+    net: number
+}
+
+export const DamageExplanationService = {
+    new: ({
+        raw,
+        absorbed,
+        net,
+    }: {
+        raw?: number
+        absorbed?: number
+        net?: number
+    }): DamageExplanation => ({
+        raw: raw ?? 0,
+        absorbed: absorbed ?? 0,
+        net: net ?? 0,
+    }),
+}
+
 export interface BattleActionSquaddieChange {
     battleSquaddieId: string
     attributesBefore: InBattleAttributes
     attributesAfter: InBattleAttributes
-    damageTaken: number
+    damage: DamageExplanation
     healingReceived: number
     actorDegreeOfSuccess: DegreeOfSuccess
 }
@@ -16,14 +38,14 @@ export const BattleActionSquaddieChangeService = {
         battleSquaddieId,
         attributesBefore,
         attributesAfter,
-        damageTaken,
+        damageExplanation,
         healingReceived,
         actorDegreeOfSuccess,
     }: {
         battleSquaddieId: string
         attributesBefore?: InBattleAttributes
         attributesAfter?: InBattleAttributes
-        damageTaken?: number
+        damageExplanation?: DamageExplanation
         healingReceived?: number
         actorDegreeOfSuccess?: DegreeOfSuccess
     }): BattleActionSquaddieChange => ({
@@ -34,12 +56,12 @@ export const BattleActionSquaddieChangeService = {
         attributesAfter: isValidValue(attributesAfter)
             ? attributesAfter
             : undefined,
-        damageTaken: damageTaken ?? 0,
+        damage: damageExplanation ?? DamageExplanationService.new({}),
         healingReceived: healingReceived ?? 0,
         actorDegreeOfSuccess: actorDegreeOfSuccess ?? DegreeOfSuccess.NONE,
     }),
     isSquaddieHindered: (result: BattleActionSquaddieChange): boolean => {
-        return result.damageTaken > 0
+        return result.damage.net > 0
     },
     isSquaddieHelped: (result: BattleActionSquaddieChange): boolean => {
         return result.healingReceived > 0

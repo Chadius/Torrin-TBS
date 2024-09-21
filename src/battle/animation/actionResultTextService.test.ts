@@ -22,7 +22,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
@@ -157,13 +160,17 @@ describe("Action Result Text Writer", () => {
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
@@ -204,14 +211,18 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: knightDynamic.battleSquaddieId,
-                        damageTaken: 0,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 0,
+                        }),
                         healingReceived: 1,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId:
                             citizenBattleSquaddie.battleSquaddieId,
-                        damageTaken: 0,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 0,
+                        }),
                         healingReceived: 2,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
@@ -272,7 +283,9 @@ describe("Action Result Text Writer", () => {
                     squaddieChanges: [
                         BattleActionSquaddieChangeService.new({
                             battleSquaddieId: knightDynamic.battleSquaddieId,
-                            damageTaken: 0,
+                            damageExplanation: DamageExplanationService.new({
+                                net: 0,
+                            }),
                             healingReceived: 0,
                             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                             attributesAfter: InBattleAttributesService.new({
@@ -316,7 +329,9 @@ describe("Action Result Text Writer", () => {
                     squaddieChanges: [
                         BattleActionSquaddieChangeService.new({
                             battleSquaddieId: knightDynamic.battleSquaddieId,
-                            damageTaken: 0,
+                            damageExplanation: DamageExplanationService.new({
+                                net: 0,
+                            }),
                             healingReceived: 0,
                             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                             attributesBefore: InBattleAttributesService.new({
@@ -430,13 +445,17 @@ describe("Action Result Text Writer", () => {
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
@@ -477,13 +496,17 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 0,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 0,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 0,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 0,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
@@ -522,7 +545,9 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 4,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 4,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
@@ -560,7 +585,9 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 0,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 0,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
@@ -601,13 +628,17 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),
@@ -655,13 +686,17 @@ describe("Action Result Text Writer", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: thiefDynamic.battleSquaddieId,
                     }),
                     BattleActionSquaddieChangeService.new({
                         healingReceived: 0,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: rogueDynamic.battleSquaddieId,
                     }),

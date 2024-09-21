@@ -2,6 +2,7 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
+    DamageExplanationService,
 } from "./battleActionSquaddieChange"
 
 describe("BattleActionSquaddieChange", () => {
@@ -10,7 +11,9 @@ describe("BattleActionSquaddieChange", () => {
             const changes: BattleActionSquaddieChange =
                 BattleActionSquaddieChangeService.new({
                     actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    damageTaken: 0,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 0,
+                    }),
                     battleSquaddieId: "target",
                 })
 
@@ -22,7 +25,9 @@ describe("BattleActionSquaddieChange", () => {
             const changes: BattleActionSquaddieChange =
                 BattleActionSquaddieChangeService.new({
                     actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    damageTaken: 1,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 1,
+                    }),
                     battleSquaddieId: "target",
                 })
 
@@ -36,7 +41,9 @@ describe("BattleActionSquaddieChange", () => {
             const changes: BattleActionSquaddieChange =
                 BattleActionSquaddieChangeService.new({
                     actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    damageTaken: 0,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 0,
+                    }),
                     battleSquaddieId: "target",
                 })
 

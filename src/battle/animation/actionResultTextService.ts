@@ -242,10 +242,10 @@ export const ActionResultTextService = {
                 break
             case DegreeOfSuccess.CRITICAL_SUCCESS:
                 damageText = "CRITICAL HIT!\n"
-                if (result.damageTaken === 0 && result.healingReceived === 0) {
+                if (result.damage.net === 0 && result.healingReceived === 0) {
                     damageText += `NO DAMAGE`
-                } else if (result.damageTaken > 0) {
-                    damageText += `${result.damageTaken} damage`
+                } else if (result.damage.net > 0) {
+                    damageText += `${result.damage.net} damage`
                 }
                 targetAfterActionText = damageText
                 break
@@ -253,10 +253,10 @@ export const ActionResultTextService = {
                 targetAfterActionText = `CRITICAL MISS!!`
                 break
             case DegreeOfSuccess.SUCCESS:
-                if (result.damageTaken === 0 && result.healingReceived === 0) {
+                if (result.damage.net === 0 && result.healingReceived === 0) {
                     targetAfterActionText = `NO DAMAGE`
-                } else if (result.damageTaken > 0) {
-                    targetAfterActionText = `${result.damageTaken} damage`
+                } else if (result.damage.net > 0) {
+                    targetAfterActionText = `${result.damage.net} damage`
                 }
                 break
             default:
@@ -424,7 +424,7 @@ const outputResultForTextOnly = ({
         const degreeOfSuccessIsCriticalSuccess =
             squaddieChange.actorDegreeOfSuccess ===
             DegreeOfSuccess.CRITICAL_SUCCESS
-        const noDamageTaken = squaddieChange.damageTaken === 0
+        const noDamageTaken = squaddieChange.damage.net === 0
 
         if (targetFoe) {
             switch (true) {
@@ -454,7 +454,7 @@ const outputResultForTextOnly = ({
                         ActionResultTextService.getHinderingActionDealtCriticalDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damageTaken,
+                                damageTaken: squaddieChange.damage.net,
                             }
                         )
                     )
@@ -464,7 +464,7 @@ const outputResultForTextOnly = ({
                         ActionResultTextService.getHinderingActionDealtDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damageTaken,
+                                damageTaken: squaddieChange.damage.net,
                             }
                         )
                     )

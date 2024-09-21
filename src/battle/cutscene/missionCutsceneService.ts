@@ -182,7 +182,7 @@ export const MissionCutsceneService = {
                 .map((trigger) => trigger as SquaddieIsInjuredTrigger)
 
         const injuredBattleSquaddieIds = squaddieSquaddieResult.squaddieChanges
-            .filter((change) => change.damageTaken > 0)
+            .filter((change) => change.damage.net > 0)
             .map((change) => change.battleSquaddieId)
 
         const triggerHasBattleSquaddieId = (

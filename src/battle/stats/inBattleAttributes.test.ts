@@ -19,6 +19,7 @@ import {
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
+import { DamageExplanation } from "../history/battleActionSquaddieChange"
 
 describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {
@@ -48,15 +49,18 @@ describe("inBattleAttributes", () => {
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
-        const actualDamageTaken = InBattleAttributesService.takeDamage({
-            inBattleAttributes,
-            damageToTake: 2,
-            damageType: DamageType.BODY,
-        })
+        const damageExplanation: DamageExplanation =
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes,
+                damageToTake: 2,
+                damageType: DamageType.BODY,
+            })
 
-        expect(actualDamageTaken).toBe(2)
+        expect(damageExplanation.net).toBe(2)
+        expect(damageExplanation.raw).toBe(2)
+        expect(damageExplanation.absorbed).toBe(0)
         expect(inBattleAttributes.currentHitPoints).toBe(
-            soldierAttributes.maxHitPoints - actualDamageTaken
+            soldierAttributes.maxHitPoints - damageExplanation.net
         )
     })
     it("cannot take more than maximum hit points of damage", () => {
@@ -880,15 +884,20 @@ describe("inBattleAttributes", () => {
         })
 
         it("Will remove absorb before removing hit points", () => {
-            InBattleAttributesService.takeDamage({
-                inBattleAttributes: attributesWithAbsorb,
-                damageToTake: 1,
-                damageType: DamageType.BODY,
-            })
+            const damageExplanation: DamageExplanation =
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: attributesWithAbsorb,
+                    damageToTake: 1,
+                    damageType: DamageType.BODY,
+                })
 
             expect(attributesWithAbsorb.currentHitPoints).toEqual(
                 attributesWithAbsorb.armyAttributes.maxHitPoints
             )
+
+            expect(damageExplanation.net).toBe(0)
+            expect(damageExplanation.raw).toBe(1)
+            expect(damageExplanation.absorbed).toBe(1)
 
             const absorbAttribute =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
@@ -897,15 +906,20 @@ describe("inBattleAttributes", () => {
             expect(absorbAttribute.amount).toEqual(2)
         })
         it("Will reduce absorb then hit points if damage is greater than absorb", () => {
-            InBattleAttributesService.takeDamage({
-                inBattleAttributes: attributesWithAbsorb,
-                damageToTake: 5,
-                damageType: DamageType.BODY,
-            })
+            const damageExplanation: DamageExplanation =
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: attributesWithAbsorb,
+                    damageToTake: 5,
+                    damageType: DamageType.BODY,
+                })
 
             expect(attributesWithAbsorb.currentHitPoints).toEqual(
                 attributesWithAbsorb.armyAttributes.maxHitPoints - 2
             )
+
+            expect(damageExplanation.net).toBe(2)
+            expect(damageExplanation.raw).toBe(5)
+            expect(damageExplanation.absorbed).toBe(3)
 
             const absorbAttribute =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
