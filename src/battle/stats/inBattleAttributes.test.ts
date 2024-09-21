@@ -1,4 +1,7 @@
-import { ArmyAttributes } from "../../squaddie/armyAttributes"
+import {
+    ArmyAttributes,
+    ArmyAttributesService,
+} from "../../squaddie/armyAttributes"
 import {
     InBattleAttributes,
     InBattleAttributesService,
@@ -19,13 +22,13 @@ import {
 
 describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {
-        const soldierAttributes: ArmyAttributes = {
+        const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
             movement: CreateNewSquaddieMovementWithTraits({
                 movementPerAction: 2,
             }),
-        }
+        })
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
@@ -45,11 +48,11 @@ describe("inBattleAttributes", () => {
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
-        const actualDamageTaken = InBattleAttributesService.takeDamage(
+        const actualDamageTaken = InBattleAttributesService.takeDamage({
             inBattleAttributes,
-            2,
-            DamageType.BODY
-        )
+            damageToTake: 2,
+            damageType: DamageType.BODY,
+        })
 
         expect(actualDamageTaken).toBe(2)
         expect(inBattleAttributes.currentHitPoints).toBe(
@@ -67,11 +70,11 @@ describe("inBattleAttributes", () => {
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
-        const actualDamageTaken = InBattleAttributesService.takeDamage(
+        const actualDamageTaken = InBattleAttributesService.takeDamage({
             inBattleAttributes,
-            9001,
-            DamageType.BODY
-        )
+            damageToTake: 9001,
+            damageType: DamageType.BODY,
+        })
 
         expect(actualDamageTaken).toBe(soldierAttributes.maxHitPoints)
         expect(inBattleAttributes.currentHitPoints).toBe(0)
@@ -87,11 +90,11 @@ describe("inBattleAttributes", () => {
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
-        InBattleAttributesService.takeDamage(
+        InBattleAttributesService.takeDamage({
             inBattleAttributes,
-            2,
-            DamageType.BODY
-        )
+            damageToTake: 2,
+            damageType: DamageType.BODY,
+        })
         const actualAmountHealed = InBattleAttributesService.receiveHealing(
             inBattleAttributes,
             9001
@@ -190,7 +193,7 @@ describe("inBattleAttributes", () => {
                     description: "Magic Armor Plating",
                 })
                 tempHitPointCircumstance = AttributeModifierService.new({
-                    type: AttributeType.TEMPORARY_HIT_POINTS,
+                    type: AttributeType.ABSORB,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 3,
                     description: "Inspirational Speech",
@@ -347,7 +350,7 @@ describe("inBattleAttributes", () => {
                             amount: armorCircumstance.amount,
                         },
                         {
-                            type: AttributeType.TEMPORARY_HIT_POINTS,
+                            type: AttributeType.ABSORB,
                             amount: tempHitPointCircumstance.amount,
                         },
                     ])
@@ -586,6 +589,66 @@ describe("inBattleAttributes", () => {
                 )
             ).toHaveLength(1)
         })
+        it("Can spend amount on specific attributes", () => {
+            const absorbModifierFor3Amount = AttributeModifierService.new({
+                type: AttributeType.ABSORB,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 3,
+                description: "Pain Buffer",
+            })
+            InBattleAttributesService.addActiveAttributeModifier(
+                attributes,
+                absorbModifierFor3Amount
+            )
+            const absorbModifierFor1Amount = AttributeModifierService.new({
+                type: AttributeType.ABSORB,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 1,
+                description: "Sponge Buffer",
+            })
+            InBattleAttributesService.addActiveAttributeModifier(
+                attributes,
+                absorbModifierFor1Amount
+            )
+
+            const armorModifierFor1Use = AttributeModifierService.new({
+                type: AttributeType.ARMOR,
+                source: AttributeSource.ITEM,
+                amount: 1,
+                description: "Scrap Armor",
+            })
+            InBattleAttributesService.addActiveAttributeModifier(
+                attributes,
+                armorModifierFor1Use
+            )
+
+            expect(
+                InBattleAttributesService.getAllActiveAttributeModifiers(
+                    attributes
+                )
+            ).toHaveLength(3)
+            InBattleAttributesService.reduceAttributeByAmount({
+                attributes,
+                type: AttributeType.ABSORB,
+                amount: 1,
+            })
+
+            expect(
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    attributes
+                ).find((a) => a.type === AttributeType.ABSORB).amount
+            ).toEqual(2)
+            expect(
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    attributes
+                ).find((a) => a.type === AttributeType.ARMOR).amount
+            ).toEqual(1)
+            expect(
+                InBattleAttributesService.getAllActiveAttributeModifiers(
+                    attributes
+                )
+            ).toHaveLength(2)
+        })
         describe("inactive modifiers", () => {
             let activeModifier: AttributeModifier
             let modifierWithInactiveDuration: AttributeModifier
@@ -761,7 +824,7 @@ describe("inBattleAttributes", () => {
                 InBattleAttributesService.addActiveAttributeModifier(
                     before,
                     AttributeModifierService.new({
-                        type: AttributeType.TEMPORARY_HIT_POINTS,
+                        type: AttributeType.ABSORB,
                         source: AttributeSource.CIRCUMSTANCE,
                         amount: 1,
                     })
@@ -790,5 +853,57 @@ describe("inBattleAttributes", () => {
                 ])
             })
         })
+    })
+    describe("Taking Damage with Absorb", () => {
+        it("Will remove absorb before removing hit points", () => {
+            const soldierAttributes: ArmyAttributes = ArmyAttributesService.new(
+                {
+                    maxHitPoints: 3,
+                }
+            )
+
+            const attributesWithAbsorb: InBattleAttributes =
+                InBattleAttributesService.new({
+                    armyAttributes: soldierAttributes,
+                })
+            const absorb3Damage = AttributeModifierService.new({
+                type: AttributeType.ABSORB,
+                source: AttributeSource.CIRCUMSTANCE,
+                amount: 3,
+            })
+
+            InBattleAttributesService.addActiveAttributeModifier(
+                attributesWithAbsorb,
+                absorb3Damage
+            )
+
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: attributesWithAbsorb,
+                damageToTake: 1,
+                damageType: DamageType.BODY,
+            })
+
+            expect(attributesWithAbsorb.currentHitPoints).toEqual(
+                attributesWithAbsorb.armyAttributes.maxHitPoints
+            )
+
+            const absorbAttribute =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    attributesWithAbsorb
+                ).find((a) => a.type === AttributeType.ABSORB)
+            expect(absorbAttribute.amount).toEqual(2)
+        })
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
+        //it("", () => {})
     })
 })

@@ -410,12 +410,13 @@ describe("calculator", () => {
         })
 
         it("will heal allies fully", () => {
-            InBattleAttributesService.takeDamage(
-                ally1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes
-                    .maxHitPoints - 1,
-                DamageType.UNKNOWN
-            )
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: ally1BattleSquaddie.inBattleAttributes,
+                damageToTake:
+                    ally1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints - 1,
+                damageType: DamageType.UNKNOWN,
+            })
 
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
@@ -480,12 +481,13 @@ describe("calculator", () => {
             MissionStatisticsHandler.reset(missionStatistics)
             MissionStatisticsHandler.startRecording(missionStatistics)
 
-            InBattleAttributesService.takeDamage(
-                player1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes
-                    .maxHitPoints - 1,
-                DamageType.UNKNOWN
-            )
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: player1BattleSquaddie.inBattleAttributes,
+                damageToTake:
+                    ally1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints - 1,
+                damageType: DamageType.UNKNOWN,
+            })
 
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: player1BattleSquaddie.battleSquaddieId,

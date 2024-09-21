@@ -12,10 +12,20 @@ export interface ArmyAttributes {
 }
 
 export const ArmyAttributesService = {
-    new: ({ movement }: { movement?: SquaddieMovement }): ArmyAttributes => {
+    new: ({
+        maxHitPoints,
+        armorClass,
+        movement,
+    }: {
+        maxHitPoints?: number
+        armorClass?: number
+        movement?: SquaddieMovement
+    }): ArmyAttributes => {
         const attributes = {
             ...DefaultArmyAttributes(),
             movement,
+            maxHitPoints,
+            armorClass,
         }
         return sanitize(attributes)
     },

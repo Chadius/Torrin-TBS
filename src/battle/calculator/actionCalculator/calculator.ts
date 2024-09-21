@@ -286,11 +286,11 @@ const applyCalculatedEffectAndReturnChange = ({
         targetBattleSquaddieId: targetedBattleSquaddieId,
     })
 
-    InBattleAttributesService.takeDamage(
-        targetedBattleSquaddie.inBattleAttributes,
-        calculatedEffect.damageDealt,
-        DamageType.UNKNOWN
-    )
+    InBattleAttributesService.takeDamage({
+        inBattleAttributes: targetedBattleSquaddie.inBattleAttributes,
+        damageToTake: calculatedEffect.damageDealt,
+        damageType: DamageType.UNKNOWN,
+    })
     InBattleAttributesService.receiveHealing(
         targetedBattleSquaddie.inBattleAttributes,
         calculatedEffect.healingReceived

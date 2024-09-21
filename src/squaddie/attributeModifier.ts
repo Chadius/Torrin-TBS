@@ -1,6 +1,6 @@
 export enum AttributeType {
     ARMOR = "ARMOR",
-    TEMPORARY_HIT_POINTS = "TEMPORARY_HIT_POINTS",
+    ABSORB = "ABSORB",
     MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
 }
 
@@ -64,6 +64,9 @@ export const AttributeModifierService = {
         if (modifier.duration !== undefined && modifier.duration <= 0) {
             return false
         }
+        if (modifier.type === AttributeType.ABSORB && modifier.amount <= 0) {
+            return false
+        }
         return !(
             modifier.numberOfUses !== undefined && modifier.numberOfUses <= 0
         )
@@ -84,10 +87,7 @@ export const AttributeModifierService = {
     },
     calculateCurrentAttributeModifiers: (
         attributeModifiers: AttributeModifier[]
-    ): {
-        type: AttributeType
-        amount: number
-    }[] => {
+    ): AttributeTypeAndAmount[] => {
         const addToModifierAmountByTypeIfItExceeds = (
             modifierByTypeAndSource: {
                 type: AttributeType
@@ -189,5 +189,18 @@ export const AttributeModifierService = {
         return Object.values(combinedModifierAmountByType).filter(
             (modifier) => modifier.amount !== 0
         )
+    },
+    reduceAmount: ({
+        amount,
+        attributeModifier,
+    }: {
+        amount?: number
+        attributeModifier: AttributeModifier
+    }) => {
+        if (attributeModifier.amount === undefined) {
+            return
+        }
+        amount = amount ?? 1
+        attributeModifier.amount -= amount
     },
 }

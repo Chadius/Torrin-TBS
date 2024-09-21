@@ -242,11 +242,11 @@ const dealDamageToTheSquaddie = ({
 }): {
     damageTaken: number
 } => {
-    const actualHitPointLoss: number = InBattleAttributesService.takeDamage(
+    const actualHitPointLoss: number = InBattleAttributesService.takeDamage({
         inBattleAttributes,
-        damage,
-        damageType
-    )
+        damageToTake: damage,
+        damageType,
+    })
 
     return {
         damageTaken: actualHitPointLoss,

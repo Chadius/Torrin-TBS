@@ -6,6 +6,7 @@ import { DamageType } from "../../squaddie/squaddieService"
 import {
     AttributeModifier,
     AttributeModifierService,
+    AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 
@@ -31,19 +32,27 @@ export const InBattleAttributesService = {
             attributeModifiers,
         })
     },
-    takeDamage(
-        data: InBattleAttributes,
-        damageToTake: number,
+    takeDamage({
+        inBattleAttributes,
+        damageToTake,
+        damageType,
+    }: {
+        inBattleAttributes: InBattleAttributes
+        damageToTake: number
         damageType: DamageType
-    ): number {
-        const startingHitPoints = data.currentHitPoints
+    }): number {
+        const startingHitPoints = inBattleAttributes.currentHitPoints
+        damageToTake = useAbsorbToReduceDamageTaken(
+            inBattleAttributes,
+            damageToTake
+        )
 
-        data.currentHitPoints -= damageToTake
-        if (data.currentHitPoints < 0) {
-            data.currentHitPoints = 0
+        inBattleAttributes.currentHitPoints -= damageToTake
+        if (inBattleAttributes.currentHitPoints < 0) {
+            inBattleAttributes.currentHitPoints = 0
         }
 
-        return startingHitPoints - data.currentHitPoints
+        return startingHitPoints - inBattleAttributes.currentHitPoints
     },
     receiveHealing(data: InBattleAttributes, amountHealed: number): number {
         const startingHitPoints = data.currentHitPoints
@@ -129,6 +138,23 @@ export const InBattleAttributesService = {
         )
         return differences
     },
+    reduceAttributeByAmount({
+        attributes,
+        amount,
+        type,
+    }: {
+        attributes: InBattleAttributes
+        amount: number
+        type: AttributeType
+    }) {
+        const attributesOfType: AttributeModifier[] =
+            getAllActiveAttributeModifiers(attributes).filter(
+                (a) => a.type === type
+            )
+        attributesOfType.forEach((attributeModifier) => {
+            AttributeModifierService.reduceAmount({ attributeModifier, amount })
+        })
+    },
 }
 
 const getAllActiveAttributeModifiers = (
@@ -156,4 +182,27 @@ const newAttributeModifier = ({
             DefaultArmyAttributes().maxHitPoints,
         attributeModifiers: attributeModifiers || [],
     }
+}
+
+const useAbsorbToReduceDamageTaken = (
+    inBattleAttributes: InBattleAttributes,
+    damageToTake: number
+) => {
+    const absorbAttributeTypeAndAmount =
+        InBattleAttributesService.calculateCurrentAttributeModifiers(
+            inBattleAttributes
+        ).find((a) => a.type === AttributeType.ABSORB)
+    if (absorbAttributeTypeAndAmount) {
+        InBattleAttributesService.reduceAttributeByAmount({
+            attributes: inBattleAttributes,
+            type: AttributeType.ABSORB,
+            amount: damageToTake,
+        })
+        if (absorbAttributeTypeAndAmount.amount >= damageToTake) {
+            damageToTake = 0
+        } else {
+            damageToTake -= absorbAttributeTypeAndAmount.amount
+        }
+    }
+    return damageToTake
 }

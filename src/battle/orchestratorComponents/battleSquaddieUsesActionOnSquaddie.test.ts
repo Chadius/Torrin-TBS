@@ -521,11 +521,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         ).toBeFalsy()
 
-        InBattleAttributesService.takeDamage(
-            targetDynamic.inBattleAttributes,
-            targetStatic.attributes.maxHitPoints,
-            DamageType.BODY
-        )
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes: targetDynamic.inBattleAttributes,
+            damageToTake: targetStatic.attributes.maxHitPoints,
+            damageType: DamageType.BODY,
+        })
         expect(
             IsSquaddieAlive({
                 battleSquaddie: targetDynamic,

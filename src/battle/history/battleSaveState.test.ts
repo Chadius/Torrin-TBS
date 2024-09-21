@@ -192,11 +192,12 @@ describe("BattleSaveState", () => {
             originalSquaddieRepository,
             enemy0BattleSquaddieWithWoundsAndTurnEnded
         )
-        InBattleAttributesService.takeDamage(
-            enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
-            1,
-            DamageType.UNKNOWN
-        )
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes:
+                enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
+            damageToTake: 1,
+            damageType: DamageType.UNKNOWN,
+        })
 
         newSquaddieRepository = ObjectRepositoryService.new()
         ObjectRepositoryService.addSquaddieTemplate(
