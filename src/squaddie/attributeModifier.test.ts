@@ -107,7 +107,7 @@ describe("AttributeModifier", () => {
             AttributeModifierService.isActive(absorbModifierFor3Amount)
         ).toBeFalsy()
     })
-    describe("expect some attributes to be inactive when amount is 0", () => {
+    describe("expect some attribute types to be inactive when amount is 0", () => {
         const tests = [
             {
                 type: AttributeType.ARMOR,

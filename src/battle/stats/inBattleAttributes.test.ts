@@ -855,18 +855,19 @@ describe("inBattleAttributes", () => {
         })
     })
     describe("Taking Damage with Absorb", () => {
-        it("Will remove absorb before removing hit points", () => {
-            const soldierAttributes: ArmyAttributes = ArmyAttributesService.new(
-                {
-                    maxHitPoints: 3,
-                }
-            )
+        let soldierAttributes: ArmyAttributes
+        let attributesWithAbsorb: InBattleAttributes
+        let absorb3Damage: AttributeModifier
 
-            const attributesWithAbsorb: InBattleAttributes =
-                InBattleAttributesService.new({
-                    armyAttributes: soldierAttributes,
-                })
-            const absorb3Damage = AttributeModifierService.new({
+        beforeEach(() => {
+            soldierAttributes = ArmyAttributesService.new({
+                maxHitPoints: 3,
+            })
+
+            attributesWithAbsorb = InBattleAttributesService.new({
+                armyAttributes: soldierAttributes,
+            })
+            absorb3Damage = AttributeModifierService.new({
                 type: AttributeType.ABSORB,
                 source: AttributeSource.CIRCUMSTANCE,
                 amount: 3,
@@ -876,7 +877,9 @@ describe("inBattleAttributes", () => {
                 attributesWithAbsorb,
                 absorb3Damage
             )
+        })
 
+        it("Will remove absorb before removing hit points", () => {
             InBattleAttributesService.takeDamage({
                 inBattleAttributes: attributesWithAbsorb,
                 damageToTake: 1,
@@ -893,17 +896,22 @@ describe("inBattleAttributes", () => {
                 ).find((a) => a.type === AttributeType.ABSORB)
             expect(absorbAttribute.amount).toEqual(2)
         })
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
-        //it("", () => {})
+        it("Will reduce absorb then hit points if damage is greater than absorb", () => {
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: attributesWithAbsorb,
+                damageToTake: 5,
+                damageType: DamageType.BODY,
+            })
+
+            expect(attributesWithAbsorb.currentHitPoints).toEqual(
+                attributesWithAbsorb.armyAttributes.maxHitPoints - 2
+            )
+
+            const absorbAttribute =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    attributesWithAbsorb
+                ).find((a) => a.type === AttributeType.ABSORB)
+            expect(absorbAttribute).toBeUndefined()
+        })
     })
 })
