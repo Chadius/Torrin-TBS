@@ -259,7 +259,7 @@ export class TargetSprite {
                 DegreeOfSuccessService.atLeastSuccessful(
                     result.actorDegreeOfSuccess
                 ) &&
-                result.damageTaken > 0
+                result.damage.net > 0
             ) {
                 ;({ horizontalDistance, verticalDistance } =
                     this.getSpritePositionTargetReactsAndTakesDamage(
@@ -270,7 +270,7 @@ export class TargetSprite {
                 DegreeOfSuccessService.atLeastSuccessful(
                     result.actorDegreeOfSuccess
                 ) &&
-                result.damageTaken === 0
+                result.damage.net === 0
             ) {
                 ;({ horizontalDistance, verticalDistance } =
                     this.getSpritePositionTargetReactsAndNoDamage(

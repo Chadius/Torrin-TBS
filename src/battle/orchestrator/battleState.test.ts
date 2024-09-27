@@ -9,7 +9,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { MissionConditionType } from "../missionResult/missionCondition"
-import { MissionStatisticsHandler } from "../missionStatistics/missionStatistics"
+import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
@@ -229,7 +229,7 @@ describe("Battle State", () => {
                     }),
                 ],
                 missionCompletionStatus: {},
-                missionStatistics: MissionStatisticsHandler.new(),
+                missionStatistics: MissionStatisticsService.new({}),
                 cutsceneTriggers: [],
                 battlePhaseState: {
                     turnCount: 20,
@@ -291,7 +291,7 @@ describe("Battle State", () => {
                     }),
                 ],
                 missionCompletionStatus: {},
-                missionStatistics: MissionStatisticsHandler.new(),
+                missionStatistics: MissionStatisticsService.new({}),
                 cutsceneTriggers: [],
                 battlePhaseState: {
                     turnCount: 20,

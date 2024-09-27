@@ -4,7 +4,7 @@ import {
 } from "../battle/orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SubstituteTextUsingBattleOrchestraState } from "./BattleOrchestratorStateSubstitution"
-import { MissionStatisticsHandler } from "../battle/missionStatistics/missionStatistics"
+import { MissionStatisticsService } from "../battle/missionStatistics/missionStatistics"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 
 describe("BattleOrchestratorStateSubstitution", () => {
@@ -80,7 +80,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionStatistics: {
-                        ...MissionStatisticsHandler.new(),
+                        ...MissionStatisticsService.new({}),
                         timeElapsedInMilliseconds:
                             secondsPassed * 1000 + milliseconds,
                     },
@@ -115,7 +115,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
+                    ...MissionStatisticsService.new({}),
                     damageDealtByPlayerTeam: 9001,
                 },
             }),
@@ -133,7 +133,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
+                    ...MissionStatisticsService.new({}),
                     damageTakenByPlayerTeam: 42,
                 },
             }),
@@ -145,13 +145,31 @@ describe("BattleOrchestratorStateSubstitution", () => {
         expect(newText).toBe(`How much damage did the player team receive? 42`)
     })
 
+    it("can substitute damage absorbed by player team", () => {
+        const battleState = BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionStatistics: {
+                    ...MissionStatisticsService.new({}),
+                    damageAbsorbedByPlayerTeam: 9001,
+                },
+            }),
+        })
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How much damage did the player team absorb? $$DAMAGE_ABSORBED_BY_PLAYER_TEAM",
+            battleState
+        )
+        expect(newText).toBe(`How much damage did the player team absorb? 9001`)
+    })
+
     it("can substitute healing received by player team", () => {
         const battleState = BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
+                    ...MissionStatisticsService.new({}),
                     healingReceivedByPlayerTeam: 1024,
                 },
             }),

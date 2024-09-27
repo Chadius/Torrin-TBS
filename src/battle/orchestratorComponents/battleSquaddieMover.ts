@@ -94,10 +94,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
+                    .battleActionQueue
             )
+
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
             gameEngineState
         )
@@ -151,11 +152,21 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
+        const battleSquaddieId = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        ).actor.actorBattleSquaddieId
+
+        if (!battleSquaddieId) {
+            this.finishedCleanup = true
+            gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
+                undefined
+            return
+        }
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.battleSquaddieId
+                battleSquaddieId
             )
         )
         TerrainTileMapService.removeAllGraphicsLayers(

@@ -27,6 +27,10 @@ import { isValidValue } from "../../../utils/validityCheck"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
+import {
+    DamageExplanation,
+    DamageExplanationService,
+} from "../../history/battleActionSquaddieChange"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({
@@ -299,7 +303,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
     targetedSquaddieTemplate: SquaddieTemplate
     targetedBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
-    let damageDealt = 0
+    let damageExplanation: DamageExplanation = DamageExplanationService.new({})
 
     Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach(
         (damageType: DamageType) => {
@@ -311,15 +315,17 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
             if (DegreeOfSuccessService.atBestFailure(degreeOfSuccess)) {
                 rawDamageFromAction = 0
             }
-
-            const { damageTaken: damageTakenByThisType } =
+            const damageExplanationForThisEffect =
                 SquaddieService.calculateDealtDamageToTheSquaddie({
                     squaddieTemplate: targetedSquaddieTemplate,
                     battleSquaddie: targetedBattleSquaddie,
                     damage: rawDamageFromAction,
                     damageType,
                 })
-            damageDealt += damageTakenByThisType
+            damageExplanation.net += damageExplanationForThisEffect.net
+            damageExplanation.raw += damageExplanationForThisEffect.raw
+            damageExplanation.absorbed +=
+                damageExplanationForThisEffect.absorbed
         }
     )
 
@@ -330,7 +336,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 
     return {
         attributeModifiersToAddToTarget,
-        damageDealt,
+        damage: damageExplanation,
         degreeOfSuccess,
         healingReceived: 0,
     }

@@ -16,6 +16,13 @@ import { DefaultArmyAttributes } from "./armyAttributes"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "./turn"
 import { SquaddieRepositoryService } from "../utils/test/squaddie"
+import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "./attributeModifier"
+import { DamageExplanation } from "../battle/history/battleActionSquaddieChange"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -99,12 +106,12 @@ describe("Squaddie Service", () => {
             expect(currentHitPoints).toBe(maxHitPoints)
         })
         it("can deal damage to the squaddie", () => {
-            let { damageTaken } = SquaddieService.dealDamageToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                damage: 1,
+            const { net: damageTaken } = InBattleAttributesService.takeDamage({
+                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
+                damageToTake: 1,
                 damageType: DamageType.BODY,
             })
+
             expect(damageTaken).toBe(1)
 
             let { maxHitPoints, currentHitPoints } =
@@ -116,15 +123,35 @@ describe("Squaddie Service", () => {
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints - damageTaken)
         })
-        it("can calculate the dealt damage without changing the value", () => {
-            let { damageTaken } =
+        it("can calculate the dealt damage without changing the squaddie resources", () => {
+            InBattleAttributesService.addActiveAttributeModifier(
+                playerBattleSquaddie.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.ABSORB,
+                    amount: 1,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
+            let attributeTypeAndAmounts =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    playerBattleSquaddie.inBattleAttributes
+                )
+            expect(
+                attributeTypeAndAmounts.find(
+                    (a) => a.type === AttributeType.ABSORB
+                ).amount
+            ).toBe(1)
+
+            let damageExplanation: DamageExplanation =
                 SquaddieService.calculateDealtDamageToTheSquaddie({
                     squaddieTemplate: playerSquaddieTemplate,
                     battleSquaddie: playerBattleSquaddie,
                     damage: 1,
                     damageType: DamageType.BODY,
                 })
-            expect(damageTaken).toBe(1)
+            expect(damageExplanation.raw).toBe(1)
+            expect(damageExplanation.absorbed).toBe(1)
+            expect(damageExplanation.net).toBe(0)
 
             let { maxHitPoints, currentHitPoints } =
                 SquaddieService.getHitPoints({
@@ -134,12 +161,21 @@ describe("Squaddie Service", () => {
 
             expect(maxHitPoints).toBe(maxHitPoints)
             expect(currentHitPoints).toBe(maxHitPoints)
+
+            attributeTypeAndAmounts =
+                InBattleAttributesService.calculateCurrentAttributeModifiers(
+                    playerBattleSquaddie.inBattleAttributes
+                )
+            expect(
+                attributeTypeAndAmounts.find(
+                    (a) => a.type === AttributeType.ABSORB
+                ).amount
+            ).toBe(1)
         })
         it("can give healing to the squaddie", () => {
-            SquaddieService.dealDamageToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                damage: 2,
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
+                damageToTake: 2,
                 damageType: DamageType.BODY,
             })
 
@@ -183,10 +219,9 @@ describe("Squaddie Service", () => {
             expect(squaddieIsAlive).toBeTruthy()
         })
         it("knows the squaddie is dead due to zero Hit Points", () => {
-            SquaddieService.dealDamageToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                damage:
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
+                damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
                 damageType: DamageType.BODY,
@@ -228,10 +263,9 @@ describe("Squaddie Service", () => {
             expect(hasActionPointsRemaining).toBeFalsy()
         })
         it("knows a squaddie without hit points cannot act", () => {
-            SquaddieService.dealDamageToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                damage:
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
+                damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
                 damageType: DamageType.BODY,
@@ -301,10 +335,9 @@ describe("Squaddie Service", () => {
             expect(squaddieIsNormallyControllableByPlayer).toBeFalsy()
         })
         it("knows a squaddie without hit points cannot be controlled", () => {
-            SquaddieService.dealDamageToTheSquaddie({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                damage:
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: playerBattleSquaddie.inBattleAttributes,
+                damageToTake:
                     playerBattleSquaddie.inBattleAttributes.currentHitPoints *
                     2,
                 damageType: DamageType.BODY,

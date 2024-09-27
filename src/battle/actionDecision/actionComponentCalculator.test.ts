@@ -12,19 +12,11 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
-import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "../history/battleActionQueue"
+import { BattleActionService } from "../history/battleAction"
 
 describe("ActionComponentCalculator", () => {
     let actionBuilderState: BattleActionDecisionStep
@@ -44,71 +36,73 @@ describe("ActionComponentCalculator", () => {
         })
         actionBuilderState = BattleActionDecisionStepService.new()
     })
-    it("suggests player squaddie selector when there is no actor", () => {
-        const nextMode: BattleOrchestratorMode =
-            ActionComponentCalculator.getNextOrchestratorComponentMode(
-                actionBuilderState
-            )
 
-        expect(nextMode).toEqual(
-            BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
-        )
+    describe("Player squaddie completes the action", () => {
+        it("suggests player squaddie selector when there is no actor", () => {
+            const nextMode: BattleOrchestratorMode =
+                ActionComponentCalculator.getNextOrchestratorComponentMode(
+                    actionBuilderState
+                )
+
+            expect(nextMode).toEqual(
+                BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
+            )
+        })
+        it("suggests player squaddie selector when there is no confirmed action", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
+                battleSquaddieId: "battleSquaddieId",
+            })
+
+            const nextMode: BattleOrchestratorMode =
+                ActionComponentCalculator.getNextOrchestratorComponentMode(
+                    actionBuilderState
+                )
+            expect(nextMode).toEqual(
+                BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
+            )
+        })
+        it("suggests squaddie uses action on map when the action ends the turn", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
+                battleSquaddieId: "battleSquaddieId",
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
+                endTurn: true,
+            })
+
+            const nextMode: BattleOrchestratorMode =
+                ActionComponentCalculator.getNextOrchestratorComponentMode(
+                    actionBuilderState
+                )
+            expect(nextMode).toEqual(
+                BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
+            )
+        })
+        it("suggests squaddie mover when action is to move", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionBuilderState,
+                battleSquaddieId: "battleSquaddieId",
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionBuilderState,
+                movement: true,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionBuilderState,
+                targetLocation: { q: 0, r: 1 },
+            })
+
+            const nextMode: BattleOrchestratorMode =
+                ActionComponentCalculator.getNextOrchestratorComponentMode(
+                    actionBuilderState
+                )
+            expect(nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER)
+        })
     })
 
-    it("suggests player squaddie selector when there is no confirmed action", () => {
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionBuilderState,
-            battleSquaddieId: "battleSquaddieId",
-        })
-
-        const nextMode: BattleOrchestratorMode =
-            ActionComponentCalculator.getNextOrchestratorComponentMode(
-                actionBuilderState
-            )
-        expect(nextMode).toEqual(
-            BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
-        )
-    })
-    it("suggests squaddie uses action on map when the action ends the turn", () => {
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionBuilderState,
-            battleSquaddieId: "battleSquaddieId",
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionBuilderState,
-            endTurn: true,
-        })
-
-        const nextMode: BattleOrchestratorMode =
-            ActionComponentCalculator.getNextOrchestratorComponentMode(
-                actionBuilderState
-            )
-        expect(nextMode).toEqual(
-            BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
-        )
-    })
-    it("suggests squaddie mover when action is to move", () => {
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionBuilderState,
-            battleSquaddieId: "battleSquaddieId",
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionBuilderState,
-            movement: true,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep: actionBuilderState,
-            targetLocation: { q: 0, r: 1 },
-        })
-
-        const nextMode: BattleOrchestratorMode =
-            ActionComponentCalculator.getNextOrchestratorComponentMode(
-                actionBuilderState
-            )
-        expect(nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER)
-    })
-
-    describe("action needs one target", () => {
+    describe("player selects action that needs a target", () => {
         it("suggests player squaddie target when an actor and action are set but no target", () => {
             BattleActionDecisionStepService.setActor({
                 actionDecisionStep: actionBuilderState,
@@ -176,112 +170,75 @@ describe("ActionComponentCalculator", () => {
         })
     })
 
-    describe("getNextModeBasedOnActionsThisRound", () => {
-        let endTurnActionsThisRound: ActionsThisRound
-        let moveActionsThisRound: ActionsThisRound
-        let squaddieActionsThisRound: ActionsThisRound
+    describe("getNextModeBasedOnBattleActionQueue", () => {
+        let battleActionQueue: BattleActionQueue
 
         beforeEach(() => {
-            const endTurnActionEffect =
-                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
-                    decidedActionEffect: DecidedActionEndTurnEffectService.new({
-                        template: ActionEffectEndTurnTemplateService.new({}),
-                    }),
-                })
-
-            endTurnActionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "battleSquaddieId",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: "End Turn",
-                        processedActionEffects: [endTurnActionEffect],
-                    }),
-                ],
-            })
-
-            const movementActionEffect =
-                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionMovementEffectService.new({
-                                destination: { q: 0, r: 2 },
-                                template:
-                                    ActionEffectMovementTemplateService.new({}),
-                            }),
-                    }
-                )
-
-            moveActionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "battleSquaddieId",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 3,
-                        processedActionEffects: [movementActionEffect],
-                    }),
-                ],
-            })
-
-            const squaddieActionEffect =
-                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionSquaddieEffectService.new({
-                                target: { q: 0, r: 2 },
-                                template:
-                                    ActionEffectSquaddieTemplateService.new({}),
-                            }),
-                        results: undefined,
-                    }
-                )
-
-            const actionTemplate: ActionTemplate = ActionTemplateService.new({
-                id: "actionTemplate",
-                actionPoints: 3,
-                name: "action",
-                actionEffectTemplates: [],
-            })
-
-            squaddieActionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "battleSquaddieId",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 3,
-                        processedActionEffects: [squaddieActionEffect],
-                    }),
-                ],
-            })
+            battleActionQueue = BattleActionQueueService.new()
         })
 
         it("will recommend moving a squaddie if the next action effect is movement type", () => {
+            BattleActionQueueService.add(
+                battleActionQueue,
+                BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "actor" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 2 },
+                        },
+                    },
+                })
+            )
+
             expect(
-                ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
-                    moveActionsThisRound
+                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                    battleActionQueue
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER)
         })
         it("will recommend using an action effect on a squaddie if the next action effect is squaddie type", () => {
+            BattleActionQueueService.add(
+                battleActionQueue,
+                BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "actor" },
+                    action: { actionTemplateId: "actionTemplate" },
+                    effect: {
+                        squaddie: [],
+                    },
+                })
+            )
             expect(
-                ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
-                    squaddieActionsThisRound
+                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                    battleActionQueue
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE)
         })
         it("will recommend acting on the map if the next action effect is end turn", () => {
+            BattleActionQueueService.add(
+                battleActionQueue,
+                BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "actor" },
+                    action: { isEndTurn: true },
+                    effect: {
+                        endTurn: true,
+                    },
+                })
+            )
+
             expect(
-                ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
-                    endTurnActionsThisRound
+                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                    battleActionQueue
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP)
         })
-        it("will return undefined if there is no actions this round", () => {
+        it("will return player hud controller if there are no actions this round", () => {
             expect(
-                ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
-                    undefined
+                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                    battleActionQueue
                 )
-            ).toBeUndefined()
+            ).toEqual(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER)
         })
     })
     describe("getPendingActionDecisions", () => {

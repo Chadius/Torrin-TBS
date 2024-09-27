@@ -415,11 +415,12 @@ describe("Orchestration Utils", () => {
             it("will clear if the squaddie is dead", () => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                     actionsThisRound
-                InBattleAttributesService.takeDamage(
-                    battleSquaddie.inBattleAttributes,
-                    battleSquaddie.inBattleAttributes.currentHitPoints,
-                    DamageType.UNKNOWN
-                )
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: battleSquaddie.inBattleAttributes,
+                    damageToTake:
+                        battleSquaddie.inBattleAttributes.currentHitPoints,
+                    damageType: DamageType.UNKNOWN,
+                })
                 const { isDead } = SquaddieService.canSquaddieActRightNow({
                     squaddieTemplate: squaddieTemplate,
                     battleSquaddie: battleSquaddie,
@@ -478,11 +479,12 @@ describe("Orchestration Utils", () => {
             it("will return false if the squaddie is dead", () => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                     actionsThisRound
-                InBattleAttributesService.takeDamage(
-                    battleSquaddie.inBattleAttributes,
-                    battleSquaddie.inBattleAttributes.currentHitPoints,
-                    DamageType.UNKNOWN
-                )
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes: battleSquaddie.inBattleAttributes,
+                    damageToTake:
+                        battleSquaddie.inBattleAttributes.currentHitPoints,
+                    damageType: DamageType.UNKNOWN,
+                })
                 const { isDead } = SquaddieService.canSquaddieActRightNow({
                     squaddieTemplate: squaddieTemplate,
                     battleSquaddie: battleSquaddie,

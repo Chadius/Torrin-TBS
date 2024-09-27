@@ -12,7 +12,7 @@ import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { BattleSquaddie } from "../battleSquaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
+import { DamageType } from "../../squaddie/squaddieService"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -20,6 +20,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -490,10 +491,10 @@ describe("move towards closest squaddie in range", () => {
                 r: 3,
             }
         )
-        SquaddieService.dealDamageToTheSquaddie({
-            squaddieTemplate: targetSquaddieTemplate,
-            battleSquaddie: targetBattleSquaddie,
-            damage: 9001,
+
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes: targetBattleSquaddie.inBattleAttributes,
+            damageToTake: 9001,
             damageType: DamageType.UNKNOWN,
         })
 

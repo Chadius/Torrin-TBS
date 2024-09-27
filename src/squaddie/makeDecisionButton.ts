@@ -206,13 +206,17 @@ export class MakeDecisionButton {
         top: number,
         text: string
     ) => {
+        const lineBreaksFound: RegExpMatchArray = text?.match(/\n/gi)
+        const numberOfLines: number = lineBreaksFound
+            ? lineBreaksFound.length + 1
+            : 1
         const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
                 left: RectAreaService.left(this.buttonIcon.area),
                 top: top,
                 width: RectAreaService.width(this.buttonIcon.area) * 2,
                 height:
-                    DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
+                    DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * numberOfLines +
                     DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin,
             }),
             fontColor: DECISION_BUTTON_LAYOUT_COLORS.infoFontColor,

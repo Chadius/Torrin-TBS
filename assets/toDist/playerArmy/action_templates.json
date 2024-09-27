@@ -88,6 +88,13 @@
             "amount": 1,
             "duration": 1,
             "description": "Raise your shield to improve defense"
+          },
+          {
+            "type": "ABSORB",
+            "source": "CIRCUMSTANCE",
+            "amount": 1,
+            "duration": 1,
+            "description": "Your shield will shrug off a small amount of damage"
           }
         ]
       }

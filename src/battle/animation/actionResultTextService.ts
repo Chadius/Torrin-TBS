@@ -242,21 +242,27 @@ export const ActionResultTextService = {
                 break
             case DegreeOfSuccess.CRITICAL_SUCCESS:
                 damageText = "CRITICAL HIT!\n"
-                if (result.damageTaken === 0 && result.healingReceived === 0) {
+                if (result.damage.net === 0 && result.healingReceived === 0) {
                     damageText += `NO DAMAGE`
-                } else if (result.damageTaken > 0) {
-                    damageText += `${result.damageTaken} damage`
+                } else if (result.damage.net > 0) {
+                    damageText += `${result.damage.net} damage`
                 }
                 targetAfterActionText = damageText
+                if (result.damage.absorbed > 0) {
+                    targetAfterActionText += `\n${result.damage.absorbed} Absorbed`
+                }
                 break
             case DegreeOfSuccess.CRITICAL_FAILURE:
                 targetAfterActionText = `CRITICAL MISS!!`
                 break
             case DegreeOfSuccess.SUCCESS:
-                if (result.damageTaken === 0 && result.healingReceived === 0) {
+                if (result.damage.net === 0 && result.healingReceived === 0) {
                     targetAfterActionText = `NO DAMAGE`
-                } else if (result.damageTaken > 0) {
-                    targetAfterActionText = `${result.damageTaken} damage`
+                } else if (result.damage.net > 0) {
+                    targetAfterActionText = `${result.damage.net} damage`
+                }
+                if (result.damage.absorbed > 0) {
+                    targetAfterActionText += `\n${result.damage.absorbed} Absorbed`
                 }
                 break
             default:
@@ -284,6 +290,7 @@ const getAttributeModifierChanges = ({
 
     const attributeTypeToStringMapping: { [t in AttributeType]?: string } = {
         [AttributeType.ARMOR]: "Armor",
+        [AttributeType.ABSORB]: "Absorb",
     }
     const attributeSourceToStringMapping: {
         [t in AttributeSource]?: string
@@ -424,7 +431,7 @@ const outputResultForTextOnly = ({
         const degreeOfSuccessIsCriticalSuccess =
             squaddieChange.actorDegreeOfSuccess ===
             DegreeOfSuccess.CRITICAL_SUCCESS
-        const noDamageTaken = squaddieChange.damageTaken === 0
+        const noDamageTaken = squaddieChange.damage.net === 0
 
         if (targetFoe) {
             switch (true) {
@@ -454,7 +461,7 @@ const outputResultForTextOnly = ({
                         ActionResultTextService.getHinderingActionDealtCriticalDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damageTaken,
+                                damageTaken: squaddieChange.damage.net,
                             }
                         )
                     )
@@ -464,7 +471,7 @@ const outputResultForTextOnly = ({
                         ActionResultTextService.getHinderingActionDealtDamageString(
                             {
                                 squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damageTaken,
+                                damageTaken: squaddieChange.damage.net,
                             }
                         )
                     )
@@ -492,7 +499,6 @@ const outputResultForTextOnly = ({
             })
         )
     })
-
     return output
 }
 

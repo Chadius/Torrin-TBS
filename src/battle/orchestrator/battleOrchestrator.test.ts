@@ -248,6 +248,7 @@ describe("Battle Orchestrator", () => {
         ))() as jest.Mocked<PlayerHudController>
         mockPlayerHudController.recommendStateChanges = jest.fn()
         mockPlayerHudController.reset = jest.fn()
+        mockPlayerHudController.update = jest.fn()
         mockPlayerHudController.uiControlSettings = jest.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: false,
@@ -610,7 +611,7 @@ describe("Battle Orchestrator", () => {
         expect(mockPlayerHudController.reset).toBeCalledTimes(1)
     })
 
-    it("will move from squaddie move mode to phase controller mode", () => {
+    it("will move from squaddie move mode to player hud mode", () => {
         jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
             false
         )
@@ -624,12 +625,12 @@ describe("Battle Orchestrator", () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover)
         orchestrator.update(nullState, mockedP5GraphicsContext)
         expect(orchestrator.getCurrentMode()).toBe(
-            BattleOrchestratorMode.PHASE_CONTROLLER
+            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
-        expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController)
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController)
         orchestrator.update(nullState, mockedP5GraphicsContext)
-        expect(mockPhaseController.update).toBeCalledTimes(1)
-        expect(mockPhaseController.hasCompleted).toBeCalledTimes(1)
+        expect(mockPlayerHudController.recommendStateChanges).toBeCalledTimes(1)
+        expect(mockPlayerHudController.reset).toBeCalledTimes(1)
     })
 
     it("Start in the initialized mode as startup", () => {
@@ -1099,7 +1100,7 @@ describe("Battle Orchestrator", () => {
         expect(orchestrator1.uiControlSettings.displayBattleMap).toBe(true)
     })
 
-    it("will move from squaddie map action mode to phase controller mode", () => {
+    it("will move from squaddie map action mode to player hud mode", () => {
         jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
             false
         )
@@ -1117,9 +1118,9 @@ describe("Battle Orchestrator", () => {
         expect(mockSquaddieUsesActionOnMap.update).toBeCalledTimes(1)
         expect(mockSquaddieUsesActionOnMap.hasCompleted).toBeCalledTimes(1)
         expect(orchestrator.getCurrentMode()).toBe(
-            BattleOrchestratorMode.PHASE_CONTROLLER
+            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         )
-        expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController)
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerHudController)
     })
 
     describe("mouse events", () => {

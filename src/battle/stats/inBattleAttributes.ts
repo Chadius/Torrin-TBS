@@ -6,8 +6,13 @@ import { DamageType } from "../../squaddie/squaddieService"
 import {
     AttributeModifier,
     AttributeModifierService,
+    AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
+import {
+    DamageExplanation,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 
 export interface InBattleAttributes {
     armyAttributes: ArmyAttributes
@@ -31,19 +36,29 @@ export const InBattleAttributesService = {
             attributeModifiers,
         })
     },
-    takeDamage(
-        data: InBattleAttributes,
-        damageToTake: number,
+    takeDamage({
+        inBattleAttributes,
+        damageToTake,
+        damageType,
+    }: {
+        inBattleAttributes: InBattleAttributes
+        damageToTake: number
         damageType: DamageType
-    ): number {
-        const startingHitPoints = data.currentHitPoints
+    }): DamageExplanation {
+        const startingHitPoints = inBattleAttributes.currentHitPoints
+        const absorbedDamageExplanation: DamageExplanation =
+            useAbsorbToReduceDamageTaken(inBattleAttributes, damageToTake)
 
-        data.currentHitPoints -= damageToTake
-        if (data.currentHitPoints < 0) {
-            data.currentHitPoints = 0
+        inBattleAttributes.currentHitPoints -= absorbedDamageExplanation.net
+        if (inBattleAttributes.currentHitPoints < 0) {
+            inBattleAttributes.currentHitPoints = 0
         }
 
-        return startingHitPoints - data.currentHitPoints
+        return {
+            net: startingHitPoints - inBattleAttributes.currentHitPoints,
+            raw: damageToTake,
+            absorbed: absorbedDamageExplanation.absorbed,
+        }
     },
     receiveHealing(data: InBattleAttributes, amountHealed: number): number {
         const startingHitPoints = data.currentHitPoints
@@ -59,7 +74,9 @@ export const InBattleAttributesService = {
         return newAttributeModifier({
             armyAttributes: inBattleAttributes.armyAttributes,
             currentHitPoints: inBattleAttributes.currentHitPoints,
-            attributeModifiers: [...inBattleAttributes.attributeModifiers],
+            attributeModifiers: inBattleAttributes.attributeModifiers.map((a) =>
+                AttributeModifierService.clone(a)
+            ),
         })
     },
     getAllActiveAttributeModifiers: (
@@ -129,6 +146,23 @@ export const InBattleAttributesService = {
         )
         return differences
     },
+    reduceAttributeByAmount({
+        attributes,
+        amount,
+        type,
+    }: {
+        attributes: InBattleAttributes
+        amount: number
+        type: AttributeType
+    }) {
+        const attributesOfType: AttributeModifier[] =
+            getAllActiveAttributeModifiers(attributes).filter(
+                (a) => a.type === type
+            )
+        attributesOfType.forEach((attributeModifier) => {
+            AttributeModifierService.reduceAmount({ attributeModifier, amount })
+        })
+    },
 }
 
 const getAllActiveAttributeModifiers = (
@@ -156,4 +190,39 @@ const newAttributeModifier = ({
             DefaultArmyAttributes().maxHitPoints,
         attributeModifiers: attributeModifiers || [],
     }
+}
+
+const useAbsorbToReduceDamageTaken = (
+    inBattleAttributes: InBattleAttributes,
+    damageToTake: number
+): DamageExplanation => {
+    const absorbAttributeTypeAndAmount =
+        InBattleAttributesService.calculateCurrentAttributeModifiers(
+            inBattleAttributes
+        ).find((a) => a.type === AttributeType.ABSORB)
+
+    if (absorbAttributeTypeAndAmount) {
+        InBattleAttributesService.reduceAttributeByAmount({
+            attributes: inBattleAttributes,
+            type: AttributeType.ABSORB,
+            amount: damageToTake,
+        })
+
+        const explanation: DamageExplanation = DamageExplanationService.new({
+            raw: damageToTake,
+        })
+        if (absorbAttributeTypeAndAmount.amount >= damageToTake) {
+            explanation.absorbed = damageToTake
+            explanation.net = 0
+        } else {
+            explanation.absorbed = absorbAttributeTypeAndAmount.amount
+            explanation.net = damageToTake - absorbAttributeTypeAndAmount.amount
+        }
+        return explanation
+    }
+    return DamageExplanationService.new({
+        raw: damageToTake,
+        net: damageToTake,
+        absorbed: 0,
+    })
 }

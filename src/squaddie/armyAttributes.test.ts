@@ -33,4 +33,13 @@ describe("sanitize", () => {
             defaultAttributes.maxHitPoints
         )
     })
+    it("will use default values if they are not given", () => {
+        const attributes: ArmyAttributes = ArmyAttributesService.new({})
+        expect(attributes.maxHitPoints).toEqual(
+            ArmyAttributesService.default().maxHitPoints
+        )
+        expect(attributes.armorClass).toEqual(
+            ArmyAttributesService.default().armorClass
+        )
+    })
 })

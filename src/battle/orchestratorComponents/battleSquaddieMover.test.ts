@@ -150,6 +150,25 @@ describe("BattleSquaddieMover", () => {
             }),
             campaign: CampaignService.default(),
         })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: "player_1",
+                },
+                action: {
+                    isMovement: true,
+                },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 1, r: 1 },
+                    },
+                },
+            })
+        )
+
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         jest.spyOn(Date, "now").mockImplementation(() => 1)
         mover.update(gameEngineState, mockedP5GraphicsContext)
@@ -225,6 +244,25 @@ describe("BattleSquaddieMover", () => {
             }),
             campaign: CampaignService.default(),
         })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: "player_1",
+                },
+                action: {
+                    isMovement: true,
+                },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 1, r: 1 },
+                    },
+                },
+            })
+        )
+
         const messageSpy: jest.SpyInstance = jest.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
@@ -343,6 +381,25 @@ describe("BattleSquaddieMover", () => {
                     repository: squaddieRepo,
                     resourceHandler: mockResourceHandler,
                 })
+                BattleActionQueueService.add(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue,
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId: "player_1",
+                        },
+                        action: {
+                            isMovement: true,
+                        },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 0 },
+                                endLocation: { q: 1, r: 1 },
+                            },
+                        },
+                    })
+                )
+
                 player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0
 
                 mover = new BattleSquaddieMover()

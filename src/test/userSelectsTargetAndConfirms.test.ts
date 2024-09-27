@@ -68,7 +68,10 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../battle/actionDecision/battleActionDecisionStep"
-import { BattleActionSquaddieChangeService } from "../battle/history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../battle/history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { BattleActionQueueService } from "../battle/history/battleActionQueue"
@@ -343,7 +346,13 @@ describe("User Selects Target and Confirms", () => {
                                                                 {
                                                                     actorDegreeOfSuccess:
                                                                         DegreeOfSuccess.SUCCESS,
-                                                                    damageTaken: 1,
+                                                                    damageExplanation:
+                                                                        DamageExplanationService.new(
+                                                                            {
+                                                                                raw: 1,
+                                                                                net: 1,
+                                                                            }
+                                                                        ),
                                                                     healingReceived: 0,
                                                                     attributesAfter:
                                                                         InBattleAttributesService.new(
@@ -442,7 +451,10 @@ describe("User Selects Target and Confirms", () => {
                 expect(actualBattleAction.effect.squaddie[0]).toEqual(
                     BattleActionSquaddieChangeService.new({
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            raw: 1,
+                            net: 1,
+                        }),
                         healingReceived: 0,
                         attributesAfter: InBattleAttributesService.new({
                             armyAttributes: {

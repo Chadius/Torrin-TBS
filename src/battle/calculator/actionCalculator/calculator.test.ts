@@ -15,7 +15,7 @@ import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchest
 import { BattleSquaddie } from "../../battleSquaddie"
 import {
     MissionStatistics,
-    MissionStatisticsHandler,
+    MissionStatisticsService,
 } from "../../missionStatistics/missionStatistics"
 import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
@@ -304,7 +304,7 @@ describe("calculator", () => {
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
             )
-            expect(enemy1Changes.damageTaken).toBe(2)
+            expect(enemy1Changes.damage.net).toBe(2)
             expect(enemy1Changes.attributesBefore.currentHitPoints).toEqual(5)
             expect(enemy1Changes.attributesAfter.currentHitPoints).toEqual(
                 5 - 2
@@ -340,9 +340,9 @@ describe("calculator", () => {
 
         it("will record the damage dealt by the player to mission statistics", () => {
             const missionStatistics: MissionStatistics =
-                MissionStatisticsHandler.new()
-            MissionStatisticsHandler.reset(missionStatistics)
-            MissionStatisticsHandler.startRecording(missionStatistics)
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
 
             dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
@@ -354,9 +354,9 @@ describe("calculator", () => {
 
         it("will record the damage dealt to the player to mission statistics", () => {
             const missionStatistics: MissionStatistics =
-                MissionStatisticsHandler.new()
-            MissionStatisticsHandler.reset(missionStatistics)
-            MissionStatisticsHandler.startRecording(missionStatistics)
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
 
             dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
@@ -366,6 +366,33 @@ describe("calculator", () => {
             })
 
             expect(missionStatistics.damageTakenByPlayerTeam).toBe(2)
+        })
+
+        it("will record the damage absorbed by the player to mission statistics", () => {
+            const missionStatistics: MissionStatistics =
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
+
+            const absorb1Damage = AttributeModifierService.new({
+                type: AttributeType.ABSORB,
+                amount: 1,
+                source: AttributeSource.CIRCUMSTANCE,
+            })
+            InBattleAttributesService.addActiveAttributeModifier(
+                player1BattleSquaddie.inBattleAttributes,
+                absorb1Damage
+            )
+
+            dealBodyDamage({
+                currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
+                actingBattleSquaddie: enemy1BattleSquaddie,
+                validTargetLocation: { q: 0, r: 0 },
+                missionStatistics,
+            })
+
+            expect(missionStatistics.damageTakenByPlayerTeam).toBe(1)
+            expect(missionStatistics.damageAbsorbedByPlayerTeam).toBe(1)
         })
     })
 
@@ -410,12 +437,13 @@ describe("calculator", () => {
         })
 
         it("will heal allies fully", () => {
-            InBattleAttributesService.takeDamage(
-                ally1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes
-                    .maxHitPoints - 1,
-                DamageType.UNKNOWN
-            )
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: ally1BattleSquaddie.inBattleAttributes,
+                damageToTake:
+                    ally1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints - 1,
+                damageType: DamageType.UNKNOWN,
+            })
 
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
@@ -476,16 +504,17 @@ describe("calculator", () => {
 
         it("will record the healing received by a player to mission statistics", () => {
             const missionStatistics: MissionStatistics =
-                MissionStatisticsHandler.new()
-            MissionStatisticsHandler.reset(missionStatistics)
-            MissionStatisticsHandler.startRecording(missionStatistics)
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
 
-            InBattleAttributesService.takeDamage(
-                player1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes
-                    .maxHitPoints - 1,
-                DamageType.UNKNOWN
-            )
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: player1BattleSquaddie.inBattleAttributes,
+                damageToTake:
+                    ally1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints - 1,
+                damageType: DamageType.UNKNOWN,
+            })
 
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
@@ -697,7 +726,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("will miss if the roll is less than the defender armor class", () => {
@@ -726,7 +755,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
-            expect(enemy1Changes.damageTaken).toBe(0)
+            expect(enemy1Changes.damage.net).toBe(0)
         })
 
         it("will always hit if the action always hits", () => {
@@ -755,7 +784,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("knows when multiple attack penalties should apply", () => {
@@ -824,8 +853,9 @@ describe("calculator", () => {
                                 campaignId: "test campaign",
                                 missionMap,
                                 actionsThisRound,
-                                missionStatistics:
-                                    MissionStatisticsHandler.new(),
+                                missionStatistics: MissionStatisticsService.new(
+                                    {}
+                                ),
                             }),
                         }
                     ),
@@ -896,7 +926,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
-            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount * 2)
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
         it("will critically hit if the roll is 6 and 6", () => {
@@ -925,7 +955,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
-            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount * 2)
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
         it("cannot critically hit if the action is forbidden from critically succeeding", () => {
@@ -962,7 +992,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
-            expect(enemy1Changes.damageTaken).toBe(actionBodyDamageAmount)
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
         })
 
         it("will critically miss if the roll is 6 points or more under the defender armor", () => {
@@ -991,7 +1021,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
-            expect(enemy1Changes.damageTaken).toBe(0)
+            expect(enemy1Changes.damage.net).toBe(0)
         })
 
         it("will critically miss if the roll is 1 and 1", () => {
@@ -1020,7 +1050,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
-            expect(enemy1Changes.damageTaken).toBe(0)
+            expect(enemy1Changes.damage.net).toBe(0)
         })
 
         it("cannot critically fail if the action is forbidden from critically failing", () => {
@@ -1057,7 +1087,7 @@ describe("calculator", () => {
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
-            expect(enemy1Changes.damageTaken).toBe(0)
+            expect(enemy1Changes.damage.net).toBe(0)
         })
     })
 })

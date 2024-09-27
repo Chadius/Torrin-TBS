@@ -152,15 +152,18 @@ export class BattleComputerSquaddieSelector
     }
 
     recommendStateChanges(
-        state: GameEngineState
+        gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode
         if (this.mostRecentDecisionSteps !== undefined) {
             nextMode =
-                ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
-                    state.battleOrchestratorState.battleState.actionsThisRound
+                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionQueue
                 )
-        } else if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
+        } else if (
+            !this.atLeastOneSquaddieOnCurrentTeamCanAct(gameEngineState)
+        ) {
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER
         }
         return {

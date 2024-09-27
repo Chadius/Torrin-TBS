@@ -62,12 +62,20 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
-import { BattleActionActionContextService } from "../history/battleAction"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
+import {
+    BattleActionActionContextService,
+    BattleActionService,
+} from "../history/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
-    let squaddieRepository: ObjectRepository
+    let objectRepository: ObjectRepository
     let squaddieTemplateBase: SquaddieTemplate
     let battleSquaddieBase: BattleSquaddie
     let targetStatic: SquaddieTemplate
@@ -83,7 +91,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        squaddieRepository = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
         ;({
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,
@@ -92,7 +100,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
-            objectRepository: squaddieRepository,
+            objectRepository: objectRepository,
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
@@ -111,7 +119,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 templateId: "target_static_squaddie",
                 battleId: "target_dynamic_squaddie",
                 affiliation: SquaddieAffiliation.ENEMY,
-                objectRepository: squaddieRepository,
+                objectRepository: objectRepository,
                 attributes: {
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
@@ -143,6 +151,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            powerAttackLongswordAction
+        )
 
         attackLongswordAction = ActionTemplateService.new({
             name: "attack longsword",
@@ -162,6 +174,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            attackLongswordAction
+        )
 
         monkKoanAction = ActionTemplateService.new({
             id: "koan",
@@ -176,6 +192,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             ],
         })
+        ObjectRepositoryService.addActionTemplate(
+            objectRepository,
+            monkKoanAction
+        )
 
         jest.spyOn(LabelService, "draw").mockReturnValue(null)
         jest.spyOn(
@@ -251,7 +271,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             campaign: CampaignService.default(),
         })
@@ -268,6 +288,21 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             },
         })
+        BattleActionQueueService.add(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                },
+                action: {
+                    actionTemplateId: monkKoanAction.id,
+                },
+                effect: {
+                    squaddie: [],
+                },
+            })
+        )
 
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
@@ -294,7 +329,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
-                        damageTaken: 9001,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 9001,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         battleSquaddieId: "target_dynamic_squaddie",
@@ -354,10 +391,22 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 recording: battleEventRecording,
             }),
         })
+        BattleActionQueueService.add(
+            battleOrchestratorState.battleState.battleActionQueue,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                },
+                action: {
+                    actionTemplateId: powerAttackLongswordAction.id,
+                },
+                effect: { squaddie: [...results.squaddieChanges] },
+            })
+        )
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             campaign: CampaignService.default(),
         })
@@ -405,7 +454,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: targetDynamicSquaddieBattleSquaddieId,
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
@@ -482,7 +533,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
-            repository: squaddieRepository,
+            repository: objectRepository,
             resourceHandler: mockResourceHandler,
             campaign: CampaignService.default(),
         })
@@ -521,11 +572,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         ).toBeFalsy()
 
-        InBattleAttributesService.takeDamage(
-            targetDynamic.inBattleAttributes,
-            targetStatic.attributes.maxHitPoints,
-            DamageType.BODY
-        )
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes: targetDynamic.inBattleAttributes,
+            damageToTake: targetStatic.attributes.maxHitPoints,
+            damageType: DamageType.BODY,
+        })
         expect(
             IsSquaddieAlive({
                 battleSquaddie: targetDynamic,
@@ -759,12 +810,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 "update"
             )
             .mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest
-            .spyOn(
-                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
-                "reset"
-            )
-            .mockImplementation()
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
@@ -792,13 +837,40 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         ).toBeCalled()
         expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy()
 
+        squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockRestore()
+        squaddieTargetsOtherSquaddiesAnimatorUpdateSpy.mockRestore()
+    })
+
+    it("recommends the player hud when the battle action queue is empty ", () => {
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
+
+        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest
+            .spyOn(
+                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                "reset"
+            )
+            .mockImplementation()
+
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
+        expect(
+            squaddieUsesActionOnSquaddie.squaddieActionAnimator
+        ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
+
+        gameEngineState.battleOrchestratorState.battleState.battleActionQueue =
+            BattleActionQueueService.new()
         const stateChanges =
-            squaddieUsesActionOnSquaddie.recommendStateChanges(state)
-        expect(stateChanges.nextMode).toBeUndefined()
+            squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+        expect(stateChanges.nextMode).toEqual(
+            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+        )
         expect(stateChanges.displayMap).toBeTruthy()
 
-        squaddieUsesActionOnSquaddie.reset(state)
+        squaddieUsesActionOnSquaddie.reset(gameEngineState)
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled()
+        squaddieTargetsOtherSquaddiesAnimatorResetSpy.mockRestore()
     })
 
     it("uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes", () => {

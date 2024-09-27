@@ -90,6 +90,33 @@ const HIT_POINTS_STYLE = {
     },
 }
 
+const ABSORB_HIT_POINTS_STYLE = {
+    topOffset: 70 - WINDOW_SPACING.SPACING1,
+    text: {
+        height: 12,
+        color: {
+            saturation: 7,
+            brightness: 96,
+        },
+    },
+    bar: {
+        height: 25 + WINDOW_SPACING.SPACING2,
+        width: 25 + WINDOW_SPACING.SPACING2,
+        left:
+            (2 * ScreenDimensions.SCREEN_WIDTH) / 12 - WINDOW_SPACING.SPACING2,
+        foregroundFillColor: {
+            saturation: 70,
+            brightness: 80,
+        },
+        colors: {
+            strokeColor: { hsb: [0, 0, 12] },
+            foregroundFillColor: { hsb: [0, 0, 0] },
+            backgroundFillColor: { hsb: [0, 0, 32] },
+        },
+        strokeWeight: 2,
+    },
+}
+
 const SQUADDIE_ID_STYLE = {
     topOffset: 8,
     bottomOffset: 40,
@@ -422,17 +449,41 @@ const createSquaddieIdUIElements = (
     })
 }
 
-const createHitPointsUIElements = (
+const createHitPointDescription = (
     squaddieTemplate: SquaddieTemplate,
-    battleSquaddie: BattleSquaddie,
-    squaddieSummaryPopover: SquaddieSummaryPopover
+    battleSquaddie: BattleSquaddie
 ) => {
     const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
         squaddieTemplate,
         battleSquaddie,
     })
+    let descriptionString = `HP: ${currentHitPoints} / ${maxHitPoints}`
+    const absorbAmount: number =
+        InBattleAttributesService.calculateCurrentAttributeModifiers(
+            battleSquaddie.inBattleAttributes
+        ).find(
+            (attributeTypeAndAmount) =>
+                attributeTypeAndAmount.type === AttributeType.ABSORB
+        )?.amount
+    if (absorbAmount) {
+        descriptionString += ` (+${absorbAmount} Absorb)`
+    }
+    return {
+        currentHitPoints,
+        maxHitPoints,
+        absorbAmount,
+        descriptionString,
+    }
+}
+const createHitPointsUIElements = (
+    squaddieTemplate: SquaddieTemplate,
+    battleSquaddie: BattleSquaddie,
+    squaddieSummaryPopover: SquaddieSummaryPopover
+) => {
+    const { descriptionString: hitPointDescriptionString } =
+        createHitPointDescription(squaddieTemplate, battleSquaddie)
     squaddieSummaryPopover.hitPointsTextBox = TextBoxService.new({
-        text: `HP: ${currentHitPoints} / ${maxHitPoints}`,
+        text: hitPointDescriptionString,
         textSize: HIT_POINTS_STYLE.text.height,
         fontColor: [
             HUE_BY_SQUADDIE_AFFILIATION[
@@ -602,6 +653,51 @@ const drawActionPoints = (
     })
 }
 
+const drawAbsorbIndicator = ({
+    affiliation,
+    graphicsContext,
+    squaddieSummaryPopover,
+}: {
+    affiliation: SquaddieAffiliation
+    graphicsContext: GraphicsBuffer
+    squaddieSummaryPopover: SquaddieSummaryPopover
+}) => {
+    const barFillColor = {
+        hsb: [
+            HUE_BY_SQUADDIE_AFFILIATION[affiliation] ||
+                HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
+            ABSORB_HIT_POINTS_STYLE.bar.foregroundFillColor.saturation,
+            ABSORB_HIT_POINTS_STYLE.bar.foregroundFillColor.brightness,
+        ],
+    }
+
+    const colors = {
+        ...ABSORB_HIT_POINTS_STYLE.bar.colors,
+        foregroundFillColor: barFillColor,
+    }
+
+    graphicsContext.push()
+    graphicsContext.stroke(
+        colors.strokeColor.hsb[0],
+        colors.strokeColor.hsb[1],
+        colors.strokeColor.hsb[2]
+    )
+    graphicsContext.fill(
+        colors.foregroundFillColor.hsb[0],
+        colors.foregroundFillColor.hsb[1],
+        colors.foregroundFillColor.hsb[2]
+    )
+    graphicsContext.strokeWeight(2)
+    graphicsContext.rect(
+        squaddieSummaryPopover.windowArea.left +
+            ABSORB_HIT_POINTS_STYLE.bar.left,
+        squaddieSummaryPopover.windowArea.top +
+            ABSORB_HIT_POINTS_STYLE.topOffset,
+        ABSORB_HIT_POINTS_STYLE.bar.width,
+        ABSORB_HIT_POINTS_STYLE.bar.height
+    )
+    graphicsContext.pop()
+}
 const drawHitPoints = (
     squaddieSummaryPopover: SquaddieSummaryPopover,
     gameEngineState: GameEngineState,
@@ -613,10 +709,9 @@ const drawHitPoints = (
             squaddieSummaryPopover.battleSquaddieId
         )
     )
-    const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
-        squaddieTemplate,
-        battleSquaddie,
-    })
+
+    const { currentHitPoints, maxHitPoints, absorbAmount } =
+        createHitPointDescription(squaddieTemplate, battleSquaddie)
 
     const barFillColor = {
         hsb: [
@@ -648,6 +743,14 @@ const drawHitPoints = (
             foregroundFillColor: barFillColor,
         },
     })
+
+    if (absorbAmount) {
+        drawAbsorbIndicator({
+            affiliation: squaddieTemplate.squaddieId.affiliation,
+            graphicsContext,
+            squaddieSummaryPopover,
+        })
+    }
 }
 
 const changePopoverPosition = ({
@@ -765,10 +868,15 @@ const updateAttributeModifierIcons = ({
             battleSquaddie.inBattleAttributes
         )
 
+    const attributesThatShouldBeRendered: AttributeTypeAndAmount[] =
+        calculatedAttributeTypeAndAmount.filter(
+            (a) => a.type !== AttributeType.ABSORB
+        )
+
     const getCalculatedAttributeTypeByIconDisplay = (
         attributeIconDisplay: AttributeIconDisplay
     ) =>
-        calculatedAttributeTypeAndAmount.find(
+        attributesThatShouldBeRendered.find(
             (a) => a.type === attributeIconDisplay.type
         )
 
@@ -779,7 +887,7 @@ const updateAttributeModifierIcons = ({
                 undefined
         )
 
-    const missingAttributeIcons = calculatedAttributeTypeAndAmount.filter(
+    const missingAttributeIcons = attributesThatShouldBeRendered.filter(
         (modifier) =>
             getExistingAttributeModifierDrawIndex(
                 squaddieSummaryPopover,

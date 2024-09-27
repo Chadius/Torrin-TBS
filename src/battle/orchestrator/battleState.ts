@@ -17,7 +17,7 @@ import { Recording } from "../history/recording"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import {
     MissionStatistics,
-    MissionStatisticsHandler,
+    MissionStatisticsService,
 } from "../missionStatistics/missionStatistics"
 import { MissionCutsceneCollection } from "./missionCutsceneCollection"
 import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
@@ -241,7 +241,8 @@ const newBattleState = ({
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
         recording: recording || { history: [] },
-        missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
+        missionStatistics:
+            missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,

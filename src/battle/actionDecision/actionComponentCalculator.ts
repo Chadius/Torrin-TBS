@@ -4,12 +4,12 @@ import {
 } from "./battleActionDecisionStep"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../history/actionsThisRound"
 import { ActionDecisionType } from "../../action/template/actionTemplate"
+import {
+    BattleActionQueue,
+    BattleActionQueueService,
+} from "../history/battleActionQueue"
+import { BattleAction } from "../history/battleAction"
 
 export const ActionComponentCalculator = {
     getNextOrchestratorComponentMode: (
@@ -53,26 +53,25 @@ export const ActionComponentCalculator = {
 
         return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
     },
-    getNextModeBasedOnActionsThisRound: (
-        actionsThisRound: ActionsThisRound
+    getNextModeBasedOnBattleActionQueue: (
+        battleActionQueue: BattleActionQueue
     ): BattleOrchestratorMode => {
-        const processedActionEffect =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                actionsThisRound
-            )
-        if (!isValidValue(processedActionEffect)) {
-            return undefined
+        if (BattleActionQueueService.isEmpty(battleActionQueue)) {
+            return BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         }
 
-        switch (processedActionEffect.type) {
-            case ActionEffectType.SQUADDIE:
+        const nextBattleAction: BattleAction =
+            BattleActionQueueService.peek(battleActionQueue)
+
+        switch (true) {
+            case !!nextBattleAction.action.actionTemplateId:
                 return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
-            case ActionEffectType.MOVEMENT:
+            case nextBattleAction.action.isMovement:
                 return BattleOrchestratorMode.SQUADDIE_MOVER
-            case ActionEffectType.END_TURN:
+            case nextBattleAction.action.isEndTurn:
                 return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             default:
-                return undefined
+                return BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         }
     },
     getPendingActionDecisions: (

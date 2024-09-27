@@ -67,10 +67,11 @@ export class BattleSquaddieUsesActionOnMap
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
+                    .battleActionQueue
             )
+
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
             gameEngineState
         )
@@ -93,26 +94,27 @@ export class BattleSquaddieUsesActionOnMap
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ): void {
-        if (this.animationCompleteStartTime !== undefined) {
-            if (animationTimeHasExpired(this.animationCompleteStartTime)) {
-                BattleActionService.setAnimationCompleted({
-                    battleAction: BattleActionQueueService.peek(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
-                    ),
-                    animationCompleted: true,
-                })
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                    gameEngineState,
-                })
-            }
+        if (this.animationCompleteStartTime === undefined) {
+            this.animationCompleteStartTime = Date.now()
+        }
+
+        if (!animationTimeHasExpired(this.animationCompleteStartTime)) {
             return
         }
 
-        const battleSquaddieId =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+        BattleActionService.setAnimationCompleted({
+            battleAction: BattleActionQueueService.peek(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            ),
+            animationCompleted: true,
+        })
+
+        const battleSquaddieId = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        ).actor.actorBattleSquaddieId
+
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
@@ -132,7 +134,11 @@ export class BattleSquaddieUsesActionOnMap
             squaddieTemplate,
             gameEngineState.repository
         )
-        this.animationCompleteStartTime = Date.now()
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
     }
 }
 

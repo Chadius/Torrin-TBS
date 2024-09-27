@@ -23,6 +23,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -119,26 +120,15 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
         mapAction.update(gameEngineState, mockedP5GraphicsContext)
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
-
-        const stateChanges = mapAction.recommendStateChanges(gameEngineState)
-        expect(stateChanges.nextMode).toBeUndefined()
-        expect(stateChanges.displayMap).toBeTruthy()
-
-        mapAction.reset(gameEngineState)
-        expect(mapAction.animationCompleteStartTime).toBeUndefined()
-        expect(
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
-        ).toBeFalsy()
     })
 
-    it("sets the next mode as undefined", () => {
-        dateSpy.mockImplementation(() => 500)
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
-
+    it("will go to player hud controller if there are no more actions queued", () => {
+        gameEngineState.battleOrchestratorState.battleState.battleActionQueue =
+            BattleActionQueueService.new()
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
-        expect(stateChanges.nextMode).toBeUndefined()
+        expect(stateChanges.nextMode).toEqual(
+            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
+        )
         expect(stateChanges.displayMap).toBeTruthy()
 
         mapAction.reset(gameEngineState)

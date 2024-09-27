@@ -14,7 +14,8 @@ import {
 } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../../../battle/battleSquaddie"
 import { AddPathConditionSquaddieAffiliation } from "./addPathConditionSquaddieAffiliation"
-import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
+import { DamageType } from "../../../squaddie/squaddieService"
+import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
 
 describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     it("returns true if squaddies are friendly, false if they are not", () => {
@@ -182,10 +183,10 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                         r: 2,
                     },
                 })
-                SquaddieService.dealDamageToTheSquaddie({
-                    squaddieTemplate: blockingSquaddieTemplate,
-                    battleSquaddie: blockingSquaddieBattle,
-                    damage: 9001,
+                InBattleAttributesService.takeDamage({
+                    inBattleAttributes:
+                        blockingSquaddieBattle.inBattleAttributes,
+                    damageToTake: 9001,
                     damageType: DamageType.UNKNOWN,
                 })
 

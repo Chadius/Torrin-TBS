@@ -15,7 +15,10 @@ import { BattleEvent, BattleEventService } from "./battleEvent"
 import { MissionMap } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
-import { MissionStatistics } from "../missionStatistics/missionStatistics"
+import {
+    MissionStatistics,
+    MissionStatisticsService,
+} from "../missionStatistics/missionStatistics"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import {
     SquaddieTemplate,
@@ -43,7 +46,10 @@ import { BattleStateService } from "../orchestrator/battleState"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ActionsThisRound, ActionsThisRoundService } from "./actionsThisRound"
-import { BattleActionSquaddieChangeService } from "./battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "./battleActionSquaddieChange"
 import { BattleActionActionContextService } from "./battleAction"
 import { SquaddieSquaddieResultsService } from "./squaddieSquaddieResults"
 import {
@@ -82,13 +88,17 @@ describe("BattleSaveState", () => {
                 squaddieChanges: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "target 0",
-                        damageTaken: 2,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 2,
+                        }),
                         healingReceived: 0,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "target 0",
-                        damageTaken: 1,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                        }),
                         healingReceived: 3,
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
@@ -104,12 +114,12 @@ describe("BattleSaveState", () => {
         })
         eventRecording0.history.push(firstBattleEvent)
 
-        missionStatistics = {
+        missionStatistics = MissionStatisticsService.new({
             timeElapsedInMilliseconds: 9001,
             damageDealtByPlayerTeam: 42,
             damageTakenByPlayerTeam: 101,
             healingReceivedByPlayerTeam: 314,
-        }
+        })
 
         const player0SquaddieTemplate: SquaddieTemplate =
             SquaddieTemplateService.new({
@@ -192,11 +202,12 @@ describe("BattleSaveState", () => {
             originalSquaddieRepository,
             enemy0BattleSquaddieWithWoundsAndTurnEnded
         )
-        InBattleAttributesService.takeDamage(
-            enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
-            1,
-            DamageType.UNKNOWN
-        )
+        InBattleAttributesService.takeDamage({
+            inBattleAttributes:
+                enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes,
+            damageToTake: 1,
+            damageType: DamageType.UNKNOWN,
+        })
 
         newSquaddieRepository = ObjectRepositoryService.new()
         ObjectRepositoryService.addSquaddieTemplate(

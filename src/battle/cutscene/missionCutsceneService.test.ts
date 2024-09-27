@@ -44,7 +44,10 @@ import {
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { ProcessedActionService } from "../../action/processed/processedAction"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 import { BattleActionActionContextService } from "../history/battleAction"
 
 describe("Mission Cutscene Service", () => {
@@ -461,7 +464,9 @@ describe("Mission Cutscene Service", () => {
                 targetWasInjuredResult.squaddieChanges.push(
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: injuredBattleSquaddieId,
-                        damageTaken: 2,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 2,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     })
                 )
@@ -487,7 +492,9 @@ describe("Mission Cutscene Service", () => {
                 targetWasInjuredResult.squaddieChanges.push(
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: injuredBattleSquaddieId,
-                        damageTaken: 2,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 2,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     })
                 )
@@ -530,7 +537,9 @@ describe("Mission Cutscene Service", () => {
                 targetWasInjuredResult.squaddieChanges.push(
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "different squaddie id",
-                        damageTaken: 2,
+                        damageExplanation: DamageExplanationService.new({
+                            net: 2,
+                        }),
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     })
                 )
@@ -609,7 +618,11 @@ describe("Mission Cutscene Service", () => {
                         targetWasInjuredResult.squaddieChanges.push(
                             BattleActionSquaddieChangeService.new({
                                 battleSquaddieId: injuredBattleSquaddieId,
-                                damageTaken: 2,
+                                damageExplanation: DamageExplanationService.new(
+                                    {
+                                        net: 2,
+                                    }
+                                ),
                                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                             })
                         )

@@ -453,6 +453,23 @@ describe("User ends their turn", () => {
                 }),
                 campaign: CampaignService.default(),
             })
+            BattleActionQueueService.add(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue,
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerBattleSquaddie.battleSquaddieId,
+                    },
+                    action: {
+                        isEndTurn: true,
+                    },
+                    effect: {
+                        endTurn: true,
+                    },
+                })
+            )
+
             BattleSquaddieService.endTurn(playerBattleSquaddie)
             tintSpy = jest.spyOn(
                 DrawSquaddieUtilities,

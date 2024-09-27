@@ -358,7 +358,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     (change) => change.battleSquaddieId === battleId
                 )
                 displayedHitPointsBeforeChange -= change.healingReceived
-                displayedHitPointsBeforeChange += change.damageTaken
+                displayedHitPointsBeforeChange += change.damage.net
 
                 this._targetHitPointMeters[battleId] = new HitPointMeter({
                     currentHitPoints: displayedHitPointsBeforeChange,
@@ -447,7 +447,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 (change) => change.battleSquaddieId === battleId
             )
             const hitPointChange: number =
-                change.healingReceived - change.damageTaken
+                change.healingReceived - change.damage.net
             hitPointMeter.changeHitPoints(hitPointChange)
         })
     }

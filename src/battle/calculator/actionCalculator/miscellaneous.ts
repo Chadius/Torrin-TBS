@@ -17,6 +17,7 @@ import {
     AttributeTypeAndAmount,
 } from "../../../squaddie/attributeModifier"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
+import { DamageExplanationService } from "../../history/battleActionSquaddieChange"
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({
@@ -138,7 +139,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 
     return {
         attributeModifiersToAddToTarget,
-        damageDealt: 0,
+        damage: DamageExplanationService.new({}),
         degreeOfSuccess,
         healingReceived,
     }

@@ -12,27 +12,9 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
+import { DamageExplanation } from "../battle/history/battleActionSquaddieChange"
 
 export const SquaddieService = {
-    dealDamageToTheSquaddie: ({
-        squaddieTemplate,
-        battleSquaddie,
-        damage,
-        damageType,
-    }: {
-        squaddieTemplate: SquaddieTemplate
-        battleSquaddie: BattleSquaddie
-        damage: number
-        damageType: DamageType
-    }): {
-        damageTaken: number
-    } => {
-        return dealDamageToTheSquaddie({
-            inBattleAttributes: battleSquaddie.inBattleAttributes,
-            damage,
-            damageType,
-        })
-    },
     calculateDealtDamageToTheSquaddie: ({
         battleSquaddie,
         damage,
@@ -42,14 +24,12 @@ export const SquaddieService = {
         battleSquaddie: BattleSquaddie
         damage: number
         damageType: DamageType
-    }): {
-        damageTaken: number
-    } => {
+    }): DamageExplanation => {
         const clonedInBattleAttributes: InBattleAttributes =
             InBattleAttributesService.clone(battleSquaddie.inBattleAttributes)
-        return dealDamageToTheSquaddie({
+        return InBattleAttributesService.takeDamage({
             inBattleAttributes: clonedInBattleAttributes,
-            damage,
+            damageToTake: damage,
             damageType,
         })
     },
@@ -229,28 +209,6 @@ export enum DamageType {
 export enum HealingType {
     UNKNOWN = "UNKNOWN",
     LOST_HIT_POINTS = "LOST_HIT_POINTS",
-}
-
-const dealDamageToTheSquaddie = ({
-    inBattleAttributes,
-    damage,
-    damageType,
-}: {
-    inBattleAttributes: InBattleAttributes
-    damage: number
-    damageType: DamageType
-}): {
-    damageTaken: number
-} => {
-    const actualHitPointLoss: number = InBattleAttributesService.takeDamage(
-        inBattleAttributes,
-        damage,
-        damageType
-    )
-
-    return {
-        damageTaken: actualHitPointLoss,
-    }
 }
 
 const giveHealingToTheSquaddie = ({

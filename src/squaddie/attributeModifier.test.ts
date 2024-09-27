@@ -83,6 +83,56 @@ describe("AttributeModifier", () => {
             AttributeModifierService.isActive(armorModifierFor1Use)
         ).toBeFalsy()
     })
+    it("Can decrement the amount", () => {
+        const absorbModifierFor3Amount = AttributeModifierService.new({
+            type: AttributeType.ABSORB,
+            source: AttributeSource.CIRCUMSTANCE,
+            amount: 3,
+        })
+
+        AttributeModifierService.reduceAmount({
+            attributeModifier: absorbModifierFor3Amount,
+            amount: 2,
+        })
+        expect(
+            AttributeModifierService.isActive(absorbModifierFor3Amount)
+        ).toBeTruthy()
+        expect(absorbModifierFor3Amount.amount).toEqual(1)
+
+        AttributeModifierService.reduceAmount({
+            attributeModifier: absorbModifierFor3Amount,
+        })
+        expect(absorbModifierFor3Amount.amount).toEqual(0)
+        expect(
+            AttributeModifierService.isActive(absorbModifierFor3Amount)
+        ).toBeFalsy()
+    })
+    describe("expect some attribute types to be inactive when amount is 0", () => {
+        const tests = [
+            {
+                type: AttributeType.ARMOR,
+                shouldBeActive: true,
+            },
+            {
+                type: AttributeType.ABSORB,
+                shouldBeActive: false,
+            },
+        ]
+
+        it.each(tests)(
+            `$type should be: $shouldBeInactive`,
+            ({ type, shouldBeActive }) => {
+                const attributeModifier = AttributeModifierService.new({
+                    type,
+                    amount: 0,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+                expect(
+                    AttributeModifierService.isActive(attributeModifier)
+                ).toEqual(shouldBeActive)
+            }
+        )
+    })
     it("Ignores decrements if duration or uses are not applicable", () => {
         const unlimitedModifier = AttributeModifierService.new({
             type: AttributeType.ARMOR,
@@ -124,7 +174,7 @@ describe("AttributeModifier", () => {
                     description: "Magic Armor Plating",
                 })
                 tempHitPointCircumstance = AttributeModifierService.new({
-                    type: AttributeType.TEMPORARY_HIT_POINTS,
+                    type: AttributeType.ABSORB,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 3,
                     description: "Inspirational Speech",
@@ -245,7 +295,7 @@ describe("AttributeModifier", () => {
                             amount: armorCircumstance.amount,
                         },
                         {
-                            type: AttributeType.TEMPORARY_HIT_POINTS,
+                            type: AttributeType.ABSORB,
                             amount: tempHitPointCircumstance.amount,
                         },
                     ])

@@ -25,6 +25,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { BattleActionQueueService } from "../history/battleActionQueue"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -104,10 +105,11 @@ export class BattleSquaddieUsesActionOnSquaddie
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnActionsThisRound(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
+                    .battleActionQueue
             )
+
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
             gameEngineState
         )
@@ -142,12 +144,19 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
         if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
             this.hideDeadSquaddies(gameEngineState)
+            const battleSquaddieId = BattleActionQueueService.peek(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionQueue
+            ).actor.actorBattleSquaddieId
 
+            if (!battleSquaddieId) {
+                this.sawResultAftermath = true
+                return
+            }
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository,
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.battleSquaddieId
+                    battleSquaddieId
                 )
             )
             DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
@@ -178,30 +187,29 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.sawResultAftermath = false
     }
 
-    private hideDeadSquaddies(state: GameEngineState) {
-        const mostRecentResults = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
-        ).results
-        mostRecentResults.targetedBattleSquaddieIds.forEach(
-            (battleSquaddieId) => {
-                const { battleSquaddie, squaddieTemplate } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            state.repository,
-                            battleSquaddieId
-                        )
-                    )
-                if (!IsSquaddieAlive({ battleSquaddie, squaddieTemplate })) {
-                    state.battleOrchestratorState.battleState.missionMap.hideSquaddieFromDrawing(
-                        battleSquaddieId
-                    )
-                    state.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
-                        battleSquaddieId,
-                        undefined
-                    )
-                }
-            }
+    private hideDeadSquaddies(gameEngineState: GameEngineState) {
+        const recentBattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
         )
+        const mostRecentResults = recentBattleAction.effect.squaddie
+        mostRecentResults.forEach((result) => {
+            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    result.battleSquaddieId
+                )
+            )
+            if (!IsSquaddieAlive({ battleSquaddie, squaddieTemplate })) {
+                gameEngineState.battleOrchestratorState.battleState.missionMap.hideSquaddieFromDrawing(
+                    result.battleSquaddieId
+                )
+                gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+                    result.battleSquaddieId,
+                    undefined
+                )
+            }
+        })
     }
 
     private setSquaddieActionAnimatorBasedOnAction(
@@ -220,7 +228,7 @@ export class BattleSquaddieUsesActionOnSquaddie
                 state.battleState.actionsThisRound
             )
 
-        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
+        if (processedActionEffectToShow?.type !== ActionEffectType.SQUADDIE) {
             return
         }
 
@@ -247,7 +255,7 @@ const generateMessagesBasedOnSquaddieSquaddieResults = (
     if (actionEffectJustShown?.type === ActionEffectType.SQUADDIE) {
         const damagedBattleSquaddieIds: string[] =
             actionEffectJustShown.results.squaddieChanges
-                .filter((change) => change.damageTaken > 0)
+                .filter((change) => change.damage.net > 0)
                 .map((change) => change.battleSquaddieId)
         if (gameEngineState.messageBoard) {
             gameEngineState.messageBoard.sendMessage({

@@ -3,7 +3,7 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { DamageType } from "../../../squaddie/squaddieService"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { MissionStatisticsHandler } from "../../missionStatistics/missionStatistics"
+import { MissionStatisticsService } from "../../missionStatistics/missionStatistics"
 import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
@@ -22,6 +22,8 @@ import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
+    DamageExplanation,
+    DamageExplanationService,
 } from "../../history/battleActionSquaddieChange"
 import { BattleActionActionContext } from "../../history/battleAction"
 import {
@@ -37,7 +39,7 @@ import { ActionTemplate } from "../../../action/template/actionTemplate"
 import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
 
 export interface CalculatedEffect {
-    damageDealt: number
+    damage: DamageExplanation
     healingReceived: number
     attributeModifiersToAddToTarget: AttributeModifier[]
     degreeOfSuccess: DegreeOfSuccess
@@ -286,11 +288,12 @@ const applyCalculatedEffectAndReturnChange = ({
         targetBattleSquaddieId: targetedBattleSquaddieId,
     })
 
-    InBattleAttributesService.takeDamage(
-        targetedBattleSquaddie.inBattleAttributes,
-        calculatedEffect.damageDealt,
-        DamageType.UNKNOWN
-    )
+    InBattleAttributesService.takeDamage({
+        inBattleAttributes: targetedBattleSquaddie.inBattleAttributes,
+        damageToTake: calculatedEffect.damage.raw,
+        damageType: DamageType.UNKNOWN,
+    })
+
     InBattleAttributesService.receiveHealing(
         targetedBattleSquaddie.inBattleAttributes,
         calculatedEffect.healingReceived
@@ -310,7 +313,11 @@ const applyCalculatedEffectAndReturnChange = ({
     return BattleActionSquaddieChangeService.new({
         battleSquaddieId: targetedBattleSquaddieId,
         healingReceived: calculatedEffect.healingReceived,
-        damageTaken: calculatedEffect.damageDealt,
+        damageExplanation: DamageExplanationService.new({
+            raw: calculatedEffect.damage.raw,
+            absorbed: calculatedEffect.damage.absorbed,
+            net: calculatedEffect.damage.net,
+        }),
         actorDegreeOfSuccess: calculatedEffect.degreeOfSuccess,
         attributesBefore: changes.attributesBefore,
         attributesAfter: changes.attributesAfter,
@@ -334,21 +341,26 @@ const maybeUpdateMissionStatistics = ({
             )
         )
     const healingReceived: number = result.healingReceived
-    const damageDealt: number = result.damageTaken
+    const damageDealt: number = result.damage.net
 
     if (
         targetedSquaddieTemplate.squaddieId.affiliation ===
         SquaddieAffiliation.PLAYER
     ) {
-        MissionStatisticsHandler.addHealingReceivedByPlayerTeam(
+        MissionStatisticsService.addHealingReceivedByPlayerTeam(
             gameEngineState.battleOrchestratorState.battleState
                 .missionStatistics,
             healingReceived
         )
-        MissionStatisticsHandler.addDamageTakenByPlayerTeam(
+        MissionStatisticsService.addDamageTakenByPlayerTeam(
             gameEngineState.battleOrchestratorState.battleState
                 .missionStatistics,
             damageDealt
+        )
+        MissionStatisticsService.addDamageAbsorbedByPlayerTeam(
+            gameEngineState.battleOrchestratorState.battleState
+                .missionStatistics,
+            result.damage.absorbed
         )
     }
 
@@ -362,7 +374,7 @@ const maybeUpdateMissionStatistics = ({
         actingSquaddieTemplate.squaddieId.affiliation ===
         SquaddieAffiliation.PLAYER
     ) {
-        MissionStatisticsHandler.addDamageDealtByPlayerTeam(
+        MissionStatisticsService.addDamageDealtByPlayerTeam(
             gameEngineState.battleOrchestratorState.battleState
                 .missionStatistics,
             damageDealt
@@ -411,14 +423,16 @@ const getBattleActionSquaddieChange = ({
             targetBattleSquaddieId
         )
     )
-    return {
+    return BattleActionSquaddieChangeService.new({
         battleSquaddieId: targetBattleSquaddieId,
         attributesBefore: InBattleAttributesService.clone(
             battleSquaddie.inBattleAttributes
         ),
         attributesAfter: undefined,
-        damageTaken: 0,
+        damageExplanation: DamageExplanationService.new({
+            net: 0,
+        }),
         healingReceived: 0,
         actorDegreeOfSuccess: DegreeOfSuccess.NONE,
-    }
+    })
 }

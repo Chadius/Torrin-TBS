@@ -98,7 +98,10 @@ import {
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -1682,7 +1685,13 @@ describe("Battle HUD", () => {
                                                     {
                                                         actorDegreeOfSuccess:
                                                             DegreeOfSuccess.SUCCESS,
-                                                        damageTaken: 2,
+                                                        damageExplanation:
+                                                            DamageExplanationService.new(
+                                                                {
+                                                                    raw: 2,
+                                                                    net: 2,
+                                                                }
+                                                            ),
                                                         healingReceived: 0,
                                                         attributesAfter:
                                                             InBattleAttributesService.new(
@@ -1795,7 +1804,7 @@ describe("Battle HUD", () => {
                     action: { actionTemplateId: longswordAction.id },
                     effect: {
                         squaddie: [
-                            {
+                            BattleActionSquaddieChangeService.new({
                                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                                 attributesAfter: {
                                     ...InBattleAttributesService.new({}),
@@ -1805,9 +1814,14 @@ describe("Battle HUD", () => {
                                     {}
                                 ),
                                 battleSquaddieId: "Thief 0",
-                                damageTaken: 2,
+                                damageExplanation: DamageExplanationService.new(
+                                    {
+                                        raw: 2,
+                                        net: 2,
+                                    }
+                                ),
                                 healingReceived: 0,
-                            },
+                            }),
                         ],
                     },
                     animation: {
@@ -1913,7 +1927,7 @@ describe("Battle HUD", () => {
                     longswordAction
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
                 ).damageDescriptions.BODY
-                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(
+                expect(knightUsesLongswordOnThiefResults.damage.net).toBe(
                     longswordActionDamage
                 )
 
