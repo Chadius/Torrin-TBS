@@ -55,20 +55,6 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         )
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera()
 
-        if (
-            !gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.showSummaryHUD
-        ) {
-            return
-        }
-        SummaryHUDStateService.draw({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            graphicsBuffer: graphics,
-            gameEngineState,
-        })
-
         FileAccessHUDService.updateBasedOnGameEngineState(
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             gameEngineState
@@ -81,6 +67,21 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             graphics
         )
+
+        if (
+            !gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState?.showSummaryHUD
+        ) {
+            return
+        }
+
+        SummaryHUDStateService.draw({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            graphicsBuffer: graphics,
+            gameEngineState,
+        })
     }
 
     hasCompleted(state: GameEngineState): boolean {
@@ -123,103 +124,133 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }
 
     moveCameraBasedOnMouseMovement(
-        state: BattleOrchestratorState,
+        battleOrchestraState: BattleOrchestratorState,
         mouseX: number,
         mouseY: number
     ) {
-        if (state.battleState.camera.isPanning()) {
+        if (battleOrchestraState.battleState.camera.isPanning()) {
             return
         }
 
         if (
-            state.battleHUDState.summaryHUDState?.showSummaryHUD &&
+            battleOrchestraState.battleHUDState.summaryHUDState
+                ?.showSummaryHUD &&
             SummaryHUDStateService.isMouseHoveringOver({
-                summaryHUDState: state.battleHUDState.summaryHUDState,
+                summaryHUDState:
+                    battleOrchestraState.battleHUDState.summaryHUDState,
                 mouseSelectionLocation: {
                     x: mouseX,
                     y: mouseY,
                 },
             })
         ) {
-            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
-                state.battleState.camera.setXVelocity(-5)
-            }
-            if (
-                mouseX >
-                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]
-            ) {
-                state.battleState.camera.setXVelocity(5)
-            }
-
+            this.moveCameraWhenMouseIsOverSummaryHUD(
+                mouseX,
+                battleOrchestraState
+            )
             return
         }
+        this.changeCameraHorizontalSpeedBasedOnMousePositionOnScreen(
+            mouseX,
+            battleOrchestraState
+        )
+        this.changeCameraVerticalSpeedBasedOnMousePositionOnScreen(
+            mouseY,
+            battleOrchestraState
+        )
+        this.stopCameraIfMouseIsOffscreen(mouseX, mouseY, battleOrchestraState)
+    }
 
-        if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[0]) {
-            state.battleState.camera.setXVelocity(-1)
-            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
-                state.battleState.camera.setXVelocity(-5)
-            }
-            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[2]) {
-                state.battleState.camera.setXVelocity(-10)
-            }
-        } else if (
-            mouseX >
-            ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[0]
-        ) {
-            state.battleState.camera.setXVelocity(1)
-            if (
-                mouseX >
-                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[1]
-            ) {
-                state.battleState.camera.setXVelocity(5)
-            }
-            if (
-                mouseX >
-                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]
-            ) {
-                state.battleState.camera.setXVelocity(10)
-            }
-        } else {
-            state.battleState.camera.setXVelocity(0)
-        }
-
-        if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[0]) {
-            state.battleState.camera.setYVelocity(-1)
-            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[1]) {
-                state.battleState.camera.setYVelocity(-5)
-            }
-            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[2]) {
-                state.battleState.camera.setYVelocity(-10)
-            }
-        } else if (
-            mouseY >
-            ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[0]
-        ) {
-            state.battleState.camera.setYVelocity(1)
-            if (
-                mouseY >
-                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[1]
-            ) {
-                state.battleState.camera.setYVelocity(5)
-            }
-            if (
-                mouseY >
-                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[2]
-            ) {
-                state.battleState.camera.setYVelocity(10)
-            }
-        } else {
-            state.battleState.camera.setYVelocity(0)
-        }
-
+    private stopCameraIfMouseIsOffscreen = (
+        mouseX: number,
+        mouseY: number,
+        battleOrchestraState: BattleOrchestratorState
+    ) => {
         if (
             mouseX < 0 ||
             mouseX > ScreenDimensions.SCREEN_WIDTH ||
             mouseY < 0 ||
             mouseY > ScreenDimensions.SCREEN_HEIGHT
         ) {
-            state.battleState.camera.setXVelocity(0)
-            state.battleState.camera.setYVelocity(0)
+            battleOrchestraState.battleState.camera.setXVelocity(0)
+            battleOrchestraState.battleState.camera.setYVelocity(0)
+        }
+    }
+    private changeCameraVerticalSpeedBasedOnMousePositionOnScreen = (
+        mouseY: number,
+        battleOrchestraState: BattleOrchestratorState
+    ) => {
+        if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[0]) {
+            battleOrchestraState.battleState.camera.setYVelocity(-1)
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[1]) {
+                battleOrchestraState.battleState.camera.setYVelocity(-5)
+            }
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.top[2]) {
+                battleOrchestraState.battleState.camera.setYVelocity(-10)
+            }
+        } else if (
+            mouseY >
+            ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[0]
+        ) {
+            battleOrchestraState.battleState.camera.setYVelocity(1)
+            if (
+                mouseY >
+                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[1]
+            ) {
+                battleOrchestraState.battleState.camera.setYVelocity(5)
+            }
+            if (
+                mouseY >
+                ScreenDimensions.SCREEN_HEIGHT * SCREEN_EDGES.bottom[2]
+            ) {
+                battleOrchestraState.battleState.camera.setYVelocity(10)
+            }
+        } else {
+            battleOrchestraState.battleState.camera.setYVelocity(0)
+        }
+    }
+    private changeCameraHorizontalSpeedBasedOnMousePositionOnScreen = (
+        mouseX: number,
+        battleOrchestraState: BattleOrchestratorState
+    ) => {
+        if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[0]) {
+            battleOrchestraState.battleState.camera.setXVelocity(-1)
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
+                battleOrchestraState.battleState.camera.setXVelocity(-5)
+            }
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[2]) {
+                battleOrchestraState.battleState.camera.setXVelocity(-10)
+            }
+        } else if (
+            mouseX >
+            ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[0]
+        ) {
+            battleOrchestraState.battleState.camera.setXVelocity(1)
+            if (
+                mouseX >
+                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[1]
+            ) {
+                battleOrchestraState.battleState.camera.setXVelocity(5)
+            }
+            if (
+                mouseX >
+                ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]
+            ) {
+                battleOrchestraState.battleState.camera.setXVelocity(10)
+            }
+        } else {
+            battleOrchestraState.battleState.camera.setXVelocity(0)
+        }
+    }
+    private moveCameraWhenMouseIsOverSummaryHUD = (
+        mouseX: number,
+        battleOrchestraState: BattleOrchestratorState
+    ) => {
+        if (mouseX < ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.left[1]) {
+            battleOrchestraState.battleState.camera.setXVelocity(-5)
+        }
+        if (mouseX > ScreenDimensions.SCREEN_WIDTH * SCREEN_EDGES.right[2]) {
+            battleOrchestraState.battleState.camera.setXVelocity(5)
         }
     }
 
