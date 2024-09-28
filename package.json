@@ -10,6 +10,7 @@
         "test": "jest",
         "tsc": "./node_modules/.bin/tsc --allowSyntheticDefaultImports -t es6 src/*.ts",
         "build": "webpack --mode=production",
+        "prod": "npm run copy-assets && webpack serve --open --mode=production",
         "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store' 'bundle.js.map' ",
         "devserve": "npm run copy-assets && npm run dev",
         "copy-assets": "mkdir -p dist/assets && rsync --recursive assets/toDist/* dist/assets",
