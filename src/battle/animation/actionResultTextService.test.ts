@@ -64,8 +64,8 @@ describe("Action Result Text Writer", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.VERSUS_ARMOR]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -81,7 +81,7 @@ describe("Action Result Text Writer", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGETS_ALLY]: true,
+                        [Trait.TARGET_ALLY]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
                     minimumRange: 1,
@@ -261,7 +261,7 @@ describe("Action Result Text Writer", () => {
                 actionEffectTemplates: [
                     ActionEffectSquaddieTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_SELF]: true,
+                            [Trait.TARGET_SELF]: true,
                         }),
                         attributeModifiers: [
                             AttributeModifierService.new({

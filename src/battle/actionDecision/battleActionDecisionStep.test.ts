@@ -23,7 +23,7 @@ describe("Action Builder", () => {
                 ActionEffectSquaddieTemplateService.new({
                     damageDescriptions: { [DamageType.BODY]: 2 },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        TARGETS_FOE: true,
+                        TARGET_FOE: true,
                     }),
                 }),
             ],

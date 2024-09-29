@@ -73,8 +73,8 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     maximumRange: 1,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGETS_FOE]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.TARGET_FOE]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                 }),
             ],
@@ -234,7 +234,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     maximumRange: 1,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                 }),
             ],

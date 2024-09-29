@@ -93,7 +93,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,

@@ -53,8 +53,8 @@ describe("target a squaddie within reach of actions", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.VERSUS_ARMOR]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 2,
@@ -386,7 +386,7 @@ describe("target a squaddie within reach of actions", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 2,

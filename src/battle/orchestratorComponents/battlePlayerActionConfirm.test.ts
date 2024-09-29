@@ -17,7 +17,7 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { DamageType } from "../../squaddie/squaddieService"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
     GameEngineState,
@@ -70,7 +70,7 @@ describe("BattleActionConfirm", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
@@ -127,7 +127,7 @@ describe("BattleActionConfirm", () => {
                 actionTemplateIds: [longswordAction.id],
                 attributes: {
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,

@@ -55,7 +55,7 @@ const sanitize = (data: SquaddieId): SquaddieId => {
         ? data.affiliation
         : SquaddieAffiliation.UNKNOWN
     data.traits = isValidValue(data.traits)
-        ? data.traits
+        ? TraitStatusStorageService.sanitize(data.traits)
         : TraitStatusStorageService.newUsingTraitValues({})
     data.resources = isValidValue(data.resources)
         ? data.resources

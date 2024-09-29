@@ -40,7 +40,7 @@ import {
 } from "../../squaddie/squaddieService"
 import { BattlePhaseState } from "./battlePhaseController"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { TeamStrategyType } from "../teamStrategy/teamStrategy"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -111,7 +111,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
@@ -139,7 +139,7 @@ describe("BattleComputerSquaddieSelector", () => {
             actionTemplateIds: [demonBiteAction.id],
             attributes: {
                 maxHitPoints: 5,
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,

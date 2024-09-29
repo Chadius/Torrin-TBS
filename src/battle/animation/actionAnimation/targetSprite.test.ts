@@ -11,7 +11,7 @@ import {
 } from "./actionAnimationConstants"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { SquaddieSprite } from "./squaddieSprite"
-import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
+import { SquaddieMovementService } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
 import {
     Trait,
@@ -57,7 +57,7 @@ describe("Target Sprite", () => {
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
                 maxHitPoints: 5,
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
@@ -127,7 +127,7 @@ describe("Target Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                 }),
             ],

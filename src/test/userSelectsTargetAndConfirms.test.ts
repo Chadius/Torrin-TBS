@@ -107,7 +107,7 @@ describe("User Selects Target and Confirms", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,

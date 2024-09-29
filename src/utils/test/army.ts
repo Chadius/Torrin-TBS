@@ -5,7 +5,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import {
     ActionDecisionType,
     ActionTemplate,
@@ -48,7 +48,7 @@ export const TestArmyPlayerData = () => {
                 attributes: {
                     maxHitPoints: 3,
                     armorClass: 6,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
@@ -62,7 +62,7 @@ export const TestArmyPlayerData = () => {
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 8,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
@@ -129,7 +129,7 @@ export const TestArmyPlayerData = () => {
                     traits: {
                         booleanTraits: {
                             ALWAYS_SUCCEEDS: true,
-                            TARGETS_ALLY: true,
+                            TARGET_ALLY: true,
                             HEALING: true,
                         },
                     },

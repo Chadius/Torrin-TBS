@@ -17,7 +17,7 @@ import {
     MissionStatistics,
     MissionStatisticsService,
 } from "../../missionStatistics/missionStatistics"
-import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
+import { SquaddieMovementService } from "../../../squaddie/movement"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { BattleStateService } from "../../orchestrator/battleState"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
@@ -134,7 +134,7 @@ describe("calculator", () => {
                 ],
                 attributes: {
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 1,
@@ -153,7 +153,7 @@ describe("calculator", () => {
                 ],
                 attributes: {
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 7,
@@ -168,7 +168,7 @@ describe("calculator", () => {
                 objectRepository: objectRepository,
                 attributes: {
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -591,7 +591,7 @@ describe("calculator", () => {
                     ActionEffectSquaddieTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.TARGETS_SELF]: true,
+                            [Trait.TARGET_SELF]: true,
                         }),
                         minimumRange: 0,
                         maximumRange: 0,

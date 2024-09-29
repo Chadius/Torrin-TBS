@@ -10,8 +10,8 @@
         "traits": {
           "booleanTraits": {
             "ATTACK": true,
-            "TARGETS_FOE": true,
-            "TARGET_ARMOR": true
+            "TARGET_FOE": true,
+            "VERSUS_ARMOR": true
           }
         },
         "damageDescriptions": {

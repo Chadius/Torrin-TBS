@@ -33,7 +33,7 @@ import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { SquaddieTurnService } from "../../squaddie/turn"
 
 describe("Battle State", () => {
@@ -464,7 +464,7 @@ describe("Battle State", () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributes: {
                         maxHitPoints: 5,
-                        movement: CreateNewSquaddieMovementWithTraits({
+                        movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,

@@ -6,7 +6,7 @@ import {
 } from "../battleSquaddieTeam"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { BattleSquaddie } from "../battleSquaddie"
@@ -69,7 +69,7 @@ describe("move towards closest squaddie in range", () => {
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
@@ -168,7 +168,7 @@ describe("move towards closest squaddie in range", () => {
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 10,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
@@ -402,7 +402,7 @@ describe("move towards closest squaddie in range", () => {
             attributes: {
                 ...DefaultArmyAttributes(),
                 ...{
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),

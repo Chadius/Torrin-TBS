@@ -19,7 +19,7 @@ export const SquaddieMovementService = {
         movementPerAction?: number
         traits?: TraitStatusStorage
     }): SquaddieMovement => {
-        return CreateNewSquaddieMovementWithTraits({
+        return createNewSquaddieMovementWithTraits({
             movementPerAction,
             traits,
         })
@@ -29,7 +29,7 @@ export const SquaddieMovementService = {
     },
 }
 
-export const CreateNewSquaddieMovementWithTraits = ({
+const createNewSquaddieMovementWithTraits = ({
     movementPerAction,
     traits,
 }: {

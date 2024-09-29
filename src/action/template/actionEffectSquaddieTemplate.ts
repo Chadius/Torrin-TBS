@@ -76,14 +76,14 @@ export const ActionEffectSquaddieTemplateService = {
     ): boolean =>
         TraitStatusStorageService.getStatus(
             actionEffectSquaddieTemplate.traits,
-            Trait.TARGETS_ALLY
+            Trait.TARGET_ALLY
         ),
     doesItTargetFoes: (
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
     ): boolean =>
         TraitStatusStorageService.getStatus(
             actionEffectSquaddieTemplate.traits,
-            Trait.TARGETS_FOE
+            Trait.TARGET_FOE
         ),
     getMultipleAttackPenalty: (
         template: ActionEffectSquaddieTemplate
@@ -142,5 +142,6 @@ const sanitize = (
         ? { ...data.healingDescriptions }
         : {}
     data.actionDecisions = getValidValueOrDefault(data.actionDecisions, [])
+    TraitStatusStorageService.sanitize(data.traits)
     return data
 }

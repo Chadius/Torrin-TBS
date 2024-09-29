@@ -11,7 +11,7 @@ import {
     MissionShouldBeComplete,
 } from "./missionCondition"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -60,7 +60,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -76,7 +76,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -97,7 +97,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -118,7 +118,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 objectRepository: squaddieRepository,
                 attributes: {
                     maxHitPoints: 1,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -141,7 +141,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             objectRepository: squaddieRepository,
             attributes: {
                 maxHitPoints: 1,
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,

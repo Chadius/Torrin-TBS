@@ -1,8 +1,4 @@
-import {
-    CreateNewSquaddieMovementWithTraits,
-    SquaddieMovement,
-    SquaddieMovementService,
-} from "./movement"
+import { SquaddieMovement, SquaddieMovementService } from "./movement"
 import { isValidValue } from "../utils/validityCheck"
 
 export interface ArmyAttributes {
@@ -39,7 +35,7 @@ export const ArmyAttributesService = {
 
 export const DefaultArmyAttributes = (): ArmyAttributes => {
     return {
-        movement: CreateNewSquaddieMovementWithTraits({ movementPerAction: 2 }),
+        movement: SquaddieMovementService.new({ movementPerAction: 2 }),
         armorClass: 0,
         maxHitPoints: 5,
     }

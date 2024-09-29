@@ -1,3 +1,5 @@
+import { isValidValue } from "../utils/validityCheck"
+
 export enum Trait {
     UNKNOWN = "UNKNOWN",
     ATTACK = "ATTACK",
@@ -9,11 +11,11 @@ export enum Trait {
     DEMON = "DEMON",
     CROSS_OVER_PITS = "CROSS_OVER_PITS",
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
-    TARGET_ARMOR = "TARGET_ARMOR",
+    VERSUS_ARMOR = "VERSUS_ARMOR",
     SKIP_ANIMATION = "SKIP_ANIMATION",
-    TARGETS_SELF = "TARGETS_SELF",
-    TARGETS_FOE = "TARGETS_FOE",
-    TARGETS_ALLY = "TARGETS_ALLY",
+    TARGET_SELF = "TARGET_SELF",
+    TARGET_FOE = "TARGET_FOE",
+    TARGET_ALLY = "TARGET_ALLY",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
     CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
@@ -23,6 +25,7 @@ export enum Trait {
 export enum TraitCategory {
     UNKNOWN = "UNKNOWN",
     ACTION = "ACTION",
+    VERSUS = "VERSUS",
     CREATURE = "CREATURE",
     MOVEMENT = "MOVEMENT",
     ANIMATION = "ANIMATION",
@@ -83,23 +86,23 @@ const traitInformation: {
         description: "Can cross over but not stop on walls.",
         categories: [TraitCategory.MOVEMENT],
     },
-    [Trait.TARGET_ARMOR]: {
+    [Trait.VERSUS_ARMOR]: {
         description: "These actions succeed based on the target's armor.",
-        categories: [TraitCategory.ACTION],
+        categories: [TraitCategory.ACTION, TraitCategory.VERSUS],
     },
     [Trait.SKIP_ANIMATION]: {
         description: "Action does not require animation",
         categories: [TraitCategory.ACTION, TraitCategory.ANIMATION],
     },
-    [Trait.TARGETS_SELF]: {
+    [Trait.TARGET_SELF]: {
         description: "The acting Squaddie can target themself.",
         categories: [TraitCategory.ACTION],
     },
-    [Trait.TARGETS_FOE]: {
+    [Trait.TARGET_FOE]: {
         description: "The acting Squaddie can target foes with this action.",
         categories: [TraitCategory.ACTION],
     },
-    [Trait.TARGETS_ALLY]: {
+    [Trait.TARGET_ALLY]: {
         description: "The acting Squaddie can target allies with this action.",
         categories: [TraitCategory.ACTION],
     },
@@ -136,7 +139,11 @@ export const TraitStatusStorageService = {
             const trait: Trait = Trait[traitName as keyof typeof Trait]
             if (trait && trait !== Trait.UNKNOWN) {
                 setStatus(newStorage, trait, value)
+                return
             }
+            console.log(
+                `[TraitStatusStorageService] ${traitName} is not a trait, ignoring`
+            )
         })
         return newStorage
     },
@@ -173,6 +180,9 @@ export const TraitStatusStorageService = {
             ),
         })
     },
+    sanitize: (traits: TraitStatusStorage): TraitStatusStorage => {
+        return sanitize(traits)
+    },
 }
 
 const setStatus = (
@@ -187,4 +197,36 @@ const clone = (original: TraitStatusStorage): TraitStatusStorage => {
     return {
         booleanTraits: { ...original.booleanTraits },
     }
+}
+
+const sanitize = (traits: TraitStatusStorage): TraitStatusStorage => {
+    if (!isValidValue(traits)) {
+        return traits
+    }
+
+    const traitIsInvalid = (traitName: string) =>
+        traitName === undefined ||
+        (traitName as Trait) == Trait.UNKNOWN ||
+        !Object.values(Trait).includes(traitName as Trait)
+
+    if (!isValidValue(traits.booleanTraits)) {
+        traits.booleanTraits = {}
+    }
+
+    Object.keys(traits.booleanTraits).forEach((traitName) => {
+        if (traitIsInvalid(traitName)) {
+            console.log(
+                `[TraitStatusStorageService] ${traitName} is not a trait, ignoring`
+            )
+        }
+    })
+
+    const invalidKeys = Object.keys(traits.booleanTraits)
+        .filter(isValidValue)
+        .filter(traitIsInvalid)
+    invalidKeys.forEach((traitName) => {
+        delete traits.booleanTraits[traitName as Trait]
+    })
+
+    return traits
 }

@@ -60,7 +60,7 @@ describe("TargetTextWindow", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                 }),
             ],
@@ -76,8 +76,8 @@ describe("TargetTextWindow", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ALWAYS_SUCCEEDS]: true,
-                        [Trait.TARGETS_SELF]: true,
-                        [Trait.TARGETS_ALLY]: true,
+                        [Trait.TARGET_SELF]: true,
+                        [Trait.TARGET_ALLY]: true,
                     }),
                 }),
             ],

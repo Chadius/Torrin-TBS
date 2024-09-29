@@ -1,7 +1,6 @@
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { CreateNewSquaddieMovementWithTraits } from "../squaddie/movement"
 import { SquaddieTurn, SquaddieTurnService } from "../squaddie/turn"
 import { ObjectRepository, ObjectRepositoryService } from "./objectRepository"
 import {
@@ -20,6 +19,7 @@ import {
 import { ActionEffectMovementTemplateService } from "../action/template/actionEffectMovementTemplate"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { DamageType } from "../squaddie/squaddieService"
+import { SquaddieMovementService } from "../squaddie/movement"
 
 describe("BattleSquaddieRepository", () => {
     let objectRepository: ObjectRepository
@@ -32,7 +32,7 @@ describe("BattleSquaddieRepository", () => {
             attributes: {
                 maxHitPoints: 1,
                 armorClass: 0,
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: {
                         booleanTraits: {
@@ -317,8 +317,8 @@ describe("BattleSquaddieRepository", () => {
                             [DamageType.SOUL]: 2,
                         },
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_FOE]: true,
-                            [Trait.TARGET_ARMOR]: true,
+                            [Trait.TARGET_FOE]: true,
+                            [Trait.VERSUS_ARMOR]: true,
                         }),
                     }),
                 ],

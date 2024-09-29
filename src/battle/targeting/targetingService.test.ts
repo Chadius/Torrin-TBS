@@ -49,8 +49,8 @@ describe("Targeting Service", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.VERSUS_ARMOR]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -142,7 +142,7 @@ describe("Targeting Service", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 2,
                     maximumRange: 3,
@@ -322,8 +322,8 @@ describe("Targeting Service", () => {
                         LOST_HIT_POINTS: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        TARGETS_ALLY: true,
-                        TARGETS_SELF: true,
+                        TARGET_ALLY: true,
+                        TARGET_SELF: true,
                     }),
                     minimumRange: 0,
                     maximumRange: 1,
@@ -358,7 +358,7 @@ describe("Targeting Service", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 3,
@@ -523,20 +523,20 @@ describe("Targeting Service", () => {
             ).toEqual(expectedToTarget)
         }
 
-        describe("can target itself if the action TARGETS_SELF", () => {
+        describe("can target itself if the action TARGET_SELF", () => {
             const tests: AffiliationTest[] = [
                 {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGETS_SELF],
+                    traits: [Trait.TARGET_SELF],
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGETS_SELF],
+                    traits: [Trait.TARGET_SELF],
                     expectedToTarget: false,
                 },
             ]
@@ -554,27 +554,27 @@ describe("Targeting Service", () => {
             )
         })
 
-        describe("can target allies if the action TARGETS_ALLY", () => {
+        describe("can target allies if the action TARGET_ALLY", () => {
             const tests: AffiliationTest[] = [
                 {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGETS_ALLY],
+                    traits: [Trait.TARGET_ALLY],
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGETS_ALLY],
+                    traits: [Trait.TARGET_ALLY],
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 enemy1",
                     actor: player1,
                     target: enemy1,
-                    traits: [Trait.TARGETS_ALLY],
+                    traits: [Trait.TARGET_ALLY],
                     expectedToTarget: false,
                 },
             ]
@@ -592,34 +592,34 @@ describe("Targeting Service", () => {
             )
         })
 
-        describe("can target allies if the action TARGETS_FOE", () => {
+        describe("can target allies if the action TARGET_FOE", () => {
             const tests: AffiliationTest[] = [
                 {
                     name: "player1 enemy1",
                     actor: player1,
                     target: enemy1,
-                    traits: [Trait.TARGETS_FOE],
+                    traits: [Trait.TARGET_FOE],
                     expectedToTarget: true,
                 },
                 {
                     name: "enemy1 player1",
                     actor: enemy1,
                     target: player1,
-                    traits: [Trait.TARGETS_FOE],
+                    traits: [Trait.TARGET_FOE],
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGETS_FOE],
+                    traits: [Trait.TARGET_FOE],
                     expectedToTarget: false,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGETS_FOE],
+                    traits: [Trait.TARGET_FOE],
                     expectedToTarget: false,
                 },
             ]

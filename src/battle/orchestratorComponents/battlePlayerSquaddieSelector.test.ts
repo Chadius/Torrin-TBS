@@ -157,8 +157,8 @@ describe("BattleSquaddieSelector", () => {
                         ActionEffectSquaddieTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
-                                    [Trait.TARGETS_FOE]: true,
-                                    [Trait.TARGET_ARMOR]: true,
+                                    [Trait.TARGET_FOE]: true,
+                                    [Trait.VERSUS_ARMOR]: true,
                                     [Trait.ATTACK]: true,
                                 }
                             ),

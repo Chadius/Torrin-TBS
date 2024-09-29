@@ -7,7 +7,7 @@ import {
     InBattleAttributesService,
 } from "./inBattleAttributes"
 import { DamageType } from "../../squaddie/squaddieService"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import {
     Trait,
     TraitStatusStorageService,
@@ -26,7 +26,7 @@ describe("inBattleAttributes", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
-            movement: CreateNewSquaddieMovementWithTraits({
+            movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
         })
@@ -42,7 +42,7 @@ describe("inBattleAttributes", () => {
         const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-            movement: CreateNewSquaddieMovementWithTraits({
+            movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
         }
@@ -67,7 +67,7 @@ describe("inBattleAttributes", () => {
         const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-            movement: CreateNewSquaddieMovementWithTraits({
+            movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
         }
@@ -88,7 +88,7 @@ describe("inBattleAttributes", () => {
         const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-            movement: CreateNewSquaddieMovementWithTraits({
+            movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
         }
@@ -114,7 +114,7 @@ describe("inBattleAttributes", () => {
         const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-            movement: CreateNewSquaddieMovementWithTraits({
+            movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
         }
@@ -165,7 +165,7 @@ describe("inBattleAttributes", () => {
                 armyAttributes: {
                     armorClass: 3,
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.PASS_THROUGH_WALLS]: true,

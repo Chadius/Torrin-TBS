@@ -44,7 +44,7 @@ describe("Squaddie Id", () => {
         )
     })
 
-    describe("sanitization", () => {
+    describe("sanitization throws error with some invalid fields", () => {
         let invalidSquaddieBase: SquaddieId
 
         beforeEach(() => {
@@ -84,19 +84,28 @@ describe("Squaddie Id", () => {
             },
         ]
 
-        it.each(tests)(
-            `$field: $value will throw an error for being invalid`,
-            ({ field, value }) => {
-                const invalidSquaddie = {
-                    ...invalidSquaddieBase,
-                    [field]: value,
-                }
-                const throwErrorBecauseInvalid = () => {
-                    SquaddieIdService.sanitize(invalidSquaddie)
-                }
-
-                expect(throwErrorBecauseInvalid).toThrowError("cannot sanitize")
+        it.each(tests)(`$field: $value`, ({ field, value }) => {
+            const invalidSquaddie = {
+                ...invalidSquaddieBase,
+                [field]: value,
             }
-        )
+            const throwErrorBecauseInvalid = () => {
+                SquaddieIdService.sanitize(invalidSquaddie)
+            }
+
+            expect(throwErrorBecauseInvalid).toThrowError("cannot sanitize")
+        })
+    })
+
+    it("will sanitize traits", () => {
+        const sanitizeSpy = jest.spyOn(TraitStatusStorageService, "sanitize")
+        SquaddieIdService.new({
+            name: "squaddieTemplate",
+            templateId: "squaddieTemplate",
+            affiliation: SquaddieAffiliation.PLAYER,
+            traits: TraitStatusStorageService.newUsingTraitValues({}),
+        })
+        expect(sanitizeSpy).toHaveBeenCalled()
+        sanitizeSpy.mockRestore()
     })
 })

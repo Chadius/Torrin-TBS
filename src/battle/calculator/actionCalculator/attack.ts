@@ -166,7 +166,7 @@ const isActionAgainstArmor = (
 ): boolean =>
     TraitStatusStorageService.getStatus(
         actionEffectSquaddieTemplate.traits,
-        Trait.TARGET_ARMOR
+        Trait.VERSUS_ARMOR
     ) === true
 
 const getTargetSquaddieModifiers = ({

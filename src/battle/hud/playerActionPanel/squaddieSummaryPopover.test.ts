@@ -67,7 +67,7 @@ describe("squaddieSummaryPopover", () => {
                         minimumRange: 2,
                         maximumRange: 3,
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_FOE]: true,
+                            [Trait.TARGET_FOE]: true,
                         }),
                     }),
                 ],
@@ -84,7 +84,7 @@ describe("squaddieSummaryPopover", () => {
                         minimumRange: 1,
                         maximumRange: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_FOE]: true,
+                            [Trait.TARGET_FOE]: true,
                         }),
                     }),
                 ],

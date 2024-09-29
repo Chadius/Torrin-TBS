@@ -266,21 +266,21 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
     } = FriendlyAffiliationsByAffiliation[actorAffiliation]
 
     if (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_SELF) &&
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_SELF) &&
         targetBattleSquaddieId === actorBattleSquaddieId
     ) {
         return true
     }
 
     if (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_ALLY) &&
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_ALLY) &&
         friendlyAffiliations[targetAffiliation]
     ) {
         return true
     }
 
     return (
-        (TraitStatusStorageService.getStatus(actionTraits, Trait.TARGETS_FOE) &&
+        (TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_FOE) &&
             !friendlyAffiliations[targetAffiliation]) ||
         false
     )

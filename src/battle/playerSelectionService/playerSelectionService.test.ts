@@ -1515,8 +1515,8 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectSquaddieTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_FOE]: true,
-                            [Trait.TARGET_ARMOR]: true,
+                            [Trait.TARGET_FOE]: true,
+                            [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
                         minimumRange: 0,
@@ -1540,8 +1540,8 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectSquaddieTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_FOE]: true,
-                            [Trait.TARGET_ARMOR]: true,
+                            [Trait.TARGET_FOE]: true,
+                            [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
                         minimumRange: 1,
@@ -1565,8 +1565,8 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectSquaddieTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGETS_SELF]: true,
-                            [Trait.TARGETS_ALLY]: true,
+                            [Trait.TARGET_SELF]: true,
+                            [Trait.TARGET_ALLY]: true,
                             [Trait.HEALING]: true,
                         }),
                         minimumRange: 0,

@@ -33,7 +33,7 @@ describe("weapon icon", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                 }),
             ],
@@ -49,7 +49,7 @@ describe("weapon icon", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
-                        [Trait.TARGETS_ALLY]: true,
+                        [Trait.TARGET_ALLY]: true,
                     }),
                 }),
             ],

@@ -69,4 +69,44 @@ describe("Trait Status Storage", () => {
             )
         ).toBe(true)
     })
+    describe("warn when the trait names are unknown", () => {
+        const jsonBlob: string = `{"ATTACK": true, "BOGUS": true}`
+        let consoleLogSpy: jest.SpyInstance
+        beforeEach(() => {
+            consoleLogSpy = jest
+                .spyOn(console, "log")
+                .mockImplementation(() => {})
+        })
+        afterEach(() => {
+            consoleLogSpy.mockRestore()
+        })
+
+        it("using new", () => {
+            const traits: TraitStatusStorage =
+                TraitStatusStorageService.newUsingTraitValues(
+                    JSON.parse(jsonBlob)
+                )
+            expect(
+                TraitStatusStorageService.getStatus(traits, Trait.ATTACK)
+            ).toBeTruthy()
+            expect(consoleLogSpy).toBeCalledWith(
+                "[TraitStatusStorageService] BOGUS is not a trait, ignoring"
+            )
+        })
+        it("using sanitize", () => {
+            const traits: TraitStatusStorage = {
+                booleanTraits: JSON.parse(jsonBlob),
+            }
+            const sanitizedTraits = TraitStatusStorageService.sanitize(traits)
+            expect(consoleLogSpy).toBeCalledWith(
+                "[TraitStatusStorageService] BOGUS is not a trait, ignoring"
+            )
+            expect(
+                Object.keys(traits.booleanTraits).includes("BOGUS")
+            ).toBeFalsy()
+            expect(
+                Object.keys(sanitizedTraits.booleanTraits).includes("BOGUS")
+            ).toBeFalsy()
+        })
+    })
 })

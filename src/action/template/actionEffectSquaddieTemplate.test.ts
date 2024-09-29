@@ -38,7 +38,7 @@ describe("ActionEffectSquaddieTemplate", () => {
         const harmfulAttack = ActionEffectSquaddieTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
-                [Trait.TARGETS_FOE]: true,
+                [Trait.TARGET_FOE]: true,
             }),
         })
         expect(
@@ -54,7 +54,7 @@ describe("ActionEffectSquaddieTemplate", () => {
         const helpfulAttack = ActionEffectSquaddieTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
-                [Trait.TARGETS_ALLY]: true,
+                [Trait.TARGET_ALLY]: true,
             }),
         })
         expect(

@@ -89,7 +89,7 @@ import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
 } from "../../squaddie/turn"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import {
     DamageType,
     GetHitPoints,
@@ -1580,7 +1580,7 @@ describe("Battle HUD", () => {
                     actionTemplateIds: [longswordAction.id],
                     attributes: {
                         maxHitPoints: 5,
-                        movement: CreateNewSquaddieMovementWithTraits({
+                        movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,

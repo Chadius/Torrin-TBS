@@ -9,7 +9,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleSquaddieUsesActionOnSquaddie } from "./battleSquaddieUsesActionOnSquaddie"
 import {
     OrchestratorComponentMouseEvent,
@@ -102,7 +102,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: objectRepository,
             attributes: {
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.PASS_THROUGH_WALLS]: true,
@@ -121,7 +121,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 affiliation: SquaddieAffiliation.ENEMY,
                 objectRepository: objectRepository,
                 attributes: {
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.PASS_THROUGH_WALLS]: true,
@@ -141,7 +141,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -164,7 +164,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.VERSUS_ARMOR]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,

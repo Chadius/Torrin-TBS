@@ -5,7 +5,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleSquaddieUsesActionOnMap } from "./battleSquaddieUsesActionOnMap"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -43,7 +43,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: squaddieRepository,
             attributes: {
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.PASS_THROUGH_WALLS]: true,

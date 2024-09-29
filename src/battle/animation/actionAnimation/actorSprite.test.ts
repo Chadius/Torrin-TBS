@@ -11,7 +11,7 @@ import {
 } from "./actionAnimationConstants"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { SquaddieSprite } from "./squaddieSprite"
-import { CreateNewSquaddieMovementWithTraits } from "../../../squaddie/movement"
+import { SquaddieMovementService } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
 import {
@@ -43,7 +43,7 @@ describe("Actor Sprite", () => {
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
                 maxHitPoints: 5,
-                movement: CreateNewSquaddieMovementWithTraits({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
@@ -69,7 +69,7 @@ describe("Actor Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         ATTACK: true,
-                        TARGETS_FOE: true,
+                        TARGET_FOE: true,
                     }),
                 }),
             ],
@@ -85,7 +85,7 @@ describe("Actor Sprite", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         HEALING: true,
-                        TARGETS_ALLY: true,
+                        TARGET_ALLY: true,
                     }),
                 }),
             ],

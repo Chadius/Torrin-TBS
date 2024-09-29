@@ -8,7 +8,7 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
-import { CreateNewSquaddieMovementWithTraits } from "../squaddie/movement"
+import { SquaddieMovementService } from "../squaddie/movement"
 
 describe("BattleSquaddie", () => {
     it("throws an error if battle squaddie has no template Id", () => {
@@ -62,7 +62,7 @@ describe("BattleSquaddie", () => {
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 2,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                 },
@@ -129,7 +129,7 @@ describe("BattleSquaddie", () => {
                 inBattleAttributes: InBattleAttributesService.new({
                     armyAttributes: {
                         maxHitPoints: 9001,
-                        movement: CreateNewSquaddieMovementWithTraits({
+                        movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,

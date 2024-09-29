@@ -83,7 +83,7 @@ describe("User cancels the previewed action", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.TARGET_FOE]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,

@@ -23,7 +23,7 @@ import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { CreateNewSquaddieMovementWithTraits } from "../../squaddie/movement"
+import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
     GameEngineState,
@@ -83,8 +83,8 @@ describe("BattleSquaddieTarget", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_ARMOR]: true,
-                        [Trait.TARGETS_FOE]: true,
+                        [Trait.VERSUS_ARMOR]: true,
+                        [Trait.TARGET_FOE]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
@@ -109,7 +109,7 @@ describe("BattleSquaddieTarget", () => {
                 ActionEffectSquaddieTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGETS_ALLY]: true,
+                        [Trait.TARGET_ALLY]: true,
                     }),
                     minimumRange: 1,
                     maximumRange: 1,
@@ -163,7 +163,7 @@ describe("BattleSquaddieTarget", () => {
                 actionTemplateIds: [longswordAction.id],
                 attributes: {
                     maxHitPoints: 5,
-                    movement: CreateNewSquaddieMovementWithTraits({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
@@ -439,12 +439,12 @@ describe("BattleSquaddieTarget", () => {
         const tests = [
             {
                 name: "target foe tries to attack an ally",
-                actionTraits: [Trait.ATTACK, Trait.TARGETS_FOE],
+                actionTraits: [Trait.ATTACK, Trait.TARGET_FOE],
                 invalidTargetClicker: clickOnCitizen,
             },
             {
                 name: "heal ally tries to heal a foe",
-                actionTraits: [Trait.HEALING, Trait.TARGETS_ALLY],
+                actionTraits: [Trait.HEALING, Trait.TARGET_ALLY],
                 invalidTargetClicker: clickOnThief,
             },
         ]
