@@ -48,27 +48,27 @@ export const LoadCampaignData = {
 
                     if (
                         filename ===
-                        "assets/npcData/templates/enemy_demon_slither.json"
+                        "assets/npcData/enemy_demon_slither/enemy_demon_slither.json"
                     ) {
                         return enemyDemonSlitherTemplate
                     }
 
                     if (
                         filename ===
-                        "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json"
+                        "assets/npcData/enemyDemonSlitherTemplate2_id/enemyDemonSlitherTemplate2_id.json"
                     ) {
                         return enemyDemonSlitherTemplate2
                     }
 
                     if (
-                        filename === "assets/npcData/templates/ally_guard.json"
+                        filename === "assets/npcData/ally_guard/ally_guard.json"
                     ) {
                         return allyGuardTemplate
                     }
 
                     if (
                         filename ===
-                        "assets/npcData/templates/no_affiliation_living_flame.json"
+                        "assets/npcData/no_affiliation_living_flame/no_affiliation_living_flame.json"
                     ) {
                         return noAffiliationLivingFlameTemplate
                     }

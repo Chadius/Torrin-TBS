@@ -413,7 +413,7 @@ const loadNPCTemplatesFromFile = async (
     for (const templateId of templateIds) {
         try {
             const squaddieTemplate = await LoadFileIntoFormat<SquaddieTemplate>(
-                `assets/npcData/templates/${templateId}.json`
+                `assets/npcData/${templateId}/${templateId}.json`
             )
             squaddiesById[templateId] =
                 SquaddieTemplateService.sanitize(squaddieTemplate)

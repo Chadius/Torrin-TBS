@@ -6,37 +6,37 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-young-torrin.png",
+    "path": "assets/playerArmy/youngTorrin/map-icon-young-torrin.png",
     "key": "map icon young torrin"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-sir-camil.png",
+    "path": "assets/playerArmy/sirCamil/map-icon-sir-camil.png",
     "key": "map icon sir camil"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-demon-slither.png",
+    "path": "assets/npcData/enemy_demon_slither//map-icon-demon-slither.png",
     "key": "map icon demon slither"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-move-1-action.png",
+    "path": "assets/mapUiIcon/map-icon-move-1-action.png",
     "key": "map icon move 1 action"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-move-2-actions.png",
+    "path": "assets/mapUiIcon/map-icon-move-2-actions.png",
     "key": "map icon move 2 actions"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-move-3-actions.png",
+    "path": "assets/mapUiIcon/map-icon-move-3-actions.png",
     "key": "map icon move 3 actions"
   },
   {
     "type": "IMAGE",
-    "path": "assets/map-icon-attack-1-action.png",
+    "path": "assets/mapUiIcon/map-icon-attack-1-action.png",
     "key": "map icon attack 1 action"
   },
   {
@@ -81,12 +81,12 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/cutscene-portrait-young-torrin.png",
+    "path": "assets/playerArmy/youngTorrin/cutscene-portrait-young-torrin.png",
     "key": "young torrin cutscene portrait"
   },
   {
     "type": "IMAGE",
-    "path": "assets/cutscene-portrait-sir-camil.png",
+    "path": "assets/playerArmy/sirCamil/cutscene-portrait-sir-camil.png",
     "key": "sir camil cutscene portrait"
   },
   {
@@ -101,97 +101,97 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-demon-slither-attack.png",
+    "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-attack.png",
     "key": "combat-demon-slither-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-demon-slither-damaged.png",
+    "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-damaged.png",
     "key": "combat-demon-slither-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-demon-slither-dead.png",
+    "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-dead.png",
     "key": "combat-demon-slither-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-demon-slither-neutral.png",
+    "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-neutral.png",
     "key": "combat-demon-slither-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-demon-slither-targeted.png",
+    "path": "assets/npcData/enemy_demon_slither/combat-demon-slither-targeted.png",
     "key": "combat-demon-slither-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-attack.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-attack.png",
     "key": "combat-sir-camil-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-damaged.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-damaged.png",
     "key": "combat-sir-camil-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-dead.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-dead.png",
     "key": "combat-sir-camil-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-neutral.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-neutral.png",
     "key": "combat-sir-camil-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-targeted.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-targeted.png",
     "key": "combat-sir-camil-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-assisting.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-assisting.png",
     "key": "combat-sir-camil-assisting"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-sir-camil-thankful.png",
+    "path": "assets/playerArmy/sirCamil/combat-sir-camil-thankful.png",
     "key": "combat-sir-camil-thankful"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-attack.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-attack.png",
     "key": "combat-young-torrin-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-damaged.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-damaged.png",
     "key": "combat-young-torrin-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-dead.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-dead.png",
     "key": "combat-young-torrin-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-neutral.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-neutral.png",
     "key": "combat-young-torrin-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-targeted.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-targeted.png",
     "key": "combat-young-torrin-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-assisting.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-assisting.png",
     "key": "combat-young-torrin-assisting"
   },
   {
     "type": "IMAGE",
-    "path": "assets/combat-young-torrin-thankful.png",
+    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-thankful.png",
     "key": "combat-young-torrin-thankful"
   },
   {
