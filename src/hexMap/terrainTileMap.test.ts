@@ -11,7 +11,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
-import { HighlightPulseBlueColor } from "./hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
 
 describe("Terrain Tile Map", () => {
     describe("mouseClicks on the map change the outlined tile", () => {
@@ -595,27 +595,27 @@ describe("Terrain Tile Map", () => {
                 id: "clickedLayer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [
                             { q: 0, r: 1 },
                             { q: 1, r: 2 },
                         ],
                     },
                 ],
-                type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+                type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
             })
             hoveredLayer = MapGraphicsLayerService.new({
                 id: "hoveredLayer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
                     },
                 ],
-                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
             })
         })
 
@@ -634,14 +634,14 @@ describe("Terrain Tile Map", () => {
                 id: "clickedLayer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
                     },
                 ],
-                type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+                type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
             })
             TerrainTileMapService.addGraphicsLayer(map, clickedLayerAlternate)
 
@@ -668,7 +668,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.addGraphicsLayer(map, hoveredLayer)
             TerrainTileMapService.removeGraphicsLayerByType(
                 map,
-                MapGraphicsLayerType.HOVERED_OVER_SQUADDIE
+                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
             )
 
             expect(
@@ -690,7 +690,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.removeGraphicsLayerWithIdAndType({
                 terrainTileMap: map,
                 id: clickedLayer.id,
-                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
             })
 
             expect(
@@ -709,7 +709,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.removeGraphicsLayerWithIdAndType({
                 terrainTileMap: map,
                 id: hoveredLayer.id,
-                type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
             })
 
             expect(
@@ -742,7 +742,7 @@ describe("Terrain Tile Map", () => {
                 id: "lowest layer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
@@ -750,7 +750,7 @@ describe("Terrain Tile Map", () => {
                         overlayImageResourceName: "lowest layer",
                     },
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [{ q: 0, r: 0 }],
                     },
                 ],
@@ -762,12 +762,12 @@ describe("Terrain Tile Map", () => {
                 id: "mid layer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [{ q: 0, r: 2 }],
                         overlayImageResourceName: "mid layer",
                     },
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [{ q: 1, r: 2 }],
                         overlayImageResourceName: "mid layer 2",
                     },
@@ -780,7 +780,7 @@ describe("Terrain Tile Map", () => {
                 id: "top layer",
                 highlightedTileDescriptions: [
                     {
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         tiles: [{ q: 0, r: 2 }],
                         overlayImageResourceName: "top layer",
                     },
@@ -795,24 +795,106 @@ describe("Terrain Tile Map", () => {
                 expect.arrayContaining([
                     {
                         location: { q: 0, r: 0 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                     },
                     {
                         location: { q: 0, r: 2 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "top layer",
                     },
                     {
                         location: { q: 1, r: 1 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "lowest layer",
                     },
                     {
                         location: { q: 1, r: 2 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "mid layer 2",
                     },
                 ])
+            )
+        })
+        it("can sort the layers by drawing order", () => {
+            const unknownLayersAreAlwaysFirst: MapGraphicsLayer =
+                MapGraphicsLayerService.new({
+                    id: "unknownLayersAreAlwaysFirst",
+                    highlightedTileDescriptions: [
+                        {
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                            tiles: [{ q: 0, r: 0 }],
+                        },
+                    ],
+                    type: MapGraphicsLayerType.UNKNOWN,
+                })
+
+            const hoveredLayersBeforeClickedLayers: MapGraphicsLayer =
+                MapGraphicsLayerService.new({
+                    id: "hoveredLayersBeforeClickedLayers",
+                    highlightedTileDescriptions: [
+                        {
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                            tiles: [{ q: 0, r: 0 }],
+                        },
+                    ],
+                    type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
+                })
+
+            const hoveredLayersBeforeClickedLayers2: MapGraphicsLayer =
+                MapGraphicsLayerService.new({
+                    id: "hoveredLayersBeforeClickedLayers2",
+                    highlightedTileDescriptions: [
+                        {
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                            tiles: [{ q: 0, r: 0 }],
+                        },
+                    ],
+                    type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
+                })
+
+            const clickedLayerAfterHoveredLayer: MapGraphicsLayer =
+                MapGraphicsLayerService.new({
+                    id: "clickedLayerAfterHoveredLayer",
+                    highlightedTileDescriptions: [
+                        {
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
+                            tiles: [{ q: 0, r: 0 }],
+                        },
+                    ],
+                    type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
+                })
+
+            TerrainTileMapService.addGraphicsLayer(
+                map,
+                clickedLayerAfterHoveredLayer
+            )
+
+            TerrainTileMapService.addGraphicsLayer(
+                map,
+                hoveredLayersBeforeClickedLayers
+            )
+
+            TerrainTileMapService.addGraphicsLayer(
+                map,
+                hoveredLayersBeforeClickedLayers2
+            )
+
+            TerrainTileMapService.addGraphicsLayer(
+                map,
+                unknownLayersAreAlwaysFirst
+            )
+
+            TerrainTileMapService.sortGraphicsLayersByType(map)
+            expect(map.highlightLayers).toHaveLength(4)
+            expect(map.highlightLayers[0]).toEqual(unknownLayersAreAlwaysFirst)
+            expect(map.highlightLayers[1]).toEqual(
+                hoveredLayersBeforeClickedLayers
+            )
+            expect(map.highlightLayers[2]).toEqual(
+                hoveredLayersBeforeClickedLayers2
+            )
+            expect(map.highlightLayers[3]).toEqual(
+                clickedLayerAfterHoveredLayer
             )
         })
     })

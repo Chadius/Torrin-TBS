@@ -17,7 +17,7 @@ import { BattleStateService } from "../../orchestrator/battleState"
 import { SearchPathService } from "../../../hexMap/pathfinder/searchPath"
 import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import { MapGraphicsLayerHighlight } from "../../../hexMap/mapGraphicsLayer"
-import { HighlightPulseBlueColor } from "../../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionQueueService } from "../../history/battleActionQueue"
 
@@ -179,15 +179,16 @@ describe("movement calculator", () => {
             expect(highlights).toHaveLength(2)
             expect(highlights).toContainEqual({
                 location: { q: 0, r: 0 },
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName: "",
             })
             expect(highlights).toContainEqual({
                 location: { q: 0, r: 1 },
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     gameEngineState.campaign.resources
-                        .missionMapMovementIconResourceKeys.MOVE_1_ACTION,
+                        .missionMapMovementIconResourceKeys
+                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             })
         })
     })

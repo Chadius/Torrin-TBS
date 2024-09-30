@@ -10,7 +10,6 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     OrchestratorComponentMouseEvent,
@@ -283,11 +282,6 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.update(gameEngineState, mockedP5GraphicsContext)
 
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
-
-        const highlightedTileDescription = {
-            pulseColor: HighlightPulseRedColor,
-            name: "map icon attack 1 action",
-        }
 
         const highlightedTileLocations =
             TerrainTileMapService.computeHighlightedTiles(

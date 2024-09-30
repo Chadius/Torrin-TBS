@@ -21,22 +21,48 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { HexGridTile } from "./hexGrid"
 import p5 from "p5"
 
-export const HighlightPulseRedColor: PulseBlendColor = {
-    hue: 0,
-    saturation: 100,
-    brightness: 100,
-    lowAlpha: 140,
-    highAlpha: 190,
-    periodAlpha: 2000,
+export enum HighlightPulseColorNames {
+    PURPLE = "PURPLE",
+    RED = "RED",
+    BLUE = "BLUE",
+    PALE_BLUE = "PALE_BLUE",
 }
 
-export const HighlightPulseBlueColor: PulseBlendColor = {
-    hue: 240,
-    saturation: 100,
-    brightness: 100,
-    lowAlpha: 140,
-    highAlpha: 190,
-    periodAlpha: 2000,
+export const HIGHLIGHT_PULSE_COLOR: {
+    [color in HighlightPulseColorNames]: PulseBlendColor
+} = {
+    PURPLE: {
+        hue: 280,
+        saturation: 30,
+        brightness: 80,
+        lowAlpha: 140,
+        highAlpha: 190,
+        periodAlpha: 2000,
+    },
+    RED: {
+        hue: 0,
+        saturation: 100,
+        brightness: 100,
+        lowAlpha: 140,
+        highAlpha: 190,
+        periodAlpha: 2000,
+    },
+    BLUE: {
+        hue: 240,
+        saturation: 100,
+        brightness: 100,
+        lowAlpha: 140,
+        highAlpha: 190,
+        periodAlpha: 2000,
+    },
+    PALE_BLUE: {
+        hue: 240,
+        saturation: 30,
+        brightness: 80,
+        lowAlpha: 140,
+        highAlpha: 190,
+        periodAlpha: 2000,
+    },
 }
 
 const defaultTerrainResourceKeyByTerrainType: {

@@ -221,17 +221,24 @@ const createSearchPath = (
     gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =
         closestRoute
 
+    const { squaddieIsNormallyControllableByPlayer } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
+
     const routeTilesByDistance =
         MapHighlightService.convertSearchPathToHighlightLocations({
             searchPath: closestRoute,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             repository: gameEngineState.repository,
             campaignResources: gameEngineState.campaign.resources,
+            squaddieIsNormallyControllableByPlayer,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
         id: battleSquaddie.battleSquaddieId,
         highlightedTileDescriptions: routeTilesByDistance,
-        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+        type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
     })
     TerrainTileMapService.removeAllGraphicsLayers(
         gameEngineState.battleOrchestratorState.battleState.missionMap

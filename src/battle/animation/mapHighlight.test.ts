@@ -21,10 +21,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import {
-    HighlightPulseBlueColor,
-    HighlightPulseRedColor,
-} from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MapHighlightService } from "./mapHighlight"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTurnService } from "../../squaddie/turn"
@@ -184,12 +181,13 @@ describe("map highlight generator", () => {
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
                 repository: objectRepository,
                 campaignResources,
+                squaddieIsNormallyControllableByPlayer: true,
             })
 
         expect(highlightedTiles).toEqual([
             {
                 tiles: [{ q: 0, r: 0 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName: "",
             },
             {
@@ -197,31 +195,31 @@ describe("map highlight generator", () => {
                     { q: 0, r: 1 },
                     { q: 1, r: 1 },
                 ],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION,
+                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
             {
                 tiles: [{ q: 1, r: 2 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_2_ACTIONS,
+                        .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 tiles: [{ q: 1, r: 3 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS,
+                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 tiles: [{ q: 2, r: 3 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS,
+                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
         ])
     })
@@ -262,7 +260,7 @@ describe("map highlight generator", () => {
         ) => [
             {
                 tiles: [{ q: 0, r: 2 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName: "",
             },
             {
@@ -270,10 +268,10 @@ describe("map highlight generator", () => {
                     { q: 0, r: 1 },
                     { q: 0, r: 3 },
                 ],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION,
+                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
         ]
         const expectedMovementWith3Actions = (
@@ -281,7 +279,7 @@ describe("map highlight generator", () => {
         ) => [
             {
                 tiles: [{ q: 0, r: 2 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName: "",
             },
             {
@@ -289,27 +287,27 @@ describe("map highlight generator", () => {
                     { q: 0, r: 1 },
                     { q: 0, r: 3 },
                 ],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_1_ACTION,
+                        .MOVE_1_ACTION_CONTROLLABLE_SQUADDIE,
             },
             {
                 tiles: [
                     { q: 0, r: 0 },
                     { q: 0, r: 4 },
                 ],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_2_ACTIONS,
+                        .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
             {
                 tiles: [{ q: 0, r: 5 }],
-                pulseColor: HighlightPulseBlueColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     campaignResources.missionMapMovementIconResourceKeys
-                        .MOVE_3_ACTIONS,
+                        .MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE,
             },
         ]
 
@@ -396,7 +394,7 @@ describe("map highlight generator", () => {
             expect(highlightedDescription).toEqual([
                 {
                     tiles: [{ q: 0, r: 2 }],
-                    pulseColor: HighlightPulseBlueColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                     overlayImageResourceName: "",
                 },
                 {
@@ -404,10 +402,10 @@ describe("map highlight generator", () => {
                         { q: 0, r: 1 },
                         { q: 0, r: 3 },
                     ],
-                    pulseColor: HighlightPulseBlueColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                     overlayImageResourceName:
                         campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_2_ACTIONS,
+                            .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
                 },
             ])
         })
@@ -461,7 +459,7 @@ describe("map highlight generator", () => {
             expect(highlightedDescription).toEqual([
                 {
                     tiles: [{ q: 0, r: 4 }],
-                    pulseColor: HighlightPulseBlueColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
                     overlayImageResourceName: "",
                 },
                 {
@@ -469,17 +467,17 @@ describe("map highlight generator", () => {
                         { q: 0, r: 3 },
                         { q: 0, r: 5 },
                     ],
-                    pulseColor: HighlightPulseBlueColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.PALE_BLUE,
                     overlayImageResourceName:
                         campaignResources.missionMapMovementIconResourceKeys
-                            .MOVE_1_ACTION,
+                            .MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE,
                 },
                 {
                     tiles: [
                         { q: 0, r: 1 },
                         { q: 0, r: 7 },
                     ],
-                    pulseColor: HighlightPulseRedColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
                     overlayImageResourceName:
                         campaignResources.missionMapAttackIconResourceKeys
                             .ATTACK_1_ACTION,

@@ -19,6 +19,7 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerHighlight,
+    MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
 
@@ -207,6 +208,32 @@ export const TerrainTileMapService = {
             id,
             type,
         }),
+    sortGraphicsLayersByType: (terrainTileMap: TerrainTileMap) => {
+        const sortByLayer = (a: MapGraphicsLayer, b: MapGraphicsLayer) => {
+            const layerAIndex = MapGraphicsLayerSquaddieTypes.indexOf(a.type)
+            const layerBIndex = MapGraphicsLayerSquaddieTypes.indexOf(b.type)
+
+            switch (true) {
+                case a.type === MapGraphicsLayerType.UNKNOWN &&
+                    b.type !== MapGraphicsLayerType.UNKNOWN:
+                    return -1
+                case a.type !== MapGraphicsLayerType.UNKNOWN &&
+                    b.type === MapGraphicsLayerType.UNKNOWN:
+                    return 1
+                case a.type === MapGraphicsLayerType.UNKNOWN &&
+                    b.type === MapGraphicsLayerType.UNKNOWN:
+                    return 0
+                case layerAIndex < layerBIndex:
+                    return -1
+                case layerAIndex > layerBIndex:
+                    return 1
+                default:
+                    return 0
+            }
+        }
+
+        terrainTileMap.highlightLayers.sort(sortByLayer)
+    },
 }
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {

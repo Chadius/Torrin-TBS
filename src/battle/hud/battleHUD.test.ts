@@ -109,10 +109,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
-import {
-    HighlightPulseBlueColor,
-    HighlightPulseRedColor,
-} from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
@@ -670,7 +667,7 @@ describe("Battle HUD", () => {
             } = createGameEngineState({
                 missionMap: MissionMapService.new({
                     terrainTileMap: TerrainTileMapService.new({
-                        movementCost: ["1 1 "],
+                        movementCost: ["1 1 1 "],
                     }),
                 }),
             }))
@@ -875,7 +872,7 @@ describe("Battle HUD", () => {
             ).toBeUndefined()
         })
 
-        it("highlights the map with the squaddie's range", () => {
+        it("highlights the map with the controllable squaddie's range", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
                 gameEngineState,
@@ -887,14 +884,61 @@ describe("Battle HUD", () => {
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
 
-            expect(
-                TerrainTileMapService.getGraphicsLayer({
-                    terrainTileMap:
-                        gameEngineState.battleOrchestratorState.battleState
-                            .missionMap.terrainTileMap,
-                    id: battleSquaddie.battleSquaddieId,
+            const graphicsLayer = TerrainTileMapService.getGraphicsLayer({
+                terrainTileMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                id: battleSquaddie.battleSquaddieId,
+            })
+            expect(graphicsLayer.type).toEqual(
+                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+            )
+        })
+        it("highlights ranges for normally uncontrollable squaddies", () => {
+            ObjectRepositoryService.addSquaddie(
+                gameEngineState.repository,
+                SquaddieTemplateService.new({
+                    squaddieId: SquaddieIdService.new({
+                        templateId: "enemy",
+                        name: "enemy",
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    }),
+                }),
+                BattleSquaddieService.new({
+                    battleSquaddieId: "enemy",
+                    squaddieTemplateId: "enemy",
                 })
-            ).not.toBeUndefined()
+            )
+
+            MissionMapService.addSquaddie({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                squaddieTemplateId: "enemy",
+                battleSquaddieId: "enemy",
+                location: { q: 0, r: 2 },
+            })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: "enemy",
+                selectionMethod: {
+                    mouseMovement: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_TARGET,
+            })
+
+            const graphicsLayer = TerrainTileMapService.getGraphicsLayer({
+                terrainTileMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                id: "enemy",
+            })
+            expect(graphicsLayer.type).toEqual(
+                MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
+            )
         })
     })
     describe("Player cancels target selection they were considering", () => {
@@ -2005,10 +2049,10 @@ describe("Battle HUD", () => {
                                 { q: 0, r: 0 },
                                 { q: 0, r: 1 },
                             ],
-                            pulseColor: HighlightPulseBlueColor,
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         },
                     ],
-                    type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                    type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
                 })
             )
             TerrainTileMapService.addGraphicsLayer(
@@ -2021,10 +2065,10 @@ describe("Battle HUD", () => {
                                 { q: 0, r: 2 },
                                 { q: 0, r: 3 },
                             ],
-                            pulseColor: HighlightPulseRedColor,
+                            pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         },
                     ],
-                    type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+                    type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
                 })
             )
         })

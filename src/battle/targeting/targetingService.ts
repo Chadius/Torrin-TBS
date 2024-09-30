@@ -25,7 +25,7 @@ import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfi
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import {
     Trait,
     TraitCategory,
@@ -336,11 +336,11 @@ const highlightTargetRange = (
         highlightedTileDescriptions: [
             {
                 tiles: actionRange,
-                pulseColor: HighlightPulseRedColor,
+                pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                 overlayImageResourceName: "map icon attack 1 action",
             },
         ],
-        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+        type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
     })
     TerrainTileMapService.addGraphicsLayer(
         gameEngineState.battleOrchestratorState.battleState.missionMap

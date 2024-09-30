@@ -3,21 +3,18 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
-import {
-    HighlightPulseBlueColor,
-    HighlightPulseRedColor,
-} from "./hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
 
 describe("Map Graphics Layer", () => {
     it("has an Id", () => {
         const mapGraphicsLayerWithId = MapGraphicsLayerService.new({
             id: "wow",
-            type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+            type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
         })
 
         expect(mapGraphicsLayerWithId.id).toEqual("wow")
         expect(mapGraphicsLayerWithId.type).toEqual(
-            MapGraphicsLayerType.HOVERED_OVER_SQUADDIE
+            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
         )
     })
 
@@ -32,7 +29,7 @@ describe("Map Graphics Layer", () => {
                             { q: 0, r: 0 },
                             { q: 0, r: 1 },
                         ],
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                 ],
@@ -43,7 +40,7 @@ describe("Map Graphics Layer", () => {
                 mapGraphicsLayer,
                 {
                     tiles: [{ q: 0, r: 2 }],
-                    pulseColor: HighlightPulseRedColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "1 move attack",
                 }
             )
@@ -62,12 +59,12 @@ describe("Map Graphics Layer", () => {
                             { q: 0, r: 0 },
                             { q: 0, r: 1 },
                         ],
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                     {
                         tiles: [{ q: 0, r: 2 }],
-                        pulseColor: HighlightPulseRedColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         overlayImageResourceName: "1 move attack",
                     },
                 ])
@@ -81,17 +78,17 @@ describe("Map Graphics Layer", () => {
                 expect.arrayContaining([
                     {
                         location: { q: 0, r: 0 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                     {
                         location: { q: 0, r: 1 },
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                     {
                         location: { q: 0, r: 2 },
-                        pulseColor: HighlightPulseRedColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         overlayImageResourceName: "1 move attack",
                     },
                 ])
@@ -156,7 +153,7 @@ describe("Map Graphics Layer", () => {
                 expect.arrayContaining([
                     {
                         tiles: [{ q: 0, r: 0 }],
-                        pulseColor: HighlightPulseBlueColor,
+                        pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                 ])

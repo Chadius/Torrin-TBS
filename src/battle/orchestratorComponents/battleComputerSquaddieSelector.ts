@@ -18,7 +18,7 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
@@ -251,11 +251,11 @@ export class BattleComputerSquaddieSelector
             highlightedTileDescriptions: [
                 {
                     tiles: tilesTargeted,
-                    pulseColor: HighlightPulseRedColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
             ],
-            type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+            type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
         })
         TerrainTileMapService.addGraphicsLayer(
             gameEngineState.battleOrchestratorState.battleState.missionMap

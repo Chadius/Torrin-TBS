@@ -87,38 +87,6 @@ export const PlayerSelectionContextCalculationArgsService = {
     }),
 }
 
-const isDifferentSquaddieInRange = (
-    battleSquaddieTryingToStartAnAction: string,
-    gameEngineState: GameEngineState,
-    clickedLocation: HexCoordinate
-) => {
-    if (!battleSquaddieTryingToStartAnAction) {
-        return false
-    }
-
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieTryingToStartAnAction
-        )
-    )
-
-    return (
-        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-            {
-                gameEngineState,
-                battleSquaddie,
-                squaddieTemplate,
-                stopLocation: clickedLocation,
-                distanceRangeFromDestination: {
-                    minimum: 1,
-                    maximum: 1,
-                },
-            }
-        ) !== undefined
-    )
-}
-
 export const PlayerSelectionService = {
     calculateContext: ({
         gameEngineState,
@@ -671,30 +639,34 @@ const playerSelectsAnAction = ({
     })
 }
 
-const getPlayerIntentWhenClickingOnTwoSquaddies = ({
-    battleSquaddieTryingToStartAnAction,
-    gameEngineState,
-    clickedLocation,
-    mouseClick,
-}: {
-    battleSquaddieTryingToStartAnAction: string
-    gameEngineState: GameEngineState
+const isDifferentSquaddieInRange = (
+    battleSquaddieTryingToStartAnAction: string,
+    gameEngineState: GameEngineState,
     clickedLocation: HexCoordinate
-    mouseClick: MouseClick
-}): PlayerSelectionContext => {
-    if (
-        !isDifferentSquaddieInRange(
-            battleSquaddieTryingToStartAnAction,
-            gameEngineState,
-            clickedLocation
-        )
-    ) {
-        return undefined
+) => {
+    if (!battleSquaddieTryingToStartAnAction) {
+        return false
     }
 
-    return PlayerSelectionContextService.new({
-        playerIntent: PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
-        battleSquaddieId: battleSquaddieTryingToStartAnAction,
-        mouseClick,
-    })
+    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieTryingToStartAnAction
+        )
+    )
+
+    return (
+        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+            {
+                gameEngineState,
+                battleSquaddie,
+                squaddieTemplate,
+                stopLocation: clickedLocation,
+                distanceRangeFromDestination: {
+                    minimum: 1,
+                    maximum: 1,
+                },
+            }
+        ) !== undefined
+    )
 }

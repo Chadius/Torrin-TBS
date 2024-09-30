@@ -30,7 +30,7 @@ import {
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
 
@@ -462,7 +462,7 @@ describe("Targeting Service", () => {
             ).toEqual([
                 {
                     tiles: actionRange,
-                    pulseColor: HighlightPulseRedColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
             ])

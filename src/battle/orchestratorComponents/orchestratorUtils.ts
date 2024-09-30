@@ -464,10 +464,21 @@ const highlightSquaddieRange = (
                     : SquaddieTurnService.new(),
         })
 
+    const { squaddieIsNormallyControllableByPlayer } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        })
+
+    const layerType: MapGraphicsLayerType =
+        squaddieIsNormallyControllableByPlayer
+            ? MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+            : MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE
+
     const actionRangeOnMap = MapGraphicsLayerService.new({
         id: battleSquaddieToHighlightId,
         highlightedTileDescriptions: squaddieReachHighlightedOnMap,
-        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+        type: layerType,
     })
     TerrainTileMapService.addGraphicsLayer(
         gameEngineState.battleOrchestratorState.battleState.missionMap

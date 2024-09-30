@@ -45,7 +45,10 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { CampaignService } from "../../campaign/campaign"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
+import {
+    MapGraphicsLayer,
+    MapGraphicsLayerType,
+} from "../../hexMap/mapGraphicsLayer"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -771,8 +774,11 @@ describe("Orchestration Utils", () => {
                 gameEngineState,
                 knightBattleSquaddie.battleSquaddieId
             )
-            const addGraphicsLayerSpyArgs = addGraphicsLayerSpy.mock.calls[0][1]
-            expect(addGraphicsLayerSpyArgs.highlights).toHaveLength(1)
+            const addedMapGraphicsLayer = addGraphicsLayerSpy.mock.calls[0][1]
+            expect(addedMapGraphicsLayer.type).toEqual(
+                MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+            )
+            expect(addedMapGraphicsLayer.highlights).toHaveLength(1)
         })
         it("highlights the range for a non player controlled squaddie using a standard turn even if they are out of actions", () => {
             const {
@@ -810,9 +816,12 @@ describe("Orchestration Utils", () => {
                 enemyBattleSquaddie.battleSquaddieId
             )
 
-            const addGraphicsLayerSpyLayer: MapGraphicsLayer =
+            const addedMapGraphicsLayer: MapGraphicsLayer =
                 addGraphicsLayerSpy.mock.calls[0][1]
-            expect(addGraphicsLayerSpyLayer.highlights).toHaveLength(4)
+            expect(addedMapGraphicsLayer.type).toEqual(
+                MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE
+            )
+            expect(addedMapGraphicsLayer.highlights).toHaveLength(4)
         })
     })
 })

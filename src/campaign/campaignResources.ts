@@ -1,14 +1,13 @@
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
 import { AttributeType } from "../squaddie/attributeModifier"
 
-export type MissionMapIconKey =
-    | MissionMapAttackIconKey
-    | MissionMapMovementIconKey
-
 export enum MissionMapMovementIconKey {
-    MOVE_1_ACTION = "MOVE_1_ACTION",
-    MOVE_2_ACTIONS = "MOVE_2_ACTIONS",
-    MOVE_3_ACTIONS = "MOVE_3_ACTIONS",
+    MOVE_1_ACTION_CONTROLLABLE_SQUADDIE = "MOVE_1_ACTION_CONTROLLABLE_SQUADDIE",
+    MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE = "MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE",
+    MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE = "MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE",
+    MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE = "MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE",
+    MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE = "MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE",
+    MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE = "MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE",
 }
 
 export enum MissionMapAttackIconKey {
@@ -55,12 +54,18 @@ export const CampaignResourcesService = {
     default: (): CampaignResources => {
         return {
             missionMapMovementIconResourceKeys: {
-                [MissionMapMovementIconKey.MOVE_1_ACTION]:
+                [MissionMapMovementIconKey.MOVE_1_ACTION_CONTROLLABLE_SQUADDIE]:
                     "map icon move 1 action",
-                [MissionMapMovementIconKey.MOVE_2_ACTIONS]:
+                [MissionMapMovementIconKey.MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE]:
                     "map icon move 2 actions",
-                [MissionMapMovementIconKey.MOVE_3_ACTIONS]:
+                [MissionMapMovementIconKey.MOVE_3_ACTIONS_CONTROLLABLE_SQUADDIE]:
                     "map icon move 3 actions",
+                [MissionMapMovementIconKey.MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE]:
+                    "map icon move 1 action small",
+                [MissionMapMovementIconKey.MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE]:
+                    "map icon move 2 actions small",
+                [MissionMapMovementIconKey.MOVE_3_ACTIONS_UNCONTROLLABLE_SQUADDIE]:
+                    "map icon move 3 actions small",
             },
             missionMapAttackIconResourceKeys: {
                 [MissionMapAttackIconKey.ATTACK_1_ACTION]:

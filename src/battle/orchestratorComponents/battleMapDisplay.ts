@@ -36,6 +36,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap
         ) {
+            TerrainTileMapService.sortGraphicsLayersByType(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            )
             HexDrawingUtils.drawHexMap({
                 graphics,
                 map: gameEngineState.battleOrchestratorState.battleState

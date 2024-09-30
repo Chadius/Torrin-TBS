@@ -43,7 +43,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
-import { HighlightPulseRedColor } from "../../hexMap/hexDrawingUtils"
+import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
@@ -82,6 +82,7 @@ import { MovementCalculatorService } from "../calculator/movement/movementCalcul
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -233,11 +234,11 @@ export const BattleHUDService = {
             highlightedTileDescriptions: [
                 {
                     tiles: actionRange,
-                    pulseColor: HighlightPulseRedColor,
+                    pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
             ],
-            type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+            type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
         })
         TerrainTileMapService.addGraphicsLayer(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -417,7 +418,7 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 battleSquaddieId
             )
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
@@ -438,22 +439,38 @@ export const BattleHUDService = {
                         ? undefined
                         : SquaddieTurnService.new(),
             })
-        const actionRangeOnMap = MapGraphicsLayerService.new({
-            id: battleSquaddieId,
-            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
-            type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+
+        ;[
+            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
+        ].forEach((type) => {
+            TerrainTileMapService.removeGraphicsLayerByType(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                type
+            )
         })
 
-        TerrainTileMapService.removeGraphicsLayerByType(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
-            MapGraphicsLayerType.HOVERED_OVER_SQUADDIE
-        )
+        const { squaddieIsNormallyControllableByPlayer } =
+            SquaddieService.canPlayerControlSquaddieRightNow({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+        const layerType: MapGraphicsLayerType =
+            squaddieIsNormallyControllableByPlayer
+                ? MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+                : MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
+
+        const actionRangeLayer = MapGraphicsLayerService.new({
+            id: battleSquaddieId,
+            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
+            type: layerType,
+        })
 
         TerrainTileMapService.addGraphicsLayer(
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap,
-            actionRangeOnMap
+            actionRangeLayer
         )
 
         switch (true) {
@@ -585,12 +602,13 @@ export const BattleHUDService = {
 
         let actionsThisRound =
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        const { battleSquaddie: actingBattleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                actionsThisRound.battleSquaddieId
+        const { battleSquaddie: actingBattleSquaddie, squaddieTemplate } =
+            getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    actionsThisRound.battleSquaddieId
+                )
             )
-        )
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
@@ -680,7 +698,8 @@ export const BattleHUDService = {
         )
         clearAllHoverAndClickedLayersExceptForThisSquaddie(
             gameEngineState,
-            actingBattleSquaddie
+            actingBattleSquaddie,
+            squaddieTemplate
         )
     },
     enablePlayerCommand: (
@@ -710,13 +729,18 @@ export const BattleHUDService = {
                 .summaryHUDState
         const popoverType = message.popoverType
 
-        TerrainTileMapService.removeGraphicsLayerWithIdAndType({
-            terrainTileMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-            id: summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-                .battleSquaddieId,
-            type: MapGraphicsLayerType.HOVERED_OVER_SQUADDIE,
+        ;[
+            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
+        ].forEach((t) => {
+            TerrainTileMapService.removeGraphicsLayerWithIdAndType({
+                terrainTileMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap.terrainTileMap,
+                id: summaryHUDState.squaddieSummaryPopoversByType[popoverType]
+                    .battleSquaddieId,
+                type: t,
+            })
         })
 
         summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
@@ -1098,14 +1122,26 @@ const addEventToRecording = (
 
 const clearAllHoverAndClickedLayersExceptForThisSquaddie = (
     gameEngineState: GameEngineState,
-    actingBattleSquaddie: BattleSquaddie
+    actingBattleSquaddie: BattleSquaddie,
+    actingSquaddieTemplate: SquaddieTemplate
 ) => {
-    const confirmLayer = TerrainTileMapService.getGraphicsLayer({
+    const { squaddieIsNormallyControllableByPlayer } =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate: actingSquaddieTemplate,
+            battleSquaddie: actingBattleSquaddie,
+        })
+
+    const layerType: MapGraphicsLayerType =
+        squaddieIsNormallyControllableByPlayer
+            ? MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+            : MapGraphicsLayerType.CLICKED_ON_NORMALLY_UNCONTROLLABLE_SQUADDIE
+
+    let confirmLayer = TerrainTileMapService.getGraphicsLayer({
         terrainTileMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap,
         id: actingBattleSquaddie.battleSquaddieId,
-        type: MapGraphicsLayerType.CLICKED_ON_SQUADDIE,
+        type: layerType,
     })
     MapGraphicsLayerSquaddieTypes.forEach((t) =>
         TerrainTileMapService.removeGraphicsLayerByType(

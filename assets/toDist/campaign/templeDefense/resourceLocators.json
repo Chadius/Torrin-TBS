@@ -36,6 +36,21 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/mapUiIcon/map-icon-move-1-action-small.png",
+    "key": "map icon move 1 action small"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapUiIcon/map-icon-move-2-actions-small.png",
+    "key": "map icon move 2 actions small"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/mapUiIcon/map-icon-move-3-actions-small.png",
+    "key": "map icon move 3 actions small"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/mapUiIcon/map-icon-attack-1-action.png",
     "key": "map icon attack 1 action"
   },
