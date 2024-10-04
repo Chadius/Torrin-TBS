@@ -7,14 +7,13 @@ import { Label, LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionResultTextService } from "./actionResultTextService"
-import { RecordingService } from "../history/recording"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
-import { BattleActionService } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
@@ -84,30 +83,18 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             return
         }
 
-        const processedActionEffectToShow =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            )
-        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
-            return
-        }
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
 
-        if (
-            processedActionEffectToShow.decidedActionEffect.type !==
-            ActionEffectType.SQUADDIE
-        ) {
+        if (actionToShow?.action.actionTemplateId === undefined) {
             return
         }
-        const currentActionEffectSquaddieTemplate =
-            processedActionEffectToShow.decidedActionEffect.template
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            BattleActionQueueService.peek(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
-            ).action.actionTemplateId
+            actionToShow.action.actionTemplateId
         )
 
         this.outputTextStrings = []
@@ -115,11 +102,17 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: gameEngineState.repository,
                 actionTemplateName: actionTemplate.name,
-                currentActionEffectSquaddieTemplate,
-                result: RecordingService.mostRecentEvent(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording
-                ).results,
+                currentActionEffectSquaddieTemplate: actionTemplate
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                result: SquaddieSquaddieResultsService.new({
+                    actingBattleSquaddieId:
+                        actionToShow.actor.actorBattleSquaddieId,
+                    actionContext: actionToShow.actor.actorContext,
+                    targetedBattleSquaddieIds: actionToShow.effect.squaddie.map(
+                        (s) => s.battleSquaddieId
+                    ),
+                    squaddieChanges: actionToShow.effect.squaddie,
+                }),
             })
 
         const textToDraw = this.outputTextStrings.join("\n")

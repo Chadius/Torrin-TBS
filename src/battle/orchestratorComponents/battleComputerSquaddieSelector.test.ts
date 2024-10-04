@@ -72,6 +72,7 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleAction } from "../history/battleAction"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -745,6 +746,19 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(actionPointsRemaining).toBe(
                     3 - demonBiteAction.actionPoints
                 )
+            })
+
+            it("make sure battle action has the expected fields", () => {
+                const actionToShow: BattleAction =
+                    BattleActionQueueService.peek(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionQueue
+                    )
+
+                expect(actionToShow.actor.actorBattleSquaddieId).toEqual(
+                    enemyDemonBattleSquaddie.battleSquaddieId
+                )
+                expect(actionToShow.actor.actorContext).not.toBeUndefined()
             })
 
             it("should add the results to the history", () => {

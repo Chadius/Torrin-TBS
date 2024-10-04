@@ -45,8 +45,6 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import {
     ProcessedAction,
     ProcessedActionService,
@@ -684,6 +682,7 @@ export const BattleHUDService = {
         const squaddieBattleAction: BattleAction = BattleActionService.new({
             actor: {
                 actorBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+                actorContext: results.actingContext,
             },
             action: { actionTemplateId: actionTemplate.id },
             effect: {
@@ -1027,10 +1026,6 @@ const processEndTurnAction = (
     battleSquaddie: BattleSquaddie,
     mapLocation: HexCoordinate
 ) => {
-    const decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
-        template: ActionEffectEndTurnTemplateService.new({}),
-    })
-
     const endTurnDecision: BattleActionDecisionStep =
         BattleActionDecisionStepService.new()
     BattleActionDecisionStepService.setActor({

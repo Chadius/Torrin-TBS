@@ -1,4 +1,3 @@
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
@@ -16,18 +15,16 @@ import { GetHitPoints } from "../../squaddie/squaddieService"
 import { WINDOW_SPACING } from "../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../graphicsConstants"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
-import { RecordingService } from "../history/recording"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
-import { BattleActionService } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -91,7 +88,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         mouseEvent: OrchestratorComponentMouseEvent
     ) {
         if (
@@ -99,7 +96,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         ) {
             this._userRequestedAnimationSkip = true
             if (this.startedShowingResults === false) {
-                this.updateHitPointMeters(state.battleOrchestratorState)
+                this.updateHitPointMeters(gameEngineState)
                 this.startedShowingResults = true
             }
         }
@@ -118,12 +115,12 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._targetHitPointMeters = {}
     }
 
-    update(state: GameEngineState, graphics: GraphicsBuffer): void {
+    update(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
         if (
             this.actionAnimationTimer.currentPhase ===
             ActionAnimationPhase.INITIALIZED
         ) {
-            this.setupActionAnimation(state)
+            this.setupActionAnimation(gameEngineState)
             this.actionAnimationTimer.start()
         }
 
@@ -136,27 +133,18 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             case ActionAnimationPhase.INITIALIZED:
             case ActionAnimationPhase.BEFORE_ACTION:
             case ActionAnimationPhase.DURING_ACTION:
-                this.drawActionAnimation(
-                    state.battleOrchestratorState,
-                    graphics
-                )
+                this.drawActionAnimation(gameEngineState, graphics)
                 break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.TARGET_REACTS:
                 if (this.startedShowingResults === false) {
-                    this.updateHitPointMeters(state.battleOrchestratorState)
+                    this.updateHitPointMeters(gameEngineState)
                     this.startedShowingResults = true
                 }
-                this.drawActionAnimation(
-                    state.battleOrchestratorState,
-                    graphics
-                )
+                this.drawActionAnimation(gameEngineState, graphics)
                 break
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                this.drawActionAnimation(
-                    state.battleOrchestratorState,
-                    graphics
-                )
+                this.drawActionAnimation(gameEngineState, graphics)
                 this.sawResultAftermath = true
                 break
         }
@@ -178,48 +166,41 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._weaponIcon = new WeaponIcon()
         this._actorSprite = new ActorSprite()
 
-        const mostRecentResults = RecordingService.mostRecentEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
         )
+
         const { battleSquaddie: actorBattle, squaddieTemplate: actorTemplate } =
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository,
-                    mostRecentResults.results.actingBattleSquaddieId
+                    actionToShow.actor.actorBattleSquaddieId
                 )
             )
 
-        const processedActionEffectToShow =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            )
-        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
+        if (actionToShow?.action.actionTemplateId === undefined) {
             return
         }
-
-        if (
-            processedActionEffectToShow.decidedActionEffect.type !==
-            ActionEffectType.SQUADDIE
-        ) {
-            return
-        }
-        const actionEffectSquaddieTemplate =
-            processedActionEffectToShow.decidedActionEffect.template
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            BattleActionQueueService.peek(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
-            ).action.actionTemplateId
+            actionToShow.action.actionTemplateId
         )
+        const results = SquaddieSquaddieResultsService.new({
+            actingBattleSquaddieId: actionToShow.actor.actorBattleSquaddieId,
+            actionContext: actionToShow.actor.actorContext,
+            targetedBattleSquaddieIds: actionToShow.effect.squaddie.map(
+                (s) => s.battleSquaddieId
+            ),
+            squaddieChanges: actionToShow.effect.squaddie,
+        })
 
         this.actorTextWindow.start({
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
             actionTemplateName: actionTemplate.name,
-            results: mostRecentResults.results,
+            results,
         })
 
         this.actorSprite.start({
@@ -229,90 +210,88 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             startingPosition:
                 (2 * ScreenDimensions.SCREEN_WIDTH) / 12 +
                 WINDOW_SPACING.SPACING1,
-            squaddieResult: mostRecentResults.results,
+            squaddieResult: results,
         })
         this.weaponIcon.start()
 
-        const resultPerTarget = RecordingService.mostRecentEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording
-        ).results.squaddieChanges
+        const resultPerTarget = actionToShow.effect.squaddie
         this.setupAnimationForTargetTextWindows(
             gameEngineState,
             resultPerTarget
         )
         this.setupAnimationForTargetSprites(
             gameEngineState,
-            actionEffectSquaddieTemplate,
+            actionTemplate
+                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             resultPerTarget
         )
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
     }
 
     private setupAnimationForTargetSprites(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        this._targetSprites = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
-        ).results.targetedBattleSquaddieIds.map(
-            (battleId: string, index: number) => {
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+
+        this._targetSprites = actionToShow.effect.squaddie
+            .map((s) => s.battleSquaddieId)
+            .map((battleId: string, index: number) => {
                 const targetSprite = new TargetSprite()
                 targetSprite.start({
                     targetBattleSquaddieId: battleId,
-                    squaddieRepository: state.repository,
+                    squaddieRepository: gameEngineState.repository,
                     actionEffectSquaddieTemplate,
                     result: resultPerTarget.find(
                         (change) => change.battleSquaddieId === battleId
                     ),
-                    resourceHandler: state.resourceHandler,
+                    resourceHandler: gameEngineState.resourceHandler,
                     startingPosition: RectAreaService.right(
                         this.targetTextWindows[index].targetLabel.rectangle.area
                     ),
                 })
                 return targetSprite
-            }
-        )
+            })
     }
 
     private setupAnimationForTargetTextWindows(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        this._targetTextWindows = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
         )
-            .results.targetedBattleSquaddieIds.map((battleId: string) => {
+
+        if (actionToShow?.action.actionTemplateId === undefined) {
+            this._targetTextWindows = []
+            return
+        }
+
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            actionToShow.action.actionTemplateId
+        )
+
+        this._targetTextWindows = resultPerTarget
+            .map((r) => r.battleSquaddieId)
+            .map((battleId: string) => {
                 const {
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
                 } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        state.repository,
+                        gameEngineState.repository,
                         battleId
                     )
                 )
 
-                const processedActionEffectToShow =
-                    ActionsThisRoundService.getProcessedActionEffectToShow(
-                        state.battleOrchestratorState.battleState
-                            .actionsThisRound
-                    )
-                if (
-                    processedActionEffectToShow.type !==
-                    ActionEffectType.SQUADDIE
-                ) {
-                    return undefined
-                }
-
-                if (
-                    processedActionEffectToShow.decidedActionEffect.type !==
-                    ActionEffectType.SQUADDIE
-                ) {
-                    return undefined
-                }
-                const actionEffectSquaddieTemplate =
-                    processedActionEffectToShow.decidedActionEffect.template
+                const actionEffectSquaddieTemplate = actionTemplate
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
 
                 const targetTextWindow = new TargetTextWindow()
                 targetTextWindow.start({
@@ -328,21 +307,29 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             .filter((x) => x)
     }
 
-    private setupAnimationForTargetHitPointMeters(state: GameEngineState) {
-        const mostRecentResults = RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
-        ).results
-        RecordingService.mostRecentEvent(
-            state.battleOrchestratorState.battleState.recording
-        ).results.targetedBattleSquaddieIds.forEach(
-            (battleId: string, index: number) => {
+    private setupAnimationForTargetHitPointMeters(
+        gameEngineState: GameEngineState
+    ) {
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+
+        if (actionToShow?.action.actionTemplateId === undefined) {
+            this._targetTextWindows = []
+            return
+        }
+
+        actionToShow.effect.squaddie.forEach(
+            (change: BattleActionSquaddieChange, index: number) => {
+                const battleSquaddieId = change.battleSquaddieId
                 const {
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
                 } = getResultOrThrowError(
                     ObjectRepositoryService.getSquaddieByBattleId(
-                        state.repository,
-                        battleId
+                        gameEngineState.repository,
+                        battleSquaddieId
                     )
                 )
 
@@ -354,51 +341,49 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     squaddieTemplate: targetTemplate,
                 })
 
-                const change = mostRecentResults.squaddieChanges.find(
-                    (change) => change.battleSquaddieId === battleId
-                )
                 displayedHitPointsBeforeChange -= change.healingReceived
                 displayedHitPointsBeforeChange += change.damage.net
 
-                this._targetHitPointMeters[battleId] = new HitPointMeter({
-                    currentHitPoints: displayedHitPointsBeforeChange,
-                    maxHitPoints,
-                    left:
-                        this._targetTextWindows[index].targetLabel.rectangle
-                            .area.left + WINDOW_SPACING.SPACING1,
-                    top:
-                        this._targetTextWindows[index].targetLabel.rectangle
-                            .area.top + 100,
-                    hue: HUE_BY_SQUADDIE_AFFILIATION[
-                        targetTemplate.squaddieId.affiliation
-                    ],
-                })
+                this._targetHitPointMeters[battleSquaddieId] =
+                    new HitPointMeter({
+                        currentHitPoints: displayedHitPointsBeforeChange,
+                        maxHitPoints,
+                        left:
+                            this._targetTextWindows[index].targetLabel.rectangle
+                                .area.left + WINDOW_SPACING.SPACING1,
+                        top:
+                            this._targetTextWindows[index].targetLabel.rectangle
+                                .area.top + 100,
+                        hue: HUE_BY_SQUADDIE_AFFILIATION[
+                            targetTemplate.squaddieId.affiliation
+                        ],
+                    })
             }
         )
     }
 
     private drawActionAnimation(
-        state: BattleOrchestratorState,
+        gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer)
 
-        const processedActionEffectToShow =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                state.battleState.actionsThisRound
-            )
-        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+
+        if (actionToShow?.action.actionTemplateId === undefined) {
             return
         }
 
-        if (
-            processedActionEffectToShow.decidedActionEffect.type !==
-            ActionEffectType.SQUADDIE
-        ) {
-            return
-        }
-        const actionEffectSquaddieTemplate =
-            processedActionEffectToShow.decidedActionEffect.template
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            actionToShow.action.actionTemplateId
+        )
+
+        const actionEffectSquaddieTemplate = actionTemplate
+            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
 
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,
@@ -417,15 +402,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this.targetTextWindows.forEach((t) =>
             t.draw(graphicsContext, this.actionAnimationTimer)
         )
-        const mostRecentResults = RecordingService.mostRecentEvent(
-            state.battleState.recording
-        ).results
+
         this.targetSprites.forEach((t) => {
             t.draw(
                 this.actionAnimationTimer,
                 graphicsContext,
                 actionEffectSquaddieTemplate,
-                mostRecentResults.squaddieChanges.find(
+                actionToShow.effect.squaddie.find(
                     (change) => change.battleSquaddieId === t.battleSquaddieId
                 )
             )
@@ -435,17 +418,14 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         )
     }
 
-    private updateHitPointMeters(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingService.mostRecentEvent(
-            state.battleState.recording
-        ).results
-        RecordingService.mostRecentEvent(
-            state.battleState.recording
-        ).results.targetedBattleSquaddieIds.forEach((battleId: string) => {
-            const hitPointMeter = this.targetHitPointMeters[battleId]
-            const change = mostRecentResults.squaddieChanges.find(
-                (change) => change.battleSquaddieId === battleId
-            )
+    private updateHitPointMeters(gameEngineState: GameEngineState) {
+        const actionToShow: BattleAction = BattleActionQueueService.peek(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionQueue
+        )
+        actionToShow.effect.squaddie.forEach((change) => {
+            const battleSquaddieId = change.battleSquaddieId
+            const hitPointMeter = this.targetHitPointMeters[battleSquaddieId]
             const hitPointChange: number =
                 change.healingReceived - change.damage.net
             hitPointMeter.changeHitPoints(hitPointChange)

@@ -3,6 +3,16 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
 import { RollResult } from "../calculator/actionCalculator/rollResult"
 import { AttributeTypeAndAmount } from "../../squaddie/attributeModifier"
+import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService,
+} from "../../action/template/actionEffectSquaddieTemplate"
+
+export const MULTIPLE_ATTACK_PENALTY = -3
+export const MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX = 2
+export type ActionPointCost = number | "End Turn"
 
 export interface BattleActionActor {
     actorBattleSquaddieId: string
@@ -99,6 +109,32 @@ export const BattleActionService = {
         battleAction.animation = {
             completed: animationCompleted,
         }
+    },
+    multipleAttackPenaltyMultiplier: (
+        battleAction: BattleAction,
+        objectRepository: ObjectRepository
+    ): number => {
+        if (!isValidValue(battleAction?.action.actionTemplateId)) {
+            return 0
+        }
+
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            battleAction.action.actionTemplateId
+        )
+
+        const rawMAP: number = actionTemplate.actionEffectTemplates
+            .filter((e) => e.type === ActionEffectType.SQUADDIE)
+            .reduce(
+                (accumulator, actionEffectTemplate) =>
+                    accumulator +
+                    ActionEffectSquaddieTemplateService.getMultipleAttackPenalty(
+                        actionEffectTemplate as ActionEffectSquaddieTemplate
+                    ),
+                0
+            )
+
+        return Math.min(rawMAP, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX)
     },
 }
 

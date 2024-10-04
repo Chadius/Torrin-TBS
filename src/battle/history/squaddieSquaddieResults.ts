@@ -1,5 +1,8 @@
 import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
-import { BattleActionActionContext } from "./battleAction"
+import {
+    BattleActionActionContext,
+    BattleActionActionContextService,
+} from "./battleAction"
 
 export interface SquaddieSquaddieResults {
     actingBattleSquaddieId: string
@@ -34,6 +37,10 @@ export const SquaddieSquaddieResultsService = {
 }
 
 const sanitize = (result: SquaddieSquaddieResults): SquaddieSquaddieResults => {
+    if (result.actingContext === undefined) {
+        result.actingContext = BattleActionActionContextService.new({})
+    }
+
     if (result.actingContext.actingSquaddieModifiers === undefined) {
         result.actingContext.actingSquaddieModifiers = []
     }

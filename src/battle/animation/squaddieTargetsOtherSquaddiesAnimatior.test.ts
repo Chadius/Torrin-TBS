@@ -33,10 +33,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../history/actionsThisRound"
-import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
@@ -62,17 +58,15 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let knightBattleSquaddie: BattleSquaddie
     let knightBattleSquaddieId = "knight_0"
     let knightTemplateId = "knight_0"
-    let thiefBattleSquaddie: BattleSquaddie
     let thiefDynamicId = "thief_0"
     let thiefStaticId = "thief_0"
 
     let longswordActionTemplate: ActionTemplate
-    let powerAttackLongswordAction: ActionTemplate
     let animator: SquaddieTargetsOtherSquaddiesAnimator
     let mockResourceHandler: jest.Mocked<ResourceHandler>
     let battleEventRecording: Recording
 
-    let knightHitsThiefWithLongswordInstructionInProgress: ActionsThisRound
+    let knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
     let knightHitsThiefWithLongswordEvent: BattleEvent
 
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -80,11 +74,11 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         objectRepository = ObjectRepositoryService.new()
-        ;({ thiefBattleSquaddie } = CreateNewThiefSquaddie({
+        CreateNewThiefSquaddie({
             squaddieRepository: objectRepository,
             templateId: thiefStaticId,
             battleId: thiefDynamicId,
-        }))
+        })
 
         longswordActionTemplate = ActionTemplateService.new({
             name: "longsword",
@@ -138,28 +132,38 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             .fn()
             .mockReturnValue(makeResult(null))
 
-        knightHitsThiefWithLongswordInstructionInProgress =
-            ActionsThisRoundService.new({
-                battleSquaddieId: "dynamic_squaddie",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [oneDecisionInstruction],
+        knightHitsThiefWithLongswordInstructionBattleAction =
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        knightBattleSquaddie.battleSquaddieId,
+                },
+                action: { actionTemplateId: longswordActionTemplate.id },
+                effect: {
+                    squaddie: [
+                        BattleActionSquaddieChangeService.new({
+                            battleSquaddieId: thiefDynamicId,
+                            damageExplanation: DamageExplanationService.new({
+                                net: 1,
+                            }),
+                            healingReceived: 0,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                        }),
+                    ],
+                },
             })
 
         knightHitsThiefWithLongswordEvent = BattleEventService.new({
             processedAction: oneDecisionInstruction,
             results: SquaddieSquaddieResultsService.new({
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                targetedBattleSquaddieIds: [thiefDynamicId],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: thiefDynamicId,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        healingReceived: 0,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                ],
+                targetedBattleSquaddieIds:
+                    knightHitsThiefWithLongswordInstructionBattleAction.effect.squaddie.map(
+                        (s) => s.battleSquaddieId
+                    ),
+                squaddieChanges:
+                    knightHitsThiefWithLongswordInstructionBattleAction.effect
+                        .squaddie,
                 actionContext: BattleActionActionContextService.new({}),
             }),
         })
@@ -188,23 +192,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    actionsThisRound:
-                        knightHitsThiefWithLongswordInstructionInProgress,
-                    recording: battleEventRecording,
                 }),
             }),
         })
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionQueue,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId:
-                        knightBattleSquaddie.battleSquaddieId,
-                },
-                action: { actionTemplateId: longswordActionTemplate.id },
-                effect: { squaddie: [] },
-            })
+            knightHitsThiefWithLongswordInstructionBattleAction
         )
 
         animator.reset(gameEngineState)
@@ -221,10 +215,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     })
 
     it("will skip displaying the results if the user clicks", () => {
-        RecordingService.addEvent(
-            battleEventRecording,
-            knightHitsThiefWithLongswordEvent
-        )
         mockActionTimerPhase(
             animator.actionAnimationTimer,
             ActionAnimationPhase.INITIALIZED
@@ -236,23 +226,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    actionsThisRound:
-                        knightHitsThiefWithLongswordInstructionInProgress,
-                    recording: battleEventRecording,
                 }),
             }),
         })
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionQueue,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId:
-                        knightBattleSquaddie.battleSquaddieId,
-                },
-                action: { actionTemplateId: longswordActionTemplate.id },
-                effect: { squaddie: [] },
-            })
+            knightHitsThiefWithLongswordInstructionBattleAction
         )
 
         animator.reset(gameEngineState)
@@ -278,11 +258,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     })
 
     it("is complete at the end of the animation time", () => {
-        RecordingService.addEvent(
-            battleEventRecording,
-            knightHitsThiefWithLongswordEvent
-        )
-
         mockActionTimerPhase(
             animator.actionAnimationTimer,
             ActionAnimationPhase.INITIALIZED
@@ -294,23 +269,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    actionsThisRound:
-                        knightHitsThiefWithLongswordInstructionInProgress,
-                    recording: battleEventRecording,
                 }),
             }),
         })
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionQueue,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId:
-                        knightBattleSquaddie.battleSquaddieId,
-                },
-                action: { actionTemplateId: longswordActionTemplate.id },
-                effect: { squaddie: [] },
-            })
+            knightHitsThiefWithLongswordInstructionBattleAction
         )
 
         animator.reset(gameEngineState)
@@ -333,24 +298,14 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    actionsThisRound:
-                        knightHitsThiefWithLongswordInstructionInProgress,
-                    recording: battleEventRecording,
                 }),
             }),
         })
 
-        const battleAction: BattleAction = BattleActionService.new({
-            actor: {
-                actorBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            },
-            action: { actionTemplateId: longswordActionTemplate.id },
-            effect: { squaddie: [] },
-        })
         BattleActionQueueService.add(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionQueue,
-            battleAction
+            knightHitsThiefWithLongswordInstructionBattleAction
         )
 
         animator.reset(gameEngineState)

@@ -5,6 +5,7 @@ import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import {
+    BattleAction,
     BattleActionActionContext,
     BattleActionActionContextService,
 } from "../../history/battleAction"
@@ -24,10 +25,12 @@ export const CalculatorMiscellaneous = {
         actionEffectSquaddieTemplate,
         gameEngineState,
         actionsThisRound,
+        battleAction,
     }: {
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         gameEngineState: GameEngineState
         actionsThisRound: ActionsThisRound
+        battleAction?: BattleAction
     }): BattleActionActionContext => {
         let actingSquaddieRoll: RollResult = RollResultService.new({
             occurred: false,

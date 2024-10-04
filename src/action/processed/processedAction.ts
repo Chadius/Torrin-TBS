@@ -2,11 +2,10 @@ import { ProcessedActionEffect } from "./processedActionEffect"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
 import { ActionEffectType } from "../template/actionEffectTemplate"
 import { ProcessedActionSquaddieEffectService } from "./processedActionSquaddieEffect"
-
-export const MULTIPLE_ATTACK_PENALTY = -3
-export const MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX = 2
-
-export type ActionPointCost = number | "End Turn"
+import {
+    ActionPointCost,
+    MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX,
+} from "../../battle/history/battleAction"
 
 export interface ProcessedAction {
     actionPointCost: ActionPointCost

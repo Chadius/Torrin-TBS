@@ -1,4 +1,14 @@
 import { BattleAction, BattleActionService } from "./battleAction"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
+import { ObjectRepositoryService } from "../objectRepository"
 
 describe("BattleAction", () => {
     describe("Creation and Sanitization", () => {
@@ -36,6 +46,103 @@ describe("BattleAction", () => {
             expect(() => {
                 createBattleActionWithoutEffect()
             }).toThrow("cannot sanitize")
+        })
+    })
+    describe("MultipleAttackPenalty", () => {
+        it("cannot contribute if it has no effects", () => {
+            const justMovement: BattleAction = BattleActionService.new({
+                actor: { actorBattleSquaddieId: "soldier" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 0 },
+                    },
+                },
+            })
+
+            expect(
+                BattleActionService.multipleAttackPenaltyMultiplier(
+                    justMovement,
+                    ObjectRepositoryService.new()
+                )
+            ).toEqual(0)
+        })
+        it("knows if none of its effect templates contribute", () => {
+            const actionDoesNotIncreaseMAP: ActionTemplate =
+                ActionTemplateService.new({
+                    id: "noMAP",
+                    name: "noMAP",
+                    actionPoints: 1,
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.ATTACK]: true,
+                                    [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
+                                }
+                            ),
+                        }),
+                    ],
+                })
+            const objectRepository = ObjectRepositoryService.new()
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                actionDoesNotIncreaseMAP
+            )
+
+            const noMAPAction: BattleAction = BattleActionService.new({
+                actor: { actorBattleSquaddieId: "soldier" },
+                action: { actionTemplateId: actionDoesNotIncreaseMAP.id },
+                effect: {
+                    squaddie: [],
+                },
+            })
+
+            expect(
+                BattleActionService.multipleAttackPenaltyMultiplier(
+                    noMAPAction,
+                    objectRepository
+                )
+            ).toEqual(0)
+        })
+        it("knows if at least one of its effect templates contributes", () => {
+            const actionIncreasesMAP: ActionTemplate =
+                ActionTemplateService.new({
+                    id: "increaseMAP",
+                    name: "increaseMAP",
+                    actionPoints: 1,
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.ATTACK]: true,
+                                }
+                            ),
+                        }),
+                    ],
+                })
+
+            const objectRepository = ObjectRepositoryService.new()
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                actionIncreasesMAP
+            )
+
+            const noMAPAction: BattleAction = BattleActionService.new({
+                actor: { actorBattleSquaddieId: "soldier" },
+                action: { actionTemplateId: actionIncreasesMAP.id },
+                effect: {
+                    squaddie: [],
+                },
+            })
+
+            expect(
+                BattleActionService.multipleAttackPenaltyMultiplier(
+                    noMAPAction,
+                    objectRepository
+                )
+            ).toEqual(1)
         })
     })
 })

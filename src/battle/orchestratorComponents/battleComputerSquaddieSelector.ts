@@ -35,7 +35,6 @@ import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfi
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import {
-    ActionPointCost,
     ProcessedAction,
     ProcessedActionService,
 } from "../../action/processed/processedAction"
@@ -53,7 +52,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
-import { BattleActionService } from "../history/battleAction"
+import { ActionPointCost, BattleActionService } from "../history/battleAction"
 import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
@@ -489,6 +488,7 @@ export class BattleComputerSquaddieSelector
                         actor: {
                             actorBattleSquaddieId:
                                 battleSquaddie.battleSquaddieId,
+                            actorContext: results.actingContext,
                         },
                         action: {
                             actionTemplateId:

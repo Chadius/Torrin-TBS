@@ -366,7 +366,7 @@ describe("Mission Cutscene Service", () => {
             listener = new CutsceneMessageListener("cutsceneMessageListener")
         })
 
-        describe("Squaddie Is Injured Cutscene Trigger", () => {
+        describe("Squaddie Is Injured Cutscene Trigger (via ActionsThisRound)", () => {
             let targetWasInjuredResult: SquaddieSquaddieResults
             let gameEngineStateWithInjuryCutscene: GameEngineState
             let injuredCutsceneTrigger: SquaddieIsInjuredTrigger

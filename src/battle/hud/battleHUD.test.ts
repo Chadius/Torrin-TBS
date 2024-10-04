@@ -1829,7 +1829,7 @@ describe("Battle HUD", () => {
             expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
         })
 
-        it("should add an action to the action builder", () => {
+        it("should add an action to the action builder with an expected context", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
                 gameEngineState,
@@ -1844,6 +1844,16 @@ describe("Battle HUD", () => {
                     actor: {
                         actorBattleSquaddieId:
                             playerSoldierBattleSquaddie.battleSquaddieId,
+                        actorContext: BattleActionActionContextService.new({
+                            actingSquaddieModifiers: [],
+                            actingSquaddieRoll: {
+                                occurred: false,
+                                rolls: [],
+                            },
+                            targetSquaddieModifiers: {
+                                [thiefBattleSquaddie.battleSquaddieId]: [],
+                            },
+                        }),
                     },
                     action: { actionTemplateId: longswordAction.id },
                     effect: {
