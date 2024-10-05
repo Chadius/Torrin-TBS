@@ -242,17 +242,85 @@ describe("Player Selection Service", () => {
             messageSpy.mockRestore()
         })
 
-        it("if squaddie is normally not controllable, sends a message about uncontrollable squaddies", () => {
+        describe("squaddie is normally not controllable", () => {
             let actualContext: PlayerSelectionContext
-            actualContext = clickOnMapCoordinate({
-                q: 0,
-                r: 1,
-                gameEngineState,
+            beforeEach(() => {
+                actualContext = clickOnMapCoordinate({
+                    q: 0,
+                    r: 1,
+                    gameEngineState,
+                })
             })
 
-            expect(actualContext.playerIntent).toEqual(
-                PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE
-            )
+            it("if squaddie is normally not controllable, sends a message about uncontrollable squaddies", () => {
+                expect(actualContext.playerIntent).toEqual(
+                    PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE
+                )
+            })
+
+            it("knows which squaddie was clicked on", () => {
+                expect(actualContext.battleSquaddieId).toEqual("ENEMY")
+            })
+
+            it("knows where the player clicked", () => {
+                expect(actualContext.mouseClick).toEqual(
+                    MouseClickService.new({
+                        ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                            {
+                                q: 0,
+                                r: 1,
+                                camera: gameEngineState.battleOrchestratorState
+                                    .battleState.camera,
+                            }
+                        ),
+                        button: MouseButton.ACCEPT,
+                    })
+                )
+            })
+
+            describe("When the context is applied", () => {
+                let expectedMessage: MessageBoardMessagePlayerSelectsAndLocksSquaddie
+                let actualChanges: PlayerSelectionChanges
+
+                beforeEach(() => {
+                    actualChanges =
+                        PlayerSelectionService.applyContextToGetChanges({
+                            context: actualContext,
+                            gameEngineState,
+                        })
+
+                    expectedMessage = {
+                        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                        gameEngineState,
+                        battleSquaddieSelectedId: "ENEMY",
+                        selectionMethod: {
+                            mouseClick: MouseClickService.new({
+                                ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                                    {
+                                        q: 0,
+                                        r: 1,
+                                        camera: gameEngineState
+                                            .battleOrchestratorState.battleState
+                                            .camera,
+                                    }
+                                ),
+                                button: MouseButton.ACCEPT,
+                            }),
+                        },
+                    }
+                })
+
+                it("will mention a message was sent", () => {
+                    expect(actualChanges.messageSent).toEqual(expectedMessage)
+                })
+
+                it("will send a message", () => {
+                    expect(messageSpy).toBeCalled()
+                    expect(messageSpy).toBeCalledWith(
+                        expect.objectContaining(expectedMessage)
+                    )
+                })
+            })
         })
 
         describe("squaddie is normally controllable", () => {

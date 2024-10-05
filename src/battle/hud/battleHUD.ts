@@ -206,8 +206,6 @@ export const BattleHUDService = {
         ) {
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
                 undefined
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                undefined
         }
     },
     cancelTargetConfirmation: (

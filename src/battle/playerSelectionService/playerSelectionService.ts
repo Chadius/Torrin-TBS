@@ -350,6 +350,17 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
+            case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
+                messageSent = {
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: context.battleSquaddieId,
+                    selectionMethod: {
+                        mouseClick: context.mouseClick,
+                    },
+                }
+                gameEngineState.messageBoard.sendMessage(messageSent)
+                return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.PEEK_AT_SQUADDIE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,

@@ -171,7 +171,7 @@ export class BattleComputerSquaddieSelector
         }
     }
 
-    reset(state: GameEngineState) {
+    reset(gameEngineState: GameEngineState) {
         this.resetInternalState()
     }
 

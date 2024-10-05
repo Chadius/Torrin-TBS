@@ -1016,6 +1016,14 @@ describe("Battle HUD", () => {
                     )
                 ).toBeFalsy()
             })
+            it("it knows the squaddie is still considering an action", () => {
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
+                ).toEqual(battleSquaddie.battleSquaddieId)
+            })
             it("it does not have an action set in the player battle action builder", () => {
                 expect(
                     BattleActionDecisionStepService.getAction(
