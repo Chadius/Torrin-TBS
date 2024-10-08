@@ -210,7 +210,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             startingPosition:
                 (2 * ScreenDimensions.SCREEN_WIDTH) / 12 +
                 WINDOW_SPACING.SPACING1,
-            squaddieResult: results,
+            squaddieChanges: results.squaddieChanges[0],
         })
         this.weaponIcon.start()
 

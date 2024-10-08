@@ -15,16 +15,16 @@ import {
 } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { RectAreaService } from "../../../ui/rectArea"
-import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
-import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { BattleActionSquaddieChange } from "../../history/battleActionSquaddieChange"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 
 export class ActorSprite {
-    squaddieResult: SquaddieSquaddieResults
+    squaddieChanges: BattleActionSquaddieChange
 
     private _squaddieRepository: ObjectRepository
 
@@ -55,7 +55,7 @@ export class ActorSprite {
         this._sprite = undefined
         this._battleSquaddieId = undefined
         this._squaddieRepository = undefined
-        this.squaddieResult = undefined
+        this.squaddieChanges = undefined
     }
 
     start({
@@ -63,20 +63,20 @@ export class ActorSprite {
         squaddieRepository,
         startingPosition,
         resourceHandler,
-        squaddieResult,
+        squaddieChanges,
     }: {
         actorBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         startingPosition: number
         resourceHandler: ResourceHandler
-        squaddieResult: SquaddieSquaddieResults
+        squaddieChanges: BattleActionSquaddieChange
     }) {
         this.reset()
 
         this._startingPosition = startingPosition
         this._squaddieRepository = squaddieRepository
         this._battleSquaddieId = actorBattleSquaddieId
-        this.squaddieResult = squaddieResult
+        this.squaddieChanges = squaddieChanges
 
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -199,15 +199,15 @@ export class ActorSprite {
             ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 16
             : ScreenDimensions.SCREEN_HEIGHT / 24
         let attackTime: number = 0
+
         switch (timer.currentPhase) {
             case ActionAnimationPhase.BEFORE_ACTION:
                 break
             case ActionAnimationPhase.DURING_ACTION:
                 attackTime = timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME
                 if (
-                    RollResultService.isACriticalSuccess(
-                        this.squaddieResult.actingContext.actingSquaddieRoll
-                    )
+                    this.squaddieChanges.actorDegreeOfSuccess ===
+                    DegreeOfSuccess.CRITICAL_SUCCESS
                 ) {
                     const revUpTime = ACTION_ANIMATION_ACTION_TIME / 2
                     if (attackTime < revUpTime) {

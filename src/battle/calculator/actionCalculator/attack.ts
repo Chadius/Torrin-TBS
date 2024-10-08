@@ -135,12 +135,16 @@ const conformToSixSidedDieRoll = (numberGeneratorResult: number): number => {
 
 const maybeMakeAttackRoll = (
     squaddieAction: ActionEffectSquaddieTemplate,
-    state: BattleOrchestratorState
+    battleOrchestratorState: BattleOrchestratorState
 ): RollResult => {
     if (doesActionNeedAnAttackRoll(squaddieAction)) {
         const attackRoll = [
-            conformToSixSidedDieRoll(state.numberGenerator.next()),
-            conformToSixSidedDieRoll(state.numberGenerator.next()),
+            conformToSixSidedDieRoll(
+                battleOrchestratorState.numberGenerator.next()
+            ),
+            conformToSixSidedDieRoll(
+                battleOrchestratorState.numberGenerator.next()
+            ),
         ]
         return RollResultService.new({
             occurred: true,
