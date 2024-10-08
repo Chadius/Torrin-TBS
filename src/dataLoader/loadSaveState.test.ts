@@ -2,7 +2,6 @@ import {
     BattleSaveState,
     BattleSaveStateService,
 } from "../battle/history/battleSaveState"
-import { SAVE_VERSION } from "../utils/fileHandling/saveFile"
 import { ObjectRepositoryService } from "../battle/objectRepository"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
@@ -18,7 +17,7 @@ describe("Load SaveState", () => {
         saveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             campaignId: "test campaign",
-            saveVersion: SAVE_VERSION,
+            saveVersion: "SAVE_VERSION",
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

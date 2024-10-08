@@ -11,7 +11,6 @@ import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
 import {
     SAVE_CONTENT_TYPE,
     SAVE_FILENAME,
-    SAVE_VERSION,
     SaveFile,
 } from "../../utils/fileHandling/saveFile"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
@@ -31,7 +30,7 @@ export type InBattleAttributesAndTurn = {
 
 export interface BattleSaveState {
     campaignId: string
-    saveVersion: number
+    saveVersion: string
     missionId: string
     battlePhaseState: {
         currentPhase: BattlePhase
@@ -162,7 +161,7 @@ export const BattleSaveStateService = {
         battleOrchestratorState: BattleOrchestratorState
         missionId: string
         campaignId: string
-        saveVersion: number
+        saveVersion: string
         repository: ObjectRepository
     }): BattleSaveState => {
         const cameraCoordinates =
@@ -238,7 +237,7 @@ const parseJsonIntoBattleSaveStateData = (
 export const DefaultBattleSaveState = (): BattleSaveState => {
     return {
         campaignId: "",
-        saveVersion: SAVE_VERSION,
+        saveVersion: "version not set",
         missionId: "",
         battlePhaseState: {
             currentPhase: BattlePhase.UNKNOWN,

@@ -3,7 +3,6 @@ import { RectAreaService } from "../../ui/rectArea"
 import { SaveSaveStateService } from "../../dataLoader/saveSaveState"
 import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
 import { BattleSaveStateService } from "../history/battleSaveState"
-import { SAVE_VERSION } from "../../utils/fileHandling/saveFile"
 import {
     FileAccessHUD,
     FileAccessHUDDesign,
@@ -351,7 +350,7 @@ describe("File Access HUD", () => {
                     BattleSaveStateService.newUsingBattleOrchestratorState({
                         campaignId: "test campaign",
                         missionId: "test",
-                        saveVersion: SAVE_VERSION,
+                        saveVersion: "SAVE_VERSION",
                         battleOrchestratorState:
                             BattleOrchestratorStateService.new({
                                 battleState: BattleStateService.new({

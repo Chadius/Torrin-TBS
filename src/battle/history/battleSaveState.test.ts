@@ -41,7 +41,6 @@ import {
     CutsceneTrigger,
     TriggeringEvent,
 } from "../../cutscene/cutsceneTrigger"
-import { SAVE_VERSION } from "../../utils/fileHandling/saveFile"
 import { BattleStateService } from "../orchestrator/battleState"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -275,7 +274,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -328,7 +327,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -402,7 +401,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -465,7 +464,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -550,7 +549,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -597,7 +596,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: originalSquaddieRepository,
             })
@@ -662,7 +661,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -734,7 +733,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -804,7 +803,7 @@ describe("BattleSaveState", () => {
                 repository: originalSquaddieRepository,
                 missionId: "test mission",
                 campaignId: "test campaign",
-                saveVersion: 9001,
+                saveVersion: "9001",
             })
 
         expect(battleSaveState.missionCompletionStatus).toEqual(
@@ -860,7 +859,7 @@ describe("BattleSaveState", () => {
             BattleSaveStateService.newUsingBattleOrchestratorState({
                 campaignId: "test campaign",
                 missionId: "test",
-                saveVersion: SAVE_VERSION,
+                saveVersion: "SAVE_VERSION",
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
@@ -917,7 +916,7 @@ describe("BattleSaveState", () => {
 
             saveData = {
                 campaignId: "test campaign",
-                saveVersion: 90210,
+                saveVersion: "90210",
                 missionId: "the mission",
                 battlePhaseState: {
                     currentPhase: BattlePhase.ALLY,
@@ -1128,7 +1127,7 @@ describe("BattleSaveState", () => {
             const newSaveData: BattleSaveState =
                 BattleSaveStateService.newUsingBattleOrchestratorState({
                     campaignId: "This campaign",
-                    saveVersion: 9001,
+                    saveVersion: "9001",
                     missionId: "This mission",
                     battleOrchestratorState,
                     repository: originalSquaddieRepository,
@@ -1214,7 +1213,7 @@ describe("BattleSaveState", () => {
                     BattleSaveStateService.newUsingBattleOrchestratorState({
                         campaignId: "test campaign",
                         missionId: "missionId",
-                        saveVersion: 0,
+                        saveVersion: "0",
                         repository: ObjectRepositoryService.new(),
                         battleOrchestratorState:
                             BattleOrchestratorStateService.new({

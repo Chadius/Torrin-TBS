@@ -29,7 +29,6 @@ import {
     BattleSaveState,
     BattleSaveStateService,
 } from "../battle/history/battleSaveState"
-import { SAVE_VERSION } from "../utils/fileHandling/saveFile"
 import { GameEngineGameLoader } from "./gameEngineGameLoader"
 import { InitializeBattle } from "../battle/orchestrator/initializeBattle"
 import { Campaign } from "../campaign/campaign"
@@ -102,6 +101,7 @@ export class GameEngine {
     gameEngineState: GameEngineState
     gameEngineGameLoader: GameEngineGameLoader
     graphicsBuffer: GraphicsBuffer
+    version: string
 
     constructor({
         graphicsBuffer,
@@ -192,6 +192,7 @@ export class GameEngine {
             version,
         })
         this.gameEngineGameLoader = new GameEngineGameLoader()
+        this.version = version
         this.resetComponentStates()
     }
 
@@ -371,7 +372,7 @@ export class GameEngine {
     private saveGameAndDownloadFile() {
         const saveData: BattleSaveState =
             BattleSaveStateService.newUsingBattleOrchestratorState({
-                saveVersion: SAVE_VERSION,
+                saveVersion: this.version,
                 missionId:
                     this.gameEngineState.battleOrchestratorState.battleState
                         .missionId,
