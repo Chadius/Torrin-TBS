@@ -30,10 +30,8 @@ export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
         return isSquaddieCurrentlyTakingATurn(state)
     },
-    drawSquaddieReachBasedOnSquaddieTurnAndAffiliation: (
-        state: GameEngineState
-    ) => {
-        return drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state)
+    drawPlayableSquaddieReach: (gameEngineState: GameEngineState) => {
+        return drawPlayableSquaddieReach(gameEngineState)
     },
     drawOrResetHUDBasedOnSquaddieTurnAndAffiliation: (
         state: GameEngineState
@@ -298,19 +296,10 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
     })
 }
 
-const drawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (
-    gameEngineState: GameEngineState
-) => {
-    if (
-        !gameEngineState.battleOrchestratorState.battleState.actionsThisRound ||
-        isSquaddieCurrentlyTakingATurn(gameEngineState)
-    ) {
-        return
-    }
-
+const drawPlayableSquaddieReach = (gameEngineState: GameEngineState) => {
     const currentlyActingBattleSquaddieId =
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-            .battleSquaddieId
+        gameEngineState?.battleOrchestratorState?.battleState?.actionsThisRound
+            ?.battleSquaddieId
     if (
         !isValidValue(currentlyActingBattleSquaddieId) ||
         currentlyActingBattleSquaddieId === ""
@@ -332,36 +321,10 @@ const drawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (
             battleSquaddie,
         })
     if (playerCanControlThisSquaddieRightNow) {
-        TerrainTileMapService.removeAllGraphicsLayers(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap
-        )
-
-        const { mapLocation: startLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                battleSquaddie.battleSquaddieId
-            )
-        const squaddieReachHighlightedOnMap =
-            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
-                repository: gameEngineState.repository,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                startLocation: startLocation,
-                campaignResources: gameEngineState.campaign.resources,
-            })
-        const actionRangeOnMap = MapGraphicsLayerService.new({
-            id: gameEngineState.battleOrchestratorState.battleState
-                .actionsThisRound.battleSquaddieId,
-            highlightedTileDescriptions: squaddieReachHighlightedOnMap,
-            type: MapGraphicsLayerType.UNKNOWN,
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+            gameEngineState: gameEngineState,
         })
-        TerrainTileMapService.addGraphicsLayer(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
-            actionRangeOnMap
-        )
     }
 }
 

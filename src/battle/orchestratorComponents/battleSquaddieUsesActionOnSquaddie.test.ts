@@ -200,7 +200,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         jest.spyOn(LabelService, "draw").mockReturnValue(null)
         jest.spyOn(
             OrchestratorUtilities,
-            "drawSquaddieReachBasedOnSquaddieTurnAndAffiliation"
+            "drawPlayableSquaddieReach"
         ).mockImplementation(() => {})
 
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie()

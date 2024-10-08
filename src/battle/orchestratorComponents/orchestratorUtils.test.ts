@@ -824,4 +824,68 @@ describe("Orchestration Utils", () => {
             expect(addedMapGraphicsLayer.highlights).toHaveLength(4)
         })
     })
+
+    describe("drawPlayableSquaddieReach", () => {
+        let gameEngineState: GameEngineState
+        let thiefBattleSquaddie: BattleSquaddie
+        let messageSpy: jest.SpyInstance
+        beforeEach(() => {
+            ;({ battleSquaddie: thiefBattleSquaddie } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    name: "thief",
+                    templateId: "thiefSquaddieTemplate",
+                    battleId: "thiefBattleSquaddie",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    objectRepository: squaddieRepository,
+                    actionTemplateIds: [],
+                }))
+
+            map.addSquaddie(
+                thiefBattleSquaddie.squaddieTemplateId,
+                thiefBattleSquaddie.battleSquaddieId,
+                { q: 0, r: 0 }
+            )
+
+            gameEngineState = GameEngineStateService.new({
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.new({
+                        missionMap: map,
+                        campaignId: "campaign",
+                        missionId: "mission",
+                    }),
+                }),
+                repository: squaddieRepository,
+                campaign: CampaignService.default(),
+            })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        })
+        it("sends message if the squaddie is playable", () => {
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: "actionTemplateId",
+                })
+
+            OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
+
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+                gameEngineState,
+            })
+        })
+        it("does not send message if the squaddie is not playable", () => {
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 2 },
+                    previewedActionTemplateId: "actionTemplateId",
+                })
+
+            OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
+
+            expect(messageSpy).not.toBeCalled()
+        })
+    })
 })

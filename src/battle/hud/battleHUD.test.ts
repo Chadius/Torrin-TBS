@@ -106,6 +106,7 @@ import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResul
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
+    MapGraphicsLayer,
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
@@ -1556,7 +1557,6 @@ describe("Battle HUD", () => {
             })
         })
     })
-
     describe("Player selects a target", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState
@@ -1918,9 +1918,6 @@ describe("Battle HUD", () => {
                     gameEngineState.battleOrchestratorState.battleState
                         .actionsThisRound.processedActions
                 ).toHaveLength(2)
-                const newProcessedAction =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.processedActions[1]
             })
 
             it("should add the results to the history", () => {
@@ -2864,6 +2861,56 @@ describe("Battle HUD", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .actionsThisRound
             ).toBeUndefined()
+        })
+    })
+    describe("player squaddie finishes an action, still has actions remaining", () => {
+        let gameEngineState: GameEngineState
+        let battleSquaddie: BattleSquaddie
+        let battleHUDListener: BattleHUDListener
+        let addGraphicsSpy: jest.SpyInstance
+        beforeEach(() => {
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({}))
+            battleHUDListener = new BattleHUDListener("battleHUDListener")
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 0, r: 0 },
+                    previewedActionTemplateId: "consider using this action",
+                })
+
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
+            )
+
+            addGraphicsSpy = jest.spyOn(
+                TerrainTileMapService,
+                "addGraphicsLayer"
+            )
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+                gameEngineState,
+            })
+        })
+        afterEach(() => {
+            addGraphicsSpy.mockRestore()
+        })
+        it("adds a map layer based on the squaddie", () => {
+            expect(addGraphicsSpy).toBeCalled()
+            const mapGraphicsLayer: MapGraphicsLayer =
+                addGraphicsSpy.mock.calls[0][1]
+            expect(mapGraphicsLayer.id).toEqual(battleSquaddie.battleSquaddieId)
+            expect(mapGraphicsLayer.type).toEqual(
+                MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+            )
         })
     })
 })

@@ -102,9 +102,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
             gameEngineState
         )
-        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(
-            gameEngineState
-        )
+        OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
 
         return {
             nextMode,

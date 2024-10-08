@@ -8,6 +8,7 @@ import {
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
     MessageBoardMessagePlayerConfirmsAction,
+    MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
     MessageBoardMessagePlayerPeeksAtSquaddie,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
@@ -899,6 +900,11 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
             undefined
     },
+    playerControlledSquaddieNeedsNextAction: (
+        message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
+    ) => {
+        return playerControlledSquaddieNeedsNextAction(message)
+    },
 }
 
 export class BattleHUDListener implements MessageBoardListener {
@@ -989,6 +995,11 @@ export class BattleHUDListener implements MessageBoardListener {
                 break
             case MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE:
                 BattleHUDService.clicksOnAnEmptyTileAtTheStartOfTheTurn(message)
+                break
+            case MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION:
+                BattleHUDService.playerControlledSquaddieNeedsNextAction(
+                    message
+                )
                 break
         }
     }
@@ -1206,4 +1217,47 @@ const resetNextBattleSquaddieIds = (gameEngineState: GameEngineState) => {
                     ).mapLocation !== undefined
             )
             .map((info) => info.battleSquaddieId)
+}
+
+const playerControlledSquaddieNeedsNextAction = (
+    message: MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
+) => {
+    const gameEngineState = message.gameEngineState
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+                .battleSquaddieId
+        )
+    )
+
+    TerrainTileMapService.removeAllGraphicsLayers(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap
+    )
+
+    const { mapLocation: startLocation } =
+        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            battleSquaddie.battleSquaddieId
+        )
+    const squaddieReachHighlightedOnMap =
+        MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+            repository: gameEngineState.repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            startLocation: startLocation,
+            campaignResources: gameEngineState.campaign.resources,
+        })
+    const actionRangeOnMap = MapGraphicsLayerService.new({
+        id: gameEngineState.battleOrchestratorState.battleState.actionsThisRound
+            .battleSquaddieId,
+        highlightedTileDescriptions: squaddieReachHighlightedOnMap,
+        type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
+    })
+    TerrainTileMapService.addGraphicsLayer(
+        gameEngineState.battleOrchestratorState.battleState.missionMap
+            .terrainTileMap,
+        actionRangeOnMap
+    )
 }

@@ -31,6 +31,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsEmptyTile
     | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
+    | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -56,6 +57,7 @@ export enum MessageBoardMessageType {
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
+    PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
 }
 
 export interface MessageBoardMessageBase {
@@ -205,4 +207,9 @@ export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
     type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
     gameEngineState: GameEngineState
     recommendedMode: BattleOrchestratorMode
+}
+
+export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
+    type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
+    gameEngineState: GameEngineState
 }

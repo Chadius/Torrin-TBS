@@ -286,6 +286,7 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
             MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET,
+            MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(
                 battleHUDListener,

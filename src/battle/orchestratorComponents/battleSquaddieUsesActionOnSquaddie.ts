@@ -113,9 +113,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
             gameEngineState
         )
-        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(
-            gameEngineState
-        )
+        OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
 
         return {
             nextMode,
