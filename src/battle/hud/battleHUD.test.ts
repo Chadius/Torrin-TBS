@@ -2722,6 +2722,27 @@ describe("Battle HUD", () => {
                 )
             ).toBeFalsy()
         })
+        it("clears the map graphics layer for all clicked controllable units", () => {
+            const terrainTileMapSpy: jest.SpyInstance = jest.spyOn(
+                TerrainTileMapService,
+                "removeGraphicsLayerByType"
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
+                gameEngineState,
+            })
+            expect(terrainTileMapSpy).toBeCalledWith(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+            )
+            expect(terrainTileMapSpy).toBeCalledWith(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap,
+                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+            )
+            terrainTileMapSpy.mockRestore()
+        })
 
         describe("ignore attempts to cancel if the squaddie has already acted this round", () => {
             beforeEach(() => {

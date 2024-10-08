@@ -884,6 +884,17 @@ export const BattleHUDService = {
             return
         }
 
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
+        )
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+        )
+
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
