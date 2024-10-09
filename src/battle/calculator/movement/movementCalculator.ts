@@ -168,14 +168,6 @@ export const MovementCalculatorService = {
             ).mapLocation,
             processedAction,
         })
-
-        RecordingService.addEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording,
-            BattleEventService.new({
-                processedAction,
-                results: undefined,
-            })
-        )
     },
     consumeSquaddieActions: ({
         battleSquaddie,
@@ -215,6 +207,34 @@ export const MovementCalculatorService = {
                     movement: {
                         startLocation,
                         endLocation: destination,
+                    },
+                },
+            })
+        )
+    },
+    recordBattleAction: ({
+        startLocation,
+        battleSquaddie,
+        gameEngineState,
+        endLocation,
+    }: {
+        startLocation: HexCoordinate
+        battleSquaddie: BattleSquaddie
+        gameEngineState: GameEngineState
+        endLocation: HexCoordinate
+    }) => {
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddie.battleSquaddieId,
+                },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation,
+                        endLocation,
                     },
                 },
             })

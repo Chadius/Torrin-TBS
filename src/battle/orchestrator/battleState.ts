@@ -66,6 +66,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     battlePhaseState: BattlePhaseState
     squaddieMovePath?: SearchPath
     camera: BattleCamera
+    // TODO chopping block
     recording: Recording
     battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
@@ -246,6 +247,7 @@ const newBattleState = ({
         battlePhaseState: battlePhaseState,
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
+        // TODO chopping block
         recording: recording || { history: [] },
         battleActionRecorder:
             battleActionRecorder || BattleActionRecorderService.new(),
@@ -296,7 +298,7 @@ export class BattleStateListener implements MessageBoardListener {
         }
     }
 }
-
+// TODO make sure you test to see it was added
 const battleActionFinishesAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {

@@ -17,7 +17,6 @@ import {
     CreateNewKnightSquaddie,
     CreateNewThiefSquaddie,
 } from "../../utils/test/squaddie"
-import { Recording, RecordingService } from "../history/recording"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "./squaddieTargetsOtherSquaddiesAnimatior"
@@ -51,7 +50,6 @@ import {
     BattleActionActionContextService,
     BattleActionService,
 } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
@@ -65,7 +63,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let longswordActionTemplate: ActionTemplate
     let animator: SquaddieTargetsOtherSquaddiesAnimator
     let mockResourceHandler: jest.Mocked<ResourceHandler>
-    let battleEventRecording: Recording
 
     let knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
     let knightHitsThiefWithLongswordEvent: BattleEvent
@@ -168,7 +165,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 actionContext: BattleActionActionContextService.new({}),
             }),
         })
-        battleEventRecording = { history: [] }
     })
 
     function mockActionTimerPhase(
@@ -181,10 +177,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     }
 
     it("will create an actor sprite and a target sprite", () => {
-        RecordingService.addEvent(
-            battleEventRecording,
-            knightHitsThiefWithLongswordEvent
-        )
         jest.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,

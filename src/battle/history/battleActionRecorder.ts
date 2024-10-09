@@ -8,6 +8,7 @@ import {
     BattleActionQueueService,
 } from "./battleActionQueue"
 
+// TODO add a clone function
 export interface BattleActionRecorder {
     readyToAnimateQueue: BattleActionQueue
     actionsAlreadyAnimatedThisTurn: BattleActionsDuringTurn
@@ -136,5 +137,40 @@ export const BattleActionRecorderService = {
         }
 
         return battleActionRecorder.previousTurns
+    },
+    mostRecentAnimatedActionThisTurn: (
+        battleActionRecorder: BattleActionRecorder
+    ): BattleAction => {
+        if (!battleActionRecorder) {
+            return undefined
+        }
+
+        if (
+            BattleActionsDuringTurnService.isEmpty(
+                battleActionRecorder.actionsAlreadyAnimatedThisTurn
+            )
+        ) {
+            return undefined
+        }
+
+        const allActions = BattleActionsDuringTurnService.getAll(
+            battleActionRecorder.actionsAlreadyAnimatedThisTurn
+        )
+        return allActions[allActions.length - 1]
+    },
+    mostRecentCompletedTurn: (
+        battleActionRecorder: BattleActionRecorder
+    ): BattleActionsDuringTurn => {
+        if (!battleActionRecorder) {
+            return undefined
+        }
+
+        if (battleActionRecorder.previousTurns.length === 0) {
+            return undefined
+        }
+
+        return battleActionRecorder.previousTurns[
+            battleActionRecorder.previousTurns.length - 1
+        ]
     },
 }

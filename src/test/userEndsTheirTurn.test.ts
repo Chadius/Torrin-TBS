@@ -378,28 +378,19 @@ describe("User ends their turn", () => {
         })
 
         it("It adds an event showing the processed action", () => {
-            const decidedActionEndTurnEffect =
-                DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({}),
-                })
-
             expect(
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            ).toContainEqual(
-                BattleEventService.new({
-                    processedAction: ProcessedActionService.new({
-                        actionPointCost: "End Turn",
-                        processedActionEffects: [
-                            ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                                {
-                                    decidedActionEffect:
-                                        decidedActionEndTurnEffect,
-                                }
-                            ),
-                        ],
-                    }),
-                    results: undefined,
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
                 })
             )
         })

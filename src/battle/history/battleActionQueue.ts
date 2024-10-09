@@ -15,7 +15,7 @@ export const BattleActionQueueService = {
         return queue?.actions.length === 0
     },
     add: (queue: BattleActionQueue, battleAction: BattleAction) => {
-        queue.actions.unshift(battleAction)
+        queue.actions.push(battleAction)
     },
     peek: (queue: BattleActionQueue): BattleAction | undefined => {
         return queue?.actions.length > 0 ? queue.actions[0] : undefined

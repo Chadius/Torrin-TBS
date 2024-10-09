@@ -22,6 +22,10 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "./battleActionRecorder"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -40,7 +44,9 @@ export interface BattleSaveState {
         xCoordinate: number
         yCoordinate: number
     }
+    // TODO Chopping block
     battleEventRecording: Recording
+    battleActionRecorder: BattleActionRecorder
     missionStatistics: MissionStatistics
     inBattleAttributesBySquaddieBattleId: {
         [squaddieBattleId: string]: InBattleAttributesAndTurn
@@ -91,8 +97,13 @@ export const BattleSaveStateService = {
             currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
             turnCount: battleSaveState.battlePhaseState.turnCount,
         }
+        // TODO chopping block
         battleOrchestratorState.battleState.recording = {
             ...battleSaveState.battleEventRecording,
+        }
+        // TODO use the clone function
+        battleOrchestratorState.battleState.battleActionRecorder = {
+            ...battleSaveState.battleActionRecorder,
         }
         battleOrchestratorState.battleState.missionStatistics = {
             ...battleSaveState.missionStatistics,
@@ -199,6 +210,8 @@ export const BattleSaveStateService = {
                 yCoordinate: cameraCoordinates[1],
             },
             battleEventRecording: battleOrchestratorState.battleState.recording,
+            battleActionRecorder:
+                battleOrchestratorState.battleState.battleActionRecorder,
             missionStatistics:
                 battleOrchestratorState.battleState.missionStatistics,
             inBattleAttributesBySquaddieBattleId:
@@ -248,6 +261,7 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
             yCoordinate: 0,
         },
         battleEventRecording: { history: [] },
+        battleActionRecorder: BattleActionRecorderService.new(),
         missionStatistics: MissionStatisticsService.new({}),
         inBattleAttributesBySquaddieBattleId: {},
         squaddieMapPlacements: [],

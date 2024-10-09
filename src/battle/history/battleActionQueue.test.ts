@@ -48,10 +48,15 @@ describe("BattleActionQueue", () => {
         BattleActionQueueService.add(queue, moveAction)
         expect(BattleActionQueueService.isEmpty(queue)).toBeFalsy()
     })
-    it("Can peek the queue to see the first added action", () => {
+    it("Can peek the queue to see an action without removing objects", () => {
         BattleActionQueueService.add(queue, moveAction)
         expect(BattleActionQueueService.peek(queue)).toEqual(moveAction)
         expect(BattleActionQueueService.isEmpty(queue)).toBeFalsy()
+    })
+    it("Can peek the queue to see the first added action", () => {
+        BattleActionQueueService.add(queue, moveAction)
+        BattleActionQueueService.add(queue, endTurnAction)
+        expect(BattleActionQueueService.peek(queue)).toEqual(moveAction)
     })
     it("Can dequeue the queue to see the first added action", () => {
         BattleActionQueueService.add(queue, moveAction)

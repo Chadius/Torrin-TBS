@@ -23,7 +23,6 @@ import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffect
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
 import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 

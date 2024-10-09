@@ -213,19 +213,20 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private setSquaddieActionAnimatorBasedOnAction(
-        state: BattleOrchestratorState
+        battleOrchestratorState: BattleOrchestratorState
     ) {
-        const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(
-            state.battleState.recording
-        )
-        if (mostRecentEvent?.processedAction === undefined) {
+        const battleActionReadyToAnimate =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                battleOrchestratorState.battleState.battleActionRecorder
+            )
+        if (!battleActionReadyToAnimate) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator()
             return
         }
 
         const processedActionEffectToShow =
             ActionsThisRoundService.getProcessedActionEffectToShow(
-                state.battleState.actionsThisRound
+                battleOrchestratorState.battleState.actionsThisRound
             )
 
         if (processedActionEffectToShow?.type !== ActionEffectType.SQUADDIE) {

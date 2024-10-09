@@ -507,19 +507,25 @@ export class BattleComputerSquaddieSelector
                     battleActionDecisionStep.action.endTurn
             )
         ) {
+            const endTurnAction = BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        battleActionDecisionStep.actor.battleSquaddieId,
+                },
+                action: { isEndTurn: true },
+                effect: {
+                    endTurn: true,
+                },
+            })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder,
-                BattleActionService.new({
-                    actor: {
-                        actorBattleSquaddieId:
-                            battleActionDecisionStep.actor.battleSquaddieId,
-                    },
-                    action: { isEndTurn: true },
-                    effect: {
-                        endTurn: true,
-                    },
-                })
+                endTurnAction
+            )
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                endTurnAction
             )
         }
 
@@ -546,13 +552,6 @@ export class BattleComputerSquaddieSelector
             processedAction,
         })
 
-        RecordingService.addEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording,
-            BattleEventService.new({
-                results,
-                processedAction,
-            })
-        )
         this.mostRecentDecisionSteps = battleActionDecisionSteps
     }
 

@@ -7,9 +7,11 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleActionRecorder"
+import { BattleActionQueueService } from "./battleActionQueue"
 
 describe("battleActionRecorder", () => {
     let battleActionMovement: BattleAction
+    let battleActionUseActionTemplate: BattleAction
 
     beforeEach(() => {
         battleActionMovement = BattleActionService.new({
@@ -21,6 +23,11 @@ describe("battleActionRecorder", () => {
                     endLocation: { q: 0, r: 1 },
                 },
             },
+        })
+        battleActionUseActionTemplate = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor" },
+            action: { actionTemplateId: "action" },
+            effect: { squaddie: [] },
         })
     })
 
@@ -111,5 +118,53 @@ describe("battleActionRecorder", () => {
             BattleActionsDuringTurnService.getAll(previousBattleActionTurns[0])
         expect(battleActions).toHaveLength(1)
         expect(battleActions[0]).toEqual(battleActionMovement)
+    })
+    it("knows the last animated action", () => {
+        const battleActionRecorder: BattleActionRecorder =
+            BattleActionRecorderService.new()
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleActionRecorder,
+            battleActionMovement
+        )
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleActionRecorder,
+            battleActionUseActionTemplate
+        )
+
+        expect(
+            BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+                battleActionRecorder
+            )
+        ).toBeUndefined()
+
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            battleActionRecorder
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            battleActionRecorder
+        )
+        expect(
+            BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+                battleActionRecorder
+            )
+        ).toEqual(battleActionUseActionTemplate)
+
+        BattleActionRecorderService.turnComplete(battleActionRecorder)
+        expect(
+            BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+                battleActionRecorder
+            )
+        ).toBeUndefined()
+
+        expect(
+            BattleActionRecorderService.mostRecentCompletedTurn(
+                battleActionRecorder
+            )
+        ).toEqual(
+            BattleActionsDuringTurnService.new([
+                battleActionMovement,
+                battleActionUseActionTemplate,
+            ])
+        )
     })
 })

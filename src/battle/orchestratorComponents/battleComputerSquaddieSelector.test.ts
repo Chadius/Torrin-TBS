@@ -72,7 +72,7 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
 import { BattleActionQueueService } from "../history/battleActionQueue"
-import { BattleAction } from "../history/battleAction"
+import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleComputerSquaddieSelector", () => {
@@ -403,14 +403,19 @@ describe("BattleComputerSquaddieSelector", () => {
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             )
 
-            const history =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            expect(history).toHaveLength(1)
-            expect(history[0]).toStrictEqual(
-                BattleEventService.new({
-                    processedAction,
-                    results: undefined,
+            expect(
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            enemyDemonBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
                 })
             )
 
@@ -763,32 +768,22 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should add the results to the history", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                ).toHaveLength(1)
-
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
-                expect(
-                    mostRecentEvent.processedAction.processedActionEffects[0]
-                        .type
-                ).toEqual(ActionEffectType.SQUADDIE)
-
-                const processedActionSquaddieEffect = mostRecentEvent
-                    .processedAction
-                    .processedActionEffects[0] as ProcessedActionSquaddieEffect
-                const results = processedActionSquaddieEffect.results
-                expect(results.actingBattleSquaddieId).toBe(
-                    enemyDemonBattleSquaddie.battleSquaddieId
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(mostRecentAction.action.actionTemplateId).toEqual(
+                    demonBiteAction.id
                 )
-                expect(results.targetedBattleSquaddieIds).toHaveLength(1)
-                expect(results.targetedBattleSquaddieIds[0]).toBe(
+
+                const results = mostRecentAction.effect.squaddie
+                expect(results).toHaveLength(1)
+                expect(results[0].battleSquaddieId).toEqual(
                     enemyDemonBattleSquaddie2.battleSquaddieId
                 )
                 expect(
-                    results.squaddieChanges.find(
+                    results.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
@@ -797,11 +792,13 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should store the calculated results", () => {
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
                 const demonOneBitesDemonTwoResults =
-                    mostRecentEvent.results.squaddieChanges.find(
+                    mostRecentAction.effect.squaddie.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
