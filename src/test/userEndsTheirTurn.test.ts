@@ -66,7 +66,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionService } from "../battle/history/battleAction"
-import { BattleActionQueueService } from "../battle/history/battleActionQueue"
+import { BattleActionRecorderService } from "../battle/history/battleActionRecorder"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository
@@ -262,9 +262,9 @@ describe("User ends their turn", () => {
             })
         )
         expect(
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
         ).toEqual(
             BattleActionService.new({
@@ -302,9 +302,9 @@ describe("User ends their turn", () => {
         })
 
         expect(
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
         ).toEqual(endTurnBattleAction)
     })
@@ -453,9 +453,9 @@ describe("User ends their turn", () => {
                 }),
                 campaign: CampaignService.default(),
             })
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId:

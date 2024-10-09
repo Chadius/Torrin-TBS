@@ -1,4 +1,3 @@
-// TODO Use this in battle HUD instead of a BattleActionQueue
 import { BattleAction, BattleActionService } from "./battleAction"
 import {
     BattleActionsDuringTurn,

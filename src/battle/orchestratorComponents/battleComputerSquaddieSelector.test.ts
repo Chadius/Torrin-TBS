@@ -73,6 +73,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
 import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleAction } from "../history/battleAction"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -464,9 +465,9 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     ).action.isEndTurn
                 ).toBeTruthy()
 
@@ -750,9 +751,9 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("make sure battle action has the expected fields", () => {
                 const actionToShow: BattleAction =
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
 
                 expect(actionToShow.actor.actorBattleSquaddieId).toEqual(

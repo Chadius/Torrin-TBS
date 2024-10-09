@@ -52,6 +52,7 @@ import {
     BattleActionService,
 } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -195,9 +196,10 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -229,9 +231,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -272,9 +274,10 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -302,9 +305,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             }),
         })
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -312,9 +315,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         expect(
             BattleActionService.isAnimationComplete(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             )
         ).toBeTruthy()

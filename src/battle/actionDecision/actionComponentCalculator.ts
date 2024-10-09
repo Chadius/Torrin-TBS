@@ -5,11 +5,11 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionDecisionType } from "../../action/template/actionTemplate"
-import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleActionQueue"
 import { BattleAction } from "../history/battleAction"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleActionRecorder"
 
 export const ActionComponentCalculator = {
     getNextOrchestratorComponentMode: (
@@ -53,15 +53,21 @@ export const ActionComponentCalculator = {
 
         return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
     },
-    getNextModeBasedOnBattleActionQueue: (
-        battleActionQueue: BattleActionQueue
+    getNextModeBasedOnBattleActionRecorder: (
+        battleActionRecorder: BattleActionRecorder
     ): BattleOrchestratorMode => {
-        if (BattleActionQueueService.isEmpty(battleActionQueue)) {
+        if (
+            BattleActionRecorderService.isAnimationQueueEmpty(
+                battleActionRecorder
+            )
+        ) {
             return BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
         }
 
         const nextBattleAction: BattleAction =
-            BattleActionQueueService.peek(battleActionQueue)
+            BattleActionRecorderService.peekAtAnimationQueue(
+                battleActionRecorder
+            )
 
         switch (true) {
             case !!nextBattleAction.action.actionTemplateId:

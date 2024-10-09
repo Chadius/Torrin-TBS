@@ -35,6 +35,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -496,9 +497,9 @@ describe("Battle State", () => {
                     },
                 },
             })
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 moveAction
             )
             const battleStateListener: BattleStateListener =
@@ -516,9 +517,9 @@ describe("Battle State", () => {
             })
 
             expect(
-                BattleActionQueueService.isEmpty(
+                BattleActionRecorderService.isAnimationQueueEmpty(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toBeTruthy()
         })

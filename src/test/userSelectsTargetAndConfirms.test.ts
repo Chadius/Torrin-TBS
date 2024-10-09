@@ -74,7 +74,7 @@ import {
 } from "../battle/history/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
-import { BattleActionQueueService } from "../battle/history/battleActionQueue"
+import { BattleActionRecorderService } from "../battle/history/battleActionRecorder"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -435,10 +435,11 @@ describe("User Selects Target and Confirms", () => {
             `Will add the expected battle action to the queue via $name`,
             ({ action }) => {
                 action()
-                const actualBattleAction = BattleActionQueueService.peek(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
-                )
+                const actualBattleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
                 expect(actualBattleAction.actor.actorBattleSquaddieId).toEqual(
                     playerBattleSquaddie.battleSquaddieId
                 )

@@ -35,6 +35,7 @@ import {
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
 import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
 import { BattleActionQueueService } from "../../history/battleActionQueue"
+import { BattleActionRecorderService } from "../../history/battleActionRecorder"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
@@ -202,9 +203,9 @@ export const MovementCalculatorService = {
                 battleSquaddie.battleSquaddieId
             )
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddie.battleSquaddieId,

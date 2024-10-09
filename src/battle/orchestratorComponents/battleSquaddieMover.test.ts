@@ -45,7 +45,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository
@@ -150,9 +150,9 @@ describe("BattleSquaddieMover", () => {
             }),
             campaign: CampaignService.default(),
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: "player_1",
@@ -244,9 +244,9 @@ describe("BattleSquaddieMover", () => {
             }),
             campaign: CampaignService.default(),
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: "player_1",
@@ -381,9 +381,9 @@ describe("BattleSquaddieMover", () => {
                     repository: squaddieRepo,
                     resourceHandler: mockResourceHandler,
                 })
-                BattleActionQueueService.add(
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue,
+                        .battleActionRecorder,
                     BattleActionService.new({
                         actor: {
                             actorBattleSquaddieId: "player_1",
@@ -497,9 +497,9 @@ describe("BattleSquaddieMover", () => {
                         },
                     },
                 })
-                BattleActionQueueService.add(
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue,
+                        .battleActionRecorder,
                     battleAction
                 )
 

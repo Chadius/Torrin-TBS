@@ -32,6 +32,7 @@ import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState
@@ -298,9 +299,9 @@ describe("PlayerHUDController", () => {
                 action: { actionTemplateId: singleTargetAction.id },
                 effect: { squaddie: [] },
             })
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 battleAction
             )
 

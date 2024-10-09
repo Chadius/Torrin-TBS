@@ -73,6 +73,7 @@ import {
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -288,9 +289,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             },
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
@@ -391,8 +392,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 recording: battleEventRecording,
             }),
         })
-        BattleActionQueueService.add(
-            battleOrchestratorState.battleState.battleActionQueue,
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleOrchestratorState.battleState.battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
@@ -859,8 +860,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
         ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
 
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue =
-            BattleActionQueueService.new()
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder =
+            BattleActionRecorderService.new()
         const stateChanges =
             squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
         expect(stateChanges.nextMode).toEqual(

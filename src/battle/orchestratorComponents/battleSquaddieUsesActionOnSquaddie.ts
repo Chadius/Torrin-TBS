@@ -25,7 +25,7 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -105,9 +105,9 @@ export class BattleSquaddieUsesActionOnSquaddie
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
 
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
@@ -142,10 +142,11 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
         if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
             this.hideDeadSquaddies(gameEngineState)
-            const battleSquaddieId = BattleActionQueueService.peek(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
-            ).actor.actorBattleSquaddieId
+            const battleSquaddieId =
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                ).actor.actorBattleSquaddieId
 
             if (!battleSquaddieId) {
                 this.sawResultAftermath = true
@@ -186,10 +187,11 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private hideDeadSquaddies(gameEngineState: GameEngineState) {
-        const recentBattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const recentBattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
         const mostRecentResults = recentBattleAction.effect.squaddie
         mostRecentResults.forEach((result) => {
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(

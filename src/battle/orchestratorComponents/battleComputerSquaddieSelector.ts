@@ -64,7 +64,7 @@ import { MissionMapService } from "../../missionMap/missionMap"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { RecordingService } from "../history/recording"
 import { BattleEventService } from "../history/battleEvent"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -156,9 +156,9 @@ export class BattleComputerSquaddieSelector
         let nextMode: BattleOrchestratorMode
         if (this.mostRecentDecisionSteps !== undefined) {
             nextMode =
-                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+                ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
         } else if (
             !this.atLeastOneSquaddieOnCurrentTeamCanAct(gameEngineState)
@@ -449,9 +449,9 @@ export class BattleComputerSquaddieSelector
                     },
                 })
 
-                BattleActionQueueService.add(
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue,
+                        .battleActionRecorder,
                     battleAction
                 )
                 return
@@ -481,9 +481,9 @@ export class BattleComputerSquaddieSelector
                         battleActionDecisionStep.action.actionTemplateId,
                 })
 
-                BattleActionQueueService.add(
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue,
+                        .battleActionRecorder,
                     BattleActionService.new({
                         actor: {
                             actorBattleSquaddieId:
@@ -507,9 +507,9 @@ export class BattleComputerSquaddieSelector
                     battleActionDecisionStep.action.endTurn
             )
         ) {
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId:

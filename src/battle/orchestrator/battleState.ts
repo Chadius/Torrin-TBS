@@ -47,6 +47,10 @@ import {
 } from "../history/battleActionQueue"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleActionRecorder"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -63,7 +67,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     squaddieMovePath?: SearchPath
     camera: BattleCamera
     recording: Recording
-    battleActionQueue: BattleActionQueue
+    battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     actionsThisRound: ActionsThisRound
@@ -200,6 +204,7 @@ interface BattleStateConstructorParameters {
     searchPath?: SearchPath
     battleCompletionStatus?: BattleCompletionStatus
     actionsThisRound?: ActionsThisRound
+    battleActionRecorder?: BattleActionRecorder
 }
 
 const newBattleState = ({
@@ -219,6 +224,7 @@ const newBattleState = ({
     teams,
     teamStrategiesById,
     actionsThisRound,
+    battleActionRecorder,
 }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes =
         MissionObjectivesAndCutscenesHelper.new({
@@ -241,13 +247,14 @@ const newBattleState = ({
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
         recording: recording || { history: [] },
+        battleActionRecorder:
+            battleActionRecorder || BattleActionRecorderService.new(),
         missionStatistics:
             missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
         battleActionDecisionStep: undefined,
-        battleActionQueue: BattleActionQueueService.new(),
     }
 }
 
@@ -298,14 +305,14 @@ const battleActionFinishesAnimation = (
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ).actor.actorBattleSquaddieId
         )
     )
-    BattleActionQueueService.dequeue(
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue
+    BattleActionRecorderService.battleActionFinishedAnimating(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
     if (
         battleSquaddie &&

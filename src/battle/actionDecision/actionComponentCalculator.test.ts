@@ -17,6 +17,10 @@ import {
     BattleActionQueueService,
 } from "../history/battleActionQueue"
 import { BattleActionService } from "../history/battleAction"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleActionRecorder"
 
 describe("ActionComponentCalculator", () => {
     let actionBuilderState: BattleActionDecisionStep
@@ -170,16 +174,16 @@ describe("ActionComponentCalculator", () => {
         })
     })
 
-    describe("getNextModeBasedOnBattleActionQueue", () => {
-        let battleActionQueue: BattleActionQueue
+    describe("getNextModeBasedOnBattleActionRecorder", () => {
+        let battleActionRecorder: BattleActionRecorder
 
         beforeEach(() => {
-            battleActionQueue = BattleActionQueueService.new()
+            battleActionRecorder = BattleActionRecorderService.new()
         })
 
-        it("will recommend moving a squaddie if the next action effect is movement type", () => {
-            BattleActionQueueService.add(
-                battleActionQueue,
+        it("will recommend moving a squaddie if the next action to animate is movement", () => {
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
                 BattleActionService.new({
                     actor: { actorBattleSquaddieId: "actor" },
                     action: { isMovement: true },
@@ -193,14 +197,14 @@ describe("ActionComponentCalculator", () => {
             )
 
             expect(
-                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
-                    battleActionQueue
+                ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
+                    battleActionRecorder
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER)
         })
         it("will recommend using an action effect on a squaddie if the next action effect is squaddie type", () => {
-            BattleActionQueueService.add(
-                battleActionQueue,
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
                 BattleActionService.new({
                     actor: { actorBattleSquaddieId: "actor" },
                     action: { actionTemplateId: "actionTemplate" },
@@ -210,14 +214,14 @@ describe("ActionComponentCalculator", () => {
                 })
             )
             expect(
-                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
-                    battleActionQueue
+                ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
+                    battleActionRecorder
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE)
         })
         it("will recommend acting on the map if the next action effect is end turn", () => {
-            BattleActionQueueService.add(
-                battleActionQueue,
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
                 BattleActionService.new({
                     actor: { actorBattleSquaddieId: "actor" },
                     action: { isEndTurn: true },
@@ -228,15 +232,15 @@ describe("ActionComponentCalculator", () => {
             )
 
             expect(
-                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
-                    battleActionQueue
+                ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
+                    battleActionRecorder
                 )
             ).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP)
         })
-        it("will return player hud controller if there are no actions this round", () => {
+        it("will recommend player hud controller if there are no actions taken this round", () => {
             expect(
-                ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
-                    battleActionQueue
+                ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
+                    battleActionRecorder
                 )
             ).toEqual(BattleOrchestratorMode.PLAYER_HUD_CONTROLLER)
         })

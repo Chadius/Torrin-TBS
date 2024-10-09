@@ -63,6 +63,7 @@ import {
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -423,9 +424,9 @@ describe("BattleSquaddieSelector", () => {
 
             expect(playerCommandSpy).toBeCalled()
             expect(
-                BattleActionQueueService.isEmpty(
+                BattleActionRecorderService.isAnimationQueueEmpty(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toBeTruthy()
 

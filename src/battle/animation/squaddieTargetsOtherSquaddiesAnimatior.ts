@@ -25,6 +25,7 @@ import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChang
 import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionQueueService } from "../history/battleActionQueue"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -153,9 +154,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     reset(gameEngineState: GameEngineState) {
         this.resetInternalState()
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionQueueService.peek(
+            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ),
             animationCompleted: true,
         })
@@ -166,10 +167,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._weaponIcon = new WeaponIcon()
         this._actorSprite = new ActorSprite()
 
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         const { battleSquaddie: actorBattle, squaddieTemplate: actorTemplate } =
             getResultOrThrowError(
@@ -233,10 +235,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         this._targetSprites = actionToShow.effect.squaddie
             .map((s) => s.battleSquaddieId)
@@ -262,10 +265,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         gameEngineState: GameEngineState,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             this._targetTextWindows = []
@@ -310,10 +314,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     private setupAnimationForTargetHitPointMeters(
         gameEngineState: GameEngineState
     ) {
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             this._targetTextWindows = []
@@ -368,10 +373,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     ) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer)
 
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             return
@@ -419,10 +425,12 @@ export class SquaddieTargetsOtherSquaddiesAnimator
     }
 
     private updateHitPointMeters(gameEngineState: GameEngineState) {
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
         actionToShow.effect.squaddie.forEach((change) => {
             const battleSquaddieId = change.battleSquaddieId
             const hitPointMeter = this.targetHitPointMeters[battleSquaddieId]

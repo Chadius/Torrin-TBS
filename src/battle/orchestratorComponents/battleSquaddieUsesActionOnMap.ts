@@ -14,8 +14,8 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleActionService } from "../history/battleAction"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 
@@ -67,9 +67,9 @@ export class BattleSquaddieUsesActionOnMap
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
 
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
@@ -101,17 +101,18 @@ export class BattleSquaddieUsesActionOnMap
         }
 
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionQueueService.peek(
+            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ),
             animationCompleted: true,
         })
 
-        const battleSquaddieId = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        ).actor.actorBattleSquaddieId
+        const battleSquaddieId =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).actor.actorBattleSquaddieId
 
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(

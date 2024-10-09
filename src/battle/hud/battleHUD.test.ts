@@ -115,6 +115,7 @@ import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1363,9 +1364,9 @@ describe("Battle HUD", () => {
 
             it("adds the Battle Action to the Battle Action Queue", () => {
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toEqual(endTurnBattleAction)
             })
@@ -1843,9 +1844,9 @@ describe("Battle HUD", () => {
                 gameEngineState,
             })
             expect(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toEqual(
                 BattleActionService.new({
@@ -2361,9 +2362,9 @@ describe("Battle HUD", () => {
                 sendMessageToMove()
 
                 expect(
-                    BattleActionQueueService.isEmpty(
+                    BattleActionRecorderService.isAnimationQueueEmpty(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toBeTruthy()
             })
@@ -2487,9 +2488,9 @@ describe("Battle HUD", () => {
                 })
 
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toEqual(squaddieBattleAction)
             })

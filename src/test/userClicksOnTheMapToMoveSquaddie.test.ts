@@ -54,6 +54,7 @@ import {
 } from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionService } from "../battle/history/battleAction"
 import { BattleActionQueueService } from "../battle/history/battleActionQueue"
+import { BattleActionRecorderService } from "../battle/history/battleActionRecorder"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -304,9 +305,9 @@ describe("user clicks on the map to move", () => {
                     template: ActionEffectMovementTemplateService.new({}),
                 })
             expect(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toEqual(
                 BattleActionService.new({
