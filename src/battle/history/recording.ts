@@ -1,5 +1,5 @@
 import { BattleEvent, BattleEventService } from "./battleEvent"
-
+// TODO Chopping block!
 export interface Recording {
     history: BattleEvent[]
 }

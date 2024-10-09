@@ -3,10 +3,6 @@ import { BattleEvent, BattleEventService } from "./battleEvent"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 
 describe("Recording", () => {
-    it("placeholder once you rewrite this", () => {
-        expect(true).toBeTruthy()
-    })
-
     it("can add an event and retrieve it", () => {
         const recording: Recording = {
             history: [],
