@@ -5,7 +5,6 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { IsSquaddieAlive } from "../../squaddie/squaddieService"
@@ -14,18 +13,20 @@ import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTarg
 import { SquaddieActionAnimator } from "../animation/squaddieActionAnimator"
 import { DefaultSquaddieActionAnimator } from "../animation/defaultSquaddieActionAnimator"
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
-import { Trait } from "../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { RecordingService } from "../history/recording"
-import { BattleEvent } from "../history/battleEvent"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepositoryService } from "../objectRepository"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { ObjectRepositoryService } from "../objectRepository"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -64,14 +65,15 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.setSquaddieActionAnimatorBasedOnAction(
-                state.battleOrchestratorState
+            this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
+            this.squaddieActionAnimator.mouseEventHappened(
+                gameEngineState,
+                event
             )
-            this.squaddieActionAnimator.mouseEventHappened(state, event)
         }
     }
 
@@ -105,9 +107,9 @@ export class BattleSquaddieUsesActionOnSquaddie
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
 
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
@@ -135,17 +137,16 @@ export class BattleSquaddieUsesActionOnSquaddie
         if (
             this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator
         ) {
-            this.setSquaddieActionAnimatorBasedOnAction(
-                gameEngineState.battleOrchestratorState
-            )
+            this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
         }
         this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
         if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
             this.hideDeadSquaddies(gameEngineState)
-            const battleSquaddieId = BattleActionQueueService.peek(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
-            ).actor.actorBattleSquaddieId
+            const battleSquaddieId =
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                ).actor.actorBattleSquaddieId
 
             if (!battleSquaddieId) {
                 this.sawResultAftermath = true
@@ -186,10 +187,11 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private hideDeadSquaddies(gameEngineState: GameEngineState) {
-        const recentBattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const recentBattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
         const mostRecentResults = recentBattleAction.effect.squaddie
         mostRecentResults.forEach((result) => {
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
@@ -211,28 +213,39 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private setSquaddieActionAnimatorBasedOnAction(
-        state: BattleOrchestratorState
+        gameEngineState: GameEngineState
     ) {
-        const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(
-            state.battleState.recording
-        )
-        if (mostRecentEvent?.processedAction === undefined) {
+        const battleOrchestratorState = gameEngineState.battleOrchestratorState
+        const battleActionReadyToAnimate =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                battleOrchestratorState.battleState.battleActionRecorder
+            )
+        if (!battleActionReadyToAnimate) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator()
             return
         }
 
-        const processedActionEffectToShow =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                state.battleState.actionsThisRound
-            )
+        if (!battleActionReadyToAnimate.action.actionTemplateId) {
+            return
+        }
 
-        if (processedActionEffectToShow?.type !== ActionEffectType.SQUADDIE) {
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            battleActionReadyToAnimate.action.actionTemplateId
+        )
+
+        if (!actionTemplate) {
             return
         }
 
         if (
-            processedActionEffectToShow.decidedActionEffect.template.traits
-                .booleanTraits[Trait.SKIP_ANIMATION] === true
+            TraitStatusStorageService.getStatus(
+                (
+                    actionTemplate
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                ).traits,
+                Trait.SKIP_ANIMATION
+            ) === true
         ) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator
             return

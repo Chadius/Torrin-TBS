@@ -37,7 +37,7 @@ import {
     PlayerCommandSelection,
     PlayerCommandStateService,
 } from "../hud/playerCommandHUD"
-import { BattleActionService } from "../history/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -62,7 +62,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -222,7 +222,6 @@ describe("BattleSquaddieSelector", () => {
                     camera: new BattleCamera(),
                     battlePhaseState,
                     teams,
-                    recording: { history: [] },
                 }),
             }),
             repository: objectRepository,
@@ -423,9 +422,9 @@ describe("BattleSquaddieSelector", () => {
 
             expect(playerCommandSpy).toBeCalled()
             expect(
-                BattleActionQueueService.isEmpty(
+                BattleActionRecorderService.isAnimationQueueEmpty(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toBeTruthy()
 

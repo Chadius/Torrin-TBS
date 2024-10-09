@@ -1,5 +1,5 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
-import { BattleAction } from "../battle/history/battleAction"
+import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
@@ -32,6 +32,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
+    | MessageBoardMessageSquaddieTurnEnds
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -58,6 +59,7 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
     PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
+    SQUADDIE_TURN_ENDS = "SQUADDIE_TURN_ENDS",
 }
 
 export interface MessageBoardMessageBase {
@@ -211,5 +213,10 @@ export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {
 
 export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
     type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
+    gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessageSquaddieTurnEnds {
+    type: MessageBoardMessageType.SQUADDIE_TURN_ENDS
     gameEngineState: GameEngineState
 }

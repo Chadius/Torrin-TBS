@@ -153,7 +153,6 @@ describe("BattleActionConfirm", () => {
                     campaignId: "test campaign",
                     missionMap: battleMap,
                     actionsThisRound,
-                    recording: { history: [] },
                 }),
             }),
             repository: objectRepository,

@@ -31,11 +31,14 @@ import {
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleActionQueueService } from "../history/battleActionQueue"
-import { BattleActionSquaddieChangeService } from "../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChangeService } from "../history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -111,9 +114,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             }),
             repository: objectRepository,
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             monkMeditatesBattleAction
         )
 
@@ -159,9 +162,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             }),
             repository: objectRepository,
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             monkMeditatesBattleAction
         )
 
@@ -189,9 +192,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             }),
             repository: objectRepository,
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             monkMeditatesBattleAction
         )
 
@@ -222,9 +225,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             }),
             repository: objectRepository,
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             monkMeditatesBattleAction
         )
 
@@ -232,9 +235,9 @@ describe("SquaddieSkipsAnimationAnimator", () => {
 
         expect(
             BattleActionService.isAnimationComplete(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             )
         ).toBeTruthy()

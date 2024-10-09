@@ -60,7 +60,6 @@ import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkip
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
-import { BattleActionActionContextService } from "../battle/history/battleAction"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -71,10 +70,11 @@ import {
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../battle/history/battleActionSquaddieChange"
+} from "../battle/history/battleAction/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
-import { BattleActionQueueService } from "../battle/history/battleActionQueue"
+import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../battle/history/battleAction/battleActionActionContext"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -435,10 +435,11 @@ describe("User Selects Target and Confirms", () => {
             `Will add the expected battle action to the queue via $name`,
             ({ action }) => {
                 action()
-                const actualBattleAction = BattleActionQueueService.peek(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
-                )
+                const actualBattleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
                 expect(actualBattleAction.actor.actorBattleSquaddieId).toEqual(
                     playerBattleSquaddie.battleSquaddieId
                 )

@@ -20,7 +20,7 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { BattleActionSquaddieChange } from "../../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 
 export class ActorSprite {

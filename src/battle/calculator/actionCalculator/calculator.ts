@@ -24,8 +24,7 @@ import {
     BattleActionSquaddieChangeService,
     DamageExplanation,
     DamageExplanationService,
-} from "../../history/battleActionSquaddieChange"
-import { BattleActionActionContext } from "../../history/battleAction"
+} from "../../history/battleAction/battleActionSquaddieChange"
 import {
     AttributeModifier,
     AttributeTypeAndAmount,
@@ -37,6 +36,7 @@ import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecis
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
 import { ActionTemplate } from "../../../action/template/actionTemplate"
 import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
+import { BattleActionActionContext } from "../../history/battleAction/battleActionActionContext"
 
 export interface CalculatedEffect {
     damage: DamageExplanation

@@ -21,9 +21,12 @@ import { ProcessedActionEndTurnEffectService } from "../../action/processed/proc
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -99,9 +102,9 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             action: { isEndTurn: true },
             effect: { endTurn: true },
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             battleAction
         )
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -123,8 +126,8 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     it("will go to player hud controller if there are no more actions queued", () => {
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue =
-            BattleActionQueueService.new()
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder =
+            BattleActionRecorderService.new()
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
         expect(stateChanges.nextMode).toEqual(
             BattleOrchestratorMode.PLAYER_HUD_CONTROLLER
@@ -146,9 +149,9 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mapAction.update(gameEngineState, mockedP5GraphicsContext)
         expect(
             BattleActionService.isAnimationComplete(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             )
         ).toBeTruthy()

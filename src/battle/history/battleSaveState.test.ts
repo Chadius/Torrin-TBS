@@ -5,13 +5,11 @@ import {
     InBattleAttributesAndTurn,
 } from "./battleSaveState"
 import { BattleCamera } from "../battleCamera"
-import { Recording, RecordingService } from "./recording"
 import {
     BattleOrchestratorState,
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { BattleEvent, BattleEventService } from "./battleEvent"
 import { MissionMap } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
@@ -43,22 +41,25 @@ import {
 } from "../../cutscene/cutsceneTrigger"
 import { BattleStateService } from "../orchestrator/battleState"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ActionsThisRound, ActionsThisRoundService } from "./actionsThisRound"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "./battleActionSquaddieChange"
-import { BattleActionActionContextService } from "./battleAction"
-import { SquaddieSquaddieResultsService } from "./squaddieSquaddieResults"
+} from "./battleAction/battleActionSquaddieChange"
+import { BattleAction, BattleActionService } from "./battleAction/battleAction"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import { BattleActionsDuringTurnService } from "./battleAction/battleActionsDuringTurn"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "./battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "./battleAction/battleActionActionContext"
 
 describe("BattleSaveState", () => {
-    let eventRecording0: Recording
-    let firstBattleEvent: BattleEvent
+    let battleActionRecorder: BattleActionRecorder
+    let firstBattleAction: BattleAction
     let missionStatistics: MissionStatistics
     let originalSquaddieRepository: ObjectRepository
     let newSquaddieRepository: ObjectRepository
@@ -68,7 +69,7 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam
 
     beforeEach(() => {
-        eventRecording0 = { history: [] }
+        battleActionRecorder = BattleActionRecorderService.new()
 
         const actionTemplate: ActionTemplate = ActionTemplateService.new({
             actionPoints: 1,
@@ -76,15 +77,20 @@ describe("BattleSaveState", () => {
             id: "attackId",
         })
 
-        firstBattleEvent = BattleEventService.new({
-            processedAction: ProcessedActionService.new({
-                actionPointCost: 1,
-                processedActionEffects: [],
-            }),
-            results: {
-                actingBattleSquaddieId: "actor 1",
-                targetedBattleSquaddieIds: ["target 0, target 1"],
-                squaddieChanges: [
+        firstBattleAction = BattleActionService.new({
+            actor: {
+                actorBattleSquaddieId: "actor 1",
+                actorContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [3, 5],
+                    },
+                    actingSquaddieModifiers: [],
+                }),
+            },
+            action: { actionTemplateId: actionTemplate.id },
+            effect: {
+                squaddie: [
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "target 0",
                         damageExplanation: DamageExplanationService.new({
@@ -102,16 +108,15 @@ describe("BattleSaveState", () => {
                         actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     }),
                 ],
-                actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: true,
-                        rolls: [3, 5],
-                    },
-                    actingSquaddieModifiers: [],
-                }),
             },
         })
-        eventRecording0.history.push(firstBattleEvent)
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleActionRecorder,
+            firstBattleAction
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            battleActionRecorder
+        )
 
         missionStatistics = MissionStatisticsService.new({
             timeElapsedInMilliseconds: 9001,
@@ -357,39 +362,26 @@ describe("BattleSaveState", () => {
     })
 
     it("Can read the event recording and create a similar one", () => {
-        const actionsThisRound: ActionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: "actor 2",
-            startingLocation: { q: 0, r: 4 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 3,
-                }),
-            ],
+        const secondBattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor 2" },
+            action: { isEndTurn: true },
+            effect: { endTurn: true },
         })
 
-        const secondBattleEvent: BattleEvent = BattleEventService.new({
-            processedAction: actionsThisRound.processedActions[0],
-            results: SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: undefined,
-                targetedBattleSquaddieIds: [],
-                squaddieChanges: [],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                    actingSquaddieModifiers: [],
-                }),
-            }),
-        })
-        eventRecording0.history.push(secondBattleEvent)
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleActionRecorder,
+            secondBattleAction
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            battleActionRecorder
+        )
 
         const battleState = BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionMap: NullMissionMap(),
-                recording: eventRecording0,
+                battleActionRecorder: battleActionRecorder,
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -405,7 +397,10 @@ describe("BattleSaveState", () => {
                 battleOrchestratorState: battleState,
                 repository: ObjectRepositoryService.new(),
             })
-        expect(saveState.battleEventRecording.history).toHaveLength(2)
+        expect(
+            saveState.battleActionRecorder.actionsAlreadyAnimatedThisTurn
+                .battleActions
+        ).toHaveLength(2)
 
         const newBattleState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
@@ -424,18 +419,22 @@ describe("BattleSaveState", () => {
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository,
         })
-        expect(newBattleState.battleState.recording.history).toHaveLength(2)
-        expect(newBattleState.battleState.recording.history[0]).toStrictEqual(
-            firstBattleEvent
-        )
-        expect(newBattleState.battleState.recording.history[1]).toStrictEqual(
-            secondBattleEvent
-        )
         expect(
-            RecordingService.mostRecentEvent(
-                newBattleState.battleState.recording
+            newBattleState.battleState.battleActionRecorder
+                .actionsAlreadyAnimatedThisTurn.battleActions
+        ).toHaveLength(2)
+        const allActions = BattleActionsDuringTurnService.getAll(
+            newBattleState.battleState.battleActionRecorder
+                .actionsAlreadyAnimatedThisTurn
+        )
+        expect(allActions[0]).toStrictEqual(firstBattleAction)
+        expect(allActions[1]).toStrictEqual(secondBattleAction)
+
+        expect(
+            BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+                newBattleState.battleState.battleActionRecorder
             )
-        ).toStrictEqual(secondBattleEvent)
+        ).toStrictEqual(secondBattleAction)
     })
 
     it("Can read the squaddie placement on a mission map and create a similar one", () => {
@@ -926,7 +925,7 @@ describe("BattleSaveState", () => {
                     xCoordinate: 100,
                     yCoordinate: 200,
                 },
-                battleEventRecording: eventRecording0,
+                battleActionRecorder: battleActionRecorder,
                 inBattleAttributesBySquaddieBattleId:
                     inBattleAttributesBySquaddieBattleId,
                 missionStatistics: missionStatistics,
@@ -1114,7 +1113,7 @@ describe("BattleSaveState", () => {
                         currentAffiliation: BattlePhase.PLAYER,
                         turnCount: 3,
                     },
-                    recording: eventRecording0,
+                    battleActionRecorder,
                     missionMap,
                     missionStatistics,
                     teams: [playerTeam, enemyTeam],
@@ -1142,10 +1141,6 @@ describe("BattleSaveState", () => {
                 BattlePhase.PLAYER
             )
 
-            expect(newSaveData.battleEventRecording.history).toHaveLength(1)
-            expect(newSaveData.battleEventRecording.history[0]).toStrictEqual(
-                firstBattleEvent
-            )
             expect(newSaveData.squaddieMapPlacements).toHaveLength(2)
             expect(newSaveData.squaddieMapPlacements[0]).toStrictEqual({
                 squaddieTemplateId: "template 0",

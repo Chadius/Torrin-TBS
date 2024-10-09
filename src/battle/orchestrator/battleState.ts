@@ -13,7 +13,6 @@ import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { BattlePhaseState } from "../orchestratorComponents/battlePhaseController"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleCamera } from "../battleCamera"
-import { Recording } from "../history/recording"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import {
     MissionStatistics,
@@ -38,15 +37,17 @@ import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardBattleActionFinishesAnimation,
     MessageBoardMessage,
+    MessageBoardMessageSquaddieTurnEnds,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleActionQueue"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -62,8 +63,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     battlePhaseState: BattlePhaseState
     squaddieMovePath?: SearchPath
     camera: BattleCamera
-    recording: Recording
-    battleActionQueue: BattleActionQueue
+    battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
     actionsThisRound: ActionsThisRound
@@ -192,7 +192,6 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap
     camera?: BattleCamera
     battlePhaseState?: BattlePhaseState
-    recording?: Recording
     teams?: BattleSquaddieTeam[]
     teamStrategiesById?: { [key: string]: TeamStrategy[] }
     missionCompletionStatus?: MissionCompletionStatus
@@ -200,6 +199,7 @@ interface BattleStateConstructorParameters {
     searchPath?: SearchPath
     battleCompletionStatus?: BattleCompletionStatus
     actionsThisRound?: ActionsThisRound
+    battleActionRecorder?: BattleActionRecorder
 }
 
 const newBattleState = ({
@@ -211,7 +211,6 @@ const newBattleState = ({
     missionMap,
     camera,
     battlePhaseState,
-    recording,
     missionStatistics,
     missionCompletionStatus,
     searchPath,
@@ -219,6 +218,7 @@ const newBattleState = ({
     teams,
     teamStrategiesById,
     actionsThisRound,
+    battleActionRecorder,
 }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes =
         MissionObjectivesAndCutscenesHelper.new({
@@ -240,14 +240,14 @@ const newBattleState = ({
         battlePhaseState: battlePhaseState,
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
-        recording: recording || { history: [] },
+        battleActionRecorder:
+            battleActionRecorder || BattleActionRecorderService.new(),
         missionStatistics:
             missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
         battleActionDecisionStep: undefined,
-        battleActionQueue: BattleActionQueueService.new(),
     }
 }
 
@@ -287,6 +287,9 @@ export class BattleStateListener implements MessageBoardListener {
         ) {
             battleActionFinishesAnimation(message)
         }
+        if (message.type === MessageBoardMessageType.SQUADDIE_TURN_ENDS) {
+            squaddieTurnEnds(message)
+        }
     }
 }
 
@@ -298,22 +301,29 @@ const battleActionFinishesAnimation = (
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ).actor.actorBattleSquaddieId
         )
     )
-    BattleActionQueueService.dequeue(
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue
+    BattleActionService.setAnimationCompleted({
+        battleAction: BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ),
+        animationCompleted: true,
+    })
+    BattleActionRecorderService.battleActionFinishedAnimating(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
-    if (
-        battleSquaddie &&
-        SquaddieService.canSquaddieActRightNow({
-            battleSquaddie,
-            squaddieTemplate,
-        }).canAct
-    ) {
+
+    const canAct = SquaddieService.canSquaddieActRightNow({
+        battleSquaddie,
+        squaddieTemplate,
+    }).canAct
+
+    if (battleSquaddie && canAct) {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
@@ -327,4 +337,18 @@ const battleActionFinishesAnimation = (
 
     gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
         undefined
+
+    if (!canAct) {
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+            gameEngineState,
+        })
+    }
+}
+
+const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
+    const gameEngineState: GameEngineState = message.gameEngineState
+    BattleActionRecorderService.turnComplete(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
 }

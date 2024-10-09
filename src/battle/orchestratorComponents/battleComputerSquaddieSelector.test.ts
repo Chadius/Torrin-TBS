@@ -22,7 +22,6 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleCamera, PanningInformation } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
 import {
     Trait,
@@ -58,7 +57,6 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionSquaddieEffect } from "../../action/processed/processedActionSquaddieEffect"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -71,8 +69,11 @@ import {
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
-import { BattleActionQueueService } from "../history/battleActionQueue"
-import { BattleAction } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -268,7 +269,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 },
                             ],
                         },
-                        recording: { history: [] },
                     }),
                 }),
                 campaign: CampaignService.default(),
@@ -349,7 +349,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 campaignId: "test campaign",
                                 battlePhaseState,
                                 missionMap,
-                                recording: { history: [] },
                                 teams,
                                 teamStrategiesById: {
                                     teamId: [
@@ -402,14 +401,19 @@ describe("BattleComputerSquaddieSelector", () => {
                 BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP
             )
 
-            const history =
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            expect(history).toHaveLength(1)
-            expect(history[0]).toStrictEqual(
-                BattleEventService.new({
-                    processedAction,
-                    results: undefined,
+            expect(
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            enemyDemonBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
                 })
             )
 
@@ -437,7 +441,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 campaignId: "test campaign",
                                 battlePhaseState,
                                 missionMap,
-                                recording: { history: [] },
                                 teams,
                                 teamStrategiesById: {
                                     teamId: [
@@ -464,9 +467,9 @@ describe("BattleComputerSquaddieSelector", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     ).action.isEndTurn
                 ).toBeTruthy()
 
@@ -549,7 +552,6 @@ describe("BattleComputerSquaddieSelector", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
-                        recording: { history: [] },
                         battlePhaseState,
                         camera,
                         missionMap,
@@ -646,7 +648,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                         },
                                     ],
                                 },
-                                recording: { history: [] },
                             }),
                         }
                     ),
@@ -750,9 +751,9 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("make sure battle action has the expected fields", () => {
                 const actionToShow: BattleAction =
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
 
                 expect(actionToShow.actor.actorBattleSquaddieId).toEqual(
@@ -762,32 +763,22 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should add the results to the history", () => {
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                ).toHaveLength(1)
-
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
-                expect(
-                    mostRecentEvent.processedAction.processedActionEffects[0]
-                        .type
-                ).toEqual(ActionEffectType.SQUADDIE)
-
-                const processedActionSquaddieEffect = mostRecentEvent
-                    .processedAction
-                    .processedActionEffects[0] as ProcessedActionSquaddieEffect
-                const results = processedActionSquaddieEffect.results
-                expect(results.actingBattleSquaddieId).toBe(
-                    enemyDemonBattleSquaddie.battleSquaddieId
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(mostRecentAction.action.actionTemplateId).toEqual(
+                    demonBiteAction.id
                 )
-                expect(results.targetedBattleSquaddieIds).toHaveLength(1)
-                expect(results.targetedBattleSquaddieIds[0]).toBe(
+
+                const results = mostRecentAction.effect.squaddie
+                expect(results).toHaveLength(1)
+                expect(results[0].battleSquaddieId).toEqual(
                     enemyDemonBattleSquaddie2.battleSquaddieId
                 )
                 expect(
-                    results.squaddieChanges.find(
+                    results.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId
@@ -796,11 +787,13 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should store the calculated results", () => {
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
                 const demonOneBitesDemonTwoResults =
-                    mostRecentEvent.results.squaddieChanges.find(
+                    mostRecentAction.effect.squaddie.find(
                         (change) =>
                             change.battleSquaddieId ===
                             enemyDemonBattleSquaddie2.battleSquaddieId

@@ -29,7 +29,7 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../../history/battleActionSquaddieChange"
+} from "../../history/battleAction/battleActionSquaddieChange"
 import {
     AttributeModifierService,
     AttributeSource,

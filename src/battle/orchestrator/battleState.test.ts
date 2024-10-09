@@ -29,12 +29,19 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "./battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "../history/battleAction/battleActionRecorder"
+import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -456,6 +463,7 @@ describe("Battle State", () => {
         let moveAction: BattleAction
         let objectRepository: ObjectRepository
         let battleSquaddie: BattleSquaddie
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
@@ -496,9 +504,9 @@ describe("Battle State", () => {
                     },
                 },
             })
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 moveAction
             )
             const battleStateListener: BattleStateListener =
@@ -507,20 +515,53 @@ describe("Battle State", () => {
                 battleStateListener,
                 MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
             )
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
 
-        it("clears the Battle Action Queue when it finishes animating", () => {
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        it("marks the battle action as animated and moves it into the already animated queue", () => {
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeFalsy()
+
+            const battleAction =
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            expect(
+                BattleActionService.isAnimationComplete(battleAction)
+            ).toBeFalsy()
+
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
             })
 
             expect(
-                BattleActionQueueService.isEmpty(
+                BattleActionService.isAnimationComplete(battleAction)
+            ).toBeTruthy()
+
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toBeTruthy()
+
+            expect(
+                BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(battleAction)
         })
 
         it("If the squaddie still has a turn, makes the decision to select the squaddie", () => {
@@ -540,16 +581,172 @@ describe("Battle State", () => {
             ).toEqual("battleSquaddieId")
         })
 
-        it("If the squaddie turn is over, do not make the decision to select the squaddie", () => {
-            SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+        describe("When the squaddie ends their turn", () => {
+            beforeEach(() => {
+                SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                    gameEngineState,
+                })
+            })
+
+            it("If the squaddie turn is over, do not make the decision to select the squaddie", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).toBeUndefined()
+            })
+
+            it("will send a message indicating the squaddie turn is over when they cannot act", () => {
+                expect(messageSpy).toBeCalledWith({
+                    type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                    gameEngineState,
+                })
+            })
+        })
+    })
+
+    describe("squaddie turn ends because they are out of actions", () => {
+        let gameEngineState: GameEngineState
+        let objectRepository: ObjectRepository
+
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributes: {
+                    maxHitPoints: 5,
+                    movement: SquaddieMovementService.new({
+                        movementPerAction: 2,
+                    }),
+                    armorClass: 0,
+                },
+                battleId: "battleSquaddieId",
+                name: "actor",
+                objectRepository: objectRepository,
+                templateId: "actor",
+                actionTemplateIds: [],
+            })
+
+            gameEngineState = GameEngineStateService.new({
+                repository: objectRepository,
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                    }),
+                }),
+            })
+
+            const battleStateListener: BattleStateListener =
+                new BattleStateListener("battleStateListener")
+            gameEngineState.messageBoard.addListener(
+                battleStateListener,
+                MessageBoardMessageType.SQUADDIE_TURN_ENDS
+            )
+        })
+
+        const setupBattleActionRecorder = () => {
+            const moveBattleAction: BattleAction = BattleActionService.new({
+                actor: { actorBattleSquaddieId: "actor" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 1 },
+                    },
+                },
+                animation: { completed: true },
+            })
+            const endTurnAction: BattleAction = BattleActionService.new({
+                actor: { actorBattleSquaddieId: "actor" },
+                action: { isEndTurn: true },
+                effect: {
+                    endTurn: true,
+                },
+                animation: { completed: true },
+            })
+
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                moveBattleAction
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+            BattleActionRecorderService.turnComplete(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                endTurnAction
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
+            return {
+                moveBattleAction,
+                endTurnAction,
+            }
+        }
+
+        it("Moves current turn to a previous turn", () => {
+            const { moveBattleAction, endTurnAction } =
+                setupBattleActionRecorder()
+
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
                 gameEngineState,
             })
-            expect(
+
+            const battleActionRecorder: BattleActionRecorder =
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).toBeUndefined()
+                    .battleActionRecorder
+
+            const previousTurns =
+                BattleActionRecorderService.getPreviousBattleActionTurns(
+                    battleActionRecorder
+                )
+            expect(previousTurns).toHaveLength(2)
+
+            expect(
+                BattleActionsDuringTurnService.getAll(previousTurns[0])
+            ).toEqual([moveBattleAction])
+            expect(
+                BattleActionsDuringTurnService.getAll(previousTurns[1])
+            ).toEqual([endTurnAction])
+        })
+
+        it("clears the current turn", () => {
+            setupBattleActionRecorder()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                gameEngineState,
+            })
+
+            const battleActionRecorder: BattleActionRecorder =
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    battleActionRecorder
+                )
+            ).toBeTruthy()
+            expect(
+                BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                    battleActionRecorder
+                )
+            ).toBeTruthy()
         })
     })
 })

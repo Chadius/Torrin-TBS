@@ -17,8 +17,8 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -94,9 +94,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             gameEngineState
         )
         const nextMode =
-            ActionComponentCalculator.getNextModeBasedOnBattleActionQueue(
+            ActionComponentCalculator.getNextModeBasedOnBattleActionRecorder(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
 
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
@@ -150,10 +150,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        const battleSquaddieId = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        ).actor.actorBattleSquaddieId
+        const battleSquaddieId =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).actor.actorBattleSquaddieId
 
         if (!battleSquaddieId) {
             this.finishedCleanup = true
@@ -178,9 +179,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             graphicsContext
         )
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionQueueService.peek(
+            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ),
             animationCompleted: true,
         })
@@ -207,8 +208,8 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
     if (!mapIcon) {
         return
     }
-    const destination = BattleActionQueueService.peek(
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue
+    const destination = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     ).effect.movement.endLocation
 
     DrawSquaddieUtilities.updateSquaddieIconLocation({

@@ -194,7 +194,6 @@ describe("BattleSquaddieTarget", () => {
                     campaignId: "test campaign",
                     missionMap: battleMap,
                     actionsThisRound,
-                    recording: { history: [] },
                 }),
             }),
             repository: objectRepository,

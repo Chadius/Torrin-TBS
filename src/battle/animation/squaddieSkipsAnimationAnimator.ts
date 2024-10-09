@@ -10,10 +10,13 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionResultTextService } from "./actionResultTextService"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
@@ -45,9 +48,9 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     reset(gameEngineState: GameEngineState): void {
         this.resetInternalState()
         BattleActionService.setAnimationCompleted({
-            battleAction: BattleActionQueueService.peek(
+            battleAction: BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             ),
             animationCompleted: true,
         })
@@ -83,10 +86,11 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             return
         }
 
-        const actionToShow: BattleAction = BattleActionQueueService.peek(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const actionToShow: BattleAction =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         if (actionToShow?.action.actionTemplateId === undefined) {
             return

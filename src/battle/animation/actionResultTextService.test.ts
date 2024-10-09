@@ -25,8 +25,7 @@ import {
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
-import { BattleActionActionContextService } from "../history/battleAction"
+} from "../history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
     AttributeModifierService,
@@ -35,6 +34,7 @@ import {
     AttributeTypeAndAmountService,
 } from "../../squaddie/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()

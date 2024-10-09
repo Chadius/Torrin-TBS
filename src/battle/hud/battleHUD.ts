@@ -46,18 +46,16 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
-import {
-    ProcessedAction,
-    ProcessedActionService,
-} from "../../action/processed/processedAction"
+import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
-import { RecordingService } from "../history/recording"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
@@ -66,7 +64,7 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
-import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
@@ -80,8 +78,8 @@ import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -274,9 +272,9 @@ export const BattleHUDService = {
                 .terrainTileMap
         )
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             battleAction
         )
 
@@ -666,7 +664,6 @@ export const BattleHUDService = {
         )
 
         actionsThisRound.processedActions.push(processedAction)
-        addEventToRecording(processedAction, results, gameEngineState)
 
         BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
             actionDecisionStep:
@@ -674,9 +671,8 @@ export const BattleHUDService = {
                     .battleActionDecisionStep,
         })
 
-        const squaddieChanges: BattleActionSquaddieChange[] = Object.values(
+        const squaddieChanges: BattleActionSquaddieChange[] =
             results.squaddieChanges
-        )
 
         const squaddieBattleAction: BattleAction = BattleActionService.new({
             actor: {
@@ -689,9 +685,9 @@ export const BattleHUDService = {
             },
         })
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             squaddieBattleAction
         )
         clearAllHoverAndClickedLayersExceptForThisSquaddie(
@@ -849,6 +845,7 @@ export const BattleHUDService = {
             processedAction,
             battleSquaddie,
         })
+
         MovementCalculatorService.consumeSquaddieActions({
             processedAction,
             battleSquaddie,
@@ -1062,8 +1059,9 @@ const processEndTurnAction = (
         action: { isEndTurn: true },
         effect: { endTurn: true },
     })
-    BattleActionQueueService.add(
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue,
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionRecorder,
         endTurnAction
     )
 
@@ -1110,29 +1108,12 @@ const processEndTurnAction = (
             t
         )
     )
-    RecordingService.addEvent(
-        gameEngineState.battleOrchestratorState.battleState.recording,
-        BattleEventService.new({
-            processedAction,
-            results: undefined,
-        })
+    BattleActionRecorderService.addReadyToAnimateBattleAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionRecorder,
+        endTurnAction
     )
     BattleSquaddieService.endTurn(battleSquaddie)
-}
-
-const addEventToRecording = (
-    processedAction: ProcessedAction,
-    results: SquaddieSquaddieResults,
-    state: GameEngineState
-) => {
-    const newEvent: BattleEvent = BattleEventService.new({
-        processedAction,
-        results,
-    })
-    RecordingService.addEvent(
-        state.battleOrchestratorState.battleState.recording,
-        newEvent
-    )
 }
 
 const clearAllHoverAndClickedLayersExceptForThisSquaddie = (

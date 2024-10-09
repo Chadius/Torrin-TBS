@@ -56,14 +56,8 @@ import {
 } from "../../trait/traitStatusStorage"
 import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import {
-    DecidedActionSquaddieEffect,
-    DecidedActionSquaddieEffectService,
-} from "../../action/decided/decidedActionSquaddieEffect"
+import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { BattleCamera } from "../battleCamera"
 import {
@@ -79,9 +73,8 @@ import {
 } from "../orchestratorComponents/battlePhaseController"
 import {
     BattleAction,
-    BattleActionActionContextService,
     BattleActionService,
-} from "../history/battleAction"
+} from "../history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -96,12 +89,11 @@ import {
     GetNumberOfActionPoints,
 } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
+} from "../history/battleAction/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -114,7 +106,9 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
+import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -222,7 +216,6 @@ describe("Battle HUD", () => {
                             turnCount: 1,
                         }),
                     teams,
-                    recording: { history: [] },
                 }),
                 battleHUDState: BattleHUDStateService.new({
                     summaryHUDState: SummaryHUDStateService.new({
@@ -1286,22 +1279,6 @@ describe("Battle HUD", () => {
             })
 
             it("can instruct squaddie to end turn when player clicks on End Turn button", () => {
-                const decidedActionEndTurnEffect =
-                    DecidedActionEndTurnEffectService.new({
-                        template: ActionEffectEndTurnTemplateService.new({}),
-                    })
-
-                const processedAction = ProcessedActionService.new({
-                    actionPointCost: "End Turn",
-                    processedActionEffects: [
-                        ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                            {
-                                decidedActionEffect: decidedActionEndTurnEffect,
-                            }
-                        ),
-                    ],
-                })
-
                 expect(
                     ActionsThisRoundService.getProcessedActionToShow(
                         gameEngineState.battleOrchestratorState.battleState
@@ -1309,16 +1286,12 @@ describe("Battle HUD", () => {
                     ).processedActionEffects[0].type
                 ).toEqual(ActionEffectType.END_TURN)
 
-                const history =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                expect(history).toHaveLength(1)
-                expect(history[0]).toStrictEqual(
-                    BattleEventService.new({
-                        results: undefined,
-                        processedAction,
-                    })
-                )
+                expect(
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                ).toEqual(endTurnBattleAction)
                 expect(
                     playerSoldierBattleSquaddie.squaddieTurn
                         .remainingActionPoints
@@ -1363,9 +1336,9 @@ describe("Battle HUD", () => {
 
             it("adds the Battle Action to the Battle Action Queue", () => {
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toEqual(endTurnBattleAction)
             })
@@ -1484,10 +1457,11 @@ describe("Battle HUD", () => {
             })
 
             it("will not add to the history", () => {
-                const history =
+                expect(
                     gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                expect(history).toHaveLength(0)
+                        .battleActionRecorder.actionsAlreadyAnimatedThisTurn
+                        .battleActions
+                ).toHaveLength(0)
                 expect(
                     gameEngineState.battleOrchestratorState.battleState
                         .actionsThisRound.previewedActionTemplateId
@@ -1843,9 +1817,9 @@ describe("Battle HUD", () => {
                 gameEngineState,
             })
             expect(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             ).toEqual(
                 BattleActionService.new({
@@ -1925,47 +1899,20 @@ describe("Battle HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
                     gameEngineState,
                 })
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                ).toHaveLength(1)
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
-                expect(
-                    mostRecentEvent.processedAction.processedActionEffects
-                ).toHaveLength(1)
-                expect(
-                    mostRecentEvent.processedAction.processedActionEffects[0]
-                        .decidedActionEffect.type
-                ).toEqual(ActionEffectType.SQUADDIE)
-
-                expect(
-                    (
-                        mostRecentEvent.processedAction
-                            .processedActionEffects[0]
-                            .decidedActionEffect as DecidedActionSquaddieEffect
-                    ).template
-                ).toEqual(
-                    longswordAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(mostRecentAction.action.actionTemplateId).toEqual(
+                    longswordAction.id
                 )
 
-                const results = mostRecentEvent.results
-                expect(results.actingBattleSquaddieId).toBe(
-                    playerSoldierBattleSquaddie.battleSquaddieId
-                )
-                expect(results.targetedBattleSquaddieIds).toHaveLength(1)
-                expect(results.targetedBattleSquaddieIds[0]).toBe(
+                const results = mostRecentAction.effect.squaddie
+                expect(results).toHaveLength(1)
+                expect(results[0].battleSquaddieId).toBe(
                     thiefBattleSquaddie.battleSquaddieId
                 )
-                expect(
-                    results.squaddieChanges.find(
-                        (change) =>
-                            change.battleSquaddieId ===
-                            thiefBattleSquaddie.battleSquaddieId
-                    )
-                ).toBeTruthy()
             })
 
             it("should store the calculated results", () => {
@@ -1973,11 +1920,13 @@ describe("Battle HUD", () => {
                     type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
                     gameEngineState,
                 })
-                const mostRecentEvent: BattleEvent =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history[0]
+                const mostRecentAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
                 const knightUsesLongswordOnThiefResults =
-                    mostRecentEvent.results.squaddieChanges.find(
+                    mostRecentAction.effect.squaddie.find(
                         (change) =>
                             change.battleSquaddieId ===
                             thiefBattleSquaddie.battleSquaddieId
@@ -2361,9 +2310,9 @@ describe("Battle HUD", () => {
                 sendMessageToMove()
 
                 expect(
-                    BattleActionQueueService.isEmpty(
+                    BattleActionRecorderService.isAnimationQueueEmpty(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toBeTruthy()
             })
@@ -2436,32 +2385,24 @@ describe("Battle HUD", () => {
             })
 
             it("adds a processed action to the history", () => {
-                const decidedActionMovementEffect =
-                    DecidedActionMovementEffectService.new({
-                        template: ActionEffectMovementTemplateService.new({}),
-                        destination: { q: 0, r: 2 },
-                    })
-
-                const processedAction = ProcessedActionService.new({
-                    actionPointCost: 1,
-                    processedActionEffects: [
-                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                            {
-                                decidedActionEffect:
-                                    decidedActionMovementEffect,
-                            }
-                        ),
-                    ],
-                })
-
-                const history =
-                    gameEngineState.battleOrchestratorState.battleState
-                        .recording.history
-                expect(history).toHaveLength(1)
-                expect(history[0]).toStrictEqual(
-                    BattleEventService.new({
-                        results: undefined,
-                        processedAction: processedAction,
+                const battleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(battleAction).toEqual(
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                battleSquaddie.battleSquaddieId,
+                        },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 0 },
+                                endLocation: { q: 0, r: 2 },
+                            },
+                        },
                     })
                 )
             })
@@ -2487,9 +2428,9 @@ describe("Battle HUD", () => {
                 })
 
                 expect(
-                    BattleActionQueueService.peek(
+                    BattleActionRecorderService.peekAtAnimationQueue(
                         gameEngineState.battleOrchestratorState.battleState
-                            .battleActionQueue
+                            .battleActionRecorder
                     )
                 ).toEqual(squaddieBattleAction)
             })
@@ -2657,6 +2598,35 @@ describe("Battle HUD", () => {
                             .actionsThisRound
                     ).type
                 ).toEqual(ActionEffectType.MOVEMENT)
+            })
+
+            it("adds one movement action to the animation queue", () => {
+                expect(
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                ).toEqual(
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                battleSquaddie.battleSquaddieId,
+                        },
+                        action: { isMovement: true },
+                        effect: {
+                            movement: {
+                                startLocation: { q: 0, r: 0 },
+                                endLocation: { q: 0, r: 2 },
+                            },
+                        },
+                    })
+                )
+                expect(
+                    BattleActionQueueService.length(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder.readyToAnimateQueue
+                    )
+                ).toEqual(1)
             })
         })
     })

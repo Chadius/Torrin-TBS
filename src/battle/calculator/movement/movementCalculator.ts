@@ -17,7 +17,7 @@ import { isValidValue } from "../../../utils/validityCheck"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { BattleActionService } from "../../history/battleAction"
+import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { ActionsThisRoundService } from "../../history/actionsThisRound"
@@ -26,15 +26,13 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
-import { RecordingService } from "../../history/recording"
-import { BattleEventService } from "../../history/battleEvent"
 import {
     ProcessedAction,
     ProcessedActionService,
 } from "../../../action/processed/processedAction"
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
 import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
-import { BattleActionQueueService } from "../../history/battleActionQueue"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
@@ -167,14 +165,6 @@ export const MovementCalculatorService = {
             ).mapLocation,
             processedAction,
         })
-
-        RecordingService.addEvent(
-            gameEngineState.battleOrchestratorState.battleState.recording,
-            BattleEventService.new({
-                processedAction,
-                results: undefined,
-            })
-        )
     },
     consumeSquaddieActions: ({
         battleSquaddie,
@@ -202,9 +192,9 @@ export const MovementCalculatorService = {
                 battleSquaddie.battleSquaddieId
             )
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddie.battleSquaddieId,

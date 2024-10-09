@@ -21,8 +21,6 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { Recording, RecordingService } from "../history/recording"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DamageType, IsSquaddieAlive } from "../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTargetsOtherSquaddiesAnimatior"
@@ -65,14 +63,12 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
-import {
-    BattleActionActionContextService,
-    BattleActionService,
-} from "../history/battleAction"
+} from "../history/battleAction/battleActionSquaddieChange"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -85,7 +81,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let monkKoanAction: ActionTemplate
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
     let mockResourceHandler: jest.Mocked<ResourceHandler>
-    let battleEventRecording: Recording
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
 
@@ -209,8 +204,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         mockResourceHandler.getResource = jest
             .fn()
             .mockReturnValue(makeResult(null))
-
-        battleEventRecording = { history: [] }
     })
 
     const useMonkKoanAndReturnState = ({
@@ -241,22 +234,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedActions: [processedAction],
         })
 
-        const newEvent: BattleEvent = BattleEventService.new({
-            processedAction,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                }),
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                targetedBattleSquaddieIds: [],
-            }),
-        })
-        RecordingService.addEvent(battleEventRecording, newEvent)
-
         const battleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -264,7 +241,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap,
-                    recording: battleEventRecording,
                     actionsThisRound,
                 }),
             })
@@ -288,9 +264,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
             },
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
@@ -363,12 +339,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedActions: [processedAction],
         })
 
-        const newEvent: BattleEvent = BattleEventService.new({
-            processedAction,
-            results,
-        })
-        RecordingService.addEvent(battleEventRecording, newEvent)
-
         if (isValidValue(missionMap)) {
             MissionMapService.addSquaddie({
                 missionMap,
@@ -388,11 +358,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 campaignId: "test campaign",
                 missionMap,
                 actionsThisRound,
-                recording: battleEventRecording,
             }),
         })
-        BattleActionQueueService.add(
-            battleOrchestratorState.battleState.battleActionQueue,
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleOrchestratorState.battleState.battleActionRecorder,
             BattleActionService.new({
                 actor: {
                     actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
@@ -502,12 +471,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedActions: [processedAction],
         })
 
-        const newEvent: BattleEvent = BattleEventService.new({
-            processedAction,
-            results,
-        })
-        RecordingService.addEvent(battleEventRecording, newEvent)
-
         if (isValidValue(missionMap)) {
             MissionMapService.addSquaddie({
                 missionMap,
@@ -527,7 +490,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 campaignId: "test campaign",
                 missionMap,
                 actionsThisRound,
-                recording: battleEventRecording,
             }),
         })
 
@@ -802,7 +764,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes", () => {
-        const state = usePowerAttackLongswordAndReturnState({})
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
 
         const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest
             .spyOn(
@@ -816,7 +778,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 "hasCompleted"
             )
             .mockReturnValue(false)
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
 
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -825,17 +790,24 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeFalsy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeFalsy()
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockReturnValue(
             true
         )
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled()
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeTruthy()
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockRestore()
         squaddieTargetsOtherSquaddiesAnimatorUpdateSpy.mockRestore()
@@ -859,8 +831,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
         ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
 
-        gameEngineState.battleOrchestratorState.battleState.battleActionQueue =
-            BattleActionQueueService.new()
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder =
+            BattleActionRecorderService.new()
         const stateChanges =
             squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
         expect(stateChanges.nextMode).toEqual(

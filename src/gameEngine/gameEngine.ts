@@ -311,14 +311,15 @@ export class GameEngine {
 
         const battleStateListener: BattleStateListener =
             new BattleStateListener("battleStateListener")
-        ;[MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION].forEach(
-            (messageBoardMessageType) => {
-                this.gameEngineState.messageBoard.addListener(
-                    battleStateListener,
-                    messageBoardMessageType
-                )
-            }
-        )
+        ;[
+            MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                battleStateListener,
+                messageBoardMessageType
+            )
+        })
 
         const cutsceneMessageListener = new CutsceneMessageListener(
             "cutsceneMessageListener"

@@ -12,8 +12,8 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {
@@ -41,17 +41,18 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
 
-        const battleActionQueueIsEmpty = BattleActionQueueService.isEmpty(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
-        )
+        const battleActionAnimationQueueIsEmpty =
+            BattleActionRecorderService.isAnimationQueueEmpty(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
         const battleActionHasAnimated =
-            !battleActionQueueIsEmpty &&
+            !battleActionAnimationQueueIsEmpty &&
             BattleActionService.isAnimationComplete(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             )
 
@@ -60,7 +61,7 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             (BattleActionDecisionStepService.isSquaddieActionRecordNotSet(
                 actionBuilderState
             ) ||
-                battleActionQueueIsEmpty ||
+                battleActionAnimationQueueIsEmpty ||
                 battleActionHasAnimated)
         ) {
             return {

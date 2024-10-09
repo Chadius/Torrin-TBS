@@ -60,13 +60,12 @@ import {
 import { ProcessedActionEndTurnEffectService } from "../action/processed/processedActionEndTurnEffect"
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
-import { BattleEventService } from "../battle/history/battleEvent"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
-import { BattleActionService } from "../battle/history/battleAction"
-import { BattleActionQueueService } from "../battle/history/battleActionQueue"
+import { BattleActionService } from "../battle/history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository
@@ -262,9 +261,9 @@ describe("User ends their turn", () => {
             })
         )
         expect(
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
         ).toEqual(
             BattleActionService.new({
@@ -302,9 +301,9 @@ describe("User ends their turn", () => {
         })
 
         expect(
-            BattleActionQueueService.peek(
+            BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
+                    .battleActionRecorder
             )
         ).toEqual(endTurnBattleAction)
     })
@@ -378,28 +377,19 @@ describe("User ends their turn", () => {
         })
 
         it("It adds an event showing the processed action", () => {
-            const decidedActionEndTurnEffect =
-                DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({}),
-                })
-
             expect(
-                gameEngineState.battleOrchestratorState.battleState.recording
-                    .history
-            ).toContainEqual(
-                BattleEventService.new({
-                    processedAction: ProcessedActionService.new({
-                        actionPointCost: "End Turn",
-                        processedActionEffects: [
-                            ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                                {
-                                    decidedActionEffect:
-                                        decidedActionEndTurnEffect,
-                                }
-                            ),
-                        ],
-                    }),
-                    results: undefined,
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerBattleSquaddie.battleSquaddieId,
+                    },
+                    action: { isEndTurn: true },
+                    effect: { endTurn: true },
                 })
             )
         })
@@ -453,9 +443,9 @@ describe("User ends their turn", () => {
                 }),
                 campaign: CampaignService.default(),
             })
-            BattleActionQueueService.add(
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue,
+                    .battleActionRecorder,
                 BattleActionService.new({
                     actor: {
                         actorBattleSquaddieId:

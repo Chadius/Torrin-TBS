@@ -19,7 +19,7 @@ import { BattleActionDecisionStepService } from "../../actionDecision/battleActi
 import { MapGraphicsLayerHighlight } from "../../../hexMap/mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
-import { BattleActionQueueService } from "../../history/battleActionQueue"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 
 describe("movement calculator", () => {
     let pathfinderSpy: jest.SpyInstance
@@ -200,16 +200,9 @@ describe("movement calculator", () => {
             destination: { q: 0, r: 1 },
         })
 
-        expect(
-            BattleActionQueueService.length(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionQueue
-            )
-        ).toEqual(1)
-
-        const movementAction = BattleActionQueueService.peek(
+        const movementAction = BattleActionRecorderService.peekAtAnimationQueue(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue
+                .battleActionRecorder
         )
 
         expect(movementAction.actor.actorBattleSquaddieId).toEqual(

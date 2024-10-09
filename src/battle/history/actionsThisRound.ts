@@ -10,7 +10,7 @@ import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUti
 import {
     MULTIPLE_ATTACK_PENALTY,
     MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX,
-} from "./battleAction"
+} from "./battleAction/battleAction"
 
 export interface ActionsThisRound {
     battleSquaddieId: string

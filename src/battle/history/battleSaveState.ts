@@ -1,6 +1,5 @@
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { BattleCamera } from "../battleCamera"
-import { Recording } from "./recording"
 import {
     MissionStatistics,
     MissionStatisticsService,
@@ -22,6 +21,10 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    BattleActionRecorder,
+    BattleActionRecorderService,
+} from "./battleAction/battleActionRecorder"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -40,7 +43,7 @@ export interface BattleSaveState {
         xCoordinate: number
         yCoordinate: number
     }
-    battleEventRecording: Recording
+    battleActionRecorder: BattleActionRecorder
     missionStatistics: MissionStatistics
     inBattleAttributesBySquaddieBattleId: {
         [squaddieBattleId: string]: InBattleAttributesAndTurn
@@ -91,9 +94,10 @@ export const BattleSaveStateService = {
             currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
             turnCount: battleSaveState.battlePhaseState.turnCount,
         }
-        battleOrchestratorState.battleState.recording = {
-            ...battleSaveState.battleEventRecording,
-        }
+        battleOrchestratorState.battleState.battleActionRecorder =
+            BattleActionRecorderService.clone(
+                battleSaveState.battleActionRecorder
+            )
         battleOrchestratorState.battleState.missionStatistics = {
             ...battleSaveState.missionStatistics,
         }
@@ -198,7 +202,8 @@ export const BattleSaveStateService = {
                 xCoordinate: cameraCoordinates[0],
                 yCoordinate: cameraCoordinates[1],
             },
-            battleEventRecording: battleOrchestratorState.battleState.recording,
+            battleActionRecorder:
+                battleOrchestratorState.battleState.battleActionRecorder,
             missionStatistics:
                 battleOrchestratorState.battleState.missionStatistics,
             inBattleAttributesBySquaddieBattleId:
@@ -247,7 +252,7 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
             xCoordinate: 0,
             yCoordinate: 0,
         },
-        battleEventRecording: { history: [] },
+        battleActionRecorder: BattleActionRecorderService.new(),
         missionStatistics: MissionStatisticsService.new({}),
         inBattleAttributesBySquaddieBattleId: {},
         squaddieMapPlacements: [],

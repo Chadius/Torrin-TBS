@@ -19,11 +19,11 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../../history/battleAction"
 import {
     AttributeType,
     AttributeTypeAndAmountService,
 } from "../../../squaddie/attributeModifier"
+import { BattleActionActionContextService } from "../../history/battleAction/battleActionActionContext"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer

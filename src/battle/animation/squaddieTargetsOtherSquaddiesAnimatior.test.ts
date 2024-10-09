@@ -17,8 +17,6 @@ import {
     CreateNewKnightSquaddie,
     CreateNewThiefSquaddie,
 } from "../../utils/test/squaddie"
-import { Recording, RecordingService } from "../history/recording"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "./squaddieTargetsOtherSquaddiesAnimatior"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
@@ -44,14 +42,12 @@ import { MouseButton } from "../../utils/mouseConfig"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
-import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
+} from "../history/battleAction/battleActionSquaddieChange"
 import {
     BattleAction,
-    BattleActionActionContextService,
     BattleActionService,
-} from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -64,10 +60,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let longswordActionTemplate: ActionTemplate
     let animator: SquaddieTargetsOtherSquaddiesAnimator
     let mockResourceHandler: jest.Mocked<ResourceHandler>
-    let battleEventRecording: Recording
 
     let knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
-    let knightHitsThiefWithLongswordEvent: BattleEvent
 
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
@@ -152,22 +146,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                     ],
                 },
             })
-
-        knightHitsThiefWithLongswordEvent = BattleEventService.new({
-            processedAction: oneDecisionInstruction,
-            results: SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                targetedBattleSquaddieIds:
-                    knightHitsThiefWithLongswordInstructionBattleAction.effect.squaddie.map(
-                        (s) => s.battleSquaddieId
-                    ),
-                squaddieChanges:
-                    knightHitsThiefWithLongswordInstructionBattleAction.effect
-                        .squaddie,
-                actionContext: BattleActionActionContextService.new({}),
-            }),
-        })
-        battleEventRecording = { history: [] }
     })
 
     function mockActionTimerPhase(
@@ -180,10 +158,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     }
 
     it("will create an actor sprite and a target sprite", () => {
-        RecordingService.addEvent(
-            battleEventRecording,
-            knightHitsThiefWithLongswordEvent
-        )
         jest.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
@@ -195,9 +169,10 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -229,9 +204,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -272,9 +247,10 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 }),
             }),
         })
-        BattleActionQueueService.add(
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -302,9 +278,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             }),
         })
 
-        BattleActionQueueService.add(
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
-                .battleActionQueue,
+                .battleActionRecorder,
             knightHitsThiefWithLongswordInstructionBattleAction
         )
 
@@ -312,9 +288,9 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
         expect(
             BattleActionService.isAnimationComplete(
-                BattleActionQueueService.peek(
+                BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
-                        .battleActionQueue
+                        .battleActionRecorder
                 )
             )
         ).toBeTruthy()

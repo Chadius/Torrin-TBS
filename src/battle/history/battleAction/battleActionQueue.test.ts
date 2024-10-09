@@ -1,13 +1,14 @@
-import {
-    BattleAction,
-    BattleActionActionContextService,
-    BattleActionService,
-} from "./battleAction"
-import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import { BattleAction, BattleActionService } from "./battleAction"
+import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
     BattleActionQueue,
     BattleActionQueueService,
 } from "./battleActionQueue"
+import { BattleActionActionContextService } from "./battleActionActionContext"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "./battleActionSquaddieChange"
 
 describe("BattleActionQueue", () => {
     let queue: BattleActionQueue
@@ -48,10 +49,15 @@ describe("BattleActionQueue", () => {
         BattleActionQueueService.add(queue, moveAction)
         expect(BattleActionQueueService.isEmpty(queue)).toBeFalsy()
     })
-    it("Can peek the queue to see the first added action", () => {
+    it("Can peek the queue to see an action without removing objects", () => {
         BattleActionQueueService.add(queue, moveAction)
         expect(BattleActionQueueService.peek(queue)).toEqual(moveAction)
         expect(BattleActionQueueService.isEmpty(queue)).toBeFalsy()
+    })
+    it("Can peek the queue to see the first added action", () => {
+        BattleActionQueueService.add(queue, moveAction)
+        BattleActionQueueService.add(queue, endTurnAction)
+        expect(BattleActionQueueService.peek(queue)).toEqual(moveAction)
     })
     it("Can dequeue the queue to see the first added action", () => {
         BattleActionQueueService.add(queue, moveAction)
@@ -68,5 +74,50 @@ describe("BattleActionQueue", () => {
         BattleActionQueueService.add(queue, endTurnAction)
         BattleActionQueueService.deleteAll(queue)
         expect(BattleActionQueueService.isEmpty(queue)).toBeTruthy()
+    })
+    it("can be cloned to a separate object", () => {
+        const battleAction0: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor0" },
+            action: { actionTemplateId: "charge" },
+            effect: {
+                movement: {
+                    startLocation: { q: 0, r: 2 },
+                    endLocation: { q: 2, r: 4 },
+                },
+            },
+        })
+
+        const battleAction1: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor0" },
+            action: { actionTemplateId: "charge" },
+            effect: {
+                squaddie: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "target",
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                            raw: 1,
+                            absorbed: 0,
+                        }),
+                    }),
+                ],
+            },
+        })
+
+        const original = BattleActionQueueService.new()
+
+        BattleActionQueueService.add(original, battleAction0)
+        BattleActionQueueService.add(original, battleAction1)
+
+        const clone: BattleActionQueue =
+            BattleActionQueueService.clone(original)
+
+        expect(clone).toEqual(original)
+
+        original.actions = undefined
+
+        expect(clone.actions).toHaveLength(2)
+        expect(clone.actions[0]).toEqual(battleAction0)
+        expect(clone.actions[1]).toEqual(battleAction1)
     })
 })
