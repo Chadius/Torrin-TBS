@@ -12,10 +12,6 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
-import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleActionQueue"
 import { BattleActionService } from "../history/battleAction"
 import {
     BattleActionRecorder,

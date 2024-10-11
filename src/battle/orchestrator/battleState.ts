@@ -13,7 +13,6 @@ import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { BattlePhaseState } from "../orchestratorComponents/battlePhaseController"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleCamera } from "../battleCamera"
-import { Recording } from "../history/recording"
 import { MissionCompletionStatus } from "../missionResult/missionCompletionStatus"
 import {
     MissionStatistics,
@@ -41,10 +40,6 @@ import {
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import {
-    BattleActionQueue,
-    BattleActionQueueService,
-} from "../history/battleActionQueue"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import {
@@ -66,8 +61,6 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     battlePhaseState: BattlePhaseState
     squaddieMovePath?: SearchPath
     camera: BattleCamera
-    // TODO chopping block
-    recording: Recording
     battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
@@ -197,7 +190,6 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap
     camera?: BattleCamera
     battlePhaseState?: BattlePhaseState
-    recording?: Recording
     teams?: BattleSquaddieTeam[]
     teamStrategiesById?: { [key: string]: TeamStrategy[] }
     missionCompletionStatus?: MissionCompletionStatus
@@ -217,7 +209,6 @@ const newBattleState = ({
     missionMap,
     camera,
     battlePhaseState,
-    recording,
     missionStatistics,
     missionCompletionStatus,
     searchPath,
@@ -247,8 +238,6 @@ const newBattleState = ({
         battlePhaseState: battlePhaseState,
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
-        // TODO chopping block
-        recording: recording || { history: [] },
         battleActionRecorder:
             battleActionRecorder || BattleActionRecorderService.new(),
         missionStatistics:
@@ -298,6 +287,7 @@ export class BattleStateListener implements MessageBoardListener {
         }
     }
 }
+
 // TODO make sure you test to see it was added
 const battleActionFinishesAnimation = (
     message: MessageBoardBattleActionFinishesAnimation

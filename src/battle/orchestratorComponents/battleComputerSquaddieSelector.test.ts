@@ -22,7 +22,6 @@ import { MissionMap } from "../../missionMap/missionMap"
 import { BattleCamera, PanningInformation } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
 import {
     Trait,
@@ -58,7 +57,6 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionSquaddieEffect } from "../../action/processed/processedActionSquaddieEffect"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
@@ -71,7 +69,6 @@ import {
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleAction, BattleActionService } from "../history/battleAction"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
@@ -269,7 +266,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 },
                             ],
                         },
-                        recording: { history: [] },
                     }),
                 }),
                 campaign: CampaignService.default(),
@@ -350,7 +346,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 campaignId: "test campaign",
                                 battlePhaseState,
                                 missionMap,
-                                recording: { history: [] },
                                 teams,
                                 teamStrategiesById: {
                                     teamId: [
@@ -443,7 +438,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                 campaignId: "test campaign",
                                 battlePhaseState,
                                 missionMap,
-                                recording: { history: [] },
                                 teams,
                                 teamStrategiesById: {
                                     teamId: [
@@ -555,7 +549,6 @@ describe("BattleComputerSquaddieSelector", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
-                        recording: { history: [] },
                         battlePhaseState,
                         camera,
                         missionMap,
@@ -652,7 +645,6 @@ describe("BattleComputerSquaddieSelector", () => {
                                         },
                                     ],
                                 },
-                                recording: { history: [] },
                             }),
                         }
                     ),

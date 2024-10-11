@@ -62,7 +62,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 describe("BattleSquaddieSelector", () => {
@@ -223,7 +222,6 @@ describe("BattleSquaddieSelector", () => {
                     camera: new BattleCamera(),
                     battlePhaseState,
                     teams,
-                    recording: { history: [] },
                 }),
             }),
             repository: objectRepository,

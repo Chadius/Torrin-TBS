@@ -3,7 +3,6 @@ import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {

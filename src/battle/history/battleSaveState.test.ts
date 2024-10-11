@@ -59,7 +59,6 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleActionRecorder"
-import { BattleActionQueueService } from "./battleActionQueue"
 
 describe("BattleSaveState", () => {
     let battleActionRecorder: BattleActionRecorder
@@ -929,7 +928,6 @@ describe("BattleSaveState", () => {
                     xCoordinate: 100,
                     yCoordinate: 200,
                 },
-                battleEventRecording: undefined,
                 battleActionRecorder: battleActionRecorder,
                 inBattleAttributesBySquaddieBattleId:
                     inBattleAttributesBySquaddieBattleId,

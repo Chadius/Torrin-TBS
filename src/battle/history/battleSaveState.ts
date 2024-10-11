@@ -1,6 +1,5 @@
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { BattleCamera } from "../battleCamera"
-import { Recording } from "./recording"
 import {
     MissionStatistics,
     MissionStatisticsService,
@@ -44,8 +43,6 @@ export interface BattleSaveState {
         xCoordinate: number
         yCoordinate: number
     }
-    // TODO Chopping block
-    battleEventRecording: Recording
     battleActionRecorder: BattleActionRecorder
     missionStatistics: MissionStatistics
     inBattleAttributesBySquaddieBattleId: {
@@ -96,10 +93,6 @@ export const BattleSaveStateService = {
         battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
             turnCount: battleSaveState.battlePhaseState.turnCount,
-        }
-        // TODO chopping block
-        battleOrchestratorState.battleState.recording = {
-            ...battleSaveState.battleEventRecording,
         }
         // TODO use the clone function
         battleOrchestratorState.battleState.battleActionRecorder = {
@@ -209,7 +202,6 @@ export const BattleSaveStateService = {
                 xCoordinate: cameraCoordinates[0],
                 yCoordinate: cameraCoordinates[1],
             },
-            battleEventRecording: battleOrchestratorState.battleState.recording,
             battleActionRecorder:
                 battleOrchestratorState.battleState.battleActionRecorder,
             missionStatistics:
@@ -260,7 +252,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
             xCoordinate: 0,
             yCoordinate: 0,
         },
-        battleEventRecording: { history: [] },
         battleActionRecorder: BattleActionRecorderService.new(),
         missionStatistics: MissionStatisticsService.new({}),
         inBattleAttributesBySquaddieBattleId: {},

@@ -62,8 +62,6 @@ import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { RecordingService } from "../history/recording"
-import { BattleEventService } from "../history/battleEvent"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000

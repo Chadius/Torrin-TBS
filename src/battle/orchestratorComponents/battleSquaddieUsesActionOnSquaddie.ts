@@ -16,16 +16,14 @@ import { DefaultSquaddieActionAnimator } from "../animation/defaultSquaddieActio
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
 import { Trait } from "../../trait/traitStatusStorage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { RecordingService } from "../history/recording"
-import { BattleEvent } from "../history/battleEvent"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepositoryService } from "../objectRepository"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { ObjectRepositoryService } from "../objectRepository"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent

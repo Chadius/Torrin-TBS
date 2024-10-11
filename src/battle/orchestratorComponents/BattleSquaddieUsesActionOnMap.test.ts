@@ -22,7 +22,6 @@ import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 

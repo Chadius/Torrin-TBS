@@ -7,7 +7,6 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleActionRecorder"
-import { BattleActionQueueService } from "./battleActionQueue"
 
 describe("battleActionRecorder", () => {
     let battleActionMovement: BattleAction

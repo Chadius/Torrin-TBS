@@ -58,9 +58,6 @@ import { CampaignService } from "../../campaign/campaign"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { BattleCamera } from "../battleCamera"
 import {
@@ -93,7 +90,6 @@ import {
     GetNumberOfActionPoints,
 } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
@@ -219,7 +215,6 @@ describe("Battle HUD", () => {
                             turnCount: 1,
                         }),
                     teams,
-                    recording: { history: [] },
                 }),
                 battleHUDState: BattleHUDStateService.new({
                     summaryHUDState: SummaryHUDStateService.new({

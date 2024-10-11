@@ -60,7 +60,6 @@ import {
 import { ProcessedActionEndTurnEffectService } from "../action/processed/processedActionEndTurnEffect"
 import { ProcessedActionService } from "../action/processed/processedAction"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
-import { BattleEventService } from "../battle/history/battleEvent"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"

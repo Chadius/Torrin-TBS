@@ -21,7 +21,6 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { Recording, RecordingService } from "../history/recording"
 import { BattleEvent, BattleEventService } from "../history/battleEvent"
 import { DamageType, IsSquaddieAlive } from "../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
@@ -71,7 +70,6 @@ import {
     BattleActionService,
 } from "../history/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleActionQueueService } from "../history/battleActionQueue"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleActionRecorder"
 
@@ -86,7 +84,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let monkKoanAction: ActionTemplate
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
     let mockResourceHandler: jest.Mocked<ResourceHandler>
-    let battleEventRecording: Recording
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
 
@@ -210,8 +207,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         mockResourceHandler.getResource = jest
             .fn()
             .mockReturnValue(makeResult(null))
-
-        battleEventRecording = { history: [] }
     })
 
     const useMonkKoanAndReturnState = ({
@@ -242,22 +237,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedActions: [processedAction],
         })
 
-        const newEvent: BattleEvent = BattleEventService.new({
-            processedAction,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                }),
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                targetedBattleSquaddieIds: [],
-            }),
-        })
-        RecordingService.addEvent(battleEventRecording, newEvent)
-
         const battleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -265,7 +244,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap,
-                    recording: battleEventRecording,
                     actionsThisRound,
                 }),
             })
@@ -368,7 +346,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedAction,
             results,
         })
-        RecordingService.addEvent(battleEventRecording, newEvent)
 
         if (isValidValue(missionMap)) {
             MissionMapService.addSquaddie({
@@ -389,7 +366,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 campaignId: "test campaign",
                 missionMap,
                 actionsThisRound,
-                recording: battleEventRecording,
             }),
         })
         BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -507,7 +483,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             processedAction,
             results,
         })
-        RecordingService.addEvent(battleEventRecording, newEvent)
 
         if (isValidValue(missionMap)) {
             MissionMapService.addSquaddie({
@@ -528,7 +503,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 campaignId: "test campaign",
                 missionMap,
                 actionsThisRound,
-                recording: battleEventRecording,
             }),
         })
 
