@@ -30,8 +30,11 @@ import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("PlayerHUDController", () => {
     let gameEngineState: GameEngineState

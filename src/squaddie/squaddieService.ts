@@ -12,7 +12,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
-import { DamageExplanation } from "../battle/history/battleActionSquaddieChange"
+import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 
 export const SquaddieService = {
     calculateDealtDamageToTheSquaddie: ({

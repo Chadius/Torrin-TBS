@@ -47,8 +47,9 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
-import { BattleActionActionContextService } from "../history/battleAction"
+} from "../history/battleAction/battleActionSquaddieChange"
+
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene

@@ -43,14 +43,14 @@ import { MouseButton } from "../../utils/mouseConfig"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
+} from "../history/battleAction/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import {
     BattleAction,
-    BattleActionActionContextService,
     BattleActionService,
-} from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository

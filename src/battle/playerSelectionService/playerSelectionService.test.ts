@@ -48,7 +48,7 @@ import { DecidedActionMovementEffectService } from "../../action/decided/decided
 import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { BattleActionService } from "../history/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 
 describe("Player Selection Service", () => {

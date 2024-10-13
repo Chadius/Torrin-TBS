@@ -5,11 +5,11 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionDecisionType } from "../../action/template/actionTemplate"
-import { BattleAction } from "../history/battleAction"
+import { BattleAction } from "../history/battleAction/battleAction"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
-} from "../history/battleActionRecorder"
+} from "../history/battleAction/battleActionRecorder"
 
 export const ActionComponentCalculator = {
     getNextOrchestratorComponentMode: (

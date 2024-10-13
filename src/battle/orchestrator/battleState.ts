@@ -45,7 +45,8 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
-} from "../history/battleActionRecorder"
+} from "../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -288,7 +289,6 @@ export class BattleStateListener implements MessageBoardListener {
     }
 }
 
-// TODO make sure you test to see it was added
 const battleActionFinishesAnimation = (
     message: MessageBoardBattleActionFinishesAnimation
 ) => {
@@ -303,6 +303,13 @@ const battleActionFinishesAnimation = (
             ).actor.actorBattleSquaddieId
         )
     )
+    BattleActionService.setAnimationCompleted({
+        battleAction: BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ),
+        animationCompleted: true,
+    })
     BattleActionRecorderService.battleActionFinishedAnimating(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )

@@ -19,7 +19,7 @@ import { BattleActionDecisionStepService } from "../../actionDecision/battleActi
 import { MapGraphicsLayerHighlight } from "../../../hexMap/mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
-import { BattleActionRecorderService } from "../../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 
 describe("movement calculator", () => {
     let pathfinderSpy: jest.SpyInstance

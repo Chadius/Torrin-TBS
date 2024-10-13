@@ -1,5 +1,5 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
-import { BattleAction } from "../battle/history/battleAction"
+import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"

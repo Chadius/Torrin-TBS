@@ -1,6 +1,6 @@
 import { ActionTemplate } from "../action/template/actionTemplate"
 
-import { ActionPointCost } from "../battle/history/battleAction"
+import { ActionPointCost } from "../battle/history/battleAction/battleAction"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 

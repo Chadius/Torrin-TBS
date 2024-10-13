@@ -44,8 +44,11 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieMover", () => {
     let squaddieRepo: ObjectRepository

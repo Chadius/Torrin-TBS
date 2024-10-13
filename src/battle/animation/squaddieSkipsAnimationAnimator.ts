@@ -10,10 +10,13 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionResultTextService } from "./actionResultTextService"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ObjectRepositoryService } from "../objectRepository"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 

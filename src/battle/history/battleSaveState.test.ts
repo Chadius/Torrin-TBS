@@ -44,21 +44,18 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "./battleActionSquaddieChange"
-import {
-    BattleAction,
-    BattleActionActionContextService,
-    BattleActionService,
-} from "./battleAction"
+} from "./battleAction/battleActionSquaddieChange"
+import { BattleAction, BattleActionService } from "./battleAction/battleAction"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { BattleActionsDuringTurnService } from "./battleActionsDuringTurn"
+import { BattleActionsDuringTurnService } from "./battleAction/battleActionsDuringTurn"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
-} from "./battleActionRecorder"
+} from "./battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "./battleAction/battleActionActionContext"
 
 describe("BattleSaveState", () => {
     let battleActionRecorder: BattleActionRecorder

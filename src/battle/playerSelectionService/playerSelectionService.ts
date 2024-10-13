@@ -27,7 +27,10 @@ import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"

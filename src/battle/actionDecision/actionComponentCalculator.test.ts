@@ -12,11 +12,11 @@ import { ActionEffectSquaddieTemplateService } from "../../action/template/actio
 import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
-import { BattleActionService } from "../history/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
-} from "../history/battleActionRecorder"
+} from "../history/battleAction/battleActionRecorder"
 
 describe("ActionComponentCalculator", () => {
     let actionBuilderState: BattleActionDecisionStep

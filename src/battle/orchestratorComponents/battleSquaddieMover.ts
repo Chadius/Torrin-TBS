@@ -17,8 +17,8 @@ import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number

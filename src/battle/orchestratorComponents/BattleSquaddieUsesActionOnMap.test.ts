@@ -21,9 +21,12 @@ import { ProcessedActionEndTurnEffectService } from "../../action/processed/proc
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository

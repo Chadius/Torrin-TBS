@@ -1,7 +1,7 @@
 import { SquaddieSquaddieResults } from "./squaddieSquaddieResults"
 import { ProcessedAction } from "../../action/processed/processedAction"
 import { isValidValue } from "../../utils/validityCheck"
-import { BattleAction } from "./battleAction"
+import { BattleAction } from "./battleAction/battleAction"
 
 export interface BattleEvent {
     results: SquaddieSquaddieResults

@@ -1,14 +1,35 @@
-import { BattleAction, BattleActionService } from "./battleAction"
+import {
+    BattleAction,
+    BattleActionAction,
+    BattleActionActor,
+    BattleActionAnimation,
+    BattleActionEffect,
+    BattleActionService,
+} from "./battleAction"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+} from "../../../action/template/actionTemplate"
+import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { ObjectRepositoryService } from "../objectRepository"
+} from "../../../trait/traitStatusStorage"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "./battleActionSquaddieChange"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../../squaddie/attributeModifier"
+import { BattleActionActionContextService } from "./battleActionActionContext"
+import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 
 describe("BattleAction", () => {
     describe("Creation and Sanitization", () => {
@@ -144,5 +165,53 @@ describe("BattleAction", () => {
                 )
             ).toEqual(1)
         })
+    })
+    it("can be cloned to a separate object", () => {
+        const actor: BattleActionActor = {
+            actorBattleSquaddieId: "original",
+            actorContext: BattleActionActionContextService.new({
+                actingSquaddieRoll: RollResultService.new({
+                    occurred: true,
+                    rolls: [5, 6],
+                }),
+            }),
+        }
+        const action: BattleActionAction = {
+            actionTemplateId: "action",
+            isMovement: true,
+            isEndTurn: true,
+        }
+        const effect: BattleActionEffect = {
+            endTurn: true,
+            squaddie: [],
+            movement: {
+                startLocation: { q: 0, r: 1 },
+                endLocation: { q: 2, r: 3 },
+            },
+        }
+        const animation: BattleActionAnimation = {
+            completed: true,
+        }
+
+        const original = BattleActionService.new({
+            actor,
+            action,
+            effect,
+            animation,
+        })
+
+        const clone: BattleAction = BattleActionService.clone(original)
+
+        expect(clone).toEqual(original)
+
+        original.actor = undefined
+        original.action = undefined
+        original.effect = undefined
+        original.animation = undefined
+
+        expect(clone.actor).toEqual(actor)
+        expect(clone.action).toEqual(action)
+        expect(clone.effect).toEqual(effect)
+        expect(clone.animation).toEqual(animation)
     })
 })

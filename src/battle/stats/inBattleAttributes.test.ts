@@ -19,7 +19,7 @@ import {
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
-import { DamageExplanation } from "../history/battleActionSquaddieChange"
+import { DamageExplanation } from "../history/battleAction/battleActionSquaddieChange"
 
 describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {

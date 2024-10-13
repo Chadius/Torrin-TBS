@@ -52,7 +52,10 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
-import { ActionPointCost, BattleActionService } from "../history/battleAction"
+import {
+    ActionPointCost,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
@@ -62,7 +65,7 @@ import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500

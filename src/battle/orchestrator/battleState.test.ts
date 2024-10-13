@@ -29,12 +29,15 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "./battleOrchestratorState"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieMovementService } from "../../squaddie/movement"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -509,11 +512,31 @@ describe("Battle State", () => {
             )
         })
 
-        it("clears the Battle Action Queue when it finishes animating", () => {
+        it("marks the battle action as animated and moves it into the already animated queue", () => {
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeFalsy()
+
+            const battleAction =
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            expect(
+                BattleActionService.isAnimationComplete(battleAction)
+            ).toBeFalsy()
+
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
             })
+
+            expect(
+                BattleActionService.isAnimationComplete(battleAction)
+            ).toBeTruthy()
 
             expect(
                 BattleActionRecorderService.isAnimationQueueEmpty(
@@ -521,6 +544,13 @@ describe("Battle State", () => {
                         .battleActionRecorder
                 )
             ).toBeTruthy()
+
+            expect(
+                BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(battleAction)
         })
 
         it("If the squaddie still has a turn, makes the decision to select the squaddie", () => {

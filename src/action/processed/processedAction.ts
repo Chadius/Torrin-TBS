@@ -5,7 +5,7 @@ import { ProcessedActionSquaddieEffectService } from "./processedActionSquaddieE
 import {
     ActionPointCost,
     MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX,
-} from "../../battle/history/battleAction"
+} from "../../battle/history/battleAction/battleAction"
 
 export interface ProcessedAction {
     actionPointCost: ActionPointCost

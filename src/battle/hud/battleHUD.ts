@@ -52,7 +52,10 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
@@ -61,7 +64,7 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
-import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
@@ -76,7 +79,7 @@ import { MovementCalculatorService } from "../calculator/movement/movementCalcul
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 

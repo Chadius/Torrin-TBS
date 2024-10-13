@@ -17,7 +17,7 @@ import { isValidValue } from "../../../utils/validityCheck"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { BattleActionService } from "../../history/battleAction"
+import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTurnService } from "../../../squaddie/turn"
 import { ActionsThisRoundService } from "../../history/actionsThisRound"
@@ -32,7 +32,7 @@ import {
 } from "../../../action/processed/processedAction"
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
 import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
-import { BattleActionRecorderService } from "../../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({

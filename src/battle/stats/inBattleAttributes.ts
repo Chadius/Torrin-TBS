@@ -12,7 +12,8 @@ import {
 import {
     DamageExplanation,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
+} from "../history/battleAction/battleActionSquaddieChange"
+import { isValidValue } from "../../utils/validityCheck"
 
 export interface InBattleAttributes {
     armyAttributes: ArmyAttributes
@@ -70,15 +71,16 @@ export const InBattleAttributesService = {
 
         return data.currentHitPoints - startingHitPoints
     },
-    clone: (inBattleAttributes: InBattleAttributes): InBattleAttributes => {
-        return newAttributeModifier({
-            armyAttributes: inBattleAttributes.armyAttributes,
-            currentHitPoints: inBattleAttributes.currentHitPoints,
-            attributeModifiers: inBattleAttributes.attributeModifiers.map((a) =>
-                AttributeModifierService.clone(a)
-            ),
-        })
-    },
+    clone: (inBattleAttributes: InBattleAttributes): InBattleAttributes =>
+        isValidValue(inBattleAttributes)
+            ? newAttributeModifier({
+                  armyAttributes: inBattleAttributes.armyAttributes,
+                  currentHitPoints: inBattleAttributes.currentHitPoints,
+                  attributeModifiers: inBattleAttributes.attributeModifiers.map(
+                      (a) => AttributeModifierService.clone(a)
+                  ),
+              })
+            : inBattleAttributes,
     getAllActiveAttributeModifiers: (
         attributes: InBattleAttributes
     ): AttributeModifier[] => {

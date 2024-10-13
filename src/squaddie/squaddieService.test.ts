@@ -22,7 +22,7 @@ import {
     AttributeSource,
     AttributeType,
 } from "./attributeModifier"
-import { DamageExplanation } from "../battle/history/battleActionSquaddieChange"
+import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate

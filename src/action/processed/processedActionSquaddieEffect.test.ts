@@ -18,7 +18,7 @@ import {
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../../battle/history/battleActionSquaddieChange"
+} from "../../battle/history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../../battle/calculator/actionCalculator/degreeOfSuccess"
 import { InBattleAttributesService } from "../../battle/stats/inBattleAttributes"
 import {
@@ -29,11 +29,11 @@ import {
 import { ActionTemplateService } from "../template/actionTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
 import { SquaddieSquaddieResultsService } from "../../battle/history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../../battle/history/battleAction"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../battle/objectRepository"
+import { BattleActionActionContextService } from "../../battle/history/battleAction/battleActionActionContext"
 
 describe("Processed Action Squaddie Effect", () => {
     it("will set results to undefined if it is not provided", () => {

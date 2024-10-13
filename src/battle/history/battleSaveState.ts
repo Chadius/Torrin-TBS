@@ -24,7 +24,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     BattleActionRecorder,
     BattleActionRecorderService,
-} from "./battleActionRecorder"
+} from "./battleAction/battleActionRecorder"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -94,10 +94,10 @@ export const BattleSaveStateService = {
             currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
             turnCount: battleSaveState.battlePhaseState.turnCount,
         }
-        // TODO use the clone function
-        battleOrchestratorState.battleState.battleActionRecorder = {
-            ...battleSaveState.battleActionRecorder,
-        }
+        battleOrchestratorState.battleState.battleActionRecorder =
+            BattleActionRecorderService.clone(
+                battleSaveState.battleActionRecorder
+            )
         battleOrchestratorState.battleState.missionStatistics = {
             ...battleSaveState.missionStatistics,
         }

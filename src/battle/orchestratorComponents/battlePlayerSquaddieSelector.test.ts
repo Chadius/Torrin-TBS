@@ -37,7 +37,7 @@ import {
     PlayerCommandSelection,
     PlayerCommandStateService,
 } from "../hud/playerCommandHUD"
-import { BattleActionService } from "../history/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -62,7 +62,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =

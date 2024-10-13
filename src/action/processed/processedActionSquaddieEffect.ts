@@ -7,14 +7,14 @@ import {
     SquaddieSquaddieResults,
     SquaddieSquaddieResultsService,
 } from "../../battle/history/squaddieSquaddieResults"
-import { BattleActionSquaddieChange } from "../../battle/history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../../battle/history/battleAction/battleActionSquaddieChange"
 import { BattleActionDecisionStep } from "../../battle/actionDecision/battleActionDecisionStep"
 import { ActionEffectSquaddieTemplate } from "../template/actionEffectSquaddieTemplate"
-import { BattleActionActionContextService } from "../../battle/history/battleAction"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../battle/objectRepository"
+import { BattleActionActionContextService } from "../../battle/history/battleAction/battleActionActionContext"
 
 export interface ProcessedActionSquaddieEffect {
     type: ActionEffectType.SQUADDIE

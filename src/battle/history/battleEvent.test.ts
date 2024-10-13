@@ -1,9 +1,7 @@
 import { BattleEvent, BattleEventService } from "./battleEvent"
 import { SquaddieSquaddieResultsService } from "./squaddieSquaddieResults"
-import {
-    BattleActionActionContextService,
-    BattleActionService,
-} from "./battleAction"
+import { BattleActionService } from "./battleAction/battleAction"
+import { BattleActionActionContextService } from "./battleAction/battleActionActionContext"
 
 describe("BattleEvent", () => {
     it("throws an error if there is no event added", () => {

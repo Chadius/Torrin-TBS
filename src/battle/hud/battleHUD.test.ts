@@ -73,9 +73,8 @@ import {
 } from "../orchestratorComponents/battlePhaseController"
 import {
     BattleAction,
-    BattleActionActionContextService,
     BattleActionService,
-} from "../history/battleAction"
+} from "../history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
@@ -94,7 +93,7 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
+} from "../history/battleAction/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -107,7 +106,8 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({

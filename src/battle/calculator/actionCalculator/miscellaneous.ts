@@ -4,11 +4,7 @@ import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { RollResult, RollResultService } from "./rollResult"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
-import {
-    BattleAction,
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "../../history/battleAction"
+import { BattleAction } from "../../history/battleAction/battleAction"
 import { CalculatedEffect } from "./calculator"
 import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
 import { isValidValue } from "../../../utils/validityCheck"
@@ -18,7 +14,11 @@ import {
     AttributeTypeAndAmount,
 } from "../../../squaddie/attributeModifier"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
-import { DamageExplanationService } from "../../history/battleActionSquaddieChange"
+import { DamageExplanationService } from "../../history/battleAction/battleActionSquaddieChange"
+import {
+    BattleActionActionContext,
+    BattleActionActionContextService,
+} from "../../history/battleAction/battleActionActionContext"
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({

@@ -17,7 +17,7 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
     AttributeSource,

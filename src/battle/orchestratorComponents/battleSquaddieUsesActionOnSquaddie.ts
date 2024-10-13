@@ -5,7 +5,6 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { IsSquaddieAlive } from "../../squaddie/squaddieService"
@@ -14,16 +13,20 @@ import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTarg
 import { SquaddieActionAnimator } from "../animation/squaddieActionAnimator"
 import { DefaultSquaddieActionAnimator } from "../animation/defaultSquaddieActionAnimator"
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
-import { Trait } from "../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../trait/traitStatusStorage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
+import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -62,14 +65,15 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     mouseEventHappened(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         event: OrchestratorComponentMouseEvent
     ): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.setSquaddieActionAnimatorBasedOnAction(
-                state.battleOrchestratorState
+            this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
+            this.squaddieActionAnimator.mouseEventHappened(
+                gameEngineState,
+                event
             )
-            this.squaddieActionAnimator.mouseEventHappened(state, event)
         }
     }
 
@@ -133,9 +137,7 @@ export class BattleSquaddieUsesActionOnSquaddie
         if (
             this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator
         ) {
-            this.setSquaddieActionAnimatorBasedOnAction(
-                gameEngineState.battleOrchestratorState
-            )
+            this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
         }
         this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
         if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
@@ -211,8 +213,9 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 
     private setSquaddieActionAnimatorBasedOnAction(
-        battleOrchestratorState: BattleOrchestratorState
+        gameEngineState: GameEngineState
     ) {
+        const battleOrchestratorState = gameEngineState.battleOrchestratorState
         const battleActionReadyToAnimate =
             BattleActionRecorderService.peekAtAnimationQueue(
                 battleOrchestratorState.battleState.battleActionRecorder
@@ -222,18 +225,27 @@ export class BattleSquaddieUsesActionOnSquaddie
             return
         }
 
-        const processedActionEffectToShow =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                battleOrchestratorState.battleState.actionsThisRound
-            )
+        if (!battleActionReadyToAnimate.action.actionTemplateId) {
+            return
+        }
 
-        if (processedActionEffectToShow?.type !== ActionEffectType.SQUADDIE) {
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            gameEngineState.repository,
+            battleActionReadyToAnimate.action.actionTemplateId
+        )
+
+        if (!actionTemplate) {
             return
         }
 
         if (
-            processedActionEffectToShow.decidedActionEffect.template.traits
-                .booleanTraits[Trait.SKIP_ANIMATION] === true
+            TraitStatusStorageService.getStatus(
+                (
+                    actionTemplate
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                ).traits,
+                Trait.SKIP_ANIMATION
+            ) === true
         ) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator
             return

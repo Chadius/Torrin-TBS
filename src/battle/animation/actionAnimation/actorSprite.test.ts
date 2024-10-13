@@ -23,7 +23,7 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
-import { BattleActionSquaddieChangeService } from "../../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository

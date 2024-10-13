@@ -11,10 +11,6 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeAndAmountService,
 } from "../../../squaddie/attributeModifier"
-import {
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "../../history/battleAction"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
 import { BattleOrchestratorState } from "../../orchestrator/battleOrchestratorState"
 import {
@@ -30,7 +26,11 @@ import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
 import {
     DamageExplanation,
     DamageExplanationService,
-} from "../../history/battleActionSquaddieChange"
+} from "../../history/battleAction/battleActionSquaddieChange"
+import {
+    BattleActionActionContext,
+    BattleActionActionContextService,
+} from "../../history/battleAction/battleActionActionContext"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({

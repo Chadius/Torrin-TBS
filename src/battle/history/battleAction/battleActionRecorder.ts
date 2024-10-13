@@ -8,7 +8,6 @@ import {
     BattleActionQueueService,
 } from "./battleActionQueue"
 
-// TODO add a clone function
 export interface BattleActionRecorder {
     readyToAnimateQueue: BattleActionQueue
     actionsAlreadyAnimatedThisTurn: BattleActionsDuringTurn
@@ -16,14 +15,7 @@ export interface BattleActionRecorder {
 }
 
 export const BattleActionRecorderService = {
-    new: (): BattleActionRecorder => {
-        return {
-            readyToAnimateQueue: BattleActionQueueService.new(),
-            actionsAlreadyAnimatedThisTurn:
-                BattleActionsDuringTurnService.new(),
-            previousTurns: [],
-        }
-    },
+    new: (): BattleActionRecorder => newBattleActionRecorder(),
     isAnimationQueueEmpty: (
         battleActionRecorder: BattleActionRecorder
     ): boolean => {
@@ -173,4 +165,26 @@ export const BattleActionRecorderService = {
             battleActionRecorder.previousTurns.length - 1
         ]
     },
+    clone: (original: BattleActionRecorder): BattleActionRecorder => {
+        const clone = newBattleActionRecorder()
+        clone.previousTurns = original.previousTurns
+            ? original.previousTurns.map(BattleActionsDuringTurnService.clone)
+            : []
+        clone.readyToAnimateQueue = original.readyToAnimateQueue
+            ? BattleActionQueueService.clone(original.readyToAnimateQueue)
+            : original.readyToAnimateQueue
+        clone.actionsAlreadyAnimatedThisTurn =
+            clone.actionsAlreadyAnimatedThisTurn
+                ? BattleActionsDuringTurnService.clone(
+                      original.actionsAlreadyAnimatedThisTurn
+                  )
+                : clone.actionsAlreadyAnimatedThisTurn
+        return clone
+    },
 }
+
+const newBattleActionRecorder = (): BattleActionRecorder => ({
+    readyToAnimateQueue: BattleActionQueueService.new(),
+    actionsAlreadyAnimatedThisTurn: BattleActionsDuringTurnService.new(),
+    previousTurns: [],
+})

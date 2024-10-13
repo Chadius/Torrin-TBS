@@ -12,8 +12,8 @@ import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class PlayerHudController implements BattleOrchestratorComponent {
     hasCompleted(gameEngineState: GameEngineState): boolean {

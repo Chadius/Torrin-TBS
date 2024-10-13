@@ -1,8 +1,8 @@
-import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "./battleAction/battleActionSquaddieChange"
 import {
     BattleActionActionContext,
     BattleActionActionContextService,
-} from "./battleAction"
+} from "./battleAction/battleActionActionContext"
 
 export interface SquaddieSquaddieResults {
     actingBattleSquaddieId: string

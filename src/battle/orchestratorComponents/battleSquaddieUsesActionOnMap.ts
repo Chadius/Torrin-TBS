@@ -14,8 +14,8 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 

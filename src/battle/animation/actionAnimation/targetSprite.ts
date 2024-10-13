@@ -29,7 +29,7 @@ import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
-} from "../../history/battleActionSquaddieChange"
+} from "../../history/battleAction/battleActionSquaddieChange"
 
 export class TargetSprite {
     private _startingPosition: number

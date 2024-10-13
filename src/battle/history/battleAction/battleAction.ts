@@ -1,14 +1,19 @@
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { isValidValue } from "../../utils/validityCheck"
-import { BattleActionSquaddieChange } from "./battleActionSquaddieChange"
-import { RollResult } from "../calculator/actionCalculator/rollResult"
-import { AttributeTypeAndAmount } from "../../squaddie/attributeModifier"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { isValidValue } from "../../../utils/validityCheck"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+} from "./battleActionSquaddieChange"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+} from "../../../action/template/actionEffectSquaddieTemplate"
+import { BattleActionActionContext } from "./battleActionActionContext"
 
 export const MULTIPLE_ATTACK_PENALTY = -3
 export const MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX = 2
@@ -45,35 +50,6 @@ export interface BattleAction {
     animation: BattleActionAnimation
 }
 
-export interface BattleActionActionContext {
-    actingSquaddieModifiers: AttributeTypeAndAmount[]
-    actingSquaddieRoll: RollResult
-    targetSquaddieModifiers: {
-        [squaddieId: string]: AttributeTypeAndAmount[]
-    }
-}
-
-export const BattleActionActionContextService = {
-    new: ({
-        actingSquaddieModifiers,
-        actingSquaddieRoll,
-        targetSquaddieModifiers,
-    }: {
-        actingSquaddieModifiers?: AttributeTypeAndAmount[]
-        actingSquaddieRoll?: RollResult
-        targetSquaddieModifiers?: {
-            [squaddieId: string]: AttributeTypeAndAmount[]
-        }
-    }): BattleActionActionContext => ({
-        actingSquaddieModifiers: actingSquaddieModifiers ?? [],
-        targetSquaddieModifiers: targetSquaddieModifiers ?? {},
-        actingSquaddieRoll: actingSquaddieRoll ?? {
-            occurred: false,
-            rolls: [],
-        },
-    }),
-}
-
 export const BattleActionService = {
     new: ({
         actor,
@@ -85,14 +61,13 @@ export const BattleActionService = {
         action: BattleActionAction
         effect: BattleActionEffect
         animation?: BattleActionAnimation
-    }): BattleAction => {
-        return sanitize({
+    }): BattleAction =>
+        newBattleAction({
             actor,
             action,
             effect,
             animation,
-        })
-    },
+        }),
     isAnimationComplete: (battleAction: BattleAction): boolean => {
         return isAnimationComplete(battleAction)
     },
@@ -136,6 +111,24 @@ export const BattleActionService = {
 
         return Math.min(rawMAP, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX)
     },
+    clone: (original: BattleAction): BattleAction => {
+        const clone = newBattleAction({
+            actor: original.actor,
+            action: original.action,
+            effect: {
+                ...original.effect,
+            },
+            animation: original.animation,
+        })
+
+        if (original?.effect?.squaddie) {
+            clone.effect.squaddie = original.effect.squaddie.map(
+                BattleActionSquaddieChangeService.clone
+            )
+        }
+
+        return clone
+    },
 }
 
 const sanitize = (battleAction: BattleAction): BattleAction => {
@@ -172,3 +165,22 @@ const isAnimationComplete = (battleAction: BattleAction) =>
     isValidValue(battleAction) &&
     isValidValue(battleAction.animation) &&
     battleAction.animation.completed
+
+const newBattleAction = ({
+    actor,
+    action,
+    effect,
+    animation,
+}: {
+    actor: BattleActionActor
+    action: BattleActionAction
+    effect: BattleActionEffect
+    animation?: BattleActionAnimation
+}): BattleAction => {
+    return sanitize({
+        actor,
+        action,
+        effect,
+        animation,
+    })
+}

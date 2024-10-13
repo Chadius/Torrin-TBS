@@ -52,8 +52,8 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../battle/actionDecision/battleActionDecisionStep"
-import { BattleActionService } from "../battle/history/battleAction"
-import { BattleActionRecorderService } from "../battle/history/battleActionRecorder"
+import { BattleActionService } from "../battle/history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository

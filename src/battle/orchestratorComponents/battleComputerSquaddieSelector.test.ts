@@ -69,8 +69,11 @@ import {
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayer } from "../../hexMap/mapGraphicsLayer"
-import { BattleAction, BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =

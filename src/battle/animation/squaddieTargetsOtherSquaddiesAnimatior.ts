@@ -21,10 +21,13 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { BattleActionSquaddieChange } from "../history/battleActionSquaddieChange"
-import { BattleAction, BattleActionService } from "../history/battleAction"
+import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
+import {
+    BattleAction,
+    BattleActionService,
+} from "../history/battleAction/battleAction"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator

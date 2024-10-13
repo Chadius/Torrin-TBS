@@ -31,7 +31,7 @@ import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../../history/battleActionSquaddieChange"
+} from "../../history/battleAction/battleActionSquaddieChange"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 
 describe("Target Sprite", () => {

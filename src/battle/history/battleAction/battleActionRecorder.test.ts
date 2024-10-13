@@ -7,6 +7,18 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleActionRecorder"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "./battleActionSquaddieChange"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../../squaddie/attributeModifier"
 
 describe("battleActionRecorder", () => {
     let battleActionMovement: BattleAction
@@ -164,6 +176,96 @@ describe("battleActionRecorder", () => {
                 battleActionMovement,
                 battleActionUseActionTemplate,
             ])
+        )
+    })
+    it("can be cloned to a separate object", () => {
+        const actionAnimatingBattleAction: BattleAction =
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: "actor0" },
+                action: { actionTemplateId: "charge" },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 2 },
+                        endLocation: { q: 2, r: 4 },
+                    },
+                },
+            })
+
+        const readyToAnimateBattleAction: BattleAction =
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: "actor0" },
+                action: { actionTemplateId: "charge" },
+                effect: {
+                    squaddie: [
+                        BattleActionSquaddieChangeService.new({
+                            battleSquaddieId: "target",
+                            damageExplanation: DamageExplanationService.new({
+                                net: 1,
+                                raw: 1,
+                                absorbed: 0,
+                            }),
+                        }),
+                    ],
+                },
+            })
+
+        const endTurnBattleAction: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor0" },
+            action: { isEndTurn: true },
+            effect: { endTurn: true },
+        })
+
+        const original = BattleActionRecorderService.new()
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            original,
+            endTurnBattleAction
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(original)
+        BattleActionRecorderService.turnComplete(original)
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            original,
+            actionAnimatingBattleAction
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(original)
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            original,
+            readyToAnimateBattleAction
+        )
+
+        expect(
+            BattleActionsDuringTurnService.getAll(
+                original.actionsAlreadyAnimatedThisTurn
+            )
+        ).toEqual([actionAnimatingBattleAction])
+        expect(
+            BattleActionRecorderService.getPreviousBattleActionTurns(original)
+        ).toEqual([BattleActionsDuringTurnService.new([endTurnBattleAction])])
+
+        expect(
+            BattleActionRecorderService.peekAtAnimationQueue(original)
+        ).toEqual(readyToAnimateBattleAction)
+
+        const clone: BattleActionRecorder =
+            BattleActionRecorderService.clone(original)
+
+        expect(clone).toEqual(original)
+
+        original.actionsAlreadyAnimatedThisTurn = undefined
+        original.readyToAnimateQueue = undefined
+        original.previousTurns = undefined
+
+        expect(
+            BattleActionsDuringTurnService.getAll(
+                clone.actionsAlreadyAnimatedThisTurn
+            )
+        ).toEqual([actionAnimatingBattleAction])
+        expect(
+            BattleActionRecorderService.getPreviousBattleActionTurns(clone)
+        ).toEqual([BattleActionsDuringTurnService.new([endTurnBattleAction])])
+
+        expect(BattleActionRecorderService.peekAtAnimationQueue(clone)).toEqual(
+            readyToAnimateBattleAction
         )
     })
 })

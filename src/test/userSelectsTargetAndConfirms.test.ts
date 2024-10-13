@@ -60,7 +60,6 @@ import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkip
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
-import { BattleActionActionContextService } from "../battle/history/battleAction"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -71,10 +70,11 @@ import {
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../battle/history/battleActionSquaddieChange"
+} from "../battle/history/battleAction/battleActionSquaddieChange"
 import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
-import { BattleActionRecorderService } from "../battle/history/battleActionRecorder"
+import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../battle/history/battleAction/battleActionActionContext"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository

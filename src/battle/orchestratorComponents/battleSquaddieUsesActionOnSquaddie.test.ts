@@ -64,14 +64,12 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleActionSquaddieChange"
-import {
-    BattleActionActionContextService,
-    BattleActionService,
-} from "../history/battleAction"
+} from "../history/battleAction/battleActionSquaddieChange"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -340,11 +338,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             startingLocation: { q: 0, r: 0 },
             previewedActionTemplateId: powerAttackLongswordAction.name,
             processedActions: [processedAction],
-        })
-
-        const newEvent: BattleEvent = BattleEventService.new({
-            processedAction,
-            results,
         })
 
         if (isValidValue(missionMap)) {
@@ -777,7 +770,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes", () => {
-        const state = usePowerAttackLongswordAndReturnState({})
+        const gameEngineState = usePowerAttackLongswordAndReturnState({})
 
         const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest
             .spyOn(
@@ -791,7 +784,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 "hasCompleted"
             )
             .mockReturnValue(false)
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
 
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -800,17 +796,24 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeFalsy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeFalsy()
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockReturnValue(
             true
         )
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled()
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeTruthy()
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockRestore()
         squaddieTargetsOtherSquaddiesAnimatorUpdateSpy.mockRestore()

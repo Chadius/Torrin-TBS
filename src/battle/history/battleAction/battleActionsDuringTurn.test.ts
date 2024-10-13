@@ -3,6 +3,10 @@ import {
     BattleActionsDuringTurn,
     BattleActionsDuringTurnService,
 } from "./battleActionsDuringTurn"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "./battleActionSquaddieChange"
 
 describe("Battle Actions During Turn", () => {
     let battleActionUseActionTemplate: BattleAction
@@ -68,5 +72,51 @@ describe("Battle Actions During Turn", () => {
         expect(battleActions).toHaveLength(2)
         expect(battleActions[0]).toEqual(battleActionMovement)
         expect(battleActions[1]).toEqual(battleActionUseActionTemplate)
+    })
+    it("can be cloned to a separate object", () => {
+        const battleAction0: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor0" },
+            action: { actionTemplateId: "charge" },
+            effect: {
+                movement: {
+                    startLocation: { q: 0, r: 2 },
+                    endLocation: { q: 2, r: 4 },
+                },
+            },
+        })
+
+        const battleAction1: BattleAction = BattleActionService.new({
+            actor: { actorBattleSquaddieId: "actor0" },
+            action: { actionTemplateId: "charge" },
+            effect: {
+                squaddie: [
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "target",
+                        damageExplanation: DamageExplanationService.new({
+                            net: 1,
+                            raw: 1,
+                            absorbed: 0,
+                        }),
+                    }),
+                ],
+            },
+        })
+
+        const original = BattleActionsDuringTurnService.new([
+            battleAction0,
+            battleAction1,
+        ])
+
+        const clone: BattleActionsDuringTurn =
+            BattleActionsDuringTurnService.clone(original)
+
+        expect(clone).toEqual(original)
+
+        original.battleActions = undefined
+
+        const cloneActions = BattleActionsDuringTurnService.getAll(clone)
+        expect(cloneActions).toHaveLength(2)
+        expect(cloneActions[0]).toEqual(battleAction0)
+        expect(cloneActions[1]).toEqual(battleAction1)
     })
 })

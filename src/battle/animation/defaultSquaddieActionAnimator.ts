@@ -2,8 +2,8 @@ import { OrchestratorComponentMouseEvent } from "../orchestrator/battleOrchestra
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { BattleActionService } from "../history/battleAction"
-import { BattleActionRecorderService } from "../history/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     hasCompleted(state: GameEngineState): boolean {

@@ -13,7 +13,7 @@ import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { ActionResultTextService } from "../actionResultTextService"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { BattleActionSquaddieChange } from "../../history/battleActionSquaddieChange"
+import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 
 export class TargetTextWindow {
     private _result: BattleActionSquaddieChange
