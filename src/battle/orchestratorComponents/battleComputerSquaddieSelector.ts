@@ -725,7 +725,7 @@ export class BattleComputerSquaddieSelector
                 let numberOfActionPointsSpentMoving: number
                 BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath(
                     {
-                        state: gameEngineState,
+                        gameEngineState: gameEngineState,
                         squaddieTemplate,
                         battleSquaddie,
                         clickedHexCoordinate:

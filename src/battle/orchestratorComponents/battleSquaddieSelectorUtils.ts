@@ -37,18 +37,18 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
-        state,
+        gameEngineState,
         squaddieTemplate,
         battleSquaddie,
         clickedHexCoordinate,
     }: {
-        state: GameEngineState
+        gameEngineState: GameEngineState
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
         clickedHexCoordinate: HexCoordinate
     }) => {
         return createSearchPath(
-            state,
+            gameEngineState,
             squaddieTemplate,
             battleSquaddie,
             clickedHexCoordinate
@@ -272,6 +272,7 @@ const getAllTilesSquaddieCanReach = ({
     })
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
+            squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             startLocations: [
                 {
                     q: mapLocation.q,

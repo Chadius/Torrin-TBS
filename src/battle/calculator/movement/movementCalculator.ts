@@ -100,7 +100,7 @@ export const MovementCalculatorService = {
         destination: HexCoordinate
     }) => {
         BattleSquaddieSelectorService.createSearchPathAndHighlightMovementPath({
-            state: gameEngineState,
+            gameEngineState: gameEngineState,
             squaddieTemplate,
             battleSquaddie,
             clickedHexCoordinate: destination,
