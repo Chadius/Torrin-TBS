@@ -4,7 +4,7 @@ import { ActionPointCost } from "../battle/history/battleAction/battleAction"
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
-export enum ACTION_PERFORM_FAILURE_REASON {
+export enum ActionPerformFailureReason {
     UNKNOWN,
     TOO_FEW_ACTIONS_REMAINING,
 }
@@ -33,18 +33,18 @@ export const SquaddieTurnService = {
         actionTemplate: ActionTemplate
     ): {
         canPerform: boolean
-        reason: ACTION_PERFORM_FAILURE_REASON
+        reason: ActionPerformFailureReason
     } => {
         if (data.remainingActionPoints < actionTemplate.actionPoints) {
             return {
                 canPerform: false,
-                reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING,
+                reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
             }
         }
 
         return {
             canPerform: true,
-            reason: ACTION_PERFORM_FAILURE_REASON.UNKNOWN,
+            reason: ActionPerformFailureReason.UNKNOWN,
         }
     },
     beginNewRound: (data: SquaddieTurn) => {

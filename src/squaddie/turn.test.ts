@@ -1,5 +1,5 @@
 import {
-    ACTION_PERFORM_FAILURE_REASON,
+    ActionPerformFailureReason,
     SquaddieTurn,
     SquaddieTurnService,
 } from "./turn"
@@ -72,7 +72,7 @@ describe("Squaddie turn and resources", () => {
             )
             expect(query.canPerform).toBeFalsy()
             expect(query.reason).toBe(
-                ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
+                ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
             )
         })
         it("should give 3 action points upon starting a new round", () => {
