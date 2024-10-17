@@ -89,7 +89,6 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    squaddieTemplate,
                     actionTemplateId,
                     objectRepository,
                 })
@@ -168,7 +167,6 @@ describe("Action Point Checker", () => {
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
-                    squaddieTemplate,
                     actionTemplateId,
                     objectRepository,
                 })

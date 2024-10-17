@@ -5,8 +5,8 @@ import { ActionPointCost } from "../battle/history/battleAction/battleAction"
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 
 export enum ActionPerformFailureReason {
-    UNKNOWN,
-    TOO_FEW_ACTIONS_REMAINING,
+    UNKNOWN = "UNKNOWN",
+    TOO_FEW_ACTIONS_REMAINING = "TOO_FEW_ACTIONS_REMAINING",
 }
 
 export interface SquaddieTurn {

@@ -1,4 +1,3 @@
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionPerformFailureReason,
@@ -6,22 +5,22 @@ import {
 } from "../../squaddie/turn"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 
+export type ActionCheckResult = {
+    isValid: boolean
+    reason?: ActionPerformFailureReason
+    message?: string
+}
+
 export const ActionPointCheck = {
     canAfford: ({
-        squaddieTemplate,
         battleSquaddie,
         actionTemplateId,
         objectRepository,
     }: {
-        squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
         actionTemplateId: string
         objectRepository: ObjectRepository
-    }): {
-        isValid: boolean
-        reason?: ActionPerformFailureReason
-        message?: string
-    } => {
+    }): ActionCheckResult => {
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             objectRepository,
             actionTemplateId
