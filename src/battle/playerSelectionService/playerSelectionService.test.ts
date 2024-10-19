@@ -968,6 +968,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     reason: "ENEMY is out of range",
                     selectionLocation: { x, y },
+                    useInWorldCoordinates: true,
                 }
 
                 expect(
@@ -1266,6 +1267,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     reason: "PLAYER is out of range",
                     selectionLocation: { x, y },
+                    useInWorldCoordinates: true,
                 }
 
                 expect(

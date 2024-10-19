@@ -29,6 +29,8 @@ import { CampaignService } from "../../campaign/campaign"
 import { ButtonStatus } from "../../ui/button"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { ValidityCheckService } from "../actionValidity/validityChecker"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -37,6 +39,7 @@ describe("playerCommandHUD", () => {
     let playerCommandState: PlayerCommandState
     let gameEngineState: GameEngineState
     let resourceHandler: ResourceHandler
+    let validityCheckerSpy: jest.SpyInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -104,6 +107,25 @@ describe("playerCommandHUD", () => {
             affiliation: SquaddieAffiliation.ENEMY,
             actionTemplateIds: [],
         })
+
+        validityCheckerSpy = jest
+            .spyOn(ValidityCheckService, "calculateActionValidity")
+            .mockReturnValue({
+                [actionTemplate0.id]: {
+                    warn: false,
+                    disabled: false,
+                    messages: [],
+                },
+                [actionTemplate1.id]: {
+                    warn: false,
+                    disabled: false,
+                    messages: [],
+                },
+            })
+    })
+
+    afterEach(() => {
+        validityCheckerSpy.mockRestore()
     })
 
     describe("will position the playerCommandHUD near the mouse", () => {
@@ -249,6 +271,15 @@ describe("playerCommandHUD", () => {
             mouseX: RectAreaService.centerX(buttonArea),
             mouseY: RectAreaService.centerY(buttonArea),
             mouseButton: MouseButton.ACCEPT,
+            gameEngineState,
+            playerCommandState,
+        })
+    }
+
+    const hoverOverButton = ({ buttonArea }: { buttonArea: RectArea }) => {
+        return PlayerCommandStateService.mouseMoved({
+            mouseX: RectAreaService.centerX(buttonArea),
+            mouseY: RectAreaService.centerY(buttonArea),
             gameEngineState,
             playerCommandState,
         })
@@ -427,11 +458,8 @@ describe("playerCommandHUD", () => {
     })
 
     describe("action buttons", () => {
-        beforeEach(() => {
-            selectPlayer()
-        })
-
         it("will select the action if the player selects an action", () => {
+            selectPlayer()
             clickOnButton({
                 buttonArea: playerCommandState.actionButtons[0].buttonArea,
             })
@@ -440,21 +468,139 @@ describe("playerCommandHUD", () => {
             expect(playerCommandState.selectedActionTemplateId).toEqual(
                 "actionTemplate0"
             )
-
             expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
-            expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
-            expect(playerCommandState.selectedActionTemplateId).toEqual(
-                "actionTemplate0"
-            )
         })
 
         it("will indicate the action button was clicked", () => {
+            selectPlayer()
             const selectedButton = clickOnButton({
                 buttonArea: playerCommandState.actionButtons[0].buttonArea,
             })
             expect(selectedButton).toEqual(
                 PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
             )
+        })
+
+        describe("disabled buttons", () => {
+            beforeEach(() => {
+                validityCheckerSpy = jest
+                    .spyOn(ValidityCheckService, "calculateActionValidity")
+                    .mockReturnValue({
+                        actionTemplate0: {
+                            warn: true,
+                            disabled: true,
+                            messages: ["blocked by est"],
+                        },
+                        actionTemplate1: {
+                            warn: false,
+                            disabled: false,
+                            messages: [],
+                        },
+                    })
+            })
+
+            it("will disable the button status", () => {
+                selectPlayer()
+                expect(validityCheckerSpy).toHaveBeenCalled()
+                expect(playerCommandState.actionButtons[0].status).toEqual(
+                    ButtonStatus.DISABLED
+                )
+                expect(playerCommandState.actionButtons[1].status).toEqual(
+                    ButtonStatus.ACTIVE
+                )
+            })
+
+            it("will not click on a button if the action is disabled", () => {
+                selectPlayer()
+                const selectedButton = clickOnButton({
+                    buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                })
+                expect(selectedButton).toEqual(
+                    PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+                )
+                expect(
+                    playerCommandState.playerSelectedSquaddieAction
+                ).toBeFalsy()
+                expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
+                expect(
+                    playerCommandState.selectedActionTemplateId
+                ).toBeUndefined()
+            })
+        })
+
+        it("will send a message to generate a pop up the action has a warning", () => {
+            validityCheckerSpy = jest
+                .spyOn(ValidityCheckService, "calculateActionValidity")
+                .mockReturnValue({
+                    actionTemplate0: {
+                        warn: true,
+                        disabled: true,
+                        messages: ["blocked by test", "also blocked by test"],
+                    },
+                    actionTemplate1: {
+                        warn: false,
+                        disabled: false,
+                        messages: [],
+                    },
+                })
+
+            const messageSpy: jest.SpyInstance = jest
+                .spyOn(gameEngineState.messageBoard, "sendMessage")
+                .mockReturnValue()
+
+            selectPlayer()
+            hoverOverButton({
+                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+            })
+
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                gameEngineState,
+                reason: `blocked by test\nalso blocked by test`,
+                selectionLocation: {
+                    x: RectAreaService.centerX(
+                        playerCommandState.actionButtons[0].buttonArea
+                    ),
+                    y: RectAreaService.centerY(
+                        playerCommandState.actionButtons[0].buttonArea
+                    ),
+                },
+                useInWorldCoordinates: false,
+            })
+
+            messageSpy.mockRestore()
+        })
+        it("will not send a message to generate a pop up if the action lacks a warning message", () => {
+            validityCheckerSpy = jest
+                .spyOn(ValidityCheckService, "calculateActionValidity")
+                .mockReturnValue({
+                    actionTemplate0: {
+                        warn: true,
+                        disabled: true,
+                        messages: [],
+                    },
+                    actionTemplate1: {
+                        warn: false,
+                        disabled: false,
+                        messages: [],
+                    },
+                })
+
+            const messageSpy: jest.SpyInstance = jest
+                .spyOn(gameEngineState.messageBoard, "sendMessage")
+                .mockReturnValue()
+
+            selectPlayer()
+            hoverOverButton({
+                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+            })
+
+            expect(messageSpy).not.toBeCalledWith(
+                expect.objectContaining({
+                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                })
+            )
+            messageSpy.mockRestore()
         })
     })
 

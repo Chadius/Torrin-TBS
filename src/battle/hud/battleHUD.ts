@@ -492,33 +492,10 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                message.battleSquaddieId
-            )
-        )
-        const { actionPointsRemaining } =
-            SquaddieService.getNumberOfActionPoints({
-                squaddieTemplate,
-                battleSquaddie,
-            })
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
             message.actionTemplateId
         )
-        if (actionPointsRemaining < actionTemplate.actionPoints) {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                gameEngineState,
-                reason: `Need ${actionTemplate.actionPoints} action points`,
-                selectionLocation: {
-                    x: message.mouseLocation.x,
-                    y: message.mouseLocation.y,
-                },
-            })
-            return
-        }
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -824,6 +801,7 @@ export const BattleHUDService = {
                     x,
                     y,
                 },
+                useInWorldCoordinates: true,
             })
             return
         }
@@ -1034,7 +1012,9 @@ const calculatePlayerInvalidSelectionPopup = (
     return {
         popupText: message.reason,
         labelArea,
-        camera: gameEngineState.battleOrchestratorState.battleState.camera,
+        camera: message.useInWorldCoordinates
+            ? gameEngineState.battleOrchestratorState.battleState.camera
+            : undefined,
     }
 }
 

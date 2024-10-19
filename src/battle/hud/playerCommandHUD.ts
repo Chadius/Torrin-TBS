@@ -15,10 +15,12 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { isValidValue } from "../../utils/validityCheck"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
-import { ButtonStatus } from "../../ui/button"
+import { Button, ButtonStatus } from "../../ui/button"
 import { Label, LabelService } from "../../ui/label"
 import { RectangleHelper } from "../../ui/rectangle"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { ValidityCheckService } from "../actionValidity/validityChecker"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -169,6 +171,11 @@ export const PlayerCommandStateService = {
                 mouseY
             )
         ) {
+            if (
+                playerCommandState.moveButton.status === ButtonStatus.DISABLED
+            ) {
+                return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+            }
             mouseClickedOnMoveButton(playerCommandState)
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
         }
@@ -198,6 +205,11 @@ export const PlayerCommandStateService = {
         if (!actionButtonClicked) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
         }
+
+        if (actionButtonClicked.status === ButtonStatus.DISABLED) {
+            return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
+        }
+
         return mouseClickedOnActionButton({
             gameEngineState,
             playerCommandState,
@@ -222,6 +234,7 @@ export const PlayerCommandStateService = {
         const changeButtonStatusBasedOnMouseLocation = (button: {
             buttonArea: RectArea
             status: ButtonStatus
+            popupMessage?: string
         }) => {
             const isMouseInsideButton = RectAreaService.isInside(
                 button.buttonArea,
@@ -236,6 +249,25 @@ export const PlayerCommandStateService = {
 
             if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
                 button.status = ButtonStatus.HOVER
+
+                // TODO remove invalid popup message
+            }
+
+            if (
+                button.status === ButtonStatus.DISABLED &&
+                isMouseInsideButton &&
+                button.popupMessage
+            ) {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                    gameEngineState,
+                    reason: button.popupMessage,
+                    selectionLocation: {
+                        x: mouseX, // TODO Move this to aligned with the button
+                        y: mouseY, // TODO Move this to under the button
+                    },
+                    useInWorldCoordinates: false, // TODO change this to indicate it's using in world OR screen coordinates
+                })
             }
         }
 
@@ -441,6 +473,12 @@ const createButtonsForFirstRow = ({
     }
     updateMoveButtonText(playerCommandState)
 
+    const statusForTheActionButton =
+        ValidityCheckService.calculateActionValidity({
+            objectRepository,
+            battleSquaddieId,
+        })
+
     playerCommandState.actionButtons = squaddieTemplate.actionTemplateIds
         .map((id) =>
             ObjectRepositoryService.getActionTemplateById(
@@ -449,6 +487,11 @@ const createButtonsForFirstRow = ({
             )
         )
         .map((actionTemplate: ActionTemplate, index: number) => {
+            const popupMessage: string =
+                statusForTheActionButton[actionTemplate.id]?.messages.join(
+                    "\n"
+                ) ?? ""
+
             const button = new MakeDecisionButton({
                 buttonArea: RectAreaService.new({
                     left:
@@ -470,8 +513,13 @@ const createButtonsForFirstRow = ({
                     ? actionTemplate.buttonIconResourceKey
                     : defaultButtonIconResourceKey,
                 hue: playerCommandState.squaddieAffiliationHue,
+                popupMessage,
             })
+
             button.status = ButtonStatus.ACTIVE
+            if (statusForTheActionButton[actionTemplate.id]?.disabled) {
+                button.status = ButtonStatus.DISABLED
+            }
             return button
         })
 }

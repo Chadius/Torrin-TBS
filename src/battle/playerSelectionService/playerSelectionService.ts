@@ -465,6 +465,7 @@ export const PlayerSelectionService = {
                         x: context.mouseClick.x,
                         y: context.mouseClick.y,
                     },
+                    useInWorldCoordinates: true,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

@@ -40,6 +40,7 @@ export class MakeDecisionButton {
     buttonIconResourceKey: string
     buttonIcon: ImageUI
     name: string
+    popupMessage: string
 
     constructor({
         buttonArea,
@@ -47,12 +48,14 @@ export class MakeDecisionButton {
         hue,
         resourceHandler,
         buttonIconResourceKey,
+        popupMessage,
     }: {
         buttonArea?: RectArea
         actionTemplateId: string
         hue?: number
         buttonIconResourceKey: string
         resourceHandler: ResourceHandler
+        popupMessage?: string
     }) {
         this.buttonArea = buttonArea
         this.actionTemplateId = actionTemplateId
@@ -68,6 +71,7 @@ export class MakeDecisionButton {
             width: this.buttonIcon.area.width,
             height: this.buttonIcon.area.height,
         })
+        this.popupMessage = popupMessage
     }
 
     private _status: ButtonStatus

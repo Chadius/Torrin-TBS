@@ -91,6 +91,7 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
         x: number
         y: number
     }
+    useInWorldCoordinates: boolean
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {
