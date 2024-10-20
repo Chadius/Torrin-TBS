@@ -1,7 +1,10 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
-import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
@@ -91,6 +94,7 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
         x: number
         y: number
     }
+    coordinateSystem: CoordinateSystem
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {

@@ -19,12 +19,19 @@ import {
 } from "../battle/objectRepository"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
-    strokeSaturation: 85,
-    strokeBrightness: 50,
-    strokeWeight: 4,
-    fillSaturation: 85,
-    fillBrightness: 50,
-    fillAlpha: 127,
+    hover: {
+        strokeSaturation: 85,
+        strokeBrightness: 50,
+        fillSaturation: 85,
+        fillBrightness: 50,
+        fillAlpha: 127,
+        strokeWeight: 4,
+    },
+    disabled: {
+        fillSaturation: 15,
+        fillBrightness: 0,
+        fillAlpha: 192,
+    },
     templateNameTextTopMargin: 4,
     templateNameTextSize: 12,
     templateNameFontColor: [0, 0, 192],
@@ -40,6 +47,7 @@ export class MakeDecisionButton {
     buttonIconResourceKey: string
     buttonIcon: ImageUI
     name: string
+    popupMessage: string
 
     constructor({
         buttonArea,
@@ -47,12 +55,14 @@ export class MakeDecisionButton {
         hue,
         resourceHandler,
         buttonIconResourceKey,
+        popupMessage,
     }: {
         buttonArea?: RectArea
         actionTemplateId: string
         hue?: number
         buttonIconResourceKey: string
         resourceHandler: ResourceHandler
+        popupMessage?: string
     }) {
         this.buttonArea = buttonArea
         this.actionTemplateId = actionTemplateId
@@ -68,6 +78,7 @@ export class MakeDecisionButton {
             width: this.buttonIcon.area.width,
             height: this.buttonIcon.area.height,
         })
+        this.popupMessage = popupMessage
     }
 
     private _status: ButtonStatus
@@ -87,19 +98,32 @@ export class MakeDecisionButton {
                 area: this.buttonArea,
                 strokeColor: [
                     this.hue,
-                    DECISION_BUTTON_LAYOUT_COLORS.strokeSaturation,
-                    DECISION_BUTTON_LAYOUT_COLORS.strokeBrightness,
+                    DECISION_BUTTON_LAYOUT_COLORS.hover.strokeSaturation,
+                    DECISION_BUTTON_LAYOUT_COLORS.hover.strokeBrightness,
                 ],
                 fillColor: [
                     this.hue,
-                    DECISION_BUTTON_LAYOUT_COLORS.fillSaturation,
-                    DECISION_BUTTON_LAYOUT_COLORS.fillBrightness,
-                    DECISION_BUTTON_LAYOUT_COLORS.fillAlpha,
+                    DECISION_BUTTON_LAYOUT_COLORS.hover.fillSaturation,
+                    DECISION_BUTTON_LAYOUT_COLORS.hover.fillBrightness,
+                    DECISION_BUTTON_LAYOUT_COLORS.hover.fillAlpha,
                 ],
-                strokeWeight: DECISION_BUTTON_LAYOUT_COLORS.strokeWeight,
+                strokeWeight: DECISION_BUTTON_LAYOUT_COLORS.hover.strokeWeight,
             })
 
             RectangleHelper.draw(hoverOutline, graphicsContext)
+        }
+        if (this.status === ButtonStatus.DISABLED) {
+            const disabledFill = RectangleHelper.new({
+                area: this.buttonArea,
+                fillColor: [
+                    this.hue,
+                    DECISION_BUTTON_LAYOUT_COLORS.disabled.fillSaturation,
+                    DECISION_BUTTON_LAYOUT_COLORS.disabled.fillBrightness,
+                    DECISION_BUTTON_LAYOUT_COLORS.disabled.fillAlpha,
+                ],
+            })
+
+            RectangleHelper.draw(disabledFill, graphicsContext)
         }
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(

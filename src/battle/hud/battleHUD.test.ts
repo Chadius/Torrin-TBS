@@ -77,7 +77,10 @@ import {
 } from "../history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { TargetingShape } from "../targeting/targetingShapeGenerator"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
@@ -425,6 +428,7 @@ describe("Battle HUD", () => {
                     x: ScreenDimensions.SCREEN_WIDTH,
                     y: ScreenDimensions.SCREEN_HEIGHT,
                 },
+                coordinateSystem: CoordinateSystem.WORLD,
             })
 
             expect(
@@ -1493,43 +1497,6 @@ describe("Battle HUD", () => {
                 expect(messageSpy).toBeCalledWith(expectedMessage)
             })
         })
-
-        describe("Player does not have enough action points to perform action", () => {
-            beforeEach(() => {
-                battleHUDListener = new BattleHUDListener("battleHUDListener")
-                gameEngineState.messageBoard.addListener(
-                    battleHUDListener,
-                    MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET
-                )
-                gameEngineState.repository.actionTemplatesById[
-                    longswordAction.id
-                ].actionPoints = 3
-                SquaddieTurnService.spendActionPoints(
-                    playerSoldierBattleSquaddie.squaddieTurn,
-                    2
-                )
-
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
-                    gameEngineState,
-                    actionTemplateId: longswordAction.id,
-                    battleSquaddieId:
-                        playerSoldierBattleSquaddie.battleSquaddieId,
-                    mapStartingLocation: { q: 0, r: 0 },
-                    mouseLocation: { x: 0, y: 0 },
-                })
-            })
-
-            it("sends a message stating the player selection is invalid", () => {
-                expect(messageSpy).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                        gameEngineState,
-                        reason: "Need 3 action points",
-                    })
-                )
-            })
-        })
     })
     describe("Player selects a target", () => {
         let battleHUDListener: BattleHUDListener
@@ -2298,6 +2265,7 @@ describe("Battle HUD", () => {
                         type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                         gameEngineState,
                         reason: "out of range",
+                        coordinateSystem: CoordinateSystem.WORLD,
                     })
                 )
             })

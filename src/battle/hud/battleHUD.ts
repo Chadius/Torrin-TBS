@@ -49,7 +49,10 @@ import { TargetingResultsService } from "../targeting/targetingService"
 import { ProcessedActionService } from "../../action/processed/processedAction"
 import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "./summaryHUD"
 import {
@@ -142,6 +145,12 @@ export const BattleHUDService = {
         popupWindowType: PopupWindowType
     ) => {
         battleHUD.popupWindows[popupWindowType] = popupWindow
+    },
+    clearPopupWindow: (
+        battleHUD: BattleHUD,
+        popupWindowType: PopupWindowType
+    ) => {
+        battleHUD.popupWindows[popupWindowType] = undefined
     },
     createPlayerInvalidSelectionPopup: (
         battleHUD: BattleHUD,
@@ -492,33 +501,10 @@ export const BattleHUDService = {
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                message.battleSquaddieId
-            )
-        )
-        const { actionPointsRemaining } =
-            SquaddieService.getNumberOfActionPoints({
-                squaddieTemplate,
-                battleSquaddie,
-            })
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
             message.actionTemplateId
         )
-        if (actionPointsRemaining < actionTemplate.actionPoints) {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                gameEngineState,
-                reason: `Need ${actionTemplate.actionPoints} action points`,
-                selectionLocation: {
-                    x: message.mouseLocation.x,
-                    y: message.mouseLocation.y,
-                },
-            })
-            return
-        }
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -824,6 +810,7 @@ export const BattleHUDService = {
                     x,
                     y,
                 },
+                coordinateSystem: CoordinateSystem.WORLD,
             })
             return
         }
@@ -1017,13 +1004,24 @@ const calculatePlayerInvalidSelectionPopup = (
     gameEngineState: GameEngineState,
     message: MessageBoardMessagePlayerSelectionIsInvalid
 ) => {
-    let [left, top] = convertScreenCoordinatesToWorldCoordinates(
-        message.selectionLocation.x,
-        message.selectionLocation.y,
-        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-    )
-    left -= warningPopupConstants.width / 2
-    top += HEX_TILE_WIDTH
+    let left: number
+    let top: number
+
+    switch (message.coordinateSystem) {
+        case CoordinateSystem.WORLD:
+            ;[left, top] = convertScreenCoordinatesToWorldCoordinates(
+                message.selectionLocation.x,
+                message.selectionLocation.y,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+            )
+            left -= warningPopupConstants.width / 2
+            top += HEX_TILE_WIDTH
+            break
+        default:
+            left = message.selectionLocation.x
+            top = message.selectionLocation.y
+            break
+    }
 
     let labelArea = RectAreaService.new({
         left,
@@ -1034,7 +1032,10 @@ const calculatePlayerInvalidSelectionPopup = (
     return {
         popupText: message.reason,
         labelArea,
-        camera: gameEngineState.battleOrchestratorState.battleState.camera,
+        camera:
+            message.coordinateSystem === CoordinateSystem.WORLD
+                ? gameEngineState.battleOrchestratorState.battleState.camera
+                : undefined,
     }
 }
 

@@ -26,7 +26,10 @@ import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddi
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
     BattleAction,
     BattleActionService,
@@ -465,6 +468,7 @@ export const PlayerSelectionService = {
                         x: context.mouseClick.x,
                         y: context.mouseClick.y,
                     },
+                    coordinateSystem: CoordinateSystem.WORLD,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

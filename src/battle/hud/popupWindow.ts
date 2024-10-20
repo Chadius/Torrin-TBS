@@ -5,6 +5,7 @@ import { BattleCamera } from "../battleCamera"
 import { isValidValue } from "../../utils/validityCheck"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 export interface PopupWindow {
     status: PopupWindowStatus
@@ -13,8 +14,9 @@ export interface PopupWindow {
         x: number
         y: number
     }
-    camera: BattleCamera
+    camera?: BattleCamera
     setStatusInactiveTimestamp?: number
+    coordinateSystem: CoordinateSystem
 }
 
 export enum PopupWindowStatus {
@@ -27,10 +29,12 @@ export const PopupWindowService = {
         status,
         label,
         camera,
+        coordinateSystem,
     }: {
         status?: PopupWindowStatus
         label?: Label
         camera?: BattleCamera
+        coordinateSystem?: CoordinateSystem
     }): PopupWindow => {
         const labelToAdd =
             label ??
@@ -47,6 +51,10 @@ export const PopupWindowService = {
                 textBoxMargin: 0,
             })
 
+        const fallbackCoordinateSystem: CoordinateSystem = isValidValue(camera)
+            ? CoordinateSystem.WORLD
+            : CoordinateSystem.SCREEN
+
         return {
             status: status ?? PopupWindowStatus.INACTIVE,
             label: labelToAdd,
@@ -55,6 +63,10 @@ export const PopupWindowService = {
                 y: RectAreaService.top(labelToAdd.rectangle.area),
             },
             camera,
+            coordinateSystem:
+                coordinateSystem !== CoordinateSystem.UNKNOWN
+                    ? coordinateSystem
+                    : fallbackCoordinateSystem,
         }
     },
     changeStatus: (popup: PopupWindow, status: PopupWindowStatus) => {
@@ -75,7 +87,10 @@ export const PopupWindowService = {
             return
         }
 
-        if (isValidValue(popup.camera)) {
+        if (
+            popup.coordinateSystem === CoordinateSystem.WORLD &&
+            isValidValue(popup.camera)
+        ) {
             movePopupOnScreen(popup, popup.camera)
         }
         LabelService.draw(popup.label, graphicsContext)
@@ -85,6 +100,12 @@ export const PopupWindowService = {
         millisecondDelay: number
     ) => {
         popup.setStatusInactiveTimestamp = Date.now() + millisecondDelay
+    },
+    setCoordinateSystem: (
+        popup: PopupWindow,
+        coordinateSystem: CoordinateSystem
+    ) => {
+        popup.coordinateSystem = coordinateSystem
     },
 }
 

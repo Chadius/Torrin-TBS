@@ -40,7 +40,10 @@ import {
 } from "../../message/messageBoardMessage"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
-import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
@@ -968,6 +971,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     reason: "ENEMY is out of range",
                     selectionLocation: { x, y },
+                    coordinateSystem: CoordinateSystem.WORLD,
                 }
 
                 expect(
@@ -1266,6 +1270,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     reason: "PLAYER is out of range",
                     selectionLocation: { x, y },
+                    coordinateSystem: CoordinateSystem.WORLD,
                 }
 
                 expect(

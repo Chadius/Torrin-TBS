@@ -8,6 +8,7 @@ import {
     PopupWindowStatus,
 } from "./popupWindow"
 import { BattleCamera } from "../battleCamera"
+import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("PopUp", () => {
     let popup: PopupWindow
@@ -48,7 +49,6 @@ describe("PopUp", () => {
     })
     it("Can be drawn at the same location if no camera is used", () => {
         PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
-        PopupWindowService.setCamera(popup, new BattleCamera(0, 0))
         PopupWindowService.draw(popup, graphicsContext)
         expect(drawRectSpy).toHaveBeenCalledWith(
             RectAreaService.left(popup.label.textBox.area),
@@ -60,6 +60,7 @@ describe("PopUp", () => {
     it("Can be drawn at the same location if a camera is used but it is on screen", () => {
         PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
         PopupWindowService.setCamera(popup, new BattleCamera())
+        PopupWindowService.setCoordinateSystem(popup, CoordinateSystem.WORLD)
         PopupWindowService.draw(popup, graphicsContext)
         expect(drawRectSpy).toHaveBeenCalledWith(
             RectAreaService.left(popup.label.textBox.area),
@@ -126,6 +127,7 @@ describe("PopUp", () => {
                         fontColor: [0, 0, 100],
                     }),
                     camera: new BattleCamera(),
+                    coordinateSystem: CoordinateSystem.WORLD,
                 })
                 PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
                 PopupWindowService.draw(popup, graphicsContext)

@@ -1,5 +1,11 @@
 import { assertsInteger } from "../../utils/mathAssert"
 
+export enum CoordinateSystem {
+    UNKNOWN = "UNKNOWN",
+    WORLD = "WORLD",
+    SCREEN = "SCREEN",
+}
+
 export interface HexCoordinate {
     q: number
     r: number

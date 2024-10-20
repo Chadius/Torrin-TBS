@@ -1,0 +1,178 @@
+import { ObjectRepositoryService } from "../objectRepository"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { SquaddieService } from "../../squaddie/squaddieService"
+import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import {
+    ActionPerformFailureReason,
+    SquaddieTurnService,
+} from "../../squaddie/turn"
+import { ActionPointCheck } from "./actionPointCheck"
+
+describe("Action Point Checker", () => {
+    const testNotEnoughActionPoints = [
+        {
+            actionTemplateId: "onePointAction",
+            actionPointCost: 1,
+            startingActionPoints: 0,
+            expectedMessage: "Need 1 action point",
+        },
+        {
+            actionTemplateId: "twoPointAction",
+            actionPointCost: 2,
+            startingActionPoints: 0,
+            expectedMessage: "Need 2 action points",
+        },
+        {
+            actionTemplateId: "twoPointAction",
+            actionPointCost: 2,
+            startingActionPoints: 1,
+            expectedMessage: "Need 2 action points",
+        },
+        {
+            actionTemplateId: "threePointAction",
+            actionPointCost: 3,
+            startingActionPoints: 0,
+            expectedMessage: "Need 3 action points",
+        },
+        {
+            actionTemplateId: "threePointAction",
+            actionPointCost: 3,
+            startingActionPoints: 1,
+            expectedMessage: "Need 3 action points",
+        },
+        {
+            actionTemplateId: "threePointAction",
+            actionPointCost: 3,
+            startingActionPoints: 2,
+            expectedMessage: "Need 3 action points",
+        },
+    ]
+
+    it.each(testNotEnoughActionPoints)(
+        `$actionTemplateId $startingActionPoints is NOT possible`,
+        ({
+            actionTemplateId,
+            actionPointCost,
+            startingActionPoints,
+            expectedMessage,
+        }) => {
+            const objectRepository = ObjectRepositoryService.new()
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: actionTemplateId,
+                    name: actionTemplateId,
+                    actionPoints: actionPointCost,
+                })
+            )
+
+            const { battleSquaddie, squaddieTemplate } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleId: "battleId",
+                    templateId: "squaddieTemplateId",
+                    name: "squaddieName",
+                    objectRepository: objectRepository,
+                    actionTemplateIds: [actionTemplateId],
+                })
+            SquaddieTurnService.spendActionPoints(
+                battleSquaddie.squaddieTurn,
+                3 - startingActionPoints
+            )
+            expect(
+                SquaddieService.getNumberOfActionPoints({
+                    battleSquaddie,
+                    squaddieTemplate,
+                })
+            ).toEqual({ actionPointsRemaining: startingActionPoints })
+            expect(
+                ActionPointCheck.canAfford({
+                    battleSquaddie,
+                    actionTemplateId,
+                    objectRepository,
+                })
+            ).toEqual({
+                isValid: false,
+                reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
+                message: expectedMessage,
+            })
+        }
+    )
+
+    const testHasEnoughActionPoints = [
+        {
+            actionTemplateId: "onePointAction",
+            actionPointCost: 1,
+            startingActionPoints: 1,
+        },
+        {
+            actionTemplateId: "onePointAction",
+            actionPointCost: 1,
+            startingActionPoints: 2,
+        },
+        {
+            actionTemplateId: "onePointAction",
+            actionPointCost: 1,
+            startingActionPoints: 3,
+        },
+        {
+            actionTemplateId: "twoPointAction",
+            actionPointCost: 2,
+            startingActionPoints: 2,
+        },
+        {
+            actionTemplateId: "twoPointAction",
+            actionPointCost: 2,
+            startingActionPoints: 3,
+        },
+        {
+            actionTemplateId: "threePointAction",
+            actionPointCost: 3,
+            startingActionPoints: 3,
+        },
+    ]
+
+    it.each(testHasEnoughActionPoints)(
+        `$actionTemplateId $startingActionPoints is possible`,
+        ({ actionTemplateId, actionPointCost, startingActionPoints }) => {
+            const objectRepository = ObjectRepositoryService.new()
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: actionTemplateId,
+                    name: actionTemplateId,
+                    actionPoints: actionPointCost,
+                })
+            )
+            const { battleSquaddie, squaddieTemplate } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleId: "battleId",
+                    templateId: "squaddieTemplateId",
+                    name: "squaddieName",
+                    objectRepository: objectRepository,
+                    actionTemplateIds: [actionTemplateId],
+                })
+            SquaddieTurnService.spendActionPoints(
+                battleSquaddie.squaddieTurn,
+                3 - startingActionPoints
+            )
+            expect(
+                SquaddieService.getNumberOfActionPoints({
+                    battleSquaddie,
+                    squaddieTemplate,
+                })
+            ).toEqual({ actionPointsRemaining: startingActionPoints })
+            expect(
+                ActionPointCheck.canAfford({
+                    battleSquaddie,
+                    actionTemplateId,
+                    objectRepository,
+                })
+            ).toEqual({
+                isValid: true,
+            })
+        }
+    )
+})
