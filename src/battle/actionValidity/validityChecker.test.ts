@@ -60,7 +60,6 @@ describe("validity checker", () => {
 
         expect(actionStatus[actionTemplateId]).toEqual({
             disabled: true,
-            warn: true,
             messages: ["Need 1 action point"],
         })
 

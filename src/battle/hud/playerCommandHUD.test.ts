@@ -113,12 +113,10 @@ describe("playerCommandHUD", () => {
             .spyOn(ValidityCheckService, "calculateActionValidity")
             .mockReturnValue({
                 [actionTemplate0.id]: {
-                    warn: false,
                     disabled: false,
                     messages: [],
                 },
                 [actionTemplate1.id]: {
-                    warn: false,
                     disabled: false,
                     messages: [],
                 },
@@ -488,12 +486,10 @@ describe("playerCommandHUD", () => {
                     .spyOn(ValidityCheckService, "calculateActionValidity")
                     .mockReturnValue({
                         actionTemplate0: {
-                            warn: true,
                             disabled: true,
                             messages: ["blocked by est"],
                         },
                         actionTemplate1: {
-                            warn: false,
                             disabled: false,
                             messages: [],
                         },
@@ -529,17 +525,15 @@ describe("playerCommandHUD", () => {
             })
         })
 
-        it("will send a message to generate a pop up the action has a warning", () => {
+        it("will send a message to generate a pop up the action has a message", () => {
             validityCheckerSpy = jest
                 .spyOn(ValidityCheckService, "calculateActionValidity")
                 .mockReturnValue({
                     actionTemplate0: {
-                        warn: true,
                         disabled: true,
                         messages: ["blocked by test", "also blocked by test"],
                     },
                     actionTemplate1: {
-                        warn: false,
                         disabled: false,
                         messages: [],
                     },
@@ -570,12 +564,10 @@ describe("playerCommandHUD", () => {
                 .spyOn(ValidityCheckService, "calculateActionValidity")
                 .mockReturnValue({
                     actionTemplate0: {
-                        warn: true,
                         disabled: true,
                         messages: [],
                     },
                     actionTemplate1: {
-                        warn: false,
                         disabled: false,
                         messages: [],
                     },

@@ -4,7 +4,6 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 
 export type ActionValidityStatus = {
     disabled: boolean
-    warn: boolean
     messages: string[]
 }
 
@@ -27,7 +26,6 @@ export const ValidityCheckService = {
                 return currentStatus
             }
 
-            currentStatus.warn = true
             if (shouldDisableIfInvalid) {
                 currentStatus.disabled = true
             }
@@ -49,7 +47,6 @@ export const ValidityCheckService = {
             (actionTemplateId: string) => {
                 overallStatus[actionTemplateId] = {
                     disabled: false,
-                    warn: false,
                     messages: [],
                 }
 
