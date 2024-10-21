@@ -21,7 +21,7 @@ import { ResourceHandler } from "../../resource/resourceHandler"
 import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { DamageType, IsSquaddieAlive } from "../../squaddie/squaddieService"
+import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieSkipsAnimationAnimator } from "../animation/squaddieSkipsAnimationAnimator"
@@ -540,7 +540,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             damageType: DamageType.BODY,
         })
         expect(
-            IsSquaddieAlive({
+            SquaddieService.isSquaddieAlive({
                 battleSquaddie: targetDynamic,
                 squaddieTemplate: targetStatic,
             })

@@ -86,11 +86,7 @@ import {
     SquaddieTurnService,
 } from "../../squaddie/turn"
 import { SquaddieMovementService } from "../../squaddie/movement"
-import {
-    DamageType,
-    GetHitPoints,
-    GetNumberOfActionPoints,
-} from "../../squaddie/squaddieService"
+import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import {
@@ -1771,10 +1767,11 @@ describe("Battle HUD", () => {
                 )
             )
 
-            const { actionPointsRemaining } = GetNumberOfActionPoints({
-                squaddieTemplate,
-                battleSquaddie: playerSoldierBattleSquaddie,
-            })
+            const { actionPointsRemaining } =
+                SquaddieService.getNumberOfActionPoints({
+                    squaddieTemplate,
+                    battleSquaddie: playerSoldierBattleSquaddie,
+                })
             expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
         })
 
@@ -1913,10 +1910,11 @@ describe("Battle HUD", () => {
                     )
                 )
 
-                const { maxHitPoints, currentHitPoints } = GetHitPoints({
-                    squaddieTemplate: squaddieTemplate,
-                    battleSquaddie: thiefBattleSquaddie,
-                })
+                const { maxHitPoints, currentHitPoints } =
+                    SquaddieService.getHitPoints({
+                        squaddieTemplate: squaddieTemplate,
+                        battleSquaddie: thiefBattleSquaddie,
+                    })
                 expect(currentHitPoints).toBe(
                     maxHitPoints - longswordActionDamage
                 )

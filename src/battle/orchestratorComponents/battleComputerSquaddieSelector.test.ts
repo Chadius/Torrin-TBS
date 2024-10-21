@@ -32,11 +32,7 @@ import {
     SHOW_SELECTED_ACTION_TIME,
     SQUADDIE_SELECTOR_PANNING_TIME,
 } from "./battleComputerSquaddieSelector"
-import {
-    DamageType,
-    GetHitPoints,
-    GetNumberOfActionPoints,
-} from "../../squaddie/squaddieService"
+import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
 import { BattlePhaseState } from "./battlePhaseController"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../../squaddie/movement"
@@ -740,10 +736,11 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("should consume the squaddie action points", () => {
-                const { actionPointsRemaining } = GetNumberOfActionPoints({
-                    squaddieTemplate: enemyDemonTemplate,
-                    battleSquaddie: enemyDemonBattleSquaddie,
-                })
+                const { actionPointsRemaining } =
+                    SquaddieService.getNumberOfActionPoints({
+                        squaddieTemplate: enemyDemonTemplate,
+                        battleSquaddie: enemyDemonBattleSquaddie,
+                    })
                 expect(actionPointsRemaining).toBe(
                     3 - demonBiteAction.actionPoints
                 )
@@ -802,10 +799,11 @@ describe("BattleComputerSquaddieSelector", () => {
                     demonBiteActionDamage
                 )
 
-                const { maxHitPoints, currentHitPoints } = GetHitPoints({
-                    squaddieTemplate: enemyDemonTemplate,
-                    battleSquaddie: enemyDemonBattleSquaddie2,
-                })
+                const { maxHitPoints, currentHitPoints } =
+                    SquaddieService.getHitPoints({
+                        squaddieTemplate: enemyDemonTemplate,
+                        battleSquaddie: enemyDemonBattleSquaddie2,
+                    })
                 expect(currentHitPoints).toBe(
                     maxHitPoints - demonBiteActionDamage
                 )

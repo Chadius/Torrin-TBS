@@ -9,7 +9,6 @@ import {
     GetTargetingShapeGenerator,
     TargetingShape,
 } from "../targeting/targetingShapeGenerator"
-import { GetNumberOfActionPoints } from "../../squaddie/squaddieService"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
@@ -31,6 +30,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -76,10 +76,11 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             missionMap,
             battleSquaddieIdToAct
         )
-        const { actionPointsRemaining } = GetNumberOfActionPoints({
-            squaddieTemplate,
-            battleSquaddie,
-        })
+        const { actionPointsRemaining } =
+            SquaddieService.getNumberOfActionPoints({
+                squaddieTemplate,
+                battleSquaddie,
+            })
         const movementPerActionThisRound =
             squaddieTemplate.attributes.movement.movementPerAction
 

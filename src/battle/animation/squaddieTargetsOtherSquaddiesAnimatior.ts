@@ -11,7 +11,7 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetSprite } from "./actionAnimation/targetSprite"
 import { TargetTextWindow } from "./actionAnimation/targetTextWindow"
 import { HitPointMeter } from "./actionAnimation/hitPointMeter"
-import { GetHitPoints } from "../../squaddie/squaddieService"
+import { SquaddieService } from "../../squaddie/squaddieService"
 import { WINDOW_SPACING } from "../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../graphicsConstants"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
@@ -343,7 +343,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 let {
                     currentHitPoints: displayedHitPointsBeforeChange,
                     maxHitPoints,
-                } = GetHitPoints({
+                } = SquaddieService.getHitPoints({
                     battleSquaddie: targetBattle,
                     squaddieTemplate: targetTemplate,
                 })

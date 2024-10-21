@@ -8,7 +8,7 @@ import {
     ObjectRepositoryService,
 } from "../../../battle/objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { IsSquaddieAlive } from "../../../squaddie/squaddieService"
+import { SquaddieService } from "../../../squaddie/squaddieService"
 
 export class PathCanStopConditionNotOnAnotherSquaddie
     implements PathCanStopCondition
@@ -67,6 +67,9 @@ export class PathCanStopConditionNotOnAnotherSquaddie
             return true
         }
 
-        return !IsSquaddieAlive({ squaddieTemplate, battleSquaddie })
+        return !SquaddieService.isSquaddieAlive({
+            squaddieTemplate,
+            battleSquaddie,
+        })
     }
 }

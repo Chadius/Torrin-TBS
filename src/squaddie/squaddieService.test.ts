@@ -4,14 +4,7 @@ import {
     ObjectRepositoryService,
 } from "../battle/objectRepository"
 import { BattleSquaddie } from "../battle/battleSquaddie"
-import {
-    DamageType,
-    GetArmorClass,
-    GetNumberOfActionPoints,
-    HealingType,
-    IsSquaddieAlive,
-    SquaddieService,
-} from "./squaddieService"
+import { DamageType, HealingType, SquaddieService } from "./squaddieService"
 import { DefaultArmyAttributes } from "./armyAttributes"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "./turn"
@@ -64,10 +57,11 @@ describe("Squaddie Service", () => {
 
     describe("Turns Remaining", () => {
         it("returns the number of action points", () => {
-            let { actionPointsRemaining } = GetNumberOfActionPoints({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-            })
+            let { actionPointsRemaining } =
+                SquaddieService.getNumberOfActionPoints({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    battleSquaddie: playerBattleSquaddie,
+                })
             expect(actionPointsRemaining).toBe(3)
 
             SquaddieTurnService.spendActionPoints(
@@ -75,7 +69,7 @@ describe("Squaddie Service", () => {
                 1
             )
             ;({ actionPointsRemaining: actionPointsRemaining } =
-                GetNumberOfActionPoints({
+                SquaddieService.getNumberOfActionPoints({
                     squaddieTemplate: playerSquaddieTemplate,
                     battleSquaddie: playerBattleSquaddie,
                 }))
@@ -85,7 +79,7 @@ describe("Squaddie Service", () => {
 
     describe("Current Armor Class", () => {
         it("Returns the normal armor class", () => {
-            let { normalArmorClass } = GetArmorClass({
+            let { normalArmorClass } = SquaddieService.getArmorClass({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })
@@ -211,7 +205,7 @@ describe("Squaddie Service", () => {
 
     describe("Squaddie is Dead", () => {
         it("knows squaddies are alive by default", () => {
-            const squaddieIsAlive = IsSquaddieAlive({
+            const squaddieIsAlive = SquaddieService.isSquaddieAlive({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })
@@ -227,7 +221,7 @@ describe("Squaddie Service", () => {
                 damageType: DamageType.BODY,
             })
 
-            const squaddieIsAlive = IsSquaddieAlive({
+            const squaddieIsAlive = SquaddieService.isSquaddieAlive({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })

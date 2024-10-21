@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { IsSquaddieAlive } from "../../squaddie/squaddieService"
+import { SquaddieService } from "../../squaddie/squaddieService"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { SquaddieActionAnimator } from "../animation/squaddieActionAnimator"
@@ -200,7 +200,12 @@ export class BattleSquaddieUsesActionOnSquaddie
                     result.battleSquaddieId
                 )
             )
-            if (!IsSquaddieAlive({ battleSquaddie, squaddieTemplate })) {
+            if (
+                !SquaddieService.isSquaddieAlive({
+                    battleSquaddie,
+                    squaddieTemplate,
+                })
+            ) {
                 gameEngineState.battleOrchestratorState.battleState.missionMap.hideSquaddieFromDrawing(
                     result.battleSquaddieId
                 )

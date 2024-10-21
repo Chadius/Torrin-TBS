@@ -1,9 +1,6 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    GetNumberOfActionPoints,
-    SquaddieService,
-} from "../../squaddie/squaddieService"
+import { SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import {
@@ -266,7 +263,7 @@ const getAllTilesSquaddieCanReach = ({
         gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
             battleSquaddie.battleSquaddieId
         ).mapLocation
-    const { actionPointsRemaining } = GetNumberOfActionPoints({
+    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })

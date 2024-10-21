@@ -9,7 +9,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../battle/objectRepository"
-import { IsSquaddieAlive } from "../../../squaddie/squaddieService"
+import { SquaddieService } from "../../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import {
     FriendlyAffiliationsByAffiliation,
@@ -73,7 +73,12 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true
         }
 
-        if (!IsSquaddieAlive({ squaddieTemplate, battleSquaddie })) {
+        if (
+            !SquaddieService.isSquaddieAlive({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+        ) {
             return true
         }
         const friendlyAffiliations: {

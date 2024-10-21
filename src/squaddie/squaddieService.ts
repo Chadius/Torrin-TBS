@@ -42,7 +42,7 @@ export const SquaddieService = {
     }): {
         actionPointsRemaining: number
     } => {
-        return GetNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
+        return getNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
     },
     searchPathLocationsByNumberOfMovementActions: ({
         searchPath,
@@ -84,7 +84,7 @@ export const SquaddieService = {
         currentHitPoints: number
         maxHitPoints: number
     } => {
-        return GetHitPoints({ squaddieTemplate, battleSquaddie })
+        return getHitPoints({ squaddieTemplate, battleSquaddie })
     },
     canSquaddieActRightNow: ({
         squaddieTemplate,
@@ -152,9 +152,31 @@ export const SquaddieService = {
             healingType,
         })
     },
+    getArmorClass: ({
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+    }): {
+        normalArmorClass: number
+    } => {
+        return getArmorClass({ squaddieTemplate, battleSquaddie })
+    },
+    isSquaddieAlive: ({
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+    }): boolean =>
+        isSquaddieAlive({
+            squaddieTemplate,
+            battleSquaddie,
+        }),
 }
 
-export const GetNumberOfActionPoints = ({
+const getNumberOfActionPoints = ({
     squaddieTemplate,
     battleSquaddie,
 }: {
@@ -169,7 +191,7 @@ export const GetNumberOfActionPoints = ({
     }
 }
 
-export const GetArmorClass = ({
+const getArmorClass = ({
     squaddieTemplate,
     battleSquaddie,
 }: {
@@ -183,7 +205,7 @@ export const GetArmorClass = ({
     }
 }
 
-export const GetHitPoints = ({
+const getHitPoints = ({
     squaddieTemplate,
     battleSquaddie,
 }: {
@@ -232,29 +254,6 @@ const giveHealingToTheSquaddie = ({
     }
 }
 
-export const GiveHealingToTheSquaddieOLD = ({
-    squaddieTemplate,
-    battleSquaddie,
-    healingAmount,
-    healingType: HealingType,
-}: {
-    squaddieTemplate: SquaddieTemplate
-    battleSquaddie: BattleSquaddie
-    healingAmount: number
-    healingType: HealingType
-}): {
-    healingReceived: number
-} => {
-    const actualHitPointGain: number = InBattleAttributesService.receiveHealing(
-        battleSquaddie.inBattleAttributes,
-        healingAmount
-    )
-
-    return {
-        healingReceived: actualHitPointGain,
-    }
-}
-
 const canPlayerControlSquaddieRightNow = ({
     squaddieTemplate,
     battleSquaddie,
@@ -267,12 +266,12 @@ const canPlayerControlSquaddieRightNow = ({
     playerCanControlThisSquaddieRightNow: boolean
     squaddieIsNormallyControllableByPlayer: boolean
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({
+    const squaddieIsAlive = isSquaddieAlive({
         squaddieTemplate,
         battleSquaddie,
     })
 
-    let { actionPointsRemaining } = GetNumberOfActionPoints({
+    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })
@@ -292,14 +291,14 @@ const canPlayerControlSquaddieRightNow = ({
     }
 }
 
-export const IsSquaddieAlive = ({
+const isSquaddieAlive = ({
     squaddieTemplate,
     battleSquaddie,
 }: {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 }): boolean => {
-    const { currentHitPoints } = GetHitPoints({
+    const { currentHitPoints } = getHitPoints({
         squaddieTemplate,
         battleSquaddie,
     })
@@ -317,12 +316,12 @@ const canSquaddieActRightNow = ({
     hasActionPointsRemaining: boolean
     isDead: boolean
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({
+    const squaddieIsAlive = isSquaddieAlive({
         squaddieTemplate,
         battleSquaddie,
     })
 
-    let { actionPointsRemaining } = GetNumberOfActionPoints({
+    let { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
         squaddieTemplate,
         battleSquaddie,
     })

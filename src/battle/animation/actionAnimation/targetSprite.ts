@@ -15,7 +15,7 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { IsSquaddieAlive } from "../../../squaddie/squaddieService"
+import { SquaddieService } from "../../../squaddie/squaddieService"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
     DegreeOfSuccess,
@@ -153,7 +153,7 @@ export class TargetSprite {
                 battleSquaddieId
             )
         )
-        const stillAlive = IsSquaddieAlive({
+        const stillAlive = SquaddieService.isSquaddieAlive({
             squaddieTemplate,
             battleSquaddie,
         })
