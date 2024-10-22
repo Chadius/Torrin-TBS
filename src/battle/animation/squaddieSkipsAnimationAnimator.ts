@@ -15,7 +15,6 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
-import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
@@ -108,15 +107,10 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                 actionTemplateName: actionTemplate.name,
                 currentActionEffectSquaddieTemplate: actionTemplate
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: SquaddieSquaddieResultsService.new({
-                    actingBattleSquaddieId:
-                        actionToShow.actor.actorBattleSquaddieId,
-                    actionContext: actionToShow.actor.actorContext,
-                    targetedBattleSquaddieIds: actionToShow.effect.squaddie.map(
-                        (s) => s.battleSquaddieId
-                    ),
-                    squaddieChanges: actionToShow.effect.squaddie,
-                }),
+                actingBattleSquaddieId:
+                    actionToShow.actor.actorBattleSquaddieId,
+                actingContext: actionToShow.actor.actorContext,
+                battleActionSquaddieChanges: actionToShow.effect.squaddie,
             })
 
         const textToDraw = this.outputTextStrings.join("\n")

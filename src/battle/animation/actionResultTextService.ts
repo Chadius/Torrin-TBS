@@ -24,24 +24,31 @@ import {
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
+import { BattleActionActionContext } from "../history/battleAction/battleActionActionContext"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
         currentActionEffectSquaddieTemplate,
-        result,
         squaddieRepository,
         actionTemplateName,
+        battleActionSquaddieChanges,
+        actingBattleSquaddieId,
+        actingContext,
     }: {
         currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
-        result: SquaddieSquaddieResults
+        battleActionSquaddieChanges: BattleActionSquaddieChange[]
+        actingContext: BattleActionActionContext
         squaddieRepository: ObjectRepository
         actionTemplateName: string
+        actingBattleSquaddieId: string
     }): string[] => {
         return outputResultForTextOnly({
             actionTemplateName,
             currentActionEffectSquaddieTemplate,
-            result,
+            battleActionSquaddieChanges,
             squaddieRepository,
+            actingContext,
+            actingBattleSquaddieId,
         })
     },
     outputIntentForTextOnly: ({
@@ -174,7 +181,7 @@ export const ActionResultTextService = {
                     "\n" + attackPenaltyDescriptions.join("\n")
             }
 
-            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results)}`
+            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actingContext)}`
 
             if (
                 RollResultService.isACriticalSuccess(
@@ -351,19 +358,23 @@ const getAttributeModifierChanges = ({
 
 const outputResultForTextOnly = ({
     currentActionEffectSquaddieTemplate,
-    result,
     squaddieRepository,
     actionTemplateName,
+    battleActionSquaddieChanges,
+    actingBattleSquaddieId,
+    actingContext,
 }: {
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
-    result: SquaddieSquaddieResults
+    battleActionSquaddieChanges: BattleActionSquaddieChange[]
+    actingContext: BattleActionActionContext
     squaddieRepository: ObjectRepository
     actionTemplateName: string
+    actingBattleSquaddieId: string
 }): string[] => {
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
-            result.actingBattleSquaddieId
+            actingBattleSquaddieId
         )
     )
 
@@ -376,10 +387,10 @@ const outputResultForTextOnly = ({
         })
     output.push(actorUsesActionDescriptionText)
 
-    if (result.actingContext.actingSquaddieRoll.occurred) {
+    if (actingContext?.actingSquaddieRoll.occurred) {
         output.push(
             ActionResultTextService.getRollsDescriptionString({
-                rolls: result.actingContext.actingSquaddieRoll.rolls,
+                rolls: actingContext.actingSquaddieRoll.rolls,
                 addSpacing: true,
             })
         )
@@ -396,109 +407,116 @@ const outputResultForTextOnly = ({
         ) {
             output.push(
                 ...ActionResultText.getAttackPenaltyDescriptions(
-                    result.actingContext.actingSquaddieModifiers
+                    actingContext.actingSquaddieModifiers
                 )
             )
             output.push(
-                ...ActionResultText.getActingSquaddieRollTotalIfNeeded(result)
+                ...ActionResultText.getActingSquaddieRollTotalIfNeeded(
+                    actingContext
+                )
             )
         }
     }
 
-    result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
-        const { squaddieTemplate: targetSquaddieTemplate } =
-            getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
-                    targetSquaddieId
+    battleActionSquaddieChanges.forEach(
+        (squaddieChange: BattleActionSquaddieChange) => {
+            const targetSquaddieId: string = squaddieChange.battleSquaddieId
+            const { squaddieTemplate: targetSquaddieTemplate } =
+                getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        squaddieRepository,
+                        targetSquaddieId
+                    )
                 )
-            )
-        const squaddieChange = result.squaddieChanges.find(
-            (change) => change.battleSquaddieId === targetSquaddieId
-        )
 
-        const targetFoe = ActionEffectSquaddieTemplateService.doesItTargetFoes(
-            currentActionEffectSquaddieTemplate
-        )
+            const targetFoe =
+                ActionEffectSquaddieTemplateService.doesItTargetFoes(
+                    currentActionEffectSquaddieTemplate
+                )
 
-        const degreeOfSuccessIsCriticalFailure =
-            squaddieChange.actorDegreeOfSuccess ===
-            DegreeOfSuccess.CRITICAL_FAILURE
-        const degreeOfSuccessIsFailure =
-            squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
-        const degreeOfSuccessIsSuccess =
-            squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
-        const degreeOfSuccessIsCriticalSuccess =
-            squaddieChange.actorDegreeOfSuccess ===
-            DegreeOfSuccess.CRITICAL_SUCCESS
-        const noDamageTaken = squaddieChange.damage.net === 0
+            const degreeOfSuccessIsCriticalFailure =
+                squaddieChange.actorDegreeOfSuccess ===
+                DegreeOfSuccess.CRITICAL_FAILURE
+            const degreeOfSuccessIsFailure =
+                squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
+            const degreeOfSuccessIsSuccess =
+                squaddieChange.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+            const degreeOfSuccessIsCriticalSuccess =
+                squaddieChange.actorDegreeOfSuccess ===
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            const noDamageTaken = squaddieChange.damage.net === 0
 
-        if (targetFoe) {
-            switch (true) {
-                case degreeOfSuccessIsFailure:
-                    output.push(
-                        ActionResultTextService.getHinderingActionMissedString({
-                            squaddieTemplate: targetSquaddieTemplate,
-                        })
-                    )
-                    break
-                case degreeOfSuccessIsCriticalFailure:
-                    output.push(
-                        ActionResultTextService.getHinderingActionCriticallyMissedString(
-                            { squaddieTemplate: targetSquaddieTemplate }
+            if (targetFoe) {
+                switch (true) {
+                    case degreeOfSuccessIsFailure:
+                        output.push(
+                            ActionResultTextService.getHinderingActionMissedString(
+                                {
+                                    squaddieTemplate: targetSquaddieTemplate,
+                                }
+                            )
                         )
-                    )
-                    break
-                case noDamageTaken:
-                    output.push(
-                        ActionResultTextService.getHinderingActionDealtNoDamageString(
-                            { squaddieTemplate: targetSquaddieTemplate }
+                        break
+                    case degreeOfSuccessIsCriticalFailure:
+                        output.push(
+                            ActionResultTextService.getHinderingActionCriticallyMissedString(
+                                { squaddieTemplate: targetSquaddieTemplate }
+                            )
                         )
-                    )
-                    break
-                case degreeOfSuccessIsCriticalSuccess:
-                    output.push(
-                        ActionResultTextService.getHinderingActionDealtCriticalDamageString(
-                            {
-                                squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damage.net,
-                            }
+                        break
+                    case noDamageTaken:
+                        output.push(
+                            ActionResultTextService.getHinderingActionDealtNoDamageString(
+                                { squaddieTemplate: targetSquaddieTemplate }
+                            )
                         )
-                    )
-                    break
-                case degreeOfSuccessIsSuccess:
-                    output.push(
-                        ActionResultTextService.getHinderingActionDealtDamageString(
-                            {
-                                squaddieTemplate: targetSquaddieTemplate,
-                                damageTaken: squaddieChange.damage.net,
-                            }
+                        break
+                    case degreeOfSuccessIsCriticalSuccess:
+                        output.push(
+                            ActionResultTextService.getHinderingActionDealtCriticalDamageString(
+                                {
+                                    squaddieTemplate: targetSquaddieTemplate,
+                                    damageTaken: squaddieChange.damage.net,
+                                }
+                            )
                         )
-                    )
-                    break
+                        break
+                    case degreeOfSuccessIsSuccess:
+                        output.push(
+                            ActionResultTextService.getHinderingActionDealtDamageString(
+                                {
+                                    squaddieTemplate: targetSquaddieTemplate,
+                                    damageTaken: squaddieChange.damage.net,
+                                }
+                            )
+                        )
+                        break
+                }
             }
-        }
 
-        if (
-            TraitStatusStorageService.getStatus(
-                currentActionEffectSquaddieTemplate.traits,
-                Trait.HEALING
-            )
-        ) {
+            if (
+                TraitStatusStorageService.getStatus(
+                    currentActionEffectSquaddieTemplate.traits,
+                    Trait.HEALING
+                )
+            ) {
+                output.push(
+                    ActionResultTextService.getHelpfulActionHealingReceivedString(
+                        {
+                            squaddieTemplate: targetSquaddieTemplate,
+                            healingReceived: squaddieChange.healingReceived,
+                        }
+                    )
+                )
+            }
             output.push(
-                ActionResultTextService.getHelpfulActionHealingReceivedString({
-                    squaddieTemplate: targetSquaddieTemplate,
-                    healingReceived: squaddieChange.healingReceived,
+                ...getAttributeModifierChanges({
+                    squaddieChange,
+                    targetSquaddieTemplate,
                 })
             )
         }
-        output.push(
-            ...getAttributeModifierChanges({
-                squaddieChange,
-                targetSquaddieTemplate,
-            })
-        )
-    })
+    )
     return output
 }
 

@@ -8,10 +8,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    SquaddieSquaddieResults,
-    SquaddieSquaddieResultsService,
-} from "../history/squaddieSquaddieResults"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
 import {
@@ -23,6 +19,7 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import {
+    BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
     DamageExplanationService,
 } from "../history/battleAction/battleActionSquaddieChange"
@@ -149,47 +146,40 @@ describe("Action Result Text Writer", () => {
     })
 
     it("Explains how much damage occurred", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    thiefDynamic.battleSquaddieId,
-                    rogueDynamic.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: rogueDynamic.battleSquaddieId,
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                ],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: true,
-                        rolls: [2, 6],
-                    },
-                    actingSquaddieModifiers: [],
+        const damagingChanges: BattleActionSquaddieChange[] = [
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
                 }),
-            })
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: rogueDynamic.battleSquaddieId,
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+        ]
 
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
                 currentActionEffectSquaddieTemplate: longswordSweepAction
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
+                battleActionSquaddieChanges: damagingChanges,
                 squaddieRepository,
+                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                actingContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [2, 6],
+                    },
+                    actingSquaddieModifiers: [],
+                }),
             })
 
         expect(outputStrings).toHaveLength(5)
@@ -201,48 +191,40 @@ describe("Action Result Text Writer", () => {
     })
 
     it("Explains how much healing was received", () => {
-        const healingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    knightDynamic.battleSquaddieId,
-                    citizenBattleSquaddie.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: knightDynamic.battleSquaddieId,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 0,
-                        }),
-                        healingReceived: 1,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId:
-                            citizenBattleSquaddie.battleSquaddieId,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 0,
-                        }),
-                        healingReceived: 2,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                ],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                    actingSquaddieModifiers: [],
+        const healingChanges = [
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: knightDynamic.battleSquaddieId,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
                 }),
-            })
+                healingReceived: 1,
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
+                healingReceived: 2,
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+        ]
 
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: bandageWoundsAction.name,
                 currentActionEffectSquaddieTemplate: bandageWoundsAction
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: healingResult,
+                battleActionSquaddieChanges: healingChanges,
                 squaddieRepository,
+                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                actingContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: [],
+                }),
             })
 
         expect(outputStrings).toHaveLength(3)
@@ -276,45 +258,41 @@ describe("Action Result Text Writer", () => {
         })
 
         it("Shows Armor bonus was applied", () => {
-            const armorBonusResult: SquaddieSquaddieResults =
-                SquaddieSquaddieResultsService.new({
-                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                    targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId],
-                    squaddieChanges: [
-                        BattleActionSquaddieChangeService.new({
-                            battleSquaddieId: knightDynamic.battleSquaddieId,
-                            damageExplanation: DamageExplanationService.new({
-                                net: 0,
-                            }),
-                            healingReceived: 0,
-                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                            attributesAfter: InBattleAttributesService.new({
-                                attributeModifiers: [
-                                    AttributeModifierService.new({
-                                        type: AttributeType.ARMOR,
-                                        source: AttributeSource.CIRCUMSTANCE,
-                                        amount: 1,
-                                    }),
-                                ],
-                            }),
-                        }),
-                    ],
-                    actionContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
-                            occurred: false,
-                            rolls: [],
-                        },
-                        actingSquaddieModifiers: [],
+            const armorBonusChanges = [
+                BattleActionSquaddieChangeService.new({
+                    battleSquaddieId: knightDynamic.battleSquaddieId,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 0,
                     }),
-                })
+                    healingReceived: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    attributesAfter: InBattleAttributesService.new({
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                source: AttributeSource.CIRCUMSTANCE,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                }),
+            ]
 
             const outputStrings: string[] =
                 ActionResultTextService.outputResultForTextOnly({
                     actionTemplateName: "Raise Shield",
                     currentActionEffectSquaddieTemplate: raiseShieldAction
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                    result: armorBonusResult,
+                    battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
+                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                    actingContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: [],
+                    }),
                 })
 
             expect(outputStrings).toHaveLength(2)
@@ -322,54 +300,50 @@ describe("Action Result Text Writer", () => {
             expect(outputStrings[1]).toBe("Knight Armor +1 (Circumstance)")
         })
         it("Shows No Change if there is no change in bonus", () => {
-            const armorBonusResult: SquaddieSquaddieResults =
-                SquaddieSquaddieResultsService.new({
-                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                    targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId],
-                    squaddieChanges: [
-                        BattleActionSquaddieChangeService.new({
-                            battleSquaddieId: knightDynamic.battleSquaddieId,
-                            damageExplanation: DamageExplanationService.new({
-                                net: 0,
-                            }),
-                            healingReceived: 0,
-                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                            attributesBefore: InBattleAttributesService.new({
-                                attributeModifiers: [
-                                    AttributeModifierService.new({
-                                        type: AttributeType.ARMOR,
-                                        source: AttributeSource.CIRCUMSTANCE,
-                                        amount: 1,
-                                    }),
-                                ],
-                            }),
-                            attributesAfter: InBattleAttributesService.new({
-                                attributeModifiers: [
-                                    AttributeModifierService.new({
-                                        type: AttributeType.ARMOR,
-                                        source: AttributeSource.CIRCUMSTANCE,
-                                        amount: 1,
-                                    }),
-                                ],
-                            }),
-                        }),
-                    ],
-                    actionContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
-                            occurred: false,
-                            rolls: [],
-                        },
-                        actingSquaddieModifiers: [],
+            const armorBonusChanges = [
+                BattleActionSquaddieChangeService.new({
+                    battleSquaddieId: knightDynamic.battleSquaddieId,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 0,
                     }),
-                })
+                    healingReceived: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    attributesBefore: InBattleAttributesService.new({
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                source: AttributeSource.CIRCUMSTANCE,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                    attributesAfter: InBattleAttributesService.new({
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                source: AttributeSource.CIRCUMSTANCE,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                }),
+            ]
 
             const outputStrings: string[] =
                 ActionResultTextService.outputResultForTextOnly({
                     actionTemplateName: "Raise Shield",
                     currentActionEffectSquaddieTemplate: raiseShieldAction
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                    result: armorBonusResult,
+                    battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
+                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                    actingContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: [],
+                    }),
                 })
 
             expect(outputStrings).toHaveLength(2)
@@ -434,47 +408,40 @@ describe("Action Result Text Writer", () => {
     })
 
     it("Will mention the actor roll, if the actor rolled", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    thiefDynamic.battleSquaddieId,
-                    rogueDynamic.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: rogueDynamic.battleSquaddieId,
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                ],
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: true,
-                        rolls: [2, 6],
-                    },
-                    actingSquaddieModifiers: [],
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
                 }),
-            })
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+            BattleActionSquaddieChangeService.new({
+                battleSquaddieId: rogueDynamic.battleSquaddieId,
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            }),
+        ]
 
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
                 currentActionEffectSquaddieTemplate: longswordSweepAction
                     .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
+                battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
+                actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                actingContext: BattleActionActionContextService.new({
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [2, 6],
+                    },
+                    actingSquaddieModifiers: [],
+                }),
             })
 
         expect(outputStrings).toHaveLength(5)
@@ -486,31 +453,33 @@ describe("Action Result Text Writer", () => {
     })
 
     it("Will mention if the attacker missed or did no damage", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+            }),
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                battleSquaddieId: rogueDynamic.battleSquaddieId,
+            }),
+        ]
+
+        const outputStrings: string[] =
+            ActionResultTextService.outputResultForTextOnly({
+                actionTemplateName: longswordSweepAction.name,
+                currentActionEffectSquaddieTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                battleActionSquaddieChanges: damagingResult,
+                squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    thiefDynamic.battleSquaddieId,
-                    rogueDynamic.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 0,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 0,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: rogueDynamic.battleSquaddieId,
-                    }),
-                ],
                 actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
@@ -518,15 +487,6 @@ describe("Action Result Text Writer", () => {
                     },
                     actingSquaddieModifiers: [],
                 }),
-            })
-
-        const outputStrings: string[] =
-            ActionResultTextService.outputResultForTextOnly({
-                actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
-                squaddieRepository,
             })
 
         expect(outputStrings).toHaveLength(5)
@@ -538,20 +498,25 @@ describe("Action Result Text Writer", () => {
     })
 
     it("will mention if the attack was a critical hit and dealt double damage", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 4,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+            }),
+        ]
+
+        const outputStrings: string[] =
+            ActionResultTextService.outputResultForTextOnly({
+                actionTemplateName: longswordSweepAction.name,
+                currentActionEffectSquaddieTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                battleActionSquaddieChanges: damagingResult,
+                squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 4,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                    }),
-                ],
                 actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
@@ -559,15 +524,6 @@ describe("Action Result Text Writer", () => {
                     },
                     actingSquaddieModifiers: [],
                 }),
-            })
-
-        const outputStrings: string[] =
-            ActionResultTextService.outputResultForTextOnly({
-                actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
-                squaddieRepository,
             })
 
         expect(outputStrings).toHaveLength(4)
@@ -578,20 +534,25 @@ describe("Action Result Text Writer", () => {
     })
 
     it("will mention if the attack was a critical miss", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 0,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+            }),
+        ]
+
+        const outputStrings: string[] =
+            ActionResultTextService.outputResultForTextOnly({
+                actionTemplateName: longswordSweepAction.name,
+                currentActionEffectSquaddieTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                battleActionSquaddieChanges: damagingResult,
+                squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 0,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                    }),
-                ],
                 actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
@@ -599,15 +560,6 @@ describe("Action Result Text Writer", () => {
                     },
                     actingSquaddieModifiers: [],
                 }),
-            })
-
-        const outputStrings: string[] =
-            ActionResultTextService.outputResultForTextOnly({
-                actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
-                squaddieRepository,
             })
 
         expect(outputStrings).toHaveLength(4)
@@ -618,31 +570,33 @@ describe("Action Result Text Writer", () => {
     })
 
     it("will show the total attack roll and multiple attack penalty", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+            }),
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                battleSquaddieId: rogueDynamic.battleSquaddieId,
+            }),
+        ]
+
+        const outputStrings: string[] =
+            ActionResultTextService.outputResultForTextOnly({
+                actionTemplateName: longswordSweepAction.name,
+                currentActionEffectSquaddieTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                battleActionSquaddieChanges: damagingResult,
+                squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    thiefDynamic.battleSquaddieId,
-                    rogueDynamic.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: rogueDynamic.battleSquaddieId,
-                    }),
-                ],
                 actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: true,
@@ -655,15 +609,6 @@ describe("Action Result Text Writer", () => {
                         }),
                     ],
                 }),
-            })
-
-        const outputStrings: string[] =
-            ActionResultTextService.outputResultForTextOnly({
-                actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
-                squaddieRepository,
             })
 
         expect(outputStrings).toHaveLength(6)
@@ -676,31 +621,33 @@ describe("Action Result Text Writer", () => {
     })
 
     it("will hide the total and attack penalties if no roll was used", () => {
-        const damagingResult: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
+        const damagingResult = [
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                battleSquaddieId: thiefDynamic.battleSquaddieId,
+            }),
+            BattleActionSquaddieChangeService.new({
+                healingReceived: 0,
+                damageExplanation: DamageExplanationService.new({
+                    net: 1,
+                }),
+                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                battleSquaddieId: rogueDynamic.battleSquaddieId,
+            }),
+        ]
+
+        const outputStrings: string[] =
+            ActionResultTextService.outputResultForTextOnly({
+                actionTemplateName: longswordSweepAction.name,
+                currentActionEffectSquaddieTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                battleActionSquaddieChanges: damagingResult,
+                squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                targetedBattleSquaddieIds: [
-                    thiefDynamic.battleSquaddieId,
-                    rogueDynamic.battleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: thiefDynamic.battleSquaddieId,
-                    }),
-                    BattleActionSquaddieChangeService.new({
-                        healingReceived: 0,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: rogueDynamic.battleSquaddieId,
-                    }),
-                ],
                 actingContext: BattleActionActionContextService.new({
                     actingSquaddieRoll: {
                         occurred: false,
@@ -713,15 +660,6 @@ describe("Action Result Text Writer", () => {
                         }),
                     ],
                 }),
-            })
-
-        const outputStrings: string[] =
-            ActionResultTextService.outputResultForTextOnly({
-                actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                result: damagingResult,
-                squaddieRepository,
             })
 
         expect(outputStrings).toHaveLength(3)

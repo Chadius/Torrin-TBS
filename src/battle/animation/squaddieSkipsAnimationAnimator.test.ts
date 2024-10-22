@@ -30,7 +30,6 @@ import {
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
-import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import {
     BattleAction,
     BattleActionService,
@@ -136,16 +135,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
                 monkKoanAction.actionEffectTemplates[0],
             squaddieRepository: objectRepository,
             actionTemplateName: monkKoanAction.name,
-            result: SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId:
-                    monkMeditatesBattleAction.actor.actorBattleSquaddieId,
-                actionContext: monkMeditatesBattleAction.actor.actorContext,
-                targetedBattleSquaddieIds:
-                    monkMeditatesBattleAction.effect.squaddie.map(
-                        (s) => s.battleSquaddieId
-                    ),
-                squaddieChanges: monkMeditatesBattleAction.effect.squaddie,
-            }),
+            actingBattleSquaddieId:
+                monkMeditatesBattleAction.actor.actorBattleSquaddieId,
+            actingContext: monkMeditatesBattleAction.actor.actorContext,
+            battleActionSquaddieChanges:
+                monkMeditatesBattleAction.effect.squaddie,
         })
         expect(drawLabelSpy).toBeCalled()
     })
