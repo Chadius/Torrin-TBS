@@ -34,14 +34,15 @@ import { MissionRewardType } from "../missionResult/missionReward"
 import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { GameModeEnum } from "../../utils/startupConfig"
 import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
-import { FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat } from "../cutscene/missionCutsceneService"
 import { MissionStatisticsService } from "../missionStatistics/missionStatistics"
-import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
+import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattleHUDService } from "../hud/battleHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
+import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
+import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -400,68 +401,108 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     private setNextComponentMode(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         currentComponent: BattleOrchestratorComponent,
         defaultNextMode: BattleOrchestratorMode
     ) {
-        if (state.battleOrchestratorState.cutsceneIdsToPlay.length > 0) {
-            const nextCutsceneId =
-                state.battleOrchestratorState.cutsceneIdsToPlay[0]
-            this.cutscenePlayer.startCutscene(nextCutsceneId, state)
+        if (
+            !CutsceneQueueService.isEmpty(
+                gameEngineState.battleOrchestratorState.cutsceneQueue
+            )
+        ) {
+            this.prepareToPlayNextTriggeredCutscene({
+                cutsceneId: CutsceneQueueService.peek(
+                    gameEngineState.battleOrchestratorState.cutsceneQueue
+                ),
+                cutsceneTrigger:
+                    gameEngineState.battleOrchestratorState.battleState.cutsceneTriggers.find(
+                        (trigger) =>
+                            trigger.cutsceneId ===
+                            CutsceneQueueService.peek(
+                                gameEngineState.battleOrchestratorState
+                                    .cutsceneQueue
+                            )
+                    ),
+                gameEngineState,
+            })
 
-            const nextCutscene =
-                state.battleOrchestratorState.battleState.cutsceneTriggers.find(
-                    (trigger) => trigger.cutsceneId === nextCutsceneId
-                )
-            if (nextCutscene) {
-                nextCutscene.systemReactedToTrigger = true
-            }
-            this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
-
-            state.battleOrchestratorState.cutsceneIdsToPlay =
-                state.battleOrchestratorState.cutsceneIdsToPlay.slice(1)
+            CutsceneQueueService.dequeue(
+                gameEngineState.battleOrchestratorState.cutsceneQueue
+            )
             return
         }
 
         const orchestrationChanges: BattleOrchestratorChanges =
-            currentComponent.recommendStateChanges(state)
-        let cutsceneTriggersToActivate =
-            FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
-                state,
-                this.mode
-            )
+            currentComponent.recommendStateChanges(gameEngineState)
+        this.checkOnMissionCompletion(orchestrationChanges, gameEngineState)
 
-        if (orchestrationChanges.checkMissionObjectives === true) {
-            let completionStatus: BattleCompletionStatus =
-                this.checkMissionCompleteStatus(state)
-            if (completionStatus) {
-                state.battleOrchestratorState.battleState.battleCompletionStatus =
-                    completionStatus
-            }
-        }
-
-        if (
-            state.fileState.loadSaveState.applicationStartedLoad === true &&
-            state.battleOrchestratorState.battleState.battlePhaseState
-                .turnCount === 0
-        ) {
-            cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter(
-                (cutsceneTrigger) =>
-                    cutsceneTrigger.triggeringEvent !==
-                        TriggeringEvent.START_OF_TURN ||
-                    cutsceneTrigger.turn !== 0
-            )
-        }
+        const cutsceneTriggersToActivate =
+            this.getCutsceneTriggersToCalculate(gameEngineState)
 
         if (cutsceneTriggersToActivate.length > 0) {
-            const nextCutscene = cutsceneTriggersToActivate[0]
-            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state)
-            nextCutscene.systemReactedToTrigger = true
-            this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
+            this.prepareToPlayNextTriggeredCutscene({
+                cutsceneTrigger: cutsceneTriggersToActivate[0],
+                cutsceneId: cutsceneTriggersToActivate[0].cutsceneId,
+                gameEngineState,
+            })
             return
         }
 
         this.mode = orchestrationChanges.nextMode || defaultNextMode
+    }
+
+    private checkOnMissionCompletion = (
+        orchestrationChanges: BattleOrchestratorChanges,
+        gameEngineState: GameEngineState
+    ) => {
+        if (orchestrationChanges.checkMissionObjectives === true) {
+            let completionStatus: BattleCompletionStatus =
+                this.checkMissionCompleteStatus(gameEngineState)
+            if (completionStatus) {
+                gameEngineState.battleOrchestratorState.battleState.battleCompletionStatus =
+                    completionStatus
+            }
+        }
+    }
+
+    private getCutsceneTriggersToCalculate = (
+        gameEngineState: GameEngineState
+    ) => {
+        return [
+            ...MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+                {
+                    gameEngineState,
+                    battleOrchestratorModeThatJustCompleted: this.mode,
+                    ignoreTurn0Triggers:
+                        gameEngineState.fileState.loadSaveState
+                            .applicationStartedLoad === true &&
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battlePhaseState.turnCount === 0,
+                }
+            ),
+            ...MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                gameEngineState,
+                this.mode
+            ),
+        ]
+    }
+
+    private prepareToPlayNextTriggeredCutscene = ({
+        cutsceneId,
+        cutsceneTrigger,
+        gameEngineState,
+    }: {
+        cutsceneId: string
+        cutsceneTrigger: CutsceneTrigger
+        gameEngineState: GameEngineState
+    }) => {
+        this.cutscenePlayer.startCutscene(cutsceneId, gameEngineState)
+
+        if (cutsceneTrigger !== undefined) {
+            cutsceneTrigger.systemReactedToTrigger = true
+        }
+
+        this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER
     }
 
     private checkMissionCompleteStatus(

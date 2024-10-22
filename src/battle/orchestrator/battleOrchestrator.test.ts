@@ -49,6 +49,7 @@ import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -474,8 +475,10 @@ describe("Battle Orchestrator", () => {
         expect(cutsceneSpy).toBeCalledTimes(1)
         expect(cutsceneSpy).toBeCalledWith("cutscene0", stateWithCutscene)
         expect(
-            stateWithCutscene.battleOrchestratorState.cutsceneIdsToPlay
-        ).toEqual(["cutscene1"])
+            CutsceneQueueService.peek(
+                stateWithCutscene.battleOrchestratorState.cutsceneQueue
+            )
+        ).toEqual("cutscene1")
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
         expect(orchestrator.getCurrentMode()).toBe(
@@ -484,8 +487,10 @@ describe("Battle Orchestrator", () => {
         expect(cutsceneSpy).toBeCalledTimes(2)
         expect(cutsceneSpy).toBeCalledWith("cutscene1", stateWithCutscene)
         expect(
-            stateWithCutscene.battleOrchestratorState.cutsceneIdsToPlay
-        ).toHaveLength(0)
+            CutsceneQueueService.isEmpty(
+                stateWithCutscene.battleOrchestratorState.cutsceneQueue
+            )
+        ).toBeTruthy()
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
         expect(orchestrator.getCurrentMode()).not.toBe(

@@ -7,13 +7,17 @@ import { getValidValueOrDefault } from "../../utils/validityCheck"
 import { BattleHUDState, BattleHUDStateService } from "../hud/battleHUDState"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { BattleHUD, BattleHUDService, PopupWindowType } from "../hud/battleHUD"
+import {
+    CutsceneIdQueue,
+    CutsceneQueueService,
+} from "../cutscene/cutsceneIdQueue"
 
 export class BattleOrchestratorState {
     battleHUD: BattleHUD
     numberGenerator: NumberGeneratorStrategy
     battleState: BattleState
     battleHUDState: BattleHUDState
-    cutsceneIdsToPlay: string[]
+    cutsceneQueue: CutsceneIdQueue
 
     constructor({
         numberGenerator,
@@ -38,7 +42,11 @@ export class BattleOrchestratorState {
             battleHUDState,
             BattleHUDStateService.new({})
         )
-        this.cutsceneIdsToPlay = cutsceneIdsToPlay || []
+        this.cutsceneQueue = CutsceneQueueService.new()
+        CutsceneQueueService.addList(
+            this.cutsceneQueue,
+            cutsceneIdsToPlay || []
+        )
     }
 
     get isValid(): boolean {
