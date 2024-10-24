@@ -53,6 +53,10 @@ import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import {
+    WARNING_POPUP_TEXT_SIZE,
+    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+} from "../hud/battleHUD"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -966,12 +970,17 @@ describe("Player Selection Service", () => {
                         context,
                     })
 
+                const reason = "ENEMY is out of range"
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: "ENEMY is out of range",
+                    reason,
                     selectionLocation: { x, y },
                     coordinateSystem: CoordinateSystem.WORLD,
+                    width:
+                        reason.length *
+                        WARNING_POPUP_TEXT_SIZE *
+                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
                 }
 
                 expect(
@@ -1265,12 +1274,17 @@ describe("Player Selection Service", () => {
                         context: actualContext,
                     })
 
+                const reason = "PLAYER is out of range"
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: "PLAYER is out of range",
+                    reason,
                     selectionLocation: { x, y },
                     coordinateSystem: CoordinateSystem.WORLD,
+                    width:
+                        reason.length *
+                        WARNING_POPUP_TEXT_SIZE *
+                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
                 }
 
                 expect(

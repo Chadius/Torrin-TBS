@@ -95,6 +95,8 @@ export interface MessageBoardMessagePlayerSelectionIsInvalid {
         y: number
     }
     coordinateSystem: CoordinateSystem
+    width?: number
+    height?: number
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {

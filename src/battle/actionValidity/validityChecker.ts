@@ -1,6 +1,7 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionCheckResult, ActionPointCheck } from "./actionPointCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { BuffSelfCheck } from "./buffSelfCheck"
 
 export type ActionValidityStatus = {
     disabled: boolean
@@ -50,16 +51,27 @@ export const ValidityCheckService = {
                     messages: [],
                 }
 
-                const actionPointCheckResult = ActionPointCheck.canAfford({
-                    battleSquaddie,
-                    objectRepository,
-                    actionTemplateId,
+                const actionCheckResults: ActionCheckResult[] = [
+                    ActionPointCheck.canAfford({
+                        battleSquaddie,
+                        objectRepository,
+                        actionTemplateId,
+                    }),
+                    BuffSelfCheck.willBuffUser({
+                        battleSquaddie,
+                        objectRepository,
+                        actionTemplateId,
+                        squaddieTemplate,
+                    }),
+                ]
+
+                actionCheckResults.forEach((result) => {
+                    overallStatus[actionTemplateId] = updateActionStatus(
+                        overallStatus[actionTemplateId],
+                        result,
+                        true
+                    )
                 })
-                overallStatus[actionTemplateId] = updateActionStatus(
-                    overallStatus[actionTemplateId],
-                    actionPointCheckResult,
-                    true
-                )
             }
         )
 

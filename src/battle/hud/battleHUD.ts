@@ -98,6 +98,9 @@ export interface BattleHUD {
     }
 }
 
+export const WARNING_POPUP_TEXT_SIZE = 16
+export const WARNING_POPUP_TEXT_WIDTH_MULTIPLIER = 0.5
+
 const warningPopupConstants: {
     width: number
     label: {
@@ -109,7 +112,7 @@ const warningPopupConstants: {
     height: number
 } = {
     label: {
-        textSize: 16,
+        textSize: WARNING_POPUP_TEXT_SIZE,
         fontColor: [245, 20, 90],
         fillColor: [60, 40, 10],
         vertAlign: VERTICAL_ALIGN.CENTER,
@@ -159,7 +162,7 @@ export const BattleHUDService = {
         let gameEngineState = message.gameEngineState
 
         let { popupText, labelArea, camera } =
-            calculatePlayerInvalidSelectionPopup(gameEngineState, message)
+            calculatePlayerInvalidSelectionPopup({ gameEngineState, message })
 
         const invalidSelectionPopupWindow: PopupWindow = PopupWindowService.new(
             {
@@ -1000,10 +1003,13 @@ export class BattleHUDListener implements MessageBoardListener {
     }
 }
 
-const calculatePlayerInvalidSelectionPopup = (
-    gameEngineState: GameEngineState,
+const calculatePlayerInvalidSelectionPopup = ({
+    gameEngineState,
+    message,
+}: {
+    gameEngineState: GameEngineState
     message: MessageBoardMessagePlayerSelectionIsInvalid
-) => {
+}) => {
     let left: number
     let top: number
 
@@ -1026,8 +1032,8 @@ const calculatePlayerInvalidSelectionPopup = (
     let labelArea = RectAreaService.new({
         left,
         top,
-        width: warningPopupConstants.width,
-        height: warningPopupConstants.height,
+        width: message.width ?? warningPopupConstants.width,
+        height: message.height ?? warningPopupConstants.height,
     })
     return {
         popupText: message.reason,

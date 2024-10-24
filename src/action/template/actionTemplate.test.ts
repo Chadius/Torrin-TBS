@@ -230,4 +230,77 @@ describe("ActionTemplate", () => {
             ])
         })
     })
+
+    describe("knows when an action template can heal", () => {
+        it("returns true when the action can heal", () => {
+            const healSelf = ActionTemplateService.new({
+                id: "healSelf",
+                name: "healSelf",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGET_SELF]: true,
+                        }),
+                        healingDescriptions: {
+                            [HealingType.LOST_HIT_POINTS]: 1,
+                        },
+                    }),
+                ],
+            })
+
+            expect(
+                ActionTemplateService.doesActionTemplateHeal(healSelf)
+            ).toBeTruthy()
+        })
+        it("returns false when the action cannot heal", () => {
+            const hurtOthers = ActionTemplateService.new({
+                id: "healOthers",
+                name: "healOthers",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGET_FOE]: true,
+                        }),
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            expect(
+                ActionTemplateService.doesActionTemplateHeal(hurtOthers)
+            ).toBeFalsy()
+        })
+    })
+
+    it("can get all action templates", () => {
+        const healSelf = ActionEffectSquaddieTemplateService.new({
+            traits: TraitStatusStorageService.newUsingTraitValues({
+                [Trait.TARGET_SELF]: true,
+            }),
+            healingDescriptions: {
+                [HealingType.LOST_HIT_POINTS]: 1,
+            },
+        })
+        const hurtOthers = ActionEffectSquaddieTemplateService.new({
+            traits: TraitStatusStorageService.newUsingTraitValues({
+                [Trait.TARGET_FOE]: true,
+            }),
+            damageDescriptions: {
+                [DamageType.BODY]: 2,
+            },
+        })
+
+        const hurtOthersAndHealSelf = ActionTemplateService.new({
+            id: "hurtOthersAndHealSelf",
+            name: "hurtOthersAndHealSelf",
+            actionEffectTemplates: [hurtOthers, healSelf],
+        })
+
+        expect(
+            ActionTemplateService.getActionEffectSquaddieTemplates(
+                hurtOthersAndHealSelf
+            )
+        ).toEqual([hurtOthers, healSelf])
+    })
 })

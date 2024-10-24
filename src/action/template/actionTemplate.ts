@@ -197,6 +197,12 @@ export const ActionTemplateService = {
                 .flat() || []
         )
     },
+    getActionEffectSquaddieTemplates: (
+        actionTemplate: ActionTemplate
+    ): ActionEffectSquaddieTemplate[] =>
+        getActionEffectSquaddieTemplates(actionTemplate),
+    doesActionTemplateHeal: (actionTemplate: ActionTemplate): boolean =>
+        doesActionTemplateHeal(actionTemplate),
 }
 
 const sanitize = (template: ActionTemplate): ActionTemplate => {
@@ -231,4 +237,28 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
         }
     })
     return template
+}
+
+const getActionEffectSquaddieTemplates = (
+    actionTemplate: ActionTemplate
+): ActionEffectSquaddieTemplate[] =>
+    actionTemplate.actionEffectTemplates
+        .filter(
+            (actionEffectTemplate) =>
+                actionEffectTemplate.type === ActionEffectType.SQUADDIE
+        )
+        .map(
+            (actionEffectTemplate) =>
+                actionEffectTemplate as ActionEffectSquaddieTemplate
+        )
+
+const doesActionTemplateHeal = (actionTemplate: ActionTemplate): boolean => {
+    const actionEffectSquaddieTemplates =
+        getActionEffectSquaddieTemplates(actionTemplate)
+
+    return actionEffectSquaddieTemplates.some(
+        (actionEffectSquaddieTemplate) =>
+            actionEffectSquaddieTemplate.healingDescriptions?.LOST_HIT_POINTS >
+            0
+    )
 }

@@ -37,6 +37,10 @@ import {
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
+import {
+    WARNING_POPUP_TEXT_SIZE,
+    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+} from "../hud/battleHUD"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -460,15 +464,20 @@ export const PlayerSelectionService = {
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
             case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
+                const reason = `${targetSquaddieTemplate.squaddieId.name} is out of range`
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
+                    reason,
                     selectionLocation: {
                         x: context.mouseClick.x,
                         y: context.mouseClick.y,
                     },
                     coordinateSystem: CoordinateSystem.WORLD,
+                    width:
+                        reason.length *
+                        WARNING_POPUP_TEXT_SIZE *
+                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

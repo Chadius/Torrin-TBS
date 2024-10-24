@@ -26,7 +26,12 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { BattleHUDService, PopupWindowType } from "./battleHUD"
+import {
+    BattleHUDService,
+    PopupWindowType,
+    WARNING_POPUP_TEXT_SIZE,
+    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+} from "./battleHUD"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -280,6 +285,10 @@ export const PlayerCommandStateService = {
                             WINDOW_SPACING.SPACING1,
                     },
                     coordinateSystem: CoordinateSystem.SCREEN,
+                    width:
+                        button.popupMessage.length *
+                        WARNING_POPUP_TEXT_SIZE *
+                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
                 })
             }
         }

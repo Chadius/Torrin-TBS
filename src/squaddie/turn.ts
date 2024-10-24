@@ -7,6 +7,7 @@ export const DEFAULT_ACTION_POINTS_PER_TURN = 3
 export enum ActionPerformFailureReason {
     UNKNOWN = "UNKNOWN",
     TOO_FEW_ACTIONS_REMAINING = "TOO_FEW_ACTIONS_REMAINING",
+    BUFF_HAS_NO_EFFECT = "BUFF_HAS_NO_EFFECT",
 }
 
 export interface SquaddieTurn {
