@@ -182,4 +182,44 @@ describe("BattleOrchestratorStateSubstitution", () => {
             `How much healing did the player team receive? 1024`
         )
     })
+
+    it("can substitute critical hits dealt by player team", () => {
+        const battleState = BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionStatistics: {
+                    ...MissionStatisticsService.new({}),
+                    criticalHitsDealtByPlayerTeam: 3,
+                },
+            }),
+        })
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How many critical hits did the player team deal? $$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM",
+            battleState
+        )
+        expect(newText).toBe(
+            `How many critical hits did the player team deal? 3`
+        )
+    })
+
+    it("can substitute critical hits taken by player team", () => {
+        const battleState = BattleOrchestratorStateService.new({
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                campaignId: "test campaign",
+                missionStatistics: {
+                    ...MissionStatisticsService.new({}),
+                    criticalHitsTakenByPlayerTeam: 11,
+                },
+            }),
+        })
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How many critical hits did the player team take? $$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM",
+            battleState
+        )
+        expect(newText).toBe(
+            `How many critical hits did the player team take? 11`
+        )
+    })
 })

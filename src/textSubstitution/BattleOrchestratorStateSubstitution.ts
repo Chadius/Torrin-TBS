@@ -91,6 +91,24 @@ const substitutions: BattleOrchestratorStateSubstitution[] = [
                 ? `${state.battleState.missionStatistics.healingReceivedByPlayerTeam}`
                 : "MISSING MISSION STATISTICS",
     },
+    {
+        name: "Critical hits taken by player team",
+        token: "$$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM",
+        description: "How many times did the player team take a critical hit?",
+        substitute: (state: BattleOrchestratorState) =>
+            state.battleState.missionStatistics
+                ? `${state.battleState.missionStatistics.criticalHitsTakenByPlayerTeam}`
+                : "MISSING MISSION STATISTICS",
+    },
+    {
+        name: "Critical hits dealt by player team",
+        token: "$$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM",
+        description: "How many times did the player team deal a critical hit?",
+        substitute: (state: BattleOrchestratorState) =>
+            state.battleState.missionStatistics
+                ? `${state.battleState.missionStatistics.criticalHitsDealtByPlayerTeam}`
+                : "MISSING MISSION STATISTICS",
+    },
 ]
 
 export const SubstituteTextUsingBattleOrchestraState = (

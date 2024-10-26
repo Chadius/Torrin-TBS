@@ -150,6 +150,13 @@
             "speakerName": "Mission Report",
             "dialogueText": "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
             "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "victory_report_2",
+            "speakerName": "Mission Report",
+            "dialogueText": "Critical Hits Dealt: $$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM\nCritical Hits Taken: $$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM",
+            "animationDuration": 0
           }
         ]
       },

@@ -34,8 +34,10 @@ import { CalculatorMiscellaneous } from "./miscellaneous"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecisionStep"
 import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
-import { ActionTemplate } from "../../../action/template/actionTemplate"
-import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../action/template/actionTemplate"
 import { BattleActionActionContext } from "../../history/battleAction/battleActionActionContext"
 
 export interface CalculatedEffect {
@@ -97,9 +99,9 @@ const calculateResults = ({
         )
 
     const actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate =
-        actionTemplate.actionEffectTemplates.find(
-            (t) => t.type === ActionEffectType.SQUADDIE
-        ) as ActionEffectSquaddieTemplate
+        ActionTemplateService.getActionEffectSquaddieTemplates(
+            actionTemplate
+        )[0]
 
     const actionContext = getActorContext({
         gameEngineState,
@@ -362,6 +364,13 @@ const maybeUpdateMissionStatistics = ({
                 .missionStatistics,
             result.damage.absorbed
         )
+
+        if (result.actorDegreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
+            MissionStatisticsService.incrementCriticalHitsTakenByPlayerTeam(
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics
+            )
+        }
     }
 
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
@@ -379,6 +388,13 @@ const maybeUpdateMissionStatistics = ({
                 .missionStatistics,
             damageDealt
         )
+
+        if (result.actorDegreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
+            MissionStatisticsService.incrementCriticalHitsDealtByPlayerTeam(
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics
+            )
+        }
     }
 }
 

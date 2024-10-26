@@ -958,6 +958,58 @@ describe("calculator", () => {
             expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
+        it("will increment the number of critical hits dealt by the player squaddies in the mission statistics", () => {
+            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    enemy1DynamicId
+                )
+            )
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001
+
+            const expectedRolls: number[] = [6, 6]
+            const numberGenerator: StreamNumberGenerator =
+                new StreamNumberGenerator({ results: expectedRolls })
+
+            const missionStatistics: MissionStatistics =
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
+
+            dealBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+                missionStatistics,
+            })
+
+            expect(missionStatistics.criticalHitsDealtByPlayerTeam).toBe(1)
+        })
+
+        it("will increment the number of critical hits taken by the player squaddies in the mission statistics", () => {
+            player1BattleSquaddie.inBattleAttributes.armyAttributes.armorClass = 9001
+
+            const expectedRolls: number[] = [6, 6]
+            const numberGenerator: StreamNumberGenerator =
+                new StreamNumberGenerator({ results: expectedRolls })
+
+            const missionStatistics: MissionStatistics =
+                MissionStatisticsService.new({})
+            MissionStatisticsService.reset(missionStatistics)
+            MissionStatisticsService.startRecording(missionStatistics)
+
+            dealBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+                actingBattleSquaddie: enemy1BattleSquaddie,
+                validTargetLocation: { q: 0, r: 0 },
+                numberGenerator,
+                missionStatistics,
+            })
+
+            expect(missionStatistics.criticalHitsTakenByPlayerTeam).toBe(1)
+        })
+
         it("cannot critically hit if the action is forbidden from critically succeeding", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
