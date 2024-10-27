@@ -108,10 +108,10 @@ describe("battleMapDisplay", () => {
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             battleMapDisplay.draw(state, mockedP5GraphicsContext)
-            expect(camera.getCoordinates()[0]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 (initialCameraCoordinates[0] + destinationCoordinates[0]) / 2
             )
-            expect(camera.getCoordinates()[1]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 (initialCameraCoordinates[1] + destinationCoordinates[1]) / 2
             )
 
@@ -125,10 +125,10 @@ describe("battleMapDisplay", () => {
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
             battleMapDisplay.draw(state, mockedP5GraphicsContext)
-            expect(camera.getCoordinates()[0]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 destinationCoordinates[0]
             )
-            expect(camera.getCoordinates()[1]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 destinationCoordinates[1]
             )
         })
@@ -166,28 +166,28 @@ describe("battleMapDisplay", () => {
                 mouseX: 0,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[0] < 0,
+                    camera.getVelocity().xVelocity < 0,
             },
             {
                 cameraDescription: "move right",
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[0] > 0,
+                    camera.getVelocity().xVelocity > 0,
             },
             {
                 cameraDescription: "move up",
                 mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
                 mouseY: 0,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[1] < 0,
+                    camera.getVelocity().yVelocity < 0,
             },
             {
                 cameraDescription: "move down",
                 mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[1] > 0,
+                    camera.getVelocity().yVelocity > 0,
             },
         ]
 
@@ -239,7 +239,9 @@ describe("battleMapDisplay", () => {
             ScreenDimensions.SCREEN_WIDTH / 2,
             ScreenDimensions.SCREEN_HEIGHT
         )
-        expect(stateWithOpenedHUD.battleState.camera.getVelocity()[1]).toBe(0)
+        expect(
+            stateWithOpenedHUD.battleState.camera.getVelocity().yVelocity
+        ).toBe(0)
         expect(mouseHoverSpy).toBeCalled()
         mouseHoverSpy.mockRestore()
     })
@@ -264,19 +266,19 @@ describe("battleMapDisplay", () => {
                 cameraDescription: "move left",
                 mouseX: 0,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[0] < 0,
+                    camera.getVelocity().xVelocity < 0,
             },
             {
                 cameraDescription: "move right",
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[0] > 0,
+                    camera.getVelocity().xVelocity > 0,
             },
             {
                 cameraDescription: "not move",
                 mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
                 cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity()[0] === 0,
+                    camera.getVelocity().xVelocity === 0,
             },
         ]
 

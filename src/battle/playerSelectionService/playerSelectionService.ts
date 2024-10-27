@@ -319,8 +319,7 @@ export const PlayerSelectionService = {
                   {
                       screenX: context.mouseClick.x,
                       screenY: context.mouseClick.y,
-                      camera: gameEngineState.battleOrchestratorState
-                          .battleState.camera,
+                      ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                   }
               )
             : { q: 0, r: 0 }
@@ -621,7 +620,7 @@ const getClickedOnLocation = ({
         ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
             screenX: screenCoordinate.x,
             screenY: screenCoordinate.y,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
     return { q, r }

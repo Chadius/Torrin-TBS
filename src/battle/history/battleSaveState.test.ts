@@ -306,8 +306,7 @@ describe("BattleSaveState", () => {
         })
         const newCameraCoordinates =
             newBattleState.battleState.camera.getCoordinates()
-        expect(newCameraCoordinates[0]).toBe(100)
-        expect(newCameraCoordinates[1]).toBe(200)
+        expect(newCameraCoordinates).toEqual({ cameraX: 100, cameraY: 200 })
         expect(
             newBattleState.battleState.camera.mapDimensionBoundaries
         ).toEqual(

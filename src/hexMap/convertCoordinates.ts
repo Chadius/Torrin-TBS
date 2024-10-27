@@ -1,4 +1,4 @@
-import { HEX_TILE_WIDTH } from "../graphicsConstants"
+import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import { BattleCamera } from "../battle/battleCamera"
@@ -10,27 +10,21 @@ export const ConvertCoordinateService = {
         r,
         cameraX,
         cameraY,
-        camera,
     }: {
         q: number
         r: number
-        cameraX?: number
-        cameraY?: number
-        camera?: BattleCamera
-    }): { x: number; y: number } => {
-        if (isValidValue(camera)) {
-            ;({ cameraX, cameraY } = camera.getCoordinatesAsObject())
-        }
-
-        const [screenX, screenY] = convertMapCoordinatesToScreenCoordinates(
+        cameraX: number
+        cameraY: number
+    }): { screenX: number; screenY: number } => {
+        const { screenX, screenY } = convertMapCoordinatesToScreenCoordinates(
             q,
             r,
             cameraX,
             cameraY
         )
         return {
-            x: screenX,
-            y: screenY,
+            screenX,
+            screenY,
         }
     },
     convertScreenCoordinatesToMapCoordinates: ({
@@ -38,19 +32,13 @@ export const ConvertCoordinateService = {
         screenY,
         cameraX,
         cameraY,
-        camera,
     }: {
         screenX: number
         screenY: number
-        cameraX?: number
-        cameraY?: number
-        camera?: BattleCamera
+        cameraX: number
+        cameraY: number
     }): HexCoordinate => {
-        if (isValidValue(camera)) {
-            ;({ cameraX, cameraY } = camera.getCoordinatesAsObject())
-        }
-
-        const [q, r] = convertScreenCoordinatesToMapCoordinates(
+        const { q, r } = convertScreenCoordinatesToMapCoordinates(
             screenX,
             screenY,
             cameraX,
@@ -64,80 +52,121 @@ export const ConvertCoordinateService = {
     convertMapCoordinatesToWorldCoordinates: (
         q: number,
         r: number
-    ): [number, number] => {
-        const y = (q * Math.sqrt(3)) / 2
+    ): { worldX: number; worldY: number } => {
         const x = r + q / 2
-        return [x * HEX_TILE_WIDTH, y * HEX_TILE_WIDTH]
+        return {
+            worldX: x * HEX_TILE_WIDTH,
+            worldY: (3 * q * HEX_TILE_RADIUS) / 2,
+        }
     },
+    convertScreenCoordinatesToWorldCoordinates: ({
+        screenX,
+        screenY,
+        cameraX,
+        cameraY,
+    }: {
+        screenX: number
+        screenY: number
+        cameraX: number
+        cameraY: number
+    }): { worldX: number; worldY: number } =>
+        convertScreenCoordinatesToWorldCoordinates(
+            screenX,
+            screenY,
+            cameraX,
+            cameraY
+        ),
+    convertWorldCoordinatesToMapCoordinates: (
+        worldX: number,
+        worldY: number,
+        round: boolean = true
+    ): { q: number; r: number } =>
+        convertWorldCoordinatesToMapCoordinates(worldX, worldY, round),
+    convertWorldCoordinatesToScreenCoordinates: ({
+        worldX,
+        worldY,
+        cameraX,
+        cameraY,
+    }: {
+        worldX: number
+        worldY: number
+        cameraX: number
+        cameraY: number
+    }): { screenX: number; screenY: number } =>
+        convertWorldCoordinatesToScreenCoordinates({
+            worldX,
+            worldY,
+            cameraX,
+            cameraY,
+        }),
 }
 
-export const convertWorldCoordinatesToMapCoordinates = (
+const convertWorldCoordinatesToMapCoordinates = (
     worldX: number,
     worldY: number,
     round: boolean = true
-): [number, number] => {
-    const xScaled = worldX / HEX_TILE_WIDTH
-    const yScaled = worldY / HEX_TILE_WIDTH
-
-    // q = 2 * yScaled / sqrt(3)
-    const q = yScaled * 1.154
-
-    // r = x - (y / sqrt(3))
-    const r = xScaled - yScaled / 1.732
+): { q: number; r: number } => {
+    const q = (2 * worldY) / (3 * HEX_TILE_RADIUS)
+    const r = (worldX * Math.sqrt(3) - worldY) / (3 * HEX_TILE_RADIUS)
 
     if (round) {
-        return [Math.round(q), Math.round(r)]
+        return { q: Math.round(q), r: Math.round(r) }
     }
-    return [q, r]
+    return { q, r }
 }
 
-export const convertWorldCoordinatesToScreenCoordinates = (
-    worldX: number,
-    worldY: number,
-    cameraX: number,
+const convertWorldCoordinatesToScreenCoordinates = ({
+    worldX,
+    worldY,
+    cameraX,
+    cameraY,
+}: {
+    worldX: number
+    worldY: number
+    cameraX: number
     cameraY: number
-): [number, number] => {
+}): { screenX: number; screenY: number } => {
     const screenX: number = worldX - cameraX + ScreenDimensions.SCREEN_WIDTH / 2
     const screenY: number =
         worldY - cameraY + ScreenDimensions.SCREEN_HEIGHT / 2
 
-    return [screenX, screenY]
+    return { screenX, screenY }
 }
 
-export const convertScreenCoordinatesToWorldCoordinates = (
+const convertScreenCoordinatesToWorldCoordinates = (
     screenX: number,
     screenY: number,
     cameraX: number,
     cameraY: number
-): [number, number] => {
+): { worldX: number; worldY: number } => {
     const worldX = screenX - ScreenDimensions.SCREEN_WIDTH / 2 + cameraX
     const worldY = screenY - ScreenDimensions.SCREEN_HEIGHT / 2 + cameraY
 
-    return [worldX, worldY]
+    return { worldX, worldY }
 }
 
-export const convertMapCoordinatesToScreenCoordinates = (
+const convertMapCoordinatesToScreenCoordinates = (
     q: number,
     r: number,
     cameraX: number,
     cameraY: number
-): [number, number] => {
+): { screenX: number; screenY: number } => {
     const worldCoordinates =
         ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(q, r)
-    return convertWorldCoordinatesToScreenCoordinates(
+    return convertWorldCoordinatesToScreenCoordinates({
         ...worldCoordinates,
         cameraX,
-        cameraY
-    )
+        cameraY,
+    })
 }
 
-export const convertScreenCoordinatesToMapCoordinates = (
+const convertScreenCoordinatesToMapCoordinates = (
     screenX: number,
     screenY: number,
     cameraX: number,
     cameraY: number
-): [number, number] => {
-    const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(
+): { q: number; r: number } => {
+    const { worldX, worldY } = convertScreenCoordinatesToWorldCoordinates(
         screenX,
         screenY,
         cameraX,

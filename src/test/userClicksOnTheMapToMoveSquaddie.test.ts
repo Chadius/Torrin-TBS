@@ -34,7 +34,7 @@ import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../squaddie/movement"
@@ -428,11 +428,12 @@ const selectorAndHUDClickOnSquaddie = (
     battleSquaddieId: string,
     gameEngineState: GameEngineState
 ) => {
-    let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-        0,
-        0,
-        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-    )
+    let { screenX: mouseX, screenY: mouseY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: 0,
+            r: 0,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,
@@ -459,11 +460,12 @@ const selectorClicksOnMapLocation = (
     q: number,
     r: number
 ) => {
-    let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-        q,
-        r,
-        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-    )
+    let { screenX: mouseX, screenY: mouseY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q,
+            r,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,

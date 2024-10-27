@@ -6,10 +6,7 @@ import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
-import {
-    ConvertCoordinateService,
-    convertMapCoordinatesToScreenCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"
 import { MessageBoardMessageStartedPlayerPhase } from "../../message/messageBoardMessage"
@@ -53,14 +50,17 @@ export const PlayerPhaseService = {
             )
         if (MissionMapSquaddieLocationService.isValid(mapDatum)) {
             const squaddieScreenLocation =
-                convertMapCoordinatesToScreenCoordinates(
-                    mapDatum.mapLocation.q,
-                    mapDatum.mapLocation.r,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: mapDatum.mapLocation.q,
+                        r: mapDatum.mapLocation.r,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    }
                 )
             if (
                 GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(
-                    ...squaddieScreenLocation
+                    squaddieScreenLocation.screenX,
+                    squaddieScreenLocation.screenY
                 )
             ) {
                 return
@@ -72,8 +72,8 @@ export const PlayerPhaseService = {
                     mapDatum.mapLocation.r
                 )
             gameEngineState.battleOrchestratorState.battleState.camera.pan({
-                xDestination: squaddieWorldLocation[0],
-                yDestination: squaddieWorldLocation[1],
+                xDestination: squaddieWorldLocation.worldX,
+                yDestination: squaddieWorldLocation.worldY,
                 timeToPan: BANNER_ANIMATION_TIME - 500,
                 respectConstraints: true,
             })

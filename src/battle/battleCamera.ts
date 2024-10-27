@@ -59,16 +59,12 @@ export class BattleCamera {
         this.yVelocity = vel
     }
 
-    getCoordinates(): [number, number] {
-        return [this.xCoord, this.yCoord]
-    }
-
-    getCoordinatesAsObject(): { cameraX: number; cameraY: number } {
+    getCoordinates(): { cameraX: number; cameraY: number } {
         return { cameraX: this.xCoord, cameraY: this.yCoord }
     }
 
-    getVelocity(): [number, number] {
-        return [this.xVelocity, this.yVelocity]
+    getVelocity(): { xVelocity: number; yVelocity: number } {
+        return { xVelocity: this.xVelocity, yVelocity: this.yVelocity }
     }
 
     moveCamera() {
@@ -114,12 +110,12 @@ export class BattleCamera {
             worldLocationOfEndOfLastRow,
         } = this.getCameraBoundaries()
         const mapVerticallyFitsOnScreen =
-            worldLocationOfStartOfFirstRow[1] >= 0 &&
-            worldLocationOfEndOfLastRow[1] <= ScreenDimensions.SCREEN_HEIGHT
+            worldLocationOfStartOfFirstRow.worldY >= 0 &&
+            worldLocationOfEndOfLastRow.worldY <= ScreenDimensions.SCREEN_HEIGHT
         if (mapVerticallyFitsOnScreen) {
             this.yCoord =
-                (worldLocationOfStartOfFirstRow[1] +
-                    worldLocationOfEndOfLastRow[1]) /
+                (worldLocationOfStartOfFirstRow.worldY +
+                    worldLocationOfEndOfLastRow.worldY) /
                 2
             this.setYVelocity(0)
             return
@@ -148,12 +144,12 @@ export class BattleCamera {
             worldLocationOfEndOfLastRow,
         } = this.getCameraBoundaries()
         const doesMapFitHorizontallyOnScreen =
-            worldLocationOfStartOfFirstRow[0] >= 0 &&
-            worldLocationOfEndOfLastRow[0] <= ScreenDimensions.SCREEN_WIDTH
+            worldLocationOfStartOfFirstRow.worldX >= 0 &&
+            worldLocationOfEndOfLastRow.worldX <= ScreenDimensions.SCREEN_WIDTH
         if (doesMapFitHorizontallyOnScreen) {
             this.xCoord =
-                (worldLocationOfStartOfFirstRow[0] +
-                    worldLocationOfEndOfLastRow[0]) /
+                (worldLocationOfStartOfFirstRow.worldX +
+                    worldLocationOfEndOfLastRow.worldX) /
                 2
             this.setXVelocity(0)
             return
@@ -282,8 +278,8 @@ export class BattleCamera {
 
     private getCameraBoundaries(): {
         coordinateLimits: RectArea
-        worldLocationOfStartOfFirstRow: [number, number]
-        worldLocationOfEndOfLastRow: [number, number]
+        worldLocationOfStartOfFirstRow: { worldX: number; worldY: number }
+        worldLocationOfEndOfLastRow: { worldX: number; worldY: number }
     } {
         if (!this.mapDimensionBoundaries) {
             return {
@@ -293,20 +289,20 @@ export class BattleCamera {
                     right: 0,
                     bottom: 0,
                 }),
-                worldLocationOfStartOfFirstRow: [0, 0],
-                worldLocationOfEndOfLastRow: [0, 0],
+                worldLocationOfStartOfFirstRow: { worldX: 0, worldY: 0 },
+                worldLocationOfEndOfLastRow: { worldX: 0, worldY: 0 },
             }
         }
 
         const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10
         const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10
 
-        const worldLocationOfStartOfFirstRow: [number, number] =
+        const worldLocationOfStartOfFirstRow =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 0,
                 0
             )
-        const worldLocationOfEndOfLastRow: [number, number] =
+        const worldLocationOfEndOfLastRow =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 this.mapDimensionBoundaries.numberOfRows,
                 this.mapDimensionBoundaries.widthOfWidestRow
@@ -315,14 +311,16 @@ export class BattleCamera {
         return {
             coordinateLimits: RectAreaService.new({
                 left:
-                    worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
-                right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
+                    worldLocationOfStartOfFirstRow.worldX +
+                    horizontalCameraBuffer,
+                right:
+                    worldLocationOfEndOfLastRow.worldX - horizontalCameraBuffer,
                 top:
-                    worldLocationOfStartOfFirstRow[1] -
+                    worldLocationOfStartOfFirstRow.worldY -
                     verticalCameraBuffer +
                     ScreenDimensions.SCREEN_HEIGHT / 2,
                 bottom:
-                    worldLocationOfEndOfLastRow[1] +
+                    worldLocationOfEndOfLastRow.worldY +
                     verticalCameraBuffer -
                     ScreenDimensions.SCREEN_HEIGHT / 2,
             }),

@@ -1,5 +1,5 @@
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
-import { HEX_TILE_WIDTH } from "../graphicsConstants"
+import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { HexGridMovementCost } from "./hexGridMovementCost"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { MouseButton } from "../utils/mouseConfig"
@@ -38,7 +38,7 @@ describe("Terrain Tile Map", () => {
 
         const tests = [
             { q: 0, r: 0 },
-            { q: 1, r: -0 },
+            { q: 1, r: 0 },
             { q: 2, r: 0 },
             { q: 0, r: 1 },
             { q: 1, r: 1 },
@@ -59,7 +59,7 @@ describe("Terrain Tile Map", () => {
                         HEX_TILE_WIDTH * (r + q * 0.5),
                     mouseY:
                         ScreenDimensions.SCREEN_HEIGHT / 2 +
-                        q * 0.866 * HEX_TILE_WIDTH,
+                        (q * 3 * HEX_TILE_RADIUS) / 2,
                     cameraX: 0,
                     cameraY: 0,
                 })
@@ -372,7 +372,10 @@ describe("Terrain Tile Map", () => {
                     1,
                     1
                 )
-            const camera = new BattleCamera(centerOfMap[0], centerOfMap[1])
+            const camera = new BattleCamera(
+                centerOfMap.worldX,
+                centerOfMap.worldY
+            )
             expect(
                 TerrainTileMapService.isLocationOnScreen({
                     terrainTileMap: map,
@@ -478,8 +481,8 @@ describe("Terrain Tile Map", () => {
                     1
                 )
             const camera = new BattleCamera(
-                centerOfMap[0],
-                centerOfMap[1] +
+                centerOfMap.worldX,
+                centerOfMap.worldY +
                     ScreenDimensions.SCREEN_HEIGHT / 2 +
                     HEX_TILE_WIDTH / 2
             )
@@ -506,8 +509,8 @@ describe("Terrain Tile Map", () => {
                     1
                 )
             const camera = new BattleCamera(
-                centerOfMap[0],
-                centerOfMap[1] -
+                centerOfMap.worldX,
+                centerOfMap.worldY -
                     ScreenDimensions.SCREEN_HEIGHT / 2 -
                     HEX_TILE_WIDTH / 2
             )
@@ -534,8 +537,8 @@ describe("Terrain Tile Map", () => {
                     1
                 )
             const camera = new BattleCamera(
-                centerOfMap[0] + ScreenDimensions.SCREEN_WIDTH / 2,
-                centerOfMap[1]
+                centerOfMap.worldX + ScreenDimensions.SCREEN_WIDTH / 2,
+                centerOfMap.worldY
             )
             expect(
                 TerrainTileMapService.isLocationOnScreen({
@@ -560,10 +563,10 @@ describe("Terrain Tile Map", () => {
                     1
                 )
             const camera = new BattleCamera(
-                centerOfMap[0] -
+                centerOfMap.worldX -
                     ScreenDimensions.SCREEN_WIDTH / 2 -
                     HEX_TILE_WIDTH / 2,
-                centerOfMap[1]
+                centerOfMap.worldY
             )
             expect(
                 TerrainTileMapService.isLocationOnScreen({

@@ -104,7 +104,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 mouseX: event.mouseX,
                 mouseY: event.mouseY,
                 mouseButton: event.mouseButton,
-                ...state.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                ...state.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {

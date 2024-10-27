@@ -9,7 +9,7 @@ import {
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     OrchestratorComponentMouseEvent,
@@ -242,11 +242,12 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 thiefDynamic.battleSquaddieId
             )
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            mapLocation.q,
-            mapLocation.r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: mapLocation.q,
+                r: mapLocation.r,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -262,11 +263,13 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 citizenDynamic.battleSquaddieId
             )
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            mapLocation.q,
-            mapLocation.r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: mapLocation.q,
+                r: mapLocation.r,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
+
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -342,12 +345,16 @@ describe("BattleSquaddieTarget", () => {
     })
 
     it("should ignore if the user does not click off of the map", () => {
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            TerrainTileMapService.getDimensions(battleMap.terrainTileMap)
-                .numberOfRows + 1,
-            0,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q:
+                    TerrainTileMapService.getDimensions(
+                        battleMap.terrainTileMap
+                    ).numberOfRows + 1,
+                r: 0,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
+
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -512,11 +519,14 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
                 citizenDynamic.battleSquaddieId
             )
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            mapLocation.q,
-            mapLocation.r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: mapLocation.q,
+                r: mapLocation.r,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
+
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX,

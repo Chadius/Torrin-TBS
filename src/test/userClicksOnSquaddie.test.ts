@@ -29,10 +29,7 @@ import { makeResult } from "../utils/ResultOrError"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
-import {
-    ConvertCoordinateService,
-    convertMapCoordinatesToScreenCoordinates,
-} from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
 import {
@@ -226,11 +223,14 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-                0,
-                0,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-            )
+            let { screenX: mouseX, screenY: mouseY } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 0,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    }
+                )
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
@@ -300,22 +300,24 @@ describe("User clicks on a squaddie", () => {
             MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
         )
 
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            0,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        let { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 0,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
             mouseY,
             mouseButton: MouseButton.ACCEPT,
         })
-        ;[mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            1,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        ;({ screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 1,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            }))
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -337,18 +339,18 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let { x, y } =
+            let { screenX, screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 0,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: x,
-                mouseY: y,
+                mouseX: screenX,
+                mouseY: screenY,
             })
         }
 
@@ -439,38 +441,38 @@ describe("User clicks on a squaddie", () => {
                 MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
             )
 
-            let { x, y } =
+            let { screenX, screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 0,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: x,
-                mouseY: y,
+                mouseX: screenX,
+                mouseY: screenY,
                 mouseButton: MouseButton.ACCEPT,
             })
-            ;({ x, y } =
+            ;({ screenX: screenX, screenY: screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 8,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinatesAsObject(),
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 ))
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX: x,
-                mouseY: y,
+                mouseX: screenX,
+                mouseY: screenY,
             })
 
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: x,
-                mouseY: y,
+                mouseX: screenX,
+                mouseY: screenY,
                 mouseButton: MouseButton.ACCEPT,
             })
 

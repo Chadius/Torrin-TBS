@@ -308,8 +308,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
                 screenX: mouseX,
                 screenY: mouseY,
-                camera: gameEngineState.battleOrchestratorState.battleState
-                    .camera,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
 
         if (
@@ -377,8 +376,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
-        const cameraCoordinates =
-            gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
         TerrainTileMapService.mouseClicked({
             terrainTileMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -386,8 +383,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             mouseX,
             mouseY,
             mouseButton,
-            cameraX: cameraCoordinates[0],
-            cameraY: cameraCoordinates[1],
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
         this.hasSelectedValidTarget = true
         gameEngineState.messageBoard.sendMessage({
@@ -430,8 +426,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
                 screenX: mouseEvent.mouseX,
                 screenY: mouseEvent.mouseY,
-                camera: gameEngineState.battleOrchestratorState.battleState
-                    .camera,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
 
         const { battleSquaddieId } =

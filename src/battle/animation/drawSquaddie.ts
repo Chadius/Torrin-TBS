@@ -1,5 +1,4 @@
 import { BattleSquaddie } from "../battleSquaddie"
-import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
 import {
     HEX_TILE_WIDTH,
     HUE_BY_SQUADDIE_AFFILIATION,
@@ -33,6 +32,7 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -254,16 +254,21 @@ const drawSquaddieMapIconAtMapLocation = (
     mapLocation: HexCoordinate,
     camera: BattleCamera
 ) => {
-    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q,
-        mapLocation.r,
-        ...camera.getCoordinates()
-    )
+    const { screenX, screenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: mapLocation.q,
+            r: mapLocation.r,
+            ...camera.getCoordinates(),
+        })
     const mapIcon =
         squaddieRepository.imageUIByBattleSquaddieId[
             battleSquaddie.battleSquaddieId
         ]
-    setImageToLocation(mapIcon, xyCoords)
+    setImageToLocation({
+        mapIcon,
+        screenX,
+        screenY,
+    })
     mapIcon.draw(graphics)
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -287,8 +292,16 @@ const drawSquaddieMapIconAtMapLocation = (
     )
 }
 
-const setImageToLocation = (mapIcon: ImageUI, xyCoords: [number, number]) => {
-    RectAreaService.move(mapIcon.area, { left: xyCoords[0], top: xyCoords[1] })
+const setImageToLocation = ({
+    mapIcon,
+    screenX,
+    screenY,
+}: {
+    mapIcon: ImageUI
+    screenX: number
+    screenY: number
+}) => {
+    RectAreaService.move(mapIcon.area, { left: screenX, top: screenY })
     RectAreaService.align(mapIcon.area, {
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
@@ -318,20 +331,21 @@ const drawMapIconActionPointsBar = (
     if (actionPointsRemaining >= DEFAULT_ACTION_POINTS_PER_TURN) {
         return
     }
-    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q,
-        mapLocation.r,
-        ...camera.getCoordinates()
-    )
+    const { screenX, screenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: mapLocation.q,
+            r: mapLocation.r,
+            ...camera.getCoordinates(),
+        })
 
     const backgroundArea: RectArea = RectAreaService.new({
         left:
-            xyCoords[0] +
+            screenX +
             (HEX_TILE_WIDTH *
                 MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.left) /
                 20,
         top:
-            xyCoords[1] +
+            screenY +
             (HEX_TILE_WIDTH *
                 MAP_ICON_CONSTANTS.ActionPointsBarRectangle20ths.top) /
                 20,
@@ -382,20 +396,21 @@ const drawMapIconHitPointBar = (
     const squaddieAffiliationHue: number =
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
 
-    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        mapLocation.q,
-        mapLocation.r,
-        ...camera.getCoordinates()
-    )
+    const { screenX, screenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: mapLocation.q,
+            r: mapLocation.r,
+            ...camera.getCoordinates(),
+        })
 
     const backgroundArea: RectArea = RectAreaService.new({
         left:
-            xyCoords[0] +
+            screenX +
             (HEX_TILE_WIDTH *
                 MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.left) /
                 20,
         top:
-            xyCoords[1] +
+            screenY +
             (HEX_TILE_WIDTH *
                 MAP_ICON_CONSTANTS.HitPointsBarRectangle20ths.top) /
                 20,
@@ -440,16 +455,17 @@ const updateSquaddieIconLocation = (
     destination: HexCoordinate,
     camera: BattleCamera
 ) => {
-    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        destination.q,
-        destination.r,
-        ...camera.getCoordinates()
-    )
+    const { screenX, screenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: destination.q,
+            r: destination.r,
+            ...camera.getCoordinates(),
+        })
     const mapIcon =
         squaddieRepository.imageUIByBattleSquaddieId[
             battleSquaddie.battleSquaddieId
         ]
-    setImageToLocation(mapIcon, xyCoords)
+    setImageToLocation({ mapIcon, screenX, screenY })
 }
 
 const hasMovementAnimationFinished = (
@@ -480,21 +496,20 @@ export const moveSquaddieAlongPath = (
     camera: BattleCamera
 ) => {
     const timePassed = Date.now() - timeMovementStarted
-    const squaddieDrawCoordinates: [number, number] =
-        getSquaddiePositionAlongPath(
-            SearchPathService.getLocations(squaddieMovePath).map(
-                (tile) => tile.hexCoordinate
-            ),
-            timePassed,
-            TIME_TO_MOVE,
-            camera
-        )
+    const { screenX, screenY } = getSquaddiePositionAlongPath(
+        SearchPathService.getLocations(squaddieMovePath).map(
+            (tile) => tile.hexCoordinate
+        ),
+        timePassed,
+        TIME_TO_MOVE,
+        camera
+    )
     const mapIcon =
         squaddieRepository.imageUIByBattleSquaddieId[
             battleSquaddie.battleSquaddieId
         ]
     if (mapIcon) {
-        setImageToLocation(mapIcon, squaddieDrawCoordinates)
+        setImageToLocation({ mapIcon, screenX, screenY })
     }
 }
 

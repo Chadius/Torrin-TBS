@@ -27,7 +27,7 @@ import {
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ImageUI } from "../../ui/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
@@ -328,19 +328,21 @@ const initializeSquaddieResources = ({
             )
 
             if (datum.mapLocation !== undefined) {
-                const xyCoords: [number, number] =
-                    convertMapCoordinatesToScreenCoordinates(
-                        datum.mapLocation.q,
-                        datum.mapLocation.r,
-                        ...missionLoaderContext.mapSettings.camera.getCoordinates()
+                const { screenX, screenY } =
+                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        {
+                            q: datum.mapLocation.q,
+                            r: datum.mapLocation.r,
+                            ...missionLoaderContext.mapSettings.camera.getCoordinates(),
+                        }
                     )
 
                 repository.imageUIByBattleSquaddieId[battleSquaddieId] =
                     new ImageUI({
                         graphic: image,
                         area: RectAreaService.new({
-                            left: xyCoords[0],
-                            top: xyCoords[1],
+                            left: screenX,
+                            top: screenY,
                             width: image.width,
                             height: image.height,
                             horizAlign: HORIZONTAL_ALIGN.CENTER,

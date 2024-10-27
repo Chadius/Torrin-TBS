@@ -253,7 +253,7 @@ describe("BattlePhaseController", () => {
 
         expect(
             state.battleOrchestratorState.battleState.camera.getVelocity()
-        ).toStrictEqual([0, 0])
+        ).toEqual({ xVelocity: 0, yVelocity: 0 })
     })
 
     it("sends a message when the phase changes", () => {

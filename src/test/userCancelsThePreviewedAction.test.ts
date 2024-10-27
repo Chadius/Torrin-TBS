@@ -48,7 +48,7 @@ import { ProcessedActionService } from "../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
@@ -425,11 +425,12 @@ describe("User cancels the previewed action", () => {
 
         targeting.update(gameEngineState, graphicsContext)
 
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            1,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        let { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 1,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,

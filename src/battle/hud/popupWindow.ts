@@ -1,6 +1,6 @@
 import { Label, LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
-import { convertWorldCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { BattleCamera } from "../battleCamera"
 import { isValidValue } from "../../utils/validityCheck"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -130,14 +130,21 @@ const conformYCoordinateToScreen = (top: number, popup: PopupWindow) => {
 }
 
 const movePopupOnScreen = (popup: PopupWindow, camera: BattleCamera) => {
-    const screenCoordinates = convertWorldCoordinatesToScreenCoordinates(
-        popup.worldLocation.x,
-        popup.worldLocation.y,
-        ...camera.getCoordinates()
-    )
+    const screenCoordinates =
+        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
+            worldX: popup.worldLocation.x,
+            worldY: popup.worldLocation.y,
+            ...camera.getCoordinates(),
+        })
 
-    const xCoordinate = conformXCoordinateToScreen(screenCoordinates[0], popup)
-    const yCoordinate = conformYCoordinateToScreen(screenCoordinates[1], popup)
+    const xCoordinate = conformXCoordinateToScreen(
+        screenCoordinates.screenX,
+        popup
+    )
+    const yCoordinate = conformYCoordinateToScreen(
+        screenCoordinates.screenY,
+        popup
+    )
 
     const textBoxXOffset =
         RectAreaService.left(popup.label.textBox.area) -

@@ -105,16 +105,20 @@ describe("Player Selection Service", () => {
             expect(actualContext.playerIntent).toEqual(
                 PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE
             )
+
+            const { screenX, screenY } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 1,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    }
+                )
+
             expect(actualContext.mouseClick).toEqual(
                 MouseClickService.new({
-                    ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                        {
-                            q: 0,
-                            r: 1,
-                            camera: gameEngineState.battleOrchestratorState
-                                .battleState.camera,
-                        }
-                    ),
+                    x: screenX,
+                    y: screenY,
                     button: MouseButton.ACCEPT,
                 })
             )
@@ -270,16 +274,19 @@ describe("Player Selection Service", () => {
             })
 
             it("knows where the player clicked", () => {
+                const { screenX, screenY } =
+                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        {
+                            q: 0,
+                            r: 1,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                        }
+                    )
+
                 expect(actualContext.mouseClick).toEqual(
                     MouseClickService.new({
-                        ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                            {
-                                q: 0,
-                                r: 1,
-                                camera: gameEngineState.battleOrchestratorState
-                                    .battleState.camera,
-                            }
-                        ),
+                        x: screenX,
+                        y: screenY,
                         button: MouseButton.ACCEPT,
                     })
                 )
@@ -296,21 +303,23 @@ describe("Player Selection Service", () => {
                             gameEngineState,
                         })
 
+                    const { screenX, screenY } =
+                        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                            {
+                                q: 0,
+                                r: 1,
+                                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                            }
+                        )
+
                     expectedMessage = {
                         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                         gameEngineState,
                         battleSquaddieSelectedId: "ENEMY",
                         selectionMethod: {
                             mouseClick: MouseClickService.new({
-                                ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                                    {
-                                        q: 0,
-                                        r: 1,
-                                        camera: gameEngineState
-                                            .battleOrchestratorState.battleState
-                                            .camera,
-                                    }
-                                ),
+                                x: screenX,
+                                y: screenY,
                                 button: MouseButton.ACCEPT,
                             }),
                         },
@@ -351,16 +360,19 @@ describe("Player Selection Service", () => {
             })
 
             it("knows where the player clicked", () => {
+                const { screenX, screenY } =
+                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        {
+                            q: 0,
+                            r: 0,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                        }
+                    )
+
                 expect(actualContext.mouseClick).toEqual(
                     MouseClickService.new({
-                        ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                            {
-                                q: 0,
-                                r: 0,
-                                camera: gameEngineState.battleOrchestratorState
-                                    .battleState.camera,
-                            }
-                        ),
+                        x: screenX,
+                        y: screenY,
                         button: MouseButton.ACCEPT,
                     })
                 )
@@ -376,6 +388,14 @@ describe("Player Selection Service", () => {
                             context: actualContext,
                             gameEngineState,
                         })
+                    const { screenX, screenY } =
+                        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                            {
+                                q: 0,
+                                r: 0,
+                                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                            }
+                        )
 
                     expectedMessage = {
                         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -383,15 +403,8 @@ describe("Player Selection Service", () => {
                         battleSquaddieSelectedId: "PLAYER",
                         selectionMethod: {
                             mouseClick: MouseClickService.new({
-                                ...ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                                    {
-                                        q: 0,
-                                        r: 0,
-                                        camera: gameEngineState
-                                            .battleOrchestratorState.battleState
-                                            .camera,
-                                    }
-                                ),
+                                x: screenX,
+                                y: screenY,
                                 button: MouseButton.ACCEPT,
                             }),
                         },
@@ -480,16 +493,19 @@ describe("Player Selection Service", () => {
             expect(actualContext.playerIntent).toEqual(
                 PlayerIntent.PEEK_AT_SQUADDIE
             )
-            expect(actualContext.mouseMovement).toEqual(
+            const { screenX, screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 0,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
-            )
+
+            expect(actualContext.mouseMovement).toEqual({
+                x: screenX,
+                y: screenY,
+            })
             expect(actualContext.battleSquaddieId).toEqual("PLAYER")
         })
 
@@ -502,13 +518,12 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                 })
 
-            const { x, y } =
+            const { screenX, screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 0,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
 
@@ -518,8 +533,8 @@ describe("Player Selection Service", () => {
                 battleSquaddieSelectedId: "PLAYER",
                 selectionMethod: {
                     mouseMovement: {
-                        x,
-                        y,
+                        x: screenX,
+                        y: screenY,
                     },
                 },
                 squaddieSummaryPopoverPosition:
@@ -678,13 +693,12 @@ describe("Player Selection Service", () => {
             })
 
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-            ;({ x, y } =
+            ;({ screenX: x, screenY: y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 1,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 ))
         })
@@ -779,13 +793,12 @@ describe("Player Selection Service", () => {
             })
 
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-            ;({ x, y } =
+            ;({ screenX: x, screenY: y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: 0,
                         r: 2,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 ))
         })
@@ -916,13 +929,12 @@ describe("Player Selection Service", () => {
                         r: endOfFirstRow,
                     },
                 })
-                ;({ x, y } =
+                ;({ screenX: x, screenY: y } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                         {
                             q: 0,
                             r: endOfFirstRow,
-                            camera: gameEngineState.battleOrchestratorState
-                                .battleState.camera,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                         }
                     ))
             }
@@ -1705,18 +1717,18 @@ const clickOnMapCoordinate = ({
     r: number
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
-    const { x, y } =
+    const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
             q,
             r,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
     return PlayerSelectionService.calculateContext({
         gameEngineState,
         mouseClick: MouseClickService.new({
-            x,
-            y,
+            x: screenX,
+            y: screenY,
             button: MouseButton.ACCEPT,
         }),
     })
@@ -1731,18 +1743,18 @@ const hoverOverMapCoordinate = ({
     r: number
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
-    const { x, y } =
+    const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
             q,
             r,
-            camera: gameEngineState.battleOrchestratorState.battleState.camera,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
     return PlayerSelectionService.calculateContext({
         gameEngineState,
         mouseMovement: {
-            x,
-            y,
+            x: screenX,
+            y: screenY,
         },
     })
 }

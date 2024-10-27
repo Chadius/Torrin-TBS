@@ -14,10 +14,7 @@ import {
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
-import {
-    ConvertCoordinateService,
-    convertMapCoordinatesToScreenCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleStateService } from "../orchestrator/battleState"
@@ -248,12 +245,17 @@ describe("BattleSquaddieSelector", () => {
                 missionMap,
             })
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-            ;[battleSquaddieScreenPositionX, battleSquaddieScreenPositionY] =
-                convertMapCoordinatesToScreenCoordinates(
-                    0,
-                    0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-                )
+            ;({
+                screenX: battleSquaddieScreenPositionX,
+                screenY: battleSquaddieScreenPositionY,
+            } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 0,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    }
+                ))
 
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
@@ -342,13 +344,12 @@ describe("BattleSquaddieSelector", () => {
 
         describe("user clicks on destination to start movement", () => {
             beforeEach(() => {
-                ;({ x, y } =
+                ;({ screenX: x, screenY: y } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                         {
                             q: 0,
                             r: 1,
-                            camera: gameEngineState.battleOrchestratorState
-                                .battleState.camera,
+                            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                         }
                     ))
 
@@ -776,12 +777,12 @@ const clickOnMapCoordinate = ({
     r: number
     camera: BattleCamera
 }) => {
-    let [destinationScreenX, destinationScreenY] =
-        convertMapCoordinatesToScreenCoordinates(
+    let { screenX: destinationScreenX, screenY: destinationScreenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
             q,
             r,
-            ...camera.getCoordinates()
-        )
+            ...camera.getCoordinates(),
+        })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.MOVED,
         mouseX: destinationScreenX,

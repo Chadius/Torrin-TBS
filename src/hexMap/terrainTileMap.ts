@@ -3,12 +3,7 @@ import {
     convertStringToMovementCost,
     HexGridMovementCost,
 } from "./hexGridMovementCost"
-import {
-    ConvertCoordinateService,
-    convertScreenCoordinatesToWorldCoordinates,
-    convertWorldCoordinatesToMapCoordinates,
-    convertWorldCoordinatesToScreenCoordinates,
-} from "./convertCoordinates"
+import { ConvertCoordinateService } from "./convertCoordinates"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
@@ -93,27 +88,16 @@ export const TerrainTileMapService = {
         cameraX: number
         cameraY: number
     }) {
-        const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(
-            mouseX,
-            mouseY,
-            cameraX,
-            cameraY
-        )
-        const tileCoordinates = convertWorldCoordinatesToMapCoordinates(
-            worldX,
-            worldY
-        )
+        const { q, r } =
+            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+                screenX: mouseX,
+                screenY: mouseY,
+                cameraX,
+                cameraY,
+            })
 
-        if (
-            terrainTileMap.tiles.some(
-                (tile) =>
-                    tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1]
-            )
-        ) {
-            terrainTileMap.outlineTileCoordinates = {
-                q: tileCoordinates[0],
-                r: tileCoordinates[1],
-            }
+        if (terrainTileMap.tiles.some((tile) => tile.q == q && tile.r == r)) {
+            terrainTileMap.outlineTileCoordinates = { q, r }
         } else {
             terrainTileMap.outlineTileCoordinates = undefined
         }
@@ -265,8 +249,8 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
                 r: rIndex,
                 terrainType: movementCostType,
                 worldLocation: {
-                    x: worldLocation[0],
-                    y: worldLocation[1],
+                    x: worldLocation.worldX,
+                    y: worldLocation.worldY,
                 },
             })
 
@@ -361,20 +345,21 @@ const isLocationOnScreen = ({
     camera: BattleCamera
 }): boolean => {
     const hexGridTile = getTileAtLocation(terrainTileMap, location)
-    const tileScreenCoordinates = convertWorldCoordinatesToScreenCoordinates(
-        hexGridTile.worldLocation.x,
-        hexGridTile.worldLocation.y,
-        ...camera.getCoordinates()
-    )
+    const tileScreenCoordinates =
+        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
+            worldX: hexGridTile.worldLocation.x,
+            worldY: hexGridTile.worldLocation.y,
+            ...camera.getCoordinates(),
+        })
 
     const horizontallyOnScreen =
-        tileScreenCoordinates[0] + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates[0] - HEX_TILE_WIDTH <=
+        tileScreenCoordinates.screenX + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates.screenX - HEX_TILE_WIDTH <=
             ScreenDimensions.SCREEN_WIDTH
 
     const verticallyOnScreen =
-        tileScreenCoordinates[1] + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates[1] - HEX_TILE_WIDTH <=
+        tileScreenCoordinates.screenY + HEX_TILE_WIDTH >= 0 &&
+        tileScreenCoordinates.screenY - HEX_TILE_WIDTH <=
             ScreenDimensions.SCREEN_HEIGHT
 
     return horizontallyOnScreen && verticallyOnScreen

@@ -30,10 +30,7 @@ import { RectAreaService } from "../../ui/rectArea"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { MissionMapService } from "../../missionMap/missionMap"
-import {
-    ConvertCoordinateService,
-    convertScreenCoordinatesToWorldCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import { VERTICAL_ALIGN } from "../../ui/constants"
 import * as p5 from "p5"
@@ -795,13 +792,12 @@ export const BattleHUDService = {
         )
 
         if (!isMovementPossible) {
-            const { x, y } =
+            const { screenX, screenY } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
                         q: message.targetLocation.q,
                         r: message.targetLocation.r,
-                        camera: gameEngineState.battleOrchestratorState
-                            .battleState.camera,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
 
@@ -810,8 +806,8 @@ export const BattleHUDService = {
                 gameEngineState,
                 reason: "out of range",
                 selectionLocation: {
-                    x,
-                    y,
+                    x: screenX,
+                    y: screenY,
                 },
                 coordinateSystem: CoordinateSystem.WORLD,
             })
@@ -1013,20 +1009,20 @@ const calculatePlayerInvalidSelectionPopup = ({
     let left: number
     let top: number
 
-    switch (message.coordinateSystem) {
-        case CoordinateSystem.WORLD:
-            ;[left, top] = convertScreenCoordinatesToWorldCoordinates(
-                message.selectionLocation.x,
-                message.selectionLocation.y,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-            )
-            left -= warningPopupConstants.width / 2
-            top += HEX_TILE_WIDTH
-            break
-        default:
-            left = message.selectionLocation.x
-            top = message.selectionLocation.y
-            break
+    if (message.coordinateSystem === CoordinateSystem.WORLD) {
+        ;({ worldX: left, worldY: top } =
+            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
+                {
+                    screenX: message.selectionLocation.x,
+                    screenY: message.selectionLocation.y,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                }
+            ))
+        left -= warningPopupConstants.width / 2
+        top += HEX_TILE_WIDTH
+    } else {
+        left = message.selectionLocation.x
+        top = message.selectionLocation.y
     }
 
     let labelArea = RectAreaService.new({
@@ -1177,8 +1173,8 @@ const panCameraToSquaddie = (
                 selectedMapCoordinates.mapLocation.r
             )
         gameEngineState.battleOrchestratorState.battleState.camera.pan({
-            xDestination: selectedWorldCoordinates[0],
-            yDestination: selectedWorldCoordinates[1],
+            xDestination: selectedWorldCoordinates.worldX,
+            yDestination: selectedWorldCoordinates.worldY,
             timeToPan: 500,
             respectConstraints: true,
         })

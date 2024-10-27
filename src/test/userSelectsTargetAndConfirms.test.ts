@@ -43,7 +43,7 @@ import { ProcessedActionService } from "../action/processed/processedAction"
 import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
 import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
@@ -245,11 +245,12 @@ describe("User Selects Target and Confirms", () => {
 
         targeting.update(gameEngineState, graphicsContext)
 
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            2,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        let { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 2,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -841,11 +842,12 @@ const clickOnEnemy = ({
 
     targeting.update(gameEngineState, graphicsContext)
 
-    let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-        0,
-        2,
-        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-    )
+    let { screenX: mouseX, screenY: mouseY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: 0,
+            r: 2,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
     targeting.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,

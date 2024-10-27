@@ -45,7 +45,7 @@ import { MakeDecisionButton } from "../squaddie/makeDecisionButton"
 import { RectAreaService } from "../ui/rectArea"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
@@ -360,11 +360,12 @@ const selectorClicksOnSquaddie = (
     selector: BattlePlayerSquaddieSelector,
     gameEngineState: GameEngineState
 ) => {
-    let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-        0,
-        0,
-        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-    )
+    let { screenX: mouseX, screenY: mouseY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: 0,
+            r: 0,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
     selector.mouseEventHappened(gameEngineState, {
         eventType: OrchestratorComponentMouseEventType.CLICKED,
         mouseX,

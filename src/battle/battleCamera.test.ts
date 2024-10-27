@@ -17,12 +17,12 @@ describe("BattleCamera", () => {
 
         camera.constrainCamera()
 
-        expect(camera.getCoordinates()[1]).toBeGreaterThanOrEqual(
+        expect(camera.getCoordinates().cameraY).toBeGreaterThanOrEqual(
             0 -
                 ScreenDimensions.SCREEN_HEIGHT / 10 +
                 ScreenDimensions.SCREEN_HEIGHT / 2
         )
-        expect(camera.getVelocity()[1]).toBe(0)
+        expect(camera.getVelocity().yVelocity).toBe(0)
     })
 
     it("can be constrained so it cannot scroll too far down", () => {
@@ -38,12 +38,12 @@ describe("BattleCamera", () => {
 
         camera.constrainCamera()
 
-        expect(camera.getCoordinates()[1]).toBeLessThanOrEqual(
+        expect(camera.getCoordinates().cameraY).toBeLessThanOrEqual(
             (numberOfRowsThatCanFitOnScreen + 5) * HEX_TILE_WIDTH -
                 ScreenDimensions.SCREEN_HEIGHT / 2 +
                 ScreenDimensions.SCREEN_HEIGHT / 10
         )
-        expect(camera.getVelocity()[1]).toBe(0)
+        expect(camera.getVelocity().yVelocity).toBe(0)
     })
 
     it("no vertical scrolling if the map has only a few rows", () => {
@@ -60,10 +60,10 @@ describe("BattleCamera", () => {
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 3,
                 0
-            )[1]
+            ).worldY
 
-        expect(camera.getCoordinates()[1]).toBe(bottomOfLastRow / 2)
-        expect(camera.getVelocity()[1]).toBe(0)
+        expect(camera.getCoordinates().cameraY).toBe(bottomOfLastRow / 2)
+        expect(camera.getVelocity().yVelocity).toBe(0)
     })
 
     it("no horizontal scrolling if the map has only a few columns", () => {
@@ -87,52 +87,52 @@ describe("BattleCamera", () => {
                 3
             )
 
-        expect(camera.getCoordinates()[0]).toBe(
-            (topLeftTile[0] + bottomRightTile[0]) / 2
+        expect(camera.getCoordinates().cameraX).toBe(
+            (topLeftTile.worldX + bottomRightTile.worldX) / 2
         )
-        expect(camera.getVelocity()[0]).toBe(0)
+        expect(camera.getVelocity().xVelocity).toBe(0)
     })
 
     it("can be constrained so it cannot scroll too far to the left", () => {
-        const worldLocationOfBoundary: [number, number] =
+        const worldLocationOfBoundary =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 2,
                 0
             )
         const camera: BattleCamera = new BattleCamera(
             -ScreenDimensions.SCREEN_WIDTH * 2,
-            worldLocationOfBoundary[1]
+            worldLocationOfBoundary.worldY
         )
         camera.setXVelocity(100)
         camera.setMapDimensionBoundaries(2, 5)
 
         camera.constrainCamera()
 
-        expect(camera.getCoordinates()[0]).toBeGreaterThanOrEqual(
-            worldLocationOfBoundary[0] - ScreenDimensions.SCREEN_WIDTH / 10
+        expect(camera.getCoordinates().cameraX).toBeGreaterThanOrEqual(
+            worldLocationOfBoundary.worldX - ScreenDimensions.SCREEN_WIDTH / 10
         )
-        expect(camera.getVelocity()[0]).toBe(0)
+        expect(camera.getVelocity().xVelocity).toBe(0)
     })
 
     it("can be constrained so it cannot scroll too far to the right", () => {
-        const worldLocationOfBoundary: [number, number] =
+        const worldLocationOfBoundary =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                 2,
                 2
             )
         const camera: BattleCamera = new BattleCamera(
             ScreenDimensions.SCREEN_WIDTH * 2,
-            worldLocationOfBoundary[1]
+            worldLocationOfBoundary.worldY
         )
         camera.setXVelocity(100)
         camera.setMapDimensionBoundaries(2, 5)
 
         camera.constrainCamera()
 
-        expect(camera.getCoordinates()[0]).toBeLessThanOrEqual(
-            worldLocationOfBoundary[0] + ScreenDimensions.SCREEN_WIDTH / 10
+        expect(camera.getCoordinates().cameraX).toBeLessThanOrEqual(
+            worldLocationOfBoundary.worldX + ScreenDimensions.SCREEN_WIDTH / 10
         )
-        expect(camera.getVelocity()[0]).toBe(0)
+        expect(camera.getVelocity().xVelocity).toBe(0)
     })
 
     describe("camera pan", () => {
@@ -167,22 +167,27 @@ describe("BattleCamera", () => {
                 panStartTime: 0,
                 respectConstraints: false,
             })
-            expect(camera.getCoordinates()).toStrictEqual(initialCoordinates)
+            expect(camera.getCoordinates()).toEqual({
+                cameraX: initialCoordinates[0],
+                cameraY: initialCoordinates[1],
+            })
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             camera.moveCamera()
-            expect(camera.getCoordinates()[0]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 (initialCoordinates[0] + destinationCoordinates[0]) / 2
             )
-            expect(camera.getCoordinates()[1]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 (initialCoordinates[1] + destinationCoordinates[1]) / 2
             )
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
-            expect(camera.getCoordinates()).toStrictEqual(
-                destinationCoordinates
-            )
+            expect(camera.getCoordinates()).toEqual({
+                cameraX: destinationCoordinates[0],
+                cameraY: destinationCoordinates[1],
+            })
+
             expect(camera.isPanning()).toBeFalsy()
             expect(camera.getPanningInformation()).toBeUndefined()
         })
@@ -205,9 +210,10 @@ describe("BattleCamera", () => {
                 respectConstraints: false,
             })
             camera.moveCamera()
-            expect(camera.getCoordinates()).toStrictEqual(
-                destinationCoordinates
-            )
+            expect(camera.getCoordinates()).toEqual({
+                cameraX: destinationCoordinates[0],
+                cameraY: destinationCoordinates[1],
+            })
             expect(camera.isPanning()).toBeFalsy()
             expect(camera.getPanningInformation()).toBeUndefined()
         })
@@ -229,9 +235,10 @@ describe("BattleCamera", () => {
                 respectConstraints: false,
             })
             camera.moveCamera()
-            expect(camera.getCoordinates()).toStrictEqual(
-                destinationCoordinates
-            )
+            expect(camera.getCoordinates()).toEqual({
+                cameraX: destinationCoordinates[0],
+                cameraY: destinationCoordinates[1],
+            })
         })
         it("can pan over to a coordinate, respecting constraints", () => {
             jest.spyOn(Date, "now").mockImplementation(() => 0)
@@ -257,20 +264,26 @@ describe("BattleCamera", () => {
                 timeToPan,
                 respectConstraints: true,
             })
-            expect(camera.getCoordinates()[1]).toBe(initialCoordinates[1])
+            expect(camera.getCoordinates().cameraY).toBe(initialCoordinates[1])
 
             camera.moveCamera()
-            expect(camera.getCoordinates()[1]).toBeCloseTo(verticalTopLimit)
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
+                verticalTopLimit
+            )
             expect(camera.isPanning()).toBeTruthy()
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             camera.moveCamera()
-            expect(camera.getCoordinates()[1]).toBeCloseTo(verticalTopLimit)
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
+                verticalTopLimit
+            )
             expect(camera.isPanning()).toBeTruthy()
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
-            expect(camera.getCoordinates()[1]).toBeCloseTo(verticalTopLimit)
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
+                verticalTopLimit
+            )
             expect(camera.isPanning()).toBeFalsy()
         })
         it("can pan over to a coordinate, ignoring constraints", () => {
@@ -297,15 +310,15 @@ describe("BattleCamera", () => {
                 timeToPan,
                 respectConstraints: false,
             })
-            expect(camera.getCoordinates()[1]).toBe(initialCoordinates[1])
+            expect(camera.getCoordinates().cameraY).toBe(initialCoordinates[1])
 
             camera.moveCamera()
-            expect(camera.getCoordinates()[1]).toBe(initialCoordinates[1])
+            expect(camera.getCoordinates().cameraY).toBe(initialCoordinates[1])
             expect(camera.isPanning()).toBeTruthy()
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
-            expect(camera.getCoordinates()[1]).toBeCloseTo(
+            expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 destinationCoordinates[1]
             )
             expect(camera.isPanning()).toBeFalsy()

@@ -4,10 +4,7 @@ import { BattleCamera } from "../battleCamera"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    convertMapCoordinatesToScreenCoordinates,
-    convertScreenCoordinatesToMapCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
@@ -272,11 +269,12 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
     let mouseX: number = 0,
         mouseY: number = 0
     if (mapLocation) {
-        ;[mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            mapLocation.q,
-            mapLocation.r,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        ;({ screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: mapLocation.q,
+                r: mapLocation.r,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            }))
         mouseX -= HEX_TILE_WIDTH
     }
 
@@ -341,15 +339,13 @@ const getSquaddieAtScreenLocation = (param: {
 } => {
     const { mouseX, squaddieRepository, mouseY, camera, map } = param
 
-    const coords = convertScreenCoordinatesToMapCoordinates(
-        mouseX,
-        mouseY,
-        ...camera.getCoordinates()
-    )
-    const clickedLocation: HexCoordinate = {
-        q: coords[0],
-        r: coords[1],
-    }
+    const clickedLocation =
+        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            screenX: mouseX,
+            screenY: mouseY,
+            ...camera.getCoordinates(),
+        })
+
     return getSquaddieAtMapLocation({
         mapLocation: clickedLocation,
         squaddieRepository,

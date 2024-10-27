@@ -49,7 +49,7 @@ import {
 import { ActionEffectEndTurnTemplateService } from "../action/template/actionEffectEndTurnTemplate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
-import { convertMapCoordinatesToScreenCoordinates } from "../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
@@ -214,11 +214,13 @@ describe("User ends their turn", () => {
     })
 
     it("EndTurn adds a ProcessedAction to end the turn", () => {
-        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            0,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-        )
+        let { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 0,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            })
+
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -316,11 +318,14 @@ describe("User ends their turn", () => {
                 TerrainTileMapService,
                 "removeAllGraphicsLayers"
             )
-            let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-                0,
-                0,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
-            )
+            let { screenX: mouseX, screenY: mouseY } =
+                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    {
+                        q: 0,
+                        r: 0,
+                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                    }
+                )
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,

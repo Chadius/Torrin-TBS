@@ -4,10 +4,7 @@ import {
     ResourceHandler,
     ResourceHandlerService,
 } from "../resource/resourceHandler"
-import {
-    convertMapCoordinatesToScreenCoordinates,
-    convertWorldCoordinatesToScreenCoordinates,
-} from "./convertCoordinates"
+import { ConvertCoordinateService } from "./convertCoordinates"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import {
     BlendColor,
@@ -81,15 +78,16 @@ const drawHexShape = (
     cameraX: number,
     cameraY: number
 ) => {
-    let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(
-        worldX,
-        worldY,
-        cameraX,
-        cameraY
-    )
+    let { screenX, screenY } =
+        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
+            worldX,
+            worldY,
+            cameraX,
+            cameraY,
+        })
 
     graphicsContext.push()
-    graphicsContext.translate(screenDrawX, screenDrawY)
+    graphicsContext.translate(screenX, screenY)
 
     let angle = Math.PI / 3
     graphicsContext.beginShape()
@@ -118,7 +116,7 @@ const drawOutlinedTile = (
     let xPos =
         (outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5) *
         HEX_TILE_WIDTH
-    let yPos = outlineTileCoordinates.q * 0.866 * HEX_TILE_WIDTH
+    let yPos = (outlineTileCoordinates.q * 3 * HEX_TILE_RADIUS) / 2
     drawHexShape(graphicsContext, xPos, yPos, cameraX, cameraY)
     graphicsContext.pop()
 }
@@ -171,7 +169,7 @@ export const HexDrawingUtils = {
             })
 
         if (map.outlineTileCoordinates !== undefined) {
-            const { cameraX, cameraY } = camera.getCoordinatesAsObject()
+            const { cameraX, cameraY } = camera.getCoordinates()
             drawOutlinedTile(
                 graphics,
                 map.outlineTileCoordinates,
@@ -260,12 +258,13 @@ const drawHexTile = ({
     camera: BattleCamera
     image: p5.Image
 }) => {
-    const { cameraX, cameraY } = camera.getCoordinatesAsObject()
-    let [screenX, screenY] = convertMapCoordinatesToScreenCoordinates(
-        location.q,
-        location.r,
-        cameraX,
-        cameraY
-    )
+    const { cameraX, cameraY } = camera.getCoordinates()
+    let { screenX, screenY } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: location.q,
+            r: location.r,
+            cameraX,
+            cameraY,
+        })
     graphics.image(image, screenX - image.width / 2, screenY - image.height / 2)
 }

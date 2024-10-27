@@ -182,23 +182,24 @@ describe("player phase listener", () => {
             expect(
                 gameEngineState.battleOrchestratorState.battleState.camera
                     .panningInformation.xDestination
-            ).toBe(playerSquaddieLocation[0])
+            ).toBe(playerSquaddieLocation.worldX)
             expect(
                 gameEngineState.battleOrchestratorState.battleState.camera
                     .panningInformation.yDestination
-            ).toBe(playerSquaddieLocation[1])
+            ).toBe(playerSquaddieLocation.worldY)
         })
 
         it("does not pan the camera to the first player when it is the player phase and the player is near the center of the screen", () => {
+            const { worldX, worldY } =
+                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                    0,
+                    0
+                )
+
             const gameEngineState = initializeState({
                 squaddieTemplateIdToAdd: playerTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: player1.battleSquaddieId,
-                camera: new BattleCamera(
-                    ...ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                        0,
-                        0
-                    )
-                ),
+                camera: new BattleCamera(worldX, worldY),
             })
 
             const datum =
@@ -211,9 +212,9 @@ describe("player phase listener", () => {
                     datum.mapLocation.r
                 )
             gameEngineState.battleOrchestratorState.battleState.camera.xCoord =
-                playerSquaddieLocation[0]
+                playerSquaddieLocation.worldX
             gameEngineState.battleOrchestratorState.battleState.camera.yCoord =
-                playerSquaddieLocation[1]
+                playerSquaddieLocation.worldY
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.STARTED_PLAYER_PHASE,

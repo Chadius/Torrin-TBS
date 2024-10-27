@@ -4,7 +4,7 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
-import { convertMapCoordinatesToScreenCoordinates } from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import {
     SquaddieTemplate,
@@ -86,11 +86,12 @@ describe("Orchestration Utils", () => {
     })
 
     it("can return the squaddie and information at a given location on the screen", () => {
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            2,
-            ...camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 2,
+                ...camera.getCoordinates(),
+            })
 
         const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
             OrchestratorUtilities.getSquaddieAtScreenLocation({
@@ -120,11 +121,12 @@ describe("Orchestration Utils", () => {
     })
 
     it("returns undefined information if there is no squaddie at the location", () => {
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            0,
-            ...camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 0,
+                ...camera.getCoordinates(),
+            })
 
         const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
             OrchestratorUtilities.getSquaddieAtScreenLocation({
@@ -145,11 +147,12 @@ describe("Orchestration Utils", () => {
             q: 0,
             r: 0,
         })
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
-            0,
-            0,
-            ...camera.getCoordinates()
-        )
+        const { screenX: mouseX, screenY: mouseY } =
+            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+                q: 0,
+                r: 0,
+                ...camera.getCoordinates(),
+            })
 
         const shouldThrowError = () => {
             OrchestratorUtilities.getSquaddieAtScreenLocation({

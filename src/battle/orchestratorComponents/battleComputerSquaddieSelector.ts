@@ -5,10 +5,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
-import {
-    ConvertCoordinateService,
-    convertMapCoordinatesToScreenCoordinates,
-} from "../../hexMap/convertCoordinates"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import {
@@ -359,28 +356,32 @@ export class BattleComputerSquaddieSelector
                 battleSquaddieId
             )
 
-        const squaddieScreenLocation: number[] =
-            convertMapCoordinatesToScreenCoordinates(
-                datum.mapLocation.q,
-                datum.mapLocation.r,
-                ...state.battleOrchestratorState.battleState.camera.getCoordinates()
-            )
+        const {
+            screenX: squaddieScreenLocationX,
+            screenY: squaddieScreenLocationY,
+        } = ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: datum.mapLocation.q,
+            r: datum.mapLocation.r,
+            ...state.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
 
-        const squaddieWorldLocation: number[] =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                datum.mapLocation.q,
-                datum.mapLocation.r
-            )
+        const {
+            worldX: squaddieWorldLocationX,
+            worldY: squaddieWorldLocationY,
+        } = ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            datum.mapLocation.q,
+            datum.mapLocation.r
+        )
 
         if (
             !GraphicsConfig.isCoordinateOnScreen(
-                squaddieScreenLocation[0],
-                squaddieScreenLocation[1]
+                squaddieScreenLocationX,
+                squaddieScreenLocationY
             )
         ) {
             state.battleOrchestratorState.battleState.camera.pan({
-                xDestination: squaddieWorldLocation[0],
-                yDestination: squaddieWorldLocation[1],
+                xDestination: squaddieWorldLocationX,
+                yDestination: squaddieWorldLocationY,
                 timeToPan: SQUADDIE_SELECTOR_PANNING_TIME,
                 respectConstraints: true,
             })

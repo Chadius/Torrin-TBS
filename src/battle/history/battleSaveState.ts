@@ -168,9 +168,6 @@ export const BattleSaveStateService = {
         saveVersion: string
         repository: ObjectRepository
     }): BattleSaveState => {
-        const cameraCoordinates =
-            battleOrchestratorState.battleState.camera.getCoordinates()
-
         const inBattleAttributesBySquaddieBattleId: {
             [squaddieBattleId: string]: InBattleAttributesAndTurn
         } = {}
@@ -186,6 +183,9 @@ export const BattleSaveStateService = {
             }
         )
 
+        const cameraCoordinates =
+            battleOrchestratorState.battleState.camera.getCoordinates()
+
         return {
             campaignId,
             saveVersion: saveVersion,
@@ -199,8 +199,8 @@ export const BattleSaveStateService = {
                         .turnCount,
             },
             camera: {
-                xCoordinate: cameraCoordinates[0],
-                yCoordinate: cameraCoordinates[1],
+                xCoordinate: cameraCoordinates.cameraX,
+                yCoordinate: cameraCoordinates.cameraY,
             },
             battleActionRecorder:
                 battleOrchestratorState.battleState.battleActionRecorder,
