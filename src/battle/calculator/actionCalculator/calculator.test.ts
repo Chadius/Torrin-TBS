@@ -299,7 +299,7 @@ describe("calculator", () => {
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
 
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -316,7 +316,7 @@ describe("calculator", () => {
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
             expect(
-                results.actingContext.actingSquaddieRoll.occurred
+                results[0].actingContext.actingSquaddieRoll.occurred
             ).toBeFalsy()
         })
 
@@ -331,9 +331,9 @@ describe("calculator", () => {
                 numberGenerator,
             })
             expect(
-                results.actingContext.actingSquaddieRoll.occurred
+                results[0].actingContext.actingSquaddieRoll.occurred
             ).toBeTruthy()
-            expect(results.actingContext.actingSquaddieRoll.rolls).toEqual([
+            expect(results[0].actingContext.actingSquaddieRoll.rolls).toEqual([
                 1, 6,
             ])
         })
@@ -492,7 +492,7 @@ describe("calculator", () => {
                 validTargetLocation: { q: 0, r: 2 },
             })
 
-            const ally1Changes = results.squaddieChanges.find(
+            const ally1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     ally1BattleSquaddie.battleSquaddieId
@@ -656,7 +656,7 @@ describe("calculator", () => {
                 validTargetLocation: { q: 0, r: 0 },
             })
 
-            const player1Changes = results.squaddieChanges.find(
+            const player1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     player1BattleSquaddie.battleSquaddieId
@@ -718,7 +718,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -747,7 +747,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -776,7 +776,7 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -866,7 +866,7 @@ describe("calculator", () => {
                 validTargetLocation: { q: 0, r: 1 },
             })
 
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -875,7 +875,7 @@ describe("calculator", () => {
                 DegreeOfSuccess.FAILURE
             )
             expect(
-                results.actingContext.actingSquaddieModifiers.find(
+                results[0].actingContext.actingSquaddieModifiers.find(
                     (modifierAndType) =>
                         modifierAndType.type ===
                         AttributeType.MULTIPLE_ATTACK_PENALTY
@@ -918,7 +918,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -947,7 +947,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -1036,7 +1036,7 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -1065,7 +1065,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -1094,7 +1094,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -1131,7 +1131,7 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results.squaddieChanges.find(
+            const enemy1Changes = results[0].squaddieChanges.find(
                 (change) =>
                     change.battleSquaddieId ===
                     enemy1BattleSquaddie.battleSquaddieId
@@ -1140,6 +1140,89 @@ describe("calculator", () => {
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
             expect(enemy1Changes.damage.net).toBe(0)
+        })
+    })
+
+    describe("create one result per action template", () => {
+        let actionHasTwoEffectTemplates: ActionTemplate
+        beforeEach(() => {
+            actionHasTwoEffectTemplates = ActionTemplateService.new({
+                id: "actionHasTwoEffectTemplates",
+                name: "actionHasTwoEffectTemplates",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                        }),
+                        minimumRange: 0,
+                        maximumRange: 9001,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 1,
+                        },
+                    }),
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                        }),
+                        minimumRange: 0,
+                        maximumRange: 9001,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                actionHasTwoEffectTemplates
+            )
+
+            missionMap.addSquaddie(
+                player1SquaddieTemplateId,
+                player1DynamicId,
+                { q: 0, r: 0 }
+            )
+            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
+                q: 0,
+                r: 1,
+            })
+        })
+
+        it("create one result per action template", () => {
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionHasTwoEffectTemplates,
+            })
+
+            expect(results).toHaveLength(2)
+
+            const enemyChangesForFirstTemplate =
+                results[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
+            expect(enemyChangesForFirstTemplate.damage.net).toBe(1)
+            expect(
+                enemyChangesForFirstTemplate.attributesBefore.currentHitPoints
+            ).toEqual(5)
+            expect(
+                enemyChangesForFirstTemplate.attributesAfter.currentHitPoints
+            ).toEqual(5 - 1)
+            const enemyChangesForSecondTemplate =
+                results[1].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
+            expect(enemyChangesForSecondTemplate.damage.net).toBe(2)
+            expect(
+                enemyChangesForSecondTemplate.attributesBefore.currentHitPoints
+            ).toEqual(4)
+            expect(
+                enemyChangesForSecondTemplate.attributesAfter.currentHitPoints
+            ).toEqual(4 - 2)
         })
     })
 })

@@ -627,7 +627,7 @@ export const BattleHUDService = {
             targetLocation,
         })
 
-        let results: SquaddieSquaddieResults =
+        let results: SquaddieSquaddieResults[] =
             ActionCalculator.calculateResults({
                 gameEngineState: gameEngineState,
                 actingBattleSquaddie,
@@ -645,7 +645,7 @@ export const BattleHUDService = {
             ProcessedActionSquaddieEffectService.new({
                 battleActionDecisionStep: actionStep,
                 objectRepository: gameEngineState.repository,
-                battleActionSquaddieChange: results.squaddieChanges[0],
+                battleActionSquaddieChange: results[0].squaddieChanges[0],
             })
         )
 
@@ -658,12 +658,12 @@ export const BattleHUDService = {
         })
 
         const squaddieChanges: BattleActionSquaddieChange[] =
-            results.squaddieChanges
+            results[0].squaddieChanges
 
         const squaddieBattleAction: BattleAction = BattleActionService.new({
             actor: {
                 actorBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-                actorContext: results.actingContext,
+                actorContext: results[0].actingContext,
             },
             action: { actionTemplateId: actionTemplate.id },
             effect: {

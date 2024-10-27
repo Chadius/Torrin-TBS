@@ -667,7 +667,7 @@ export class BattleComputerSquaddieSelector
                         gameEngineState.battleOrchestratorState.battleState
                             .actionsThisRound,
                     battleActionDecisionStep: step,
-                })
+                })[0]
 
                 processedAction.processedActionEffects.push(
                     ProcessedActionSquaddieEffectService.new({

@@ -60,7 +60,7 @@ export const ActionCalculator = {
         validTargetLocation: HexCoordinate
         actionsThisRound: ActionsThisRound
         battleActionDecisionStep: BattleActionDecisionStep
-    }): SquaddieSquaddieResults => {
+    }): SquaddieSquaddieResults[] => {
         return calculateResults({
             gameEngineState: gameEngineState,
             actingBattleSquaddie,
@@ -83,14 +83,10 @@ const calculateResults = ({
     validTargetLocation: HexCoordinate
     actionsThisRound: ActionsThisRound
     battleActionDecisionStep: BattleActionDecisionStep
-}): SquaddieSquaddieResults => {
+}): SquaddieSquaddieResults[] => {
     if (battleActionDecisionStep.action.actionTemplateId === undefined) {
         return undefined
     }
-    const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
-        gameEngineState,
-        locations: [validTargetLocation],
-    })
 
     const actionTemplate: ActionTemplate =
         ObjectRepositoryService.getActionTemplateById(
@@ -98,71 +94,33 @@ const calculateResults = ({
             battleActionDecisionStep.action.actionTemplateId
         )
 
-    const actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate =
-        ActionTemplateService.getActionEffectSquaddieTemplates(
-            actionTemplate
-        )[0]
+    return ActionTemplateService.getActionEffectSquaddieTemplates(
+        actionTemplate
+    ).map((actionEffectSquaddieTemplate) => {
+        const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
+            gameEngineState,
+            locations: [validTargetLocation],
+        })
 
-    const actionContext = getActorContext({
-        gameEngineState,
-        actionEffectSquaddieTemplate,
-        actionsThisRound,
-    })
-
-    const squaddieChanges: BattleActionSquaddieChange[] = []
-
-    targetedBattleSquaddieIds.forEach((targetedBattleSquaddieId) => {
-        const {
-            battleSquaddie: targetedBattleSquaddie,
-            squaddieTemplate: targetedSquaddieTemplate,
-        } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                targetedBattleSquaddieId
-            )
+        const actionContext = getActorContext({
+            gameEngineState,
+            actionEffectSquaddieTemplate,
+            actionsThisRound,
+        })
+        const squaddieChanges = getSquaddieChangesForThisEffectSquaddieTemplate(
+            targetedBattleSquaddieIds,
+            gameEngineState,
+            actionContext,
+            actionEffectSquaddieTemplate,
+            actingBattleSquaddie
         )
 
-        actionContext.targetSquaddieModifiers[targetedBattleSquaddieId] =
-            getTargetContext({
-                actionEffectSquaddieTemplate,
-                targetedBattleSquaddie,
-            })
-        const degreeOfSuccess = getDegreeOfSuccess({
-            actingBattleSquaddie,
-            actionEffectSquaddieTemplate,
-            targetedBattleSquaddie,
+        return SquaddieSquaddieResultsService.new({
+            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+            targetedBattleSquaddieIds: targetedBattleSquaddieIds,
+            squaddieChanges,
             actionContext,
         })
-
-        const calculatedEffect: CalculatedEffect =
-            calculateEffectBasedOnDegreeOfSuccess({
-                actionEffectSquaddieTemplate,
-                actionContext,
-                degreeOfSuccess,
-                targetedSquaddieTemplate,
-                targetedBattleSquaddie,
-            })
-
-        const squaddieChange = applyCalculatedEffectAndReturnChange({
-            calculatedEffect,
-            gameEngineState,
-            targetedBattleSquaddieId,
-        })
-
-        squaddieChanges.push(squaddieChange)
-
-        maybeUpdateMissionStatistics({
-            result: squaddieChange,
-            gameEngineState,
-            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-        })
-    })
-
-    return SquaddieSquaddieResultsService.new({
-        actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-        targetedBattleSquaddieIds: targetedBattleSquaddieIds,
-        squaddieChanges,
-        actionContext,
     })
 }
 
@@ -451,4 +409,62 @@ const getBattleActionSquaddieChange = ({
         healingReceived: 0,
         actorDegreeOfSuccess: DegreeOfSuccess.NONE,
     })
+}
+
+const getSquaddieChangesForThisEffectSquaddieTemplate = (
+    targetedBattleSquaddieIds: string[],
+    gameEngineState: GameEngineState,
+    actionContext: BattleActionActionContext,
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+    actingBattleSquaddie: BattleSquaddie
+) => {
+    const squaddieChanges: BattleActionSquaddieChange[] = []
+
+    targetedBattleSquaddieIds.forEach((targetedBattleSquaddieId) => {
+        const {
+            battleSquaddie: targetedBattleSquaddie,
+            squaddieTemplate: targetedSquaddieTemplate,
+        } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                targetedBattleSquaddieId
+            )
+        )
+
+        actionContext.targetSquaddieModifiers[targetedBattleSquaddieId] =
+            getTargetContext({
+                actionEffectSquaddieTemplate,
+                targetedBattleSquaddie,
+            })
+        const degreeOfSuccess = getDegreeOfSuccess({
+            actingBattleSquaddie,
+            actionEffectSquaddieTemplate,
+            targetedBattleSquaddie,
+            actionContext,
+        })
+
+        const calculatedEffect: CalculatedEffect =
+            calculateEffectBasedOnDegreeOfSuccess({
+                actionEffectSquaddieTemplate,
+                actionContext,
+                degreeOfSuccess,
+                targetedSquaddieTemplate,
+                targetedBattleSquaddie,
+            })
+
+        const squaddieChange = applyCalculatedEffectAndReturnChange({
+            calculatedEffect,
+            gameEngineState,
+            targetedBattleSquaddieId,
+        })
+
+        squaddieChanges.push(squaddieChange)
+
+        maybeUpdateMissionStatistics({
+            result: squaddieChange,
+            gameEngineState,
+            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+        })
+    })
+    return squaddieChanges
 }
