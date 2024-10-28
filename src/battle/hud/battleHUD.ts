@@ -79,6 +79,10 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../action/template/actionTemplate"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -191,8 +195,10 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
         const battleSquaddieToHighlightId: string =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
 
         OrchestratorUtilities.highlightSquaddieRange(
             gameEngineState,
@@ -206,6 +212,16 @@ export const BattleHUDService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
         })
+
+        if (
+            !BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+        ) {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+        }
 
         if (
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound
@@ -232,8 +248,10 @@ export const BattleHUDService = {
         )
 
         const actionRangeOnMap = MapGraphicsLayerService.new({
-            id: gameEngineState.battleOrchestratorState.battleState
-                .actionsThisRound.battleSquaddieId,
+            id: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
             highlightedTileDescriptions: [
                 {
                     tiles: actionRange,
@@ -586,16 +604,27 @@ export const BattleHUDService = {
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     gameEngineState.repository,
-                    actionsThisRound.battleSquaddieId
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
                 )
             )
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            actionsThisRound.previewedActionTemplateId
+            BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).actionTemplateId
         )
-        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-        if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+
+        let actionEffectTemplates =
+            ActionTemplateService.getActionEffectSquaddieTemplates(
+                actionTemplate
+            )
+
+        if (actionEffectTemplates.length === 0) {
             return
         }
 
@@ -1226,8 +1255,10 @@ const playerControlledSquaddieNeedsNextAction = (
     const { battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
         )
     )
 
@@ -1250,8 +1281,10 @@ const playerControlledSquaddieNeedsNextAction = (
             campaignResources: gameEngineState.campaign.resources,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
-        id: gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-            .battleSquaddieId,
+        id: BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId,
         highlightedTileDescriptions: squaddieReachHighlightedOnMap,
         type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,
     })
