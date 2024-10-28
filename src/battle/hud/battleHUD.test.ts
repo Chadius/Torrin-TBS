@@ -1831,6 +1831,185 @@ describe("Battle HUD", () => {
             )
         })
 
+        it("should add one action per action template", () => {
+            const attackTwiceWithLongsword = ActionTemplateService.new({
+                name: "attackTwiceWithLongsword",
+                id: "attackTwiceWithLongsword",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.ATTACK]: true,
+                        }),
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        targetingShape: TargetingShape.SNAKE,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 1,
+                        },
+                    }),
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.ATTACK]: true,
+                        }),
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        targetingShape: TargetingShape.SNAKE,
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            ObjectRepositoryService.addActionTemplate(
+                gameEngineState.repository,
+                attackTwiceWithLongsword
+            )
+
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: attackTwiceWithLongsword.id,
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
+                ActionsThisRoundService.new({
+                    battleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    startingLocation: { q: 1, r: 1 },
+                    previewedActionTemplateId: attackTwiceWithLongsword.id,
+                })
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
+                gameEngineState,
+            })
+
+            expect(
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeFalsy()
+
+            expect(
+                BattleActionQueueService.length(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder.readyToAnimateQueue
+                )
+            ).toEqual(2)
+
+            expect(
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                        actorContext: BattleActionActionContextService.new({
+                            actingSquaddieModifiers: [],
+                            actingSquaddieRoll: {
+                                occurred: false,
+                                rolls: [],
+                            },
+                            targetSquaddieModifiers: {
+                                [thiefBattleSquaddie.battleSquaddieId]: [],
+                            },
+                        }),
+                    },
+                    action: { actionTemplateId: attackTwiceWithLongsword.id },
+                    effect: {
+                        squaddie: [
+                            BattleActionSquaddieChangeService.new({
+                                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                attributesAfter: {
+                                    ...InBattleAttributesService.new({}),
+                                    currentHitPoints: 4,
+                                },
+                                attributesBefore: InBattleAttributesService.new(
+                                    {}
+                                ),
+                                battleSquaddieId: "Thief 0",
+                                damageExplanation: DamageExplanationService.new(
+                                    {
+                                        raw: 1,
+                                        net: 1,
+                                    }
+                                ),
+                                healingReceived: 0,
+                            }),
+                        ],
+                    },
+                    animation: {
+                        completed: false,
+                    },
+                })
+            )
+
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
+            expect(
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toEqual(
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            playerSoldierBattleSquaddie.battleSquaddieId,
+                        actorContext: BattleActionActionContextService.new({
+                            actingSquaddieModifiers: [],
+                            actingSquaddieRoll: {
+                                occurred: false,
+                                rolls: [],
+                            },
+                            targetSquaddieModifiers: {
+                                [thiefBattleSquaddie.battleSquaddieId]: [],
+                            },
+                        }),
+                    },
+                    action: { actionTemplateId: attackTwiceWithLongsword.id },
+                    effect: {
+                        squaddie: [
+                            BattleActionSquaddieChangeService.new({
+                                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                attributesAfter: {
+                                    ...InBattleAttributesService.new({}),
+                                    currentHitPoints: 2,
+                                },
+                                attributesBefore: InBattleAttributesService.new(
+                                    {
+                                        ...InBattleAttributesService.new({}),
+                                        currentHitPoints: 4,
+                                    }
+                                ),
+                                battleSquaddieId: "Thief 0",
+                                damageExplanation: DamageExplanationService.new(
+                                    {
+                                        raw: 2,
+                                        net: 2,
+                                    }
+                                ),
+                                healingReceived: 0,
+                            }),
+                        ],
+                    },
+                    animation: {
+                        completed: false,
+                    },
+                })
+            )
+        })
+
         describe("confirming an action mid turn", () => {
             beforeEach(() => {
                 gameEngineState.battleOrchestratorState.battleState.actionsThisRound =

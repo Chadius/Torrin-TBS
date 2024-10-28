@@ -64,7 +64,6 @@ import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
-import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
@@ -641,13 +640,17 @@ export const BattleHUDService = {
         const processedAction = ProcessedActionService.new({
             actionPointCost: actionTemplate.actionPoints,
         })
-        processedAction.processedActionEffects.push(
-            ProcessedActionSquaddieEffectService.new({
-                battleActionDecisionStep: actionStep,
-                objectRepository: gameEngineState.repository,
-                battleActionSquaddieChange: results[0].squaddieChanges[0],
-            })
-        )
+        processedAction.processedActionEffects = results
+            .map((result) =>
+                result.squaddieChanges.map((squaddieChange) =>
+                    ProcessedActionSquaddieEffectService.new({
+                        battleActionDecisionStep: actionStep,
+                        objectRepository: gameEngineState.repository,
+                        battleActionSquaddieChange: squaddieChange,
+                    })
+                )
+            )
+            .flat()
 
         actionsThisRound.processedActions.push(processedAction)
 
@@ -657,25 +660,27 @@ export const BattleHUDService = {
                     .battleActionDecisionStep,
         })
 
-        const squaddieChanges: BattleActionSquaddieChange[] =
-            results[0].squaddieChanges
-
-        const squaddieBattleAction: BattleAction = BattleActionService.new({
-            actor: {
-                actorBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-                actorContext: results[0].actingContext,
-            },
-            action: { actionTemplateId: actionTemplate.id },
-            effect: {
-                squaddie: squaddieChanges,
-            },
+        const squaddieBattleActions: BattleAction[] = results.map((result) => {
+            return BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        actingBattleSquaddie.battleSquaddieId,
+                    actorContext: result.actingContext,
+                },
+                action: { actionTemplateId: actionTemplate.id },
+                effect: {
+                    squaddie: result.squaddieChanges,
+                },
+            })
         })
 
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            squaddieBattleAction
-        )
+        squaddieBattleActions.forEach((squaddieBattleAction) => {
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                squaddieBattleAction
+            )
+        })
         clearAllHoverAndClickedLayersExceptForThisSquaddie(
             gameEngineState,
             actingBattleSquaddie,
