@@ -6,7 +6,7 @@ export enum SquaddieAffiliation {
     NONE = "NONE",
 }
 
-export const FriendlyAffiliationsByAffiliation: {
+const friendlyAffiliationsByAffiliation: {
     [first in SquaddieAffiliation]: {
         [second in SquaddieAffiliation]?: boolean
     }
@@ -24,4 +24,18 @@ export const FriendlyAffiliationsByAffiliation: {
         ALLY: true,
     },
     NONE: {},
+}
+
+export const SquaddieAffiliationService = {
+    areSquaddieAffiliationsAllies: ({
+        targetAffiliation,
+        actingAffiliation,
+    }: {
+        targetAffiliation: SquaddieAffiliation
+        actingAffiliation: SquaddieAffiliation
+    }): boolean => {
+        return !!friendlyAffiliationsByAffiliation[actingAffiliation][
+            targetAffiliation
+        ]
+    },
 }

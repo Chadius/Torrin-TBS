@@ -12,8 +12,8 @@ import {
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import {
-    FriendlyAffiliationsByAffiliation,
     SquaddieAffiliation,
+    SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
 
 export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
@@ -81,15 +81,9 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         ) {
             return true
         }
-        const friendlyAffiliations: {
-            [friendlyAffiliation in SquaddieAffiliation]?: boolean
-        } =
-            FriendlyAffiliationsByAffiliation[
-                searchParameters.squaddieAffiliation
-            ]
-        return (
-            friendlyAffiliations[squaddieTemplate.squaddieId.affiliation] ===
-            true
-        )
+        return SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+            actingAffiliation: searchParameters.squaddieAffiliation,
+            targetAffiliation: squaddieTemplate.squaddieId.affiliation,
+        })
     }
 }

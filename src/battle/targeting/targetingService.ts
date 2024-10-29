@@ -4,8 +4,8 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
-    FriendlyAffiliationsByAffiliation,
     SquaddieAffiliation,
+    SquaddieAffiliationService,
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
@@ -112,7 +112,7 @@ export const TargetingResultsService = {
         targetAffiliation: SquaddieAffiliation
         actionTraits: TraitStatusStorage
     }): boolean => {
-        return shouldAddDueToAffiliationAndTargetTraits({
+        return !!shouldAddDueToAffiliationAndTargetTraits({
             actorAffiliation,
             actorBattleSquaddieId,
             targetBattleSquaddieId,
@@ -261,10 +261,6 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
     targetAffiliation: SquaddieAffiliation
     actionTraits: TraitStatusStorage
 }): boolean => {
-    const friendlyAffiliations: {
-        [friendlyAffiliation in SquaddieAffiliation]?: boolean
-    } = FriendlyAffiliationsByAffiliation[actorAffiliation]
-
     if (
         TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_SELF) &&
         targetBattleSquaddieId === actorBattleSquaddieId
@@ -272,17 +268,22 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
         return true
     }
 
+    const squaddiesAreFriends =
+        SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+            actingAffiliation: actorAffiliation,
+            targetAffiliation,
+        })
+
     if (
         TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_ALLY) &&
-        friendlyAffiliations[targetAffiliation]
+        squaddiesAreFriends
     ) {
         return true
     }
 
     return (
-        (TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_FOE) &&
-            !friendlyAffiliations[targetAffiliation]) ||
-        false
+        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_FOE) &&
+        !squaddiesAreFriends
     )
 }
 

@@ -60,7 +60,6 @@ import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "./playerActionPanel/squaddieSummaryPopover"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
@@ -79,10 +78,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import {
-    ActionTemplate,
-    ActionTemplateService,
-} from "../../action/template/actionTemplate"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -212,16 +208,11 @@ export const BattleHUDService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
         })
-
-        if (
-            !BattleActionRecorderService.mostRecentAnimatedActionThisTurn(
+        BattleActionDecisionStepService.removeTarget({
+            actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            )
-        ) {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-        }
+                    .battleActionDecisionStep,
+        })
 
         if (
             gameEngineState.battleOrchestratorState.battleState.actionsThisRound

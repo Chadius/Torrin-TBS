@@ -55,6 +55,7 @@ import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
+import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -506,6 +507,14 @@ const getGameEngineState = ({
         MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION
     )
 
+    gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+        BattleActionDecisionStepService.new()
+    BattleActionDecisionStepService.setActor({
+        actionDecisionStep:
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep,
+        battleSquaddieId,
+    })
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
         SummaryHUDStateService.new({ mouseSelectionLocation: { x: 0, y: 0 } })
     SummaryHUDStateService.createCommandWindow({

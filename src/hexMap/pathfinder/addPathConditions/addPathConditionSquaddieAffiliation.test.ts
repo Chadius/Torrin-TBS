@@ -9,8 +9,8 @@ import {
 import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../squaddie/id"
 import {
-    FriendlyAffiliationsByAffiliation,
     SquaddieAffiliation,
+    SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../../../battle/battleSquaddie"
 import { AddPathConditionSquaddieAffiliation } from "./addPathConditionSquaddieAffiliation"
@@ -95,9 +95,10 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 })
 
                 const squaddiesAreFriends =
-                    FriendlyAffiliationsByAffiliation[searchingAffiliation][
-                        blockingAffiliation
-                    ] === true
+                    SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+                        actingAffiliation: searchingAffiliation,
+                        targetAffiliation: blockingAffiliation,
+                    })
 
                 const condition = new AddPathConditionSquaddieAffiliation({
                     missionMap,
