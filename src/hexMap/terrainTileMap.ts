@@ -218,6 +218,9 @@ export const TerrainTileMapService = {
 
         terrainTileMap.highlightLayers.sort(sortByLayer)
     },
+    getMaximumDistance: (terrainTileMap: TerrainTileMap) =>
+        TerrainTileMapService.getDimensions(terrainTileMap).widthOfWidestRow +
+        TerrainTileMapService.getDimensions(terrainTileMap).numberOfRows,
 }
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {

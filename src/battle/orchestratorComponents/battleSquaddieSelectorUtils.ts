@@ -23,7 +23,7 @@ import {
 } from "../../hexMap/mapGraphicsLayer"
 import { HexGridService } from "../../hexMap/hexGridDirection"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import {
@@ -57,6 +57,8 @@ export const BattleSquaddieSelectorService = {
         squaddieTemplate,
         stopLocation,
         distanceRangeFromDestination,
+        actionPointsRemaining,
+        preferMaximumRangeFromStopLocation,
     }: {
         gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
@@ -66,87 +68,66 @@ export const BattleSquaddieSelectorService = {
             minimum: number
             maximum: number
         }
+        actionPointsRemaining?: number
+        preferMaximumRangeFromStopLocation?: boolean
     }): SearchPath => {
         const searchResults = getAllTilesSquaddieCanReach({
             gameEngineState,
             battleSquaddie,
             squaddieTemplate,
             stopLocation,
+            actionPointsRemaining,
         })
 
-        const maximumDistanceOfMap: number =
-            TerrainTileMapService.getDimensions(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap
-            ).widthOfWidestRow +
-            TerrainTileMapService.getDimensions(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap
-            ).numberOfRows
-
-        let coordinatesToConsider: HexCoordinate[] = []
-        const distanceIsBelowMaximum = (distance: number) =>
-            (distanceRangeFromDestination.maximum === undefined ||
-                distance <= distanceRangeFromDestination.maximum) &&
-            distance <= maximumDistanceOfMap
-
-        for (
-            let distanceFromStopLocation =
-                distanceRangeFromDestination.minimum || 0;
-            coordinatesToConsider.length === 0 &&
-            distanceIsBelowMaximum(distanceFromStopLocation);
-            distanceFromStopLocation++
+        if (
+            isAlreadyAtTheLocation({
+                gameEngineState,
+                stopLocation,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            })
         ) {
-            coordinatesToConsider =
-                HexGridService.GetCoordinatesForRingAroundCoordinate(
-                    stopLocation,
-                    distanceFromStopLocation
-                )
-                    .filter((coordinate) =>
-                        TerrainTileMapService.isLocationOnMap(
-                            gameEngineState.battleOrchestratorState.battleState
-                                .missionMap.terrainTileMap,
-                            coordinate
-                        )
-                    )
-                    .filter(
-                        (coordinate) =>
-                            searchResults.shortestPathByLocation?.[
-                                coordinate.q
-                            ]?.[coordinate.r]
-                    )
-                    .filter(
-                        (coordinate) =>
-                            searchResults.shortestPathByLocation[coordinate.q][
-                                coordinate.r
-                            ].currentNumberOfMoveActions > 0
-                    )
+            return searchResults.shortestPathByLocation[stopLocation.q][
+                stopLocation.r
+            ]
         }
+
+        let coordinateInfo = getReachableCoordinatesByDistanceFromStopLocation({
+            distanceRangeFromDestination,
+            maximumDistanceOfMap: TerrainTileMapService.getMaximumDistance(
+                gameEngineState.battleOrchestratorState.battleState.missionMap
+                    .terrainTileMap
+            ),
+            stopLocation,
+            gameEngineState,
+            searchResults,
+        })
+
+        if (
+            coordinateInfo.distancesFromStopLocationWithCoordinates.length === 0
+        ) {
+            return undefined
+        }
+
+        coordinateInfo.distancesFromStopLocationWithCoordinates.sort()
+
+        let coordinatesToConsider: HexCoordinate[] =
+            preferMaximumRangeFromStopLocation
+                ? coordinateInfo.coordinatesByDistanceFromStopLocation[
+                      coordinateInfo.distancesFromStopLocationWithCoordinates[
+                          coordinateInfo
+                              .distancesFromStopLocationWithCoordinates.length -
+                              1
+                      ]
+                  ]
+                : coordinateInfo.coordinatesByDistanceFromStopLocation[
+                      coordinateInfo.distancesFromStopLocationWithCoordinates[0]
+                  ]
 
         coordinatesToConsider.sort((a, b) => {
             const searchPathA = searchResults.shortestPathByLocation[a.q][a.r]
             const searchPathB = searchResults.shortestPathByLocation[b.q][b.r]
-
-            if (
-                searchPathA.currentNumberOfMoveActions <
-                searchPathB.currentNumberOfMoveActions
-            ) {
-                return -1
-            }
-
-            if (
-                searchPathA.currentNumberOfMoveActions >
-                searchPathB.currentNumberOfMoveActions
-            ) {
-                return 1
-            }
-
-            return 0
+            return sortByNumberOfMoveActions(searchPathA, searchPathB)
         })
-
-        if (coordinatesToConsider.length === 0) {
-            return undefined
-        }
 
         const closestRouteThatCostsFewestActions = coordinatesToConsider[0]
         return searchResults.shortestPathByLocation[
@@ -253,20 +234,26 @@ const getAllTilesSquaddieCanReach = ({
     battleSquaddie,
     squaddieTemplate,
     stopLocation,
+    actionPointsRemaining,
 }: {
     gameEngineState: GameEngineState
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
     stopLocation?: HexCoordinate
+    actionPointsRemaining?: number
 }): SearchResult => {
     const mapLocation =
         gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
             battleSquaddie.battleSquaddieId
         ).mapLocation
-    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-        squaddieTemplate,
-        battleSquaddie,
-    })
+
+    if (actionPointsRemaining === undefined) {
+        ;({ actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
+            squaddieTemplate,
+            battleSquaddie,
+        }))
+    }
+
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
@@ -400,4 +387,118 @@ const getSquaddieAttackLocations = (
                 })
         })
     return attackLocations
+}
+
+const getReachableCoordinatesByDistanceFromStopLocation = ({
+    distanceRangeFromDestination,
+    maximumDistanceOfMap,
+    stopLocation,
+    gameEngineState,
+    searchResults,
+}: {
+    distanceRangeFromDestination: {
+        minimum: number
+        maximum: number
+    }
+    maximumDistanceOfMap: number
+    stopLocation: HexCoordinate
+    gameEngineState: GameEngineState
+    searchResults: SearchResult
+}): {
+    distancesFromStopLocationWithCoordinates: number[]
+    coordinatesByDistanceFromStopLocation: {
+        [key: number]: HexCoordinate[]
+    }
+} => {
+    let coordinateInfo: {
+        distancesFromStopLocationWithCoordinates: number[]
+        coordinatesByDistanceFromStopLocation: {
+            [key: number]: HexCoordinate[]
+        }
+    } = {
+        distancesFromStopLocationWithCoordinates: [],
+        coordinatesByDistanceFromStopLocation: {},
+    }
+
+    let minimumDistanceFromStopLocation =
+        distanceRangeFromDestination.minimum || 0
+    let maximumDistanceFromStopLocation =
+        distanceRangeFromDestination?.maximum < maximumDistanceOfMap
+            ? distanceRangeFromDestination?.maximum
+            : maximumDistanceOfMap
+
+    for (
+        let radiusFromStopLocation = minimumDistanceFromStopLocation;
+        radiusFromStopLocation <= maximumDistanceFromStopLocation;
+        radiusFromStopLocation++
+    ) {
+        let coordinatesAtThisDistanceFromStopLocation =
+            HexGridService.GetCoordinatesForRingAroundCoordinate(
+                stopLocation,
+                radiusFromStopLocation
+            )
+                .filter((coordinate) =>
+                    TerrainTileMapService.isLocationOnMap(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap.terrainTileMap,
+                        coordinate
+                    )
+                )
+                .filter(
+                    (coordinate) =>
+                        searchResults.shortestPathByLocation?.[coordinate.q]?.[
+                            coordinate.r
+                        ]
+                )
+                .filter(
+                    (coordinate) =>
+                        searchResults.shortestPathByLocation[coordinate.q][
+                            coordinate.r
+                        ].currentNumberOfMoveActions > 0
+                )
+        if (coordinatesAtThisDistanceFromStopLocation.length > 0) {
+            coordinateInfo.coordinatesByDistanceFromStopLocation[
+                radiusFromStopLocation
+            ] = coordinatesAtThisDistanceFromStopLocation
+            coordinateInfo.distancesFromStopLocationWithCoordinates.push(
+                radiusFromStopLocation
+            )
+        }
+    }
+
+    return coordinateInfo
+}
+
+const sortByNumberOfMoveActions = (
+    searchPathA: SearchPath,
+    searchPathB: SearchPath
+) => {
+    switch (true) {
+        case searchPathA.currentNumberOfMoveActions <
+            searchPathB.currentNumberOfMoveActions:
+            return -1
+        case searchPathA.currentNumberOfMoveActions >
+            searchPathB.currentNumberOfMoveActions:
+            return 1
+        default:
+            return 0
+    }
+}
+
+const isAlreadyAtTheLocation = ({
+    stopLocation,
+    gameEngineState,
+    battleSquaddieId,
+}: {
+    stopLocation: HexCoordinate
+    gameEngineState: GameEngineState
+    battleSquaddieId: string
+}): boolean => {
+    const missionMapLocationDatum =
+        MissionMapService.getBattleSquaddieAtLocation(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            stopLocation
+        )
+
+    return missionMapLocationDatum.battleSquaddieId === battleSquaddieId
 }

@@ -1,8 +1,6 @@
 import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import { BattleCamera } from "../battle/battleCamera"
-import { isValidValue } from "../utils/validityCheck"
 
 export const ConvertCoordinateService = {
     convertMapCoordinatesToScreenCoordinates: ({

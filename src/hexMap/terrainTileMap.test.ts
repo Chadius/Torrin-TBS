@@ -355,6 +355,10 @@ describe("Terrain Tile Map", () => {
                 numberOfRows: 4,
             })
         })
+
+        it("can calculate the maximum distance aka diagonal across the map", () => {
+            expect(TerrainTileMapService.getMaximumDistance(bigMap)).toEqual(9)
+        })
     })
 
     describe("isOnScreen", () => {
