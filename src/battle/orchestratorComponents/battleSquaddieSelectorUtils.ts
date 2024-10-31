@@ -30,7 +30,11 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import {
+    SquaddieAffiliation,
+    SquaddieAffiliationService,
+} from "../../squaddie/squaddieAffiliation"
+import { ActionTemplateService } from "../../action/template/actionTemplate"
 
 export const BattleSquaddieSelectorService = {
     createSearchPathAndHighlightMovementPath: ({
@@ -58,7 +62,6 @@ export const BattleSquaddieSelectorService = {
         stopLocation,
         distanceRangeFromDestination,
         actionPointsRemaining,
-        preferMaximumRangeFromStopLocation,
     }: {
         gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
@@ -69,7 +72,6 @@ export const BattleSquaddieSelectorService = {
             maximum: number
         }
         actionPointsRemaining?: number
-        preferMaximumRangeFromStopLocation?: boolean
     }): SearchPath => {
         const searchResults = getAllTilesSquaddieCanReach({
             gameEngineState,
@@ -111,17 +113,12 @@ export const BattleSquaddieSelectorService = {
         coordinateInfo.distancesFromStopLocationWithCoordinates.sort()
 
         let coordinatesToConsider: HexCoordinate[] =
-            preferMaximumRangeFromStopLocation
-                ? coordinateInfo.coordinatesByDistanceFromStopLocation[
-                      coordinateInfo.distancesFromStopLocationWithCoordinates[
-                          coordinateInfo
-                              .distancesFromStopLocationWithCoordinates.length -
-                              1
-                      ]
-                  ]
-                : coordinateInfo.coordinatesByDistanceFromStopLocation[
-                      coordinateInfo.distancesFromStopLocationWithCoordinates[0]
-                  ]
+            coordinateInfo.coordinatesByDistanceFromStopLocation[
+                coordinateInfo.distancesFromStopLocationWithCoordinates[
+                    coordinateInfo.distancesFromStopLocationWithCoordinates
+                        .length - 1
+                ]
+            ]
 
         coordinatesToConsider.sort((a, b) => {
             const searchPathA = searchResults.shortestPathByLocation[a.q][a.r]
@@ -167,6 +164,137 @@ export const BattleSquaddieSelectorService = {
             reachableLocationSearch,
             actionPointsRemaining,
             missionMap
+        )
+    },
+    getBestActionAndLocationToActFrom: ({
+        actorBattleSquaddieId,
+        targetBattleSquaddieId,
+        gameEngineState,
+    }: {
+        actorBattleSquaddieId: string
+        targetBattleSquaddieId: string
+        gameEngineState: GameEngineState
+    }): {
+        useThisActionTemplateId: string
+        moveToThisLocation: HexCoordinate
+    } => {
+        const objectRepository = gameEngineState.repository
+        const map =
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+
+        const {
+            battleSquaddie: actorBattleSquaddie,
+            squaddieTemplate: actorSquaddieTemplate,
+        } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                objectRepository,
+                actorBattleSquaddieId
+            )
+        )
+
+        const actorAndTargetAreAllies = areActorAndTargetAllies(
+            objectRepository,
+            targetBattleSquaddieId,
+            actorSquaddieTemplate
+        )
+
+        const actionsToTargetWith = actorAndTargetAreAllies
+            ? SquaddieService.getActionsThatTargetAlly({
+                  squaddieTemplate: actorSquaddieTemplate,
+                  objectRepository,
+              })
+            : SquaddieService.getActionsThatTargetFoe({
+                  squaddieTemplate: actorSquaddieTemplate,
+                  objectRepository,
+              })
+
+        const { mapLocation: targetMapLocation } =
+            MissionMapService.getByBattleSquaddieId(map, targetBattleSquaddieId)
+
+        const highestPriorityActionThatCanBeUsedOnTarget =
+            actionsToTargetWith.reduce(
+                (
+                    usableActionInfo: {
+                        actionTemplateId: string
+                        destination: HexCoordinate
+                    },
+                    actionTemplateId
+                ) => {
+                    if (usableActionInfo) {
+                        return usableActionInfo
+                    }
+
+                    const actionTemplate =
+                        ObjectRepositoryService.getActionTemplateById(
+                            objectRepository,
+                            actionTemplateId
+                        )
+                    if (!actionTemplate) {
+                        return usableActionInfo
+                    }
+
+                    const actionEffectTemplates =
+                        ActionTemplateService.getActionEffectSquaddieTemplates(
+                            actionTemplate
+                        )
+                    if (actionEffectTemplates.length === 0) {
+                        return usableActionInfo
+                    }
+
+                    const actionPointsRemaining =
+                        SquaddieService.getNumberOfActionPoints({
+                            squaddieTemplate: actorSquaddieTemplate,
+                            battleSquaddie: actorBattleSquaddie,
+                        }).actionPointsRemaining - actionTemplate.actionPoints
+                    if (actionPointsRemaining <= 0) {
+                        return usableActionInfo
+                    }
+
+                    const closestRoute =
+                        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+                            {
+                                gameEngineState,
+                                battleSquaddie: actorBattleSquaddie,
+                                squaddieTemplate: actorSquaddieTemplate,
+                                stopLocation: targetMapLocation,
+                                distanceRangeFromDestination: {
+                                    minimum:
+                                        actionEffectTemplates[0].minimumRange,
+                                    maximum:
+                                        actionEffectTemplates[0].maximumRange,
+                                },
+                                actionPointsRemaining: actionPointsRemaining,
+                            }
+                        )
+
+                    return isValidValue(closestRoute)
+                        ? {
+                              actionTemplateId: actionTemplate.id,
+                              destination: closestRoute.destination,
+                          }
+                        : usableActionInfo
+                },
+                undefined
+            )
+
+        if (highestPriorityActionThatCanBeUsedOnTarget) {
+            return {
+                useThisActionTemplateId:
+                    highestPriorityActionThatCanBeUsedOnTarget.actionTemplateId,
+                moveToThisLocation:
+                    highestPriorityActionThatCanBeUsedOnTarget.destination,
+            }
+        }
+
+        if (!actorAndTargetAreAllies) {
+            return undefined
+        }
+
+        return getAsCloseAsPossibleOnlyUsingMovement(
+            gameEngineState,
+            actorBattleSquaddie,
+            actorSquaddieTemplate,
+            targetMapLocation
         )
     },
 }
@@ -501,4 +629,54 @@ const isAlreadyAtTheLocation = ({
         )
 
     return missionMapLocationDatum.battleSquaddieId === battleSquaddieId
+}
+
+const getAsCloseAsPossibleOnlyUsingMovement = (
+    gameEngineState: GameEngineState,
+    actorBattleSquaddie: BattleSquaddie,
+    actorSquaddieTemplate: SquaddieTemplate,
+    targetMapLocation: HexCoordinate
+): {
+    useThisActionTemplateId: string
+    moveToThisLocation: HexCoordinate
+} => {
+    const closestRoute =
+        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+            {
+                gameEngineState,
+                battleSquaddie: actorBattleSquaddie,
+                squaddieTemplate: actorSquaddieTemplate,
+                stopLocation: targetMapLocation,
+                distanceRangeFromDestination: {
+                    minimum: 0,
+                    maximum: 1,
+                },
+            }
+        )
+
+    if (!isValidValue(closestRoute)) {
+        return undefined
+    }
+
+    return {
+        useThisActionTemplateId: undefined,
+        moveToThisLocation: closestRoute.destination,
+    }
+}
+
+const areActorAndTargetAllies = (
+    objectRepository: ObjectRepository,
+    targetBattleSquaddieId: string,
+    actorSquaddieTemplate: SquaddieTemplate
+) => {
+    const { squaddieTemplate: targetSquaddieTemplate } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            objectRepository,
+            targetBattleSquaddieId
+        )
+    )
+    return SquaddieAffiliationService.areSquaddieAffiliationsAllies({
+        actingAffiliation: actorSquaddieTemplate.squaddieId.affiliation,
+        targetAffiliation: targetSquaddieTemplate.squaddieId.affiliation,
+    })
 }

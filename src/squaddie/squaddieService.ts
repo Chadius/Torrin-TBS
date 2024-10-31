@@ -13,6 +13,9 @@ import {
     ObjectRepositoryService,
 } from "../battle/objectRepository"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
+import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
+import { ActionTemplateService } from "../action/template/actionTemplate"
+import { isValidValue } from "../utils/validityCheck"
 
 export const SquaddieService = {
     calculateDealtDamageToTheSquaddie: ({
@@ -174,6 +177,42 @@ export const SquaddieService = {
             squaddieTemplate,
             battleSquaddie,
         }),
+    getActionsThatTargetAlly: ({
+        squaddieTemplate,
+        objectRepository,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        objectRepository: ObjectRepository
+    }): string[] =>
+        getActionsBasedOnTargetType({
+            squaddieTemplate,
+            objectRepository,
+            type: Trait.TARGET_ALLY,
+        }),
+    getActionsThatTargetFoe: ({
+        squaddieTemplate,
+        objectRepository,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        objectRepository: ObjectRepository
+    }): string[] =>
+        getActionsBasedOnTargetType({
+            squaddieTemplate,
+            objectRepository,
+            type: Trait.TARGET_FOE,
+        }),
+    getActionsThatTargetSelf: ({
+        squaddieTemplate,
+        objectRepository,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        objectRepository: ObjectRepository
+    }): string[] =>
+        getActionsBasedOnTargetType({
+            squaddieTemplate,
+            objectRepository,
+            type: Trait.TARGET_SELF,
+        }),
 }
 
 const getNumberOfActionPoints = ({
@@ -334,4 +373,31 @@ const canSquaddieActRightNow = ({
         hasActionPointsRemaining: hasActionPointsRemaining,
         isDead: !squaddieIsAlive,
     }
+}
+
+const getActionsBasedOnTargetType = ({
+    squaddieTemplate,
+    objectRepository,
+    type,
+}: {
+    squaddieTemplate: SquaddieTemplate
+    objectRepository: ObjectRepository
+    type: Trait.TARGET_FOE | Trait.TARGET_ALLY | Trait.TARGET_SELF
+}): string[] => {
+    return squaddieTemplate.actionTemplateIds.filter((actionTemplateId) => {
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            actionTemplateId
+        )
+
+        if (!isValidValue(actionTemplate)) {
+            return false
+        }
+
+        return ActionTemplateService.getActionEffectSquaddieTemplates(
+            actionTemplate
+        ).some((template) =>
+            TraitStatusStorageService.getStatus(template.traits, type)
+        )
+    })
 }

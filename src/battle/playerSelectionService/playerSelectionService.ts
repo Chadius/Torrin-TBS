@@ -36,7 +36,6 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import {
     WARNING_POPUP_TEXT_SIZE,
     WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
@@ -329,18 +328,6 @@ export const PlayerSelectionService = {
                 gameEngineState,
                 mouseClick: context.mouseClick,
             })
-        const {
-            battleSquaddie: contextBattleSquaddie,
-            squaddieTemplate: contextSquaddieTemplate,
-        } = context.battleSquaddieId
-            ? getResultOrThrowError(
-                  ObjectRepositoryService.getSquaddieByBattleId(
-                      gameEngineState.repository,
-                      context.battleSquaddieId
-                  )
-              )
-            : { battleSquaddie: undefined, squaddieTemplate: undefined }
-        let closestRoute: SearchPath
 
         switch (context.playerIntent) {
             case PlayerIntent.END_PHASE:
@@ -440,41 +427,24 @@ export const PlayerSelectionService = {
                         BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
                 })
             case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE:
-                closestRoute =
-                    BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-                        {
-                            gameEngineState,
-                            battleSquaddie: contextBattleSquaddie,
-                            squaddieTemplate: contextSquaddieTemplate,
-                            stopLocation: { q, r },
-                            distanceRangeFromDestination: {
-                                minimum: 1,
-                                maximum: 1,
-                            },
-                        }
-                    )
-
-                messageSent = {
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
-                    battleSquaddieId: context.battleSquaddieId,
-                    targetLocation: closestRoute.destination,
+                return squaddieSelectedMoveSquaddieToSquaddie({
+                    targetSquaddieLocation: { q, r },
+                    context,
                     gameEngineState,
-                }
-                gameEngineState.messageBoard.sendMessage(messageSent)
-                return PlayerSelectionChangesService.new({ messageSent })
+                })
             case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE:
-                const reason = `${targetSquaddieTemplate.squaddieId.name} is out of range`
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason,
+                    reason: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
                     selectionLocation: {
                         x: context.mouseClick.x,
                         y: context.mouseClick.y,
                     },
                     coordinateSystem: CoordinateSystem.WORLD,
                     width:
-                        reason.length *
+                        `${targetSquaddieTemplate.squaddieId.name} is out of range`
+                            .length *
                         WARNING_POPUP_TEXT_SIZE *
                         WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
                 }
@@ -695,4 +665,60 @@ const isDifferentSquaddieInRange = (
             }
         ) !== undefined
     )
+}
+
+const getBestActionAndLocationToActFrom = ({
+    actorBattleSquaddieId,
+    targetSquaddieLocation,
+    gameEngineState,
+}: {
+    gameEngineState: GameEngineState
+    actorBattleSquaddieId: string
+    targetSquaddieLocation: { q: number; r: number }
+}): {
+    useThisActionTemplateId: string
+    moveToThisLocation: HexCoordinate
+} => {
+    const { battleSquaddieId: targetBattleSquaddieId } =
+        MissionMapService.getBattleSquaddieAtLocation(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            targetSquaddieLocation
+        )
+
+    if (!targetBattleSquaddieId) return undefined
+
+    BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
+        actorBattleSquaddieId,
+        targetBattleSquaddieId,
+        gameEngineState,
+    })
+
+    return BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
+        actorBattleSquaddieId,
+        targetBattleSquaddieId,
+        gameEngineState,
+    })
+}
+
+const squaddieSelectedMoveSquaddieToSquaddie = ({
+    targetSquaddieLocation,
+    context,
+    gameEngineState,
+}: {
+    targetSquaddieLocation: { q: number; r: number }
+    context: PlayerSelectionContext
+    gameEngineState: GameEngineState
+}): PlayerSelectionChanges => {
+    const messageSent: MessageBoardMessage = {
+        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+        battleSquaddieId: context.battleSquaddieId,
+        targetLocation: getBestActionAndLocationToActFrom({
+            actorBattleSquaddieId: context.battleSquaddieId,
+            targetSquaddieLocation,
+            gameEngineState,
+        }).moveToThisLocation,
+        gameEngineState,
+    }
+    gameEngineState.messageBoard.sendMessage(messageSent)
+    return PlayerSelectionChangesService.new({ messageSent })
 }

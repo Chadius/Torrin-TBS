@@ -74,6 +74,8 @@ export class PlayerHudController implements BattleOrchestratorComponent {
             !BattleActionDecisionStepService.isActorSet(actionBuilderState) ||
             !BattleActionDecisionStepService.isActionSet(actionBuilderState)
         ) {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,

@@ -16,6 +16,9 @@ import {
     AttributeType,
 } from "./attributeModifier"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
+import { ActionTemplateService } from "../action/template/actionTemplate"
+import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -351,6 +354,102 @@ describe("Squaddie Service", () => {
             expect(squaddieCanCurrentlyAct).toBeFalsy()
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy()
             expect(squaddieIsNormallyControllableByPlayer).toBeFalsy()
+        })
+    })
+
+    describe("Can return actions aimed at different types of squaddies", () => {
+        let objectRepository: ObjectRepository
+        let squaddieTemplate: SquaddieTemplate
+        beforeEach(() => {
+            objectRepository = ObjectRepositoryService.new()
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: "targetSelf",
+                    name: "targetSelf",
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_SELF]: true,
+                                }
+                            ),
+                        }),
+                    ],
+                })
+            )
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: "targetFoe",
+                    name: "targetFoe",
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_FOE]: true,
+                                }
+                            ),
+                        }),
+                    ],
+                })
+            )
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: "targetAlly",
+                    name: "targetAlly",
+                    actionEffectTemplates: [
+                        ActionEffectSquaddieTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_ALLY]: true,
+                                }
+                            ),
+                        }),
+                    ],
+                })
+            )
+            ;({ squaddieTemplate } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    objectRepository,
+                    templateId: "playerSquaddie",
+                    battleId: "playerSquaddie",
+                    name: "playerSquaddie",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    actionTemplateIds: [
+                        "targetSelf",
+                        "targetAlly",
+                        "targetFoe",
+                    ],
+                }))
+        })
+
+        it("can get squaddies that aim at allies", () => {
+            expect(
+                SquaddieService.getActionsThatTargetAlly({
+                    objectRepository,
+                    squaddieTemplate,
+                })
+            ).toEqual(["targetAlly"])
+        })
+
+        it("can get squaddies that aim at foes", () => {
+            expect(
+                SquaddieService.getActionsThatTargetFoe({
+                    objectRepository,
+                    squaddieTemplate,
+                })
+            ).toEqual(["targetFoe"])
+        })
+
+        it("can get squaddies that aim at self", () => {
+            expect(
+                SquaddieService.getActionsThatTargetSelf({
+                    objectRepository,
+                    squaddieTemplate,
+                })
+            ).toEqual(["targetSelf"])
         })
     })
 })
