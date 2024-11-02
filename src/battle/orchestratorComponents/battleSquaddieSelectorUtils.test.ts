@@ -227,6 +227,38 @@ describe("battleSquaddieSelectorUtils", () => {
             expect(closestRoute.destination).toEqual({ q: 0, r: 2 })
             expect(closestRoute.currentNumberOfMoveActions).toEqual(1)
         })
+        it("will give a route even if the destination is blocked by terrain", () => {
+            const missionMapBlockedByAPit: MissionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 - 1 "],
+                }),
+            })
+            MissionMapService.addSquaddie({
+                missionMap: missionMapBlockedByAPit,
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
+                location: { q: 0, r: 0 },
+            })
+            gameEngineState.battleOrchestratorState.battleState.missionMap =
+                missionMapBlockedByAPit
+
+            const closestRoute =
+                BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
+                    {
+                        gameEngineState,
+                        battleSquaddie: playerBattleSquaddie,
+                        squaddieTemplate: playerSquaddieTemplate,
+                        stopLocation: { q: 0, r: 3 },
+                        distanceRangeFromDestination: {
+                            minimum: 0,
+                            maximum: 2,
+                        },
+                    }
+                )
+
+            expect(closestRoute.destination).toEqual({ q: 0, r: 1 })
+            expect(closestRoute.currentNumberOfMoveActions).toEqual(1)
+        })
     })
 
     describe("Melee attacker knows they can move in range to attack a foe", () => {
@@ -435,41 +467,86 @@ describe("battleSquaddieSelectorUtils", () => {
         })
     })
 
-    it("Will use ranged attacks at maximum range", () => {
-        const { battleSquaddie: playerActor } =
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                objectRepository,
-                templateId: "playerActor",
-                battleId: "playerActor",
-                name: "playerActor",
-                affiliation: SquaddieAffiliation.PLAYER,
-                actionTemplateIds: [rangedAttack.id],
-            })
-        MissionMapService.addSquaddie({
-            missionMap: map,
-            battleSquaddieId: playerActor.battleSquaddieId,
-            squaddieTemplateId: playerActor.squaddieTemplateId,
-            location: { q: 0, r: 0 },
-        })
-        MissionMapService.addSquaddie({
-            missionMap: map,
-            battleSquaddieId: enemyActor.battleSquaddieId,
-            squaddieTemplateId: enemyActor.squaddieTemplateId,
-            location: { q: 0, r: 7 },
+    describe("Ranged attacks", () => {
+        let playerActor: BattleSquaddie
+        beforeEach(() => {
+            ;({ battleSquaddie: playerActor } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    objectRepository,
+                    templateId: "playerActor",
+                    battleId: "playerActor",
+                    name: "playerActor",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    actionTemplateIds: [rangedAttack.id],
+                }))
         })
 
-        const actionInfo =
-            BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
-                gameEngineState,
-                actorBattleSquaddieId: playerActor.battleSquaddieId,
-                targetBattleSquaddieId: enemyActor.battleSquaddieId,
+        it("Will use ranged attacks at maximum range", () => {
+            MissionMapService.addSquaddie({
+                missionMap: map,
+                battleSquaddieId: playerActor.battleSquaddieId,
+                squaddieTemplateId: playerActor.squaddieTemplateId,
+                location: { q: 0, r: 0 },
             })
-        expect(actionInfo).toEqual({
-            useThisActionTemplateId: rangedAttack.id,
-            moveToThisLocation: {
-                q: 0,
-                r: 4,
-            },
+            MissionMapService.addSquaddie({
+                missionMap: map,
+                battleSquaddieId: enemyActor.battleSquaddieId,
+                squaddieTemplateId: enemyActor.squaddieTemplateId,
+                location: { q: 0, r: 7 },
+            })
+
+            const actionInfo =
+                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                    {
+                        gameEngineState,
+                        actorBattleSquaddieId: playerActor.battleSquaddieId,
+                        targetBattleSquaddieId: enemyActor.battleSquaddieId,
+                    }
+                )
+            expect(actionInfo).toEqual({
+                useThisActionTemplateId: rangedAttack.id,
+                moveToThisLocation: {
+                    q: 0,
+                    r: 4,
+                },
+            })
+        })
+
+        it("will use ranged attacks even if the target is unreachable", () => {
+            const missionMapBlockedByAPit: MissionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 - 1 "],
+                }),
+            })
+            MissionMapService.addSquaddie({
+                missionMap: missionMapBlockedByAPit,
+                battleSquaddieId: playerActor.battleSquaddieId,
+                squaddieTemplateId: playerActor.squaddieTemplateId,
+                location: { q: 0, r: 0 },
+            })
+            MissionMapService.addSquaddie({
+                missionMap: missionMapBlockedByAPit,
+                battleSquaddieId: enemyActor.battleSquaddieId,
+                squaddieTemplateId: enemyActor.squaddieTemplateId,
+                location: { q: 0, r: 3 },
+            })
+            gameEngineState.battleOrchestratorState.battleState.missionMap =
+                missionMapBlockedByAPit
+            const actionInfo =
+                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                    {
+                        gameEngineState,
+                        actorBattleSquaddieId: playerActor.battleSquaddieId,
+                        targetBattleSquaddieId: enemyActor.battleSquaddieId,
+                    }
+                )
+            expect(actionInfo).toEqual({
+                useThisActionTemplateId: rangedAttack.id,
+                moveToThisLocation: {
+                    q: 0,
+                    r: 1,
+                },
+            })
         })
     })
 

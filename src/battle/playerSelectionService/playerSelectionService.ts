@@ -644,26 +644,18 @@ const isDifferentSquaddieInRange = (
         return false
     }
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieTryingToStartAnAction
+    const { battleSquaddieId: targetBattleSquaddieId } =
+        MissionMapService.getBattleSquaddieAtLocation(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            clickedLocation
         )
-    )
 
     return (
-        BattleSquaddieSelectorService.getClosestRouteForSquaddieToReachDestination(
-            {
-                gameEngineState,
-                battleSquaddie,
-                squaddieTemplate,
-                stopLocation: clickedLocation,
-                distanceRangeFromDestination: {
-                    minimum: 1,
-                    maximum: 1,
-                },
-            }
-        ) !== undefined
+        BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
+            actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
+            targetBattleSquaddieId,
+            gameEngineState,
+        }) != undefined
     )
 }
 
@@ -686,12 +678,6 @@ const getBestActionAndLocationToActFrom = ({
         )
 
     if (!targetBattleSquaddieId) return undefined
-
-    BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
-        actorBattleSquaddieId,
-        targetBattleSquaddieId,
-        gameEngineState,
-    })
 
     return BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
         actorBattleSquaddieId,

@@ -738,29 +738,15 @@ describe("Player Selection Service", () => {
         })
 
         it("sends a message indicating the squaddie wants to move", () => {
-            const actualContext = PlayerSelectionContextService.new({
-                playerIntent:
-                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
-                battleSquaddieId: "PLAYER",
-                mouseClick: MouseClickService.new({
-                    button: MouseButton.ACCEPT,
+            const { actualChanges, expectedMessage } =
+                clickOnScreenAndCalculateChangesAndMessage({
                     x,
                     y,
-                }),
-            })
-
-            const actualChanges: PlayerSelectionChanges =
-                PlayerSelectionService.applyContextToGetChanges({
                     gameEngineState,
-                    context: actualContext,
+                    targetLocation: { q: 0, r: 1 },
+                    playerIntent:
+                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
                 })
-
-            const expectedMessage: MessageBoardMessage = {
-                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
-                battleSquaddieId: "PLAYER",
-                targetLocation: { q: 0, r: 1 },
-                gameEngineState,
-            }
 
             expect(
                 gameEngineState.messageBoard.sendMessage
@@ -769,38 +755,45 @@ describe("Player Selection Service", () => {
         })
     })
 
+    const setActorSetMessageSpyAndGetOnScreenCoordinate = (
+        enemyMapLocation: HexCoordinate
+    ): { screenX: number; screenY: number } => {
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleSquaddieId: "PLAYER",
+        })
+
+        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+        return ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+            {
+                ...enemyMapLocation,
+                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+            }
+        )
+    }
+
     describe("Try to move a player squaddie by clicking on another squaddie", () => {
         let x: number
         let y: number
+        let enemyMapLocation: HexCoordinate
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
+            enemyMapLocation = { q: 0, r: 3 }
             gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
-                enemyMapLocation: { q: 0, r: 2 },
+                enemyMapLocation,
             })
-
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: "PLAYER",
-            })
-
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({ screenX: x, screenY: y } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 2,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                ))
+                setActorSetMessageSpyAndGetOnScreenCoordinate(enemyMapLocation))
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -811,8 +804,7 @@ describe("Player Selection Service", () => {
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
                     gameEngineState,
-                    q: 0,
-                    r: 2,
+                    ...enemyMapLocation,
                 })
             })
 
@@ -837,7 +829,7 @@ describe("Player Selection Service", () => {
             })
         })
 
-        it("sends a message indicating the squaddie wants to move", () => {
+        it("sends a message indicating the squaddie wants to move into melee range", () => {
             const actualContext = PlayerSelectionContextService.new({
                 playerIntent:
                     PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
@@ -858,7 +850,7 @@ describe("Player Selection Service", () => {
             const expectedMessage: MessageBoardMessage = {
                 type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
                 battleSquaddieId: "PLAYER",
-                targetLocation: { q: 0, r: 1 },
+                targetLocation: { q: 0, r: 2 },
                 gameEngineState,
             }
 
@@ -868,7 +860,7 @@ describe("Player Selection Service", () => {
             expect(actualChanges.messageSent).toEqual(expectedMessage)
         })
 
-        describe("Move if target is in range", () => {
+        describe("Target is out of range", () => {
             let x: number
             let y: number
             const create1DMapWithPits = (numberOfPits: number) => {
@@ -1001,6 +993,46 @@ describe("Player Selection Service", () => {
                 expect(actualChanges.messageSent).toEqual(expectedMessage)
             })
         })
+    })
+
+    it("sends a message indicating the squaddie wants to use the ranged attack", () => {
+        const enemyMapLocation: HexCoordinate = { q: 0, r: 3 }
+        let x: number
+        let y: number
+        objectRepository = ObjectRepositoryService.new()
+        missionMap = MissionMapService.new({
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 - 1 "],
+            }),
+        })
+        gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
+            objectRepository,
+            missionMap,
+            enemyMapLocation,
+            playerBattleSquaddie: createSquaddie({
+                objectRepository,
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                actionTemplateIds: ["ranged", "melee", "heal"],
+            }).battleSquaddie,
+        })
+        ;({ screenX: x, screenY: y } =
+            setActorSetMessageSpyAndGetOnScreenCoordinate(enemyMapLocation))
+        const { actualChanges, expectedMessage } =
+            clickOnScreenAndCalculateChangesAndMessage({
+                x,
+                y,
+                gameEngineState,
+                targetLocation: { q: 0, r: 1 },
+                playerIntent:
+                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
+            })
+
+        expect(gameEngineState.messageBoard.sendMessage).toHaveBeenCalledWith(
+            expectedMessage
+        )
+        expect(actualChanges.messageSent).toEqual(expectedMessage)
+
+        messageSpy.mockRestore()
     })
 
     describe("After selecting a squaddie, the user clicks off map", () => {
@@ -1596,9 +1628,11 @@ const createMap = (movementCost?: string[]): MissionMap => {
 const createSquaddie = ({
     objectRepository,
     squaddieAffiliation,
+    actionTemplateIds,
 }: {
     objectRepository: ObjectRepository
     squaddieAffiliation: SquaddieAffiliation
+    actionTemplateIds?: string[]
 }): {
     battleSquaddie: BattleSquaddie
     squaddieTemplate: SquaddieTemplate
@@ -1644,7 +1678,7 @@ const createSquaddie = ({
                             [Trait.ATTACK]: true,
                         }),
                         minimumRange: 1,
-                        maximumRange: 3,
+                        maximumRange: 2,
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
@@ -1692,6 +1726,10 @@ const createSquaddie = ({
         squaddieName = `${squaddieAffiliation.toString()}${uuid}`
     }
 
+    if (actionTemplateIds == undefined) {
+        actionTemplateIds = ["melee", "ranged", "heal"]
+    }
+
     const { battleSquaddie, squaddieTemplate } =
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: squaddieAffiliation,
@@ -1699,7 +1737,7 @@ const createSquaddie = ({
             templateId: squaddieAffiliation.toString(),
             name: squaddieName,
             objectRepository: objectRepository,
-            actionTemplateIds: ["melee", "ranged", "heal"],
+            actionTemplateIds,
         })
 
     return {
@@ -1778,15 +1816,19 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
     objectRepository,
     missionMap,
     enemyMapLocation,
+    playerBattleSquaddie,
 }: {
     objectRepository: ObjectRepository
     missionMap: MissionMap
     enemyMapLocation?: HexCoordinate
+    playerBattleSquaddie?: BattleSquaddie
 }) => {
-    const { battleSquaddie: playerBattleSquaddie } = createSquaddie({
-        objectRepository,
-        squaddieAffiliation: SquaddieAffiliation.PLAYER,
-    })
+    if (playerBattleSquaddie === undefined) {
+        ;({ battleSquaddie: playerBattleSquaddie } = createSquaddie({
+            objectRepository,
+            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+        }))
+    }
     const playerTeam = BattleSquaddieTeamService.new({
         id: "player_team",
         name: "player_team",
@@ -1839,4 +1881,42 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         repository: objectRepository,
         campaign: CampaignService.default(),
     })
+}
+
+const clickOnScreenAndCalculateChangesAndMessage = ({
+    x,
+    y,
+    gameEngineState,
+    targetLocation,
+    playerIntent,
+}: {
+    x: number
+    y: number
+    gameEngineState: GameEngineState
+    targetLocation: HexCoordinate
+    playerIntent: PlayerIntent
+}) => {
+    const actualContext = PlayerSelectionContextService.new({
+        playerIntent,
+        battleSquaddieId: "PLAYER",
+        mouseClick: MouseClickService.new({
+            button: MouseButton.ACCEPT,
+            x,
+            y,
+        }),
+    })
+
+    const actualChanges: PlayerSelectionChanges =
+        PlayerSelectionService.applyContextToGetChanges({
+            gameEngineState,
+            context: actualContext,
+        })
+
+    const expectedMessage: MessageBoardMessage = {
+        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+        battleSquaddieId: "PLAYER",
+        targetLocation,
+        gameEngineState,
+    }
+    return { actualChanges, expectedMessage }
 }
