@@ -15,7 +15,6 @@ import {
 import { ObjectRepositoryService } from "../../objectRepository"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
-import { ActionsThisRound } from "../../history/actionsThisRound"
 import { MissionMapService } from "../../../missionMap/missionMap"
 import { MissionMapSquaddieLocationService } from "../../../missionMap/squaddieLocation"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
@@ -53,19 +52,16 @@ export const ActionCalculator = {
         actingBattleSquaddie,
         validTargetLocation,
         battleActionDecisionStep,
-        actionsThisRound,
     }: {
         gameEngineState: GameEngineState
         actingBattleSquaddie: BattleSquaddie
         validTargetLocation: HexCoordinate
-        actionsThisRound: ActionsThisRound
         battleActionDecisionStep: BattleActionDecisionStep
     }): SquaddieSquaddieResults[] => {
         return calculateResults({
             gameEngineState: gameEngineState,
             actingBattleSquaddie,
             validTargetLocation,
-            actionsThisRound,
             battleActionDecisionStep,
         })
     },
@@ -75,13 +71,11 @@ const calculateResults = ({
     gameEngineState,
     actingBattleSquaddie,
     validTargetLocation,
-    actionsThisRound,
     battleActionDecisionStep,
 }: {
     gameEngineState: GameEngineState
     actingBattleSquaddie: BattleSquaddie
     validTargetLocation: HexCoordinate
-    actionsThisRound: ActionsThisRound
     battleActionDecisionStep: BattleActionDecisionStep
 }): SquaddieSquaddieResults[] => {
     if (battleActionDecisionStep.action.actionTemplateId === undefined) {
@@ -105,7 +99,6 @@ const calculateResults = ({
         const actionContext = getActorContext({
             gameEngineState,
             actionEffectSquaddieTemplate,
-            actionsThisRound,
         })
         const squaddieChanges = getSquaddieChangesForThisEffectSquaddieTemplate(
             targetedBattleSquaddieIds,
@@ -126,24 +119,20 @@ const calculateResults = ({
 
 const getActorContext = ({
     gameEngineState,
-    actionsThisRound,
     actionEffectSquaddieTemplate,
 }: {
     gameEngineState: GameEngineState
-    actionsThisRound: ActionsThisRound
     actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
 }): BattleActionActionContext => {
     if (isAnAttack(actionEffectSquaddieTemplate)) {
         return CalculatorAttack.getActorContext({
             actionEffectSquaddieTemplate,
             gameEngineState,
-            actionsThisRound,
         })
     }
     return CalculatorMiscellaneous.getActorContext({
         actionEffectSquaddieTemplate,
         gameEngineState,
-        actionsThisRound,
     })
 }
 

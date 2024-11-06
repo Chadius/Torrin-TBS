@@ -22,6 +22,8 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -37,32 +39,6 @@ export const OrchestratorUtilities = {
     },
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
-    },
-    clearActionsThisRoundIfSquaddieCannotAct: (
-        gameEngineState: GameEngineState
-    ) => {
-        if (
-            !(
-                isValidValue(gameEngineState) &&
-                isValidValue(gameEngineState.battleOrchestratorState) &&
-                isValidValue(
-                    gameEngineState.battleOrchestratorState.battleState
-                ) &&
-                isValidValue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                )
-            )
-        ) {
-            return
-        }
-
-        if (canTheCurrentSquaddieAct(gameEngineState)) {
-            return
-        }
-
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-            undefined
     },
     highlightSquaddieRange: (
         gameEngineState: GameEngineState,
@@ -177,15 +153,18 @@ export const OrchestratorUtilities = {
             gameEngineState,
         })
     },
+    getBattleSquaddieIdCurrentlyTakingATurn: ({
+        gameEngineState,
+    }: {
+        gameEngineState: GameEngineState
+    }): string => getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState }),
 }
 
 const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
-    const actionsThisRound =
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            actionsThisRound.battleSquaddieId
+            getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
         )
     )
 
@@ -212,43 +191,49 @@ const isSquaddieCurrentlyTakingATurn = (
         return false
     }
 
-    const actionsThisRound =
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-    if (!isValidValue(actionsThisRound)) {
-        return false
-    }
-
     if (
-        !isValidValue(actionsThisRound.battleSquaddieId) ||
-        actionsThisRound.battleSquaddieId === ""
+        BattleActionDecisionStepService.isActorSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ) &&
+        BattleActionDecisionStepService.isActionSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
     ) {
-        return false
-    }
-
-    if (actionsThisRound.processedActions.length > 0) {
         return true
     }
 
-    return isValidValue(actionsThisRound.previewedActionTemplateId)
+    if (
+        !BattleActionRecorderService.isAnimationQueueEmpty(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+    ) {
+        return true
+    }
+
+    return !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
 }
 
 const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
     gameEngineState: GameEngineState
 ) => {
-    if (
-        !gameEngineState.battleOrchestratorState.battleState.actionsThisRound ||
-        !isSquaddieCurrentlyTakingATurn(gameEngineState)
-    ) {
+    if (!isSquaddieCurrentlyTakingATurn(gameEngineState)) {
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             undefined
         return
     }
 
+    const battleSquaddieId = getBattleSquaddieIdCurrentlyTakingATurn({
+        gameEngineState,
+    })
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            battleSquaddieId
         )
     )
 
@@ -281,9 +266,7 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
         gameEngineState: gameEngineState,
-        battleSquaddieSelectedId:
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId,
+        battleSquaddieSelectedId: battleSquaddieId,
         selectionMethod: {
             mouseClick: MouseClickService.new({
                 x: mouseX,
@@ -296,8 +279,7 @@ const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
 
 const drawPlayableSquaddieReach = (gameEngineState: GameEngineState) => {
     const currentlyActingBattleSquaddieId =
-        gameEngineState?.battleOrchestratorState?.battleState?.actionsThisRound
-            ?.battleSquaddieId
+        getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
     if (
         !isValidValue(currentlyActingBattleSquaddieId) ||
         currentlyActingBattleSquaddieId === ""
@@ -308,8 +290,7 @@ const drawPlayableSquaddieReach = (gameEngineState: GameEngineState) => {
     const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            currentlyActingBattleSquaddieId
         )
     )
 
@@ -444,4 +425,41 @@ const highlightSquaddieRange = (
             .terrainTileMap,
         actionRangeOnMap
     )
+}
+
+const getBattleSquaddieIdCurrentlyTakingATurn = ({
+    gameEngineState,
+}: {
+    gameEngineState: GameEngineState
+}): string => {
+    switch (true) {
+        case !isSquaddieCurrentlyTakingATurn(gameEngineState):
+            return undefined
+        case BattleActionDecisionStepService.isActorSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ):
+            return BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
+        case !BattleActionRecorderService.isAnimationQueueEmpty(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ):
+            return BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).actor.actorBattleSquaddieId
+        case !BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ):
+            return BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).actor.actorBattleSquaddieId
+        default:
+            return undefined
+    }
 }

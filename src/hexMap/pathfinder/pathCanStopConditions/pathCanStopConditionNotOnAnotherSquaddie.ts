@@ -18,13 +18,13 @@ export class PathCanStopConditionNotOnAnotherSquaddie
 
     constructor({
         missionMap,
-        repository,
+        objectRepository,
     }: {
         missionMap: MissionMap
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     }) {
         this.missionMap = missionMap
-        this.repository = repository
+        this.repository = objectRepository
     }
 
     shouldMarkPathLocationAsStoppable({

@@ -36,13 +36,6 @@ import {
     ActionEffectSquaddieTemplateService,
 } from "../../../action/template/actionEffectSquaddieTemplate"
 import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../../history/actionsThisRound"
-import { ProcessedActionService } from "../../../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../../action/decided/decidedActionSquaddieEffect"
-import {
     AttributeModifier,
     AttributeModifierService,
     AttributeSource,
@@ -52,6 +45,8 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../../history/battleAction/battleAction"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -187,33 +182,12 @@ describe("calculator", () => {
             : player1BattleSquaddie.battleSquaddieId
     }
 
-    const getActionsThisRoundForDealBodyDamage = ({
-        battleSquaddieId,
-        currentlySelectedAction,
-    }: {
-        currentlySelectedAction: ActionTemplate
-        battleSquaddieId: string
-    }) => {
-        return ActionsThisRoundService.new({
-            battleSquaddieId: battleSquaddieId,
-            startingLocation: { q: 1, r: 0 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 1,
-                }),
-            ],
-            previewedActionTemplateId: currentlySelectedAction.id,
-        })
-    }
-
     const getGameEngineStateForDealBodyDamage = ({
         missionStatistics,
         numberGenerator,
-        actionsThisRound,
     }: {
         missionStatistics?: MissionStatistics
         numberGenerator?: NumberGeneratorStrategy
-        actionsThisRound: ActionsThisRound
     }) => {
         return GameEngineStateService.new({
             resourceHandler: undefined,
@@ -225,7 +199,6 @@ describe("calculator", () => {
                     campaignId: "test campaign",
                     missionMap,
                     missionStatistics,
-                    actionsThisRound,
                 }),
             }),
         })
@@ -247,13 +220,8 @@ describe("calculator", () => {
         const battleSquaddieId = getActingBattleSquaddieIdForDealBodyDamage({
             actingBattleSquaddie,
         })
-        const actionsThisRound = getActionsThisRoundForDealBodyDamage({
-            battleSquaddieId,
-            currentlySelectedAction,
-        })
 
         const gameEngineState = getGameEngineStateForDealBodyDamage({
-            actionsThisRound,
             numberGenerator,
             missionStatistics,
         })
@@ -274,7 +242,6 @@ describe("calculator", () => {
 
         return ActionCalculator.calculateResults({
             gameEngineState,
-            actionsThisRound,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingBattleSquaddie ?? player1BattleSquaddie,
             validTargetLocation: validTargetLocation ?? { q: 0, r: 1 },
@@ -445,17 +412,6 @@ describe("calculator", () => {
                 damageType: DamageType.UNKNOWN,
             })
 
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 1, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 1,
-                    }),
-                ],
-                previewedActionTemplateId: healsLostHitPoints.id,
-            })
-
             const actionStep: BattleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             BattleActionDecisionStepService.setActor({
@@ -480,13 +436,11 @@ describe("calculator", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
-                                actionsThisRound,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                actionsThisRound,
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
                 validTargetLocation: { q: 0, r: 2 },
@@ -516,17 +470,6 @@ describe("calculator", () => {
                 damageType: DamageType.UNKNOWN,
             })
 
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 1, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 1,
-                    }),
-                ],
-                previewedActionTemplateId: healsLostHitPoints.id,
-            })
-
             const actionStep: BattleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             BattleActionDecisionStepService.setActor({
@@ -552,13 +495,11 @@ describe("calculator", () => {
                                 campaignId: "test campaign",
                                 missionMap,
                                 missionStatistics,
-                                actionsThisRound,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                actionsThisRound,
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
                 validTargetLocation: { q: 0, r: 0 },
@@ -609,17 +550,6 @@ describe("calculator", () => {
         })
 
         it("will apply modifiers", () => {
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 1,
-                    }),
-                ],
-                previewedActionTemplateId: raiseShieldAction.id,
-            })
-
             const actionStep: BattleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             BattleActionDecisionStepService.setActor({
@@ -644,13 +574,11 @@ describe("calculator", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
-                                actionsThisRound,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                actionsThisRound,
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
                 validTargetLocation: { q: 0, r: 0 },
@@ -815,31 +743,24 @@ describe("calculator", () => {
                 targetLocation: { q: 0, r: 0 },
             })
 
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 1, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 1,
-                        processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                                {
-                                    decidedActionEffect:
-                                        DecidedActionSquaddieEffectService.new({
-                                            template:
-                                                actionNeedsAnAttackRollToDealBodyDamage
-                                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                            target: { q: 0, r: 0 },
-                                        }),
-                                }
-                            ),
-                        ],
-                    }),
-                    ProcessedActionService.new({
-                        actionPointCost: 1,
-                    }),
-                ],
-            })
+            const battleActionRecorder = BattleActionRecorderService.new()
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                battleActionRecorder,
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            player1BattleSquaddie.battleSquaddieId,
+                    },
+                    action: {
+                        actionTemplateId:
+                            actionNeedsAnAttackRollToDealBodyDamage.id,
+                    },
+                    effect: { squaddie: [] },
+                })
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                battleActionRecorder
+            )
 
             const results = ActionCalculator.calculateResults({
                 gameEngineState: GameEngineStateService.new({
@@ -852,7 +773,7 @@ describe("calculator", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
-                                actionsThisRound,
+                                battleActionRecorder,
                                 missionStatistics: MissionStatisticsService.new(
                                     {}
                                 ),
@@ -860,7 +781,6 @@ describe("calculator", () => {
                         }
                     ),
                 }),
-                actionsThisRound,
                 battleActionDecisionStep: action0Step,
                 actingBattleSquaddie: player1BattleSquaddie,
                 validTargetLocation: { q: 0, r: 1 },

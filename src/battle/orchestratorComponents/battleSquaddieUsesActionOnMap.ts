@@ -11,7 +11,6 @@ import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionService } from "../history/battleAction/battleAction"
@@ -57,12 +56,6 @@ export class BattleSquaddieUsesActionOnMap
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        ActionsThisRoundService.nextProcessedActionEffectToShow(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        )
-        OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(
-            gameEngineState
-        )
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(
             gameEngineState
         )

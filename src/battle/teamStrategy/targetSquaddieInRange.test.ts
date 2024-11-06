@@ -19,16 +19,17 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../orchestrator/battleState"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
@@ -41,6 +42,7 @@ describe("target a squaddie within reach of actions", () => {
     let allyClericDynamic: BattleSquaddie
     let shortBowAction: ActionTemplate
     let enemyTeam: BattleSquaddieTeam
+    let gameEngineState: GameEngineState
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -124,6 +126,18 @@ describe("target a squaddie within reach of actions", () => {
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [
             enemyBattleSquaddie.battleSquaddieId,
         ])
+
+        gameEngineState = GameEngineStateService.new({
+            repository: objectRepository,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "missionId",
+                    campaignId: "campaignId",
+                    missionMap,
+                    teams: [enemyTeam],
+                }),
+            }),
+        })
     })
 
     it("will return undefined if desired squaddies are out of range", () => {
@@ -141,8 +155,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -161,8 +174,7 @@ describe("target a squaddie within reach of actions", () => {
         const shouldThrowError = () => {
             strategy.DetermineNextInstruction({
                 team: enemyTeam,
-                missionMap,
-                repository: objectRepository,
+                gameEngineState,
             })
         }
 
@@ -197,8 +209,7 @@ describe("target a squaddie within reach of actions", () => {
 
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -240,8 +251,7 @@ describe("target a squaddie within reach of actions", () => {
 
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -275,8 +285,7 @@ describe("target a squaddie within reach of actions", () => {
 
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -310,8 +319,7 @@ describe("target a squaddie within reach of actions", () => {
 
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -331,34 +339,9 @@ describe("target a squaddie within reach of actions", () => {
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         })
 
-        const decidedActionMovementEffect =
-            DecidedActionMovementEffectService.new({
-                template: ActionEffectMovementTemplateService.new({}),
-            })
-
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 1,
-                    processedActionEffects: [
-                        ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                            {
-                                decidedActionEffect:
-                                    decidedActionMovementEffect,
-                            }
-                        ),
-                    ],
-                }),
-            ],
-        })
-
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
-            actionsThisRound,
+            gameEngineState,
         })
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -440,29 +423,12 @@ describe("target a squaddie within reach of actions", () => {
             targetLocation: { q: 0, r: 0 },
         })
 
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 1,
-                    processedActionEffects: [
-                        ProcessedActionMovementEffectService.new({
-                            battleActionDecisionStep: movementStep,
-                        }),
-                    ],
-                }),
-            ],
-        })
-
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         })
         const actualInstruction = strategy.DetermineNextInstruction({
             team: enemyTeam,
-            missionMap,
-            repository: objectRepository,
-            actionsThisRound,
+            gameEngineState,
         })
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -495,8 +461,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository: objectRepository,
+            gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
     })

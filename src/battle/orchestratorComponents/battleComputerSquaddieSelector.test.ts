@@ -50,12 +50,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
@@ -365,33 +359,6 @@ describe("BattleComputerSquaddieSelector", () => {
             selector.update(gameEngineState, mockedP5GraphicsContext)
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
-            const processedAction = ProcessedActionService.new({
-                actionPointCost: "End Turn",
-                processedActionEffects: [
-                    ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                        {
-                            decidedActionEffect:
-                                DecidedActionEndTurnEffectService.new({
-                                    template:
-                                        ActionEffectEndTurnTemplateService.new(
-                                            {}
-                                        ),
-                                }),
-                        }
-                    ),
-                ],
-            })
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            ).toEqual(
-                ActionsThisRoundService.new({
-                    battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-                    startingLocation: { q: 0, r: 0 },
-                    processedActions: [processedAction],
-                })
-            )
-
             const recommendation: BattleOrchestratorChanges =
                 selector.recommendStateChanges(gameEngineState)
             expect(recommendation.nextMode).toBe(
@@ -416,12 +383,6 @@ describe("BattleComputerSquaddieSelector", () => {
 
             expect(strategySpy).toHaveBeenCalled()
             strategySpy.mockClear()
-            expect(
-                ActionsThisRoundService.getProcessedActionEffectToShow(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                )
-            ).toEqual(processedAction.processedActionEffects[0])
         })
 
         describe("default to ending its turn if none of the strategies provide instruction", () => {
@@ -541,66 +502,69 @@ describe("BattleComputerSquaddieSelector", () => {
                 enemyDemonBattleSquaddie.battleSquaddieId
             )
 
-            const state: GameEngineState = GameEngineStateService.new({
-                repository: objectRepository,
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        battlePhaseState,
-                        camera,
-                        missionMap,
-                        teams,
-                        teamStrategiesById: {
-                            teamId: [
-                                {
-                                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                                    options: {},
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    repository: objectRepository,
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleHUD: BattleHUDService.new({}),
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                battlePhaseState,
+                                camera,
+                                missionMap,
+                                teams,
+                                teamStrategiesById: {
+                                    teamId: [
+                                        {
+                                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                            options: {},
+                                        },
+                                    ],
                                 },
-                            ],
-                        },
-                    }),
-                }),
-                campaign: CampaignService.default(),
-            })
+                            }),
+                        }
+                    ),
+                    campaign: CampaignService.default(),
+                }
+            )
 
             jest.spyOn(
                 DetermineNextDecisionService,
                 "determineNextDecision"
             ).mockReturnValue(moveAction)
-            selector.update(state, mockedP5GraphicsContext)
+            selector.update(gameEngineState, mockedP5GraphicsContext)
 
-            expect(selector.hasCompleted(state)).toBeTruthy()
+            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             const recommendation: BattleOrchestratorChanges =
-                selector.recommendStateChanges(state)
+                selector.recommendStateChanges(gameEngineState)
             expect(recommendation.nextMode).toBe(
                 BattleOrchestratorMode.SQUADDIE_MOVER
             )
 
             expect(
-                state.battleOrchestratorState.battleState.actionsThisRound
-                    .battleSquaddieId
-            ).toEqual("enemy_demon_0")
-            expect(
-                state.battleOrchestratorState.battleState.actionsThisRound
-                    .processedActions
-            ).toHaveLength(1)
-            expect(
-                state.battleOrchestratorState.battleState.actionsThisRound
-                    .processedActions[0].processedActionEffects[0].type
-            ).toEqual(ActionEffectType.MOVEMENT)
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            ).toBeFalsy()
+            const queuedBattleAction =
+                BattleActionRecorderService.peekAtAnimationQueue(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
+                )
+            expect(queuedBattleAction.actor.actorBattleSquaddieId).toEqual(
+                "enemy_demon_0"
+            )
+            expect(queuedBattleAction.action.isMovement).toBeTruthy()
 
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
+                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                    gameEngineState
+                )
             ).toBeTruthy()
-            expect(
-                ActionsThisRoundService.getProcessedActionEffectToShow(
-                    state.battleOrchestratorState.battleState.actionsThisRound
-                ).type
-            ).toEqual(ActionEffectType.MOVEMENT)
-
             expect(addGraphicsLayerSpy).toBeCalled()
         })
 
@@ -660,18 +624,22 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("will indicate the next action", () => {
                 expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.battleSquaddieId
-                ).toEqual(enemyDemonBattleSquaddie.battleSquaddieId)
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.processedActions
-                ).toHaveLength(1)
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound.processedActions[0]
-                        .processedActionEffects[0].type
-                ).toEqual(ActionEffectType.SQUADDIE)
+                    BattleActionRecorderService.isAnimationQueueEmpty(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                ).toBeFalsy()
+                const queuedBattleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(queuedBattleAction.actor.actorBattleSquaddieId).toEqual(
+                    enemyDemonBattleSquaddie.battleSquaddieId
+                )
+                expect(queuedBattleAction.action.actionTemplateId).toEqual(
+                    demonBiteAction.id
+                )
             })
 
             it("highlight the map target and its spread", () => {
@@ -712,12 +680,21 @@ describe("BattleComputerSquaddieSelector", () => {
                         gameEngineState
                     )
                 ).toBeTruthy()
+
                 expect(
-                    ActionsThisRoundService.getProcessedActionEffectToShow(
+                    BattleActionRecorderService.isAnimationQueueEmpty(
                         gameEngineState.battleOrchestratorState.battleState
-                            .actionsThisRound
-                    ).decidedActionEffect.type
-                ).toEqual(ActionEffectType.SQUADDIE)
+                            .battleActionRecorder
+                    )
+                ).toBeFalsy()
+                const queuedBattleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(queuedBattleAction.action.actionTemplateId).toEqual(
+                    demonBiteAction.id
+                )
             })
 
             it("player can click to complete the component if an action is selected", () => {

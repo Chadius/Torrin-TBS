@@ -30,13 +30,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
@@ -103,23 +97,6 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         }))
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
-
-        const oneDecisionInstruction = ProcessedActionService.new({
-            actionPointCost: 1,
-            processedActionEffects: [
-                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionSquaddieEffectService.new({
-                                template: longswordActionTemplate
-                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                target: { q: 0, r: 0 },
-                            }),
-                        results: undefined,
-                    }
-                ),
-            ],
-        })
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest

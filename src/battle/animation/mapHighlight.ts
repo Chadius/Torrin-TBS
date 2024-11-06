@@ -139,7 +139,7 @@ export const MapHighlightService = {
                 canStopOnSquaddies: false,
             }),
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         const { squaddieIsNormallyControllableByPlayer } =
             SquaddieService.canPlayerControlSquaddieRightNow({

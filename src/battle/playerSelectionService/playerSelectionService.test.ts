@@ -45,11 +45,6 @@ import {
     HexCoordinate,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionMovementEffectService } from "../../action/processed/processedActionMovementEffect"
-import { DecidedActionMovementEffectService } from "../../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../../action/template/actionEffectMovementTemplate"
-import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
@@ -57,6 +52,7 @@ import {
     WARNING_POPUP_TEXT_SIZE,
     WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
 } from "../hud/battleHUD"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -1165,30 +1161,25 @@ describe("Player Selection Service", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-
-            const movementActionEffect =
-                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionMovementEffectService.new({
-                                destination: { q: 0, r: 1 },
-                                template:
-                                    ActionEffectMovementTemplateService.new({}),
-                            }),
-                    }
-                )
-
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-                ActionsThisRoundService.new({
-                    battleSquaddieId: "PLAYER",
-                    startingLocation: { q: 0, r: 0 },
-                    processedActions: [
-                        ProcessedActionService.new({
-                            actionPointCost: 1,
-                            processedActionEffects: [movementActionEffect],
-                        }),
-                    ],
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "PLAYER" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 1 },
+                        },
+                    },
                 })
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
         }
 
@@ -1380,31 +1371,25 @@ describe("Player Selection Service", () => {
         }
 
         const playerIsPartwayThroughTheirTurn = () => {
-            const decidedActionMovementEffect =
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 0, r: 1 },
-                    template: ActionEffectMovementTemplateService.new({}),
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                BattleActionService.new({
+                    actor: { actorBattleSquaddieId: "PLAYER" },
+                    action: { isMovement: true },
+                    effect: {
+                        movement: {
+                            startLocation: { q: 0, r: 0 },
+                            endLocation: { q: 0, r: 1 },
+                        },
+                    },
                 })
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
 
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-                ActionsThisRoundService.new({
-                    battleSquaddieId: "PLAYER",
-                    startingLocation: { q: 0, r: 0 },
-                    previewedActionTemplateId: undefined,
-                    processedActions: [
-                        ProcessedActionService.new({
-                            actionPointCost: 1,
-                            processedActionEffects: [
-                                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                                    {
-                                        decidedActionEffect:
-                                            decidedActionMovementEffect,
-                                    }
-                                ),
-                            ],
-                        }),
-                    ],
-                })
             actualContext = PlayerSelectionService.calculateContext({
                 gameEngineState,
                 actionTemplateId: meleeActionId,

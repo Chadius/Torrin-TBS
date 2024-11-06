@@ -276,9 +276,6 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         this.affiliationImageUI = undefined
         this.bannerDisplayAnimationStartTime = undefined
         this.newBannerShown = false
-
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-            undefined
     }
 }
 

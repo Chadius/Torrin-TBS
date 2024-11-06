@@ -37,18 +37,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../../action/decided/decidedActionSquaddieEffect"
-import {
-    SquaddieSquaddieResults,
-    SquaddieSquaddieResultsService,
-} from "../history/squaddieSquaddieResults"
+import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
@@ -68,7 +57,6 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -211,29 +199,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     }: {
         missionMap?: MissionMap
     }): GameEngineState => {
-        const processedAction = ProcessedActionService.new({
-            actionPointCost: 0,
-            processedActionEffects: [
-                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionSquaddieEffectService.new({
-                                template: monkKoanAction
-                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                target: { q: 0, r: 0 },
-                            }),
-                    }
-                ),
-            ],
-        })
-
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            previewedActionTemplateId: monkKoanAction.name,
-            processedActions: [processedAction],
-        })
-
         const battleOrchestratorState: BattleOrchestratorState =
             BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -241,7 +206,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap,
-                    actionsThisRound,
                 }),
             })
 
@@ -251,6 +215,22 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             resourceHandler: mockResourceHandler,
             campaign: CampaignService.default(),
         })
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                },
+                action: { actionTemplateId: monkKoanAction.id },
+                effect: { squaddie: [] },
+            })
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -292,53 +272,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     }: {
         missionMap?: MissionMap
     }): GameEngineState => {
-        const results: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.new({
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                    actingSquaddieModifiers: [],
-                }),
-                targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        damageExplanation: DamageExplanationService.new({
-                            net: 9001,
-                        }),
-                        healingReceived: 0,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        battleSquaddieId: "target_dynamic_squaddie",
-                    }),
-                ],
-            })
-
-        const processedAction = ProcessedActionService.new({
-            actionPointCost: 0,
-            processedActionEffects: [
-                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionSquaddieEffectService.new({
-                                template: powerAttackLongswordAction
-                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                target: { q: 0, r: 0 },
-                            }),
-                        results,
-                    }
-                ),
-            ],
-        })
-
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            previewedActionTemplateId: powerAttackLongswordAction.name,
-            processedActions: [processedAction],
-        })
-
         if (isValidValue(missionMap)) {
             MissionMapService.addSquaddie({
                 missionMap,
@@ -357,21 +290,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionMap,
-                actionsThisRound,
             }),
         })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            battleOrchestratorState.battleState.battleActionRecorder,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                },
-                action: {
-                    actionTemplateId: powerAttackLongswordAction.id,
-                },
-                effect: { squaddie: [...results.squaddieChanges] },
-            })
-        )
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
@@ -393,6 +313,30 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             },
         })
 
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            battleOrchestratorState.battleState.battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                },
+                action: {
+                    actionTemplateId: powerAttackLongswordAction.id,
+                },
+                effect: {
+                    squaddie: [
+                        BattleActionSquaddieChangeService.new({
+                            damageExplanation: DamageExplanationService.new({
+                                net: 9001,
+                            }),
+                            healingReceived: 0,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                            battleSquaddieId: "target_dynamic_squaddie",
+                        }),
+                    ],
+                },
+            })
+        )
+
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
             powerAttackLongswordAction.actionPoints
@@ -407,31 +351,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         missionMap?: MissionMap
         actionTemplate: ActionTemplate
     }): GameEngineState => {
-        const results: SquaddieSquaddieResults =
-            SquaddieSquaddieResultsService.sanitize({
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
-                    actingSquaddieModifiers: [],
-                    actingSquaddieRoll: {
-                        occurred: false,
-                        rolls: [],
-                    },
-                }),
-                targetedBattleSquaddieIds: [
-                    targetDynamicSquaddieBattleSquaddieId,
-                ],
-                squaddieChanges: [
-                    BattleActionSquaddieChangeService.new({
-                        battleSquaddieId: targetDynamicSquaddieBattleSquaddieId,
-                        damageExplanation: DamageExplanationService.new({
-                            net: 1,
-                        }),
-                        healingReceived: 0,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    }),
-                ],
-            })
-
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
@@ -445,30 +364,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
             targetLocation: { q: 0, r: 0 },
-        })
-
-        const processedAction = ProcessedActionService.new({
-            actionPointCost: 0,
-            processedActionEffects: [
-                ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect:
-                            DecidedActionSquaddieEffectService.new({
-                                template: actionTemplate
-                                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                target: { q: 0, r: 0 },
-                            }),
-                        results,
-                    }
-                ),
-            ],
-        })
-
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            previewedActionTemplateId: actionTemplate.name,
-            processedActions: [processedAction],
         })
 
         if (isValidValue(missionMap)) {
@@ -489,7 +384,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 missionId: "test mission",
                 campaignId: "test campaign",
                 missionMap,
-                actionsThisRound,
             }),
         })
 
@@ -499,6 +393,30 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             resourceHandler: mockResourceHandler,
             campaign: CampaignService.default(),
         })
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                },
+                action: { actionTemplateId: actionTemplate.id },
+                effect: {
+                    squaddie: [
+                        BattleActionSquaddieChangeService.new({
+                            battleSquaddieId:
+                                targetDynamicSquaddieBattleSquaddieId,
+                            damageExplanation: DamageExplanationService.new({
+                                net: 1,
+                            }),
+                            healingReceived: 0,
+                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                        }),
+                    ],
+                },
+            })
+        )
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -527,7 +445,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             }),
         })
 
-        const state = usePowerAttackLongswordAndReturnState({ missionMap })
+        const gameEngineState = usePowerAttackLongswordAndReturnState({
+            missionMap,
+        })
         expect(
             missionMap.isSquaddieHiddenFromDrawing(
                 targetDynamic.battleSquaddieId
@@ -557,7 +477,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
@@ -657,11 +580,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("resets squaddie currently acting when it runs out of actions and finishes acting", () => {
-        const orchestratorUtilsSpy: jest.SpyInstance = jest.spyOn(
-            OrchestratorUtilities,
-            "clearActionsThisRoundIfSquaddieCannotAct"
-        )
-
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
@@ -672,6 +590,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             missionMap,
         })
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 0
+
+        const messageSpy: jest.SpyInstance = jest.spyOn(
+            gameEngineState.messageBoard,
+            "sendMessage"
+        )
 
         const animatorSpy = jest
             .spyOn(
@@ -698,17 +621,17 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         ).toBeTruthy()
 
         squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
-        expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState)
+        expect(messageSpy).toBeCalledWith({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
         ).toBeUndefined()
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        ).toBeUndefined()
 
         animatorSpy.mockRestore()
-        orchestratorUtilsSpy.mockRestore()
+        messageSpy.mockRestore()
     })
 
     it("reopens HUD on squaddie when it finishes animating and can still act", () => {
@@ -758,9 +681,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 .summaryHUDState.showSummaryHUD
         ).toBeTruthy()
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
-        ).not.toBeUndefined()
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
+        ).toEqual(battleSquaddieBase.battleSquaddieId)
     })
 
     it("uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes", () => {
@@ -909,16 +834,45 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("will generate message if the target was injured", () => {
-        const gameEngineState = useAttackActionAndReturnState({
-            actionTemplate: attackLongswordAction,
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: TerrainTileMapService.new({
+                movementCost: ["1 1 1 "],
+            }),
         })
+
+        const gameEngineState = usePowerAttackLongswordAndReturnState({
+            missionMap,
+        })
+        expect(
+            missionMap.isSquaddieHiddenFromDrawing(
+                targetDynamic.battleSquaddieId
+            )
+        ).toBeFalsy()
+
+        jest.spyOn(
+            squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+            "update"
+        ).mockImplementation()
+
         const messageBoardSendSpy: jest.SpyInstance = jest.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
         )
 
-        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
-        squaddieUsesActionOnSquaddie.reset(gameEngineState)
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+            .spyOn(
+                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                "hasCompleted"
+            )
+            .mockReturnValue(true)
+
+        squaddieUsesActionOnSquaddie.update(
+            gameEngineState,
+            mockedP5GraphicsContext
+        )
+        expect(
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+        ).toBeCalled()
 
         expect(messageBoardSendSpy).toBeCalledWith({
             type: MessageBoardMessageType.SQUADDIE_IS_INJURED,

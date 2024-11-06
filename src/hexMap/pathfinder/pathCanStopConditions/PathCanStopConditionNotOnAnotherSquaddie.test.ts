@@ -78,7 +78,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -135,7 +135,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -212,7 +212,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -286,7 +286,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -331,7 +331,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({
@@ -352,7 +352,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldMarkPathLocationAsStoppable({

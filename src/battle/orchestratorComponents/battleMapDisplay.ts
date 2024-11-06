@@ -14,12 +14,11 @@ import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLoca
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -318,26 +317,30 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }
 }
 
-const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
+const getCurrentlyMovingBattleSquaddieIds = (
+    gameEngineState: GameEngineState
+) => {
     if (
-        state.battleOrchestratorState.battleState.actionsThisRound === undefined
+        BattleActionRecorderService.isAnimationQueueEmpty(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
     ) {
         return []
     }
 
-    const processedActionEffectToShow =
-        ActionsThisRoundService.getProcessedActionEffectToShow(
-            state.battleOrchestratorState.battleState.actionsThisRound
-        )
-    if (!isValidValue(processedActionEffectToShow)) {
+    const actionToAnimate = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
+
+    if (!isValidValue(actionToAnimate)) {
         return []
     }
 
     let battleSquaddieIdsToOmit: string[] = []
-    if (processedActionEffectToShow.type === ActionEffectType.MOVEMENT) {
+    if (actionToAnimate.action.isMovement) {
         battleSquaddieIdsToOmit.push(
-            state.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            actionToAnimate.actor.actorBattleSquaddieId
         )
     }
 

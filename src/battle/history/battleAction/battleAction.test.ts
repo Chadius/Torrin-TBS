@@ -151,7 +151,7 @@ describe("BattleAction", () => {
                     noMAPAction,
                     objectRepository
                 )
-            ).toEqual(1)
+            ).toEqual(-3)
         })
     })
     it("can be cloned to a separate object", () => {

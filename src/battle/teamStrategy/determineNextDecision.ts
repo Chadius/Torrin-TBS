@@ -1,50 +1,38 @@
 import { TeamStrategy, TeamStrategyType } from "./teamStrategy"
-import { ObjectRepository } from "../objectRepository"
 import { MoveCloserToSquaddie } from "./moveCloserToSquaddie"
 import { TargetSquaddieInRange } from "./targetSquaddieInRange"
 import { EndTurnTeamStrategy } from "./endTurn"
 import { TeamStrategyCalculator } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
-import { MissionMap } from "../../missionMap/missionMap"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
+import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export const DetermineNextDecisionService = {
     determineNextDecision: ({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
         strategy,
+        gameEngineState,
     }: {
         team: BattleSquaddieTeam
-        missionMap: MissionMap
-        repository: ObjectRepository
-        actionsThisRound: ActionsThisRound
         strategy: TeamStrategy
+        gameEngineState: GameEngineState
     }): BattleActionDecisionStep[] => {
         return determineNextDecision({
             team,
-            missionMap,
-            repository,
-            actionsThisRound,
             strategy,
+            gameEngineState,
         })
     },
 }
 
 const determineNextDecision = ({
     team,
-    missionMap,
-    repository,
-    actionsThisRound,
     strategy,
+    gameEngineState,
 }: {
     team: BattleSquaddieTeam
-    missionMap: MissionMap
-    repository: ObjectRepository
-    actionsThisRound: ActionsThisRound
     strategy: TeamStrategy
+    gameEngineState: GameEngineState
 }): BattleActionDecisionStep[] => {
     let calculator: TeamStrategyCalculator
     switch (strategy.type) {
@@ -60,8 +48,6 @@ const determineNextDecision = ({
     }
     return calculator.DetermineNextInstruction({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
+        gameEngineState,
     })
 }

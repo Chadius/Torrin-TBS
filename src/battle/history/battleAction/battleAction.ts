@@ -109,7 +109,9 @@ export const BattleActionService = {
                 0
             )
 
-        return Math.min(rawMAP, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX)
+        return convertRawPenaltyMultiplier(
+            Math.min(rawMAP, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX)
+        ).multipleAttackPenalty
     },
     clone: (original: BattleAction): BattleAction => {
         const clone = newBattleAction({
@@ -183,4 +185,26 @@ const newBattleAction = ({
         effect,
         animation,
     })
+}
+
+const convertRawPenaltyMultiplier = (
+    penaltyMultiplier: number
+): {
+    penaltyMultiplier: number
+    multipleAttackPenalty: number
+} => {
+    penaltyMultiplier = Math.min(
+        penaltyMultiplier,
+        MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX
+    )
+
+    const multipleAttackPenalty =
+        penaltyMultiplier * MULTIPLE_ATTACK_PENALTY === -0
+            ? 0
+            : penaltyMultiplier * MULTIPLE_ATTACK_PENALTY
+
+    return {
+        penaltyMultiplier,
+        multipleAttackPenalty,
+    }
 }

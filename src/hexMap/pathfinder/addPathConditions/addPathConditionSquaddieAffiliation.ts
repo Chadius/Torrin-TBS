@@ -22,13 +22,13 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
 
     constructor({
         missionMap,
-        repository,
+        objectRepository,
     }: {
         missionMap: MissionMap
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     }) {
         this.missionMap = missionMap
-        this.repository = repository
+        this.repository = objectRepository
     }
 
     shouldAddNewPath({

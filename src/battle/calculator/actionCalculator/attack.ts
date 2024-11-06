@@ -1,7 +1,3 @@
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../../history/actionsThisRound"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
@@ -31,6 +27,8 @@ import {
     BattleActionActionContext,
     BattleActionActionContextService,
 } from "../../history/battleAction/battleActionActionContext"
+import { BattleActionsDuringTurnService } from "../../history/battleAction/battleActionsDuringTurn"
+import { BattleActionService } from "../../history/battleAction/battleAction"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({
@@ -51,9 +49,9 @@ export const CalculatorAttack = {
             targetedBattleSquaddie,
         }),
     getActingSquaddieModifiersForAttack: (
-        actionsThisRound: ActionsThisRound
+        gameEngineState: GameEngineState
     ): AttributeTypeAndAmount[] =>
-        getActingSquaddieModifiersForAttack(actionsThisRound),
+        getActingSquaddieModifiersForAttack(gameEngineState),
     calculateEffectBasedOnDegreeOfSuccess: ({
         actionEffectSquaddieTemplate,
         actionContext,
@@ -88,15 +86,13 @@ export const CalculatorAttack = {
     getActorContext: ({
         actionEffectSquaddieTemplate,
         gameEngineState,
-        actionsThisRound,
     }: {
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         gameEngineState: GameEngineState
-        actionsThisRound: ActionsThisRound
     }): BattleActionActionContext => {
         let actingSquaddieModifiers =
             CalculatorAttack.getActingSquaddieModifiersForAttack(
-                actionsThisRound
+                gameEngineState
             )
         let actingSquaddieRoll: RollResult
         actingSquaddieRoll = maybeMakeAttackRoll(
@@ -110,15 +106,34 @@ export const CalculatorAttack = {
             targetSquaddieModifiers: {},
         })
     },
+    calculateMultipleAttackPenaltyForActionsThisTurn: (
+        gameEngineState: GameEngineState
+    ): number =>
+        calculateMultipleAttackPenaltyForActionsThisTurn(gameEngineState),
+}
+
+const calculateMultipleAttackPenaltyForActionsThisTurn = (
+    gameEngineState: GameEngineState
+) => {
+    return BattleActionsDuringTurnService.getAll(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+            .actionsAlreadyAnimatedThisTurn
+    ).reduce((mapTotal, battleAction) => {
+        return (
+            mapTotal +
+            BattleActionService.multipleAttackPenaltyMultiplier(
+                battleAction,
+                gameEngineState.repository
+            )
+        )
+    }, 0)
 }
 
 const getActingSquaddieModifiersForAttack = (
-    actionsThisRound: ActionsThisRound
+    gameEngineState: GameEngineState
 ): AttributeTypeAndAmount[] => {
-    let { multipleAttackPenalty } =
-        ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
-            actionsThisRound
-        )
+    let multipleAttackPenalty =
+        calculateMultipleAttackPenaltyForActionsThisTurn(gameEngineState)
 
     return [
         AttributeTypeAndAmountService.new({

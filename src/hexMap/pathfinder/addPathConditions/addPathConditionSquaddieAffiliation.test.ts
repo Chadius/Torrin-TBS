@@ -102,7 +102,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
                 const condition = new AddPathConditionSquaddieAffiliation({
                     missionMap,
-                    repository,
+                    objectRepository: repository,
                 })
                 expect(
                     condition.shouldAddNewPath({
@@ -197,7 +197,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
                 const condition = new AddPathConditionSquaddieAffiliation({
                     missionMap,
-                    repository,
+                    objectRepository: repository,
                 })
                 expect(
                     condition.shouldAddNewPath({
@@ -287,7 +287,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
                 const condition = new AddPathConditionSquaddieAffiliation({
                     missionMap,
-                    repository,
+                    objectRepository: repository,
                 })
                 expect(
                     condition.shouldAddNewPath({
@@ -334,7 +334,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
         const condition = new AddPathConditionSquaddieAffiliation({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldAddNewPath({
@@ -418,7 +418,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
             const condition = new AddPathConditionSquaddieAffiliation({
                 missionMap,
-                repository,
+                objectRepository: repository,
             })
             expect(
                 condition.shouldAddNewPath({
@@ -440,7 +440,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
         const condition = new AddPathConditionSquaddieAffiliation({
             missionMap,
-            repository,
+            objectRepository: repository,
         })
         expect(
             condition.shouldAddNewPath({

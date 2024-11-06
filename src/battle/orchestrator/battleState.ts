@@ -28,7 +28,6 @@ import {
 } from "../orchestratorComponents/battlePhaseTracker"
 import { isValidValue } from "../../utils/validityCheck"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -66,7 +65,6 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     battleActionRecorder: BattleActionRecorder
     missionCompletionStatus: MissionCompletionStatus
     missionStatistics: MissionStatistics
-    actionsThisRound: ActionsThisRound
     battleActionDecisionStep: BattleActionDecisionStep
 }
 
@@ -198,7 +196,6 @@ interface BattleStateConstructorParameters {
     missionStatistics?: MissionStatistics
     searchPath?: SearchPath
     battleCompletionStatus?: BattleCompletionStatus
-    actionsThisRound?: ActionsThisRound
     battleActionRecorder?: BattleActionRecorder
 }
 
@@ -217,7 +214,6 @@ const newBattleState = ({
     battleCompletionStatus,
     teams,
     teamStrategiesById,
-    actionsThisRound,
     battleActionRecorder,
 }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes =
@@ -246,7 +242,6 @@ const newBattleState = ({
             missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
-        actionsThisRound,
         battleActionDecisionStep: undefined,
     }
 }

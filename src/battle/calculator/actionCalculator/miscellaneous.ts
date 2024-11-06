@@ -1,4 +1,3 @@
-import { ActionsThisRound } from "../../history/actionsThisRound"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -24,12 +23,10 @@ export const CalculatorMiscellaneous = {
     getActorContext: ({
         actionEffectSquaddieTemplate,
         gameEngineState,
-        actionsThisRound,
         battleAction,
     }: {
         actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
         gameEngineState: GameEngineState
-        actionsThisRound: ActionsThisRound
         battleAction?: BattleAction
     }): BattleActionActionContext => {
         let actingSquaddieRoll: RollResult = RollResultService.new({

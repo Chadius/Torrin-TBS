@@ -13,11 +13,6 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { DecidedActionEndTurnEffectService } from "../../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../../action/template/actionEffectEndTurnTemplate"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
@@ -69,30 +64,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 battleState: BattleStateService.newBattleState({
                     campaignId: "test campaign",
                     missionId: "test mission",
-                    actionsThisRound: ActionsThisRoundService.new({
-                        battleSquaddieId: "dynamic_squaddie",
-                        startingLocation: { q: 0, r: 0 },
-                        processedActions: [
-                            ProcessedActionService.new({
-                                actionPointCost: 0,
-                                processedActionEffects: [
-                                    ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                                        {
-                                            decidedActionEffect:
-                                                DecidedActionEndTurnEffectService.new(
-                                                    {
-                                                        template:
-                                                            ActionEffectEndTurnTemplateService.new(
-                                                                {}
-                                                            ),
-                                                    }
-                                                ),
-                                        }
-                                    ),
-                                ],
-                            }),
-                        ],
-                    }),
                 }),
             }),
         })
@@ -176,7 +147,10 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     describe("reset the component", () => {
+        let messageSpy: jest.SpyInstance
         beforeEach(() => {
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
             mapAction.update(gameEngineState, mockedP5GraphicsContext)
             dateSpy.mockImplementation(() => 500)
             mapAction.update(gameEngineState, mockedP5GraphicsContext)
@@ -184,14 +158,26 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             mapAction.reset(gameEngineState)
         })
 
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
         it("clears internal animation timer", () => {
             expect(mapAction.animationCompleteStartTime).toBeUndefined()
         })
 
-        it("knows no squaddie is currently taking a turn", () => {
+        it("knows a message was generated to indicate animation finished", () => {
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+        })
+
+        it("knows the animation is complete", () => {
             expect(
-                OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                    gameEngineState
+                BattleActionRecorderService.isAnimationQueueEmpty(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionRecorder
                 )
             ).toBeFalsy()
         })

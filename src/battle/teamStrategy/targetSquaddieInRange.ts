@@ -16,7 +16,6 @@ import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
@@ -25,6 +24,8 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -37,14 +38,10 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
     DetermineNextInstruction({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
+        gameEngineState,
     }: {
         team: BattleSquaddieTeam
-        missionMap: MissionMap
-        repository: ObjectRepository
-        actionsThisRound?: ActionsThisRound
+        gameEngineState: GameEngineState
     }): BattleActionDecisionStep[] {
         if (
             !this.desiredBattleSquaddieId &&
@@ -54,24 +51,34 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             throw new Error("Target Squaddie In Range strategy has no target")
         }
 
-        let battleSquaddieIdToAct =
-            TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct(
-                team,
-                actionsThisRound,
-                repository
+        const previousActionsThisTurn =
+            BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
             )
+
+        let battleSquaddieIdToAct =
+            TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct({
+                team,
+                battleSquaddieId:
+                    previousActionsThisTurn?.actor.actorBattleSquaddieId,
+                objectRepository: gameEngineState.repository,
+            })
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                repository,
+                gameEngineState.repository,
                 battleSquaddieIdToAct
             )
         )
         const validActionTemplates = squaddieTemplate.actionTemplateIds
             .map((id) =>
-                ObjectRepositoryService.getActionTemplateById(repository, id)
+                ObjectRepositoryService.getActionTemplateById(
+                    gameEngineState.repository,
+                    id
+                )
             )
             .filter((actionTemplate) => {
                 return (
@@ -85,8 +92,10 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         const firstActionTemplateWithTarget =
             this.getTargetingResultsOfActionWithTargets({
                 actionTemplates: validActionTemplates,
-                missionMap,
-                repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                objectRepository: gameEngineState.repository,
                 battleSquaddie,
                 squaddieTemplate,
             })
@@ -103,12 +112,12 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             )
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-            repository,
+            gameEngineState.repository,
             firstActionTemplateWithTarget.actionTemplateId
         )
         if (desiredBattleSquaddieIsInRange) {
             const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-                missionMap,
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
                 this.desiredBattleSquaddieId
             )
             return createBattleActionDecisionSteps(
@@ -131,7 +140,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                     const { squaddieTemplate: targetSquaddieTemplate } =
                         getResultOrThrowError(
                             ObjectRepositoryService.getSquaddieByBattleId(
-                                repository,
+                                gameEngineState.repository,
                                 battleSquaddieId
                             )
                         )
@@ -149,7 +158,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         const battleSquaddieIdToTarget =
             battleSquaddieIdsOfDesiredAffiliation[0]
         const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-            missionMap,
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieIdToTarget
         )
         return createBattleActionDecisionSteps(
@@ -161,13 +170,13 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
     private getTargetingResultsOfActionWithTargets({
         missionMap,
-        repository,
+        objectRepository,
         squaddieTemplate,
         battleSquaddie,
         actionTemplates,
     }: {
         missionMap: MissionMap
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
         actionTemplates: ActionTemplate[]
@@ -195,7 +204,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                             firstActionEffectSquaddieTemplate,
                         actingSquaddieTemplate: squaddieTemplate,
                         actingBattleSquaddie: battleSquaddie,
-                        squaddieRepository: repository,
+                        squaddieRepository: objectRepository,
                     })
 
                 if (results.battleSquaddieIdsInRange.length > 0) {

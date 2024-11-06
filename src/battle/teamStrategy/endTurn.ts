@@ -3,29 +3,26 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
-import { ObjectRepository } from "../objectRepository"
-import { MissionMap } from "../../missionMap/missionMap"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     DetermineNextInstruction({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
+        gameEngineState,
     }: {
         team: BattleSquaddieTeam
-        missionMap: MissionMap
-        repository: ObjectRepository
-        actionsThisRound?: ActionsThisRound
+        gameEngineState: GameEngineState
     }): BattleActionDecisionStep[] {
         const battleSquaddieIdToAct =
-            TeamStrategyService.getBattleSquaddieWhoCanAct(team, repository)
+            TeamStrategyService.getBattleSquaddieWhoCanAct(
+                team,
+                gameEngineState.repository
+            )
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }

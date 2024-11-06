@@ -36,6 +36,7 @@ import {
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -269,8 +270,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.hasSelectedValidTarget = false
     }
 
-    private highlightTargetRange(state: GameEngineState) {
-        const actionRange = TargetingResultsService.highlightTargetRange(state)
+    private highlightTargetRange(gameEngineState: GameEngineState) {
+        const actionRange =
+            TargetingResultsService.highlightTargetRange(gameEngineState)
         this.highlightedTargetRange = [...actionRange]
     }
 
@@ -341,15 +343,19 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.battleSquaddieId
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
             )
         )
 
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .previewedActionTemplateId
+            BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).actionTemplateId
         )
 
         if (!isValidValue(actionTemplate)) {

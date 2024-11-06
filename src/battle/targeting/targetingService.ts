@@ -38,6 +38,8 @@ import {
     MapGraphicsLayerService,
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class TargetingResults {
     constructor() {
@@ -165,7 +167,7 @@ const findValidTargets = ({
             canPassThroughWalls: false,
         }),
         missionMap: map,
-        repository: squaddieRepository,
+        objectRepository: squaddieRepository,
     })
 
     const results = new TargetingResults()
@@ -290,22 +292,50 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
 const highlightTargetRange = (
     gameEngineState: GameEngineState
 ): HexCoordinate[] => {
+    let battleSquaddieId: string
+    let actionTemplateId: string
+    if (
+        BattleActionDecisionStepService.isActorSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ) {
+        battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId
+        actionTemplateId = BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).actionTemplateId
+    } else if (
+        BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+    ) {
+        battleSquaddieId = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ).actor.actorBattleSquaddieId
+        actionTemplateId = BattleActionRecorderService.peekAtAnimationQueue(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ).action.actionTemplateId
+    }
+
     const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
+            battleSquaddieId
         )
     )
 
-    const previewedActionTemplateId =
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-            .previewedActionTemplateId
     let previewedActionTemplate: ActionTemplate
     try {
         previewedActionTemplate = ObjectRepositoryService.getActionTemplateById(
             gameEngineState.repository,
-            previewedActionTemplateId
+            actionTemplateId
         )
     } catch (e) {
         return []
@@ -332,8 +362,7 @@ const highlightTargetRange = (
     )
 
     const actionRangeOnMap = MapGraphicsLayerService.new({
-        id: gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-            .battleSquaddieId,
+        id: battleSquaddieId,
         highlightedTileDescriptions: [
             {
                 tiles: actionRange,

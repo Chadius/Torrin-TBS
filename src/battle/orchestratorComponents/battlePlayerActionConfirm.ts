@@ -19,7 +19,6 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
 import { ActionResultTextService } from "../animation/actionResultTextService"
 import { ActionTemplate } from "../../action/template/actionTemplate"
@@ -36,6 +35,8 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeAndAmountService,
 } from "../../squaddie/attributeModifier"
+import { CalculatorAttack } from "../calculator/actionCalculator/attack"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -98,7 +99,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ): void {
-        this.movePopoversPositions(
+        movePopoversPositions(
             gameEngineState,
             SquaddieSummaryPopoverPosition.SELECT_TARGET
         )
@@ -116,7 +117,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             gameEngineState
         )
         if (this.cancelAbility) {
-            this.movePopoversPositions(
+            movePopoversPositions(
                 gameEngineState,
                 SquaddieSummaryPopoverPosition.SELECT_MAIN
             )
@@ -126,7 +127,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             }
         }
         if (this.hasConfirmedAction) {
-            this.movePopoversPositions(
+            movePopoversPositions(
                 gameEngineState,
                 SquaddieSummaryPopoverPosition.ANIMATE_SQUADDIE_ACTION
             )
@@ -153,7 +154,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         keyboardEvent?: OrchestratorComponentKeyEvent
     }) {
         if (
-            this.didUserCancelActionConfirmation({
+            didUserCancelActionConfirmation({
                 gameEngineState,
                 mouseEvent,
                 keyboardEvent,
@@ -209,27 +210,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         return true
     }
 
-    private didUserCancelActionConfirmation = ({
-        gameEngineState,
-        mouseEvent,
-        keyboardEvent,
-    }: {
-        gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
-        keyboardEvent?: OrchestratorComponentKeyEvent
-    }): boolean => {
-        if (isValidValue(mouseEvent)) {
-            return (
-                mouseEvent.mouseButton === MouseButton.CANCEL ||
-                mouseEvent.mouseY > TARGET_CANCEL_BUTTON_TOP
-            )
-        }
-        if (isValidValue(keyboardEvent)) {
-            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
-        }
-        return false
-    }
-
     private resetObject() {
         this.hasConfirmedAction = false
         this.cancelAbility = false
@@ -252,10 +232,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         )
 
         let actingSquaddieModifiers: AttributeTypeAndAmount[] = []
-        let { multipleAttackPenalty } =
-            ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
+
+        let multipleAttackPenalty =
+            CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
+                gameEngineState
             )
         if (multipleAttackPenalty !== 0) {
             actingSquaddieModifiers.push(
@@ -273,13 +253,13 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         if (!found) {
             return
         }
-
         const intentMessages = ActionResultTextService.outputIntentForTextOnly({
             currentActionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
             actionTemplate,
-            actingBattleSquaddieId:
+            actingBattleSquaddieId: BattleActionDecisionStepService.getActor(
                 gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound.battleSquaddieId,
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
             squaddieRepository: gameEngineState.repository,
             actingSquaddieModifiers,
         })
@@ -323,24 +303,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
 
         LabelService.draw(buttonBackground, graphicsContext)
     }
-
-    private movePopoversPositions = (
-        gameEngineState: GameEngineState,
-        position: SquaddieSummaryPopoverPosition
-    ) => {
-        SquaddieSummaryPopoverService.changePopoverPosition({
-            popover:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            position,
-        })
-        SquaddieSummaryPopoverService.changePopoverPosition({
-            popover:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-            position,
-        })
-    }
 }
 
 const getActionEffectSquaddieTemplate = ({
@@ -354,8 +316,10 @@ const getActionEffectSquaddieTemplate = ({
 } => {
     const actionTemplate = ObjectRepositoryService.getActionTemplateById(
         gameEngineState.repository,
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-            .previewedActionTemplateId
+        BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).actionTemplateId
     )
     if (!isValidValue(actionTemplate)) {
         return {
@@ -379,4 +343,43 @@ const getActionEffectSquaddieTemplate = ({
         actionTemplate,
         actionEffectSquaddieTemplate: actionEffectTemplate,
     }
+}
+
+const didUserCancelActionConfirmation = ({
+    gameEngineState,
+    mouseEvent,
+    keyboardEvent,
+}: {
+    gameEngineState: GameEngineState
+    mouseEvent?: OrchestratorComponentMouseEventClicked
+    keyboardEvent?: OrchestratorComponentKeyEvent
+}): boolean => {
+    if (isValidValue(mouseEvent)) {
+        return (
+            mouseEvent.mouseButton === MouseButton.CANCEL ||
+            mouseEvent.mouseY > TARGET_CANCEL_BUTTON_TOP
+        )
+    }
+    if (isValidValue(keyboardEvent)) {
+        return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
+    }
+    return false
+}
+
+const movePopoversPositions = (
+    gameEngineState: GameEngineState,
+    position: SquaddieSummaryPopoverPosition
+) => {
+    SquaddieSummaryPopoverService.changePopoverPosition({
+        popover:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
+        position,
+    })
+    SquaddieSummaryPopoverService.changePopoverPosition({
+        popover:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.squaddieSummaryPopoversByType.TARGET,
+        position,
+    })
 }

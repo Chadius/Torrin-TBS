@@ -22,7 +22,6 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleSquaddie } from "../battleSquaddie"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -31,6 +30,8 @@ import {
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { GameEngineState } from "../../gameEngine/gameEngine"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string
@@ -43,37 +44,41 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
 
     DetermineNextInstruction({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
+        gameEngineState,
     }: {
         team: BattleSquaddieTeam
-        missionMap: MissionMap
-        repository: ObjectRepository
-        actionsThisRound?: ActionsThisRound
+        gameEngineState: GameEngineState
     }): BattleActionDecisionStep[] {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target")
         }
 
-        let battleSquaddieIdToAct =
-            TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct(
-                team,
-                actionsThisRound,
-                repository
+        const previousActionsThisTurn =
+            BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
             )
+
+        let battleSquaddieIdToAct =
+            TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct({
+                team,
+                battleSquaddieId:
+                    previousActionsThisTurn?.actor.actorBattleSquaddieId,
+                objectRepository: gameEngineState.repository,
+            })
+
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
-                repository,
+                gameEngineState.repository,
                 battleSquaddieIdToAct
             )
         )
 
         const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-            missionMap,
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieIdToAct
         )
         const { actionPointsRemaining } =
@@ -89,16 +94,18 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             squaddieTemplate,
             movementPerActionThisRound,
             actionPointsRemaining,
-            missionMap,
-            repository,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            objectRepository: gameEngineState.repository,
         })
 
         const closestSquaddieInfo = getClosestSquaddieAndLocationToFollow({
-            missionMap,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
             routesToAllSquaddies: routesToAllSquaddies,
             desiredBattleSquaddieId: this.desiredBattleSquaddieId,
             desiredAffiliation: this.desiredAffiliation,
-            repository,
+            objectRepository: gameEngineState.repository,
             actingSquaddieBattleId: battleSquaddieIdToAct,
             numberOfActions: actionPointsRemaining,
             movementPerAction: movementPerActionThisRound,
@@ -137,14 +144,14 @@ const getClosestSquaddieAndLocationToFollow = ({
     routesToAllSquaddies,
     desiredBattleSquaddieId,
     desiredAffiliation,
-    repository,
+    objectRepository,
     actingSquaddieBattleId,
     numberOfActions,
     movementPerAction,
 }: {
     missionMap: MissionMap
     routesToAllSquaddies: SearchResult
-    repository: ObjectRepository
+    objectRepository: ObjectRepository
     actingSquaddieBattleId: string
     numberOfActions: number
     movementPerAction: number
@@ -157,7 +164,7 @@ const getClosestSquaddieAndLocationToFollow = ({
     shortestRoute: SearchPath
 } => {
     const desiredBattleSquaddies = selectDesiredBattleSquaddies(
-        repository,
+        objectRepository,
         actingSquaddieBattleId,
         desiredBattleSquaddieId,
         desiredAffiliation
@@ -168,7 +175,7 @@ const getClosestSquaddieAndLocationToFollow = ({
     )
     const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
-            repository,
+            objectRepository,
             actingSquaddieBattleId
         )
     )
@@ -214,7 +221,7 @@ const getClosestSquaddieAndLocationToFollow = ({
                     stopLocations: closestReachableLocationsFromTheCandidate,
                 }),
                 missionMap,
-                repository,
+                objectRepository: objectRepository,
             })
 
         return routesThatEndCloseToCandidate.stopLocationsReached
@@ -360,14 +367,14 @@ const getAllPossibleMovements = ({
     movementPerActionThisRound,
     actionPointsRemaining,
     missionMap,
-    repository,
+    objectRepository,
 }: {
     mapLocation: HexCoordinate
     squaddieTemplate: SquaddieTemplate
     movementPerActionThisRound: number
     actionPointsRemaining: number
     missionMap: MissionMap
-    repository: ObjectRepository
+    objectRepository: ObjectRepository
 }) => {
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
@@ -385,6 +392,6 @@ const getAllPossibleMovements = ({
             numberOfActions: actionPointsRemaining,
         }),
         missionMap,
-        repository,
+        objectRepository: objectRepository,
     })
 }

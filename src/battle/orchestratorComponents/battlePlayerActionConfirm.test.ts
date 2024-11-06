@@ -28,7 +28,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -139,12 +138,6 @@ describe("BattleActionConfirm", () => {
             { q: 1, r: 2 }
         )
 
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 1, r: 1 },
-            previewedActionTemplateId: longswordAction.id,
-        })
-
         gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleHUD: BattleHUDService.new({}),
@@ -152,7 +145,6 @@ describe("BattleActionConfirm", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: battleMap,
-                    actionsThisRound,
                 }),
             }),
             repository: objectRepository,
@@ -166,6 +158,12 @@ describe("BattleActionConfirm", () => {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            actionTemplateId: longswordAction.id,
         })
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =

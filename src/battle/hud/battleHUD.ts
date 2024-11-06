@@ -35,7 +35,6 @@ import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUti
 import { VERTICAL_ALIGN } from "../../ui/constants"
 import * as p5 from "p5"
 import { HEX_TILE_WIDTH } from "../../graphicsConstants"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
     BattleActionDecisionStep,
@@ -43,8 +42,6 @@ import {
 } from "../actionDecision/battleActionDecisionStep"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../targeting/targetingService"
-import { ProcessedActionService } from "../../action/processed/processedAction"
-import { ProcessedActionEndTurnEffectService } from "../../action/processed/processedActionEndTurnEffect"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import {
     CoordinateSystem,
@@ -75,7 +72,6 @@ import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLoca
 import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { ProcessedActionSquaddieEffectService } from "../../action/processed/processedActionSquaddieEffect"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
@@ -200,8 +196,6 @@ export const BattleHUDService = {
             gameEngineState,
             battleSquaddieToHighlightId
         )
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
-            undefined
 
         BattleActionDecisionStepService.removeAction({
             actionDecisionStep:
@@ -213,14 +207,6 @@ export const BattleHUDService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
         })
-
-        if (
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions.length === 0
-        ) {
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-                undefined
-        }
     },
     cancelTargetConfirmation: (
         battleHUD: BattleHUD,
@@ -521,12 +507,6 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showPlayerCommand =
             false
 
-        ActionsThisRoundService.updateActionsThisRound({
-            state: gameEngineState,
-            battleSquaddieId: message.battleSquaddieId,
-            startingLocation: message.mapStartingLocation,
-            previewedActionTemplateId: message.actionTemplateId,
-        })
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
@@ -589,8 +569,6 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
 
-        let actionsThisRound =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
         const { battleSquaddie: actingBattleSquaddie, squaddieTemplate } =
             getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
@@ -623,8 +601,6 @@ export const BattleHUDService = {
             actingBattleSquaddie.squaddieTurn,
             actionTemplate.actionPoints
         )
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId =
-            undefined
 
         const targetLocation = BattleActionDecisionStepService.getTarget(
             gameEngineState.battleOrchestratorState.battleState
@@ -651,28 +627,8 @@ export const BattleHUDService = {
                 gameEngineState: gameEngineState,
                 actingBattleSquaddie,
                 validTargetLocation: targetLocation,
-                actionsThisRound:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound,
                 battleActionDecisionStep: actionStep,
             })
-
-        const processedAction = ProcessedActionService.new({
-            actionPointCost: actionTemplate.actionPoints,
-        })
-        processedAction.processedActionEffects = results
-            .map((result) =>
-                result.squaddieChanges.map((squaddieChange) =>
-                    ProcessedActionSquaddieEffectService.new({
-                        battleActionDecisionStep: actionStep,
-                        objectRepository: gameEngineState.repository,
-                        battleActionSquaddieChange: squaddieChange,
-                    })
-                )
-            )
-            .flat()
-
-        actionsThisRound.processedActions.push(processedAction)
 
         BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
             actionDecisionStep:
@@ -845,21 +801,10 @@ export const BattleHUDService = {
             squaddieTemplate,
             destination,
         })
-        const processedAction =
-            MovementCalculatorService.createMovementProcessedAction({
-                gameEngineState,
-                battleSquaddie,
-                destination,
-            })
-        MovementCalculatorService.addProcessedActionToHistory({
+        MovementCalculatorService.spendActionPointsMoving({
             gameEngineState,
-            processedAction,
             battleSquaddie,
-        })
-
-        MovementCalculatorService.consumeSquaddieActions({
-            processedAction,
-            battleSquaddie,
+            destination,
         })
         MovementCalculatorService.queueBattleActionToMove({
             gameEngineState,
@@ -915,8 +860,6 @@ export const BattleHUDService = {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            undefined
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
             undefined
     },
     playerControlledSquaddieNeedsNextAction: (
@@ -1092,22 +1035,6 @@ const processEndTurnAction = (
             .battleActionRecorder,
         endTurnAction
     )
-
-    const processedAction = ProcessedActionService.new({
-        actionPointCost: "End Turn",
-        processedActionEffects: [
-            ProcessedActionEndTurnEffectService.new({
-                battleActionDecisionStep: endTurnDecision,
-            }),
-        ],
-    })
-
-    ActionsThisRoundService.updateActionsThisRound({
-        state: gameEngineState,
-        battleSquaddieId: battleSquaddie.battleSquaddieId,
-        startingLocation: mapLocation,
-        processedAction,
-    })
     gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
         BattleActionDecisionStepService.new()
     BattleActionDecisionStepService.setActor({

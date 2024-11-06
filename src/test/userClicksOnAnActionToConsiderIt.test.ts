@@ -33,10 +33,6 @@ import {
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
 import { ResourceHandler } from "../resource/resourceHandler"
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../battle/history/actionsThisRound"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
@@ -53,6 +49,7 @@ import { MouseButton } from "../utils/mouseConfig"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
+import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -209,7 +206,7 @@ describe("user clicks on an action to consider it", () => {
         expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
     })
 
-    it("ActionsThisRound should mark it as being considered when HUD selects an action", () => {
+    it("BattleDecisionStep should mark it as being considered when HUD selects an action", () => {
         selectorClicksOnSquaddie(selector, gameEngineState)
 
         attackButton =
@@ -232,15 +229,23 @@ describe("user clicks on an action to consider it", () => {
                 .summaryHUDState.playerCommandState.selectedActionTemplateId
         ).toEqual(attackAction.id)
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        ).toEqual(
-            ActionsThisRoundService.new({
-                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 0, r: 0 },
-                previewedActionTemplateId: attackAction.name,
-                processedActions: [],
-            })
-        )
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
+        ).toEqual(playerBattleSquaddie.battleSquaddieId)
+        expect(
+            BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).actionTemplateId
+        ).toEqual(attackAction.id)
+        expect(
+            BattleActionDecisionStepService.isTargetConsidered(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeFalsy()
     })
 
     it("Squaddie Selector is Complete and recommends Player HUD Controller phase", () => {
@@ -329,14 +334,12 @@ const getGameEngineState = ({
     repository,
     teams,
     battlePhaseState,
-    actionsThisRound,
 }: {
     resourceHandler: ResourceHandler
     missionMap: MissionMap
     repository: ObjectRepository
     teams: BattleSquaddieTeam[]
     battlePhaseState: BattlePhaseState
-    actionsThisRound?: ActionsThisRound
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
@@ -348,7 +351,6 @@ const getGameEngineState = ({
                 camera: new BattleCamera(0, 0),
                 teams,
                 battlePhaseState,
-                actionsThisRound,
             }),
         }),
         repository,

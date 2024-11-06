@@ -49,12 +49,12 @@ export const PathfinderWorkingStateHelper = {
         terrainTileMap,
         searchParameters,
         missionMap,
-        repository,
+        objectRepository,
     }: {
         terrainTileMap: TerrainTileMap
         searchParameters: SearchParameters
         missionMap: MissionMap
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     }): PathfinderWorkingState => {
         const workingState: PathfinderWorkingState = {
             searchPathQueue: new PriorityQueue<SearchPath>(
@@ -89,7 +89,7 @@ export const PathfinderWorkingStateHelper = {
                 new AddPathConditionMaximumDistance(),
                 new AddPathConditionSquaddieAffiliation({
                     missionMap,
-                    repository,
+                    objectRepository: objectRepository,
                 }),
             ],
             pathCanStopConditions: [
@@ -97,7 +97,7 @@ export const PathfinderWorkingStateHelper = {
                 new PathCanStopConditionMinimumDistance(),
                 new PathCanStopConditionNotOnAnotherSquaddie({
                     missionMap,
-                    repository,
+                    objectRepository: objectRepository,
                 }),
             ],
             stopLocationsReached: [],
@@ -145,11 +145,11 @@ export const PathfinderService = {
     search: ({
         searchParameters,
         missionMap,
-        repository,
+        objectRepository,
     }: {
         searchParameters: SearchParameters
         missionMap: MissionMap
-        repository: ObjectRepository
+        objectRepository: ObjectRepository
     }): SearchResult => {
         if (
             !isValidValue(searchParameters.startLocations) ||
@@ -162,7 +162,7 @@ export const PathfinderService = {
             terrainTileMap: missionMap.terrainTileMap,
             searchParameters,
             missionMap,
-            repository,
+            objectRepository: objectRepository,
         })
         populateStartingLocations({ searchParameters, workingState })
         generateValidPaths({

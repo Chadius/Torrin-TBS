@@ -17,10 +17,7 @@ import {
 } from "../action/template/actionTemplate"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
@@ -31,10 +28,6 @@ import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../battle/history/actionsThisRound"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
@@ -44,9 +37,6 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { ProcessedActionService } from "../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
@@ -56,6 +46,9 @@ import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
+import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../battle/history/battleAction/battleAction"
+import { BattleActionsDuringTurnService } from "../battle/history/battleAction/battleActionsDuringTurn"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -156,13 +149,22 @@ describe("User cancels the previewed action", () => {
                 repository: objectRepository,
                 resourceHandler,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                actionsThisRound: ActionsThisRoundService.new({
-                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                    startingLocation: { q: 0, r: 0 },
-                    previewedActionTemplateId: attackAction.name,
-                    processedActions: [],
-                }),
             })
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: attackAction.id,
+            })
+
             orchestratorSpy = jest.spyOn(
                 OrchestratorUtilities,
                 "generateMessagesIfThePlayerCanActWithANewSquaddie"
@@ -290,30 +292,41 @@ describe("User cancels the previewed action", () => {
             repository: objectRepository,
             resourceHandler,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            actionsThisRound: ActionsThisRoundService.new({
-                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 0, r: 0 },
-                previewedActionTemplateId: attackAction.id,
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 0,
-                        processedActionEffects: [
-                            ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                                {
-                                    decidedActionEffect:
-                                        DecidedActionSquaddieEffectService.new({
-                                            template: attackAction
-                                                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                            target: { q: 0, r: 1 },
-                                        }),
-                                    results: undefined,
-                                }
-                            ),
-                        ],
-                    }),
-                ],
-            }),
         })
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        playerBattleSquaddie.battleSquaddieId,
+                },
+                action: { actionTemplateId: attackAction.id },
+                effect: {
+                    squaddie: [],
+                },
+            })
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            actionTemplateId: attackAction.id,
+        })
+
         MissionMapService.addSquaddie({
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -336,21 +349,25 @@ describe("User cancels the previewed action", () => {
         expect(targeting.hasCompleted(gameEngineState)).toBeTruthy()
         targeting.recommendStateChanges(gameEngineState)
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .battleSquaddieId
-        ).toEqual(playerBattleSquaddie.battleSquaddieId)
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions
-        ).toHaveLength(1)
-        expect(
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
                 gameEngineState
             )
         ).toBeTruthy()
+        expect(
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
+        ).toEqual(playerBattleSquaddie.battleSquaddieId)
+        expect(
+            BattleActionRecorderService.peekAtAlreadyAnimatedQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).action.actionTemplateId
+        ).toEqual(attackAction.id)
     })
 
-    it("After Clicking a target, Canceling the confirmation should not change ActionsThisRound - we’re still previewing via $name", () => {
+    it("After Clicking a target, Canceling the confirmation should not change BattleActionRecorder - we’re still previewing via $name", () => {
         const enemySquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: SquaddieIdService.new({
                 name: "enemy",
@@ -373,36 +390,45 @@ describe("User cancels the previewed action", () => {
             enemyBattleSquaddie
         )
 
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            previewedActionTemplateId: attackAction.name,
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 0,
-                    processedActionEffects: [
-                        ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                            {
-                                decidedActionEffect:
-                                    DecidedActionSquaddieEffectService.new({
-                                        template: attackAction
-                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                        target: { q: 0, r: 1 },
-                                    }),
-                                results: undefined,
-                            }
-                        ),
-                    ],
-                }),
-            ],
-        })
-
         gameEngineState = getGameEngineState({
             repository: objectRepository,
             resourceHandler,
-            actionsThisRound: actionsThisRound,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         })
+
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        playerBattleSquaddie.battleSquaddieId,
+                },
+                action: { actionTemplateId: attackAction.id },
+                effect: {
+                    squaddie: [],
+                },
+            })
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            actionTemplateId: attackAction.id,
+        })
+
         MissionMapService.addSquaddie({
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -450,19 +476,26 @@ describe("User cancels the previewed action", () => {
         })
 
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        ).toEqual(actionsThisRound)
+            BattleActionRecorderService.isAnimationQueueEmpty(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+        ).toBeTruthy()
+        expect(
+            BattleActionsDuringTurnService.getAll(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder.actionsAlreadyAnimatedThisTurn
+            )
+        ).toHaveLength(1)
     })
 })
 
 const getGameEngineState = ({
     repository,
-    actionsThisRound,
     resourceHandler,
     battleSquaddieId,
 }: {
     repository: ObjectRepository
-    actionsThisRound?: ActionsThisRound
     resourceHandler: ResourceHandler
     battleSquaddieId: string
 }): GameEngineState => {
@@ -476,7 +509,6 @@ const getGameEngineState = ({
                     currentAffiliation: BattlePhase.PLAYER,
                     turnCount: 0,
                 }),
-                actionsThisRound,
                 missionMap: MissionMapService.new({
                     terrainTileMap: TerrainTileMapService.new({
                         movementCost: ["1 1 "],

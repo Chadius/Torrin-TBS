@@ -1,52 +1,51 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { MissionMap } from "../../missionMap/missionMap"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { ActionsThisRound } from "../history/actionsThisRound"
 import { isValidValue } from "../../utils/validityCheck"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { BattleActionDecisionStep } from "../actionDecision/battleActionDecisionStep"
+import { GameEngineState } from "../../gameEngine/gameEngine"
 
 export interface TeamStrategyCalculator {
     DetermineNextInstruction({
         team,
-        missionMap,
-        repository,
-        actionsThisRound,
+        gameEngineState,
     }: {
         team: BattleSquaddieTeam
-        missionMap: MissionMap
-        repository: ObjectRepository
-        actionsThisRound: ActionsThisRound
+        gameEngineState: GameEngineState
     }): BattleActionDecisionStep[]
 }
 
 export const TeamStrategyService = {
-    getCurrentlyActingSquaddieWhoCanAct: (
-        team: BattleSquaddieTeam,
-        actionsThisRound: ActionsThisRound,
-        repository: ObjectRepository
-    ): string => {
+    getCurrentlyActingSquaddieWhoCanAct: ({
+        team,
+        battleSquaddieId,
+        objectRepository,
+    }: {
+        team: BattleSquaddieTeam
+        battleSquaddieId?: string
+        objectRepository: ObjectRepository
+    }): string => {
         if (!isValidValue(team)) {
             return undefined
         }
 
-        let battleSquaddieIdToAct = getBattleSquaddieWhoCanAct(team, repository)
+        let battleSquaddieIdToAct = getBattleSquaddieWhoCanAct(
+            team,
+            objectRepository
+        )
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined
         }
 
-        if (
-            isValidValue(actionsThisRound) &&
-            isValidValue(actionsThisRound.battleSquaddieId)
-        ) {
+        if (battleSquaddieId) {
             const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    repository,
-                    actionsThisRound.battleSquaddieId
+                    objectRepository,
+                    battleSquaddieId
                 )
             )
             const { canAct } = SquaddieService.canSquaddieActRightNow({

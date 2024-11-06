@@ -29,10 +29,10 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -412,22 +412,30 @@ describe("Targeting Service", () => {
                 { q: 1, r: 1 }
             )
 
-            const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-                startingLocation: { q: 1, r: 1 },
-                previewedActionTemplateId: longswordAction.id,
-            })
-
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
                         missionMap: battleMap,
                         campaignId: "test campaign",
                         missionId: "test mission",
-                        actionsThisRound,
                     }),
                 }),
                 repository: objectRepository,
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: longswordAction.id,
             })
 
             addGraphicsLayerSpy = jest.spyOn(

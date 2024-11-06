@@ -20,18 +20,11 @@ import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTurnService } from "../../../squaddie/turn"
-import { ActionsThisRoundService } from "../../history/actionsThisRound"
-import { MissionMapService } from "../../../missionMap/missionMap"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
-import {
-    ProcessedAction,
-    ProcessedActionService,
-} from "../../../action/processed/processedAction"
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
-import { ProcessedActionMovementEffectService } from "../../../action/processed/processedActionMovementEffect"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 
 export const MovementCalculatorService = {
@@ -77,7 +70,7 @@ export const MovementCalculatorService = {
             }),
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
-            repository: gameEngineState.repository,
+            objectRepository: gameEngineState.repository,
         })
 
         const closestRoute: SearchPath =
@@ -132,7 +125,7 @@ export const MovementCalculatorService = {
             targetLocation: destination,
         })
     },
-    createMovementProcessedAction: ({
+    spendActionPointsMoving: ({
         gameEngineState,
         battleSquaddie,
         destination,
@@ -140,43 +133,12 @@ export const MovementCalculatorService = {
         gameEngineState: GameEngineState
         battleSquaddie: BattleSquaddie
         destination: HexCoordinate
-    }): ProcessedAction => {
-        return createMovementProcessedAction({
+    }) => {
+        return spendActionPointsMoving({
             gameEngineState: gameEngineState,
             battleSquaddie,
             destination,
         })
-    },
-    addProcessedActionToHistory: ({
-        gameEngineState,
-        battleSquaddie,
-        processedAction,
-    }: {
-        gameEngineState: GameEngineState
-        battleSquaddie: BattleSquaddie
-        processedAction: ProcessedAction
-    }) => {
-        ActionsThisRoundService.updateActionsThisRound({
-            state: gameEngineState,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startingLocation: MissionMapService.getByBattleSquaddieId(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                battleSquaddie.battleSquaddieId
-            ).mapLocation,
-            processedAction,
-        })
-    },
-    consumeSquaddieActions: ({
-        battleSquaddie,
-        processedAction,
-    }: {
-        processedAction: ProcessedAction
-        battleSquaddie: BattleSquaddie
-    }) => {
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddie.squaddieTurn,
-            processedAction.actionPointCost
-        )
     },
     queueBattleActionToMove: ({
         gameEngineState,
@@ -211,7 +173,7 @@ export const MovementCalculatorService = {
     },
 }
 
-const createMovementProcessedAction = ({
+const spendActionPointsMoving = ({
     gameEngineState,
     battleSquaddie,
     destination,
@@ -219,7 +181,7 @@ const createMovementProcessedAction = ({
     gameEngineState: GameEngineState
     battleSquaddie: BattleSquaddie
     destination: HexCoordinate
-}): ProcessedAction => {
+}) => {
     const locationsByMoveActions: {
         [movementActions: number]: LocationTraveled[]
     } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
@@ -249,12 +211,8 @@ const createMovementProcessedAction = ({
         targetLocation: destination,
     })
 
-    return ProcessedActionService.new({
-        actionPointCost: numberOfActionPointsSpentMoving,
-        processedActionEffects: [
-            ProcessedActionMovementEffectService.new({
-                battleActionDecisionStep: movementStep,
-            }),
-        ],
-    })
+    SquaddieTurnService.spendActionPoints(
+        battleSquaddie.squaddieTurn,
+        numberOfActionPointsSpentMoving
+    )
 }

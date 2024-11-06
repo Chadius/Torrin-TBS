@@ -19,6 +19,12 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../orchestrator/battleState"
 
 describe("end turn team strategy", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -26,6 +32,7 @@ describe("end turn team strategy", () => {
     let repository: ObjectRepository
     let squaddieTeam: BattleSquaddieTeam
     let missionMap: MissionMap
+    let gameEngineState: GameEngineState
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
@@ -73,6 +80,18 @@ describe("end turn team strategy", () => {
         missionMap = new MissionMap({
             terrainTileMap: TerrainTileMapService.new({ movementCost: ["1 "] }),
         })
+
+        gameEngineState = GameEngineStateService.new({
+            repository: repository,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "missionId",
+                    campaignId: "campaignId",
+                    missionMap,
+                    teams: [squaddieTeam],
+                }),
+            }),
+        })
     })
 
     it("determines it should end its turn", () => {
@@ -95,8 +114,7 @@ describe("end turn team strategy", () => {
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toStrictEqual([endTurnStep])
@@ -115,8 +133,7 @@ describe("end turn team strategy", () => {
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: noSquaddieTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toBeUndefined()
@@ -128,8 +145,7 @@ describe("end turn team strategy", () => {
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy()
         const actualInstruction = strategy.DetermineNextInstruction({
             team: squaddieTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toBeUndefined()

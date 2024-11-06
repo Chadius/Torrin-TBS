@@ -11,16 +11,14 @@ import {
 import { MissionRewardType } from "../missionResult/missionReward"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionEffect } from "../../action/processed/processedActionEffect"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { CutsceneQueueService } from "./cutsceneIdQueue"
+import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const MissionCutsceneService = {
     FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat: (
@@ -49,10 +47,10 @@ export const MissionCutsceneService = {
     },
     FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction: ({
         gameEngineState,
-        squaddieSquaddieResult,
+        squaddieChanges,
     }: {
         gameEngineState: GameEngineState
-        squaddieSquaddieResult: SquaddieSquaddieResults
+        squaddieChanges: BattleActionSquaddieChange[]
     }): CutsceneTrigger[] => {
         const triggerIsInjury = (trigger: SquaddieIsInjuredTrigger): boolean =>
             trigger.triggeringEvent === TriggeringEvent.SQUADDIE_IS_INJURED
@@ -62,7 +60,7 @@ export const MissionCutsceneService = {
                 .filter(triggerIsInjury)
                 .map((trigger) => trigger as SquaddieIsInjuredTrigger)
 
-        const injuredBattleSquaddieIds = squaddieSquaddieResult.squaddieChanges
+        const injuredBattleSquaddieIds = squaddieChanges
             .filter((change) => change.damage.net > 0)
             .map((change) => change.battleSquaddieId)
 
@@ -268,21 +266,19 @@ export class CutsceneMessageListener implements MessageBoardListener {
         if (message.type !== MessageBoardMessageType.SQUADDIE_IS_INJURED) {
             return
         }
-        let result: SquaddieSquaddieResults
-        const actionEffectToShow: ProcessedActionEffect =
-            ActionsThisRoundService.getProcessedActionEffectToShow(
-                message.gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            )
-        if (actionEffectToShow.type === ActionEffectType.SQUADDIE) {
-            result = actionEffectToShow.results
-        }
+
+        let squaddieChanges = BattleActionRecorderService.peekAtAnimationQueue(
+            message.gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        ).effect.squaddie
+
+        if (!squaddieChanges || squaddieChanges.length === 0) return
 
         const cutsceneTriggers =
             MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                 {
                     gameEngineState: message.gameEngineState,
-                    squaddieSquaddieResult: result,
+                    squaddieChanges,
                 }
             )
 

@@ -30,10 +30,6 @@ import {
     BattlePhaseStateService,
 } from "../battle/orchestratorComponents/battlePhaseController"
 import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../battle/history/actionsThisRound"
-import {
     GameEngineState,
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
@@ -42,11 +38,6 @@ import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { RectAreaService } from "../ui/rectArea"
-import {
-    DecidedActionEndTurnEffect,
-    DecidedActionEndTurnEffectService,
-} from "../action/decided/decidedActionEndTurnEffect"
-import { ActionEffectEndTurnTemplateService } from "../action/template/actionEffectEndTurnTemplate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
@@ -57,8 +48,6 @@ import {
     ACTION_COMPLETED_WAIT_TIME_MS,
     BattleSquaddieUsesActionOnMap,
 } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap"
-import { ProcessedActionEndTurnEffectService } from "../action/processed/processedActionEndTurnEffect"
-import { ProcessedActionService } from "../action/processed/processedAction"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -213,7 +202,7 @@ describe("User ends their turn", () => {
         ).toBeFalsy()
     })
 
-    it("EndTurn adds a ProcessedAction to end the turn", () => {
+    it("EndTurn adds a BattleAction to end the turn", () => {
         let { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
                 q: 0,
@@ -227,10 +216,6 @@ describe("User ends their turn", () => {
             mouseY,
             mouseButton: MouseButton.ACCEPT,
         })
-
-        expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        ).toBeUndefined()
 
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
@@ -246,22 +231,6 @@ describe("User ends their turn", () => {
             mouseButton: MouseButton.ACCEPT,
         })
 
-        const actionsThisRound =
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        expect(actionsThisRound.processedActions).toHaveLength(1)
-
-        const processedAction = actionsThisRound.processedActions[0]
-
-        const decidedActionEndTurnEffect =
-            DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({}),
-            })
-        expect(processedAction.processedActionEffects).toHaveLength(1)
-        expect(processedAction.processedActionEffects[0]).toEqual(
-            ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
-                decidedActionEffect: decidedActionEndTurnEffect,
-            })
-        )
         expect(
             BattleActionRecorderService.peekAtAnimationQueue(
                 gameEngineState.battleOrchestratorState.battleState
@@ -381,7 +350,7 @@ describe("User ends their turn", () => {
             expect(highlightTileSpy).toBeCalled()
         })
 
-        it("It adds an event showing the processed action", () => {
+        it("It adds an event showing the battle action", () => {
             expect(
                 BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
@@ -403,14 +372,10 @@ describe("User ends their turn", () => {
     describe("When MapAction phase completes", () => {
         let mapAction: BattleSquaddieUsesActionOnMap
         let graphicsContext: GraphicsBuffer
-        let decidedActionEndTurnEffect: DecidedActionEndTurnEffect
         let tintSpy: jest.SpyInstance
-        let orchestratorUtilsSpy: jest.SpyInstance
+        let messageSpy: jest.SpyInstance
 
         beforeEach(() => {
-            decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
-                template: ActionEffectEndTurnTemplateService.new({}),
-            })
             graphicsContext = new MockedP5GraphicsBuffer()
             mapAction = new BattleSquaddieUsesActionOnMap()
 
@@ -426,24 +391,6 @@ describe("User ends their turn", () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId:
-                                playerBattleSquaddie.battleSquaddieId,
-                            startingLocation: { q: 0, r: 0 },
-                            processedActions: [
-                                ProcessedActionService.new({
-                                    actionPointCost: "End Turn",
-                                    processedActionEffects: [
-                                        ProcessedActionEndTurnEffectService.newFromDecidedActionEffect(
-                                            {
-                                                decidedActionEffect:
-                                                    decidedActionEndTurnEffect,
-                                            }
-                                        ),
-                                    ],
-                                }),
-                            ],
-                        }),
                     }),
                 }),
                 campaign: CampaignService.default(),
@@ -476,55 +423,36 @@ describe("User ends their turn", () => {
             jest.spyOn(Date, "now").mockImplementation(
                 () => ACTION_COMPLETED_WAIT_TIME_MS + 1
             )
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
             mapAction.update(gameEngineState, graphicsContext)
-
-            orchestratorUtilsSpy = jest.spyOn(
-                OrchestratorUtilities,
-                "clearActionsThisRoundIfSquaddieCannotAct"
-            )
         })
 
         afterEach(() => {
             tintSpy.mockRestore()
-            orchestratorUtilsSpy.mockRestore()
+            messageSpy.mockRestore()
         })
 
         it("component is completed", () => {
             expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
         })
-        it("It iterates to the next processed action to show", () => {
-            let nextAction =
-                ActionsThisRoundService.getProcessedActionEffectToShow(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                )
-            expect(nextAction).toEqual(
-                ProcessedActionEndTurnEffectService.newFromDecidedActionEffect({
-                    decidedActionEffect: decidedActionEndTurnEffect,
-                })
-            )
+        it("It sends a message indicating the animation is complete", () => {
             mapAction.recommendStateChanges(gameEngineState)
             mapAction.reset(gameEngineState)
-            nextAction = ActionsThisRoundService.getProcessedActionEffectToShow(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            )
-            expect(nextAction).toBeUndefined()
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
         })
-        it("It clears ActionsThisRound when there are no more actions to process", () => {
-            mapAction.recommendStateChanges(gameEngineState)
-            mapAction.reset(gameEngineState)
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            ).toBeUndefined()
-        })
+
         it("The squaddie is grayed out since it is out of actions", () => {
             expect(tintSpy).toBeCalled()
         })
         it("checks to see if it should generate a message to alert another player squaddie can act", () => {
             mapAction.recommendStateChanges(gameEngineState)
-            expect(orchestratorUtilsSpy).toBeCalledWith(gameEngineState)
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
         })
     })
 })
@@ -535,14 +463,12 @@ const getGameEngineState = ({
     repository,
     teams,
     battlePhaseState,
-    actionsThisRound,
 }: {
     resourceHandler: ResourceHandler
     missionMap: MissionMap
     repository: ObjectRepository
     teams: BattleSquaddieTeam[]
     battlePhaseState: BattlePhaseState
-    actionsThisRound?: ActionsThisRound
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
@@ -554,7 +480,6 @@ const getGameEngineState = ({
                 camera: new BattleCamera(0, 0),
                 teams,
                 battlePhaseState,
-                actionsThisRound,
             }),
         }),
         repository,

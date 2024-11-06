@@ -28,7 +28,6 @@ import {
     BattlePhaseStateService,
 } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { ActionsThisRound } from "../battle/history/actionsThisRound"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
@@ -38,9 +37,6 @@ import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { SquaddieMovementService } from "../squaddie/movement"
-import { ProcessedActionMovementEffectService } from "../action/processed/processedActionMovementEffect"
-import { DecidedActionMovementEffectService } from "../action/decided/decidedActionMovementEffect"
-import { ActionEffectMovementTemplateService } from "../action/template/actionEffectMovementTemplate"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
@@ -173,7 +169,7 @@ describe("user clicks on the map to move", () => {
     describe("Invalid locations", () => {
         it("When user clicks off map", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, -10, 9001)
-            commonExpectations()
+            expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
@@ -182,7 +178,7 @@ describe("user clicks on the map to move", () => {
 
         it("When user clicks out of range", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 4)
-            commonExpectations()
+            expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.showSummaryHUD
@@ -191,7 +187,7 @@ describe("user clicks on the map to move", () => {
 
         it("When user clicks in range but on invalid terrain", () => {
             selectorClicksOnMapLocation(selector, gameEngineState, 1, 0)
-            commonExpectations()
+            expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.showSummaryHUD
@@ -215,7 +211,7 @@ describe("user clicks on the map to move", () => {
                 },
             })
             selectorClicksOnMapLocation(selector, gameEngineState, 2, 2)
-            commonExpectations()
+            expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.showSummaryHUD
@@ -227,10 +223,13 @@ describe("user clicks on the map to move", () => {
             ).toEqual(anotherPlayer.battleSquaddieId)
         })
 
-        const commonExpectations = () => {
-            const battleState =
-                gameEngineState.battleOrchestratorState.battleState
-            expect(battleState.actionsThisRound).toBeUndefined()
+        const expectNoActionWasMadeAndSelectorIsComplete = () => {
+            expect(
+                BattleActionDecisionStepService.getAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeUndefined()
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
         }
     })
@@ -273,16 +272,7 @@ describe("user clicks on the map to move", () => {
             expect(squaddieMovePath.destination).toEqual({ q: 0, r: 3 })
         })
 
-        it("Squaddie Selector will create a Processed Action describing the movement, for the given squaddie, giving it to ActionsThisRound", () => {
-            const actionsThisRound =
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound
-            expect(actionsThisRound.startingLocation).toEqual({ q: 0, r: 0 })
-            expect(actionsThisRound.processedActions).toHaveLength(1)
-            expect(actionsThisRound.processedActionEffectIteratorIndex).toEqual(
-                0
-            )
-
+        it("Squaddie Selector will create a Battle Action describing the movement, for the given squaddie", () => {
             const movementStep: BattleActionDecisionStep =
                 BattleActionDecisionStepService.new()
             BattleActionDecisionStepService.setActor({
@@ -298,11 +288,6 @@ describe("user clicks on the map to move", () => {
                 targetLocation: { q: 0, r: 3 },
             })
 
-            const decidedActionMovementEffect =
-                DecidedActionMovementEffectService.new({
-                    destination: { q: 0, r: 3 },
-                    template: ActionEffectMovementTemplateService.new({}),
-                })
             expect(
                 BattleActionRecorderService.peekAtAnimationQueue(
                     gameEngineState.battleOrchestratorState.battleState
@@ -322,19 +307,6 @@ describe("user clicks on the map to move", () => {
                         },
                     },
                 })
-            )
-
-            expect(
-                actionsThisRound.processedActions[0].processedActionEffects
-            ).toHaveLength(1)
-            expect(
-                actionsThisRound.processedActions[0].processedActionEffects[0]
-            ).toEqual(
-                ProcessedActionMovementEffectService.newFromDecidedActionEffect(
-                    {
-                        decidedActionEffect: decidedActionMovementEffect,
-                    }
-                )
             )
         })
 
@@ -395,14 +367,12 @@ const getGameEngineState = ({
     repository,
     teams,
     battlePhaseState,
-    actionsThisRound,
 }: {
     resourceHandler: ResourceHandler
     missionMap: MissionMap
     repository: ObjectRepository
     teams: BattleSquaddieTeam[]
     battlePhaseState: BattlePhaseState
-    actionsThisRound?: ActionsThisRound
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
@@ -415,7 +385,6 @@ const getGameEngineState = ({
                 camera: new BattleCamera(0, 0),
                 teams,
                 battlePhaseState,
-                actionsThisRound,
             }),
         }),
         repository,

@@ -29,8 +29,6 @@ import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 import { CampaignService } from "../../../../campaign/campaign"
 import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../../orchestrator/battleState"
-import { ActionsThisRoundService } from "../../../history/actionsThisRound"
-import { ProcessedActionService } from "../../../../action/processed/processedAction"
 import { ActionCalculator } from "../calculator"
 import { DegreeOfSuccess } from "../degreeOfSuccess"
 import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
@@ -148,27 +146,11 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
     })
 
-    const createActionsThisRound = (action: ActionTemplate) => {
-        return ActionsThisRoundService.new({
-            battleSquaddieId: actingSquaddie.battleSquaddieId,
-            startingLocation: { q: 0, r: 0 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 1,
-                }),
-            ],
-            previewedActionTemplateId: armorAttackingAction.id,
-        })
-    }
-
     it("can use armor to reduce a successful hit into a failure miss", () => {
         const expectedRolls: number[] = [1, 6]
         numberGenerator = new StreamNumberGenerator({ results: expectedRolls })
         gameEngineState.battleOrchestratorState.numberGenerator =
             numberGenerator
-
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-            createActionsThisRound(armorAttackingAction)
 
         InBattleAttributesService.addActiveAttributeModifier(
             targetSquaddie.inBattleAttributes,
@@ -198,9 +180,6 @@ describe("Armor Attribute affects Armor Attacks", () => {
 
         const results = ActionCalculator.calculateResults({
             gameEngineState,
-            actionsThisRound:
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
             validTargetLocation: { q: 0, r: 1 },
@@ -244,9 +223,6 @@ describe("Armor Attribute affects Armor Attacks", () => {
             armorIgnoringAction
         )
 
-        gameEngineState.battleOrchestratorState.battleState.actionsThisRound =
-            createActionsThisRound(armorIgnoringAction)
-
         InBattleAttributesService.addActiveAttributeModifier(
             targetSquaddie.inBattleAttributes,
             AttributeModifierService.new({
@@ -274,9 +250,6 @@ describe("Armor Attribute affects Armor Attacks", () => {
 
         const results = ActionCalculator.calculateResults({
             gameEngineState,
-            actionsThisRound:
-                gameEngineState.battleOrchestratorState.battleState
-                    .actionsThisRound,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
             validTargetLocation: { q: 0, r: 1 },

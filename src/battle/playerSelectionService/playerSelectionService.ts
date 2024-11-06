@@ -109,9 +109,10 @@ export const PlayerSelectionService = {
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
                 gameEngineState
             )
-        const battleSquaddieIdCurrentlyTakingATurn: string =
-            gameEngineState?.battleOrchestratorState?.battleState
-                ?.actionsThisRound?.battleSquaddieId
+        let battleSquaddieIdCurrentlyTakingATurn: string =
+            OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
+                gameEngineState,
+            })
 
         const hasAtLeastOnePlayerControllableSquaddie: boolean =
             playerCanControlAtLeastOneSquaddie(gameEngineState)
@@ -346,6 +347,7 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
+            // TODO exactly the same
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -606,13 +608,10 @@ const playerSelectsAnAction = ({
     const actionBuilderState =
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep
-    const battleSquaddieId = BattleActionDecisionStepService.getActor(
-        actionBuilderState
-    )
-        ? BattleActionDecisionStepService.getActor(actionBuilderState)
-              .battleSquaddieId
-        : gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-              .battleSquaddieId
+    const battleSquaddieId =
+        BattleActionDecisionStepService.getActor(
+            actionBuilderState
+        ).battleSquaddieId
     const { mapLocation } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieId

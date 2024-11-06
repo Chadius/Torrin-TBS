@@ -43,13 +43,13 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
 import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -595,16 +595,22 @@ describe("Battle Orchestrator", () => {
             actionTemplateIds: [],
         })
 
-        nullState.battleOrchestratorState.battleState.actionsThisRound =
-            ActionsThisRoundService.new({
-                battleSquaddieId: "new dynamic squaddie",
-                startingLocation: { q: 0, r: 0 },
-                processedActions: [
-                    ProcessedActionService.new({
-                        actionPointCost: 2,
-                    }),
-                ],
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            nullState.battleOrchestratorState.battleState.battleActionRecorder,
+            BattleActionService.new({
+                actor: { actorBattleSquaddieId: "new squaddie" },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 0 },
+                    },
+                },
             })
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            nullState.battleOrchestratorState.battleState.battleActionRecorder
+        )
 
         orchestrator.update(nullState, mockedP5GraphicsContext)
         expect(orchestrator.getCurrentMode()).toBe(

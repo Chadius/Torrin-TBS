@@ -408,7 +408,7 @@ const getAllTilesSquaddieCanReach = ({
         }),
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
-        repository: gameEngineState.repository,
+        objectRepository: gameEngineState.repository,
     })
 }
 
@@ -485,7 +485,7 @@ const getSquaddieAttackLocations = (
                                                 ),
                                         }),
                                     missionMap,
-                                    repository,
+                                    objectRepository: repository,
                                 }
                             )
 

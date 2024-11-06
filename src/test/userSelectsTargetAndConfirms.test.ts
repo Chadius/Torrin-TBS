@@ -29,20 +29,12 @@ import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { makeResult } from "../utils/ResultOrError"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
-import {
-    ActionsThisRound,
-    ActionsThisRoundService,
-} from "../battle/history/actionsThisRound"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import { ProcessedActionService } from "../action/processed/processedAction"
-import { ProcessedActionSquaddieEffectService } from "../action/processed/processedActionSquaddieEffect"
-import { DecidedActionSquaddieEffectService } from "../action/decided/decidedActionSquaddieEffect"
-import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import {
     OrchestratorComponentKeyEvent,
@@ -71,10 +63,8 @@ import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
 } from "../battle/history/battleAction/battleActionSquaddieChange"
-import { SquaddieSquaddieResultsService } from "../battle/history/squaddieSquaddieResults"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
-import { BattleActionActionContextService } from "../battle/history/battleAction/battleActionActionContext"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -203,12 +193,6 @@ describe("User Selects Target and Confirms", () => {
     })
 
     it("Clicking a target should show the confirmation window", () => {
-        const actionsThisRound = useActionTemplateOnLocation({
-            actionTemplate: attackAction,
-            attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            targetLocation: { q: 0, r: 2 },
-        })
-
         const playerBattleActionBuilderState =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
@@ -237,7 +221,6 @@ describe("User Selects Target and Confirms", () => {
 
         gameEngineState = getGameEngineState({
             repository: objectRepository,
-            actionsThisRound: actionsThisRound,
             missionMap,
             resourceHandler,
             playerBattleActionBuilderState,
@@ -261,20 +244,34 @@ describe("User Selects Target and Confirms", () => {
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions
-        ).toHaveLength(1)
+            BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeTruthy()
         expect(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-                .processedActions[0].processedActionEffects
-        ).toHaveLength(0)
+            BattleActionDecisionStepService.isActionSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeTruthy()
+        expect(
+            BattleActionDecisionStepService.isTargetConsidered(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeTruthy()
+        expect(
+            BattleActionDecisionStepService.isTargetConfirmed(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeFalsy()
     })
 
     describe("Confirming attack", () => {
-        let actionsThisRound: ActionsThisRound
-
         beforeEach(() => {
-            ;({ gameEngineState, actionsThisRound } = clickOnEnemy({
+            ;({ gameEngineState } = clickOnEnemy({
                 actionTemplate: attackAction,
                 attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
@@ -306,107 +303,54 @@ describe("User Selects Target and Confirms", () => {
             `After Squaddie Targets is confirmed, will process the first action template via $name`,
             ({ action }) => {
                 action()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .actionsThisRound
-                ).toEqual(
-                    ActionsThisRoundService.new({
-                        battleSquaddieId: actionsThisRound.battleSquaddieId,
-                        startingLocation: actionsThisRound.startingLocation,
-                        previewedActionTemplateId: undefined,
-                        processedActions: [
-                            ProcessedActionService.new({
-                                actionPointCost:
-                                    actionsThisRound.processedActions[0]
-                                        .actionPointCost,
-                                processedActionEffects: [
-                                    ProcessedActionSquaddieEffectService.newFromDecidedActionEffect(
-                                        {
-                                            decidedActionEffect:
-                                                DecidedActionSquaddieEffectService.new(
-                                                    {
-                                                        template: attackAction
-                                                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                                                        target: { q: 0, r: 2 },
-                                                    }
-                                                ),
-                                            results:
-                                                SquaddieSquaddieResultsService.new(
-                                                    {
-                                                        actingBattleSquaddieId:
-                                                            "player 0",
-                                                        actionContext:
-                                                            BattleActionActionContextService.new(
-                                                                {
-                                                                    targetSquaddieModifiers:
-                                                                        {},
-                                                                }
-                                                            ),
-                                                        squaddieChanges: [
-                                                            BattleActionSquaddieChangeService.new(
-                                                                {
-                                                                    actorDegreeOfSuccess:
-                                                                        DegreeOfSuccess.SUCCESS,
-                                                                    damageExplanation:
-                                                                        DamageExplanationService.new(
-                                                                            {
-                                                                                raw: 1,
-                                                                                net: 1,
-                                                                            }
-                                                                        ),
-                                                                    healingReceived: 0,
-                                                                    attributesAfter:
-                                                                        InBattleAttributesService.new(
-                                                                            {
-                                                                                armyAttributes:
-                                                                                    {
-                                                                                        armorClass: 0,
-                                                                                        maxHitPoints: 5,
-                                                                                        movement:
-                                                                                            {
-                                                                                                crossOverPits:
-                                                                                                    false,
-                                                                                                movementPerAction: 2,
-                                                                                                passThroughWalls:
-                                                                                                    false,
-                                                                                            },
-                                                                                    },
-                                                                                currentHitPoints: 4,
-                                                                            }
-                                                                        ),
-                                                                    attributesBefore:
-                                                                        InBattleAttributesService.new(
-                                                                            {
-                                                                                armyAttributes:
-                                                                                    {
-                                                                                        armorClass: 0,
-                                                                                        maxHitPoints: 5,
-                                                                                        movement:
-                                                                                            {
-                                                                                                crossOverPits:
-                                                                                                    false,
-                                                                                                movementPerAction: 2,
-                                                                                                passThroughWalls:
-                                                                                                    false,
-                                                                                            },
-                                                                                    },
-                                                                                currentHitPoints: 5,
-                                                                            }
-                                                                        ),
-                                                                    battleSquaddieId:
-                                                                        enemyBattleSquaddie.battleSquaddieId,
-                                                                }
-                                                            ),
-                                                        ],
-                                                        targetedBattleSquaddieIds:
-                                                            ["enemy 0"],
-                                                    }
-                                                ),
-                                        }
-                                    ),
-                                ],
-                            }),
-                        ],
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder.actionsAlreadyAnimatedThisTurn
+                const battleAction =
+                    BattleActionRecorderService.peekAtAnimationQueue(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                expect(battleAction.actor.actorBattleSquaddieId).toEqual(
+                    "player 0"
+                )
+                expect(battleAction.action.actionTemplateId).toEqual(
+                    attackAction.id
+                )
+                expect(battleAction.effect.squaddie).toHaveLength(1)
+                const squaddieChange = battleAction.effect.squaddie[0]
+                expect(squaddieChange).toEqual(
+                    BattleActionSquaddieChangeService.new({
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                        damageExplanation: DamageExplanationService.new({
+                            raw: 1,
+                            net: 1,
+                        }),
+                        healingReceived: 0,
+                        attributesAfter: InBattleAttributesService.new({
+                            armyAttributes: {
+                                armorClass: 0,
+                                maxHitPoints: 5,
+                                movement: {
+                                    crossOverPits: false,
+                                    movementPerAction: 2,
+                                    passThroughWalls: false,
+                                },
+                            },
+                            currentHitPoints: 4,
+                        }),
+                        attributesBefore: InBattleAttributesService.new({
+                            armyAttributes: {
+                                armorClass: 0,
+                                maxHitPoints: 5,
+                                movement: {
+                                    crossOverPits: false,
+                                    movementPerAction: 2,
+                                    passThroughWalls: false,
+                                },
+                            },
+                            currentHitPoints: 5,
+                        }),
+                        battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
                     })
                 )
             }
@@ -490,10 +434,8 @@ describe("User Selects Target and Confirms", () => {
     })
 
     describe("Canceling attack", () => {
-        let actionsThisRound: ActionsThisRound
-
         beforeEach(() => {
-            ;({ gameEngineState, actionsThisRound } = clickOnEnemy({
+            ;({ gameEngineState } = clickOnEnemy({
                 actionTemplate: attackAction,
                 attackerBattleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 targetBattleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
@@ -573,10 +515,6 @@ describe("User Selects Target and Confirms", () => {
                             .battleActionDecisionStep
                     )
                 ).toBeFalsy()
-                expect(actionsThisRound.previewedActionTemplateId).toEqual(
-                    attackAction.id
-                )
-                expect(actionsThisRound.processedActions).toHaveLength(0)
             }
         )
     })
@@ -693,13 +631,11 @@ describe("User Selects Target and Confirms", () => {
 
 const getGameEngineState = ({
     repository,
-    actionsThisRound,
     missionMap,
     resourceHandler,
     playerBattleActionBuilderState,
 }: {
     repository: ObjectRepository
-    actionsThisRound?: ActionsThisRound
     missionMap: MissionMap
     resourceHandler: ResourceHandler
     playerBattleActionBuilderState: BattleActionDecisionStep
@@ -714,7 +650,6 @@ const getGameEngineState = ({
                     currentAffiliation: BattlePhase.PLAYER,
                     turnCount: 0,
                 }),
-                actionsThisRound,
                 missionMap,
             }),
         }),
@@ -758,28 +693,6 @@ const getGameEngineState = ({
     return gameEngineState
 }
 
-const useActionTemplateOnLocation = ({
-    actionTemplate,
-    attackerBattleSquaddieId,
-    targetLocation,
-}: {
-    actionTemplate: ActionTemplate
-    attackerBattleSquaddieId: string
-    targetLocation: HexCoordinate
-}): ActionsThisRound => {
-    return ActionsThisRoundService.new({
-        battleSquaddieId: attackerBattleSquaddieId,
-        startingLocation: { q: 0, r: 0 },
-        previewedActionTemplateId: actionTemplate.id,
-        processedActions: [
-            ProcessedActionService.new({
-                actionPointCost: actionTemplate.actionPoints,
-                processedActionEffects: [],
-            }),
-        ],
-    })
-}
-
 const clickOnEnemy = ({
     actionTemplate,
     attackerBattleSquaddieId,
@@ -801,12 +714,6 @@ const clickOnEnemy = ({
     graphicsContext: GraphicsBuffer
     resourceHandler: ResourceHandler
 }) => {
-    const actionsThisRound = ActionsThisRoundService.new({
-        battleSquaddieId: attackerBattleSquaddieId,
-        startingLocation: { q: 0, r: 0 },
-        previewedActionTemplateId: actionTemplate.id,
-    })
-
     const playerBattleActionBuilderState = BattleActionDecisionStepService.new()
     BattleActionDecisionStepService.setActor({
         actionDecisionStep: playerBattleActionBuilderState,
@@ -834,7 +741,6 @@ const clickOnEnemy = ({
 
     const gameEngineState = getGameEngineState({
         repository,
-        actionsThisRound: actionsThisRound,
         missionMap,
         resourceHandler,
         playerBattleActionBuilderState,
@@ -858,7 +764,6 @@ const clickOnEnemy = ({
 
     return {
         gameEngineState,
-        actionsThisRound,
     }
 }
 

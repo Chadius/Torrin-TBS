@@ -33,8 +33,6 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -174,12 +172,6 @@ describe("BattleSquaddieTarget", () => {
             { q: 1, r: 2 }
         )
 
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            startingLocation: { q: 1, r: 1 },
-            previewedActionTemplateId: longswordActionId,
-        })
-
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
             .fn()
@@ -193,7 +185,6 @@ describe("BattleSquaddieTarget", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     missionMap: battleMap,
-                    actionsThisRound,
                 }),
             }),
             repository: objectRepository,
@@ -468,16 +459,10 @@ describe("BattleSquaddieTarget", () => {
                         }),
                     ],
                 })
-
-                const actionsThisRound = ActionsThisRoundService.new({
-                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                    startingLocation: { q: 1, r: 1 },
-                    processedActions: [
-                        ProcessedActionService.new({
-                            actionPointCost: action.actionPoints,
-                        }),
-                    ],
-                })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    action
+                )
 
                 gameEngineState = GameEngineStateService.new({
                     resourceHandler: mockResourceHandler,
@@ -488,16 +473,26 @@ describe("BattleSquaddieTarget", () => {
                                 campaignId: "test campaign",
                                 missionId: "test mission",
                                 missionMap: battleMap,
-                                actionsThisRound,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 })
-                ObjectRepositoryService.addActionTemplate(
-                    objectRepository,
-                    action
-                )
+
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                    actionTemplateId: action.id,
+                })
 
                 targetComponent.update(gameEngineState, mockedP5GraphicsContext)
                 invalidTargetClicker()

@@ -13,14 +13,20 @@ import { BattleSquaddie } from "../battleSquaddie"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ProcessedActionService } from "../../action/processed/processedAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../actionDecision/battleActionDecisionStep"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../orchestrator/battleState"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { BattleActionService } from "../history/battleAction/battleAction"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository
@@ -32,6 +38,7 @@ describe("move towards closest squaddie in range", () => {
     let searchingSquaddieTemplate: SquaddieTemplate
     let target: BattleSquaddie
     let allyTeam: BattleSquaddieTeam
+    let gameEngineState: GameEngineState
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
@@ -88,6 +95,18 @@ describe("move towards closest squaddie in range", () => {
         BattleSquaddieTeamService.addBattleSquaddieIds(allyTeam, [
             "searching_squaddie_0",
         ])
+
+        gameEngineState = GameEngineStateService.new({
+            repository: repository,
+            battleOrchestratorState: BattleOrchestratorStateService.new({
+                battleState: BattleStateService.newBattleState({
+                    missionId: "missionId",
+                    campaignId: "campaignId",
+                    missionMap,
+                    teams: [allyTeam],
+                }),
+            }),
+        })
     })
 
     it("will move towards squaddie with given dynamic Id", () => {
@@ -139,11 +158,12 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
+
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            actionsThisRound: undefined,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -205,16 +225,6 @@ describe("move towards closest squaddie in range", () => {
             }
         )
 
-        const actionsThisRound = ActionsThisRoundService.new({
-            battleSquaddieId: searchingBattleSquaddie2.battleSquaddieId,
-            startingLocation: { q: 0, r: 5 },
-            processedActions: [
-                ProcessedActionService.new({
-                    actionPointCost: 1,
-                }),
-            ],
-        })
-
         const movementStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
@@ -230,14 +240,36 @@ describe("move towards closest squaddie in range", () => {
             targetLocation: { q: 0, r: 1 },
         })
 
+        BattleActionRecorderService.addReadyToAnimateBattleAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder,
+            BattleActionService.new({
+                actor: {
+                    actorBattleSquaddieId:
+                        searchingBattleSquaddie2.battleSquaddieId,
+                },
+                action: { isMovement: true },
+                effect: {
+                    movement: {
+                        startLocation: { q: 0, r: 0 },
+                        endLocation: { q: 0, r: 0 },
+                    },
+                },
+            })
+        )
+        BattleActionRecorderService.battleActionFinishedAnimating(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionRecorder
+        )
+
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            actionsThisRound,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -249,9 +281,7 @@ describe("move towards closest squaddie in range", () => {
         const shouldThrowError = () => {
             strategy.DetermineNextInstruction({
                 team: allyTeam,
-                missionMap,
-                actionsThisRound: undefined,
-                repository,
+                gameEngineState,
             })
         }
 
@@ -290,10 +320,11 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -325,10 +356,11 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
     })
@@ -383,10 +415,11 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER,
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
 
         expect(actualInstruction).toStrictEqual([movementStep])
@@ -460,10 +493,11 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
         expect(actualInstruction).toStrictEqual([movementStep])
     })
@@ -501,10 +535,11 @@ describe("move towards closest squaddie in range", () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER,
         })
+        gameEngineState.battleOrchestratorState.battleState.missionMap =
+            missionMap
         const actualInstruction = strategy.DetermineNextInstruction({
             team: allyTeam,
-            missionMap,
-            repository,
+            gameEngineState,
         })
         expect(actualInstruction).toBeUndefined()
     })

@@ -42,10 +42,10 @@ import {
 } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import { ActionsThisRound } from "../battle/history/actionsThisRound"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository
@@ -239,12 +239,20 @@ describe("User clicks on a squaddie", () => {
             })
         }
 
-        it("BattlePlayerSquaddieSelector does not create an ActionsThsRound object when the player clicks on a squaddie to start their turn", () => {
+        it("BattlePlayerSquaddieSelector creates a decision step when the player clicks on a squaddie to start their turn", () => {
             selectorClicksOnSquaddie(gameEngineState)
-
-            const battleState =
-                gameEngineState.battleOrchestratorState.battleState
-            expect(battleState.actionsThisRound).toBeUndefined()
+            expect(
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
+            ).toEqual(playerBattleSquaddie.battleSquaddieId)
+            expect(
+                BattleActionDecisionStepService.getAction(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeUndefined()
         })
 
         it("Map should highlight all the tiles it can reach when BattlePlayerSquaddieSelector selects a squaddie", () => {
@@ -257,7 +265,7 @@ describe("User clicks on a squaddie", () => {
         })
     })
 
-    it("BattlePlayerSquaddieSelector does not create an ActionsThsRound when the player clicks on a different squaddie to start their turn", () => {
+    it("BattlePlayerSquaddieSelector changes the actor on the step when the player clicks on a different squaddie to start their turn", () => {
         const player2 = BattleSquaddieService.new({
             battleSquaddieId: "player 2",
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
@@ -277,6 +285,11 @@ describe("User clicks on a squaddie", () => {
                 turnCount: 0,
             }),
         })
+        const battleHUDListener = new BattleHUDListener("battleHUDListener")
+        gameEngineState.messageBoard.addListener(
+            battleHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+        )
 
         MissionMapService.addSquaddie({
             missionMap: missionMap,
@@ -303,7 +316,7 @@ describe("User clicks on a squaddie", () => {
         let { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
                 q: 0,
-                r: 0,
+                r: 1,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         selector.mouseEventHappened(gameEngineState, {
@@ -325,8 +338,18 @@ describe("User clicks on a squaddie", () => {
             mouseButton: MouseButton.ACCEPT,
         })
 
-        const battleState = gameEngineState.battleOrchestratorState.battleState
-        expect(battleState.actionsThisRound).toBeUndefined()
+        expect(
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
+        ).toEqual(player2.battleSquaddieId)
+        expect(
+            BattleActionDecisionStepService.getAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
+        ).toBeUndefined()
     })
 
     describe("player hovers over squaddie", () => {
@@ -500,14 +523,12 @@ const getGameEngineState = ({
     repository,
     teams,
     battlePhaseState,
-    actionsThisRound,
 }: {
     resourceHandler: ResourceHandler
     missionMap: MissionMap
     repository: ObjectRepository
     teams: BattleSquaddieTeam[]
     battlePhaseState: BattlePhaseState
-    actionsThisRound?: ActionsThisRound
 }): GameEngineState => {
     return GameEngineStateService.new({
         resourceHandler: resourceHandler,
@@ -519,7 +540,6 @@ const getGameEngineState = ({
                 camera: new BattleCamera(0, 0),
                 teams,
                 battlePhaseState,
-                actionsThisRound,
             }),
         }),
         repository,

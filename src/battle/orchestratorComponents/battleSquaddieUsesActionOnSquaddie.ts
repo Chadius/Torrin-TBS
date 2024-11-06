@@ -19,14 +19,13 @@ import {
 } from "../../trait/traitStatusStorage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { ActionsThisRoundService } from "../history/actionsThisRound"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { isValidValue } from "../../utils/validityCheck"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -95,14 +94,6 @@ export class BattleSquaddieUsesActionOnSquaddie
     recommendStateChanges(
         gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
-        generateMessagesBasedOnSquaddieSquaddieResults(gameEngineState)
-
-        ActionsThisRoundService.nextProcessedActionEffectToShow(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        )
-        OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(
-            gameEngineState
-        )
         OrchestratorUtilities.generateMessagesIfThePlayerCanActWithANewSquaddie(
             gameEngineState
         )
@@ -140,46 +131,56 @@ export class BattleSquaddieUsesActionOnSquaddie
             this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
         }
         this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
-        if (this.squaddieActionAnimator.hasCompleted(gameEngineState)) {
-            this.hideDeadSquaddies(gameEngineState)
-            const battleSquaddieId =
-                BattleActionRecorderService.peekAtAnimationQueue(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder
-                ).actor.actorBattleSquaddieId
-
-            if (!battleSquaddieId) {
-                this.sawResultAftermath = true
-                return
-            }
-            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    gameEngineState.repository,
-                    battleSquaddieId
-                )
-            )
-            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
-                battleSquaddie,
-                squaddieTemplate,
-                missionMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                repository: gameEngineState.repository,
-                campaign: gameEngineState.campaign,
-            })
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
-                battleSquaddie,
-                squaddieTemplate,
-                gameEngineState.repository
-            )
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-            })
-
-            this.sawResultAftermath = true
+        if (
+            !this.sawResultAftermath &&
+            this.squaddieActionAnimator.hasCompleted(gameEngineState)
+        ) {
+            this.reactToAnimationCompletion(gameEngineState)
         }
+    }
+
+    private reactToAnimationCompletion = (gameEngineState: GameEngineState) => {
+        this.hideDeadSquaddies(gameEngineState)
+        const battleSquaddieId =
+            BattleActionRecorderService.peekAtAnimationQueue(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            ).actor.actorBattleSquaddieId
+
+        if (!battleSquaddieId) {
+            this.sawResultAftermath = true
+            return
+        }
+
+        // TODO UsesActionOnMap has the same code, move to BattleState with a message
+        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+        DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+            battleSquaddie,
+            squaddieTemplate,
+            missionMap:
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+            repository: gameEngineState.repository,
+            campaign: gameEngineState.campaign,
+        })
+        DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+            battleSquaddie,
+            squaddieTemplate,
+            gameEngineState.repository
+        )
+
+        generateMessagesBasedOnAnimationFinishedBattleAction(gameEngineState)
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+            gameEngineState,
+        })
+
+        this.sawResultAftermath = true
     }
 
     private resetInternalState() {
@@ -261,24 +262,22 @@ export class BattleSquaddieUsesActionOnSquaddie
     }
 }
 
-const generateMessagesBasedOnSquaddieSquaddieResults = (
+const generateMessagesBasedOnAnimationFinishedBattleAction = (
     gameEngineState: GameEngineState
 ) => {
-    const actionEffectJustShown =
-        ActionsThisRoundService.getProcessedActionEffectToShow(
-            gameEngineState.battleOrchestratorState.battleState.actionsThisRound
-        )
-    if (actionEffectJustShown?.type === ActionEffectType.SQUADDIE) {
-        const damagedBattleSquaddieIds: string[] =
-            actionEffectJustShown.results.squaddieChanges
-                .filter((change) => change.damage.net > 0)
-                .map((change) => change.battleSquaddieId)
-        if (gameEngineState.messageBoard) {
-            gameEngineState.messageBoard.sendMessage({
-                gameEngineState,
-                type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
-                battleSquaddieIdsThatWereInjured: damagedBattleSquaddieIds,
-            })
-        }
-    }
+    const recentBattleAction = BattleActionRecorderService.peekAtAnimationQueue(
+        gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
+    )
+    if (!isValidValue(recentBattleAction?.effect?.squaddie)) return
+
+    const damagedBattleSquaddieIds: string[] =
+        recentBattleAction.effect.squaddie
+            .filter((change) => change.damage.net > 0)
+            .map((change) => change.battleSquaddieId)
+
+    gameEngineState.messageBoard.sendMessage({
+        gameEngineState,
+        type: MessageBoardMessageType.SQUADDIE_IS_INJURED,
+        battleSquaddieIdsThatWereInjured: damagedBattleSquaddieIds,
+    })
 }

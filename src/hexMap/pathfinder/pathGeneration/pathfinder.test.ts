@@ -30,7 +30,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
         })
 
@@ -88,7 +88,7 @@ describe("Pathfinder", () => {
             PathfinderService.search({
                 searchParameters: SearchParametersService.new({}),
                 missionMap: MissionMapService.default(),
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
         }
 
@@ -114,7 +114,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -159,7 +159,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -195,7 +195,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -231,7 +231,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -262,7 +262,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -293,7 +293,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -324,7 +324,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -358,7 +358,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -455,7 +455,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -515,7 +515,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -559,7 +559,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -593,7 +593,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(
@@ -642,7 +642,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
         })
 
@@ -715,7 +715,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy()
@@ -756,7 +756,7 @@ describe("Pathfinder", () => {
             const searchResults: SearchResult = PathfinderService.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryService.new(),
+                objectRepository: ObjectRepositoryService.new(),
             })
 
             expect(searchResults.stopLocationsReached).toHaveLength(2)
