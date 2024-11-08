@@ -378,7 +378,7 @@
             "type": "DIALOGUE",
             "id": "defeat_0",
             "speakerName": "Torrin",
-            "dialogueText": "We have to retreat!",
+            "dialogueText": "We have to retreat!\nI'll heal you more next time.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -386,7 +386,7 @@
             "type": "DIALOGUE",
             "id": "defeat_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Right. When we come back, let me take the lead, and let's take it slow.",
+            "dialogueText": "Right.\nLet's take it slow next time.\nRaise my Shield more often.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -406,7 +406,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "How to play",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click (or Escape, Delete, Backspace)",
+            "dialogueText": "Confirm: Left Mouse Click\nCancel: Right Mouse Click",
             "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "backgroundColor": [280,6,52]
@@ -418,7 +418,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "How to play",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Click on Torrin and Sir Camil.\nSpend 3 Action Points to move or act.\nMore movement costs more Action Points.",
+            "dialogueText": "Click on Torrin and Sir Camil.\nMove and Act using AP.\nAction Point costs vary.",
             "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "backgroundColor": [280,6,52]
@@ -431,7 +431,7 @@
             "type": "DIALOGUE",
             "id": "turn1_0",
             "speakerName": "Torrin",
-            "dialogueText": "We have to destroy all of these demons!\nI can attack from range.\nI can also heal.",
+            "dialogueText": "Ugh! Demons!\nI'll stay back and shoot them.\nI can also heal if I'm close.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -439,7 +439,7 @@
             "type": "DIALOGUE",
             "id": "turn1_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "I'll take the lead, stay behind me.\nI'll destroy these demons with my longsword.\nAnd Raise my Shield for more armor.",
+            "dialogueText": "Thank you. I'll take the lead.\nRaise Shield for protection.\nLet's destroy the demons!",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -451,7 +451,7 @@
             "type": "DIALOGUE",
             "id": "turn2_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "All of this bright yellow sand is slowing us down.",
+            "dialogueText": "All of this bright yellow sand\ncuts our movement in half.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -462,7 +462,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Torrin",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "Cuts our movement in half.\nBut it slows the demons down as well.",
+            "dialogueText": "It also slows the demons down.\nGives us time to recover.",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           }
@@ -477,7 +477,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Torrin",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "If you move the pointer to the edge of the screen, we can see more demons.",
+            "dialogueText": "Move the camera\nby moving the mouse\nto the edge of the screen.",
             "dialogueTextPosition": "LEFT",
             "animationDuration": 0
           },
@@ -485,7 +485,7 @@
             "type": "DIALOGUE",
             "id": "turn3_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Some of them like to travel in groups.\nHover the mouse to see how far they can move.",
+            "dialogueText": "See those demons on the right?\nIf you hover over them,\nyou can see their reach.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -496,16 +496,16 @@
           {
             "type": "DIALOGUE",
             "id": "turn5_0",
-            "speakerName": "Torrin",
-            "dialogueText": "Your first attack is the most accurate.\nThen you are more likely to miss.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerName": "Sir Camil",
+            "dialogueText": "Each attack loses accuracy.\nThe 3rd attack will miss.",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "turn5_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "Right, the 3rd attack will almost always miss.\nInstead, I'll Raise my Shield.",
+            "dialogueText": "Well, probably it will miss.\nTry to Raise your Shield.\nOr step away from the enemy.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -517,7 +517,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_0",
             "speakerName": "Torrin",
-            "dialogueText": "Ow!\nI should heal myself.",
+            "dialogueText": "Ow!\nI'll use Healing Touch.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           },
@@ -525,7 +525,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_1",
             "speakerName": "Torrin",
-            "dialogueText": "I can use Healing Touch on myself.\nIt costs 2 action points.",
+            "dialogueText": "2 AP for 2 HP.\nAnd I have to be close...",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }
@@ -537,7 +537,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "Those demons got through my armor.\nTorrin, can you heal me?",
+            "dialogueText": "Blast!\nThey got through my armor!\nTorrin, can you heal me?",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
@@ -545,7 +545,7 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
             "speakerName": "Torrin",
-            "dialogueText": "I can use Healing Touch if I'm right next to you.\nI need 2 action points.\nThat leaves 1 action point to move or attack.",
+            "dialogueText": "Sure! I have Healing Touch.\nI need to get close to you.\nIt costs 2 Action Points.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }

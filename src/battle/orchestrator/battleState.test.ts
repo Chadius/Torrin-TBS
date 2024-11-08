@@ -42,6 +42,8 @@ import {
     BattleActionRecorderService,
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
+import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { CampaignService } from "../../campaign/campaign"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -464,6 +466,8 @@ describe("Battle State", () => {
         let objectRepository: ObjectRepository
         let battleSquaddie: BattleSquaddie
         let messageSpy: jest.SpyInstance
+        let drawReachSpy: jest.SpyInstance
+        let tintSquaddieSpy: jest.SpyInstance
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
@@ -492,6 +496,7 @@ describe("Battle State", () => {
                         campaignId: "test campaign",
                     }),
                 }),
+                campaign: CampaignService.default(),
             })
 
             moveAction = BattleActionService.new({
@@ -509,6 +514,7 @@ describe("Battle State", () => {
                     .battleActionRecorder,
                 moveAction
             )
+
             const battleStateListener: BattleStateListener =
                 new BattleStateListener("battleStateListener")
             gameEngineState.messageBoard.addListener(
@@ -517,10 +523,25 @@ describe("Battle State", () => {
             )
 
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+
+            drawReachSpy = jest
+                .spyOn(
+                    DrawSquaddieUtilities,
+                    "highlightPlayableSquaddieReachIfTheyCanAct"
+                )
+                .mockReturnValue()
+            tintSquaddieSpy = jest
+                .spyOn(
+                    DrawSquaddieUtilities,
+                    "tintSquaddieMapIconIfTheyCannotAct"
+                )
+                .mockReturnValue()
         })
 
         afterEach(() => {
             messageSpy.mockRestore()
+            drawReachSpy.mockRestore()
+            tintSquaddieSpy.mockRestore()
         })
 
         it("marks the battle action as animated and moves it into the already animated queue", () => {
@@ -564,21 +585,31 @@ describe("Battle State", () => {
             ).toEqual(battleAction)
         })
 
-        it("If the squaddie still has a turn, makes the decision to select the squaddie", () => {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
+        describe("Squaddie still has a turn after finishing the action", () => {
+            beforeEach(() => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                    gameEngineState,
+                })
             })
-            expect(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).not.toBeUndefined()
-            expect(
-                BattleActionDecisionStepService.getActor(
+
+            it("If the squaddie still has a turn, makes the decision to select the squaddie", () => {
+                expect(
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep
-                ).battleSquaddieId
-            ).toEqual("battleSquaddieId")
+                ).not.toBeUndefined()
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
+                ).toEqual("battleSquaddieId")
+            })
+
+            it("Tries to draw the squaddie reach and tint the squaddie", () => {
+                expect(drawReachSpy).toBeCalled()
+                expect(tintSquaddieSpy).toBeCalled()
+            })
         })
 
         describe("When the squaddie ends their turn", () => {

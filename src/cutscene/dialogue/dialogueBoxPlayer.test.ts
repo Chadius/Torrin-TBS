@@ -203,8 +203,7 @@ describe("dialogue box player", () => {
             const dialogue = DialogueService.new({
                 id: "1",
                 speakerName: "Turn count",
-                dialogueText:
-                    "How many turns did this take? $$TURN_COUNT turns",
+                dialogueText: "Turns: $$TURN_COUNT",
                 answers: ["Yes, $$TURN_COUNT", "No, $$TURN_COUNT"],
                 speakerPortraitResourceKey: "",
             })
@@ -239,7 +238,7 @@ describe("dialogue box player", () => {
 
         it("will set the text to the substituted text", () => {
             expect(dialoguePlayerState.textBox.dialogueText).toContain(
-                "How many turns did this take? 5 turns"
+                "Turns: 5"
             )
             expect(dialoguePlayerState.answerButtons[0].answerText).toContain(
                 "Yes, 5"
@@ -255,7 +254,7 @@ describe("dialogue box player", () => {
                 mockedP5GraphicsContext
             )
             expect(textSpy).toBeCalledWith(
-                "How many turns did this take? 5 turns",
+                "Turns: 5",
                 expect.anything(),
                 expect.anything(),
                 expect.anything(),

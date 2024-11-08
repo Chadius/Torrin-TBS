@@ -4,13 +4,10 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
 } from "../orchestrator/battleOrchestratorComponent"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepositoryService } from "../objectRepository"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionService } from "../history/battleAction/battleAction"
@@ -100,32 +97,6 @@ export class BattleSquaddieUsesActionOnMap
             ),
             animationCompleted: true,
         })
-
-        const battleSquaddieId =
-            BattleActionRecorderService.peekAtAnimationQueue(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionRecorder
-            ).actor.actorBattleSquaddieId
-
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
-        DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
-            battleSquaddie,
-            squaddieTemplate,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            repository: gameEngineState.repository,
-            campaign: gameEngineState.campaign,
-        })
-        DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
-            battleSquaddie,
-            squaddieTemplate,
-            gameEngineState.repository
-        )
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,

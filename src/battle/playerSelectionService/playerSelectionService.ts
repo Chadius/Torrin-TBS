@@ -337,17 +337,6 @@ export const PlayerSelectionService = {
                         BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR,
                 })
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE:
-                messageSent = {
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: context.battleSquaddieId,
-                    selectionMethod: {
-                        mouseClick: context.mouseClick,
-                    },
-                }
-                gameEngineState.messageBoard.sendMessage(messageSent)
-                return PlayerSelectionChangesService.new({ messageSent })
-            // TODO exactly the same
             case PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE:
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,

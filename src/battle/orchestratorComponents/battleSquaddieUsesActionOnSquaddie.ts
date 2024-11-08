@@ -152,27 +152,6 @@ export class BattleSquaddieUsesActionOnSquaddie
             return
         }
 
-        // TODO UsesActionOnMap has the same code, move to BattleState with a message
-        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
-        DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
-            battleSquaddie,
-            squaddieTemplate,
-            missionMap:
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-            repository: gameEngineState.repository,
-            campaign: gameEngineState.campaign,
-        })
-        DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
-            battleSquaddie,
-            squaddieTemplate,
-            gameEngineState.repository
-        )
-
         generateMessagesBasedOnAnimationFinishedBattleAction(gameEngineState)
 
         gameEngineState.messageBoard.sendMessage({

@@ -158,7 +158,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                 undefined
             return
         }
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
                 battleSquaddieId
@@ -171,7 +171,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         updateIconAndMapBasedOnWhetherSquaddieCanAct(
             gameEngineState,
             battleSquaddie,
-            squaddieTemplate,
             graphicsContext
         )
         BattleActionService.setAnimationCompleted({
@@ -194,7 +193,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
-    squaddieTemplate: SquaddieTemplate,
     graphicsContext: GraphicsBuffer
 ) => {
     const mapIcon =
@@ -214,18 +212,5 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
         destination,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
     })
-    DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
-        battleSquaddie,
-        squaddieTemplate,
-        missionMap:
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-        repository: gameEngineState.repository,
-        campaign: gameEngineState.campaign,
-    })
-    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
-        battleSquaddie,
-        squaddieTemplate,
-        gameEngineState.repository
-    )
     mapIcon.draw(graphicsContext)
 }

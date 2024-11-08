@@ -158,6 +158,13 @@
             "dialogueText": "Critical Hits Dealt: $$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM\nCritical Hits Taken: $$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM",
             "animationDuration": 0
           }
+          ,{
+            "type": "DIALOGUE",
+            "id": "victory_report_3",
+            "speakerName": "Mission Report",
+            "dialogueText": "Damage Absorbed: $$DAMAGE_ABSORBED_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            "animationDuration": 0
+          }
         ]
       },
       "default_defeat": {

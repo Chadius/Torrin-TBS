@@ -34,7 +34,10 @@ import {
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
+import {
+    BattleStateListener,
+    BattleStateService,
+} from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
 import { RectAreaService } from "../ui/rectArea"
@@ -417,6 +420,13 @@ describe("User ends their turn", () => {
                 DrawSquaddieUtilities,
                 "tintSquaddieMapIconIfTheyCannotAct"
             )
+            const battleStateListener = new BattleStateListener(
+                "battleStateListener"
+            )
+            gameEngineState.messageBoard.addListener(
+                battleStateListener,
+                MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
+            )
 
             jest.spyOn(Date, "now").mockImplementation(() => 0)
             mapAction.update(gameEngineState, graphicsContext)
@@ -446,13 +456,6 @@ describe("User ends their turn", () => {
 
         it("The squaddie is grayed out since it is out of actions", () => {
             expect(tintSpy).toBeCalled()
-        })
-        it("checks to see if it should generate a message to alert another player squaddie can act", () => {
-            mapAction.recommendStateChanges(gameEngineState)
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-                gameEngineState,
-            })
         })
     })
 })

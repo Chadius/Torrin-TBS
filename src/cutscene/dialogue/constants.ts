@@ -24,13 +24,11 @@ export interface ThirdOfScreenAlignment {
 
 export interface StyleTextBoxConstants extends ThirdOfScreenAlignment {
     fillColor: number[]
-    maxWidth?: number
-    widthFraction?: number
     horizontalMargin: number
     topOffset: number
     topFraction: number
-    heightFraction?: number
-    height?: number
+    maxNumberOfCharactersPerLine: number
+    maxNumberLinesOfText: number
     textBoxMargin: number[]
 }
 
@@ -39,33 +37,33 @@ export const DIALOGUE_TEXT_BOX_STYLE_CONSTANTS: {
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
-        maxWidth: MAX_WIDTH,
         horizontalMargin: WINDOW_SPACING.SPACING2,
-        topOffset: WINDOW_SPACING.SPACING2,
+        topOffset: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.CENTER,
         topFraction: 0.7,
-        heightFraction: 0.3,
+        maxNumberOfCharactersPerLine: 30,
+        maxNumberLinesOfText: 3,
         textBoxMargin: [
-            WINDOW_SPACING.SPACING4,
             WINDOW_SPACING.SPACING2,
-            0,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
         ],
     },
     [DialoguePosition.LEFT]: {
         fillColor: [200, 10, 50],
-        maxWidth: MAX_WIDTH,
+        maxNumberOfCharactersPerLine: 30,
+        maxNumberLinesOfText: 3,
         horizontalMargin: WINDOW_SPACING.SPACING2,
-        topOffset: WINDOW_SPACING.SPACING2,
+        topOffset: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
         topFraction: 0.7,
-        heightFraction: 0.3,
         textBoxMargin: [
-            WINDOW_SPACING.SPACING4,
             WINDOW_SPACING.SPACING2,
-            0,
+            WINDOW_SPACING.SPACING2,
+            WINDOW_SPACING.SPACING2,
             WINDOW_SPACING.SPACING2,
         ],
     },
@@ -76,13 +74,13 @@ export const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 } = {
     [DialoguePosition.CENTER]: {
         fillColor: [200, 10, 50],
-        widthFraction: 0.3,
+        maxNumberOfCharactersPerLine: 15,
+        maxNumberLinesOfText: 1,
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.CENTER,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
-        topOffset: 5 * WINDOW_SPACING.SPACING1,
+        topOffset: -5 * WINDOW_SPACING.SPACING1,
         topFraction: 0.7,
-        height: WINDOW_SPACING.SPACING2 * 3,
         textBoxMargin: [
             WINDOW_SPACING.SPACING1 * 1.3,
             0,
@@ -92,13 +90,13 @@ export const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
     },
     [DialoguePosition.LEFT]: {
         fillColor: [200, 10, 50],
-        widthFraction: 0.3,
+        maxNumberOfCharactersPerLine: 15,
+        maxNumberLinesOfText: 1,
         horizontalMargin: WINDOW_SPACING.SPACING1,
         thirdOfScreenAlignment: HORIZONTAL_ALIGN.LEFT,
         thirdOfScreenSubAlignment: HORIZONTAL_ALIGN.LEFT,
-        topOffset: 5 * WINDOW_SPACING.SPACING1,
+        topOffset: -5 * WINDOW_SPACING.SPACING1,
         topFraction: 0.7,
-        height: WINDOW_SPACING.SPACING2 * 3,
         textBoxMargin: [
             WINDOW_SPACING.SPACING1 * 1.3,
             0,
@@ -117,6 +115,11 @@ export interface StyleFontConstants {
     textSize: number
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
+    widthRatio: {
+        uppercase: number
+        number: number
+        default: number
+    }
 }
 
 export const DIALOGUE_FONT_STYLE_CONSTANTS: {
@@ -125,6 +128,11 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     [DialogueFontStyle.BLACK]: {
         color: [0, 0, 0],
         textSize: WINDOW_SPACING.SPACING4,
+        widthRatio: {
+            uppercase: 0.8,
+            number: 0.8,
+            default: 0.5,
+        },
     },
 }
 

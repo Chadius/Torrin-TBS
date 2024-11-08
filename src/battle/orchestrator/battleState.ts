@@ -47,6 +47,7 @@ import {
     BattleActionRecorderService,
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
+import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -302,6 +303,21 @@ const battleActionFinishesAnimation = (
             ).actor.actorBattleSquaddieId
         )
     )
+
+    DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+        battleSquaddie,
+        squaddieTemplate,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+        repository: gameEngineState.repository,
+        campaign: gameEngineState.campaign,
+    })
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
+        battleSquaddie,
+        squaddieTemplate,
+        gameEngineState.repository
+    )
+
     BattleActionService.setAnimationCompleted({
         battleAction: BattleActionRecorderService.peekAtAnimationQueue(
             gameEngineState.battleOrchestratorState.battleState
