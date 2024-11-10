@@ -163,6 +163,7 @@ export const BattleHUDService = {
                     text: popupText,
                     ...warningPopupConstants.label,
                 }),
+                coordinateSystem: message.coordinateSystem,
                 camera,
             }
         )
