@@ -391,11 +391,18 @@ const getAllTilesSquaddieCanReach = ({
                     r: mapLocation.r,
                 },
             ],
-            movementPerAction:
-                squaddieTemplate.attributes.movement.movementPerAction,
-            canPassThroughWalls:
-                squaddieTemplate.attributes.movement.passThroughWalls,
-            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+            movementPerAction: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).movementPerAction,
+            canPassThroughWalls: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).passThroughWalls,
+            canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).crossOverPits,
             shapeGenerator: getResultOrThrowError(
                 GetTargetingShapeGenerator(TargetingShape.SNAKE)
             ),

@@ -59,7 +59,7 @@ export const SquaddieService = {
         const locationsByMoveAction: {
             [movementActions: number]: LocationTraveled[]
         } = {}
-        const { squaddieTemplate } = getResultOrThrowError(
+        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
                 battleSquaddieId
@@ -68,7 +68,10 @@ export const SquaddieService = {
         searchPath.locationsTraveled.forEach((locationDescription) => {
             let numberOfMovementActions: number = Math.ceil(
                 locationDescription.cumulativeMovementCost /
-                    squaddieTemplate.attributes.movement.movementPerAction
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).movementPerAction
             )
             locationsByMoveAction[numberOfMovementActions] ||= []
             locationsByMoveAction[numberOfMovementActions].push(
@@ -213,6 +216,22 @@ export const SquaddieService = {
             objectRepository,
             type: Trait.TARGET_SELF,
         }),
+    getSquaddieMovementAttributes: ({
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie
+    }): {
+        movementPerAction: number
+        crossOverPits: boolean
+        passThroughWalls: boolean
+    } => ({
+        movementPerAction:
+            squaddieTemplate.attributes.movement.movementPerAction,
+        crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+        passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+    }),
 }
 
 const getNumberOfActionPoints = ({

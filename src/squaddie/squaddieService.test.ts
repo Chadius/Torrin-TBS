@@ -3,10 +3,13 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
-import { BattleSquaddie } from "../battle/battleSquaddie"
+import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
 import { DamageType, HealingType, SquaddieService } from "./squaddieService"
-import { DefaultArmyAttributes } from "./armyAttributes"
-import { SquaddieTemplate } from "../campaign/squaddieTemplate"
+import { ArmyAttributesService, DefaultArmyAttributes } from "./armyAttributes"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../campaign/squaddieTemplate"
 import { SquaddieTurnService } from "./turn"
 import { SquaddieRepositoryService } from "../utils/test/squaddie"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
@@ -19,6 +22,8 @@ import { DamageExplanation } from "../battle/history/battleAction/battleActionSq
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
+import { SquaddieIdService } from "./id"
+import { SquaddieMovementService } from "./movement"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -450,6 +455,46 @@ describe("Squaddie Service", () => {
                     squaddieTemplate,
                 })
             ).toEqual(["targetSelf"])
+        })
+    })
+
+    describe("Can give current movement attributes", () => {
+        it("gives the squaddie template movement attributes by default", () => {
+            const squaddieTemplateWithNormalMovement =
+                SquaddieTemplateService.new({
+                    squaddieId: SquaddieIdService.new({
+                        templateId: "battleSquaddie",
+                        name: "battleSquaddie",
+                        affiliation: SquaddieAffiliation.PLAYER,
+                    }),
+                    attributes: ArmyAttributesService.new({
+                        movement: SquaddieMovementService.new({
+                            movementPerAction: 9001,
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.CROSS_OVER_PITS]: false,
+                                    [Trait.PASS_THROUGH_WALLS]: false,
+                                }
+                            ),
+                        }),
+                    }),
+                })
+            const battleSquaddieWithNormalMovement = BattleSquaddieService.new({
+                squaddieTemplateId: "battleSquaddie",
+                battleSquaddieId: "battleSquaddie",
+            })
+
+            const squaddieMovementAttributes =
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie: battleSquaddieWithNormalMovement,
+                    squaddieTemplate: squaddieTemplateWithNormalMovement,
+                })
+
+            expect(squaddieMovementAttributes).toEqual({
+                movementPerAction: 9001,
+                crossOverPits: false,
+                passThroughWalls: false,
+            })
         })
     })
 })

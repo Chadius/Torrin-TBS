@@ -130,11 +130,19 @@ export const MapHighlightService = {
                 startLocations: [startLocation],
                 numberOfActions: actionPointsRemaining,
                 movementPerAction:
-                    squaddieTemplate.attributes.movement.movementPerAction,
-                canPassOverPits:
-                    squaddieTemplate.attributes.movement.crossOverPits,
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).movementPerAction,
+                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).crossOverPits,
                 canPassThroughWalls:
-                    squaddieTemplate.attributes.movement.passThroughWalls,
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).passThroughWalls,
                 squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
                 canStopOnSquaddies: false,
             }),

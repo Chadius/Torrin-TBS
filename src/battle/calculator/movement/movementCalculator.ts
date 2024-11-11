@@ -53,11 +53,19 @@ export const MovementCalculatorService = {
                 startLocations: [squaddieDatum.mapLocation],
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 movementPerAction:
-                    squaddieTemplate.attributes.movement.movementPerAction,
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).movementPerAction,
                 canPassThroughWalls:
-                    squaddieTemplate.attributes.movement.passThroughWalls,
-                canPassOverPits:
-                    squaddieTemplate.attributes.movement.crossOverPits,
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).passThroughWalls,
+                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).crossOverPits,
                 shapeGenerator: getResultOrThrowError(
                     GetTargetingShapeGenerator(TargetingShape.SNAKE)
                 ),

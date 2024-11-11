@@ -87,7 +87,10 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                 battleSquaddie,
             })
         const movementPerActionThisRound =
-            squaddieTemplate.attributes.movement.movementPerAction
+            SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).movementPerAction
 
         const routesToAllSquaddies: SearchResult = getAllPossibleMovements({
             mapLocation,
@@ -173,7 +176,10 @@ const getClosestSquaddieAndLocationToFollow = ({
     const { mapLocation: actorLocation } = missionMap.getSquaddieByBattleId(
         actingSquaddieBattleId
     )
-    const { squaddieTemplate: actorSquaddieTemplate } = getResultOrThrowError(
+    const {
+        squaddieTemplate: actorSquaddieTemplate,
+        battleSquaddie: actorBattleSquaddie,
+    } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
             actingSquaddieBattleId
@@ -187,7 +193,7 @@ const getClosestSquaddieAndLocationToFollow = ({
               TerrainTileMapService.getDimensions(missionMap.terrainTileMap)
                   .widthOfWidestRow
 
-    function getShortestRoutesThatLeadToSquaddie(
+    const getShortestRoutesThatLeadToSquaddie = (
         closestReachableLocationsFromTheCandidate: HexCoordinate[],
         candidateToChase: {
             battleSquaddieId: string
@@ -200,7 +206,7 @@ const getClosestSquaddieAndLocationToFollow = ({
         distance: number
         location: HexCoordinate
         shortestRoute: SearchPath
-    }[] {
+    }[] => {
         const routesThatEndCloseToCandidate: SearchResult =
             PathfinderService.search({
                 searchParameters: SearchParametersService.new({
@@ -209,10 +215,15 @@ const getClosestSquaddieAndLocationToFollow = ({
                         actorSquaddieTemplate.squaddieId.affiliation,
                     movementPerAction: movementPerAction,
                     canPassOverPits:
-                        actorSquaddieTemplate.attributes.movement.crossOverPits,
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie: actorBattleSquaddie,
+                            squaddieTemplate: actorSquaddieTemplate,
+                        }).crossOverPits,
                     canPassThroughWalls:
-                        actorSquaddieTemplate.attributes.movement
-                            .passThroughWalls,
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie: actorBattleSquaddie,
+                            squaddieTemplate: actorSquaddieTemplate,
+                        }).passThroughWalls,
                     shapeGenerator: getResultOrThrowError(
                         GetTargetingShapeGenerator(TargetingShape.SNAKE)
                     ),
