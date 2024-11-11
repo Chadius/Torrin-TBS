@@ -20,6 +20,7 @@ import { ActionTemplate } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
+    AttributeModifierService,
     AttributeSource,
     AttributeType,
     AttributeTypeAndAmount,
@@ -295,67 +296,26 @@ const getAttributeModifierChanges = ({
         return []
     }
 
-    const attributeTypeToStringMapping: { [t in AttributeType]?: string } = {
-        [AttributeType.ARMOR]: "Armor",
-        [AttributeType.ABSORB]: "Absorb",
-        [AttributeType.MOVEMENT]: "Movement",
-    }
-    const attributeSourceToStringMapping: {
-        [t in AttributeSource]?: string
-    } = {
-        [AttributeSource.CIRCUMSTANCE]: "Circumstance",
-        [AttributeSource.ITEM]: "Item",
-        [AttributeSource.STATUS]: "Status",
-    }
-
     const attributeModifierDifferences: AttributeTypeAndAmount[] =
         InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
             squaddieChange.attributesBefore,
             squaddieChange.attributesAfter
         )
 
-    const getAttributeAmountMessage = (
-        attributeModifierDifference: AttributeTypeAndAmount
-    ) => {
-        let attributeAmountAsString: string
-        switch (true) {
-            case attributeModifierDifference.amount > 0:
-                attributeAmountAsString = `+${attributeModifierDifference.amount}`
-                break
-            case attributeModifierDifference.amount < 0:
-                attributeAmountAsString = `${attributeModifierDifference.amount}`
-                break
-            default:
-                attributeAmountAsString = "NO CHANGE"
-                break
-        }
-        return attributeAmountAsString
-    }
-    const getAttributeSourceMessage = (
-        attributeModifierDifference: AttributeTypeAndAmount
-    ) => {
+    return attributeModifierDifferences.map((attributeModifierDifference) => {
         const afterAttribute =
             squaddieChange.attributesAfter.attributeModifiers.find(
                 (attributeModifier) =>
                     attributeModifier.type === attributeModifierDifference.type
             )
-        let attributeSourceAsString: string = ` (${attributeSourceToStringMapping[afterAttribute.source] || afterAttribute.source})`
-        if (attributeModifierDifference.amount === 0) {
-            attributeSourceAsString = ""
-        }
-        return attributeSourceAsString
-    }
-    return attributeModifierDifferences.map((attributeModifierDifference) => {
-        const attributeTypeAsString: string =
-            attributeTypeToStringMapping[attributeModifierDifference.type] ||
-            attributeModifierDifference.type
-        let attributeAmountAsString = getAttributeAmountMessage(
-            attributeModifierDifference
-        )
-        let attributeSourceAsString = getAttributeSourceMessage(
-            attributeModifierDifference
-        )
-        return `${targetSquaddieTemplate.squaddieId.name} ${attributeTypeAsString} ${attributeAmountAsString}${attributeSourceAsString}`
+
+        const description = AttributeModifierService.readableDescription({
+            type: attributeModifierDifference.type,
+            amount: attributeModifierDifference.amount,
+            source: afterAttribute.source,
+        })
+
+        return `${targetSquaddieTemplate.squaddieId.name} ${description}`
     })
 }
 

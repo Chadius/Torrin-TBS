@@ -927,7 +927,7 @@ const addAttributeModifierIcon = ({
     attributeTypeAndAmount: AttributeTypeAndAmount
     resourceHandler: ResourceHandler
 }): AttributeIconDisplay => {
-    const resourceKey = `attribute-icon-${attributeTypeAndAmount.type.toLowerCase()}`
+    const resourceKey = `attribute-icon-${attributeTypeAndAmount.type.toLowerCase().replaceAll("_", "-")}`
     const image = resourceHandler.getResource(resourceKey)
     const drawIndex: number = getFirstEmptyAttributeModifierDrawIndex(
         squaddieSummaryPopover

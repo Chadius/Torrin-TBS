@@ -370,6 +370,11 @@ describe("Action Result Text Writer", () => {
                                 source: AttributeSource.ITEM,
                                 amount: 1,
                             }),
+                            AttributeModifierService.new({
+                                type: AttributeType.IGNORE_TERRAIN_COST,
+                                source: AttributeSource.ITEM,
+                                amount: 1,
+                            }),
                         ],
                     }),
                 ],
@@ -377,7 +382,7 @@ describe("Action Result Text Writer", () => {
         })
 
         it("Shows Movement bonus was applied", () => {
-            const armorBonusChanges = [
+            const movementChanges = [
                 BattleActionSquaddieChangeService.new({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     damageExplanation: DamageExplanationService.new({
@@ -392,6 +397,11 @@ describe("Action Result Text Writer", () => {
                                 source: AttributeSource.ITEM,
                                 amount: 1,
                             }),
+                            AttributeModifierService.new({
+                                type: AttributeType.IGNORE_TERRAIN_COST,
+                                source: AttributeSource.STATUS,
+                                amount: 1,
+                            }),
                         ],
                     }),
                 }),
@@ -402,7 +412,7 @@ describe("Action Result Text Writer", () => {
                     actionTemplateName: "dash",
                     currentActionEffectSquaddieTemplate: dashAction
                         .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                    battleActionSquaddieChanges: armorBonusChanges,
+                    battleActionSquaddieChanges: movementChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                     actingContext: BattleActionActionContextService.new({
@@ -414,9 +424,10 @@ describe("Action Result Text Writer", () => {
                     }),
                 })
 
-            expect(outputStrings).toHaveLength(2)
+            expect(outputStrings).toHaveLength(3)
             expect(outputStrings[0]).toBe("Knight uses dash")
             expect(outputStrings[1]).toBe("Knight Movement +1 (Item)")
+            expect(outputStrings[2]).toBe("Knight Ignore terrain cost (Status)")
         })
     })
 

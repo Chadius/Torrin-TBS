@@ -227,6 +227,7 @@ export const SquaddieService = {
         movementPerAction: number
         crossOverPits: boolean
         passThroughWalls: boolean
+        ignoreTerrainCost: boolean
     } => {
         return InBattleAttributesService.calculateCurrentAttributeModifiers(
             battleSquaddie.inBattleAttributes
@@ -235,6 +236,11 @@ export const SquaddieService = {
                 if (attributeModifier.type === AttributeType.MOVEMENT) {
                     currentMovementAttributes.movementPerAction +=
                         attributeModifier.amount
+                }
+                if (
+                    attributeModifier.type === AttributeType.IGNORE_TERRAIN_COST
+                ) {
+                    currentMovementAttributes.ignoreTerrainCost = true
                 }
                 return currentMovementAttributes
             },
@@ -245,6 +251,8 @@ export const SquaddieService = {
                     squaddieTemplate.attributes.movement.crossOverPits,
                 passThroughWalls:
                     squaddieTemplate.attributes.movement.passThroughWalls,
+                ignoreTerrainCost:
+                    squaddieTemplate.attributes.movement.ignoreTerrainCost,
             }
         )
     },

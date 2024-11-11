@@ -284,12 +284,11 @@ export class MakeDecisionButton {
             ActionTemplateService.getAttributeModifiers(actionTemplate)
         )
 
-        const capitalizeFirstLetter = (input: string) =>
-            input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
         const attributeModifierDescription = attributeModifierSums
-            .map(
-                (attributeModifierDescription) =>
-                    `${capitalizeFirstLetter(attributeModifierDescription.type)} ${attributeModifierDescription.amount > 0 ? "+" : ""}${attributeModifierDescription.amount}`
+            .map((attributeModifierDescription) =>
+                AttributeModifierService.readableDescription(
+                    attributeModifierDescription
+                )
             )
             .join("\n")
 

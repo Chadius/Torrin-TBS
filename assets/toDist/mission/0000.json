@@ -462,8 +462,16 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "Torrin",
             "speakerNamePosition": "LEFT",
-            "dialogueText": "It also slows the demons down.\nGives us time to recover.",
+            "dialogueText": "It also slows the demons down.\nThat gives me an idea.",
             "dialogueTextPosition": "LEFT",
+            "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn2_2",
+            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerName": "Torrin",
+            "dialogueText": "I can use Torrent Surge.\nSand won't slow me down.\nIn case I need to flee.",
             "animationDuration": 0
           }
         ]

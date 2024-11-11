@@ -1,8 +1,11 @@
+import { isValidValue } from "../utils/validityCheck"
+
 export enum AttributeType {
     ARMOR = "ARMOR",
     ABSORB = "ABSORB",
     MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
     MOVEMENT = "MOVEMENT",
+    IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
 }
 
 export enum AttributeSource {
@@ -63,20 +66,23 @@ export const AttributeModifierService = {
             description,
         }),
     isActive: (modifier: AttributeModifier): boolean => {
-        if (modifier.duration !== undefined && modifier.duration <= 0) {
-            return false
+        switch (true) {
+            case modifier.duration !== undefined && modifier.duration <= 0:
+                return false
+            case modifier.amount <= 0 &&
+                isAttributeModifierABinaryEffect(modifier):
+                return false
+            case modifier.amount <= 0 &&
+                [AttributeType.ABSORB, AttributeType.MOVEMENT].includes(
+                    modifier.type
+                ):
+                return false
+            case isValidValue(modifier.numberOfUses) &&
+                modifier.numberOfUses <= 0:
+                return false
+            default:
+                return true
         }
-        if (
-            [AttributeType.ABSORB, AttributeType.MOVEMENT].includes(
-                modifier.type
-            ) &&
-            modifier.amount <= 0
-        ) {
-            return false
-        }
-        return !(
-            modifier.numberOfUses !== undefined && modifier.numberOfUses <= 0
-        )
     },
     decreaseDuration: (modifier: AttributeModifier, duration?: number) => {
         if (modifier.duration === undefined) {
@@ -211,6 +217,66 @@ export const AttributeModifierService = {
         attributeModifier.amount -= amount
     },
     clone: (a: AttributeModifier): AttributeModifier => newAttributeModifier(a),
+    effectIsBinaryEffect: (a: AttributeModifier): boolean =>
+        isAttributeModifierABinaryEffect(a),
+    readableName: (attributeModifier: AttributeModifier): string => {
+        return readableNameForAttributeModifier(attributeModifier)
+    },
+    readableDescription: (
+        params:
+            | AttributeModifier
+            | {
+                  amount: number
+                  source?: AttributeSource
+                  type: AttributeType
+              }
+    ): string => {
+        const attributeModifier: AttributeModifier = newAttributeModifier({
+            type: params.type,
+            source: params.source,
+            amount: params.amount,
+        })
+
+        let attributeAmountAsString: string
+        switch (true) {
+            case isAttributeModifierABinaryEffect(attributeModifier):
+                attributeAmountAsString = ""
+                break
+            case attributeModifier.amount > 0:
+                attributeAmountAsString = ` +${attributeModifier.amount}`
+                break
+            case attributeModifier.amount < 0:
+                attributeAmountAsString = ` ${attributeModifier.amount}`
+                break
+            default:
+                attributeAmountAsString = " NO CHANGE"
+                break
+        }
+
+        const attributeSourceToStringMapping: {
+            [t in AttributeSource]?: string
+        } = {
+            [AttributeSource.CIRCUMSTANCE]: "Circumstance",
+            [AttributeSource.ITEM]: "Item",
+            [AttributeSource.STATUS]: "Status",
+        }
+
+        let attributeSourceAsString: string
+
+        if (
+            attributeModifier.amount === 0 ||
+            attributeModifier.source == undefined
+        ) {
+            attributeSourceAsString = ""
+        } else {
+            attributeSourceAsString = ` (${attributeSourceToStringMapping[attributeModifier.source]})`
+        }
+
+        const attributeTypeAsString: string =
+            readableNameForAttributeModifier(attributeModifier)
+
+        return `${attributeTypeAsString}${attributeAmountAsString}${attributeSourceAsString}`
+    },
 }
 
 const newAttributeModifier = ({
@@ -235,3 +301,15 @@ const newAttributeModifier = ({
     numberOfUses,
     description,
 })
+
+const readableNameForAttributeModifier = (
+    attributeModifier: AttributeModifier
+) => {
+    const capitalizeFirstLetter = (input: string) =>
+        attributeModifier.type.charAt(0).toUpperCase() +
+        input.slice(1).toLowerCase()
+    return `${capitalizeFirstLetter(attributeModifier.type).replaceAll("_", " ")}`
+}
+const isAttributeModifierABinaryEffect = (a: AttributeModifier) => {
+    return [AttributeType.IGNORE_TERRAIN_COST].includes(a.type)
+}

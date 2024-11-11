@@ -331,6 +331,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/ui/attribute/ignore-terrain-cost.png",
+    "key": "attribute-icon-ignore-terrain-cost"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/ui/attribute/down.png",
     "key": "attribute-down"
   },

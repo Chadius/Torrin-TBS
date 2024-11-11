@@ -21,6 +21,12 @@ import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { CampaignService } from "../../../campaign/campaign"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../../squaddie/attributeModifier"
 
 describe("movement calculator", () => {
     let pathfinderSpy: jest.SpyInstance
@@ -94,7 +100,7 @@ describe("movement calculator", () => {
             expect(pathfinderSpy).toHaveBeenCalled()
         })
 
-        it("is possible if the pathfinder says is not", () => {
+        it("is possible if the pathfinder says it is", () => {
             const validPathToDestination = SearchPathService.newSearchPath()
             SearchPathService.add(
                 validPathToDestination,
@@ -136,6 +142,56 @@ describe("movement calculator", () => {
 
             expect(isMovementPossible).toBeTruthy()
             expect(pathfinderSpy).toHaveBeenCalled()
+        })
+
+        it("applies the squaddie's modified movement attribute to the pathfinder", () => {
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddie.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.MOVEMENT,
+                    duration: 1,
+                    amount: 2,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
+
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddie.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    duration: 1,
+                    amount: 1,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
+
+            pathfinderSpy = jest
+                .spyOn(PathfinderService, "search")
+                .mockReturnValue(
+                    SearchResultsService.new({
+                        stopLocationsReached: [],
+                        shortestPathByLocation: {},
+                    })
+                )
+
+            MovementCalculatorService.isMovementPossible({
+                gameEngineState,
+                battleSquaddie,
+                squaddieTemplate,
+                destination: { q: 0, r: 1 },
+            })
+
+            expect(pathfinderSpy).toHaveBeenCalled()
+            const searchParameters =
+                pathfinderSpy.mock.calls[0][0].searchParameters
+            expect(searchParameters).toEqual(
+                expect.objectContaining({
+                    ignoreTerrainCost: true,
+                    movementPerAction:
+                        battleSquaddie.inBattleAttributes.armyAttributes
+                            .movement.movementPerAction + 2,
+                })
+            )
         })
     })
 

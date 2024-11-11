@@ -507,10 +507,11 @@ describe("Squaddie Service", () => {
                 movementPerAction: 9001,
                 crossOverPits: false,
                 passThroughWalls: false,
+                ignoreTerrainCost: false,
             })
         })
 
-        it("uses the MOVEMENT_UP attribute modifier to increase movement", () => {
+        it("uses the MOVEMENT attribute modifier to increase movement", () => {
             const {
                 squaddieTemplate: squaddieTemplateWithMovementUp2,
                 battleSquaddie: battleSquaddieWithMovementUp2,
@@ -544,6 +545,45 @@ describe("Squaddie Service", () => {
                 movementPerAction: 3,
                 crossOverPits: true,
                 passThroughWalls: true,
+                ignoreTerrainCost: false,
+            })
+        })
+
+        it("uses the IGNORE TERRAIN COST attribute modifier to increase movement", () => {
+            const {
+                squaddieTemplate: squaddieTemplateWithIgnoreTerrainCost,
+                battleSquaddie: battleSquaddieWithIgnoreTerrainCost,
+            } = createSquaddieWithSquaddieMovement(
+                SquaddieMovementService.new({
+                    movementPerAction: 1,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.CROSS_OVER_PITS]: false,
+                        [Trait.PASS_THROUGH_WALLS]: false,
+                    }),
+                })
+            )
+
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddieWithIgnoreTerrainCost.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    duration: 1,
+                    amount: 1,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
+
+            const squaddieMovementAttributes =
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie: battleSquaddieWithIgnoreTerrainCost,
+                    squaddieTemplate: squaddieTemplateWithIgnoreTerrainCost,
+                })
+
+            expect(squaddieMovementAttributes).toEqual({
+                movementPerAction: 1,
+                crossOverPits: false,
+                passThroughWalls: false,
+                ignoreTerrainCost: true,
             })
         })
     })

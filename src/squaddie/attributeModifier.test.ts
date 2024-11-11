@@ -121,6 +121,10 @@ describe("AttributeModifier", () => {
                 type: AttributeType.MOVEMENT,
                 shouldBeActive: false,
             },
+            {
+                type: AttributeType.IGNORE_TERRAIN_COST,
+                shouldBeActive: false,
+            },
         ]
 
         it.each(tests)(
@@ -332,6 +336,138 @@ describe("AttributeModifier", () => {
                     },
                 ])
             })
+        })
+    })
+
+    describe("knows when the attribute is binary", () => {
+        const binaryStatus: { [t in AttributeType]: boolean } = {
+            [AttributeType.ARMOR]: false,
+            [AttributeType.ABSORB]: false,
+            [AttributeType.MULTIPLE_ATTACK_PENALTY]: false,
+            [AttributeType.MOVEMENT]: false,
+            [AttributeType.IGNORE_TERRAIN_COST]: true,
+        }
+
+        test.each`
+            attributeType                            | isBinary
+            ${AttributeType.ARMOR}                   | ${binaryStatus[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}                  | ${binaryStatus[AttributeType.ABSORB]}
+            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${binaryStatus[AttributeType.MULTIPLE_ATTACK_PENALTY]}
+            ${AttributeType.MOVEMENT}                | ${binaryStatus[AttributeType.MOVEMENT]}
+            ${AttributeType.IGNORE_TERRAIN_COST}     | ${binaryStatus[AttributeType.IGNORE_TERRAIN_COST]}
+        `(
+            "$attributeType is binary: $isBinary",
+            ({ attributeType, isBinary }) => {
+                expect(
+                    AttributeModifierService.effectIsBinaryEffect(
+                        AttributeModifierService.new({
+                            type: attributeType,
+                            source: AttributeSource.CIRCUMSTANCE,
+                            amount: 1,
+                        })
+                    )
+                ).toEqual(isBinary)
+            }
+        )
+    })
+
+    describe("knows the attribute readable names", () => {
+        const readableName: { [t in AttributeType]: string } = {
+            [AttributeType.ARMOR]: "Armor",
+            [AttributeType.ABSORB]: "Absorb",
+            [AttributeType.MULTIPLE_ATTACK_PENALTY]: "Multiple attack penalty",
+            [AttributeType.MOVEMENT]: "Movement",
+            [AttributeType.IGNORE_TERRAIN_COST]: "Ignore terrain cost",
+        }
+
+        test.each`
+            attributeType                            | readableName
+            ${AttributeType.ARMOR}                   | ${readableName[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}                  | ${readableName[AttributeType.ABSORB]}
+            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${readableName[AttributeType.MULTIPLE_ATTACK_PENALTY]}
+            ${AttributeType.MOVEMENT}                | ${readableName[AttributeType.MOVEMENT]}
+            ${AttributeType.IGNORE_TERRAIN_COST}     | ${readableName[AttributeType.IGNORE_TERRAIN_COST]}
+        `(
+            "$attributeType readable name is: $readableName",
+            ({ attributeType, readableName }) => {
+                expect(
+                    AttributeModifierService.readableName(
+                        AttributeModifierService.new({
+                            type: attributeType,
+                            source: AttributeSource.CIRCUMSTANCE,
+                            amount: 1,
+                        })
+                    )
+                ).toEqual(readableName)
+            }
+        )
+    })
+
+    describe("knows how to make attribute descriptions", () => {
+        const readableDescription: { [t in AttributeType]: string } = {
+            [AttributeType.ARMOR]: "Armor +1 (Circumstance)",
+            [AttributeType.ABSORB]: "Absorb +2 (Item)",
+            [AttributeType.MULTIPLE_ATTACK_PENALTY]:
+                "Multiple attack penalty -3 (Circumstance)",
+            [AttributeType.MOVEMENT]: "Movement NO CHANGE",
+            [AttributeType.IGNORE_TERRAIN_COST]:
+                "Ignore terrain cost (Circumstance)",
+        }
+
+        test.each`
+            attributeType                            | amount | source                          | readableDescription
+            ${AttributeType.ARMOR}                   | ${1}   | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}                  | ${2}   | ${AttributeSource.ITEM}         | ${readableDescription[AttributeType.ABSORB]}
+            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${-3}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.MULTIPLE_ATTACK_PENALTY]}
+            ${AttributeType.MOVEMENT}                | ${0}   | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.MOVEMENT]}
+        `(
+            "$attributeType $amount $source description is: $readableDescription",
+            ({ attributeType, amount, source, readableDescription }) => {
+                expect(
+                    AttributeModifierService.readableDescription(
+                        AttributeModifierService.new({
+                            type: attributeType,
+                            source: source,
+                            amount: amount,
+                        })
+                    )
+                ).toEqual(readableDescription)
+            }
+        )
+
+        test.each`
+            attributeType                        | source                          | readableDescription
+            ${AttributeType.IGNORE_TERRAIN_COST} | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.IGNORE_TERRAIN_COST]}
+        `(
+            "$attributeType $amount $source description is: $readableDescription",
+            ({ attributeType, source, readableDescription }) => {
+                expect(
+                    AttributeModifierService.readableDescription(
+                        AttributeModifierService.new({
+                            type: attributeType,
+                            source: source,
+                            amount: 1,
+                        })
+                    )
+                ).toEqual(readableDescription)
+            }
+        )
+
+        it("can manually specify fields", () => {
+            expect(
+                AttributeModifierService.readableDescription({
+                    type: AttributeType.MOVEMENT,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 0,
+                })
+            ).toEqual("Movement NO CHANGE")
+
+            expect(
+                AttributeModifierService.readableDescription({
+                    type: AttributeType.ABSORB,
+                    amount: 1,
+                })
+            ).toEqual("Absorb +1")
         })
     })
 })

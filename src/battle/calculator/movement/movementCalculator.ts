@@ -72,7 +72,11 @@ export const MovementCalculatorService = {
                 maximumDistanceMoved: undefined,
                 minimumDistanceMoved: undefined,
                 canStopOnSquaddies: true,
-                ignoreTerrainCost: false,
+                ignoreTerrainCost:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).ignoreTerrainCost,
                 stopLocations: [destination],
                 numberOfActions: actionPointsRemaining,
             }),

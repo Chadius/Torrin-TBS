@@ -20,6 +20,7 @@ export enum Trait {
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
     CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
     NO_MULTIPLE_ATTACK_PENALTY = "NO_MULTIPLE_ATTACK_PENALTY",
+    IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
 }
 
 export enum TraitCategory {
@@ -84,6 +85,10 @@ const traitInformation: {
     },
     [Trait.PASS_THROUGH_WALLS]: {
         description: "Can cross over but not stop on walls.",
+        categories: [TraitCategory.MOVEMENT],
+    },
+    [Trait.IGNORE_TERRAIN_COST]: {
+        description: "All terrain costs 1 movement.",
         categories: [TraitCategory.MOVEMENT],
     },
     [Trait.VERSUS_ARMOR]: {

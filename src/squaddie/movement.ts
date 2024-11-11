@@ -9,6 +9,7 @@ export interface SquaddieMovement {
     movementPerAction: number
     passThroughWalls: boolean
     crossOverPits: boolean
+    ignoreTerrainCost: boolean
 }
 
 export const SquaddieMovementService = {
@@ -43,6 +44,7 @@ const createNewSquaddieMovementWithTraits = ({
 
     let passThroughWalls = false
     let crossOverPits = false
+    let ignoreTerrainCost = false
 
     if (traits) {
         passThroughWalls = TraitStatusStorageService.getStatus(
@@ -53,12 +55,17 @@ const createNewSquaddieMovementWithTraits = ({
             traits,
             Trait.CROSS_OVER_PITS
         )
+        ignoreTerrainCost = TraitStatusStorageService.getStatus(
+            traits,
+            Trait.IGNORE_TERRAIN_COST
+        )
     }
 
     return {
         movementPerAction: newMovement,
         crossOverPits,
         passThroughWalls,
+        ignoreTerrainCost,
     }
 }
 
@@ -73,6 +80,10 @@ const sanitize = (data: SquaddieMovement): SquaddieMovement => {
     data.crossOverPits =
         data.crossOverPits === false || isValidValue(data.crossOverPits)
             ? data.crossOverPits
+            : false
+    data.ignoreTerrainCost =
+        data.ignoreTerrainCost === false || isValidValue(data.ignoreTerrainCost)
+            ? data.ignoreTerrainCost
             : false
     return data
 }

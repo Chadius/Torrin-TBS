@@ -63,7 +63,14 @@
           {
             "type": "MOVEMENT",
             "source": "CIRCUMSTANCE",
-            "amount": 2,
+            "amount": 1,
+            "duration": 1,
+            "description": "Increase movement and ignore terrain penalties"
+          },
+          {
+            "type": "IGNORE_TERRAIN_COST",
+            "source": "CIRCUMSTANCE",
+            "amount": 1,
             "duration": 1,
             "description": "Increase movement and ignore terrain penalties"
           }
