@@ -117,6 +117,10 @@ describe("AttributeModifier", () => {
                 type: AttributeType.ABSORB,
                 shouldBeActive: false,
             },
+            {
+                type: AttributeType.MOVEMENT,
+                shouldBeActive: false,
+            },
         ]
 
         it.each(tests)(

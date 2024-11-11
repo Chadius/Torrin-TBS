@@ -352,6 +352,74 @@ describe("Action Result Text Writer", () => {
         })
     })
 
+    describe("Add Movement buff", () => {
+        let dashAction: ActionTemplate
+
+        beforeEach(() => {
+            dashAction = ActionTemplateService.new({
+                id: "dash",
+                name: "dash",
+                actionEffectTemplates: [
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.TARGET_SELF]: true,
+                        }),
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.MOVEMENT,
+                                source: AttributeSource.ITEM,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                ],
+            })
+        })
+
+        it("Shows Movement bonus was applied", () => {
+            const armorBonusChanges = [
+                BattleActionSquaddieChangeService.new({
+                    battleSquaddieId: knightDynamic.battleSquaddieId,
+                    damageExplanation: DamageExplanationService.new({
+                        net: 0,
+                    }),
+                    healingReceived: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    attributesAfter: InBattleAttributesService.new({
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.MOVEMENT,
+                                source: AttributeSource.ITEM,
+                                amount: 1,
+                            }),
+                        ],
+                    }),
+                }),
+            ]
+
+            const outputStrings: string[] =
+                ActionResultTextService.outputResultForTextOnly({
+                    actionTemplateName: "dash",
+                    currentActionEffectSquaddieTemplate: dashAction
+                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    battleActionSquaddieChanges: armorBonusChanges,
+                    squaddieRepository,
+                    actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+                    actingContext: BattleActionActionContextService.new({
+                        actingSquaddieRoll: {
+                            occurred: false,
+                            rolls: [],
+                        },
+                        actingSquaddieModifiers: [],
+                    }),
+                })
+
+            expect(outputStrings).toHaveLength(2)
+            expect(outputStrings[0]).toBe("Knight uses dash")
+            expect(outputStrings[1]).toBe("Knight Movement +1 (Item)")
+        })
+    })
+
     it("Explains intent to use a power", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputIntentForTextOnly({

@@ -291,6 +291,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/decisions/decision-button-move-64.png",
+    "key": "decision-button-movement"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/mapTiles/basic/floor.png",
     "key": "map-tiles-basic-floor"
   },
@@ -318,6 +323,11 @@
     "type": "IMAGE",
     "path": "assets/ui/attribute/armor.png",
     "key": "attribute-icon-armor"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/ui/attribute/movement.png",
+    "key": "attribute-icon-movement"
   },
   {
     "type": "IMAGE",

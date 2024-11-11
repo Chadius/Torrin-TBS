@@ -23,7 +23,7 @@ import { ActionTemplateService } from "../action/template/actionTemplate"
 import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
-import { SquaddieMovementService } from "./movement"
+import { SquaddieMovement, SquaddieMovementService } from "./movement"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate
@@ -459,30 +459,43 @@ describe("Squaddie Service", () => {
     })
 
     describe("Can give current movement attributes", () => {
-        it("gives the squaddie template movement attributes by default", () => {
-            const squaddieTemplateWithNormalMovement =
-                SquaddieTemplateService.new({
-                    squaddieId: SquaddieIdService.new({
-                        templateId: "battleSquaddie",
-                        name: "battleSquaddie",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    }),
-                    attributes: ArmyAttributesService.new({
-                        movement: SquaddieMovementService.new({
-                            movementPerAction: 9001,
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.CROSS_OVER_PITS]: false,
-                                    [Trait.PASS_THROUGH_WALLS]: false,
-                                }
-                            ),
-                        }),
-                    }),
-                })
-            const battleSquaddieWithNormalMovement = BattleSquaddieService.new({
+        const createSquaddieWithSquaddieMovement = (
+            movement: SquaddieMovement
+        ) => {
+            const squaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    templateId: "battleSquaddie",
+                    name: "battleSquaddie",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                }),
+                attributes: ArmyAttributesService.new({
+                    movement,
+                }),
+            })
+            const battleSquaddie = BattleSquaddieService.new({
                 squaddieTemplateId: "battleSquaddie",
                 battleSquaddieId: "battleSquaddie",
             })
+
+            return {
+                battleSquaddie,
+                squaddieTemplate,
+            }
+        }
+
+        it("gives the squaddie template movement attributes by default", () => {
+            const {
+                squaddieTemplate: squaddieTemplateWithNormalMovement,
+                battleSquaddie: battleSquaddieWithNormalMovement,
+            } = createSquaddieWithSquaddieMovement(
+                SquaddieMovementService.new({
+                    movementPerAction: 9001,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.CROSS_OVER_PITS]: false,
+                        [Trait.PASS_THROUGH_WALLS]: false,
+                    }),
+                })
+            )
 
             const squaddieMovementAttributes =
                 SquaddieService.getSquaddieMovementAttributes({
@@ -494,6 +507,43 @@ describe("Squaddie Service", () => {
                 movementPerAction: 9001,
                 crossOverPits: false,
                 passThroughWalls: false,
+            })
+        })
+
+        it("uses the MOVEMENT_UP attribute modifier to increase movement", () => {
+            const {
+                squaddieTemplate: squaddieTemplateWithMovementUp2,
+                battleSquaddie: battleSquaddieWithMovementUp2,
+            } = createSquaddieWithSquaddieMovement(
+                SquaddieMovementService.new({
+                    movementPerAction: 1,
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.CROSS_OVER_PITS]: true,
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }),
+                })
+            )
+
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddieWithMovementUp2.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.MOVEMENT,
+                    duration: 1,
+                    amount: 2,
+                    source: AttributeSource.CIRCUMSTANCE,
+                })
+            )
+
+            const squaddieMovementAttributes =
+                SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie: battleSquaddieWithMovementUp2,
+                    squaddieTemplate: squaddieTemplateWithMovementUp2,
+                })
+
+            expect(squaddieMovementAttributes).toEqual({
+                movementPerAction: 3,
+                crossOverPits: true,
+                passThroughWalls: true,
             })
         })
     })

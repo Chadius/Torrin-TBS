@@ -298,11 +298,14 @@ const getAttributeModifierChanges = ({
     const attributeTypeToStringMapping: { [t in AttributeType]?: string } = {
         [AttributeType.ARMOR]: "Armor",
         [AttributeType.ABSORB]: "Absorb",
+        [AttributeType.MOVEMENT]: "Movement",
     }
     const attributeSourceToStringMapping: {
         [t in AttributeSource]?: string
     } = {
         [AttributeSource.CIRCUMSTANCE]: "Circumstance",
+        [AttributeSource.ITEM]: "Item",
+        [AttributeSource.STATUS]: "Status",
     }
 
     const attributeModifierDifferences: AttributeTypeAndAmount[] =

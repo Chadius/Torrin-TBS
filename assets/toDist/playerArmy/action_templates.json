@@ -46,6 +46,34 @@
     "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
+    "id": "young_torrin_torrent_surge",
+    "name": "torrent surge",
+    "actionEffectTemplates": [
+      {
+        "type": "SQUADDIE",
+        "minimumRange": 0,
+        "maximumRange": 0,
+        "traits": {
+          "booleanTraits": {
+            "TARGET_SELF": true,
+            "SKIP_ANIMATION": true
+          }
+        },
+        "attributeModifiers": [
+          {
+            "type": "MOVEMENT",
+            "source": "CIRCUMSTANCE",
+            "amount": 2,
+            "duration": 1,
+            "description": "Increase movement and ignore terrain penalties"
+          }
+        ]
+      }
+    ],
+    "buttonIconResourceKey": "decision-button-movement",
+    "actionDecisions": ["TARGET_SQUADDIE"]
+  },
+  {
     "id": "sir_camil_longsword",
     "name": "longsword",
     "actionEffectTemplates": [

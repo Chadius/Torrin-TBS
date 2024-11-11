@@ -16,6 +16,7 @@ import { DamageExplanation } from "../battle/history/battleAction/battleActionSq
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
+import { AttributeType } from "./attributeModifier"
 
 export const SquaddieService = {
     calculateDealtDamageToTheSquaddie: ({
@@ -226,12 +227,27 @@ export const SquaddieService = {
         movementPerAction: number
         crossOverPits: boolean
         passThroughWalls: boolean
-    } => ({
-        movementPerAction:
-            squaddieTemplate.attributes.movement.movementPerAction,
-        crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-        passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
-    }),
+    } => {
+        return InBattleAttributesService.calculateCurrentAttributeModifiers(
+            battleSquaddie.inBattleAttributes
+        ).reduce(
+            (currentMovementAttributes, attributeModifier) => {
+                if (attributeModifier.type === AttributeType.MOVEMENT) {
+                    currentMovementAttributes.movementPerAction +=
+                        attributeModifier.amount
+                }
+                return currentMovementAttributes
+            },
+            {
+                movementPerAction:
+                    squaddieTemplate.attributes.movement.movementPerAction,
+                crossOverPits:
+                    squaddieTemplate.attributes.movement.crossOverPits,
+                passThroughWalls:
+                    squaddieTemplate.attributes.movement.passThroughWalls,
+            }
+        )
+    },
 }
 
 const getNumberOfActionPoints = ({

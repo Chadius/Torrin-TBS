@@ -2,6 +2,7 @@ export enum AttributeType {
     ARMOR = "ARMOR",
     ABSORB = "ABSORB",
     MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
+    MOVEMENT = "MOVEMENT",
 }
 
 export enum AttributeSource {
@@ -65,7 +66,12 @@ export const AttributeModifierService = {
         if (modifier.duration !== undefined && modifier.duration <= 0) {
             return false
         }
-        if (modifier.type === AttributeType.ABSORB && modifier.amount <= 0) {
+        if (
+            [AttributeType.ABSORB, AttributeType.MOVEMENT].includes(
+                modifier.type
+            ) &&
+            modifier.amount <= 0
+        ) {
             return false
         }
         return !(

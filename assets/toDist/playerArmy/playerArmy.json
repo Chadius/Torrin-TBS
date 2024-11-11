@@ -35,7 +35,8 @@
       },
       "actionTemplateIds": [
         "torrin_water_cannon",
-        "young_torrin_healing_touch"
+        "young_torrin_healing_touch",
+        "young_torrin_torrent_surge"
       ]
     },
     {

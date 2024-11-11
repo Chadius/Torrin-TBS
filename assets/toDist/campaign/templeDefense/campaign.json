@@ -37,7 +37,8 @@
       }
     },
     "attributeIcons": {
-      "ARMOR": "attribute-icon-armor"
+      "ARMOR": "attribute-icon-armor",
+      "MOVEMENT": "attribute-icon-movement"
     },
     "attributeComparisons": {
       "up": "attribute-up",
