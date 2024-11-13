@@ -13,6 +13,7 @@ import {
     StyleTextBoxConstants,
 } from "./constants"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 
 export class DialogueTextBox {
     dialogueText: string
@@ -119,27 +120,15 @@ const constrainTextAndGetBoundingBox = ({
         }, [])
     const textToDraw = textPerLine.slice(0, rectStyle.maxNumberLinesOfText)
     const lengthOfLongestLine: number = Math.max(
-        ...textToDraw.map((t) => calculateLengthOfLineOfText(t, fontStyle))
+        ...textToDraw.map((t) =>
+            TextHandlingService.calculateLengthOfLineOfText({
+                text: t,
+                fontStyle,
+            })
+        )
     )
 
     const dialogueBoxWidth =
         lengthOfLongestLine + rectStyle.horizontalMargin * 2
     return { textToDraw, dialogueBoxWidth }
 }
-
-const calculateLengthOfLineOfText = (
-    text: string,
-    fontStyle: StyleFontConstants
-): number =>
-    Array.from(text).reduce((current: number, letter: string) => {
-        if (
-            letter.toUpperCase() === letter &&
-            letter !== letter.toLowerCase()
-        ) {
-            return current + fontStyle.textSize * fontStyle.widthRatio.uppercase
-        }
-        if (!isNaN(parseInt(letter))) {
-            return current + fontStyle.textSize * fontStyle.widthRatio.number
-        }
-        return current + fontStyle.textSize * fontStyle.widthRatio.default
-    }, 0)

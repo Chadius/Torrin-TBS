@@ -21,7 +21,6 @@ import { BattleActionSquaddieChange } from "../history/battleAction/battleAction
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
     AttributeModifierService,
-    AttributeSource,
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"

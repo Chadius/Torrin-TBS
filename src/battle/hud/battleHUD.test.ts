@@ -1,9 +1,5 @@
 import { MessageBoard } from "../../message/messageBoard"
-import {
-    BattleHUDListener,
-    BattleHUDService,
-    PopupWindowType,
-} from "./battleHUD"
+import { BattleHUDListener, BattleHUDService } from "./battleHUD"
 import {
     MessageBoardMessage,
     MessageBoardMessageType,
@@ -17,11 +13,8 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../orchestrator/battleState"
 import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
 import { ButtonStatus } from "../../ui/button"
-import { PopupWindow, PopupWindowService } from "./popupWindow"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { LabelService } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
 import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../squaddie/id"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
@@ -29,7 +22,6 @@ import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
     BattleActionDecisionStep,
@@ -311,123 +303,6 @@ describe("Battle HUD", () => {
                 ButtonStatus.READY
             )
             expect(fileAccessHUDSpy).toBeCalled()
-        })
-    })
-
-    const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
-        label: LabelService.new({
-            area: RectAreaService.new({
-                left: 0,
-                top: 0,
-                width: 200,
-                height: 100,
-            }),
-            text: "It's SQUADDIE_NAME turn",
-            textSize: 10,
-            fontColor: [0, 0, 100],
-            fillColor: [0, 0, 10],
-            textBoxMargin: 8,
-        }),
-    })
-
-    describe("draw", () => {
-        let mockGraphicsContext: MockedP5GraphicsBuffer
-
-        beforeEach(() => {
-            mockGraphicsContext = new MockedP5GraphicsBuffer()
-        })
-
-        it("will draw popup windows if they are defined", () => {
-            const drawSpy: jest.SpyInstance = jest.spyOn(
-                PopupWindowService,
-                "draw"
-            )
-
-            const battleHUD = BattleHUDService.new({})
-
-            BattleHUDService.setPopupWindow(
-                battleHUD,
-                differentSquaddiePopup,
-                PopupWindowType.DIFFERENT_SQUADDIE_TURN
-            )
-            BattleHUDService.draw(battleHUD, mockGraphicsContext)
-
-            expect(drawSpy).toBeCalledTimes(1)
-            drawSpy.mockRestore()
-        })
-        it("will not draw popup windows if they are undefined", () => {
-            const drawSpy: jest.SpyInstance = jest.spyOn(
-                PopupWindowService,
-                "draw"
-            )
-
-            const battleHUD = BattleHUDService.new({})
-            BattleHUDService.draw(battleHUD, mockGraphicsContext)
-
-            expect(drawSpy).not.toBeCalled()
-            drawSpy.mockRestore()
-        })
-    })
-    describe("Popup Windows", () => {
-        it("can set a popup window", () => {
-            const battleHUD = BattleHUDService.new({})
-
-            BattleHUDService.setPopupWindow(
-                battleHUD,
-                differentSquaddiePopup,
-                PopupWindowType.DIFFERENT_SQUADDIE_TURN
-            )
-
-            expect(
-                battleHUD.popupWindows[PopupWindowType.DIFFERENT_SQUADDIE_TURN]
-            ).toEqual(differentSquaddiePopup)
-        })
-        it("squaddie does not have enough action points to perform the action", () => {
-            const gameEngineState = GameEngineStateService.new({
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleHUD: BattleHUDService.new({}),
-                    battleState: BattleStateService.new({
-                        battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
-                            turnCount: 0,
-                        },
-                        missionId: "missionId",
-                        campaignId: "test campaign",
-                    }),
-                }),
-                repository: ObjectRepositoryService.new(),
-            })
-
-            const battleHUDListener = new BattleHUDListener("battleHUDListener")
-            gameEngineState.messageBoard.addListener(
-                battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
-            )
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                gameEngineState,
-                reason: "Need 2 action points",
-                selectionLocation: {
-                    x: ScreenDimensions.SCREEN_WIDTH,
-                    y: ScreenDimensions.SCREEN_HEIGHT,
-                },
-                coordinateSystem: CoordinateSystem.WORLD,
-            })
-
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUD.popupWindows[
-                    PopupWindowType.PLAYER_INVALID_SELECTION
-                ]
-            ).not.toBeUndefined()
-
-            const popup =
-                gameEngineState.battleOrchestratorState.battleHUD.popupWindows[
-                    PopupWindowType.PLAYER_INVALID_SELECTION
-                ]
-            expect(
-                popup.label.textBox.text.includes("Need 2 action points")
-            ).toBeTruthy()
         })
     })
     describe("Player selects a squaddie", () => {

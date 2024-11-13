@@ -38,11 +38,11 @@ import { MissionStatisticsService } from "../missionStatistics/missionStatistics
 import { CutsceneTrigger } from "../../cutscene/cutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
-import { BattleHUDService } from "../hud/battleHUD"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 import { MissionCutsceneService } from "../cutscene/missionCutsceneService"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
+import { PlayerDecisionHUDService } from "../hud/playerActionPanel/playerDecisionHUD"
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -197,8 +197,8 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (this.uiControlSettings.displayBattleMap === true) {
             this.displayBattleMap(gameEngineState, graphicsContext)
-            BattleHUDService.draw(
-                gameEngineState.battleOrchestratorState.battleHUD,
+            PlayerDecisionHUDService.draw(
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
                 graphicsContext
             )
         }

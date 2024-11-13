@@ -10,7 +10,6 @@ import {
     MessageBoardMessagePlayerConfirmsAction,
     MessageBoardMessagePlayerControlledSquaddieNeedsNextAction,
     MessageBoardMessagePlayerPeeksAtSquaddie,
-    MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsEmptyTile,
@@ -19,23 +18,12 @@ import {
     MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import {
-    PopupWindow,
-    PopupWindowService,
-    PopupWindowStatus,
-} from "./popupWindow"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { LabelService, TextBoxMargin } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
 import { ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
-import { VERTICAL_ALIGN } from "../../ui/constants"
-import * as p5 from "p5"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -78,40 +66,8 @@ import { ActionTemplateService } from "../../action/template/actionTemplate"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
-export enum PopupWindowType {
-    DIFFERENT_SQUADDIE_TURN = "DIFFERENT_SQUADDIE_TURN",
-    PLAYER_INVALID_SELECTION = "PLAYER_INVALID_SELECTION",
-}
-
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
-    popupWindows: {
-        [key in PopupWindowType]: PopupWindow
-    }
-}
-
-export const WARNING_POPUP_TEXT_SIZE = 16
-export const WARNING_POPUP_TEXT_WIDTH_MULTIPLIER = 0.5
-
-const warningPopupConstants: {
-    width: number
-    label: {
-        fillColor: number[]
-        textSize: number
-        vertAlign: p5.VERT_ALIGN
-        fontColor: number[]
-    } & TextBoxMargin
-    height: number
-} = {
-    label: {
-        textSize: WARNING_POPUP_TEXT_SIZE,
-        fontColor: [245, 20, 90],
-        fillColor: [60, 40, 10],
-        vertAlign: VERTICAL_ALIGN.CENTER,
-        textBoxMargin: 8,
-    },
-    width: 150,
-    height: 80,
 }
 
 export const BattleHUDService = {
@@ -121,66 +77,7 @@ export const BattleHUDService = {
                 fileAccessHUD,
                 FileAccessHUDService.new()
             ),
-            popupWindows: {
-                [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
-                [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,
-            },
         }
-    },
-    draw: (battleHUD: BattleHUD, graphicsContext: GraphicsBuffer) => {
-        Object.values(battleHUD.popupWindows)
-            .filter(isValidValue)
-            .forEach((popupWindow) => {
-                PopupWindowService.draw(popupWindow, graphicsContext)
-            })
-    },
-    setPopupWindow: (
-        battleHUD: BattleHUD,
-        popupWindow: PopupWindow,
-        popupWindowType: PopupWindowType
-    ) => {
-        battleHUD.popupWindows[popupWindowType] = popupWindow
-    },
-    clearPopupWindow: (
-        battleHUD: BattleHUD,
-        popupWindowType: PopupWindowType
-    ) => {
-        battleHUD.popupWindows[popupWindowType] = undefined
-    },
-    createPlayerInvalidSelectionPopup: (
-        battleHUD: BattleHUD,
-        message: MessageBoardMessagePlayerSelectionIsInvalid
-    ) => {
-        let gameEngineState = message.gameEngineState
-
-        let { popupText, labelArea, camera } =
-            calculatePlayerInvalidSelectionPopup({ gameEngineState, message })
-
-        const invalidSelectionPopupWindow: PopupWindow = PopupWindowService.new(
-            {
-                label: LabelService.new({
-                    area: labelArea,
-                    text: popupText,
-                    ...warningPopupConstants.label,
-                }),
-                coordinateSystem: message.coordinateSystem,
-                camera,
-            }
-        )
-        PopupWindowService.changeStatus(
-            invalidSelectionPopupWindow,
-            PopupWindowStatus.ACTIVE
-        )
-        PopupWindowService.setInactiveAfterTimeElapsed(
-            invalidSelectionPopupWindow,
-            2000
-        )
-
-        BattleHUDService.setPopupWindow(
-            battleHUD,
-            invalidSelectionPopupWindow,
-            PopupWindowType.PLAYER_INVALID_SELECTION
-        )
     },
     cancelTargetSelection: (
         battleHUD: BattleHUD,
@@ -890,12 +787,6 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.gameEngineState
                 )
                 break
-            case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
-                BattleHUDService.createPlayerInvalidSelectionPopup(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
             case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
                 BattleHUDService.cancelTargetSelection(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
@@ -965,48 +856,6 @@ export class BattleHUDListener implements MessageBoardListener {
                 )
                 break
         }
-    }
-}
-
-const calculatePlayerInvalidSelectionPopup = ({
-    gameEngineState,
-    message,
-}: {
-    gameEngineState: GameEngineState
-    message: MessageBoardMessagePlayerSelectionIsInvalid
-}) => {
-    let left: number
-    let top: number
-
-    if (message.coordinateSystem === CoordinateSystem.WORLD) {
-        ;({ worldX: left, worldY: top } =
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: message.selectionLocation.x,
-                    screenY: message.selectionLocation.y,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                }
-            ))
-        left -= warningPopupConstants.width / 2
-        top += HEX_TILE_WIDTH
-    } else {
-        left = message.selectionLocation.x
-        top = message.selectionLocation.y
-    }
-
-    let labelArea = RectAreaService.new({
-        left,
-        top,
-        width: message.width ?? warningPopupConstants.width,
-        height: message.height ?? warningPopupConstants.height,
-    })
-    return {
-        popupText: message.reason,
-        labelArea,
-        camera:
-            message.coordinateSystem === CoordinateSystem.WORLD
-                ? gameEngineState.battleOrchestratorState.battleState.camera
-                : undefined,
     }
 }
 

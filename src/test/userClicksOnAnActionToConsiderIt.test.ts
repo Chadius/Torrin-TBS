@@ -37,7 +37,7 @@ import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrc
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
-import { MakeDecisionButton } from "../squaddie/makeDecisionButton"
+import { MakeDecisionButton } from "../battle/hud/playerActionPanel/makeDecisionButton"
 import { RectAreaService } from "../ui/rectArea"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"

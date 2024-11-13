@@ -6,14 +6,19 @@ import { RandomNumberGenerator } from "../numberGenerator/random"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
 import { BattleHUDState, BattleHUDStateService } from "../hud/battleHUDState"
 import { FileAccessHUDService } from "../hud/fileAccessHUD"
-import { BattleHUD, BattleHUDService, PopupWindowType } from "../hud/battleHUD"
+import { BattleHUD, BattleHUDService } from "../hud/battleHUD"
 import {
     CutsceneIdQueue,
     CutsceneQueueService,
 } from "../cutscene/cutsceneIdQueue"
+import {
+    PlayerDecisionHUD,
+    PlayerDecisionHUDService,
+} from "../hud/playerActionPanel/playerDecisionHUD"
 
 export class BattleOrchestratorState {
     battleHUD: BattleHUD
+    playerDecisionHUD: PlayerDecisionHUD
     numberGenerator: NumberGeneratorStrategy
     battleState: BattleState
     battleHUDState: BattleHUDState
@@ -47,6 +52,7 @@ export class BattleOrchestratorState {
             this.cutsceneQueue,
             cutsceneIdsToPlay || []
         )
+        this.playerDecisionHUD = PlayerDecisionHUDService.new()
     }
 
     get isValid(): boolean {
@@ -85,12 +91,9 @@ export class BattleOrchestratorState {
         this.battleState = BattleStateService.clone(other.battleState)
         this.battleHUD = getValidValueOrDefault(other.battleHUD, {
             fileAccessHUD: FileAccessHUDService.new(),
-            popupWindows: {
-                [PopupWindowType.DIFFERENT_SQUADDIE_TURN]: undefined,
-                [PopupWindowType.PLAYER_INVALID_SELECTION]: undefined,
-            },
         })
         this.numberGenerator = other.numberGenerator.clone()
+        this.playerDecisionHUD = PlayerDecisionHUDService.new()
     }
 }
 

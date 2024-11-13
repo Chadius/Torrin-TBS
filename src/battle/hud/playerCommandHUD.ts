@@ -7,7 +7,7 @@ import {
     HEX_TILE_WIDTH,
     HUE_BY_SQUADDIE_AFFILIATION,
 } from "../../graphicsConstants"
-import { MakeDecisionButton } from "../../squaddie/MakeDecisionButton"
+import { MakeDecisionButton } from "./playerActionPanel/makeDecisionButton"
 import { MouseButton } from "../../utils/mouseConfig"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -27,11 +27,13 @@ import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
-    BattleHUDService,
+    PlayerDecisionHUDService,
     PopupWindowType,
     WARNING_POPUP_TEXT_SIZE,
     WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-} from "./battleHUD"
+} from "./playerActionPanel/playerDecisionHUD"
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+import { StyleFontConstants } from "../../cutscene/dialogue/constants"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -43,6 +45,16 @@ export enum PlayerCommandSelection {
 export enum MoveButtonPurpose {
     HIDE = "HIDE",
     SHOW = "SHOW",
+}
+
+const WARNING_POPUP_FONT_STYLE: StyleFontConstants = {
+    color: [],
+    textSize: WARNING_POPUP_TEXT_SIZE,
+    widthRatio: {
+        uppercase: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+        number: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+        default: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+    },
 }
 
 const DECISION_BUTTON_LAYOUT = {
@@ -261,8 +273,8 @@ export const PlayerCommandStateService = {
             if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
                 button.status = ButtonStatus.HOVER
 
-                BattleHUDService.clearPopupWindow(
-                    gameEngineState.battleOrchestratorState.battleHUD,
+                PlayerDecisionHUDService.clearPopupWindow(
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
                     PopupWindowType.PLAYER_INVALID_SELECTION
                 )
             }
@@ -285,10 +297,10 @@ export const PlayerCommandStateService = {
                             WINDOW_SPACING.SPACING1,
                     },
                     coordinateSystem: CoordinateSystem.SCREEN,
-                    width:
-                        button.popupMessage.length *
-                        WARNING_POPUP_TEXT_SIZE *
-                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+                    width: TextHandlingService.calculateLengthOfLineOfText({
+                        text: button.popupMessage,
+                        fontStyle: WARNING_POPUP_FONT_STYLE,
+                    }),
                 })
             }
         }

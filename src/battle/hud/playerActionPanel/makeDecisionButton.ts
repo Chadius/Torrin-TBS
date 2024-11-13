@@ -1,22 +1,28 @@
-import { RectArea, RectAreaService } from "../ui/rectArea"
-import { RectangleHelper } from "../ui/rectangle"
-import { HUE_BY_SQUADDIE_AFFILIATION } from "../graphicsConstants"
-import { SquaddieAffiliation } from "./squaddieAffiliation"
-import { TextBox, TextBoxService } from "../ui/textBox"
-import { ButtonStatus } from "../ui/button"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { RectangleHelper } from "../../../ui/rectangle"
+import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { TextBox, TextBoxService } from "../../../ui/textBox"
+import { ButtonStatus } from "../../../ui/button"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../action/template/actionTemplate"
-import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
-import { ImageUI } from "../ui/imageUI"
-import { ResourceHandler } from "../resource/resourceHandler"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { AttributeModifierService, AttributeType } from "./attributeModifier"
+} from "../../../action/template/actionTemplate"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../../../utils/validityCheck"
+import { ImageUI } from "../../../ui/imageUI"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import {
+    AttributeModifierService,
+    AttributeType,
+} from "../../../squaddie/attributeModifier"
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../battle/objectRepository"
+} from "../../objectRepository"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     hover: {

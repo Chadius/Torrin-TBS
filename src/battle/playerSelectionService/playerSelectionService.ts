@@ -39,7 +39,7 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     WARNING_POPUP_TEXT_SIZE,
     WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-} from "../hud/battleHUD"
+} from "../hud/playerActionPanel/playerDecisionHUD"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",

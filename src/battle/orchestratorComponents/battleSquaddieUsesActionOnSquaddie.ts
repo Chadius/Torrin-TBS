@@ -18,7 +18,6 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { ActionComponentCalculator } from "../actionDecision/actionComponentCalculator"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"

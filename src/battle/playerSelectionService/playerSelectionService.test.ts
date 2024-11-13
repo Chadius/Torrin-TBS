@@ -48,11 +48,11 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import {
     WARNING_POPUP_TEXT_SIZE,
     WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-} from "../hud/battleHUD"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+} from "../hud/playerActionPanel/playerDecisionHUD"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState

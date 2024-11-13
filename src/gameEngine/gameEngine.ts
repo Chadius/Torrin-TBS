@@ -48,6 +48,7 @@ import { CutsceneMessageListener } from "../battle/cutscene/missionCutsceneServi
 import { BattleStateListener } from "../battle/orchestrator/battleState"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
+import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -274,7 +275,6 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE,
             MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
             MessageBoardMessageType.PLAYER_ENDS_TURN,
@@ -332,6 +332,14 @@ export class GameEngine {
         this.gameEngineState.messageBoard.addListener(
             this._battleOrchestrator.playerSquaddieSelector,
             MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
+        )
+
+        const playerDecisionHUDListener = new PlayerDecisionHUDListener(
+            "playerDecisionHUDListener"
+        )
+        this.gameEngineState.messageBoard.addListener(
+            playerDecisionHUDListener,
+            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
         )
     }
 
