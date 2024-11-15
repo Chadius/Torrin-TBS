@@ -32,6 +32,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { PopupWindow } from "./popupWindow"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -552,9 +553,14 @@ describe("playerCommandHUD", () => {
                 expect.objectContaining({
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: `blocked by test\nalso blocked by test`,
-                    coordinateSystem: CoordinateSystem.SCREEN,
                 })
+            )
+
+            const popupWindow: PopupWindow =
+                messageSpy.mock.calls[0][0].popupWindow
+            expect(popupWindow.coordinateSystem).toBe(CoordinateSystem.SCREEN)
+            expect(popupWindow.label.textBox.text).toBe(
+                `blocked by test\nalso blocked by test`
             )
 
             messageSpy.mockRestore()

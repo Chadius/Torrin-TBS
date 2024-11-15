@@ -4,7 +4,6 @@ import { BattleStateService } from "../../orchestrator/battleState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
-import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow, PopupWindowService } from "../popupWindow"
 import { LabelService } from "../../../ui/label"
@@ -94,12 +93,21 @@ describe("Player Decision HUD", () => {
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
             gameEngineState,
-            reason: "Need 2 action points",
-            selectionLocation: {
-                x: ScreenDimensions.SCREEN_WIDTH,
-                y: ScreenDimensions.SCREEN_HEIGHT,
-            },
-            coordinateSystem: CoordinateSystem.WORLD,
+            popupWindow: PopupWindowService.new({
+                coordinateSystem: CoordinateSystem.WORLD,
+                label: LabelService.new({
+                    fontColor: [],
+                    textBoxMargin: undefined,
+                    textSize: 10,
+                    text: "Need 2 action points",
+                    area: RectAreaService.new({
+                        left: 0,
+                        top: 0,
+                        right: 10,
+                        bottom: 10,
+                    }),
+                }),
+            }),
         })
 
         expect(

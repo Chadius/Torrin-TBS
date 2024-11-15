@@ -63,6 +63,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { PopupWindowService } from "./popupWindow"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -683,12 +684,14 @@ export const BattleHUDService = {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                 gameEngineState,
-                reason: "out of range",
-                selectionLocation: {
-                    x: screenX,
-                    y: screenY,
-                },
-                coordinateSystem: CoordinateSystem.WORLD,
+                popupWindow: PopupWindowService.newWarningWindow({
+                    screenX: screenX,
+                    screenY: screenY,
+                    camera: gameEngineState.battleOrchestratorState.battleState
+                        .camera,
+                    text: "out of range",
+                    coordinateSystem: CoordinateSystem.SCREEN,
+                }),
             })
             return
         }

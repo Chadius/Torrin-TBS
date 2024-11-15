@@ -29,11 +29,13 @@ import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 import {
     PlayerDecisionHUDService,
     PopupWindowType,
-    WARNING_POPUP_TEXT_SIZE,
-    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
 } from "./playerActionPanel/playerDecisionHUD"
 import { TextHandlingService } from "../../utils/graphics/textHandlingService"
-import { StyleFontConstants } from "../../cutscene/dialogue/constants"
+import {
+    DIALOGUE_FONT_STYLE_CONSTANTS,
+    WARNING_POPUP_TEXT_CONSTANTS,
+} from "../../cutscene/dialogue/constants"
+import { PopupWindowService } from "./popupWindow"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -45,16 +47,6 @@ export enum PlayerCommandSelection {
 export enum MoveButtonPurpose {
     HIDE = "HIDE",
     SHOW = "SHOW",
-}
-
-const WARNING_POPUP_FONT_STYLE: StyleFontConstants = {
-    color: [],
-    textSize: WARNING_POPUP_TEXT_SIZE,
-    widthRatio: {
-        uppercase: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-        number: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-        default: WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-    },
 }
 
 const DECISION_BUTTON_LAYOUT = {
@@ -287,19 +279,38 @@ export const PlayerCommandStateService = {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: button.popupMessage,
-                    selectionLocation: {
-                        x:
-                            RectAreaService.left(button.buttonArea) -
-                            WINDOW_SPACING.SPACING4,
-                        y:
-                            RectAreaService.bottom(button.buttonArea) +
-                            WINDOW_SPACING.SPACING1,
-                    },
-                    coordinateSystem: CoordinateSystem.SCREEN,
-                    width: TextHandlingService.calculateLengthOfLineOfText({
-                        text: button.popupMessage,
-                        fontStyle: WARNING_POPUP_FONT_STYLE,
+                    popupWindow: PopupWindowService.new({
+                        coordinateSystem: CoordinateSystem.SCREEN,
+                        label: LabelService.new({
+                            textSize:
+                                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP
+                                    .textSize,
+                            fontColor:
+                                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP
+                                    .fontColor,
+                            textBoxMargin:
+                                WARNING_POPUP_TEXT_CONSTANTS.label
+                                    .textBoxMargin,
+                            fillColor:
+                                WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
+                            text: button.popupMessage,
+                            area: RectAreaService.new({
+                                left:
+                                    RectAreaService.left(button.buttonArea) -
+                                    WINDOW_SPACING.SPACING4,
+                                top:
+                                    RectAreaService.bottom(button.buttonArea) +
+                                    WINDOW_SPACING.SPACING1,
+                                width: TextHandlingService.calculateLengthOfLineOfText(
+                                    {
+                                        text: button.popupMessage,
+                                        fontStyle:
+                                            DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP,
+                                    }
+                                ),
+                                height: WARNING_POPUP_TEXT_CONSTANTS.height,
+                            }),
+                        }),
                     }),
                 })
             }

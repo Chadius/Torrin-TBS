@@ -3,7 +3,9 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
+import p5 from "p5"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { TextBoxMargin } from "../../ui/label"
 
 export enum DialoguePosition {
     CENTER = "CENTER",
@@ -108,10 +110,11 @@ export const DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS: {
 
 export enum DialogueFontStyle {
     BLACK = "BLACK",
+    WARNING_POPUP = "WARNING_POPUP",
 }
 
 export interface StyleFontConstants {
-    color: number[]
+    fontColor: number[]
     textSize: number
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
@@ -122,12 +125,38 @@ export interface StyleFontConstants {
     }
 }
 
+export const WARNING_POPUP_TEXT_CONSTANTS: {
+    width: number
+    label: {
+        fillColor: number[]
+        vertAlign: p5.VERT_ALIGN
+    } & TextBoxMargin
+    height: number
+} = {
+    label: {
+        fillColor: [60, 40, 10],
+        vertAlign: VERTICAL_ALIGN.CENTER,
+        textBoxMargin: 8,
+    },
+    width: 150,
+    height: 80,
+}
+
 export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     [t in DialogueFontStyle]: StyleFontConstants
 } = {
     [DialogueFontStyle.BLACK]: {
-        color: [0, 0, 0],
+        fontColor: [0, 0, 0],
         textSize: WINDOW_SPACING.SPACING4,
+        widthRatio: {
+            uppercase: 0.8,
+            number: 0.8,
+            default: 0.5,
+        },
+    },
+    [DialogueFontStyle.WARNING_POPUP]: {
+        fontColor: [245, 20, 90],
+        textSize: 16,
         widthRatio: {
             uppercase: 0.8,
             number: 0.8,

@@ -34,6 +34,7 @@ import {
 } from "./playerSelectionContext"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessageType,
@@ -49,10 +50,9 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import {
-    WARNING_POPUP_TEXT_SIZE,
-    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-} from "../hud/playerActionPanel/playerDecisionHUD"
+import { PopupWindow, PopupWindowService } from "../hud/popupWindow"
+import { LabelService } from "../../ui/label"
+import { RectAreaService } from "../../ui/rectArea"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -974,19 +974,51 @@ describe("Player Selection Service", () => {
                 const expectedMessage: MessageBoardMessage = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason,
-                    selectionLocation: { x, y },
-                    coordinateSystem: CoordinateSystem.WORLD,
-                    width:
-                        reason.length *
-                        WARNING_POPUP_TEXT_SIZE *
-                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+                    popupWindow: PopupWindowService.new({
+                        coordinateSystem: CoordinateSystem.WORLD,
+                        label: LabelService.new({
+                            fontColor: [],
+                            textBoxMargin: undefined,
+                            textSize: 10,
+                            text: reason,
+                            area: RectAreaService.new({
+                                left: 0,
+                                top: 0,
+                                right: 10,
+                                bottom: 10,
+                            }),
+                        }),
+                    }),
                 }
 
                 expect(
                     gameEngineState.messageBoard.sendMessage
-                ).toHaveBeenCalledWith(expectedMessage)
-                expect(actualChanges.messageSent).toEqual(expectedMessage)
+                ).toHaveBeenCalled()
+                const popupWindow: PopupWindow = messageSpy.mock.calls.reduce(
+                    (popupWindowFound, args) => {
+                        if (
+                            args[0].type !==
+                            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+                        ) {
+                            return popupWindowFound
+                        }
+                        return args[0].popupWindow
+                    },
+                    undefined
+                )
+                expect(popupWindow.coordinateSystem).toBe(
+                    CoordinateSystem.SCREEN
+                )
+                expect(popupWindow.label.textBox.text).toBe(reason)
+
+                const actualMessageSent: MessageBoardMessagePlayerSelectionIsInvalid =
+                    actualChanges.messageSent as MessageBoardMessagePlayerSelectionIsInvalid
+                expect(actualMessageSent.popupWindow.coordinateSystem).toBe(
+                    CoordinateSystem.SCREEN
+                )
+                expect(actualMessageSent.popupWindow.label.textBox.text).toBe(
+                    reason
+                )
             })
         })
     })
@@ -1310,22 +1342,27 @@ describe("Player Selection Service", () => {
                     })
 
                 const reason = "PLAYER is out of range"
-                const expectedMessage: MessageBoardMessage = {
-                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                    gameEngineState,
-                    reason,
-                    selectionLocation: { x, y },
-                    coordinateSystem: CoordinateSystem.WORLD,
-                    width:
-                        reason.length *
-                        WARNING_POPUP_TEXT_SIZE *
-                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-                }
-
                 expect(
                     gameEngineState.messageBoard.sendMessage
-                ).toHaveBeenCalledWith(expectedMessage)
-                expect(actualChanges.messageSent).toEqual(expectedMessage)
+                ).toHaveBeenCalled()
+                const popupWindow: PopupWindow =
+                    messageSpy.mock.calls[0][0].popupWindow
+                expect(popupWindow.coordinateSystem).toBe(
+                    CoordinateSystem.SCREEN
+                )
+                expect(popupWindow.label.textBox.text).toBe(reason)
+
+                expect(actualChanges.messageSent.type).toEqual(
+                    MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+                )
+                const actualMessageSent: MessageBoardMessagePlayerSelectionIsInvalid =
+                    actualChanges.messageSent as MessageBoardMessagePlayerSelectionIsInvalid
+                expect(actualMessageSent.popupWindow.coordinateSystem).toBe(
+                    CoordinateSystem.SCREEN
+                )
+                expect(actualMessageSent.popupWindow.label.textBox.text).toBe(
+                    reason
+                )
             })
         })
     })

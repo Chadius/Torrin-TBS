@@ -11,7 +11,7 @@ describe("Text Handling Service", () => {
         "$inputString estimated length is close to: $approximateLength",
         ({ inputString, approximateLength }) => {
             const fontStyle: StyleFontConstants = {
-                color: [],
+                fontColor: [],
                 textSize: 1,
                 widthRatio: {
                     uppercase: 10,

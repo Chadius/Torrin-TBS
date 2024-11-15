@@ -94,7 +94,7 @@ export class DialogueTextBox {
             fillColor: rectStyle.fillColor,
             text: textToDraw.join("\n"),
             textSize: fontStyle.textSize,
-            fontColor: fontStyle.color,
+            fontColor: fontStyle.fontColor,
             horizAlign: fontStyle.horizAlign,
             vertAlign: fontStyle.vertAlign,
         })

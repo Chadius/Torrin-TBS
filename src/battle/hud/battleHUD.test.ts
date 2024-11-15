@@ -88,6 +88,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
+import { PopupWindow } from "./popupWindow"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -2080,10 +2081,24 @@ describe("Battle HUD", () => {
                     expect.objectContaining({
                         type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                         gameEngineState,
-                        reason: "out of range",
-                        coordinateSystem: CoordinateSystem.WORLD,
                     })
                 )
+                const popupWindow: PopupWindow = messageSpy.mock.calls.reduce(
+                    (popupWindowFound, args) => {
+                        if (
+                            args[0].type !==
+                            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
+                        ) {
+                            return popupWindowFound
+                        }
+                        return args[0].popupWindow
+                    },
+                    undefined
+                )
+                expect(popupWindow.coordinateSystem).toBe(
+                    CoordinateSystem.SCREEN
+                )
+                expect(popupWindow.label.textBox.text).toBe("out of range")
             })
 
             it("does not complete the action", () => {

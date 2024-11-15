@@ -6,6 +6,12 @@ import { isValidValue } from "../../utils/validityCheck"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    DIALOGUE_FONT_STYLE_CONSTANTS,
+    WARNING_POPUP_TEXT_CONSTANTS,
+} from "../../cutscene/dialogue/constants"
+import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 
 export interface PopupWindow {
     status: PopupWindowStatus
@@ -35,39 +41,55 @@ export const PopupWindowService = {
         label?: Label
         camera?: BattleCamera
         coordinateSystem?: CoordinateSystem
+    }): PopupWindow =>
+        newPopupWindow({ status, label, camera, coordinateSystem }),
+    newWarningWindow: ({
+        text,
+        camera,
+        screenX,
+        screenY,
+        coordinateSystem,
+    }: {
+        text: string
+        camera: BattleCamera
+        screenX: number
+        screenY: number
+        coordinateSystem: CoordinateSystem
     }): PopupWindow => {
-        const labelToAdd =
-            label ??
-            LabelService.new({
+        const worldCoordinates =
+            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
+                {
+                    screenX,
+                    screenY,
+                    ...camera.getCoordinates(),
+                }
+            )
+        const coordinates =
+            coordinateSystem === CoordinateSystem.SCREEN
+                ? { x: screenX, y: screenY }
+                : { x: worldCoordinates.worldX, y: worldCoordinates.worldY }
+
+        return PopupWindowService.new({
+            coordinateSystem,
+            label: LabelService.new({
+                textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+                fontColor:
+                    DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontColor,
+                textBoxMargin: WARNING_POPUP_TEXT_CONSTANTS.label.textBoxMargin,
+                fillColor: WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
+                text,
                 area: RectAreaService.new({
-                    left: 0,
-                    right: 100,
-                    top: 0,
-                    bottom: 100,
+                    left:
+                        coordinates.x - WARNING_POPUP_TEXT_CONSTANTS.width / 2,
+                    top: coordinates.y + HEX_TILE_WIDTH / 2,
+                    width: TextHandlingService.calculateLengthOfLineOfText({
+                        text,
+                        fontStyle: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP,
+                    }),
+                    height: WARNING_POPUP_TEXT_CONSTANTS.height,
                 }),
-                fontColor: [0, 0, 100],
-                textSize: 10,
-                text: "",
-                textBoxMargin: 0,
-            })
-
-        const fallbackCoordinateSystem: CoordinateSystem = isValidValue(camera)
-            ? CoordinateSystem.WORLD
-            : CoordinateSystem.SCREEN
-
-        return {
-            status: status ?? PopupWindowStatus.INACTIVE,
-            label: labelToAdd,
-            worldLocation: {
-                x: RectAreaService.left(labelToAdd.rectangle.area),
-                y: RectAreaService.top(labelToAdd.rectangle.area),
-            },
-            camera,
-            coordinateSystem:
-                coordinateSystem !== CoordinateSystem.UNKNOWN
-                    ? coordinateSystem
-                    : fallbackCoordinateSystem,
-        }
+            }),
+        })
     },
     changeStatus: (popup: PopupWindow, status: PopupWindowStatus) => {
         popup.status = status
@@ -161,4 +183,49 @@ const movePopupOnScreen = (popup: PopupWindow, camera: BattleCamera) => {
         left: xCoordinate + textBoxXOffset,
         top: yCoordinate + textBoxYOffset,
     })
+}
+
+const newPopupWindow = ({
+    status,
+    label,
+    camera,
+    coordinateSystem,
+}: {
+    status?: PopupWindowStatus
+    label?: Label
+    camera?: BattleCamera
+    coordinateSystem?: CoordinateSystem
+}): PopupWindow => {
+    const labelToAdd =
+        label ??
+        LabelService.new({
+            area: RectAreaService.new({
+                left: 0,
+                right: 100,
+                top: 0,
+                bottom: 100,
+            }),
+            fontColor: [0, 0, 100],
+            textSize: 10,
+            text: "",
+            textBoxMargin: 0,
+        })
+
+    const fallbackCoordinateSystem: CoordinateSystem = isValidValue(camera)
+        ? CoordinateSystem.WORLD
+        : CoordinateSystem.SCREEN
+
+    return {
+        status: status ?? PopupWindowStatus.INACTIVE,
+        label: labelToAdd,
+        worldLocation: {
+            x: RectAreaService.left(labelToAdd.rectangle.area),
+            y: RectAreaService.top(labelToAdd.rectangle.area),
+        },
+        camera,
+        coordinateSystem:
+            coordinateSystem !== CoordinateSystem.UNKNOWN
+                ? coordinateSystem
+                : fallbackCoordinateSystem,
+    }
 }

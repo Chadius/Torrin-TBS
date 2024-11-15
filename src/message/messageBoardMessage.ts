@@ -1,14 +1,12 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
-import {
-    CoordinateSystem,
-    HexCoordinate,
-} from "../hexMap/hexCoordinate/hexCoordinate"
+import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
+import { PopupWindow } from "../battle/hud/popupWindow"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -89,14 +87,7 @@ export interface MessageBoardMessageSquaddieIsInjured {
 export interface MessageBoardMessagePlayerSelectionIsInvalid {
     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
     gameEngineState: GameEngineState
-    reason: string
-    selectionLocation: {
-        x: number
-        y: number
-    }
-    coordinateSystem: CoordinateSystem
-    width?: number
-    height?: number
+    popupWindow: PopupWindow
 }
 
 export interface MessageBoardMessagePlayerCancelsTargetSelection {

@@ -36,10 +36,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    WARNING_POPUP_TEXT_SIZE,
-    WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
-} from "../hud/playerActionPanel/playerDecisionHUD"
+import { PopupWindowService } from "../hud/popupWindow"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -427,17 +424,14 @@ export const PlayerSelectionService = {
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
                     gameEngineState,
-                    reason: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
-                    selectionLocation: {
-                        x: context.mouseClick.x,
-                        y: context.mouseClick.y,
-                    },
-                    coordinateSystem: CoordinateSystem.WORLD,
-                    width:
-                        `${targetSquaddieTemplate.squaddieId.name} is out of range`
-                            .length *
-                        WARNING_POPUP_TEXT_SIZE *
-                        WARNING_POPUP_TEXT_WIDTH_MULTIPLIER,
+                    popupWindow: PopupWindowService.newWarningWindow({
+                        screenX: context.mouseClick.x,
+                        screenY: context.mouseClick.y,
+                        camera: gameEngineState.battleOrchestratorState
+                            .battleState.camera,
+                        text: `${targetSquaddieTemplate.squaddieId.name} is out of range`,
+                        coordinateSystem: CoordinateSystem.SCREEN,
+                    }),
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
