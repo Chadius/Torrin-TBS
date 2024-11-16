@@ -121,9 +121,10 @@ const constrainTextAndGetBoundingBox = ({
     const textToDraw = textPerLine.slice(0, rectStyle.maxNumberLinesOfText)
     const lengthOfLongestLine: number = Math.max(
         ...textToDraw.map((t) =>
-            TextHandlingService.calculateLengthOfLineOfText({
+            TextHandlingService.approximateLengthOfLineOfText({
                 text: t,
-                fontStyle,
+                strokeWeight: fontStyle.strokeWeight,
+                textSize: fontStyle.textSize,
             })
         )
     )

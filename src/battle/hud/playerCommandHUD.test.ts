@@ -33,6 +33,7 @@ import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow } from "./popupWindow"
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -526,7 +527,7 @@ describe("playerCommandHUD", () => {
             })
         })
 
-        it("will send a message to generate a pop up the action has a message", () => {
+        it("will send a message to generate a pop up message during the next draw phase", () => {
             validityCheckerSpy = jest
                 .spyOn(ValidityCheckService, "calculateActionValidity")
                 .mockReturnValue({
@@ -548,6 +549,16 @@ describe("playerCommandHUD", () => {
             hoverOverButton({
                 buttonArea: playerCommandState.actionButtons[0].buttonArea,
             })
+            expect(playerCommandState.newInvalidPopup).not.toBeUndefined()
+
+            let textHandlingSpy = jest
+                .spyOn(TextHandlingService, "calculateLengthOfLineOfText")
+                .mockReturnValue(5)
+            PlayerCommandStateService.createQueuedPopupIfNeeded({
+                playerCommandState,
+                gameEngineState,
+                graphicsBuffer: undefined,
+            })
 
             expect(messageSpy).toBeCalledWith(
                 expect.objectContaining({
@@ -555,6 +566,9 @@ describe("playerCommandHUD", () => {
                     gameEngineState,
                 })
             )
+
+            expect(textHandlingSpy).toBeCalled()
+            expect(playerCommandState.newInvalidPopup).toBeUndefined()
 
             const popupWindow: PopupWindow =
                 messageSpy.mock.calls[0][0].popupWindow
@@ -564,6 +578,7 @@ describe("playerCommandHUD", () => {
             )
 
             messageSpy.mockRestore()
+            textHandlingSpy.mockRestore()
         })
         it("will not send a message to generate a pop up if the action lacks a warning message", () => {
             validityCheckerSpy = jest

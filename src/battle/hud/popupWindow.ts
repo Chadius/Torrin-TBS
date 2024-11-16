@@ -69,6 +69,13 @@ export const PopupWindowService = {
                 ? { x: screenX, y: screenY }
                 : { x: worldCoordinates.worldX, y: worldCoordinates.worldY }
 
+        const popupWidth = TextHandlingService.approximateLengthOfLineOfText({
+            text,
+            strokeWeight:
+                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
+            textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+        })
+
         return PopupWindowService.new({
             coordinateSystem,
             label: LabelService.new({
@@ -79,14 +86,10 @@ export const PopupWindowService = {
                 fillColor: WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
                 text,
                 area: RectAreaService.new({
-                    left:
-                        coordinates.x - WARNING_POPUP_TEXT_CONSTANTS.width / 2,
+                    left: coordinates.x - popupWidth / 2,
                     top: coordinates.y + HEX_TILE_WIDTH / 2,
-                    width: TextHandlingService.calculateLengthOfLineOfText({
-                        text,
-                        fontStyle: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP,
-                    }),
-                    height: WARNING_POPUP_TEXT_CONSTANTS.height,
+                    width: popupWidth,
+                    height: WARNING_POPUP_TEXT_CONSTANTS.minHeight,
                 }),
             }),
         })

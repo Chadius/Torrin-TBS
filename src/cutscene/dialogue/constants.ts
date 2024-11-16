@@ -118,6 +118,7 @@ export interface StyleFontConstants {
     textSize: number
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
+    strokeWeight: number
     widthRatio: {
         uppercase: number
         number: number
@@ -125,21 +126,19 @@ export interface StyleFontConstants {
     }
 }
 
-export const WARNING_POPUP_TEXT_CONSTANTS: {
-    width: number
+export interface PopupWindowConstants {
     label: {
         fillColor: number[]
-        vertAlign: p5.VERT_ALIGN
     } & TextBoxMargin
-    height: number
-} = {
+    minHeight: number
+}
+
+export const WARNING_POPUP_TEXT_CONSTANTS: PopupWindowConstants = {
     label: {
         fillColor: [60, 40, 10],
-        vertAlign: VERTICAL_ALIGN.CENTER,
         textBoxMargin: 8,
     },
-    width: 150,
-    height: 80,
+    minHeight: 80,
 }
 
 export const DIALOGUE_FONT_STYLE_CONSTANTS: {
@@ -148,6 +147,7 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     [DialogueFontStyle.BLACK]: {
         fontColor: [0, 0, 0],
         textSize: WINDOW_SPACING.SPACING4,
+        strokeWeight: 4,
         widthRatio: {
             uppercase: 0.8,
             number: 0.8,
@@ -157,10 +157,11 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     [DialogueFontStyle.WARNING_POPUP]: {
         fontColor: [245, 20, 90],
         textSize: 16,
+        strokeWeight: 4,
         widthRatio: {
             uppercase: 0.8,
             number: 0.8,
-            default: 0.5,
+            default: 0.62,
         },
     },
 }

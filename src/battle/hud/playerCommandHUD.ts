@@ -93,6 +93,10 @@ export interface PlayerCommandState {
     selectedActionTemplateId: string
     playerSelectedEndTurn: boolean
     playerCommandWindow?: { area: RectArea }
+    newInvalidPopup: {
+        buttonArea: RectArea
+        message: string
+    }
 
     squaddieAffiliationHue: number
     actionButtons: MakeDecisionButton[]
@@ -112,6 +116,7 @@ export interface PlayerCommandState {
 export const PlayerCommandStateService = {
     new: (): PlayerCommandState => {
         return {
+            newInvalidPopup: undefined,
             playerSelectedSquaddieAction: false,
             selectedActionTemplateId: undefined,
             playerSelectedEndTurn: false,
@@ -276,43 +281,10 @@ export const PlayerCommandStateService = {
                 isMouseInsideButton &&
                 button.popupMessage
             ) {
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                    gameEngineState,
-                    popupWindow: PopupWindowService.new({
-                        coordinateSystem: CoordinateSystem.SCREEN,
-                        label: LabelService.new({
-                            textSize:
-                                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP
-                                    .textSize,
-                            fontColor:
-                                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP
-                                    .fontColor,
-                            textBoxMargin:
-                                WARNING_POPUP_TEXT_CONSTANTS.label
-                                    .textBoxMargin,
-                            fillColor:
-                                WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
-                            text: button.popupMessage,
-                            area: RectAreaService.new({
-                                left:
-                                    RectAreaService.left(button.buttonArea) -
-                                    WINDOW_SPACING.SPACING4,
-                                top:
-                                    RectAreaService.bottom(button.buttonArea) +
-                                    WINDOW_SPACING.SPACING1,
-                                width: TextHandlingService.calculateLengthOfLineOfText(
-                                    {
-                                        text: button.popupMessage,
-                                        fontStyle:
-                                            DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP,
-                                    }
-                                ),
-                                height: WARNING_POPUP_TEXT_CONSTANTS.height,
-                            }),
-                        }),
-                    }),
-                })
+                playerCommandState.newInvalidPopup = {
+                    buttonArea: button.buttonArea,
+                    message: button.popupMessage,
+                }
             }
         }
 
@@ -331,6 +303,12 @@ export const PlayerCommandStateService = {
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
     }) {
+        createQueuedPopupIfNeeded(
+            playerCommandState,
+            graphicsBuffer,
+            gameEngineState
+        )
+
         drawMoveButton(playerCommandState, graphicsBuffer)
 
         if (isCommandWindowHidden(playerCommandState)) {
@@ -343,6 +321,20 @@ export const PlayerCommandStateService = {
 
         drawEndTurnButton(playerCommandState, graphicsBuffer)
     },
+    createQueuedPopupIfNeeded: ({
+        playerCommandState,
+        graphicsBuffer,
+        gameEngineState,
+    }: {
+        playerCommandState: PlayerCommandState
+        graphicsBuffer: GraphicsBuffer
+        gameEngineState: GameEngineState
+    }) =>
+        createQueuedPopupIfNeeded(
+            playerCommandState,
+            graphicsBuffer,
+            gameEngineState
+        ),
 }
 
 const getPlayerCommandWindowAreaBasedOnMouse = (
@@ -725,4 +717,52 @@ const drawEndTurnButton = (
 
         RectangleHelper.draw(hoverOutline, graphicsBuffer)
     }
+}
+
+const createQueuedPopupIfNeeded = (
+    playerCommandState: PlayerCommandState,
+    graphicsBuffer: GraphicsBuffer,
+    gameEngineState: GameEngineState
+) => {
+    if (!playerCommandState.newInvalidPopup) {
+        return
+    }
+    const windowWidth: number = TextHandlingService.calculateLengthOfLineOfText(
+        {
+            text: playerCommandState.newInvalidPopup.message,
+            textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+            strokeWeight:
+                DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
+            graphicsContext: graphicsBuffer,
+        }
+    )
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+        gameEngineState,
+        popupWindow: PopupWindowService.new({
+            coordinateSystem: CoordinateSystem.SCREEN,
+            label: LabelService.new({
+                textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+                fontColor:
+                    DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontColor,
+                textBoxMargin: WARNING_POPUP_TEXT_CONSTANTS.label.textBoxMargin,
+                fillColor: WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
+                text: playerCommandState.newInvalidPopup.message,
+                area: RectAreaService.new({
+                    left:
+                        RectAreaService.left(
+                            playerCommandState.newInvalidPopup.buttonArea
+                        ) -
+                        windowWidth / 2,
+                    top:
+                        RectAreaService.bottom(
+                            playerCommandState.newInvalidPopup.buttonArea
+                        ) + WINDOW_SPACING.SPACING1,
+                    width: windowWidth,
+                    height: WARNING_POPUP_TEXT_CONSTANTS.minHeight,
+                }),
+            }),
+        }),
+    })
+    playerCommandState.newInvalidPopup = undefined
 }

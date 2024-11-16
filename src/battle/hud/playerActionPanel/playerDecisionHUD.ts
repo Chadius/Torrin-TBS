@@ -12,8 +12,6 @@ import {
     PopupWindowStatus,
 } from "../popupWindow"
 
-export const WARNING_POPUP_TEXT_SIZE = 16
-export const WARNING_POPUP_TEXT_WIDTH_MULTIPLIER = 0.5
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
 export class PlayerDecisionHUDListener implements MessageBoardListener {

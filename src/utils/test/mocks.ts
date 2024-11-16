@@ -197,6 +197,10 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         this.mockedP5.textSize(size)
     }
 
+    textWidth(text: string): number {
+        return this.mockedP5.textWidth(text)
+    }
+
     tint(
         hue: number,
         saturation: number,

@@ -68,6 +68,8 @@ export interface GraphicsBuffer {
 
     textSize(size: number): void
 
+    textWidth(text: string): number
+
     tint(
         hue: number,
         saturation: number,
