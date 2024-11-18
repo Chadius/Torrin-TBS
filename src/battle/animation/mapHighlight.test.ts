@@ -29,11 +29,12 @@ import {
     CampaignResources,
     CampaignResourcesService,
 } from "../../campaign/campaignResources"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -63,10 +64,12 @@ describe("map highlight generator", () => {
         meleeAndRangedAction = ActionTemplateService.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 2,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 2,
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),

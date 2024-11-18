@@ -17,7 +17,7 @@ import {
 } from "../action/template/actionTemplate"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
@@ -49,6 +49,7 @@ import { BattleActionDecisionStepService } from "../battle/actionDecision/battle
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionsDuringTurnService } from "../battle/history/battleAction/battleActionsDuringTurn"
+import { TargetConstraintsService } from "../action/targetConstraints"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -73,14 +74,16 @@ describe("User cancels the previewed action", () => {
             id: "action",
             name: "action",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_FOE]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })

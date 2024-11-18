@@ -21,9 +21,9 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import {
     BattleActionSquaddieChange,
@@ -54,7 +54,7 @@ describe("TargetTextWindow", () => {
             id: "attack",
             name: "attack action",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },
@@ -70,7 +70,7 @@ describe("TargetTextWindow", () => {
             id: "heal",
             name: "healing action",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     healingDescriptions: {
                         [HealingType.LOST_HIT_POINTS]: 3,
                     },
@@ -125,7 +125,7 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(targetWindow.targetLabel.textBox.text).toContain(
@@ -139,7 +139,7 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(targetWindow.targetLabel.textBox.text).toContain(
@@ -166,7 +166,7 @@ describe("TargetTextWindow", () => {
                 targetBattle: targetBattle,
                 result: targetResultTakenDamage,
                 actionEffectSquaddieTemplate: attackAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
             })
 
             expect(targetWindow.targetLabel.textBox.text).toContain(
@@ -186,7 +186,7 @@ describe("TargetTextWindow", () => {
                 targetBattle: targetBattle,
                 result: targetResultTakenDamage,
                 actionEffectSquaddieTemplate: attackAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
             })
 
             expect(targetWindow.targetLabel.textBox.text).toContain(
@@ -207,7 +207,7 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
             actionEffectSquaddieTemplate: healingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(targetWindow.targetLabel.textBox.text).not.toContain(
@@ -221,7 +221,7 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         const timerSpy = jest
@@ -244,7 +244,7 @@ describe("TargetTextWindow", () => {
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
             },
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         const timerSpy = jest
@@ -271,7 +271,7 @@ describe("TargetTextWindow", () => {
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
             }),
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         const timerSpy = jest
@@ -290,7 +290,7 @@ describe("TargetTextWindow", () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
             result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageExplanation: DamageExplanationService.new({
@@ -315,7 +315,7 @@ describe("TargetTextWindow", () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
             result: BattleActionSquaddieChangeService.new({
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageExplanation: DamageExplanationService.new({
@@ -350,7 +350,7 @@ describe("TargetTextWindow", () => {
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
             actionEffectSquaddieTemplate: healingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         const timerSpy = jest

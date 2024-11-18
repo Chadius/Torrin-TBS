@@ -32,7 +32,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -41,6 +41,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -76,8 +77,12 @@ describe("BattleSquaddieTarget", () => {
         longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: longswordActionId,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
@@ -85,8 +90,6 @@ describe("BattleSquaddieTarget", () => {
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: longswordActionDamage,
                     },
@@ -102,14 +105,16 @@ describe("BattleSquaddieTarget", () => {
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
                         [Trait.TARGET_ALLY]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })
@@ -449,13 +454,15 @@ describe("BattleSquaddieTarget", () => {
                 const action = ActionTemplateService.new({
                     id: name,
                     name,
+                    targetConstraints: TargetConstraintsService.new({
+                        minimumRange: 0,
+                        maximumRange: 9001,
+                    }),
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 traits
                             ),
-                            minimumRange: 0,
-                            maximumRange: 9001,
                         }),
                     ],
                 })

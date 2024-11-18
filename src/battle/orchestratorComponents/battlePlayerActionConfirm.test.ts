@@ -27,7 +27,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -36,6 +36,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("BattleActionConfirm", () => {
     let playerActionConfirm: BattlePlayerActionConfirm
@@ -65,16 +66,18 @@ describe("BattleActionConfirm", () => {
         longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },

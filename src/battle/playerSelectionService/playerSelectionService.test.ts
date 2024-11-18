@@ -2,7 +2,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -53,6 +53,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { PopupWindow, PopupWindowService } from "../hud/popupWindow"
 import { LabelService } from "../../ui/label"
 import { RectAreaService } from "../../ui/rectArea"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -971,26 +972,6 @@ describe("Player Selection Service", () => {
                     })
 
                 const reason = "ENEMY is out of range"
-                const expectedMessage: MessageBoardMessage = {
-                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                    gameEngineState,
-                    popupWindow: PopupWindowService.new({
-                        coordinateSystem: CoordinateSystem.WORLD,
-                        label: LabelService.new({
-                            fontColor: [],
-                            textBoxMargin: undefined,
-                            textSize: 10,
-                            text: reason,
-                            area: RectAreaService.new({
-                                left: 0,
-                                top: 0,
-                                right: 10,
-                                bottom: 10,
-                            }),
-                        }),
-                    }),
-                }
-
                 expect(
                     gameEngineState.messageBoard.sendMessage
                 ).toHaveBeenCalled()
@@ -1667,15 +1648,17 @@ const createSquaddie = ({
             ActionTemplateService.new({
                 id: "melee",
                 name: "melee",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                             [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 1,
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
@@ -1692,15 +1675,17 @@ const createSquaddie = ({
             ActionTemplateService.new({
                 id: "ranged",
                 name: "ranged",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 1,
+                    maximumRange: 2,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                             [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
-                        minimumRange: 1,
-                        maximumRange: 2,
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
@@ -1717,15 +1702,17 @@ const createSquaddie = ({
             ActionTemplateService.new({
                 id: "heal",
                 name: "heal",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_SELF]: true,
                             [Trait.TARGET_ALLY]: true,
                             [Trait.HEALING]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 1,
                         healingDescriptions: {
                             [HealingType.LOST_HIT_POINTS]: 1,
                         },

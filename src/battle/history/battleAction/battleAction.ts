@@ -8,11 +8,10 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { ActionEffectType } from "../../../action/template/actionEffectTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import { BattleActionActionContext } from "./battleActionActionContext"
 
 export const MULTIPLE_ATTACK_PENALTY = -3
@@ -98,16 +97,14 @@ export const BattleActionService = {
             battleAction.action.actionTemplateId
         )
 
-        const rawMAP: number = actionTemplate.actionEffectTemplates
-            .filter((e) => e.type === ActionEffectType.SQUADDIE)
-            .reduce(
-                (accumulator, actionEffectTemplate) =>
-                    accumulator +
-                    ActionEffectSquaddieTemplateService.getMultipleAttackPenalty(
-                        actionEffectTemplate as ActionEffectSquaddieTemplate
-                    ),
-                0
-            )
+        const rawMAP: number = actionTemplate.actionEffectTemplates.reduce(
+            (accumulator, actionEffectTemplate) =>
+                accumulator +
+                ActionEffectTemplateService.getMultipleAttackPenalty(
+                    actionEffectTemplate as ActionEffectTemplate
+                ),
+            0
+        )
 
         return convertRawPenaltyMultiplier(
             Math.min(rawMAP, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX)

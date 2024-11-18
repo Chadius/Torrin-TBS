@@ -18,7 +18,7 @@ export enum MissionAttributeIconKey {
     ARMOR_CLASS = "ARMOR_CLASS",
 }
 
-export enum ActionEffectSquaddieTemplateButtonIconKey {
+export enum ActionEffectTemplateButtonIconKey {
     UNKNOWN = "UNKNOWN",
 }
 
@@ -38,7 +38,7 @@ export interface CampaignResources {
         [attributeIconKey in MissionAttributeIconKey]: string
     }
     actionEffectSquaddieTemplateButtonIcons: {
-        [iconKey in ActionEffectSquaddieTemplateButtonIconKey]: string
+        [iconKey in ActionEffectTemplateButtonIconKey]: string
     }
     mapTiles: MapTilesResources
     attributeComparisons: {
@@ -75,7 +75,7 @@ export const CampaignResourcesService = {
                 [MissionAttributeIconKey.ARMOR_CLASS]: "armor class icon",
             },
             actionEffectSquaddieTemplateButtonIcons: {
-                [ActionEffectSquaddieTemplateButtonIconKey.UNKNOWN]:
+                [ActionEffectTemplateButtonIconKey.UNKNOWN]:
                     "decision-button-unknown",
             },
             mapTiles: {

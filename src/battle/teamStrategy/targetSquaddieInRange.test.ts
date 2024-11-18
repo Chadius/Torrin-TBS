@@ -18,7 +18,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     BattleActionDecisionStep,
@@ -30,6 +30,7 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
@@ -51,15 +52,17 @@ describe("target a squaddie within reach of actions", () => {
             name: "short bow",
             id: "short_bow",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 2,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                         [Trait.TARGET_FOE]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 2,
                 }),
             ],
         })
@@ -365,14 +368,16 @@ describe("target a squaddie within reach of actions", () => {
             name: "long bow",
             id: "long_bow",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 2,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 2,
                 }),
             ],
         })

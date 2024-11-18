@@ -22,7 +22,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
@@ -105,7 +105,7 @@ describe("PlayerHUDController", () => {
                 id: "single target",
                 name: "single target",
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         damageDescriptions: { [DamageType.BODY]: 2 },
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             TARGET_FOE: true,

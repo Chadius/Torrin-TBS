@@ -34,7 +34,7 @@ import {
     SquaddieSummaryPopoverService,
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { BattleHUDStateService } from "../hud/battleHUDState"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
@@ -372,7 +372,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                         targetBattleSquaddie.battleSquaddieId,
                     actionTraits: (
                         actionTemplate
-                            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                            .actionEffectTemplates[0] as ActionEffectTemplate
                     ).traits,
                     targetAffiliation:
                         targetSquaddieTemplate.squaddieId.affiliation,

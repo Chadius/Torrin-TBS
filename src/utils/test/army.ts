@@ -11,8 +11,9 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -100,10 +101,12 @@ export const TestArmyPlayerData = () => {
         ActionTemplateService.new({
             id: "torrin_water_cannon",
             name: "water cannon",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 2,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 2,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             ATTACK: true,
@@ -122,10 +125,12 @@ export const TestArmyPlayerData = () => {
             id: "young_torrin_healing_touch",
             name: "healing touch",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             ALWAYS_SUCCEEDS: true,
@@ -144,10 +149,12 @@ export const TestArmyPlayerData = () => {
         ActionTemplateService.new({
             id: "sir_camil_longsword",
             name: "longsword",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             ATTACK: true,

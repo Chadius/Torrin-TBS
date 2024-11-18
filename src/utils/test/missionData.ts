@@ -16,7 +16,7 @@ import {
 } from "../../battle/orchestrator/missionCutsceneCollection"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     ActionDecisionType,
     ActionTemplate,
@@ -703,10 +703,13 @@ export const TestMissionData = () => {
             id: "demon_slither_bite",
             name: "Bite",
             actionPoints: 1,
+            targetConstraints: {
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.SNAKE,
+            },
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             [Trait.ATTACK]: true,
@@ -717,7 +720,6 @@ export const TestMissionData = () => {
                         [DamageType.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    targetingShape: TargetingShape.SNAKE,
                     actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],
@@ -727,10 +729,13 @@ export const TestMissionData = () => {
             id: "short_sword",
             name: "Short sword",
             actionPoints: 1,
+            targetConstraints: {
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.SNAKE,
+            },
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             [Trait.ATTACK]: true,
@@ -740,7 +745,6 @@ export const TestMissionData = () => {
                         [DamageType.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    targetingShape: TargetingShape.SNAKE,
                     actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],
@@ -750,10 +754,13 @@ export const TestMissionData = () => {
             id: "ignition",
             name: "Ignition",
             actionPoints: 1,
+            targetConstraints: {
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.SNAKE,
+            },
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: {
                         booleanTraits: {
                             [Trait.ATTACK]: true,
@@ -763,7 +770,6 @@ export const TestMissionData = () => {
                         [DamageType.BODY]: 1,
                     },
                     healingDescriptions: {},
-                    targetingShape: TargetingShape.SNAKE,
                     actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
                 }),
             ],

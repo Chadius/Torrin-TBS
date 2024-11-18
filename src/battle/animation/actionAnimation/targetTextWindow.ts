@@ -11,7 +11,7 @@ import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import { ActionTimer } from "./actionTimer"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { ActionResultTextService } from "../actionResultTextService"
-import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 
@@ -61,7 +61,7 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
         result: BattleActionSquaddieChange
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     }) {
         this.reset()
 
@@ -102,7 +102,7 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
         result: BattleActionSquaddieChange
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     }) {
         this._targetBeforeActionText =
             ActionResultTextService.getBeforeActionText({

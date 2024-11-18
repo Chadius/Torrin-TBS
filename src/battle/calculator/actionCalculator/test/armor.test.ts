@@ -13,7 +13,7 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import { ActionEffectSquaddieTemplateService } from "../../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../../../action/template/actionEffectTemplate"
 import { DamageType } from "../../../../squaddie/squaddieService"
 import {
     Trait,
@@ -41,6 +41,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../../actionDecision/battleActionDecisionStep"
+import { TargetConstraintsService } from "../../../../action/targetConstraints"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie
@@ -62,13 +63,15 @@ describe("Armor Attribute affects Armor Attacks", () => {
         armorAttackingAction = ActionTemplateService.new({
             id: "armorAttackingAction",
             name: "ArmorAttackingAction",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.UNKNOWN]: 1,
                     },
-                    minimumRange: 1,
-                    maximumRange: 1,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_FOE]: true,
@@ -204,13 +207,15 @@ describe("Armor Attribute affects Armor Attacks", () => {
         const armorIgnoringAction = ActionTemplateService.new({
             id: "armorIgnoringAction",
             name: "ArmorIgnoringAction",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.UNKNOWN]: 1,
                     },
-                    minimumRange: 1,
-                    maximumRange: 1,
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.TARGET_FOE]: true,

@@ -17,8 +17,7 @@ import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { ActionTemplate } from "../../action/template/actionTemplate"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../utils/validityCheck"
 import {
     BattleActionDecisionStep,
@@ -188,20 +187,16 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         | undefined {
         let actionsWithTargets = actionTemplates
             .map((actionTemplate) => {
-                const firstActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate =
-                    actionTemplate.actionEffectTemplates.find(
-                        (actionEffectTemplate) =>
-                            actionEffectTemplate.type ===
-                            ActionEffectType.SQUADDIE
-                    ) as ActionEffectSquaddieTemplate
-                if (!isValidValue(firstActionEffectSquaddieTemplate)) {
+                const firstActionEffectTemplate: ActionEffectTemplate =
+                    actionTemplate.actionEffectTemplates[0]
+                if (!isValidValue(firstActionEffectTemplate)) {
                     return undefined
                 }
                 const results: TargetingResults =
                     TargetingResultsService.findValidTargets({
                         map: missionMap,
-                        actionEffectSquaddieTemplate:
-                            firstActionEffectSquaddieTemplate,
+                        actionTemplate,
+                        actionEffectSquaddieTemplate: firstActionEffectTemplate,
                         actingSquaddieTemplate: squaddieTemplate,
                         actingBattleSquaddie: battleSquaddie,
                         squaddieRepository: objectRepository,

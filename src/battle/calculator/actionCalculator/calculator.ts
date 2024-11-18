@@ -32,7 +32,7 @@ import { CalculatorAttack } from "./attack"
 import { CalculatorMiscellaneous } from "./miscellaneous"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionDecisionStep } from "../../actionDecision/battleActionDecisionStep"
-import { ActionEffectSquaddieTemplate } from "../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -88,33 +88,35 @@ const calculateResults = ({
             battleActionDecisionStep.action.actionTemplateId
         )
 
-    return ActionTemplateService.getActionEffectSquaddieTemplates(
-        actionTemplate
-    ).map((actionEffectSquaddieTemplate) => {
-        const targetedBattleSquaddieIds = getBattleSquaddieIdsAtGivenLocations({
-            gameEngineState,
-            locations: [validTargetLocation],
-        })
+    return ActionTemplateService.getActionEffectTemplates(actionTemplate).map(
+        (actionEffectSquaddieTemplate) => {
+            const targetedBattleSquaddieIds =
+                getBattleSquaddieIdsAtGivenLocations({
+                    gameEngineState,
+                    locations: [validTargetLocation],
+                })
 
-        const actionContext = getActorContext({
-            gameEngineState,
-            actionEffectSquaddieTemplate,
-        })
-        const squaddieChanges = getSquaddieChangesForThisEffectSquaddieTemplate(
-            targetedBattleSquaddieIds,
-            gameEngineState,
-            actionContext,
-            actionEffectSquaddieTemplate,
-            actingBattleSquaddie
-        )
+            const actionContext = getActorContext({
+                gameEngineState,
+                actionEffectSquaddieTemplate,
+            })
+            const squaddieChanges =
+                getSquaddieChangesForThisEffectSquaddieTemplate(
+                    targetedBattleSquaddieIds,
+                    gameEngineState,
+                    actionContext,
+                    actionEffectSquaddieTemplate,
+                    actingBattleSquaddie
+                )
 
-        return SquaddieSquaddieResultsService.new({
-            actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-            targetedBattleSquaddieIds: targetedBattleSquaddieIds,
-            squaddieChanges,
-            actionContext,
-        })
-    })
+            return SquaddieSquaddieResultsService.new({
+                actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+                targetedBattleSquaddieIds: targetedBattleSquaddieIds,
+                squaddieChanges,
+                actionContext,
+            })
+        }
+    )
 }
 
 const getActorContext = ({
@@ -122,7 +124,7 @@ const getActorContext = ({
     actionEffectSquaddieTemplate,
 }: {
     gameEngineState: GameEngineState
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
 }): BattleActionActionContext => {
     if (isAnAttack(actionEffectSquaddieTemplate)) {
         return CalculatorAttack.getActorContext({
@@ -140,7 +142,7 @@ const getTargetContext = ({
     actionEffectSquaddieTemplate,
     targetedBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
     targetedBattleSquaddie: BattleSquaddie
 }): AttributeTypeAndAmount[] => {
     if (isAnAttack(actionEffectSquaddieTemplate)) {
@@ -162,7 +164,7 @@ const getDegreeOfSuccess = ({
     actionContext,
     actingBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
     targetedBattleSquaddie: BattleSquaddie
     actingBattleSquaddie: BattleSquaddie
     actionContext: BattleActionActionContext
@@ -191,7 +193,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
     targetedSquaddieTemplate,
     targetedBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
     actionContext: BattleActionActionContext
     degreeOfSuccess: DegreeOfSuccess
     targetedSquaddieTemplate: SquaddieTemplate
@@ -366,7 +368,7 @@ const getBattleSquaddieIdsAtGivenLocations = ({
 }
 
 const isAnAttack = (
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
 ): boolean =>
     TraitStatusStorageService.getStatus(
         actionEffectSquaddieTemplate.traits,
@@ -404,7 +406,7 @@ const getSquaddieChangesForThisEffectSquaddieTemplate = (
     targetedBattleSquaddieIds: string[],
     gameEngineState: GameEngineState,
     actionContext: BattleActionActionContext,
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+    actionEffectSquaddieTemplate: ActionEffectTemplate,
     actingBattleSquaddie: BattleSquaddie
 ) => {
     const squaddieChanges: BattleActionSquaddieChange[] = []

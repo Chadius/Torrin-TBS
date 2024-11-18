@@ -22,9 +22,8 @@ import {
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
 import {
     Trait,
@@ -79,9 +78,11 @@ export const TargetingResultsService = {
         squaddieRepository,
         sourceTiles,
         actionEffectSquaddieTemplate,
+        actionTemplate,
     }: {
         map: MissionMap
-        actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate?: ActionEffectTemplate
+        actionTemplate: ActionTemplate
         actingSquaddieTemplate: SquaddieTemplate
         actingBattleSquaddie: BattleSquaddie
         squaddieRepository: ObjectRepository
@@ -89,6 +90,7 @@ export const TargetingResultsService = {
     }): TargetingResults => {
         return findValidTargets({
             map,
+            actionTemplate,
             actingSquaddieTemplate,
             actingBattleSquaddie,
             squaddieRepository,
@@ -131,9 +133,11 @@ const findValidTargets = ({
     squaddieRepository,
     sourceTiles,
     actionEffectSquaddieTemplate,
+    actionTemplate,
 }: {
     map: MissionMap
-    actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate?: ActionEffectTemplate
+    actionTemplate: ActionTemplate
     actingSquaddieTemplate: SquaddieTemplate
     actingBattleSquaddie: BattleSquaddie
     squaddieRepository: ObjectRepository
@@ -157,10 +161,12 @@ const findValidTargets = ({
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,
-            minimumDistanceMoved: actionEffectSquaddieTemplate.minimumRange,
-            maximumDistanceMoved: actionEffectSquaddieTemplate.maximumRange,
+            minimumDistanceMoved: actionTemplate.targetConstraints.minimumRange,
+            maximumDistanceMoved: actionTemplate.targetConstraints.maximumRange,
             shapeGenerator: getResultOrThrowError(
-                GetTargetingShapeGenerator(TargetingShape.SNAKE)
+                GetTargetingShapeGenerator(
+                    actionTemplate.targetConstraints.targetingShape
+                )
             ),
             movementPerAction: undefined,
             canPassOverPits: false,
@@ -343,12 +349,10 @@ const highlightTargetRange = (
 
     const actionEffectSquaddieTemplate =
         previewedActionTemplate.actionEffectTemplates[0]
-    if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
-        return []
-    }
 
     const targetingResults = TargetingResultsService.findValidTargets({
         map: gameEngineState.battleOrchestratorState.battleState.missionMap,
+        actionTemplate: previewedActionTemplate,
         actionEffectSquaddieTemplate,
         actingSquaddieTemplate: squaddieTemplate,
         actingBattleSquaddie: battleSquaddie,

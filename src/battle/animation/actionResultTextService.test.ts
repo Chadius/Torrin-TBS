@@ -11,9 +11,9 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -32,6 +32,7 @@ import {
 } from "../../squaddie/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -57,15 +58,17 @@ describe("Action Result Text Writer", () => {
         longswordSweepAction = ActionTemplateService.new({
             id: "longsword",
             name: "Longsword Sweep",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                         [Trait.TARGET_FOE]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })
@@ -74,15 +77,17 @@ describe("Action Result Text Writer", () => {
             id: "Bandages",
             name: "Bandage Wounds",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
                         [Trait.TARGET_ALLY]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })
@@ -168,8 +173,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingChanges,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -213,8 +218,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: bandageWoundsAction.name,
-                currentActionEffectSquaddieTemplate: bandageWoundsAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: bandageWoundsAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: healingChanges,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -241,7 +246,7 @@ describe("Action Result Text Writer", () => {
                 id: "raiseShield",
                 name: "Raise Shield",
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_SELF]: true,
                         }),
@@ -281,8 +286,8 @@ describe("Action Result Text Writer", () => {
             const outputStrings: string[] =
                 ActionResultTextService.outputResultForTextOnly({
                     actionTemplateName: "Raise Shield",
-                    currentActionEffectSquaddieTemplate: raiseShieldAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    currentActionEffectTemplate: raiseShieldAction
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                     battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -332,8 +337,8 @@ describe("Action Result Text Writer", () => {
             const outputStrings: string[] =
                 ActionResultTextService.outputResultForTextOnly({
                     actionTemplateName: "Raise Shield",
-                    currentActionEffectSquaddieTemplate: raiseShieldAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    currentActionEffectTemplate: raiseShieldAction
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                     battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -360,7 +365,7 @@ describe("Action Result Text Writer", () => {
                 id: "dash",
                 name: "dash",
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_SELF]: true,
                         }),
@@ -410,8 +415,8 @@ describe("Action Result Text Writer", () => {
             const outputStrings: string[] =
                 ActionResultTextService.outputResultForTextOnly({
                     actionTemplateName: "dash",
-                    currentActionEffectSquaddieTemplate: dashAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                    currentActionEffectTemplate: dashAction
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                     battleActionSquaddieChanges: movementChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -435,8 +440,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputIntentForTextOnly({
                 actionTemplate: longswordSweepAction,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 actingSquaddieModifiers: [],
@@ -450,8 +455,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputIntentForTextOnly({
                 actionTemplate: longswordSweepAction,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 actingSquaddieModifiers: [
@@ -470,8 +475,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputIntentForTextOnly({
                 actionTemplate: bandageWoundsAction,
-                currentActionEffectSquaddieTemplate: bandageWoundsAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: bandageWoundsAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
                 actingSquaddieModifiers: [
@@ -509,8 +514,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -554,8 +559,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -591,8 +596,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -627,8 +632,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -671,8 +676,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -722,8 +727,8 @@ describe("Action Result Text Writer", () => {
         const outputStrings: string[] =
             ActionResultTextService.outputResultForTextOnly({
                 actionTemplateName: longswordSweepAction.name,
-                currentActionEffectSquaddieTemplate: longswordSweepAction
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: longswordSweepAction
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
@@ -765,7 +770,7 @@ describe("Action Result Text Writer", () => {
                     targetTemplate: thiefStatic,
                     targetBattle: thiefDynamic,
                     actionEffectSquaddieTemplate: longswordSweepAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
             expect(outputString).toContain(
@@ -782,7 +787,7 @@ describe("Action Result Text Writer", () => {
                     targetTemplate: thiefStatic,
                     targetBattle: thiefDynamic,
                     actionEffectSquaddieTemplate: bandageWoundsAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
             expect(outputString).not.toContain(

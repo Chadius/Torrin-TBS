@@ -1,28 +1,33 @@
-import { ActionEffectTemplate, ActionEffectType } from "./actionEffectTemplate"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "./actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "./actionEffectTemplate"
 import { AttributeModifier } from "../../squaddie/attributeModifier"
+import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
+import {
+    TargetConstraints,
+    TargetConstraintsService,
+} from "../targetConstraints"
 
 export enum ActionDecisionType {
     TARGET_SQUADDIE = "TARGET_SQUADDIE",
     ACTOR_SELECTION = "ACTOR_SELECTION",
     ACTION_SELECTION = "ACTION_SELECTION",
-    LOCATION_SELECTION = "LOCATION_SELECTION",
 }
 
 export interface ActionTemplate {
     id: string
     name: string
+    rank?: number
     actionPoints: number
     actionEffectTemplates: ActionEffectTemplate[]
     buttonIconResourceKey: string
+    targetConstraints: TargetConstraints
 }
 
 export const ActionTemplateService = {
@@ -32,19 +37,26 @@ export const ActionTemplateService = {
         actionEffectTemplates,
         actionPoints,
         buttonIconResourceKey,
+        rank,
+        targetConstraints,
     }: {
         id: string
         name: string
         actionEffectTemplates?: ActionEffectTemplate[]
         actionPoints?: number
         buttonIconResourceKey?: string
+        rank?: number
+        targetConstraints?: TargetConstraints
     }): ActionTemplate => {
         return sanitize({
             id,
             name,
             actionEffectTemplates,
             actionPoints,
+            rank: rank ?? 0,
             buttonIconResourceKey,
+            targetConstraints:
+                targetConstraints ?? TargetConstraintsService.new({}),
         })
     },
     multipleAttackPenaltyMultiplier: (
@@ -54,10 +66,6 @@ export const ActionTemplateService = {
             accumulator: number,
             actionEffect: ActionEffectTemplate
         ): number => {
-            if (actionEffect.type !== ActionEffectType.SQUADDIE) {
-                return accumulator
-            }
-
             if (
                 TraitStatusStorageService.getStatus(
                     actionEffect.traits,
@@ -90,10 +98,6 @@ export const ActionTemplateService = {
                 accumulator: number,
                 actionEffectTemplate: ActionEffectTemplate
             ): number => {
-                if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-                    return accumulator
-                }
-
                 const damage = Object.values(
                     actionEffectTemplate.damageDescriptions
                 ).reduce(
@@ -117,10 +121,6 @@ export const ActionTemplateService = {
                 accumulator: number,
                 actionEffectTemplate: ActionEffectTemplate
             ): number => {
-                if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-                    return accumulator
-                }
-
                 const healing = Object.values(
                     actionEffectTemplate.healingDescriptions
                 ).reduce(
@@ -139,28 +139,10 @@ export const ActionTemplateService = {
         )
     },
     getActionTemplateRange: (actionTemplate: ActionTemplate): number[] => {
-        const actionEffectTemplatesWithRange =
-            actionTemplate.actionEffectTemplates.filter(
-                (actionEffectTemplate) =>
-                    actionEffectTemplate.type === ActionEffectType.SQUADDIE
-            )
-
-        if (actionEffectTemplatesWithRange.length === 0) {
-            return undefined
-        }
-
-        const minimumRanges = actionEffectTemplatesWithRange.map(
-            (actionEffectSquaddieTemplate) =>
-                (actionEffectSquaddieTemplate as ActionEffectSquaddieTemplate)
-                    .minimumRange
-        )
-        const maximumRanges = actionEffectTemplatesWithRange.map(
-            (actionEffectSquaddieTemplate) =>
-                (actionEffectSquaddieTemplate as ActionEffectSquaddieTemplate)
-                    .maximumRange
-        )
-
-        return [Math.min(...minimumRanges), Math.max(...maximumRanges)]
+        return [
+            actionTemplate.targetConstraints.minimumRange,
+            actionTemplate.targetConstraints.maximumRange,
+        ]
     },
     getActionTemplateDecisionTypes: (
         actionTemplate: ActionTemplate
@@ -174,33 +156,25 @@ export const ActionTemplateService = {
     ): AttributeModifier[] => {
         return (
             actionTemplate.actionEffectTemplates
-                .filter(
-                    (actionEffectTemplate: ActionEffectTemplate) =>
-                        actionEffectTemplate.type === ActionEffectType.SQUADDIE
-                )
                 .map(
                     (actionEffectTemplate: ActionEffectTemplate) =>
-                        actionEffectTemplate as ActionEffectSquaddieTemplate
+                        actionEffectTemplate as ActionEffectTemplate
                 )
                 .filter(
-                    (
-                        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
-                    ) =>
+                    (actionEffectSquaddieTemplate: ActionEffectTemplate) =>
                         actionEffectSquaddieTemplate.attributeModifiers
                             ?.length > 0
                 )
                 .map(
-                    (
-                        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
-                    ) => actionEffectSquaddieTemplate.attributeModifiers
+                    (actionEffectSquaddieTemplate: ActionEffectTemplate) =>
+                        actionEffectSquaddieTemplate.attributeModifiers
                 )
                 .flat() || []
         )
     },
-    getActionEffectSquaddieTemplates: (
+    getActionEffectTemplates: (
         actionTemplate: ActionTemplate
-    ): ActionEffectSquaddieTemplate[] =>
-        getActionEffectSquaddieTemplates(actionTemplate),
+    ): ActionEffectTemplate[] => getActionEffectTemplates(actionTemplate),
     doesActionTemplateHeal: (actionTemplate: ActionTemplate): boolean =>
         doesActionTemplateHeal(actionTemplate),
 }
@@ -220,41 +194,21 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
         []
     )
     template.actionEffectTemplates.forEach((actionEffectTemplate, index) => {
-        switch (actionEffectTemplate.type) {
-            case ActionEffectType.SQUADDIE:
-                ActionEffectSquaddieTemplateService.sanitize(
-                    actionEffectTemplate
-                )
-                break
-            case ActionEffectType.MOVEMENT:
-                break
-            case ActionEffectType.END_TURN:
-                break
-            default:
-                throw new Error(
-                    `ActionTemplate ${template.id} cannot sanitize, actionEffectTemplate ${index} is missing type`
-                )
-        }
+        ActionEffectTemplateService.sanitize(actionEffectTemplate)
     })
     return template
 }
 
-const getActionEffectSquaddieTemplates = (
+const getActionEffectTemplates = (
     actionTemplate: ActionTemplate
-): ActionEffectSquaddieTemplate[] =>
-    actionTemplate.actionEffectTemplates
-        .filter(
-            (actionEffectTemplate) =>
-                actionEffectTemplate.type === ActionEffectType.SQUADDIE
-        )
-        .map(
-            (actionEffectTemplate) =>
-                actionEffectTemplate as ActionEffectSquaddieTemplate
-        )
+): ActionEffectTemplate[] =>
+    actionTemplate.actionEffectTemplates.map(
+        (actionEffectTemplate) => actionEffectTemplate as ActionEffectTemplate
+    )
 
 const doesActionTemplateHeal = (actionTemplate: ActionTemplate): boolean => {
     const actionEffectSquaddieTemplates =
-        getActionEffectSquaddieTemplates(actionTemplate)
+        getActionEffectTemplates(actionTemplate)
 
     return actionEffectSquaddieTemplates.some(
         (actionEffectSquaddieTemplate) =>

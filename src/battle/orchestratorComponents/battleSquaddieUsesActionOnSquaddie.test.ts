@@ -37,7 +37,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
@@ -57,6 +57,7 @@ import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -120,14 +121,16 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             name: "power attack longsword",
             id: "powerAttackLongsword",
             actionPoints: 3,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: 9001,
                     },
@@ -143,14 +146,16 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             name: "attack longsword",
             id: "attackLongsword",
             actionPoints: 1,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: 1,
                     },
@@ -165,13 +170,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         monkKoanAction = ActionTemplateService.new({
             id: "koan",
             name: "koan",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 0,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.SKIP_ANIMATION]: true,
                     }),
-                    maximumRange: 0,
-                    minimumRange: 0,
                 }),
             ],
         })

@@ -16,12 +16,12 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../action/template/actionTemplate"
-import { ActionEffectMovementTemplateService } from "../action/template/actionEffectMovementTemplate"
-import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
+import { TargetConstraintsService } from "../action/targetConstraints"
 
-describe("BattleSquaddieRepository", () => {
+describe("Object Repository", () => {
     let objectRepository: ObjectRepository
     let squaddieTemplateBase: SquaddieTemplate
     let battleSquaddieBase: BattleSquaddie
@@ -308,11 +308,12 @@ describe("BattleSquaddieRepository", () => {
                 name: "Action Template",
                 actionPoints: 2,
                 buttonIconResourceKey: "image key",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 2,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectMovementTemplateService.new({}),
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 2,
+                    ActionEffectTemplateService.new({
                         damageDescriptions: {
                             [DamageType.SOUL]: 2,
                         },

@@ -2,11 +2,13 @@
   {
     "name": "Bite",
     "id": "demon_slither_bite",
+    "targetConstraints": {
+      "minimumRange": 0,
+      "maximumRange": 1,
+      "targetingShape": "SNAKE"
+    },
     "actionEffectTemplates": [
       {
-        "type": "SQUADDIE",
-        "minimumRange": 0,
-        "maximumRange": 1,
         "traits": {
           "booleanTraits": {
             "ATTACK": true,

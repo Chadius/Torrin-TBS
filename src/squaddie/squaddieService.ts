@@ -437,7 +437,7 @@ const getActionsBasedOnTargetType = ({
             return false
         }
 
-        return ActionTemplateService.getActionEffectSquaddieTemplates(
+        return ActionTemplateService.getActionEffectTemplates(
             actionTemplate
         ).some((template) =>
             TraitStatusStorageService.getStatus(template.traits, type)

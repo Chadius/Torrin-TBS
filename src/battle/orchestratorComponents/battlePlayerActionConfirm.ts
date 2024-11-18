@@ -18,8 +18,7 @@ import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { ActionResultTextService } from "../animation/actionResultTextService"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -247,14 +246,14 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         }
 
         const { found, actionTemplate, actionEffectSquaddieTemplate } =
-            getActionEffectSquaddieTemplate({
+            getActionEffectTemplate({
                 gameEngineState: gameEngineState,
             })
         if (!found) {
             return
         }
         const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-            currentActionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+            currentActionEffectTemplate: actionEffectSquaddieTemplate,
             actionTemplate,
             actingBattleSquaddieId: BattleActionDecisionStepService.getActor(
                 gameEngineState.battleOrchestratorState.battleState
@@ -305,14 +304,14 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }
 }
 
-const getActionEffectSquaddieTemplate = ({
+const getActionEffectTemplate = ({
     gameEngineState,
 }: {
     gameEngineState: GameEngineState
 }): {
     found: boolean
     actionTemplate: ActionTemplate
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    actionEffectSquaddieTemplate: ActionEffectTemplate
 } => {
     const actionTemplate = ObjectRepositoryService.getActionTemplateById(
         gameEngineState.repository,
@@ -330,13 +329,6 @@ const getActionEffectSquaddieTemplate = ({
     }
 
     const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-    if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
-        return {
-            found: false,
-            actionTemplate,
-            actionEffectSquaddieTemplate: undefined,
-        }
-    }
 
     return {
         found: true,

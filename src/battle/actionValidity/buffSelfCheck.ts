@@ -1,7 +1,7 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionCheckResult } from "./actionPointCheck"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -88,14 +88,14 @@ const doesActionTemplateOnlyAffectSelf = (
     }
 
     const actionEffectSquaddieTemplates =
-        ActionTemplateService.getActionEffectSquaddieTemplates(actionTemplate)
+        ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
     if (actionEffectSquaddieTemplates.length === 0) {
         return false
     }
 
     const targetsOthers = (
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>
         TraitStatusStorageService.getStatus(
             actionEffectSquaddieTemplate.traits,
@@ -107,7 +107,7 @@ const doesActionTemplateOnlyAffectSelf = (
         )
 
     const targetsSelf = (
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>
         TraitStatusStorageService.getStatus(
             actionEffectSquaddieTemplate.traits,
@@ -115,7 +115,7 @@ const doesActionTemplateOnlyAffectSelf = (
         )
 
     const onlyTargetsSelf = (
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>
         !targetsOthers(actionEffectSquaddieTemplate) &&
         targetsSelf(actionEffectSquaddieTemplate)
@@ -133,7 +133,7 @@ const estimatedHealingOnTarget = ({
     squaddieTemplate: SquaddieTemplate
 }): number => {
     const actionEffectSquaddieTemplates =
-        ActionTemplateService.getActionEffectSquaddieTemplates(actionTemplate)
+        ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
     const calculatedEffects: CalculatedEffect[] =
         actionEffectSquaddieTemplates.map((actionEffectSquaddieTemplate) => {
@@ -166,7 +166,7 @@ const willAddModifiersToTarget = ({
     squaddieTemplate: SquaddieTemplate
 }): boolean => {
     const actionEffectSquaddieTemplates =
-        ActionTemplateService.getActionEffectSquaddieTemplates(actionTemplate)
+        ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
     const calculatedEffects: CalculatedEffect[] =
         actionEffectSquaddieTemplates.map((actionEffectSquaddieTemplate) => {

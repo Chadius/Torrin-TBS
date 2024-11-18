@@ -11,9 +11,9 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 
 describe("weapon icon", () => {
     let hinderingAction: ActionTemplate
@@ -27,7 +27,7 @@ describe("weapon icon", () => {
             id: "hindering",
             name: "hindering",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.BODY]: 1,
                     },
@@ -43,7 +43,7 @@ describe("weapon icon", () => {
             id: "helping",
             name: "helping",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     healingDescriptions: {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
@@ -71,7 +71,7 @@ describe("weapon icon", () => {
         })
         icon.draw({
             actionEffectSquaddieTemplate: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         })
@@ -96,7 +96,7 @@ describe("weapon icon", () => {
         })
         icon.draw({
             actionEffectSquaddieTemplate: helpingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         })

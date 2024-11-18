@@ -28,7 +28,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
     BattleAction,
@@ -38,6 +38,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
@@ -63,13 +64,15 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         monkKoanAction = ActionTemplateService.new({
             id: "koan",
             name: "koan",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 0,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.SKIP_ANIMATION]: true,
                     }),
-                    maximumRange: 0,
-                    minimumRange: 0,
                 }),
             ],
         })
@@ -131,7 +134,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         expect(animator.outputTextDisplay).not.toBeUndefined()
         expect(outputResultForTextOnlySpy).toBeCalled()
         expect(outputResultForTextOnlySpy).toBeCalledWith({
-            currentActionEffectSquaddieTemplate:
+            currentActionEffectTemplate:
                 monkKoanAction.actionEffectTemplates[0],
             squaddieRepository: objectRepository,
             actionTemplateName: monkKoanAction.name,

@@ -13,9 +13,9 @@ import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../action/template/actionEffectTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
@@ -28,14 +28,14 @@ import { BattleActionActionContext } from "../history/battleAction/battleActionA
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
-        currentActionEffectSquaddieTemplate,
+        currentActionEffectTemplate,
         squaddieRepository,
         actionTemplateName,
         battleActionSquaddieChanges,
         actingBattleSquaddieId,
         actingContext,
     }: {
-        currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        currentActionEffectTemplate: ActionEffectTemplate
         battleActionSquaddieChanges: BattleActionSquaddieChange[]
         actingContext: BattleActionActionContext
         squaddieRepository: ObjectRepository
@@ -44,7 +44,7 @@ export const ActionResultTextService = {
     }): string[] => {
         return outputResultForTextOnly({
             actionTemplateName,
-            currentActionEffectSquaddieTemplate,
+            currentActionEffectTemplate,
             battleActionSquaddieChanges,
             squaddieRepository,
             actingContext,
@@ -53,20 +53,20 @@ export const ActionResultTextService = {
     },
     outputIntentForTextOnly: ({
         actionTemplate,
-        currentActionEffectSquaddieTemplate,
+        currentActionEffectTemplate,
         actingBattleSquaddieId,
         squaddieRepository,
         actingSquaddieModifiers,
     }: {
         actionTemplate: ActionTemplate
-        currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        currentActionEffectTemplate: ActionEffectTemplate
         actingBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         actingSquaddieModifiers: AttributeTypeAndAmount[]
     }): string[] => {
         return outputIntentForTextOnly({
             actionTemplate,
-            currentActionEffectSquaddieTemplate,
+            currentActionEffectTemplate,
             actingBattleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers,
@@ -207,7 +207,7 @@ export const ActionResultTextService = {
     }: {
         targetTemplate: SquaddieTemplate
         targetBattle: BattleSquaddie
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     }): string => {
         let targetBeforeActionText = `${targetTemplate.squaddieId.name}`
 
@@ -219,7 +219,7 @@ export const ActionResultTextService = {
         )
 
         if (
-            ActionEffectSquaddieTemplateService.doesItTargetFoes(
+            ActionEffectTemplateService.doesItTargetFoes(
                 actionEffectSquaddieTemplate
             )
         ) {
@@ -319,14 +319,14 @@ const getAttributeModifierChanges = ({
 }
 
 const outputResultForTextOnly = ({
-    currentActionEffectSquaddieTemplate,
+    currentActionEffectTemplate,
     squaddieRepository,
     actionTemplateName,
     battleActionSquaddieChanges,
     actingBattleSquaddieId,
     actingContext,
 }: {
-    currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    currentActionEffectTemplate: ActionEffectTemplate
     battleActionSquaddieChanges: BattleActionSquaddieChange[]
     actingContext: BattleActionActionContext
     squaddieRepository: ObjectRepository
@@ -359,11 +359,11 @@ const outputResultForTextOnly = ({
 
         if (
             TraitStatusStorageService.getStatus(
-                currentActionEffectSquaddieTemplate.traits,
+                currentActionEffectTemplate.traits,
                 Trait.ATTACK
             ) === true &&
             TraitStatusStorageService.getStatus(
-                currentActionEffectSquaddieTemplate.traits,
+                currentActionEffectTemplate.traits,
                 Trait.ALWAYS_SUCCEEDS
             ) !== true
         ) {
@@ -391,10 +391,9 @@ const outputResultForTextOnly = ({
                     )
                 )
 
-            const targetFoe =
-                ActionEffectSquaddieTemplateService.doesItTargetFoes(
-                    currentActionEffectSquaddieTemplate
-                )
+            const targetFoe = ActionEffectTemplateService.doesItTargetFoes(
+                currentActionEffectTemplate
+            )
 
             const degreeOfSuccessIsCriticalFailure =
                 squaddieChange.actorDegreeOfSuccess ===
@@ -458,7 +457,7 @@ const outputResultForTextOnly = ({
 
             if (
                 TraitStatusStorageService.getStatus(
-                    currentActionEffectSquaddieTemplate.traits,
+                    currentActionEffectTemplate.traits,
                     Trait.HEALING
                 )
             ) {
@@ -484,13 +483,13 @@ const outputResultForTextOnly = ({
 
 const outputIntentForTextOnly = ({
     actionTemplate,
-    currentActionEffectSquaddieTemplate,
+    currentActionEffectTemplate,
     actingBattleSquaddieId,
     squaddieRepository,
     actingSquaddieModifiers,
 }: {
     actionTemplate: ActionTemplate
-    currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+    currentActionEffectTemplate: ActionEffectTemplate
     actingBattleSquaddieId: string
     squaddieRepository: ObjectRepository
     actingSquaddieModifiers: AttributeTypeAndAmount[]
@@ -508,11 +507,11 @@ const outputIntentForTextOnly = ({
     )
     if (
         TraitStatusStorageService.getStatus(
-            currentActionEffectSquaddieTemplate.traits,
+            currentActionEffectTemplate.traits,
             Trait.ATTACK
         ) === true &&
         TraitStatusStorageService.getStatus(
-            currentActionEffectSquaddieTemplate.traits,
+            currentActionEffectTemplate.traits,
             Trait.ALWAYS_SUCCEEDS
         ) !== true
     ) {

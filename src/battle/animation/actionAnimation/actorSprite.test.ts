@@ -19,9 +19,9 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
 
@@ -62,7 +62,7 @@ describe("Actor Sprite", () => {
             id: "hindering",
             name: "hindering",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.BODY]: 1,
                     },
@@ -78,7 +78,7 @@ describe("Actor Sprite", () => {
             id: "helping",
             name: "helping",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     healingDescriptions: {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
@@ -122,7 +122,7 @@ describe("Actor Sprite", () => {
             timer,
             graphicsContext: mockedP5GraphicsContext,
             actionEffectSquaddieTemplate: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(getSquaddieEmotionSpy).toBeCalled()
@@ -145,7 +145,7 @@ describe("Actor Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             action: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -161,7 +161,7 @@ describe("Actor Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             action: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(emotion).toBe(SquaddieEmotion.ATTACK)
@@ -178,7 +178,7 @@ describe("Actor Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             action: helpfulAction
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                .actionEffectTemplates[0] as ActionEffectTemplate,
         })
 
         expect(emotion).toBe(SquaddieEmotion.ASSISTING)
@@ -188,7 +188,7 @@ describe("Actor Sprite", () => {
     describe("should keep the same emotion in DURING_ACTION, TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS", () => {
         let mapping: {
             [name: string]: {
-                action: ActionEffectSquaddieTemplate
+                action: ActionEffectTemplate
             }
         }
 
@@ -204,11 +204,11 @@ describe("Actor Sprite", () => {
             mapping = {
                 "deals damage": {
                     action: hinderingAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                 },
                 "heals damage": {
                     action: helpfulAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
                 },
             }
         })

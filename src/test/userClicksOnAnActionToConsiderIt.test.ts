@@ -6,7 +6,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import {
     SquaddieTemplate,
@@ -50,6 +50,7 @@ import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
+import { TargetConstraintsService } from "../action/targetConstraints"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -73,13 +74,15 @@ describe("user clicks on an action to consider it", () => {
             id: "action",
             name: "action",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })

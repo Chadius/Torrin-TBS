@@ -25,7 +25,6 @@ import { HexGridService } from "../../hexMap/hexGridDirection"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectType } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -234,7 +233,7 @@ export const BattleSquaddieSelectorService = {
                     }
 
                     const actionEffectTemplates =
-                        ActionTemplateService.getActionEffectSquaddieTemplates(
+                        ActionTemplateService.getActionEffectTemplates(
                             actionTemplate
                         )
                     if (actionEffectTemplates.length === 0) {
@@ -259,9 +258,11 @@ export const BattleSquaddieSelectorService = {
                                 stopLocation: targetMapLocation,
                                 distanceRangeFromDestination: {
                                     minimum:
-                                        actionEffectTemplates[0].minimumRange,
+                                        actionTemplate.targetConstraints
+                                            .minimumRange,
                                     maximum:
-                                        actionEffectTemplates[0].maximumRange,
+                                        actionTemplate.targetConstraints
+                                            .maximumRange,
                                 },
                                 actionPointsRemaining: actionPointsRemaining,
                             }
@@ -449,21 +450,9 @@ const getSquaddieAttackLocations = (
                     )
                 })
                 .forEach((coordinate) => {
-                    actionTemplate.actionEffectTemplates
-                        .filter(
-                            (actionEffectTemplate) =>
-                                actionEffectTemplate.type ===
-                                ActionEffectType.SQUADDIE
-                        )
-                        .forEach((actionSquaddieEffectTemplate) => {
+                    actionTemplate.actionEffectTemplates.forEach(
+                        (actionSquaddieEffectTemplate) => {
                             let uniqueLocations: HexCoordinate[] = []
-
-                            if (
-                                actionSquaddieEffectTemplate.type !==
-                                ActionEffectType.SQUADDIE
-                            ) {
-                                return
-                            }
 
                             const actionRangeResults = PathfinderService.search(
                                 {
@@ -478,16 +467,20 @@ const getSquaddieAttackLocations = (
                                                     Trait.PASS_THROUGH_WALLS
                                                 ),
                                             minimumDistanceMoved:
-                                                actionSquaddieEffectTemplate.minimumRange,
+                                                actionTemplate.targetConstraints
+                                                    .minimumRange,
                                             maximumDistanceMoved:
-                                                actionSquaddieEffectTemplate.maximumRange,
+                                                actionTemplate.targetConstraints
+                                                    .maximumRange,
                                             squaddieAffiliation:
                                                 SquaddieAffiliation.UNKNOWN,
                                             ignoreTerrainCost: true,
                                             shapeGenerator:
                                                 getResultOrThrowError(
                                                     GetTargetingShapeGenerator(
-                                                        actionSquaddieEffectTemplate.targetingShape
+                                                        actionTemplate
+                                                            .targetConstraints
+                                                            .targetingShape
                                                     )
                                                 ),
                                         }),
@@ -518,7 +511,8 @@ const getSquaddieAttackLocations = (
                                             )
                                     )
                             attackLocations.push(...uniqueLocations)
-                        })
+                        }
+                    )
                 })
         })
     return attackLocations

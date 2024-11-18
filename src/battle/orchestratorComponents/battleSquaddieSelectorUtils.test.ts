@@ -16,12 +16,13 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository
@@ -38,11 +39,13 @@ describe("battleSquaddieSelectorUtils", () => {
         meleeAttack = ActionTemplateService.new({
             id: "meleeAttack",
             name: "meleeAttack",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+            }),
             actionPoints: 1,
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 0,
-                    maximumRange: 1,
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
                     }),
@@ -55,10 +58,12 @@ describe("battleSquaddieSelectorUtils", () => {
             id: "rangedAttack",
             name: "rangedAttack",
             actionPoints: 1,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 2,
+                maximumRange: 3,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 2,
-                    maximumRange: 3,
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
                     }),
@@ -389,10 +394,12 @@ describe("battleSquaddieSelectorUtils", () => {
                 id: "bigMeleeAttack",
                 name: "bigMeleeAttack",
                 actionPoints: 3,
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                         }),
@@ -644,10 +651,12 @@ describe("battleSquaddieSelectorUtils", () => {
                 id: "meleeHeal",
                 name: "meleeHeal",
                 actionPoints: 1,
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_ALLY]: true,
                         }),

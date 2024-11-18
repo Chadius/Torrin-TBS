@@ -20,7 +20,7 @@ import {
 } from "./attributeModifier"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 import { ActionTemplateService } from "../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
@@ -373,7 +373,7 @@ describe("Squaddie Service", () => {
                     id: "targetSelf",
                     name: "targetSelf",
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.TARGET_SELF]: true,
@@ -389,7 +389,7 @@ describe("Squaddie Service", () => {
                     id: "targetFoe",
                     name: "targetFoe",
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.TARGET_FOE]: true,
@@ -405,7 +405,7 @@ describe("Squaddie Service", () => {
                     id: "targetAlly",
                     name: "targetAlly",
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.TARGET_ALLY]: true,

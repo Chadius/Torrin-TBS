@@ -10,7 +10,7 @@ import { ResourceHandler } from "../../../resource/resourceHandler"
 import { getResultOrThrowError, makeResult } from "../../../utils/ResultOrError"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -39,6 +39,7 @@ import {
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import { BattleSquaddie } from "../../battleSquaddie"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
 
 describe("squaddieSummaryPopover", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -62,10 +63,12 @@ describe("squaddieSummaryPopover", () => {
             ActionTemplateService.new({
                 id: "actionTemplate0",
                 name: "NeedsTarget",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 2,
+                    maximumRange: 3,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 2,
-                        maximumRange: 3,
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                         }),
@@ -79,10 +82,12 @@ describe("squaddieSummaryPopover", () => {
             ActionTemplateService.new({
                 id: "actionTemplate1",
                 name: "AlsoNeedsTarget",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 1,
+                    maximumRange: 2,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 1,
-                        maximumRange: 2,
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                         }),

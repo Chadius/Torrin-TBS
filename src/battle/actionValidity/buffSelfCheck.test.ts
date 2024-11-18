@@ -5,7 +5,7 @@ import {
 } from "../../action/template/actionTemplate"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -28,7 +28,7 @@ describe("Buff Self Checker", () => {
             id: "healSelf",
             name: "healSelf",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_SELF]: true,
                     }),
@@ -42,7 +42,7 @@ describe("Buff Self Checker", () => {
             id: "raiseShield",
             name: "raiseShield",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_SELF]: true,
                     }),
@@ -96,7 +96,7 @@ describe("Buff Self Checker", () => {
             name: "attackOthers",
             actionPoints: 1,
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
                     }),

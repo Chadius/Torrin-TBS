@@ -8,7 +8,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 
 describe("Squaddie turn and resources", () => {
     describe("actions", () => {
@@ -21,7 +21,7 @@ describe("Squaddie turn and resources", () => {
                 name: "Power Attack",
                 actionPoints: 2,
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
@@ -40,7 +40,7 @@ describe("Squaddie turn and resources", () => {
                     id: "actionSpends1ActionPoint",
                     name: "Power Attack",
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 { [Trait.ATTACK]: true }
                             ),

@@ -17,7 +17,7 @@ import {
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -34,6 +34,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow } from "./popupWindow"
 import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -60,10 +61,12 @@ describe("playerCommandHUD", () => {
         const actionTemplate0 = ActionTemplateService.new({
             id: "actionTemplate0",
             name: "NeedsTarget",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 2,
+                maximumRange: 3,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 2,
-                    maximumRange: 3,
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
                     }),
@@ -78,10 +81,12 @@ describe("playerCommandHUD", () => {
         const actionTemplate1 = ActionTemplateService.new({
             id: "actionTemplate1",
             name: "AlsoNeedsTarget",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 2,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
-                    minimumRange: 1,
-                    maximumRange: 2,
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
                     }),

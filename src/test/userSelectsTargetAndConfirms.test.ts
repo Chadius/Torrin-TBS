@@ -21,9 +21,9 @@ import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/bat
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
@@ -65,6 +65,7 @@ import {
 } from "../battle/history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import { TargetConstraintsService } from "../action/targetConstraints"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -92,15 +93,17 @@ describe("User Selects Target and Confirms", () => {
             id: "action",
             name: "action",
             actionPoints: 2,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.TARGET_FOE]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: { [DamageType.BODY]: 1 },
                 }),
             ],
@@ -609,7 +612,7 @@ describe("User Selects Target and Confirms", () => {
             it("If the action does not animate we should switch to the non-animating phase", () => {
                 ;(
                     attackAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                        .actionEffectTemplates[0] as ActionEffectTemplate
                 ).traits.booleanTraits[Trait.SKIP_ANIMATION] = true
                 clickAndConfirmWithAttackAction(attackAction)
 

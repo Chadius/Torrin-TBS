@@ -1,16 +1,15 @@
 import { ActionDecisionType, ActionTemplateService } from "./actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "./actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "./actionEffectTemplate"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
-import { ActionEffectMovementTemplateService } from "./actionEffectMovementTemplate"
-import { ActionEffectEndTurnTemplateService } from "./actionEffectEndTurnTemplate"
+import { TargetConstraintsService } from "../targetConstraints"
 
 describe("ActionTemplate", () => {
-    it("can create a template with required id", () => {
+    it("can create a template with defaults and required fields", () => {
         const justMovement = ActionTemplateService.new({
             id: "Move it",
             name: "Move",
@@ -20,14 +19,17 @@ describe("ActionTemplate", () => {
         expect(justMovement.name).toEqual("Move")
         expect(justMovement.actionEffectTemplates).toHaveLength(0)
         expect(justMovement.actionPoints).toEqual(1)
+        expect(justMovement.rank).toEqual(0)
+        expect(justMovement.targetConstraints.minimumRange).toEqual(0)
+        expect(justMovement.targetConstraints.maximumRange).toEqual(0)
+        expect(justMovement.targetConstraints.targetingShape).toEqual(
+            TargetingShape.SNAKE
+        )
     })
 
     it("can create a template with new action effects", () => {
-        const attackTemplate = ActionEffectSquaddieTemplateService.new({
+        const attackTemplate = ActionEffectTemplateService.new({
             damageDescriptions: { [DamageType.BODY]: 2 },
-            minimumRange: 1,
-            maximumRange: 1,
-            targetingShape: TargetingShape.SNAKE,
             healingDescriptions: {},
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
@@ -42,6 +44,25 @@ describe("ActionTemplate", () => {
 
         expect(justMovement.actionEffectTemplates).toHaveLength(1)
         expect(justMovement.actionEffectTemplates[0]).toEqual(attackTemplate)
+    })
+
+    describe("Range", () => {
+        it("can create a template with a given range", () => {
+            const actionTemplate = ActionTemplateService.new({
+                id: "strike",
+                name: "strike",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 1,
+                    maximumRange: 10,
+                    targetingShape: TargetingShape.SNAKE,
+                }),
+            })
+            expect(actionTemplate.targetConstraints.minimumRange).toEqual(1)
+            expect(actionTemplate.targetConstraints.maximumRange).toEqual(10)
+            expect(actionTemplate.targetConstraints.targetingShape).toEqual(
+                TargetingShape.SNAKE
+            )
+        })
     })
 
     it("will throw an error if the template has no name", () => {
@@ -71,13 +92,13 @@ describe("ActionTemplate", () => {
             id: "actionTemplate",
             name: "actionTemplate",
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.BODY]: 3,
                         [DamageType.SOUL]: 1,
                     },
                 }),
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     damageDescriptions: {
                         [DamageType.MIND]: 2,
                     },
@@ -109,8 +130,7 @@ describe("ActionTemplate", () => {
                 id: "slap",
                 name: "quick slap",
                 actionEffectTemplates: [
-                    ActionEffectMovementTemplateService.new({}),
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
                             [Trait.ATTACK]: true,
@@ -127,8 +147,7 @@ describe("ActionTemplate", () => {
                 id: "sworded",
                 name: "sword strike",
                 actionEffectTemplates: [
-                    ActionEffectMovementTemplateService.new({}),
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
@@ -142,59 +161,33 @@ describe("ActionTemplate", () => {
     })
 
     describe("actionTemplateRange", () => {
-        it("returns undefined if none of the action effects have ranges", () => {
+        it("returns default range if none are specified", () => {
             const justWaiting = ActionTemplateService.new({
                 id: "justWaiting",
                 name: "just waiting",
-                actionEffectTemplates: [
-                    ActionEffectEndTurnTemplateService.new({}),
-                    ActionEffectEndTurnTemplateService.new({}),
-                ],
+                actionEffectTemplates: [],
             })
 
             const ranges =
                 ActionTemplateService.getActionTemplateRange(justWaiting)
 
-            expect(ranges).toBeUndefined()
+            expect(ranges).toEqual([0, 0])
         })
 
         it("returns the range of the only action effect with a range", () => {
             const bow = ActionTemplateService.new({
                 id: "bow",
                 name: "bow",
-                actionEffectTemplates: [
-                    ActionEffectEndTurnTemplateService.new({}),
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 1,
-                        maximumRange: 3,
-                    }),
-                ],
+                targetConstraints: {
+                    minimumRange: 1,
+                    maximumRange: 3,
+                    targetingShape: TargetingShape.SNAKE,
+                },
+                actionEffectTemplates: [ActionEffectTemplateService.new({})],
             })
 
             const ranges = ActionTemplateService.getActionTemplateRange(bow)
             expect(ranges).toEqual([1, 3])
-        })
-
-        it("combines the minimum and maximum of multiple effects", () => {
-            const swordAndArtillery = ActionTemplateService.new({
-                id: "swordAndArtillery",
-                name: "sword and artillery",
-                actionEffectTemplates: [
-                    ActionEffectEndTurnTemplateService.new({}),
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 0,
-                        maximumRange: 1,
-                    }),
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 2,
-                        maximumRange: 6,
-                    }),
-                ],
-            })
-
-            const ranges =
-                ActionTemplateService.getActionTemplateRange(swordAndArtillery)
-            expect(ranges).toEqual([0, 6])
         })
     })
 
@@ -204,18 +197,8 @@ describe("ActionTemplate", () => {
                 id: "run up and shoot bow",
                 name: "run up and shoot bow",
                 actionEffectTemplates: [
-                    ActionEffectMovementTemplateService.new({
-                        actionDecisions: [
-                            ActionDecisionType.LOCATION_SELECTION,
-                        ],
-                    }),
-                    ActionEffectSquaddieTemplateService.new({
-                        minimumRange: 1,
-                        maximumRange: 3,
+                    ActionEffectTemplateService.new({
                         actionDecisions: [ActionDecisionType.TARGET_SQUADDIE],
-                    }),
-                    ActionEffectEndTurnTemplateService.new({
-                        actionDecisions: [ActionDecisionType.ACTOR_SELECTION],
                     }),
                 ],
             })
@@ -224,9 +207,7 @@ describe("ActionTemplate", () => {
                 ActionTemplateService.getActionTemplateDecisionTypes(bow)
 
             expect(requiredDecisions).toEqual([
-                ActionDecisionType.LOCATION_SELECTION,
                 ActionDecisionType.TARGET_SQUADDIE,
-                ActionDecisionType.ACTOR_SELECTION,
             ])
         })
     })
@@ -237,7 +218,7 @@ describe("ActionTemplate", () => {
                 id: "healSelf",
                 name: "healSelf",
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_SELF]: true,
                         }),
@@ -257,7 +238,7 @@ describe("ActionTemplate", () => {
                 id: "healOthers",
                 name: "healOthers",
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.TARGET_FOE]: true,
                         }),
@@ -274,7 +255,7 @@ describe("ActionTemplate", () => {
     })
 
     it("can get all action templates", () => {
-        const healSelf = ActionEffectSquaddieTemplateService.new({
+        const healSelf = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.TARGET_SELF]: true,
             }),
@@ -282,7 +263,7 @@ describe("ActionTemplate", () => {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
         })
-        const hurtOthers = ActionEffectSquaddieTemplateService.new({
+        const hurtOthers = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.TARGET_FOE]: true,
             }),
@@ -298,9 +279,21 @@ describe("ActionTemplate", () => {
         })
 
         expect(
-            ActionTemplateService.getActionEffectSquaddieTemplates(
+            ActionTemplateService.getActionEffectTemplates(
                 hurtOthersAndHealSelf
             )
         ).toEqual([hurtOthers, healSelf])
+    })
+
+    describe("rank", () => {
+        it("can set the rank of an action", () => {
+            const justMovement = ActionTemplateService.new({
+                id: "Move it",
+                name: "Move",
+                rank: 9001,
+            })
+
+            expect(justMovement.rank).toEqual(9001)
+        })
     })
 })

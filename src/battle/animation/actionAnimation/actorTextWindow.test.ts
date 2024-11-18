@@ -13,7 +13,7 @@ import {
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { ActionTimer } from "./actionTimer"
 import { ActionAnimationPhase } from "./actionAnimationConstants"
-import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -24,6 +24,7 @@ import {
     AttributeTypeAndAmountService,
 } from "../../../squaddie/attributeModifier"
 import { BattleActionActionContextService } from "../../history/battleAction/battleActionActionContext"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -50,16 +51,18 @@ describe("ActorTextWindow", () => {
             id: "action Id",
             name: "Action",
             actionPoints: 1,
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+                targetingShape: TargetingShape.SNAKE,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {},
                     healingDescriptions: {},
-                    targetingShape: TargetingShape.SNAKE,
-                    minimumRange: 1,
-                    maximumRange: 1,
                 }),
             ],
         })

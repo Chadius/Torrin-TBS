@@ -32,9 +32,9 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -89,6 +89,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
 import { PopupWindow } from "./popupWindow"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -125,15 +126,17 @@ describe("Battle HUD", () => {
         const longswordAction = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.SNAKE,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.ATTACK]: true,
                     }),
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    targetingShape: TargetingShape.SNAKE,
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },
@@ -1488,27 +1491,26 @@ describe("Battle HUD", () => {
             const attackTwiceWithLongsword = ActionTemplateService.new({
                 name: "attackTwiceWithLongsword",
                 id: "attackTwiceWithLongsword",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 1,
+                    maximumRange: 1,
+                    targetingShape: TargetingShape.SNAKE,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ALWAYS_SUCCEEDS]: true,
                             [Trait.ATTACK]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        targetingShape: TargetingShape.SNAKE,
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
                     }),
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ALWAYS_SUCCEEDS]: true,
                             [Trait.ATTACK]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        targetingShape: TargetingShape.SNAKE,
                         damageDescriptions: {
                             [DamageType.BODY]: 2,
                         },
@@ -1716,7 +1718,7 @@ describe("Battle HUD", () => {
                     )
                 const longswordActionDamage = (
                     longswordAction
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                        .actionEffectTemplates[0] as ActionEffectTemplate
                 ).damageDescriptions.BODY
                 expect(knightUsesLongswordOnThiefResults.damage.net).toBe(
                     longswordActionDamage

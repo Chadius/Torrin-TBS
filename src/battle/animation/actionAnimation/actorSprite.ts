@@ -16,9 +16,9 @@ import {
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { RectAreaService } from "../../../ui/rectArea"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../../history/battleAction/battleActionSquaddieChange"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
@@ -101,7 +101,7 @@ export class ActorSprite {
     }: {
         timer: ActionTimer
         graphicsContext: GraphicsBuffer
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
@@ -119,7 +119,7 @@ export class ActorSprite {
     getSquaddieImageBasedOnTimer(
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
-        action: ActionEffectSquaddieTemplate
+        action: ActionEffectTemplate
     ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
@@ -140,21 +140,17 @@ export class ActorSprite {
         timer: ActionTimer
         battleSquaddieId: string
         squaddieRepository: ObjectRepository
-        action: ActionEffectSquaddieTemplate
+        action: ActionEffectTemplate
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (
-                    ActionEffectSquaddieTemplateService.doesItTargetFoes(action)
-                ) {
+                if (ActionEffectTemplateService.doesItTargetFoes(action)) {
                     return SquaddieEmotion.ATTACK
                 } else if (
-                    ActionEffectSquaddieTemplateService.doesItTargetFriends(
-                        action
-                    )
+                    ActionEffectTemplateService.doesItTargetFriends(action)
                 ) {
                     return SquaddieEmotion.ASSISTING
                 } else {
@@ -168,7 +164,7 @@ export class ActorSprite {
     private drawActorSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
-        action: ActionEffectSquaddieTemplate
+        action: ActionEffectTemplate
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,

@@ -23,7 +23,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../utils/validityCheck"
 
 export class BattleSquaddieUsesActionOnSquaddie
@@ -226,7 +226,7 @@ export class BattleSquaddieUsesActionOnSquaddie
             TraitStatusStorageService.getStatus(
                 (
                     actionTemplate
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                        .actionEffectTemplates[0] as ActionEffectTemplate
                 ).traits,
                 Trait.SKIP_ANIMATION
             ) === true

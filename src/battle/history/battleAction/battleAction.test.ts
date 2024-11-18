@@ -10,7 +10,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -84,7 +84,7 @@ describe("BattleAction", () => {
                     name: "noMAP",
                     actionPoints: 1,
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.ATTACK]: true,
@@ -122,7 +122,7 @@ describe("BattleAction", () => {
                     name: "increaseMAP",
                     actionPoints: 1,
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.ATTACK]: true,

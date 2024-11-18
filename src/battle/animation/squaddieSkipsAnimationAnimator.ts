@@ -14,7 +14,7 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
@@ -105,8 +105,8 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: gameEngineState.repository,
                 actionTemplateName: actionTemplate.name,
-                currentActionEffectSquaddieTemplate: actionTemplate
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                currentActionEffectTemplate: actionTemplate
+                    .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId:
                     actionToShow.actor.actorBattleSquaddieId,
                 actingContext: actionToShow.actor.actorContext,

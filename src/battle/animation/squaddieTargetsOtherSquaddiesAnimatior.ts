@@ -19,7 +19,7 @@ import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { RectAreaService } from "../../ui/rectArea"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ActionEffectSquaddieTemplate } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import {
@@ -225,8 +225,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         )
         this.setupAnimationForTargetSprites(
             gameEngineState,
-            actionTemplate
-                .actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+            actionTemplate.actionEffectTemplates[0] as ActionEffectTemplate,
             resultPerTarget
         )
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
@@ -234,7 +233,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     private setupAnimationForTargetSprites(
         gameEngineState: GameEngineState,
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectTemplate,
         resultPerTarget: BattleActionSquaddieChange[]
     ) {
         const actionToShow: BattleAction =
@@ -297,7 +296,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 )
 
                 const actionEffectSquaddieTemplate = actionTemplate
-                    .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                    .actionEffectTemplates[0] as ActionEffectTemplate
 
                 const targetTextWindow = new TargetTextWindow()
                 targetTextWindow.start({
@@ -391,7 +390,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         )
 
         const actionEffectSquaddieTemplate = actionTemplate
-            .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+            .actionEffectTemplates[0] as ActionEffectTemplate
 
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,

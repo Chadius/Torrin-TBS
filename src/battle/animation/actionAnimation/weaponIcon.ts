@@ -7,9 +7,9 @@ import {
 } from "../../../ui/constants"
 import { Label, LabelService } from "../../../ui/label"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 
 export class WeaponIcon {
@@ -36,7 +36,7 @@ export class WeaponIcon {
         graphicsContext,
         actorImageArea,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate
+        actionEffectSquaddieTemplate: ActionEffectTemplate
         graphicsContext: GraphicsBuffer
         actorImageArea: RectArea
     }) {
@@ -65,17 +65,15 @@ export class WeaponIcon {
     }
 
     private lazyLoadAttackingTextBox(
-        action: ActionEffectSquaddieTemplate,
+        action: ActionEffectTemplate,
         actorImageArea: RectArea
     ) {
         const labelBackgroundColor = [0, 10, 80]
 
         let labelText: string
-        if (ActionEffectSquaddieTemplateService.doesItTargetFoes(action)) {
+        if (ActionEffectTemplateService.doesItTargetFoes(action)) {
             labelText = "Attacking!"
-        } else if (
-            ActionEffectSquaddieTemplateService.doesItTargetFriends(action)
-        ) {
+        } else if (ActionEffectTemplateService.doesItTargetFriends(action)) {
             labelText = "Helping..."
         } else {
             labelText = "Action!"

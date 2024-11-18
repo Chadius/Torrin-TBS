@@ -488,9 +488,7 @@ export const BattleHUDService = {
         )
 
         let actionEffectTemplates =
-            ActionTemplateService.getActionEffectSquaddieTemplates(
-                actionTemplate
-            )
+            ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
         if (actionEffectTemplates.length === 0) {
             return

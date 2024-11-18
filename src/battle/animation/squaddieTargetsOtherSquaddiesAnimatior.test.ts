@@ -30,7 +30,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
@@ -42,6 +42,7 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -71,14 +72,16 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         longswordActionTemplate = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 1,
+                maximumRange: 1,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
                     }),
-                    minimumRange: 1,
-                    maximumRange: 1,
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },

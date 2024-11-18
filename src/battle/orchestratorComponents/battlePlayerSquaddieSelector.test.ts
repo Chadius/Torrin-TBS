@@ -52,7 +52,7 @@ import {
     PlayerSelectionChangesService,
 } from "../playerSelectionService/playerSelectionChanges"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { ActionEffectSquaddieTemplateService } from "../../action/template/actionEffectSquaddieTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -60,6 +60,7 @@ import {
 import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -150,8 +151,12 @@ describe("BattleSquaddieSelector", () => {
                 ActionTemplateService.new({
                     id: "melee",
                     name: "melee",
+                    targetConstraints: TargetConstraintsService.new({
+                        minimumRange: 0,
+                        maximumRange: 1,
+                    }),
                     actionEffectTemplates: [
-                        ActionEffectSquaddieTemplateService.new({
+                        ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
                                     [Trait.TARGET_FOE]: true,
@@ -159,8 +164,6 @@ describe("BattleSquaddieSelector", () => {
                                     [Trait.ATTACK]: true,
                                 }
                             ),
-                            minimumRange: 0,
-                            maximumRange: 1,
                             damageDescriptions: {
                                 [DamageType.BODY]: 1,
                             },

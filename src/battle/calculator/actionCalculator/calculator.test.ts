@@ -32,9 +32,9 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService,
-} from "../../../action/template/actionEffectSquaddieTemplate"
+    ActionEffectTemplate,
+    ActionEffectTemplateService,
+} from "../../../action/template/actionEffectTemplate"
 import {
     AttributeModifier,
     AttributeModifierService,
@@ -47,6 +47,7 @@ import {
 } from "../../actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -77,14 +78,16 @@ describe("calculator", () => {
         actionAlwaysHitsAndDealsBodyDamage = ActionTemplateService.new({
             id: "deal body damage auto hit",
             name: "deal body damage (Auto Hit)",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 9001,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
-                    minimumRange: 0,
-                    maximumRange: 9001,
                     damageDescriptions: {
                         [DamageType.BODY]: actionBodyDamageAmount,
                     },
@@ -99,13 +102,15 @@ describe("calculator", () => {
         actionNeedsAnAttackRollToDealBodyDamage = ActionTemplateService.new({
             id: "deal body damage",
             name: "deal body damage",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 9001,
+            }),
             actionEffectTemplates: [
-                ActionEffectSquaddieTemplateService.new({
+                ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                     }),
-                    minimumRange: 0,
-                    maximumRange: 9001,
                     damageDescriptions: {
                         [DamageType.BODY]: actionBodyDamageAmount,
                     },
@@ -380,14 +385,16 @@ describe("calculator", () => {
             healsLostHitPoints = ActionTemplateService.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 9001,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.HEALING]: true,
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 9001,
                         healingDescriptions: {
                             [HealingType.LOST_HIT_POINTS]: 2,
                         },
@@ -528,14 +535,16 @@ describe("calculator", () => {
             raiseShieldAction = ActionTemplateService.new({
                 id: "raise shield",
                 name: "Raise Shield",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 0,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ALWAYS_SUCCEEDS]: true,
                             [Trait.TARGET_SELF]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 0,
                         attributeModifiers: [armorCircumstanceModifier],
                     }),
                 ],
@@ -946,7 +955,7 @@ describe("calculator", () => {
             TraitStatusStorageService.setStatus(
                 (
                     actionAlwaysHitsAndDealsBodyDamage
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                        .actionEffectTemplates[0] as ActionEffectTemplate
                 ).traits,
                 Trait.CANNOT_CRITICALLY_SUCCEED,
                 true
@@ -1041,7 +1050,7 @@ describe("calculator", () => {
             TraitStatusStorageService.setStatus(
                 (
                     actionNeedsAnAttackRollToDealBodyDamage
-                        .actionEffectTemplates[0] as ActionEffectSquaddieTemplate
+                        .actionEffectTemplates[0] as ActionEffectTemplate
                 ).traits,
                 Trait.CANNOT_CRITICALLY_FAIL,
                 true
@@ -1069,25 +1078,25 @@ describe("calculator", () => {
             actionHasTwoEffectTemplates = ActionTemplateService.new({
                 id: "actionHasTwoEffectTemplates",
                 name: "actionHasTwoEffectTemplates",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 9001,
+                }),
                 actionEffectTemplates: [
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 9001,
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
                     }),
-                    ActionEffectSquaddieTemplateService.new({
+                    ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                             [Trait.ALWAYS_SUCCEEDS]: true,
                         }),
-                        minimumRange: 0,
-                        maximumRange: 9001,
                         damageDescriptions: {
                             [DamageType.BODY]: 2,
                         },
