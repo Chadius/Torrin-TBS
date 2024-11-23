@@ -3,7 +3,7 @@ const path = require("path")
 const webpack = require("webpack")
 
 module.exports = (env, argv) => {
-    const version = "0.0.015"
+    const version = "0.0.016"
     const environmentVariables = {
         "process.env.CAMPAIGN_ID": JSON.stringify(process.env.CAMPAIGN_ID) || JSON.stringify("templeDefense"),
         "process.env.SCREEN_WIDTH": JSON.stringify(process.env.SCREEN_WIDTH) || JSON.stringify(1280),
