@@ -35,6 +35,11 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    ActionPanelPosition,
+    SquaddieNameAndPortraitTileService,
+} from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -45,6 +50,7 @@ describe("summaryHUD", () => {
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
+        graphicsBuffer.textWidth = jest.fn().mockReturnValue(1)
         resourceHandler = mockResourceHandler(graphicsBuffer)
 
         const actionTemplate0 = ActionTemplateService.new({
@@ -124,7 +130,7 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("will draw a window for a squaddie", () => {
+    describe("will draw a summary window for a squaddie", () => {
         it("can draw the main summary window on the left side", () => {
             const battleSquaddieId = "player"
 
@@ -317,6 +323,420 @@ describe("summaryHUD", () => {
                     },
                 })
             ).toBeTruthy()
+        })
+    })
+
+    describe("will draw a squaddie name and portrait tile for the acting squaddie", () => {
+        it("can draw the acting window on the left side", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            const battleSquaddieId = "player"
+            BattleActionDecisionStepService.setActor({
+                battleSquaddieId,
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
+                    .squaddieName
+            ).toEqual("player")
+        })
+        it("knows when the mouse is hovering over the portrait tile", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            const panelWindowRectArea =
+                SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
+                    ActionPanelPosition.ACTOR
+                )
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.centerX(panelWindowRectArea),
+                        y: RectAreaService.centerY(panelWindowRectArea),
+                    },
+                })
+            ).toBeFalsy()
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                battleSquaddieId: "player",
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.centerX(panelWindowRectArea),
+                        y: RectAreaService.centerY(panelWindowRectArea),
+                    },
+                })
+            ).toBeTruthy()
+
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.left(panelWindowRectArea) - 5,
+                        y: RectAreaService.centerY(panelWindowRectArea),
+                    },
+                })
+            ).toBeFalsy()
+
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.right(panelWindowRectArea) + 5,
+                        y: RectAreaService.centerY(panelWindowRectArea),
+                    },
+                })
+            ).toBeFalsy()
+
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.centerX(panelWindowRectArea),
+                        y: RectAreaService.top(panelWindowRectArea) - 5,
+                    },
+                })
+            ).toBeFalsy()
+
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.centerX(panelWindowRectArea),
+                        y: RectAreaService.bottom(panelWindowRectArea) + 5,
+                    },
+                })
+            ).toBeFalsy()
+        })
+    })
+
+    describe("will draw a squaddie name and portrait tile for the peeked squaddie", () => {
+        it("can draw the playable squaddie window", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[
+                    ActionPanelPosition.PEEK_PLAYABLE
+                ]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[
+                    ActionPanelPosition.PEEK_PLAYABLE
+                ].squaddieName
+            ).toEqual("player")
+            expect(summaryHUDState.squaddieToPeekAt).toEqual(
+                expect.objectContaining({
+                    battleSquaddieId: "player",
+                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    expirationTime: expect.any(Number),
+                })
+            )
+        })
+        it("can draw the unplayable squaddie window", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "enemy",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                    .squaddieName
+            ).toEqual("enemy")
+            expect(summaryHUDState.squaddieToPeekAt).toEqual(
+                expect.objectContaining({
+                    battleSquaddieId: "enemy",
+                    actionPanelPosition: ActionPanelPosition.PEEK_RIGHT,
+                    expirationTime: expect.any(Number),
+                })
+            )
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                    .squaddieName
+            ).toEqual("enemy")
+        })
+        it("will expire over time", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            const dateNowSpy = jest
+                .spyOn(Date, "now")
+                .mockImplementation(() => 0)
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "enemy",
+            })
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).not.toBeUndefined()
+            dateNowSpy.mockImplementation(() => 1000)
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).not.toBeUndefined()
+            dateNowSpy.mockImplementation(() => 2001)
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).toBeUndefined()
+        })
+        it("will override the peeked squaddie if a different one is peeked", () => {
+            let gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: "player2",
+                battleId: "player2",
+                templateId: "player",
+                objectRepository: objectRepository,
+                affiliation: SquaddieAffiliation.PLAYER,
+                actionTemplateIds: [],
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player2",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[
+                    ActionPanelPosition.PEEK_PLAYABLE
+                ]
+            ).not.toBeUndefined()
+            expect(summaryHUDState.squaddieToPeekAt).toEqual(
+                expect.objectContaining({
+                    battleSquaddieId: "player2",
+                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    expirationTime: expect.any(Number),
+                })
+            )
+        })
+    })
+
+    describe("will use the right panel to peek if the actor panel is already selected", () => {
+        let gameEngineState: GameEngineState
+
+        beforeEach(() => {
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+
+            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                name: "player",
+                battleId: "player2",
+                templateId: "player",
+                objectRepository: objectRepository,
+                affiliation: SquaddieAffiliation.PLAYER,
+                actionTemplateIds: [],
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            const battleSquaddieId = "player"
+            BattleActionDecisionStepService.setActor({
+                battleSquaddieId,
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+        })
+
+        it("will use the right panel to peek if the actor panel is different from the peeked squaddie", () => {
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player2",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[
+                    ActionPanelPosition.PEEK_PLAYABLE
+                ]
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).not.toBeUndefined()
+            expect(summaryHUDState.squaddieToPeekAt).toEqual(
+                expect.objectContaining({
+                    battleSquaddieId: "player2",
+                    actionPanelPosition: ActionPanelPosition.PEEK_RIGHT,
+                    expirationTime: expect.any(Number),
+                })
+            )
+        })
+
+        it("will not create peekable tiles if the peeked squaddie is the same as the actor tile", () => {
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[
+                    ActionPanelPosition.PEEK_PLAYABLE
+                ]
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).toBeUndefined()
+            expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
         })
     })
 

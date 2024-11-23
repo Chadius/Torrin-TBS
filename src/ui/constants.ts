@@ -15,3 +15,5 @@ export enum VERTICAL_ALIGN {
     BASELINE = "alphabetic",
     CENTER = "center",
 }
+
+export const GOLDEN_RATIO = (1.0 + Math.sqrt(5)) / 2.0

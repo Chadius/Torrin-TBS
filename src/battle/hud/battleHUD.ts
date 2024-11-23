@@ -300,6 +300,14 @@ export const BattleHUDService = {
                 })
         }
 
+        SummaryHUDStateService.peekAtSquaddie({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            battleSquaddieId,
+            gameEngineState,
+        })
+
         const popoverArgs = {
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState

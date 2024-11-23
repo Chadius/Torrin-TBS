@@ -68,6 +68,7 @@ export const mockResourceHandler = (graphics: GraphicsBuffer) => {
     handler.getResource = jest
         .fn()
         .mockReturnValue(makeResult(graphics.createImage(1, 1)))
+    handler.isResourceLoaded = jest.fn().mockReturnValueOnce(true)
     handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true)
     return handler
 }

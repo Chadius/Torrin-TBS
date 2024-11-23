@@ -1,5 +1,4 @@
 import { DamageType } from "../../squaddie/squaddieService"
-import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import {
     Trait,
     TraitStatusStorageService,

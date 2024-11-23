@@ -90,6 +90,7 @@ import { BattleActionActionContextService } from "../history/battleAction/battle
 import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
 import { PopupWindow } from "./popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ActionPanelPosition } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -538,6 +539,28 @@ describe("Battle HUD", () => {
                 battleHUDListener,
                 MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
             )
+        })
+
+        it("tells the summary hud it peeked at a squaddie", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                selectionMethod: {
+                    mouseMovement: { x: 0, y: 0 },
+                },
+                squaddieSummaryPopoverPosition:
+                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieToPeekAt
+            ).toEqual({
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                expirationTime: expect.any(Number),
+            })
         })
 
         it("will call the Summary HUD to open a new main window", () => {

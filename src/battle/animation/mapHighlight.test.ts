@@ -414,7 +414,7 @@ describe("map highlight generator", () => {
         })
     })
 
-    describe("shows attack tiles when squaddie cannot move to location but can attack", () => {
+    describe("shows attack tile when squaddie cannot move to location but can attack", () => {
         let squaddieWithOneMovement: SquaddieTemplate
         let battleSquaddie: BattleSquaddie
 

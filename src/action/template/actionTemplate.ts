@@ -8,7 +8,6 @@ import {
     ActionEffectTemplateService,
 } from "./actionEffectTemplate"
 import { AttributeModifier } from "../../squaddie/attributeModifier"
-import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import {
     TargetConstraints,
     TargetConstraintsService,
