@@ -21,11 +21,11 @@ import {
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({
-        actionEffectSquaddieTemplate,
+        actionEffectTemplate,
         gameEngineState,
         battleAction,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectTemplate
+        actionEffectTemplate: ActionEffectTemplate
         gameEngineState: GameEngineState
         battleAction?: BattleAction
     }): BattleActionActionContext => {
@@ -42,93 +42,98 @@ export const CalculatorMiscellaneous = {
     },
     getTargetSquaddieModifiers: ({
         actionEffectSquaddieTemplate,
-        targetedBattleSquaddie,
+        targetBattleSquaddie,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetBattleSquaddie: BattleSquaddie
     }): AttributeTypeAndAmount[] =>
         getTargetSquaddieModifiers({
             actionEffectSquaddieTemplate,
-            targetedBattleSquaddie,
+            targetBattleSquaddie,
         }),
     getDegreeOfSuccess: ({
         actionEffectSquaddieTemplate,
         actionContext,
         actingBattleSquaddie,
-        targetedBattleSquaddie,
+        targetBattleSquaddie,
+        targetSquaddieTemplate,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetBattleSquaddie: BattleSquaddie
         actionContext: BattleActionActionContext
         actingBattleSquaddie: BattleSquaddie
+        targetSquaddieTemplate: SquaddieTemplate
     }): DegreeOfSuccess =>
         getDegreeOfSuccess({
             actionEffectSquaddieTemplate,
             actionContext,
             actingBattleSquaddie,
-            targetedBattleSquaddie,
+            targetBattleSquaddie,
+            targetSquaddieTemplate,
         }),
     calculateEffectBasedOnDegreeOfSuccess: ({
         actionEffectSquaddieTemplate,
         actionContext,
         degreeOfSuccess,
-        targetedSquaddieTemplate,
-        targetedBattleSquaddie,
+        targetSquaddieTemplate,
+        targetBattleSquaddie,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
         actionContext: BattleActionActionContext
         degreeOfSuccess: DegreeOfSuccess
-        targetedSquaddieTemplate: SquaddieTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetSquaddieTemplate: SquaddieTemplate
+        targetBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
         calculateEffectBasedOnDegreeOfSuccess({
             actionEffectSquaddieTemplate,
             actionContext,
             degreeOfSuccess,
-            targetedSquaddieTemplate,
-            targetedBattleSquaddie,
+            targetSquaddieTemplate,
+            targetBattleSquaddie,
         }),
 }
 
 const getTargetSquaddieModifiers = ({
     actionEffectSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetBattleSquaddie,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
 }): AttributeTypeAndAmount[] => {
     return InBattleAttributesService.calculateCurrentAttributeModifiers(
-        targetedBattleSquaddie.inBattleAttributes
+        targetBattleSquaddie.inBattleAttributes
     )
 }
 
 const getDegreeOfSuccess = ({
     actionEffectSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetBattleSquaddie,
     actionContext,
     actingBattleSquaddie,
+    targetSquaddieTemplate,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
     actingBattleSquaddie: BattleSquaddie
     actionContext: BattleActionActionContext
+    targetSquaddieTemplate: SquaddieTemplate
 }): DegreeOfSuccess => DegreeOfSuccess.SUCCESS
 
 const calculateEffectBasedOnDegreeOfSuccess = ({
     actionEffectSquaddieTemplate,
     actionContext,
     degreeOfSuccess,
-    targetedSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetSquaddieTemplate,
+    targetBattleSquaddie,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
     actionContext: BattleActionActionContext
     degreeOfSuccess: DegreeOfSuccess
-    targetedSquaddieTemplate: SquaddieTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetSquaddieTemplate: SquaddieTemplate
+    targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
     let healingReceived = calculateTotalHealingReceived({
-        targetedBattleSquaddie,
+        targetBattleSquaddie,
         actionEffectSquaddieTemplate,
     })
 
@@ -146,10 +151,10 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }
 
 const calculateTotalHealingReceived = ({
-    targetedBattleSquaddie,
+    targetBattleSquaddie,
     actionEffectSquaddieTemplate,
 }: {
-    targetedBattleSquaddie: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
     actionEffectSquaddieTemplate: ActionEffectTemplate
 }) => {
     if (!isValidValue(actionEffectSquaddieTemplate)) {
@@ -161,7 +166,7 @@ const calculateTotalHealingReceived = ({
     if (actionEffectSquaddieTemplate.healingDescriptions.LOST_HIT_POINTS) {
         ;({ healingReceived } =
             SquaddieService.calculateGiveHealingToTheSquaddie({
-                battleSquaddie: targetedBattleSquaddie,
+                battleSquaddie: targetBattleSquaddie,
                 healingAmount:
                     actionEffectSquaddieTemplate.healingDescriptions
                         .LOST_HIT_POINTS,

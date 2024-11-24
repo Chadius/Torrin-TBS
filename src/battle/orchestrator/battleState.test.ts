@@ -44,6 +44,7 @@ import {
 import { BattleActionsDuringTurnService } from "../history/battleAction/battleActionsDuringTurn"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { CampaignService } from "../../campaign/campaign"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -474,13 +475,13 @@ describe("Battle State", () => {
             ;({ battleSquaddie } =
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                     affiliation: SquaddieAffiliation.PLAYER,
-                    attributes: {
+                    attributes: ArmyAttributesService.new({
                         maxHitPoints: 5,
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,
-                    },
+                    }),
                     battleId: "battleSquaddieId",
                     name: "actor",
                     objectRepository: objectRepository,
@@ -646,13 +647,13 @@ describe("Battle State", () => {
 
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 affiliation: SquaddieAffiliation.PLAYER,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
                 battleId: "battleSquaddieId",
                 name: "actor",
                 objectRepository: objectRepository,

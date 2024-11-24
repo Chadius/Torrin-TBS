@@ -50,12 +50,12 @@ describe("Battle Action Action Context", () => {
 
         expect(clone).toEqual(original)
 
-        original.actingSquaddieModifiers = undefined
-        original.actingSquaddieRoll = undefined
-        original.targetSquaddieModifiers = undefined
+        original.actorAttributeModifiers = undefined
+        original.actorRoll = undefined
+        original.targetAttributeModifiers = undefined
 
-        expect(clone.actingSquaddieModifiers).toEqual(actingSquaddieModifiers)
-        expect(clone.actingSquaddieRoll).toEqual(actingSquaddieRoll)
-        expect(clone.targetSquaddieModifiers).toEqual(targetSquaddieModifiers)
+        expect(clone.actorAttributeModifiers).toEqual(actingSquaddieModifiers)
+        expect(clone.actorRoll).toEqual(actingSquaddieRoll)
+        expect(clone.targetAttributeModifiers).toEqual(targetSquaddieModifiers)
     })
 })

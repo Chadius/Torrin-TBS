@@ -1,4 +1,7 @@
-import { RollResultService } from "../../calculator/actionCalculator/rollResult"
+import {
+    RollModifierType,
+    RollResultService,
+} from "../../calculator/actionCalculator/rollResult"
 import { AttributeTypeAndAmount } from "../../../squaddie/attributeModifier"
 import { BattleActionActionContext } from "../../history/battleAction/battleActionActionContext"
 
@@ -7,6 +10,11 @@ export const ActionResultText = {
         actingSquaddieModifiers: AttributeTypeAndAmount[]
     ): string[] => {
         return getAttackPenaltyDescriptions(actingSquaddieModifiers)
+    },
+    getRollModifierDescriptions: (rollModifiers: {
+        [r in RollModifierType]?: number
+    }): string[] => {
+        return getRollModifierDescriptions(rollModifiers)
     },
     getActingSquaddieRollTotalIfNeeded: (
         actingContext: BattleActionActionContext
@@ -24,17 +32,25 @@ const getAttackPenaltyDescriptions = (
     actingSquaddieModifiers: AttributeTypeAndAmount[]
 ): string[] =>
     actingSquaddieModifiers.map((attributeModifier) => {
-        let padding: string = attributeModifier.amount > 0 ? " " : ""
+        let padding: string = attributeModifier.amount > 0 ? "+" : ""
         return `   ${padding}${attributeModifier.amount}: ${capitalizeFirstLetter(attributeModifier.type)}`
+    })
+
+const getRollModifierDescriptions = (rollModifiers: {
+    [r in RollModifierType]?: number
+}): string[] =>
+    Object.entries(rollModifiers ?? {}).map(([type, amount]) => {
+        let padding: string = amount > 0 ? "+" : ""
+        return `   ${padding}${amount}: ${capitalizeFirstLetter(type)}`
     })
 
 const getActingSquaddieRollTotalIfNeeded = (
     actingContext: BattleActionActionContext
 ): string[] => {
     let totalAttackRoll = RollResultService.totalAttackRoll(
-        actingContext.actingSquaddieRoll
+        actingContext.actorRoll
     )
-    let totalModifier = actingContext.actingSquaddieModifiers.reduce(
+    let totalModifier = actingContext.actorAttributeModifiers.reduce(
         (currentSum, currentValue) => currentSum + currentValue.amount,
         0
     )

@@ -65,6 +65,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -132,13 +133,13 @@ describe("BattleComputerSquaddieSelector", () => {
             battleId: "enemy_demon_0",
             objectRepository: objectRepository,
             actionTemplateIds: [demonBiteAction.id],
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 5,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
-            },
+            }),
         }))
 
         enemyDemonBattleSquaddie2 = BattleSquaddieService.newBattleSquaddie({

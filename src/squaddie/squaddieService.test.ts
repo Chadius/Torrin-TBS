@@ -87,12 +87,24 @@ describe("Squaddie Service", () => {
 
     describe("Current Armor Class", () => {
         it("Returns the normal armor class", () => {
-            let { normalArmorClass } = SquaddieService.getArmorClass({
+            let { net } = SquaddieService.getArmorClass({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })
 
-            expect(normalArmorClass).toBe(3)
+            expect(net).toBe(3)
+        })
+
+        it("Adds the tier to the normal armor class", () => {
+            playerSquaddieTemplate.attributes.tier = 1
+
+            let { net, initial } = SquaddieService.getArmorClass({
+                squaddieTemplate: playerSquaddieTemplate,
+                battleSquaddie: playerBattleSquaddie,
+            })
+
+            expect(initial).toBe(3)
+            expect(net).toBe(4)
         })
     })
 

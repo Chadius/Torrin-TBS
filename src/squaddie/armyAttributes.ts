@@ -5,6 +5,7 @@ export interface ArmyAttributes {
     maxHitPoints: number
     armorClass: number
     movement: SquaddieMovement
+    tier: number
 }
 
 export const ArmyAttributesService = {
@@ -12,10 +13,12 @@ export const ArmyAttributesService = {
         maxHitPoints,
         armorClass,
         movement,
+        tier,
     }: {
         maxHitPoints?: number
         armorClass?: number
         movement?: SquaddieMovement
+        tier?: number
     }): ArmyAttributes => {
         const attributes = {
             ...DefaultArmyAttributes(),
@@ -38,6 +41,7 @@ export const DefaultArmyAttributes = (): ArmyAttributes => {
         movement: SquaddieMovementService.new({ movementPerAction: 2 }),
         armorClass: 0,
         maxHitPoints: 5,
+        tier: 0,
     }
 }
 
@@ -53,6 +57,9 @@ const sanitize = (data: ArmyAttributes): ArmyAttributes => {
     }
     if (!isValidValue(data.armorClass)) {
         data.armorClass = defaultAttributes.armorClass
+    }
+    if (!isValidValue(data.tier)) {
+        data.tier = defaultAttributes.tier
     }
     return data
 }

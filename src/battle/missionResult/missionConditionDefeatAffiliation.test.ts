@@ -19,6 +19,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () => {
     let missionMap: MissionMap
@@ -58,13 +59,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 battleId: "enemy 1",
                 affiliation: SquaddieAffiliation.ENEMY,
                 objectRepository: squaddieRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 1,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
         ;({ squaddieTemplate: enemy2Static, battleSquaddie: enemy2Dynamic } =
@@ -74,13 +75,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 battleId: "enemy 2",
                 affiliation: SquaddieAffiliation.ENEMY,
                 objectRepository: squaddieRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 1,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
 
@@ -95,13 +96,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 battleId: "player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 objectRepository: squaddieRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 1,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
 
@@ -116,13 +117,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 battleId: "ally 1",
                 affiliation: SquaddieAffiliation.ALLY,
                 objectRepository: squaddieRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 1,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
 
@@ -139,13 +140,13 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
             battleId: "no affiliation 1",
             affiliation: SquaddieAffiliation.NONE,
             objectRepository: squaddieRepository,
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 1,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
-            },
+            }),
             actionTemplateIds: [],
         }))
 

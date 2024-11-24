@@ -3,7 +3,6 @@ import { isValidValue } from "../utils/validityCheck"
 export enum AttributeType {
     ARMOR = "ARMOR",
     ABSORB = "ABSORB",
-    MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
     MOVEMENT = "MOVEMENT",
     IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
 }

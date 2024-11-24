@@ -58,6 +58,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -85,7 +86,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: objectRepository,
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues({
@@ -94,7 +95,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 }),
                 maxHitPoints: 1,
                 armorClass: 0,
-            },
+            }),
             actionTemplateIds: [],
         }))
         ;({ squaddieTemplate: targetStatic, battleSquaddie: targetDynamic } =
@@ -104,7 +105,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 battleId: "target_dynamic_squaddie",
                 affiliation: SquaddieAffiliation.ENEMY,
                 objectRepository: objectRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues({
@@ -113,7 +114,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                     maxHitPoints: 3,
                     armorClass: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
 
@@ -347,100 +348,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
             powerAttackLongswordAction.actionPoints
-        )
-        return gameEngineState
-    }
-
-    const useAttackActionAndReturnState = ({
-        missionMap,
-        actionTemplate,
-    }: {
-        missionMap?: MissionMap
-        actionTemplate: ActionTemplate
-    }): GameEngineState => {
-        const actionStep: BattleActionDecisionStep =
-            BattleActionDecisionStepService.new()
-        BattleActionDecisionStepService.setActor({
-            actionDecisionStep: actionStep,
-            battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-        })
-        BattleActionDecisionStepService.addAction({
-            actionDecisionStep: actionStep,
-            actionTemplateId: actionTemplate.id,
-        })
-        BattleActionDecisionStepService.setConfirmedTarget({
-            actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 0 },
-        })
-
-        if (isValidValue(missionMap)) {
-            MissionMapService.addSquaddie({
-                missionMap,
-                squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
-                battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                location: {
-                    q: 0,
-                    r: 0,
-                },
-            })
-        }
-
-        const battleOrchestratorState = BattleOrchestratorStateService.new({
-            battleHUD: BattleHUDService.new({}),
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                campaignId: "test campaign",
-                missionMap,
-            }),
-        })
-
-        const gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState,
-            repository: objectRepository,
-            resourceHandler: mockResourceHandler,
-            campaign: CampaignService.default(),
-        })
-
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                },
-                action: { actionTemplateId: actionTemplate.id },
-                effect: {
-                    squaddie: [
-                        BattleActionSquaddieChangeService.new({
-                            battleSquaddieId:
-                                targetDynamicSquaddieBattleSquaddieId,
-                            damageExplanation: DamageExplanationService.new({
-                                net: 1,
-                            }),
-                            healingReceived: 0,
-                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                        }),
-                    ],
-                },
-            })
-        )
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-            gameEngineState,
-            battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
-            selectionMethod: {
-                mouseClick: MouseClickService.new({
-                    x: 0,
-                    y: 0,
-                    button: MouseButton.ACCEPT,
-                }),
-            },
-        })
-
-        SquaddieTurnService.spendActionPoints(
-            battleSquaddieBase.squaddieTurn,
-            actionTemplate.actionPoints
         )
         return gameEngineState
     }

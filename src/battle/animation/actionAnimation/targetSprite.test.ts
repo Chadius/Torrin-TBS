@@ -33,6 +33,7 @@ import {
     DamageExplanationService,
 } from "../../history/battleAction/battleActionSquaddieChange"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 
 describe("Target Sprite", () => {
     let resultTookDamage: BattleActionSquaddieChange
@@ -55,13 +56,13 @@ describe("Target Sprite", () => {
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 5,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
-            },
+            }),
             battleId: battleSquaddieId,
             name: "Target",
             objectRepository: squaddieRepository,

@@ -22,6 +22,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
@@ -40,7 +41,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: squaddieRepository,
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues({
@@ -49,7 +50,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 }),
                 armorClass: 0,
                 maxHitPoints: 0,
-            },
+            }),
             actionTemplateIds: [],
         })
 

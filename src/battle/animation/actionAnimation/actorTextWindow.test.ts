@@ -25,6 +25,10 @@ import {
 } from "../../../squaddie/attributeModifier"
 import { BattleActionActionContextService } from "../../history/battleAction/battleActionActionContext"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
+import {
+    RollModifierType,
+    RollResultService,
+} from "../../calculator/actionCalculator/rollResult"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -93,10 +97,10 @@ describe("ActorTextWindow", () => {
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 5],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             }),
@@ -126,10 +130,10 @@ describe("ActorTextWindow", () => {
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             }),
@@ -157,10 +161,10 @@ describe("ActorTextWindow", () => {
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [6, 6],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             }),
@@ -190,10 +194,10 @@ describe("ActorTextWindow", () => {
                 actingBattleSquaddieId: "",
                 targetedBattleSquaddieIds: [],
                 actionContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 1],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             }),
@@ -224,16 +228,14 @@ describe("ActorTextWindow", () => {
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
                     actionContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
+                        actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
-                        },
-                        actingSquaddieModifiers: [
-                            AttributeTypeAndAmountService.new({
-                                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                                amount: -2,
-                            }),
-                        ],
+                            rollModifiers: {
+                                [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                            },
+                        }),
+                        actingSquaddieModifiers: [],
                     }),
                 }),
             })
@@ -262,16 +264,14 @@ describe("ActorTextWindow", () => {
                     actingBattleSquaddieId: "",
                     targetedBattleSquaddieIds: [],
                     actionContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
+                        actingSquaddieRoll: RollResultService.new({
                             occurred: true,
                             rolls: [1, 5],
-                        },
-                        actingSquaddieModifiers: [
-                            AttributeTypeAndAmountService.new({
-                                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                                amount: -2,
-                            }),
-                        ],
+                            rollModifiers: {
+                                [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                            },
+                        }),
+                        actingSquaddieModifiers: [],
                     }),
                 }),
             })

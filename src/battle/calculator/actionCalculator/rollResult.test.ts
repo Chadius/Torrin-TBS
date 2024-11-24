@@ -1,4 +1,4 @@
-import { RollResultService } from "./rollResult"
+import { RollModifierType, RollResultService } from "./rollResult"
 
 describe("Roll Result", () => {
     it("knows when the dice roll is a critical success", () => {
@@ -37,6 +37,21 @@ describe("Roll Result", () => {
                 })
             )
         ).toBeTruthy()
+    })
+
+    it("adds rolls and roll results to the total", () => {
+        expect(
+            RollResultService.totalAttackRoll(
+                RollResultService.new({
+                    rolls: [1, 3],
+                    occurred: true,
+                    rollModifiers: {
+                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
+                        [RollModifierType.TIER]: 4,
+                    },
+                })
+            )
+        ).toEqual(6)
     })
 
     describe("sanitize", () => {

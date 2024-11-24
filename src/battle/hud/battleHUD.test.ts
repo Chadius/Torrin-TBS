@@ -91,6 +91,8 @@ import { BattleActionQueueService } from "../history/battleAction/battleActionQu
 import { PopupWindow } from "./popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionPanelPosition } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { RollResultService } from "../calculator/actionCalculator/rollResult"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -1369,13 +1371,13 @@ describe("Battle HUD", () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     objectRepository: gameEngineState.repository,
                     actionTemplateIds: [longswordAction.id],
-                    attributes: {
+                    attributes: ArmyAttributesService.new({
                         maxHitPoints: 5,
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,
-                    },
+                    }),
                 }))
             MissionMapService.addSquaddie({
                 missionMap:
@@ -1471,10 +1473,10 @@ describe("Battle HUD", () => {
                             playerSoldierBattleSquaddie.battleSquaddieId,
                         actorContext: BattleActionActionContextService.new({
                             actingSquaddieModifiers: [],
-                            actingSquaddieRoll: {
+                            actingSquaddieRoll: RollResultService.new({
                                 occurred: false,
                                 rolls: [],
-                            },
+                            }),
                             targetSquaddieModifiers: {
                                 [thiefBattleSquaddie.battleSquaddieId]: [],
                             },
@@ -1583,10 +1585,10 @@ describe("Battle HUD", () => {
                             playerSoldierBattleSquaddie.battleSquaddieId,
                         actorContext: BattleActionActionContextService.new({
                             actingSquaddieModifiers: [],
-                            actingSquaddieRoll: {
+                            actingSquaddieRoll: RollResultService.new({
                                 occurred: false,
                                 rolls: [],
-                            },
+                            }),
                             targetSquaddieModifiers: {
                                 [thiefBattleSquaddie.battleSquaddieId]: [],
                             },
@@ -1638,10 +1640,10 @@ describe("Battle HUD", () => {
                             playerSoldierBattleSquaddie.battleSquaddieId,
                         actorContext: BattleActionActionContextService.new({
                             actingSquaddieModifiers: [],
-                            actingSquaddieRoll: {
+                            actingSquaddieRoll: RollResultService.new({
                                 occurred: false,
                                 rolls: [],
-                            },
+                            }),
                             targetSquaddieModifiers: {
                                 [thiefBattleSquaddie.battleSquaddieId]: [],
                             },

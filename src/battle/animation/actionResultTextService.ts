@@ -10,7 +10,10 @@ import { ActionResultText } from "./actionAnimation/actionResultText"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionTimer } from "./actionAnimation/actionTimer"
 import { ActionAnimationPhase } from "./actionAnimation/actionAnimationConstants"
-import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import {
+    RollModifierType,
+    RollResultService,
+} from "../calculator/actionCalculator/rollResult"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     ActionEffectTemplate,
@@ -57,12 +60,14 @@ export const ActionResultTextService = {
         actingBattleSquaddieId,
         squaddieRepository,
         actingSquaddieModifiers,
+        rollModifiers,
     }: {
         actionTemplate: ActionTemplate
         currentActionEffectTemplate: ActionEffectTemplate
         actingBattleSquaddieId: string
         squaddieRepository: ObjectRepository
         actingSquaddieModifiers: AttributeTypeAndAmount[]
+        rollModifiers: { [r in RollModifierType]?: number }
     }): string[] => {
         return outputIntentForTextOnly({
             actionTemplate,
@@ -70,6 +75,7 @@ export const ActionResultTextService = {
             actingBattleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers,
+            rollModifiers,
         })
     },
     getSquaddieUsesActionString: ({
@@ -167,32 +173,40 @@ export const ActionResultTextService = {
                 ActionAnimationPhase.SHOWING_RESULTS,
                 ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
             ].includes(timer.currentPhase) &&
-            results.actingContext.actingSquaddieRoll.occurred
+            results.actingContext.actorRoll.occurred
         ) {
             actorUsesActionDescriptionText += `\n\n`
-            actorUsesActionDescriptionText += `   rolls(${results.actingContext.actingSquaddieRoll.rolls[0]}, ${results.actingContext.actingSquaddieRoll.rolls[1]})`
+            actorUsesActionDescriptionText += `   rolls(${results.actingContext.actorRoll.rolls[0]}, ${results.actingContext.actorRoll.rolls[1]})`
 
             const attackPenaltyDescriptions =
                 ActionResultText.getAttackPenaltyDescriptions(
-                    results.actingContext.actingSquaddieModifiers
+                    results.actingContext.actorAttributeModifiers
                 )
             if (attackPenaltyDescriptions.length > 0) {
                 actorUsesActionDescriptionText +=
                     "\n" + attackPenaltyDescriptions.join("\n")
+            }
+            const attackRollModifierDescriptions =
+                ActionResultText.getRollModifierDescriptions(
+                    results.actingContext.actorRoll.rollModifiers
+                )
+            if (attackRollModifierDescriptions.length > 0) {
+                actorUsesActionDescriptionText +=
+                    "\n" + attackRollModifierDescriptions.join("\n")
             }
 
             actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actingContext)}`
 
             if (
                 RollResultService.isACriticalSuccess(
-                    results.actingContext.actingSquaddieRoll
+                    results.actingContext.actorRoll
                 )
             ) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`
             }
             if (
                 RollResultService.isACriticalFailure(
-                    results.actingContext.actingSquaddieRoll
+                    results.actingContext.actorRoll
                 )
             ) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL MISS!!`
@@ -349,10 +363,10 @@ const outputResultForTextOnly = ({
         })
     output.push(actorUsesActionDescriptionText)
 
-    if (actingContext?.actingSquaddieRoll.occurred) {
+    if (actingContext?.actorRoll.occurred) {
         output.push(
             ActionResultTextService.getRollsDescriptionString({
-                rolls: actingContext.actingSquaddieRoll.rolls,
+                rolls: actingContext.actorRoll.rolls,
                 addSpacing: true,
             })
         )
@@ -369,7 +383,12 @@ const outputResultForTextOnly = ({
         ) {
             output.push(
                 ...ActionResultText.getAttackPenaltyDescriptions(
-                    actingContext.actingSquaddieModifiers
+                    actingContext.actorAttributeModifiers
+                )
+            )
+            output.push(
+                ...ActionResultText.getRollModifierDescriptions(
+                    actingContext.actorRoll.rollModifiers
                 )
             )
             output.push(
@@ -487,12 +506,14 @@ const outputIntentForTextOnly = ({
     actingBattleSquaddieId,
     squaddieRepository,
     actingSquaddieModifiers,
+    rollModifiers,
 }: {
     actionTemplate: ActionTemplate
     currentActionEffectTemplate: ActionEffectTemplate
     actingBattleSquaddieId: string
     squaddieRepository: ObjectRepository
     actingSquaddieModifiers: AttributeTypeAndAmount[]
+    rollModifiers: { [r in RollModifierType]?: number }
 }): string[] => {
     const { squaddieTemplate: actingSquaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
@@ -519,6 +540,9 @@ const outputIntentForTextOnly = ({
             ...ActionResultText.getAttackPenaltyDescriptions(
                 actingSquaddieModifiers
             )
+        )
+        output.push(
+            ...ActionResultText.getRollModifierDescriptions(rollModifiers)
         )
     }
 

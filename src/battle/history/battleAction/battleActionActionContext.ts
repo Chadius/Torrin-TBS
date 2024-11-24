@@ -1,10 +1,13 @@
 import { AttributeTypeAndAmount } from "../../../squaddie/attributeModifier"
-import { RollResult } from "../../calculator/actionCalculator/rollResult"
+import {
+    RollResult,
+    RollResultService,
+} from "../../calculator/actionCalculator/rollResult"
 
 export interface BattleActionActionContext {
-    actingSquaddieModifiers: AttributeTypeAndAmount[]
-    actingSquaddieRoll: RollResult
-    targetSquaddieModifiers: {
+    actorAttributeModifiers: AttributeTypeAndAmount[]
+    actorRoll: RollResult
+    targetAttributeModifiers: {
         [squaddieId: string]: AttributeTypeAndAmount[]
     }
 }
@@ -28,9 +31,9 @@ export const BattleActionActionContextService = {
         }),
     clone: (original: BattleActionActionContext): BattleActionActionContext =>
         newBattleActionActionContext({
-            actingSquaddieModifiers: original.actingSquaddieModifiers,
-            actingSquaddieRoll: original.actingSquaddieRoll,
-            targetSquaddieModifiers: original.targetSquaddieModifiers,
+            actingSquaddieModifiers: original.actorAttributeModifiers,
+            actingSquaddieRoll: original.actorRoll,
+            targetSquaddieModifiers: original.targetAttributeModifiers,
         }),
 }
 
@@ -45,10 +48,12 @@ const newBattleActionActionContext = ({
         [squaddieId: string]: AttributeTypeAndAmount[]
     }
 }): BattleActionActionContext => ({
-    actingSquaddieModifiers: actingSquaddieModifiers ?? [],
-    targetSquaddieModifiers: targetSquaddieModifiers ?? {},
-    actingSquaddieRoll: actingSquaddieRoll ?? {
-        occurred: false,
-        rolls: [],
-    },
+    actorAttributeModifiers: actingSquaddieModifiers ?? [],
+    targetAttributeModifiers: targetSquaddieModifiers ?? {},
+    actorRoll:
+        actingSquaddieRoll ??
+        RollResultService.new({
+            occurred: false,
+            rolls: [],
+        }),
 })

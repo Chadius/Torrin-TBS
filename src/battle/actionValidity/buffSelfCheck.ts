@@ -145,8 +145,8 @@ const estimatedHealingOnTarget = ({
                         targetSquaddieModifiers: {},
                     }),
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    targetedSquaddieTemplate: squaddieTemplate,
-                    targetedBattleSquaddie: battleSquaddie,
+                    targetSquaddieTemplate: squaddieTemplate,
+                    targetBattleSquaddie: battleSquaddie,
                 }
             )
         })
@@ -178,8 +178,8 @@ const willAddModifiersToTarget = ({
                         targetSquaddieModifiers: {},
                     }),
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    targetedSquaddieTemplate: squaddieTemplate,
-                    targetedBattleSquaddie: battleSquaddie,
+                    targetSquaddieTemplate: squaddieTemplate,
+                    targetBattleSquaddie: battleSquaddie,
                 }
             )
         })

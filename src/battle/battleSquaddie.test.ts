@@ -9,6 +9,7 @@ import {
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../squaddie/movement"
+import { ArmyAttributesService } from "../squaddie/armyAttributes"
 
 describe("BattleSquaddie", () => {
     it("throws an error if battle squaddie has no template Id", () => {
@@ -59,13 +60,13 @@ describe("BattleSquaddie", () => {
                         actionSpritesByEmotion: {},
                     },
                 },
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     armorClass: 2,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                },
+                }),
             })
         })
 
@@ -127,13 +128,13 @@ describe("BattleSquaddie", () => {
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
                 inBattleAttributes: InBattleAttributesService.new({
-                    armyAttributes: {
+                    armyAttributes: ArmyAttributesService.new({
                         maxHitPoints: 9001,
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 0,
-                    },
+                    }),
                 }),
             })
 

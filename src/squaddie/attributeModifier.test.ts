@@ -343,18 +343,16 @@ describe("AttributeModifier", () => {
         const binaryStatus: { [t in AttributeType]: boolean } = {
             [AttributeType.ARMOR]: false,
             [AttributeType.ABSORB]: false,
-            [AttributeType.MULTIPLE_ATTACK_PENALTY]: false,
             [AttributeType.MOVEMENT]: false,
             [AttributeType.IGNORE_TERRAIN_COST]: true,
         }
 
         test.each`
-            attributeType                            | isBinary
-            ${AttributeType.ARMOR}                   | ${binaryStatus[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}                  | ${binaryStatus[AttributeType.ABSORB]}
-            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${binaryStatus[AttributeType.MULTIPLE_ATTACK_PENALTY]}
-            ${AttributeType.MOVEMENT}                | ${binaryStatus[AttributeType.MOVEMENT]}
-            ${AttributeType.IGNORE_TERRAIN_COST}     | ${binaryStatus[AttributeType.IGNORE_TERRAIN_COST]}
+            attributeType                        | isBinary
+            ${AttributeType.ARMOR}               | ${binaryStatus[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}              | ${binaryStatus[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT}            | ${binaryStatus[AttributeType.MOVEMENT]}
+            ${AttributeType.IGNORE_TERRAIN_COST} | ${binaryStatus[AttributeType.IGNORE_TERRAIN_COST]}
         `(
             "$attributeType is binary: $isBinary",
             ({ attributeType, isBinary }) => {
@@ -375,18 +373,16 @@ describe("AttributeModifier", () => {
         const readableName: { [t in AttributeType]: string } = {
             [AttributeType.ARMOR]: "Armor",
             [AttributeType.ABSORB]: "Absorb",
-            [AttributeType.MULTIPLE_ATTACK_PENALTY]: "Multiple attack penalty",
             [AttributeType.MOVEMENT]: "Movement",
             [AttributeType.IGNORE_TERRAIN_COST]: "Ignore terrain cost",
         }
 
         test.each`
-            attributeType                            | readableName
-            ${AttributeType.ARMOR}                   | ${readableName[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}                  | ${readableName[AttributeType.ABSORB]}
-            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${readableName[AttributeType.MULTIPLE_ATTACK_PENALTY]}
-            ${AttributeType.MOVEMENT}                | ${readableName[AttributeType.MOVEMENT]}
-            ${AttributeType.IGNORE_TERRAIN_COST}     | ${readableName[AttributeType.IGNORE_TERRAIN_COST]}
+            attributeType                        | readableName
+            ${AttributeType.ARMOR}               | ${readableName[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}              | ${readableName[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT}            | ${readableName[AttributeType.MOVEMENT]}
+            ${AttributeType.IGNORE_TERRAIN_COST} | ${readableName[AttributeType.IGNORE_TERRAIN_COST]}
         `(
             "$attributeType readable name is: $readableName",
             ({ attributeType, readableName }) => {
@@ -405,21 +401,18 @@ describe("AttributeModifier", () => {
 
     describe("knows how to make attribute descriptions", () => {
         const readableDescription: { [t in AttributeType]: string } = {
-            [AttributeType.ARMOR]: "Armor +1 (Circumstance)",
+            [AttributeType.ARMOR]: "Armor -1 (Circumstance)",
             [AttributeType.ABSORB]: "Absorb +2 (Item)",
-            [AttributeType.MULTIPLE_ATTACK_PENALTY]:
-                "Multiple attack penalty -3 (Circumstance)",
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
             [AttributeType.IGNORE_TERRAIN_COST]:
                 "Ignore terrain cost (Circumstance)",
         }
 
         test.each`
-            attributeType                            | amount | source                          | readableDescription
-            ${AttributeType.ARMOR}                   | ${1}   | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}                  | ${2}   | ${AttributeSource.ITEM}         | ${readableDescription[AttributeType.ABSORB]}
-            ${AttributeType.MULTIPLE_ATTACK_PENALTY} | ${-3}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.MULTIPLE_ATTACK_PENALTY]}
-            ${AttributeType.MOVEMENT}                | ${0}   | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.MOVEMENT]}
+            attributeType             | amount | source                          | readableDescription
+            ${AttributeType.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}   | ${2}   | ${AttributeSource.ITEM}         | ${readableDescription[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT} | ${0}   | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.MOVEMENT]}
         `(
             "$attributeType $amount $source description is: $readableDescription",
             ({ attributeType, amount, source, readableDescription }) => {

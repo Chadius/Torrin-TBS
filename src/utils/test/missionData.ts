@@ -21,6 +21,7 @@ import {
     ActionDecisionType,
     ActionTemplate,
 } from "../../action/template/actionTemplate"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -614,7 +615,7 @@ export const TestMissionData = () => {
                 },
                 affiliation: SquaddieAffiliation.ENEMY,
             },
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 3,
                 armorClass: 5,
                 movement: {
@@ -623,7 +624,7 @@ export const TestMissionData = () => {
                     crossOverPits: false,
                     ignoreTerrainCost: false,
                 },
-            },
+            }),
             actionTemplateIds: ["demon_slither_bite"],
         })
     const enemyDemonSlitherTemplate2: SquaddieTemplate =
@@ -654,7 +655,7 @@ export const TestMissionData = () => {
             },
             affiliation: SquaddieAffiliation.ALLY,
         },
-        attributes: {
+        attributes: ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 5,
             movement: {
@@ -663,7 +664,7 @@ export const TestMissionData = () => {
                 crossOverPits: false,
                 ignoreTerrainCost: false,
             },
-        },
+        }),
         actionTemplateIds: ["short_sword"],
     })
     const noAffiliationLivingFlameTemplate: SquaddieTemplate =
@@ -686,7 +687,7 @@ export const TestMissionData = () => {
                 },
                 affiliation: SquaddieAffiliation.ALLY,
             },
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 3,
                 armorClass: 5,
                 movement: {
@@ -695,7 +696,7 @@ export const TestMissionData = () => {
                     crossOverPits: false,
                     ignoreTerrainCost: false,
                 },
-            },
+            }),
             actionTemplateIds: ["ignition"],
         })
     const npcActionTemplates: ActionTemplate[] = [

@@ -28,11 +28,14 @@ import {
     AttributeModifierService,
     AttributeSource,
     AttributeType,
-    AttributeTypeAndAmountService,
 } from "../../squaddie/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    RollModifierType,
+    RollResultService,
+} from "../calculator/actionCalculator/rollResult"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -179,10 +182,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -224,10 +227,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -292,10 +295,10 @@ describe("Action Result Text Writer", () => {
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                     actingContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
+                        actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
-                        },
+                        }),
                         actingSquaddieModifiers: [],
                     }),
                 })
@@ -343,10 +346,10 @@ describe("Action Result Text Writer", () => {
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                     actingContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
+                        actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
-                        },
+                        }),
                         actingSquaddieModifiers: [],
                     }),
                 })
@@ -421,10 +424,10 @@ describe("Action Result Text Writer", () => {
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                     actingContext: BattleActionActionContextService.new({
-                        actingSquaddieRoll: {
+                        actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
-                        },
+                        }),
                         actingSquaddieModifiers: [],
                     }),
                 })
@@ -444,6 +447,7 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
+                rollModifiers: {},
                 actingSquaddieModifiers: [],
             })
 
@@ -459,12 +463,10 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
-                actingSquaddieModifiers: [
-                    AttributeTypeAndAmountService.new({
-                        type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                        amount: -6,
-                    }),
-                ],
+                rollModifiers: {
+                    [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -6,
+                },
+                actingSquaddieModifiers: [],
             })
 
         expect(outputStrings).toHaveLength(2)
@@ -479,12 +481,10 @@ describe("Action Result Text Writer", () => {
                     .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieRepository,
-                actingSquaddieModifiers: [
-                    AttributeTypeAndAmountService.new({
-                        type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                        amount: -6,
-                    }),
-                ],
+                rollModifiers: {
+                    [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -6,
+                },
+                actingSquaddieModifiers: [],
             })
 
         expect(outputStrings).toHaveLength(1)
@@ -520,10 +520,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -565,10 +565,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 2],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -602,10 +602,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [6, 6],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -638,10 +638,10 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 1],
-                    },
+                    }),
                     actingSquaddieModifiers: [],
                 }),
             })
@@ -682,16 +682,14 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
-                    },
-                    actingSquaddieModifiers: [
-                        AttributeTypeAndAmountService.new({
-                            type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                            amount: -3,
-                        }),
-                    ],
+                        rollModifiers: {
+                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                        },
+                    }),
+                    actingSquaddieModifiers: [],
                 }),
             })
 
@@ -733,16 +731,14 @@ describe("Action Result Text Writer", () => {
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
                 actingContext: BattleActionActionContextService.new({
-                    actingSquaddieRoll: {
+                    actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],
-                    },
-                    actingSquaddieModifiers: [
-                        AttributeTypeAndAmountService.new({
-                            type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                            amount: -3,
-                        }),
-                    ],
+                        rollModifiers: {
+                            [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                        },
+                    }),
+                    actingSquaddieModifiers: [],
                 }),
             })
 

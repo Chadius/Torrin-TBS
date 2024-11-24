@@ -1,14 +1,16 @@
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { BattleSquaddie } from "../../battleSquaddie"
-import { DIE_SIZE, RollResult, RollResultService } from "./rollResult"
+import {
+    DIE_SIZE,
+    RollModifierType,
+    RollResult,
+    RollResultService,
+} from "./rollResult"
 import {
     AttributeModifier,
-    AttributeType,
     AttributeTypeAndAmount,
-    AttributeTypeAndAmountService,
 } from "../../../squaddie/attributeModifier"
 import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
-import { BattleOrchestratorState } from "../../orchestrator/battleOrchestratorState"
 import {
     Trait,
     TraitStatusStorageService,
@@ -35,10 +37,12 @@ export const CalculatorAttack = {
         actionEffectSquaddieTemplate,
         actionContext,
         actingBattleSquaddie,
-        targetedBattleSquaddie,
+        targetBattleSquaddie,
+        targetSquaddieTemplate,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetBattleSquaddie: BattleSquaddie
+        targetSquaddieTemplate: SquaddieTemplate
         actionContext: BattleActionActionContext
         actingBattleSquaddie: BattleSquaddie
     }): DegreeOfSuccess =>
@@ -46,7 +50,8 @@ export const CalculatorAttack = {
             actionEffectSquaddieTemplate,
             actionContext,
             actingBattleSquaddie,
-            targetedBattleSquaddie,
+            targetBattleSquaddie,
+            targetSquaddieTemplate,
         }),
     getActingSquaddieModifiersForAttack: (
         gameEngineState: GameEngineState
@@ -56,49 +61,52 @@ export const CalculatorAttack = {
         actionEffectSquaddieTemplate,
         actionContext,
         degreeOfSuccess,
-        targetedSquaddieTemplate,
-        targetedBattleSquaddie,
+        targetSquaddieTemplate,
+        targetBattleSquaddie,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
         actionContext: BattleActionActionContext
         degreeOfSuccess: DegreeOfSuccess
-        targetedSquaddieTemplate: SquaddieTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetSquaddieTemplate: SquaddieTemplate
+        targetBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
         calculateEffectBasedOnDegreeOfSuccess({
             actionEffectSquaddieTemplate,
             actionContext,
             degreeOfSuccess,
-            targetedSquaddieTemplate,
-            targetedBattleSquaddie,
+            targetSquaddieTemplate,
+            targetBattleSquaddie,
         }),
     getTargetSquaddieModifiers: ({
         actionEffectSquaddieTemplate,
-        targetedBattleSquaddie,
+        targetBattleSquaddie,
     }: {
         actionEffectSquaddieTemplate: ActionEffectTemplate
-        targetedBattleSquaddie: BattleSquaddie
+        targetBattleSquaddie: BattleSquaddie
     }): AttributeTypeAndAmount[] =>
         getTargetSquaddieModifiers({
             actionEffectSquaddieTemplate,
-            targetedBattleSquaddie,
+            targetBattleSquaddie,
         }),
     getActorContext: ({
-        actionEffectSquaddieTemplate,
+        actionEffectTemplate,
         gameEngineState,
+        actorBattleSquaddie,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectTemplate
+        actionEffectTemplate: ActionEffectTemplate
         gameEngineState: GameEngineState
+        actorBattleSquaddie: BattleSquaddie
     }): BattleActionActionContext => {
         let actingSquaddieModifiers =
             CalculatorAttack.getActingSquaddieModifiersForAttack(
                 gameEngineState
             )
         let actingSquaddieRoll: RollResult
-        actingSquaddieRoll = maybeMakeAttackRoll(
-            actionEffectSquaddieTemplate,
-            gameEngineState.battleOrchestratorState
-        )
+        actingSquaddieRoll = maybeMakeAttackRoll({
+            actionEffectTemplate,
+            gameEngineState,
+            actorBattleSquaddie,
+        })
 
         return BattleActionActionContextService.new({
             actingSquaddieModifiers,
@@ -132,15 +140,7 @@ const calculateMultipleAttackPenaltyForActionsThisTurn = (
 const getActingSquaddieModifiersForAttack = (
     gameEngineState: GameEngineState
 ): AttributeTypeAndAmount[] => {
-    let multipleAttackPenalty =
-        calculateMultipleAttackPenaltyForActionsThisTurn(gameEngineState)
-
-    return [
-        AttributeTypeAndAmountService.new({
-            type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-            amount: multipleAttackPenalty,
-        }),
-    ].filter((attribute) => attribute.amount !== 0)
+    return [].filter((attribute) => attribute.amount !== 0)
 }
 
 const conformToSixSidedDieRoll = (numberGeneratorResult: number): number => {
@@ -148,22 +148,37 @@ const conformToSixSidedDieRoll = (numberGeneratorResult: number): number => {
     return inRangeNumber === 0 ? DIE_SIZE : inRangeNumber
 }
 
-const maybeMakeAttackRoll = (
-    squaddieAction: ActionEffectTemplate,
-    battleOrchestratorState: BattleOrchestratorState
-): RollResult => {
-    if (doesActionNeedAnAttackRoll(squaddieAction)) {
+const maybeMakeAttackRoll = ({
+    actionEffectTemplate,
+    gameEngineState,
+    actorBattleSquaddie,
+}: {
+    actionEffectTemplate: ActionEffectTemplate
+    gameEngineState: GameEngineState
+    actorBattleSquaddie: BattleSquaddie
+}): RollResult => {
+    if (doesActionNeedAnAttackRoll(actionEffectTemplate)) {
+        const rollModifiers = {
+            [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
+                calculateMultipleAttackPenaltyForActionsThisTurn(
+                    gameEngineState
+                ),
+            [RollModifierType.TIER]:
+                actorBattleSquaddie.inBattleAttributes.armyAttributes.tier,
+        }
+
         const attackRoll = [
             conformToSixSidedDieRoll(
-                battleOrchestratorState.numberGenerator.next()
+                gameEngineState.battleOrchestratorState.numberGenerator.next()
             ),
             conformToSixSidedDieRoll(
-                battleOrchestratorState.numberGenerator.next()
+                gameEngineState.battleOrchestratorState.numberGenerator.next()
             ),
         ]
         return RollResultService.new({
             occurred: true,
             rolls: [...attackRoll],
+            rollModifiers,
         })
     }
     return RollResultService.new({
@@ -188,14 +203,14 @@ const isActionAgainstArmor = (
 
 const getTargetSquaddieModifiers = ({
     actionEffectSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetBattleSquaddie,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
 }): AttributeTypeAndAmount[] => {
     if (isActionAgainstArmor(actionEffectSquaddieTemplate)) {
         return CalculateAgainstArmor.getTargetSquaddieModifierTotal(
-            targetedBattleSquaddie
+            targetBattleSquaddie
         )
     }
 
@@ -206,13 +221,15 @@ const compareAttackRollToGetDegreeOfSuccess = ({
     actor,
     actingSquaddieRoll,
     actionEffectSquaddieTemplate,
-    target,
+    targetBattleSquaddie,
+    targetSquaddieTemplate,
     actingSquaddieModifierTotal,
 }: {
     actor: BattleSquaddie
     actingSquaddieRoll: RollResult
     actionEffectSquaddieTemplate: ActionEffectTemplate
-    target: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
+    targetSquaddieTemplate: SquaddieTemplate
     actingSquaddieModifierTotal: number
 }): DegreeOfSuccess => {
     if (
@@ -248,20 +265,18 @@ const compareAttackRollToGetDegreeOfSuccess = ({
     let totalAttackRoll =
         RollResultService.totalAttackRoll(actingSquaddieRoll) +
         actingSquaddieModifierTotal
+    let targetArmorClass = SquaddieService.getArmorClass({
+        battleSquaddie: targetBattleSquaddie,
+        squaddieTemplate: targetSquaddieTemplate,
+    }).net
     if (
         canCriticallySucceed &&
-        totalAttackRoll >=
-            target.inBattleAttributes.armyAttributes.armorClass + DIE_SIZE
+        totalAttackRoll >= targetArmorClass + DIE_SIZE
     ) {
         return DegreeOfSuccess.CRITICAL_SUCCESS
-    } else if (
-        totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass
-    ) {
+    } else if (totalAttackRoll >= targetArmorClass) {
         return DegreeOfSuccess.SUCCESS
-    } else if (
-        totalAttackRoll <=
-        target.inBattleAttributes.armyAttributes.armorClass - DIE_SIZE
-    ) {
+    } else if (totalAttackRoll <= targetArmorClass - DIE_SIZE) {
         return DegreeOfSuccess.CRITICAL_FAILURE
     } else {
         return DegreeOfSuccess.FAILURE
@@ -270,17 +285,19 @@ const compareAttackRollToGetDegreeOfSuccess = ({
 
 const getDegreeOfSuccess = ({
     actionEffectSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetBattleSquaddie,
+    targetSquaddieTemplate,
     actionContext,
     actingBattleSquaddie,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetBattleSquaddie: BattleSquaddie
+    targetSquaddieTemplate: SquaddieTemplate
     actingBattleSquaddie: BattleSquaddie
     actionContext: BattleActionActionContext
 }): DegreeOfSuccess => {
     let actingSquaddieModifierTotal: number =
-        actionContext.actingSquaddieModifiers.reduce(
+        actionContext.actorAttributeModifiers.reduce(
             (previousValue: number, currentValue: AttributeTypeAndAmount) => {
                 return previousValue + currentValue.amount
             },
@@ -288,8 +305,8 @@ const getDegreeOfSuccess = ({
         )
 
     let targetSquaddieModifierTotal: number =
-        actionContext.targetSquaddieModifiers[
-            targetedBattleSquaddie.battleSquaddieId
+        actionContext.targetAttributeModifiers[
+            targetBattleSquaddie.battleSquaddieId
         ].reduce(
             (previousValue: number, currentValue: AttributeTypeAndAmount) => {
                 return previousValue + currentValue.amount
@@ -300,8 +317,9 @@ const getDegreeOfSuccess = ({
     return compareAttackRollToGetDegreeOfSuccess({
         actionEffectSquaddieTemplate,
         actor: actingBattleSquaddie,
-        target: targetedBattleSquaddie,
-        actingSquaddieRoll: actionContext.actingSquaddieRoll,
+        targetBattleSquaddie: targetBattleSquaddie,
+        targetSquaddieTemplate: targetSquaddieTemplate,
+        actingSquaddieRoll: actionContext.actorRoll,
         actingSquaddieModifierTotal:
             actingSquaddieModifierTotal - targetSquaddieModifierTotal,
     })
@@ -311,14 +329,14 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
     actionEffectSquaddieTemplate,
     actionContext,
     degreeOfSuccess,
-    targetedSquaddieTemplate,
-    targetedBattleSquaddie,
+    targetSquaddieTemplate,
+    targetBattleSquaddie,
 }: {
     actionEffectSquaddieTemplate: ActionEffectTemplate
     actionContext: BattleActionActionContext
     degreeOfSuccess: DegreeOfSuccess
-    targetedSquaddieTemplate: SquaddieTemplate
-    targetedBattleSquaddie: BattleSquaddie
+    targetSquaddieTemplate: SquaddieTemplate
+    targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
     let damageExplanation: DamageExplanation = DamageExplanationService.new({})
 
@@ -334,8 +352,8 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
             }
             const damageExplanationForThisEffect =
                 SquaddieService.calculateDealtDamageToTheSquaddie({
-                    squaddieTemplate: targetedSquaddieTemplate,
-                    battleSquaddie: targetedBattleSquaddie,
+                    squaddieTemplate: targetSquaddieTemplate,
+                    battleSquaddie: targetBattleSquaddie,
                     damage: rawDamageFromAction,
                     damageType,
                 })

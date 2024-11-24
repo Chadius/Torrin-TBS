@@ -20,6 +20,7 @@ import { ActionEffectTemplateService } from "../action/template/actionEffectTemp
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { TargetConstraintsService } from "../action/targetConstraints"
+import { ArmyAttributesService } from "../squaddie/armyAttributes"
 
 describe("Object Repository", () => {
     let objectRepository: ObjectRepository
@@ -29,7 +30,7 @@ describe("Object Repository", () => {
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         squaddieTemplateBase = SquaddieTemplateService.new({
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 1,
                 armorClass: 0,
                 movement: SquaddieMovementService.new({
@@ -40,7 +41,7 @@ describe("Object Repository", () => {
                         },
                     },
                 }),
-            },
+            }),
             squaddieId: {
                 templateId: "player_young_torrin",
                 name: "Torrin",

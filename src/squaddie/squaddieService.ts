@@ -166,7 +166,8 @@ export const SquaddieService = {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
     }): {
-        normalArmorClass: number
+        net: number
+        initial: number
     } => {
         return getArmorClass({ squaddieTemplate, battleSquaddie })
     },
@@ -280,10 +281,14 @@ const getArmorClass = ({
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 }): {
-    normalArmorClass: number
+    net: number
+    initial: number
 } => {
     return {
-        normalArmorClass: squaddieTemplate.attributes.armorClass,
+        initial: squaddieTemplate.attributes.armorClass,
+        net:
+            squaddieTemplate.attributes.armorClass +
+            squaddieTemplate.attributes.tier,
     }
 }
 

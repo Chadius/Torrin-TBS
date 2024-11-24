@@ -31,7 +31,8 @@
           "movementPerAction": 2,
           "passThroughWalls": false,
           "crossOverPits": false
-        }
+        },
+        "tier": 1
       },
       "actionTemplateIds": [
         "torrin_water_cannon",
@@ -69,7 +70,8 @@
           "movementPerAction": 2,
           "passThroughWalls": false,
           "crossOverPits": false
-        }
+        },
+        "tier": 1
       },
       "actionTemplateIds": [
         "sir_camil_longsword",
@@ -107,7 +109,8 @@
           "movementPerAction": 3,
           "passThroughWalls": false,
           "crossOverPits": false
-        }
+        },
+        "tier": 1
       },
       "actionTemplateIds": [
         "petra-shard-stab"

@@ -24,6 +24,7 @@ import {
 } from "../../../action/template/actionEffectTemplate"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
+import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository
@@ -40,13 +41,13 @@ describe("Actor Sprite", () => {
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
-            attributes: {
+            attributes: ArmyAttributesService.new({
                 maxHitPoints: 5,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
                 armorClass: 0,
-            },
+            }),
             battleId: battleSquaddieId,
             name: "actor",
             objectRepository: squaddieRepository,

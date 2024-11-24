@@ -189,7 +189,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
 
         expect(
-            results[0].actingContext.targetSquaddieModifiers[
+            results[0].actingContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
             ].find((t) => t.type === AttributeType.ARMOR).amount
         ).toEqual(8)
@@ -261,7 +261,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
 
         expect(
-            results[0].actingContext.targetSquaddieModifiers[
+            results[0].actingContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
             ].find((t) => t.type === AttributeType.ARMOR)
         ).toBeUndefined()

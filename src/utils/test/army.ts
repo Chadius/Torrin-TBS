@@ -14,6 +14,7 @@ import {
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -46,28 +47,28 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 3,
                     armorClass: 6,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
-                },
+                }),
                 actionTemplateIds: [
                     "torrin_water_cannon",
                     "young_torrin_healing_touch",
                 ],
             }),
             SquaddieTemplateService.new({
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     armorClass: 8,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                         traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
-                },
+                }),
                 squaddieId: {
                     templateId: "player_sir_camil",
                     name: "Sir Camil",

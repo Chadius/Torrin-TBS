@@ -66,6 +66,7 @@ import {
 import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../action/targetConstraints"
+import { ArmyAttributesService } from "../squaddie/armyAttributes"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -330,7 +331,7 @@ describe("User Selects Target and Confirms", () => {
                         }),
                         healingReceived: 0,
                         attributesAfter: InBattleAttributesService.new({
-                            armyAttributes: {
+                            armyAttributes: ArmyAttributesService.new({
                                 armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
@@ -339,11 +340,11 @@ describe("User Selects Target and Confirms", () => {
                                     passThroughWalls: false,
                                     ignoreTerrainCost: false,
                                 },
-                            },
+                            }),
                             currentHitPoints: 4,
                         }),
                         attributesBefore: InBattleAttributesService.new({
-                            armyAttributes: {
+                            armyAttributes: ArmyAttributesService.new({
                                 armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
@@ -352,7 +353,7 @@ describe("User Selects Target and Confirms", () => {
                                     passThroughWalls: false,
                                     ignoreTerrainCost: false,
                                 },
-                            },
+                            }),
                             currentHitPoints: 5,
                         }),
                         battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
@@ -408,7 +409,7 @@ describe("User Selects Target and Confirms", () => {
                         }),
                         healingReceived: 0,
                         attributesAfter: InBattleAttributesService.new({
-                            armyAttributes: {
+                            armyAttributes: ArmyAttributesService.new({
                                 armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
@@ -417,11 +418,11 @@ describe("User Selects Target and Confirms", () => {
                                     passThroughWalls: false,
                                     ignoreTerrainCost: false,
                                 },
-                            },
+                            }),
                             currentHitPoints: 4,
                         }),
                         attributesBefore: InBattleAttributesService.new({
-                            armyAttributes: {
+                            armyAttributes: ArmyAttributesService.new({
                                 armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
@@ -430,7 +431,7 @@ describe("User Selects Target and Confirms", () => {
                                     passThroughWalls: false,
                                     ignoreTerrainCost: false,
                                 },
-                            },
+                            }),
                             currentHitPoints: 5,
                         }),
                         battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,

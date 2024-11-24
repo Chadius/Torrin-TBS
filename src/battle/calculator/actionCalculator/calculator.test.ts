@@ -4,7 +4,7 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { MissionMap } from "../../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     Trait,
@@ -48,6 +48,7 @@ import {
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { RollModifierType } from "./rollResult"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -138,6 +139,7 @@ describe("calculator", () => {
                         movementPerAction: 2,
                     }),
                     armorClass: 1,
+                    tier: 0,
                 },
             }))
         ;({ battleSquaddie: enemy1BattleSquaddie } =
@@ -157,6 +159,7 @@ describe("calculator", () => {
                         movementPerAction: 2,
                     }),
                     armorClass: 7,
+                    tier: 0,
                 },
             }))
         ;({ battleSquaddie: ally1BattleSquaddie } =
@@ -172,6 +175,7 @@ describe("calculator", () => {
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
+                    tier: 0,
                 },
                 actionTemplateIds: [],
             }))
@@ -287,9 +291,7 @@ describe("calculator", () => {
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
-            expect(
-                results[0].actingContext.actingSquaddieRoll.occurred
-            ).toBeFalsy()
+            expect(results[0].actingContext.actorRoll.occurred).toBeFalsy()
         })
 
         it("will require a roll for attacks that require rolls", () => {
@@ -302,12 +304,8 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(
-                results[0].actingContext.actingSquaddieRoll.occurred
-            ).toBeTruthy()
-            expect(results[0].actingContext.actingSquaddieRoll.rolls).toEqual([
-                1, 6,
-            ])
+            expect(results[0].actingContext.actorRoll.occurred).toBeTruthy()
+            expect(results[0].actingContext.actorRoll.rolls).toEqual([1, 6])
         })
 
         it("will record the damage dealt by the player to mission statistics", () => {
@@ -804,15 +802,94 @@ describe("calculator", () => {
                 DegreeOfSuccess.FAILURE
             )
             expect(
-                results[0].actingContext.actingSquaddieModifiers.find(
-                    (modifierAndType) =>
-                        modifierAndType.type ===
-                        AttributeType.MULTIPLE_ATTACK_PENALTY
+                results[0].actingContext.actorRoll.rollModifiers[
+                    RollModifierType.MULTIPLE_ATTACK_PENALTY
+                ]
+            ).toEqual(-3)
+        })
+
+        it("will apply the tier bonus to the attacker roll to increase change of hitting", () => {
+            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    enemy1DynamicId
                 )
-            ).toEqual({
-                type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                amount: -3,
+            )
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+
+            const { battleSquaddie: playerTier1BattleSquaddie } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleId: "playerTier1",
+                    templateId: "playerTier1",
+                    name: "playerTier1",
+                    objectRepository: objectRepository,
+                    actionTemplateIds: [
+                        actionAlwaysHitsAndDealsBodyDamage.id,
+                        actionNeedsAnAttackRollToDealBodyDamage.id,
+                    ],
+                    attributes: {
+                        maxHitPoints: 5,
+                        movement: SquaddieMovementService.new({
+                            movementPerAction: 2,
+                        }),
+                        armorClass: 1,
+                        tier: 1,
+                    },
+                })
+
+            const expectedRolls: number[] = [1, 5]
+            const numberGenerator: StreamNumberGenerator =
+                new StreamNumberGenerator({ results: expectedRolls })
+
+            const results = dealBodyDamage({
+                actingBattleSquaddie: playerTier1BattleSquaddie,
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
             })
+            const enemy1Changes = results[0].squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+        })
+
+        it("will apply the tier bonus to the defender stats to reduce chance of getting hit", () => {
+            const {
+                battleSquaddie: enemyBattle,
+                squaddieTemplate: enemySquaddieTemplate,
+            } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    enemy1DynamicId
+                )
+            )
+            enemySquaddieTemplate.attributes.tier = 1
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.tier = 1
+
+            const expectedRolls: number[] = [1, 6]
+            const numberGenerator: StreamNumberGenerator =
+                new StreamNumberGenerator({ results: expectedRolls })
+
+            const results = dealBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            })
+            const enemy1Changes = results[0].squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.FAILURE
+            )
         })
     })
 

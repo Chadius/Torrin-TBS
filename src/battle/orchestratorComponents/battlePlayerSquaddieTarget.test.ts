@@ -42,6 +42,7 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -163,13 +164,13 @@ describe("BattleSquaddieTarget", () => {
                 affiliation: SquaddieAffiliation.ENEMY,
                 objectRepository: objectRepository,
                 actionTemplateIds: [longswordAction.id],
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
-                },
+                }),
             }))
         battleMap.addSquaddie(
             thiefStatic.squaddieId.templateId,

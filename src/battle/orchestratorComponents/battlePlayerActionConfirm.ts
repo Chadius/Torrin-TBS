@@ -29,13 +29,10 @@ import {
     SquaddieSummaryPopoverPosition,
     SquaddieSummaryPopoverService,
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
-import {
-    AttributeType,
-    AttributeTypeAndAmount,
-    AttributeTypeAndAmountService,
-} from "../../squaddie/attributeModifier"
 import { CalculatorAttack } from "../calculator/actionCalculator/attack"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { RollModifierType } from "../calculator/actionCalculator/rollResult"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
@@ -230,19 +227,28 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             graphicsContext
         )
 
-        let actingSquaddieModifiers: AttributeTypeAndAmount[] = []
+        const battleSquaddieId = BattleActionDecisionStepService.getActor(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        ).battleSquaddieId
+        const { squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                battleSquaddieId
+            )
+        )
+
+        let rollModifiers: { [r in RollModifierType]?: number } = {
+            [RollModifierType.TIER]: squaddieTemplate.attributes.tier,
+        }
 
         let multipleAttackPenalty =
             CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
                 gameEngineState
             )
         if (multipleAttackPenalty !== 0) {
-            actingSquaddieModifiers.push(
-                AttributeTypeAndAmountService.new({
-                    type: AttributeType.MULTIPLE_ATTACK_PENALTY,
-                    amount: multipleAttackPenalty,
-                })
-            )
+            rollModifiers[RollModifierType.MULTIPLE_ATTACK_PENALTY] =
+                multipleAttackPenalty
         }
 
         const { found, actionTemplate, actionEffectSquaddieTemplate } =
@@ -260,7 +266,8 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                     .battleActionDecisionStep
             ).battleSquaddieId,
             squaddieRepository: gameEngineState.repository,
-            actingSquaddieModifiers,
+            actingSquaddieModifiers: [],
+            rollModifiers,
         })
 
         intentMessages.push(

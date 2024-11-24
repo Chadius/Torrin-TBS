@@ -41,8 +41,8 @@ const sanitize = (result: SquaddieSquaddieResults): SquaddieSquaddieResults => {
         result.actingContext = BattleActionActionContextService.new({})
     }
 
-    if (result.actingContext.actingSquaddieModifiers === undefined) {
-        result.actingContext.actingSquaddieModifiers = []
+    if (result.actingContext.actorAttributeModifiers === undefined) {
+        result.actingContext.actorAttributeModifiers = []
     }
 
     return result

@@ -22,7 +22,8 @@
     "armorClass": 5,
     "movement": {
       "movementPerAction": 2
-    }
+    },
+    "tier": 0
   },
   "actionTemplateIds": [
     "demon_slither_bite"

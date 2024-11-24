@@ -39,13 +39,13 @@ describe("inBattleAttributes", () => {
         )
     })
     it("takes damage", () => {
-        const soldierAttributes: ArmyAttributes = {
+        const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
-        }
+        })
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
@@ -64,13 +64,13 @@ describe("inBattleAttributes", () => {
         )
     })
     it("cannot take more than maximum hit points of damage", () => {
-        const soldierAttributes: ArmyAttributes = {
+        const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
-        }
+        })
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
@@ -85,13 +85,13 @@ describe("inBattleAttributes", () => {
         expect(inBattleAttributes.currentHitPoints).toBe(0)
     })
     it("receive healing up to maximum", () => {
-        const soldierAttributes: ArmyAttributes = {
+        const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
-        }
+        })
 
         const inBattleAttributes: InBattleAttributes =
             InBattleAttributesService.new({ armyAttributes: soldierAttributes })
@@ -111,13 +111,13 @@ describe("inBattleAttributes", () => {
         )
     })
     it("can clone without the clone affecting the original", () => {
-        const soldierAttributes: ArmyAttributes = {
+        const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
-        }
+        })
         const armorBuff = AttributeModifierService.new({
             type: AttributeType.ARMOR,
             source: AttributeSource.CIRCUMSTANCE,
@@ -162,7 +162,7 @@ describe("inBattleAttributes", () => {
         let attributes: InBattleAttributes
         beforeEach(() => {
             attributes = InBattleAttributesService.new({
-                armyAttributes: {
+                armyAttributes: ArmyAttributesService.new({
                     armorClass: 3,
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
@@ -171,7 +171,7 @@ describe("inBattleAttributes", () => {
                             [Trait.PASS_THROUGH_WALLS]: true,
                         }),
                     }),
-                },
+                }),
             })
         })
 
