@@ -3,7 +3,6 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
-import p5 from "p5"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { TextBoxMargin } from "../../ui/label"
 

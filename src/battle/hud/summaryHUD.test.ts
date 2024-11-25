@@ -9,7 +9,7 @@ import {
     SummaryPopoverType,
 } from "./summaryHUD"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { RectAreaService } from "../../ui/rectArea"
+import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
@@ -40,6 +40,8 @@ import {
     ActionPanelPosition,
     SquaddieNameAndPortraitTileService,
 } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { MissionMapService } from "../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -376,6 +378,7 @@ describe("summaryHUD", () => {
                 SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
                     ActionPanelPosition.ACTOR
                 )
+
             expect(
                 SummaryHUDStateService.isMouseHoveringOver({
                     summaryHUDState,
@@ -388,68 +391,23 @@ describe("summaryHUD", () => {
 
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
+
             BattleActionDecisionStepService.setActor({
                 battleSquaddieId: "player",
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
             })
-
             SummaryHUDStateService.draw({
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
             })
 
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(panelWindowRectArea),
-                        y: RectAreaService.centerY(panelWindowRectArea),
-                    },
-                })
-            ).toBeTruthy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.left(panelWindowRectArea) - 5,
-                        y: RectAreaService.centerY(panelWindowRectArea),
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.right(panelWindowRectArea) + 5,
-                        y: RectAreaService.centerY(panelWindowRectArea),
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(panelWindowRectArea),
-                        y: RectAreaService.top(panelWindowRectArea) - 5,
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(panelWindowRectArea),
-                        y: RectAreaService.bottom(panelWindowRectArea) + 5,
-                    },
-                })
-            ).toBeFalsy()
+            expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
+                summaryHUDState,
+                panelWindowRectArea
+            )
         })
     })
 
@@ -733,6 +691,131 @@ describe("summaryHUD", () => {
                     ActionPanelPosition.PEEK_PLAYABLE
                 ]
             ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+            ).toBeUndefined()
+            expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
+        })
+    })
+
+    describe("will draw a squaddie name and portrait tile for the target squaddie", () => {
+        let gameEngineState: GameEngineState
+        const considerTarget = () => {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                battleSquaddieId: "player",
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionTemplateId: "attack",
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+
+            gameEngineState.battleOrchestratorState.battleState.missionMap =
+                MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
+                    }),
+                })
+
+            MissionMapService.addSquaddie({
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                squaddieTemplateId: "enemy",
+                battleSquaddieId: "enemy",
+                location: { q: 0, r: 1 },
+            })
+
+            BattleActionDecisionStepService.setConsideredTarget({
+                targetLocation: { q: 0, r: 1 },
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+            })
+        }
+
+        beforeEach(() => {
+            gameEngineState = GameEngineStateService.new({
+                resourceHandler,
+                repository: objectRepository,
+                campaign: CampaignService.default(),
+            })
+            summaryHUDState = SummaryHUDStateService.new({
+                mouseSelectionLocation: { x: 0, y: 0 },
+            })
+        })
+
+        it("will draw the target window on the right side", () => {
+            considerTarget()
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
+                    .squaddieName
+            ).toEqual("enemy")
+        })
+        it("knows when the mouse is hovering over the portrait tile", () => {
+            const panelWindowRectArea =
+                SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
+                    ActionPanelPosition.TARGET
+                )
+            expect(
+                SummaryHUDStateService.isMouseHoveringOver({
+                    summaryHUDState,
+                    mouseSelectionLocation: {
+                        x: RectAreaService.centerX(panelWindowRectArea),
+                        y: RectAreaService.centerY(panelWindowRectArea),
+                    },
+                })
+            ).toBeFalsy()
+
+            considerTarget()
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+            expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
+                summaryHUDState,
+                panelWindowRectArea
+            )
+        })
+        it("will not create peekable tiles if the peeked squaddie is the same as the target tile", () => {
+            considerTarget()
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "enemy",
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+            })
+
             expect(
                 summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
             ).toBeUndefined()
@@ -1189,3 +1272,58 @@ describe("summaryHUD", () => {
         })
     })
 })
+
+const expectIsMouseHoveringOverTheExpectedPanelWindowRectArea = (
+    summaryHUDState: SummaryHUDState,
+    panelWindowRectArea: RectArea
+) => {
+    expect(
+        SummaryHUDStateService.isMouseHoveringOver({
+            summaryHUDState,
+            mouseSelectionLocation: {
+                x: RectAreaService.centerX(panelWindowRectArea),
+                y: RectAreaService.centerY(panelWindowRectArea),
+            },
+        })
+    ).toBeTruthy()
+
+    expect(
+        SummaryHUDStateService.isMouseHoveringOver({
+            summaryHUDState,
+            mouseSelectionLocation: {
+                x: RectAreaService.left(panelWindowRectArea) - 5,
+                y: RectAreaService.centerY(panelWindowRectArea),
+            },
+        })
+    ).toBeFalsy()
+
+    expect(
+        SummaryHUDStateService.isMouseHoveringOver({
+            summaryHUDState,
+            mouseSelectionLocation: {
+                x: RectAreaService.right(panelWindowRectArea) + 5,
+                y: RectAreaService.centerY(panelWindowRectArea),
+            },
+        })
+    ).toBeFalsy()
+
+    expect(
+        SummaryHUDStateService.isMouseHoveringOver({
+            summaryHUDState,
+            mouseSelectionLocation: {
+                x: RectAreaService.centerX(panelWindowRectArea),
+                y: RectAreaService.top(panelWindowRectArea) - 5,
+            },
+        })
+    ).toBeFalsy()
+
+    expect(
+        SummaryHUDStateService.isMouseHoveringOver({
+            summaryHUDState,
+            mouseSelectionLocation: {
+                x: RectAreaService.centerX(panelWindowRectArea),
+                y: RectAreaService.bottom(panelWindowRectArea) + 5,
+            },
+        })
+    ).toBeFalsy()
+}

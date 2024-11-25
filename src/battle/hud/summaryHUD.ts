@@ -24,6 +24,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { RectAreaService } from "../../ui/rectArea"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -51,6 +52,7 @@ export interface SummaryHUDState {
         [ActionPanelPosition.ACTOR]: SquaddieNameAndPortraitTile
         [ActionPanelPosition.PEEK_PLAYABLE]: SquaddieNameAndPortraitTile
         [ActionPanelPosition.PEEK_RIGHT]: SquaddieNameAndPortraitTile
+        [ActionPanelPosition.TARGET]: SquaddieNameAndPortraitTile
     }
     squaddieToPeekAt?: {
         battleSquaddieId: string
@@ -78,8 +80,54 @@ export const SummaryHUDStateService = {
                 [ActionPanelPosition.ACTOR]: undefined,
                 [ActionPanelPosition.PEEK_PLAYABLE]: undefined,
                 [ActionPanelPosition.PEEK_RIGHT]: undefined,
+                [ActionPanelPosition.TARGET]: undefined,
+                [ActionPanelPosition.TARGET]: undefined,
             },
         }
+    },
+    isMouseHoveringOver: ({
+        summaryHUDState,
+        mouseSelectionLocation,
+    }: {
+        mouseSelectionLocation: { x: number; y: number }
+        summaryHUDState: SummaryHUDState
+    }): boolean => {
+        if (
+            [ActionPanelPosition.ACTOR, ActionPanelPosition.TARGET]
+                .filter((position) =>
+                    isValidValue(summaryHUDState.squaddiePanels[position])
+                )
+                .some((position) =>
+                    RectAreaService.isInside(
+                        SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
+                            position
+                        ),
+                        mouseSelectionLocation.x,
+                        mouseSelectionLocation.y
+                    )
+                )
+        ) {
+            return true
+        }
+
+        if (!summaryHUDState.showSummaryHUD) {
+            return false
+        }
+
+        return [
+            summaryHUDState.squaddieSummaryPopoversByType.MAIN,
+            summaryHUDState.squaddieSummaryPopoversByType.TARGET,
+        ]
+            .filter((x) => x)
+            .some((popover: SquaddieSummaryPopover) =>
+                SquaddieSummaryPopoverService.isMouseHoveringOver({
+                    mouseLocation: {
+                        x: mouseSelectionLocation.x,
+                        y: mouseSelectionLocation.y,
+                    },
+                    squaddieSummaryPopover: popover,
+                })
+            )
     },
     mouseClicked: ({
         mouseX,
@@ -105,45 +153,6 @@ export const SummaryHUDStateService = {
             gameEngineState,
             playerCommandState: summaryHUDState.playerCommandState,
         })
-    },
-    isMouseHoveringOver: ({
-        summaryHUDState,
-        mouseSelectionLocation,
-    }: {
-        mouseSelectionLocation: { x: number; y: number }
-        summaryHUDState: SummaryHUDState
-    }): boolean => {
-        if (
-            summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR] &&
-            RectAreaService.isInside(
-                SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
-                    ActionPanelPosition.ACTOR
-                ),
-                mouseSelectionLocation.x,
-                mouseSelectionLocation.y
-            )
-        ) {
-            return true
-        }
-
-        if (!summaryHUDState.showSummaryHUD) {
-            return false
-        }
-
-        return [
-            summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-        ]
-            .filter((x) => x)
-            .some((popover: SquaddieSummaryPopover) =>
-                SquaddieSummaryPopoverService.isMouseHoveringOver({
-                    mouseLocation: {
-                        x: mouseSelectionLocation.x,
-                        y: mouseSelectionLocation.y,
-                    },
-                    squaddieSummaryPopover: popover,
-                })
-            )
     },
     draw: ({
         summaryHUDState,
@@ -171,6 +180,11 @@ export const SummaryHUDStateService = {
             gameEngineState,
         })
         drawPeekRightPanel({
+            summaryHUDState,
+            graphicsBuffer,
+            gameEngineState,
+        })
+        drawTargetPanel({
             summaryHUDState,
             graphicsBuffer,
             gameEngineState,
@@ -329,8 +343,11 @@ export const SummaryHUDStateService = {
     }) => {
         if (
             battleSquaddieId ===
-            summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
-                ?.battleSquaddieId
+                summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
+                    ?.battleSquaddieId ||
+            battleSquaddieId ===
+                summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
+                    ?.battleSquaddieId
         ) {
             return
         }
@@ -500,6 +517,62 @@ const drawActorPanel = ({
 
     SquaddieNameAndPortraitTileService.draw({
         tile: summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR],
+        graphicsContext: graphicsBuffer,
+        resourceHandler: gameEngineState.resourceHandler,
+    })
+}
+
+const drawTargetPanel = ({
+    graphicsBuffer,
+    gameEngineState,
+    summaryHUDState,
+}: {
+    graphicsBuffer: GraphicsBuffer
+    gameEngineState: GameEngineState
+    summaryHUDState: SummaryHUDState
+}) => {
+    if (
+        !BattleActionDecisionStepService.isTargetConsidered(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ) {
+        summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET] = undefined
+        return
+    }
+
+    const targetLocation = BattleActionDecisionStepService.getTarget(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    ).targetLocation
+
+    const battleSquaddieId = MissionMapService.getBattleSquaddieAtLocation(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        targetLocation
+    ).battleSquaddieId
+
+    if (
+        isValidValue(battleSquaddieId) &&
+        summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET] === undefined
+    ) {
+        createSquaddieNameAndPortraitTile({
+            gameEngineState,
+            battleSquaddieId,
+            summaryHUDState,
+            actionPanelPosition: ActionPanelPosition.TARGET,
+        })
+    }
+
+    if (
+        !isValidValue(
+            summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
+        )
+    ) {
+        return
+    }
+
+    SquaddieNameAndPortraitTileService.draw({
+        tile: summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET],
         graphicsContext: graphicsBuffer,
         resourceHandler: gameEngineState.resourceHandler,
     })

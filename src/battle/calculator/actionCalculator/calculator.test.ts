@@ -4,7 +4,7 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import { MissionMap } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     Trait,

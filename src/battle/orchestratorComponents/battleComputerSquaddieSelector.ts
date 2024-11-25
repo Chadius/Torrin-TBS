@@ -31,7 +31,6 @@ import {
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,

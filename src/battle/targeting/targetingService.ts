@@ -8,10 +8,7 @@ import {
     SquaddieAffiliationService,
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    GetTargetingShapeGenerator,
-    TargetingShape,
-} from "./targetingShapeGenerator"
+import { GetTargetingShapeGenerator } from "./targetingShapeGenerator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     MissionMapSquaddieLocation,

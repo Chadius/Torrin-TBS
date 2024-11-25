@@ -44,10 +44,7 @@ import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import {
-    BattleActionDecisionStep,
-    BattleActionDecisionStepService,
-} from "../actionDecision/battleActionDecisionStep"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     BattleActionSquaddieChangeService,

@@ -34,6 +34,7 @@ export enum ActionPanelPosition {
     ACTOR = "ACTOR",
     PEEK_PLAYABLE = "PEEK_PLAYABLE",
     PEEK_RIGHT = "PEEK_RIGHT",
+    TARGET = "TARGET",
 }
 
 export const SquaddieNameAndPortraitTileService = {
@@ -221,6 +222,10 @@ const getBoundingBoxBasedOnActionPanelPosition = (
             endColumn: 0,
         },
         [ActionPanelPosition.PEEK_RIGHT]: {
+            startColumn: 11,
+            endColumn: 11,
+        },
+        [ActionPanelPosition.TARGET]: {
             startColumn: 11,
             endColumn: 11,
         },

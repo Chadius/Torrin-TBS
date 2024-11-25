@@ -50,9 +50,7 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { PopupWindow, PopupWindowService } from "../hud/popupWindow"
-import { LabelService } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
+import { PopupWindow } from "../hud/popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 
 describe("Player Selection Service", () => {

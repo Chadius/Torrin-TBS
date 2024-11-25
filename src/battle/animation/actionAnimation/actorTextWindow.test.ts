@@ -19,10 +19,6 @@ import {
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
 import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
-import {
-    AttributeType,
-    AttributeTypeAndAmountService,
-} from "../../../squaddie/attributeModifier"
 import { BattleActionActionContextService } from "../../history/battleAction/battleActionActionContext"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import {
