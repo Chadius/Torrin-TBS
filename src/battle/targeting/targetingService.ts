@@ -1,4 +1,4 @@
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
@@ -140,7 +140,8 @@ const findValidTargets = ({
     squaddieRepository: ObjectRepository
     sourceTiles?: HexCoordinate[]
 }): TargetingResults => {
-    const squaddieInfo = map.getSquaddieByBattleId(
+    const squaddieInfo = MissionMapService.getByBattleSquaddieId(
+        map,
         actingBattleSquaddie.battleSquaddieId
     )
     const invalidSourceTiles = !(sourceTiles?.length > 0)
@@ -217,7 +218,7 @@ const addValidTargetsToResult = ({
     const validBattleSquaddieIds: string[] = tilesInRange
         .map((tile) => {
             const mapData: MissionMapSquaddieLocation =
-                map.getSquaddieAtLocation(tile)
+                MissionMapService.getBattleSquaddieAtLocation(map, tile)
             if (!MissionMapSquaddieLocationService.isValid(mapData)) {
                 return undefined
             }

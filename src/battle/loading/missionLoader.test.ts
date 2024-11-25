@@ -25,6 +25,7 @@ import { Dialogue } from "../../cutscene/dialogue/dialogue"
 import { SplashScreen } from "../../cutscene/splashScreen"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 describe("Mission Loader", () => {
     let resourceHandler: ResourceHandler
@@ -298,10 +299,10 @@ describe("Mission Loader", () => {
                             battleSquaddieId,
                             squaddieTemplateId,
                             mapLocation,
-                        } =
-                            missionLoaderContext.missionMap.getSquaddieByBattleId(
-                                placement.battleSquaddieId
-                            )
+                        } = MissionMapService.getByBattleSquaddieId(
+                            missionLoaderContext.missionMap,
+                            placement.battleSquaddieId
+                        )
                         expect(battleSquaddieId).toEqual(
                             placement.battleSquaddieId
                         )
@@ -524,7 +525,8 @@ describe("Mission Loader", () => {
             missionData.player.deployment.required.forEach(
                 (requiredDeployment) => {
                     const locationDescriptor =
-                        missionLoaderContext.missionMap.getSquaddieByBattleId(
+                        MissionMapService.getByBattleSquaddieId(
+                            missionLoaderContext.missionMap,
                             requiredDeployment.battleSquaddieId
                         )
                     expect(locationDescriptor.battleSquaddieId).toEqual(

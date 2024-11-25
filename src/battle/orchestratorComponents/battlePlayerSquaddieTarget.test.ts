@@ -7,7 +7,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -68,7 +68,7 @@ describe("BattleSquaddieTarget", () => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         targetComponent = new BattlePlayerSquaddieTarget()
         objectRepository = ObjectRepositoryService.new()
-        battleMap = new MissionMap({
+        battleMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
@@ -134,11 +134,12 @@ describe("BattleSquaddieTarget", () => {
             objectRepository: objectRepository,
             actionTemplateIds: [longswordAction.id, bandageWoundsAction.id],
         }))
-        battleMap.addSquaddie(
-            knightStatic.squaddieId.templateId,
-            knightBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
         ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
@@ -148,14 +149,12 @@ describe("BattleSquaddieTarget", () => {
                 objectRepository: objectRepository,
                 actionTemplateIds: [],
             }))
-        battleMap.addSquaddie(
-            citizenStatic.squaddieId.templateId,
-            citizenDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: citizenDynamic.squaddieTemplateId,
+            battleSquaddieId: citizenDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
         ;({ squaddieTemplate: thiefStatic, battleSquaddie: thiefDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Thief",
@@ -172,11 +171,12 @@ describe("BattleSquaddieTarget", () => {
                     armorClass: 0,
                 }),
             }))
-        battleMap.addSquaddie(
-            thiefStatic.squaddieId.templateId,
-            thiefDynamic.battleSquaddieId,
-            { q: 1, r: 2 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: thiefDynamic.squaddieTemplateId,
+            battleSquaddieId: thiefDynamic.battleSquaddieId,
+            location: { q: 1, r: 2 },
+        })
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
@@ -235,10 +235,10 @@ describe("BattleSquaddieTarget", () => {
     })
 
     const clickOnThief = () => {
-        const { mapLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                thiefDynamic.battleSquaddieId
-            )
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            thiefDynamic.battleSquaddieId
+        )
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
                 q: mapLocation.q,
@@ -256,10 +256,10 @@ describe("BattleSquaddieTarget", () => {
     }
 
     const clickOnCitizen = () => {
-        const { mapLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                citizenDynamic.battleSquaddieId
-            )
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            citizenDynamic.battleSquaddieId
+        )
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
                 q: mapLocation.q,
@@ -376,12 +376,10 @@ describe("BattleSquaddieTarget", () => {
     })
 
     it("should ignore if the target is out of range", () => {
-        gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+        MissionMapService.updateBattleSquaddieLocation(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             thiefDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
+            { q: 0, r: 0 }
         )
         targetComponent.update(gameEngineState, mockedP5GraphicsContext)
         clickOnThief()
@@ -407,10 +405,10 @@ describe("BattleSquaddieTarget", () => {
         })
 
         it("sends a message with the clicked target location", () => {
-            const { mapLocation } =
-                gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    thiefDynamic.battleSquaddieId
-                )
+            const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                thiefDynamic.battleSquaddieId
+            )
 
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
@@ -518,10 +516,10 @@ describe("BattleSquaddieTarget", () => {
             "sendMessage"
         )
 
-        const { mapLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                citizenDynamic.battleSquaddieId
-            )
+        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            citizenDynamic.battleSquaddieId
+        )
 
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({

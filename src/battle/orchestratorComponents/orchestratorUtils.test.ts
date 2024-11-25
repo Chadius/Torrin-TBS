@@ -64,16 +64,17 @@ describe("Orchestration Utils", () => {
             actionTemplateIds: [],
         }))
 
-        map = new MissionMap({
+        map = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
         })
-        map.addSquaddie(
-            knightSquaddieTemplate.squaddieId.templateId,
-            knightBattleSquaddie.battleSquaddieId,
-            { q: 0, r: 2 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: map,
+            squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            location: { q: 0, r: 2 },
+        })
 
         camera = new BattleCamera()
     })
@@ -136,9 +137,11 @@ describe("Orchestration Utils", () => {
     })
 
     it("throws an error if squaddie repository does not have squaddie", () => {
-        map.addSquaddie("static does not exist", "dynamic does not exist", {
-            q: 0,
-            r: 0,
+        MissionMapService.addSquaddie({
+            missionMap: map,
+            squaddieTemplateId: "does not exist",
+            battleSquaddieId: "does not exist",
+            location: { q: 0, r: 0 },
         })
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -493,11 +496,13 @@ describe("Orchestration Utils", () => {
                 )
                 playerSquaddieIds.push(battleSquaddieId)
 
-                missionMap.addSquaddie(
-                    playerSquaddieTemplate.squaddieId.templateId,
+                MissionMapService.addSquaddie({
+                    missionMap: missionMap,
+                    squaddieTemplateId:
+                        playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    { q: 0, r: i }
-                )
+                    location: { q: 0, r: i },
+                })
             }
 
             const enemySquaddieTemplate = SquaddieTemplateService.new({
@@ -524,11 +529,13 @@ describe("Orchestration Utils", () => {
                 )
                 enemySquaddieIds.push(battleSquaddieId)
 
-                missionMap.addSquaddie(
-                    playerSquaddieTemplate.squaddieId.templateId,
+                MissionMapService.addSquaddie({
+                    missionMap: missionMap,
+                    squaddieTemplateId:
+                        playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    { q: 0, r: playerCount + i }
-                )
+                    location: { q: 0, r: playerCount + i },
+                })
             }
 
             gameEngineState = GameEngineStateService.new({
@@ -697,16 +704,17 @@ describe("Orchestration Utils", () => {
             knightSquaddieTemplate.attributes.movement.movementPerAction = 1
             SquaddieTurnService.endTurn(knightBattleSquaddie.squaddieTurn)
 
-            map = new MissionMap({
+            map = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 1 "],
                 }),
             })
-            map.addSquaddie(
-                knightSquaddieTemplate.squaddieId.templateId,
-                knightBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 3 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: map,
+                squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 3 },
+            })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
             addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
@@ -738,16 +746,17 @@ describe("Orchestration Utils", () => {
             enemySquaddieTemplate.attributes.movement.movementPerAction = 1
             SquaddieTurnService.endTurn(enemyBattleSquaddie.squaddieTurn)
 
-            map = new MissionMap({
+            map = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 1 "],
                 }),
             })
-            map.addSquaddie(
-                enemySquaddieTemplate.squaddieId.templateId,
-                enemyBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 3 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: map,
+                squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 3 },
+            })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
             addGraphicsLayerSpy = jest.spyOn(
                 TerrainTileMapService,
@@ -783,11 +792,12 @@ describe("Orchestration Utils", () => {
                     actionTemplateIds: [],
                 }))
 
-            map.addSquaddie(
-                thiefBattleSquaddie.squaddieTemplateId,
-                thiefBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 0 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: map,
+                squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 0 },
+            })
 
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -858,11 +868,12 @@ describe("Orchestration Utils", () => {
             })
         })
         it("should send a message that the player selected a squaddie if the player turn is still in progress", () => {
-            missionMap.addSquaddie(
-                knightSquaddieTemplate.squaddieId.templateId,
-                knightBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 2 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 2 },
+            })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -913,11 +924,12 @@ describe("Orchestration Utils", () => {
             messageSpy.mockRestore()
         })
         it("should close the summary HUD if the player turn is completed", () => {
-            missionMap.addSquaddie(
-                knightSquaddieTemplate.squaddieId.templateId,
-                knightBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 2 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 2 },
+            })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -980,11 +992,12 @@ describe("Orchestration Utils", () => {
                     actionTemplateIds: [],
                 })
 
-            missionMap.addSquaddie(
-                knightSquaddieTemplate.squaddieId.templateId,
-                enemyBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 2 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 2 },
+            })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
                 battleOrchestratorState: BattleOrchestratorStateService.new({

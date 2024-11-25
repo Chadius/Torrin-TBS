@@ -2,7 +2,7 @@ import { SearchPath, SearchPathService } from "../searchPath"
 import { SearchParameters } from "../searchParams"
 import { AreValidParametersForAddPathCondition } from "../addPathConditions/addPathCondition"
 import { PathCanStopCondition } from "./pathCanStopCondition"
-import { MissionMap } from "../../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -48,10 +48,11 @@ export class PathCanStopConditionNotOnAnotherSquaddie
 
         const head = SearchPathService.getMostRecentLocation(newPath)
 
-        const { battleSquaddieId } = this.missionMap.getSquaddieAtLocation({
-            q: head.hexCoordinate.q,
-            r: head.hexCoordinate.r,
-        })
+        const { battleSquaddieId } =
+            MissionMapService.getBattleSquaddieAtLocation(this.missionMap, {
+                q: head.hexCoordinate.q,
+                r: head.hexCoordinate.r,
+            })
         if (battleSquaddieId === undefined) {
             return true
         }

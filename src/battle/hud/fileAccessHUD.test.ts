@@ -34,7 +34,7 @@ describe("File Access HUD", () => {
     const createGameEngineStateWithBattlePhase = (
         battlePhaseAffiliation: BattlePhase
     ): GameEngineState => {
-        const missionMap = new MissionMap({
+        const missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),

@@ -127,10 +127,11 @@ export const OrchestratorUtilities = {
                         battleSquaddie,
                     })
 
-                const datum =
-                    gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                        battleSquaddieId
-                    )
+                const datum = MissionMapService.getByBattleSquaddieId(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddieId
+                )
                 const squaddieIsOnTheMap: boolean =
                     MissionMapSquaddieLocationService.isValid(datum) &&
                     TerrainTileMapService.isLocationOnMap(
@@ -345,7 +346,8 @@ const getSquaddieAtMapLocation = (param: {
 } => {
     const { mapLocation, squaddieRepository, map } = param
 
-    const squaddieAndLocationIdentifier = map.getSquaddieAtLocation(mapLocation)
+    const squaddieAndLocationIdentifier =
+        MissionMapService.getBattleSquaddieAtLocation(map, mapLocation)
 
     if (
         !MissionMapSquaddieLocationService.isValid(
@@ -378,7 +380,8 @@ const highlightSquaddieRange = (
     battleSquaddieToHighlightId: string
 ) => {
     const { mapLocation: startLocation } =
-        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+        MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieToHighlightId
         )
 

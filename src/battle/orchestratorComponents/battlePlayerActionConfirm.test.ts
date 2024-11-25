@@ -58,7 +58,7 @@ describe("BattleActionConfirm", () => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         playerActionConfirm = new BattlePlayerActionConfirm()
         objectRepository = ObjectRepositoryService.new()
-        battleMap = new MissionMap({
+        battleMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
@@ -98,11 +98,12 @@ describe("BattleActionConfirm", () => {
                 objectRepository: objectRepository,
                 actionTemplateIds: [longswordAction.id],
             }))
-        battleMap.addSquaddie(
-            knightBattleSquaddie.squaddieTemplateId,
-            knightBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
         ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
@@ -112,14 +113,12 @@ describe("BattleActionConfirm", () => {
                 objectRepository: objectRepository,
                 actionTemplateIds: [],
             }))
-        battleMap.addSquaddie(
-            citizenBattleSquaddie.squaddieTemplateId,
-            citizenBattleSquaddie.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: citizenBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
         ;({ battleSquaddie: thiefBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Thief",
@@ -137,11 +136,12 @@ describe("BattleActionConfirm", () => {
                     tier: 0,
                 }),
             }))
-        battleMap.addSquaddie(
-            thiefBattleSquaddie.squaddieTemplateId,
-            thiefBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 2 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 2 },
+        })
 
         gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: BattleOrchestratorStateService.new({

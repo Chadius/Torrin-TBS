@@ -26,6 +26,7 @@ import {
 } from "../../actionDecision/battleActionDecisionStep"
 import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { MissionMapService } from "../../../missionMap/missionMap"
 
 export const MovementCalculatorService = {
     isMovementPossible: ({
@@ -39,10 +40,10 @@ export const MovementCalculatorService = {
         squaddieTemplate: SquaddieTemplate
         destination: HexCoordinate
     }): boolean => {
-        const squaddieDatum =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                battleSquaddie.battleSquaddieId
-            )
+        const squaddieDatum = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddie.battleSquaddieId
+        )
         const { actionPointsRemaining } =
             SquaddieService.getNumberOfActionPoints({
                 squaddieTemplate,
@@ -162,7 +163,8 @@ export const MovementCalculatorService = {
         destination: HexCoordinate
     }) => {
         const { mapLocation: startLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
                 battleSquaddie.battleSquaddieId
             )
 

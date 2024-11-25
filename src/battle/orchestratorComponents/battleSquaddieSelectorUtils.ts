@@ -371,10 +371,10 @@ const getAllTilesSquaddieCanReach = ({
     stopLocation?: HexCoordinate
     actionPointsRemaining?: number
 }): SearchResult => {
-    const mapLocation =
-        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-            battleSquaddie.battleSquaddieId
-        ).mapLocation
+    const mapLocation = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleSquaddie.battleSquaddieId
+    ).mapLocation
 
     if (actionPointsRemaining === undefined) {
         ;({ actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({

@@ -12,7 +12,7 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import * as mocks from "../../utils/test/mocks"
@@ -77,7 +77,7 @@ describe("BattleSquaddieSelector", () => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         selector = new BattlePlayerSquaddieSelector()
         objectRepository = ObjectRepositoryService.new()
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),
@@ -193,9 +193,11 @@ describe("BattleSquaddieSelector", () => {
             "battleSquaddieId",
         ])
 
-        missionMap.addSquaddie("player_soldier", "battleSquaddieId", {
-            q: 0,
-            r: 0,
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "battleSquaddieId",
+            location: { q: 0, r: 0 },
         })
 
         return {
@@ -235,7 +237,7 @@ describe("BattleSquaddieSelector", () => {
         let battleSquaddieScreenPositionY: number
 
         beforeEach(() => {
-            const missionMap: MissionMap = new MissionMap({
+            const missionMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
@@ -311,7 +313,7 @@ describe("BattleSquaddieSelector", () => {
         let x: number
         let y: number
         beforeEach(() => {
-            const missionMap: MissionMap = new MissionMap({
+            const missionMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),

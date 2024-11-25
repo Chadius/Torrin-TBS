@@ -1,4 +1,4 @@
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CreateNewNeighboringCoordinates } from "../../hexMap/hexGridDirection"
@@ -75,17 +75,18 @@ describe("Targeting Service", () => {
     })
 
     it("will indicate which locations to highlight", () => {
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
 
-        battleMap.addSquaddie(
-            sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
 
         const results: TargetingResults =
             TargetingResultsService.findValidTargets({
@@ -105,16 +106,17 @@ describe("Targeting Service", () => {
     })
 
     it("will highlight nothing if the acting squaddie is not on the map", () => {
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
         })
 
-        battleMap.addSquaddie(
-            sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+        })
 
         const results: TargetingResults =
             TargetingResultsService.findValidTargets({
@@ -131,7 +133,7 @@ describe("Targeting Service", () => {
     })
 
     it("will respect walls and ranged attacks", () => {
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
@@ -167,11 +169,12 @@ describe("Targeting Service", () => {
             objectRepository: objectRepository,
         })
 
-        battleMap.addSquaddie(
-            archerSquaddieTemplate.squaddieId.templateId,
-            archerBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: archerBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: archerBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
 
         const results: TargetingResults =
             TargetingResultsService.findValidTargets({
@@ -222,25 +225,27 @@ describe("Targeting Service", () => {
                 actionTemplateIds: [],
             })
 
-        battleMap.addSquaddie(
-            squaddieTemplate.squaddieId.templateId,
-            battleSquaddie.battleSquaddieId,
-            location
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            location,
+        })
     }
 
     it("will highlight unfriendly squaddies if they are in range", () => {
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
 
-        battleMap.addSquaddie(
-            sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "player in range",
@@ -283,17 +288,18 @@ describe("Targeting Service", () => {
     })
 
     it("will highlight allied squaddies if they are in range", () => {
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 ", " 1 1 x 1 ", "  1 1 1 x "],
             }),
         })
 
-        battleMap.addSquaddie(
-            sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+            location: { q: 1, r: 1 },
+        })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
             battleSquaddieId: "player in range",
@@ -377,17 +383,18 @@ describe("Targeting Service", () => {
             ],
         })
 
-        let battleMap: MissionMap = new MissionMap({
+        let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["2 2 2 2 "],
             }),
         })
 
-        battleMap.addSquaddie(
-            sirCamilSquaddieTemplate.squaddieId.templateId,
-            sirCamilBattleSquaddie.battleSquaddieId,
-            { q: 0, r: 0 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
 
         const results: TargetingResults =
             TargetingResultsService.findValidTargets({
@@ -413,16 +420,17 @@ describe("Targeting Service", () => {
         let addGraphicsLayerSpy: jest.SpyInstance
 
         beforeEach(() => {
-            const battleMap: MissionMap = new MissionMap({
+            const battleMap: MissionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
             })
-            battleMap.addSquaddie(
-                sirCamilSquaddieTemplate.squaddieId.templateId,
-                sirCamilBattleSquaddie.battleSquaddieId,
-                { q: 1, r: 1 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap: battleMap,
+                squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
+                battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
+                location: { q: 1, r: 1 },
+            })
 
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({

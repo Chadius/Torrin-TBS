@@ -9,6 +9,7 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 export class MissionConditionDefeatAffiliation
     implements MissionConditionCalculator
@@ -39,31 +40,28 @@ export class MissionConditionDefeatAffiliation
         }
         const affiliationToCheck = affiliationByType[missionCondition.type]
 
-        const livingSquaddie =
+        const livingSquaddie = MissionMapService.getAllSquaddieData(
             state.battleOrchestratorState.battleState.missionMap
-                .getAllSquaddieData()
-                .find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
-                    const { squaddieTemplate, battleSquaddie } =
-                        getResultOrThrowError(
-                            ObjectRepositoryService.getSquaddieByBattleId(
-                                state.repository,
-                                livingSquaddieDatum.battleSquaddieId
-                            )
-                        )
+        ).find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
+            const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    state.repository,
+                    livingSquaddieDatum.battleSquaddieId
+                )
+            )
 
-                    if (
-                        squaddieTemplate.squaddieId.affiliation !==
-                        affiliationToCheck
-                    ) {
-                        return false
-                    }
+            if (
+                squaddieTemplate.squaddieId.affiliation !== affiliationToCheck
+            ) {
+                return false
+            }
 
-                    const { isDead } = SquaddieService.canSquaddieActRightNow({
-                        squaddieTemplate,
-                        battleSquaddie,
-                    })
-                    return !isDead
-                })
+            const { isDead } = SquaddieService.canSquaddieActRightNow({
+                squaddieTemplate,
+                battleSquaddie,
+            })
+            return !isDead
+        })
 
         return !livingSquaddie
     }

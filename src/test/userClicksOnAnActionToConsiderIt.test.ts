@@ -131,7 +131,7 @@ describe("user clicks on an action to consider it", () => {
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),

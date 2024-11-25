@@ -25,6 +25,7 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../utils/validityCheck"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -185,10 +186,14 @@ export class BattleSquaddieUsesActionOnSquaddie
                     squaddieTemplate,
                 })
             ) {
-                gameEngineState.battleOrchestratorState.battleState.missionMap.hideSquaddieFromDrawing(
+                MissionMapService.hideSquaddieFromDrawing(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
                     result.battleSquaddieId
                 )
-                gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+                MissionMapService.updateBattleSquaddieLocation(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
                     result.battleSquaddieId,
                     undefined
                 )

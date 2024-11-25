@@ -25,6 +25,7 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleAction/battleActionRecorder"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes
@@ -103,20 +104,20 @@ export const BattleSaveStateService = {
         }
 
         battleSaveState.squaddieMapPlacements.forEach(
-            (locationData: MissionMapSquaddieLocation) => {
-                battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+            (locationData: MissionMapSquaddieLocation) =>
+                MissionMapService.updateBattleSquaddieLocation(
+                    battleOrchestratorState.battleState.missionMap,
                     locationData.battleSquaddieId,
                     undefined
                 )
-            }
         )
         battleSaveState.squaddieMapPlacements.forEach(
-            (locationData: MissionMapSquaddieLocation) => {
-                battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+            (locationData: MissionMapSquaddieLocation) =>
+                MissionMapService.updateBattleSquaddieLocation(
+                    battleOrchestratorState.battleState.missionMap,
                     locationData.battleSquaddieId,
                     locationData.mapLocation
                 )
-            }
         )
 
         for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
@@ -208,8 +209,9 @@ export const BattleSaveStateService = {
                 battleOrchestratorState.battleState.missionStatistics,
             inBattleAttributesBySquaddieBattleId:
                 inBattleAttributesBySquaddieBattleId,
-            squaddieMapPlacements:
-                battleOrchestratorState.battleState.missionMap.getAllSquaddieData(),
+            squaddieMapPlacements: MissionMapService.getAllSquaddieData(
+                battleOrchestratorState.battleState.missionMap
+            ),
             teams: battleOrchestratorState.battleState.teams,
             teamStrategiesById:
                 battleOrchestratorState.battleState.teamStrategiesById,

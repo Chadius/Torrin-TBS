@@ -6,7 +6,7 @@ import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
 } from "../battleSquaddieTeam"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { EndTurnTeamStrategy } from "./endTurn"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
@@ -77,7 +77,7 @@ describe("end turn team strategy", () => {
             "new_dynamic_squaddie",
         ])
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({ movementCost: ["1 "] }),
         })
 
@@ -95,9 +95,11 @@ describe("end turn team strategy", () => {
     })
 
     it("determines it should end its turn", () => {
-        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {
-            q: 0,
-            r: 0,
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: "new_static_squaddie",
+            battleSquaddieId: "new_dynamic_squaddie",
+            location: { q: 0, r: 0 },
         })
 
         const endTurnStep: BattleActionDecisionStep =

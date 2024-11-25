@@ -1,4 +1,4 @@
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -45,7 +45,7 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
     let squaddieRepository = ObjectRepositoryService.new()
 
     beforeEach(() => {
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 "],
             }),
@@ -195,22 +195,18 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
     })
 
     it("is not complete if squaddies of the given affiliation are alive and on the map", () => {
-        missionMap.addSquaddie(
-            enemy1Static.squaddieId.templateId,
-            enemy1Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
-        )
-        missionMap.addSquaddie(
-            enemy2Static.squaddieId.templateId,
-            enemy2Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
+            battleSquaddieId: enemy1Dynamic.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemy2Dynamic.squaddieTemplateId,
+            battleSquaddieId: enemy2Dynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,
             damageToTake: 9001,
@@ -234,22 +230,18 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
         state.battleOrchestratorState.battleState.missionCompletionStatus[
             "enemy objective id"
         ].conditions[conditionDefeatAllEnemies.id] = true
-        missionMap.addSquaddie(
-            enemy1Static.squaddieId.templateId,
-            enemy1Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
-        )
-        missionMap.addSquaddie(
-            player1Static.squaddieId.templateId,
-            player1Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
+            battleSquaddieId: enemy1Dynamic.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: player1Dynamic.squaddieTemplateId,
+            battleSquaddieId: player1Dynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
         expect(
             MissionShouldBeComplete(
                 conditionDefeatAllEnemies,
@@ -277,22 +269,18 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
     })
 
     it("is complete if all squaddies of the given affiliation are dead", () => {
-        missionMap.addSquaddie(
-            enemy1Static.squaddieId.templateId,
-            enemy1Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
-        )
-        missionMap.addSquaddie(
-            player1Static.squaddieId.templateId,
-            player1Dynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemy1Dynamic.squaddieTemplateId,
+            battleSquaddieId: enemy1Dynamic.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: player1Dynamic.squaddieTemplateId,
+            battleSquaddieId: player1Dynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
         InBattleAttributesService.takeDamage({
             inBattleAttributes: enemy1Dynamic.inBattleAttributes,
             damageToTake: 9001,

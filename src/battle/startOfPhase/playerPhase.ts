@@ -10,6 +10,7 @@ import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"
 import { MessageBoardMessageStartedPlayerPhase } from "../../message/messageBoardMessage"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 export const PlayerPhaseService = {
     panToControllablePlayerSquaddieIfPlayerPhase: (
@@ -44,10 +45,10 @@ export const PlayerPhaseService = {
             return
         }
 
-        const mapDatum =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                squaddieToPanToBattleId
-            )
+        const mapDatum = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            squaddieToPanToBattleId
+        )
         if (MissionMapSquaddieLocationService.isValid(mapDatum)) {
             const squaddieScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(

@@ -345,10 +345,10 @@ export class BattleComputerSquaddieSelector
 
         const battleSquaddieId: string =
             battleAction.actor.actorBattleSquaddieId
-        const datum =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                battleSquaddieId
-            )
+        const datum = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            battleSquaddieId
+        )
 
         const {
             screenX: squaddieScreenLocationX,
@@ -447,13 +447,16 @@ export class BattleComputerSquaddieSelector
                 (battleActionDecisionStep) =>
                     battleActionDecisionStep.action.movement
             )
-            .forEach((battleActionDecisionStep) => {
-                gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+            .forEach((battleActionDecisionStep) =>
+                MissionMapService.updateBattleSquaddieLocation(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
                     battleSquaddie.battleSquaddieId,
                     battleActionDecisionStep.target.targetLocation
                 )
-            })
+            )
     }
+
     private highlightRangeForFirstActionTemplateDecisionStep = (
         battleActionDecisionSteps: BattleActionDecisionStep[],
         gameEngineState: GameEngineState,

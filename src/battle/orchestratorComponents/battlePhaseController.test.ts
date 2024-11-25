@@ -17,7 +17,7 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"
@@ -136,7 +136,7 @@ describe("BattlePhaseController", () => {
                         turnCount: 0,
                     },
                     teams,
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 "],
                         }),
@@ -182,7 +182,7 @@ describe("BattlePhaseController", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     teams,
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 "],
                         }),
@@ -232,7 +232,7 @@ describe("BattlePhaseController", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     teams,
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 "],
                         }),
@@ -361,7 +361,7 @@ describe("BattlePhaseController", () => {
                     missionId: "test mission",
                     campaignId: "test campaign",
                     teams,
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 1 "],
                         }),
@@ -464,7 +464,7 @@ describe("BattlePhaseController", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         teams,
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 1 "],
                             }),
@@ -509,7 +509,7 @@ describe("BattlePhaseController", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         teams,
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 1 "],
                             }),

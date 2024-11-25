@@ -173,9 +173,11 @@ const getClosestSquaddieAndLocationToFollow = ({
         desiredAffiliation
     )
 
-    const { mapLocation: actorLocation } = missionMap.getSquaddieByBattleId(
-        actingSquaddieBattleId
-    )
+    const { mapLocation: actorLocation } =
+        MissionMapService.getByBattleSquaddieId(
+            missionMap,
+            actingSquaddieBattleId
+        )
     const {
         squaddieTemplate: actorSquaddieTemplate,
         battleSquaddie: actorBattleSquaddie,
@@ -283,7 +285,10 @@ const getClosestSquaddieAndLocationToFollow = ({
                 Math.floor(Math.random() * closestSquaddies.length)
             ]
         const { mapLocation: candidateLocation }: MissionMapSquaddieLocation =
-            missionMap.getSquaddieByBattleId(candidateToChase.battleSquaddieId)
+            MissionMapService.getByBattleSquaddieId(
+                missionMap,
+                candidateToChase.battleSquaddieId
+            )
 
         for (
             let distanceFromCandidate = 0;
@@ -359,9 +364,11 @@ const getClosestSquaddiesToActor = (
     closestReachableLocations: HexCoordinate[]
 ) =>
     desiredBattleSquaddies.filter((battleSquaddieIter) => {
-        const { mapLocation: location } = missionMap.getSquaddieByBattleId(
-            battleSquaddieIter.battleSquaddieId
-        )
+        const { mapLocation: location } =
+            MissionMapService.getByBattleSquaddieId(
+                missionMap,
+                battleSquaddieIter.battleSquaddieId
+            )
         if (location === undefined) {
             return false
         }

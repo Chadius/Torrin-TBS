@@ -114,7 +114,7 @@ describe("User clicks on a squaddie", () => {
             .fn()
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 x x x x x x 1 "],
             }),

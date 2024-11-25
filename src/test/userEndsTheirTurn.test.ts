@@ -135,7 +135,7 @@ describe("User ends their turn", () => {
             .fn()
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
             }),

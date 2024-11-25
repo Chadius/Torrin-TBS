@@ -4,7 +4,7 @@ import {
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { MissionMap } from "../../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     Trait,
@@ -69,7 +69,7 @@ describe("calculator", () => {
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 1 "],
             }),
@@ -259,14 +259,18 @@ describe("calculator", () => {
 
     describe("deals damage", () => {
         beforeEach(() => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
-                q: 0,
-                r: 1,
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: enemy1StaticId,
+                squaddieTemplateId: enemy1DynamicId,
+                location: { q: 0, r: 1 },
             })
         })
 
@@ -370,14 +374,18 @@ describe("calculator", () => {
         let healsLostHitPoints: ActionTemplate
 
         beforeEach(() => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {
-                q: 0,
-                r: 2,
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: ally1DynamicId,
+                squaddieTemplateId: ally1StaticId,
+                location: { q: 0, r: 2 },
             })
 
             healsLostHitPoints = ActionTemplateService.new({
@@ -519,11 +527,13 @@ describe("calculator", () => {
         let armorCircumstanceModifier: AttributeModifier
 
         beforeEach(() => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
             armorCircumstanceModifier = AttributeModifierService.new({
                 type: AttributeType.ARMOR,
                 source: AttributeSource.CIRCUMSTANCE,
@@ -624,14 +634,18 @@ describe("calculator", () => {
 
     describe("chance to hit", () => {
         beforeEach(() => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
-                q: 0,
-                r: 1,
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: enemy1StaticId,
+                squaddieTemplateId: enemy1DynamicId,
+                location: { q: 0, r: 1 },
             })
         })
 
@@ -895,14 +909,18 @@ describe("calculator", () => {
 
     describe("critical hit chance", () => {
         beforeEach(() => {
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
-                q: 0,
-                r: 1,
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: enemy1StaticId,
+                squaddieTemplateId: enemy1DynamicId,
+                location: { q: 0, r: 1 },
             })
         })
 
@@ -1185,14 +1203,18 @@ describe("calculator", () => {
                 actionHasTwoEffectTemplates
             )
 
-            missionMap.addSquaddie(
-                player1SquaddieTemplateId,
-                player1DynamicId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {
-                q: 0,
-                r: 1,
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: player1SquaddieTemplateId,
+                squaddieTemplateId: player1DynamicId,
+                location: { q: 0, r: 0 },
+            })
+
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: enemy1StaticId,
+                squaddieTemplateId: enemy1DynamicId,
+                location: { q: 0, r: 1 },
             })
         })
 

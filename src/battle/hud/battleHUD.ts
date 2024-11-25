@@ -320,7 +320,8 @@ export const BattleHUDService = {
             position: squaddieSummaryPopoverPosition,
         }
         const { mapLocation: startLocation } =
-            gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+            MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
                 battleSquaddieId
             )
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
@@ -718,7 +719,8 @@ export const BattleHUDService = {
             battleSquaddie,
             destination,
         })
-        gameEngineState.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(
+        MissionMapService.updateBattleSquaddieLocation(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId,
             destination
         )
@@ -973,10 +975,10 @@ const panCameraToSquaddie = (
     gameEngineState: GameEngineState,
     nextBattleSquaddieId: string
 ) => {
-    const selectedMapCoordinates =
-        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-            nextBattleSquaddieId
-        )
+    const selectedMapCoordinates = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        nextBattleSquaddieId
+    )
     if (MissionMapSquaddieLocationService.isValid(selectedMapCoordinates)) {
         const selectedWorldCoordinates =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
@@ -1045,7 +1047,8 @@ const playerControlledSquaddieNeedsNextAction = (
     )
 
     const { mapLocation: startLocation } =
-        gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
+        MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
         )
     const squaddieReachHighlightedOnMap =

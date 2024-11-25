@@ -1,6 +1,6 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddie } from "../battleSquaddie"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     Trait,
@@ -52,7 +52,7 @@ describe("Action Result Text Writer", () => {
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new()
-        battleMap = new MissionMap({
+        battleMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
             }),
@@ -107,11 +107,12 @@ describe("Action Result Text Writer", () => {
                 ],
             }))
 
-        battleMap.addSquaddie(
-            knightStatic.squaddieId.templateId,
-            knightDynamic.battleSquaddieId,
-            { q: 1, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            battleSquaddieId: knightDynamic.battleSquaddieId,
+            squaddieTemplateId: knightStatic.squaddieId.templateId,
+            location: { q: 1, r: 1 },
+        })
         ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Citizen",
@@ -131,11 +132,12 @@ describe("Action Result Text Writer", () => {
                 actionTemplateIds: [],
             }))
 
-        battleMap.addSquaddie(
-            thiefStatic.squaddieId.templateId,
-            thiefDynamic.battleSquaddieId,
-            { q: 1, r: 2 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            squaddieTemplateId: thiefStatic.squaddieId.templateId,
+            battleSquaddieId: thiefDynamic.battleSquaddieId,
+            location: { q: 1, r: 2 },
+        })
         ;({ squaddieTemplate: rogueStatic, battleSquaddie: rogueDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "Rogue",
@@ -146,11 +148,12 @@ describe("Action Result Text Writer", () => {
                 actionTemplateIds: [],
             }))
 
-        battleMap.addSquaddie(
-            rogueStatic.squaddieId.templateId,
-            rogueDynamic.battleSquaddieId,
-            { q: 1, r: 2 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: battleMap,
+            battleSquaddieId: rogueStatic.squaddieId.templateId,
+            squaddieTemplateId: rogueDynamic.battleSquaddieId,
+            location: { q: 1, r: 2 },
+        })
     })
 
     it("Explains how much damage occurred", () => {

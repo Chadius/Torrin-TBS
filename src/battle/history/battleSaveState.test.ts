@@ -10,7 +10,7 @@ import {
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
@@ -438,14 +438,24 @@ describe("BattleSaveState", () => {
     })
 
     it("Can read the squaddie placement on a mission map and create a similar one", () => {
-        const missionMap = new MissionMap({
+        const missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 2 - x "],
             }),
         })
 
-        missionMap.addSquaddie("template 0", "battle 0", { q: 0, r: 0 })
-        missionMap.addSquaddie("template 1", "battle 1", { q: 0, r: 1 })
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "template 0",
+            battleSquaddieId: "battle 0",
+            location: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "template 1",
+            battleSquaddieId: "battle 1",
+            location: { q: 0, r: 1 },
+        })
 
         const battleState = BattleOrchestratorStateService.new({
             battleState: BattleStateService.newBattleState({
@@ -474,7 +484,7 @@ describe("BattleSaveState", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 2 - x "],
                         }),
@@ -485,16 +495,18 @@ describe("BattleSaveState", () => {
                     },
                 }),
             })
-        newBattleState.battleState.missionMap.addSquaddie(
-            "template 0",
-            "battle 0",
-            { q: 0, r: 2 }
-        )
-        newBattleState.battleState.missionMap.addSquaddie(
-            "template 1",
-            "battle 1",
-            { q: 0, r: 3 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: newBattleState.battleState.missionMap,
+            squaddieTemplateId: "template 0",
+            battleSquaddieId: "battle 0",
+            location: { q: 0, r: 2 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap: newBattleState.battleState.missionMap,
+            squaddieTemplateId: "template 1",
+            battleSquaddieId: "battle 1",
+            location: { q: 0, r: 3 },
+        })
 
         BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -511,7 +523,8 @@ describe("BattleSaveState", () => {
             numberOfRows: 1,
         })
         expect(
-            newBattleState.battleState.missionMap.getSquaddieByBattleId(
+            MissionMapService.getByBattleSquaddieId(
+                newBattleState.battleState.missionMap,
                 "battle 0"
             )
         ).toStrictEqual({
@@ -520,7 +533,8 @@ describe("BattleSaveState", () => {
             mapLocation: { q: 0, r: 0 },
         })
         expect(
-            newBattleState.battleState.missionMap.getSquaddieByBattleId(
+            MissionMapService.getByBattleSquaddieId(
+                newBattleState.battleState.missionMap,
                 "battle 1"
             )
         ).toStrictEqual({
@@ -1003,7 +1017,7 @@ describe("BattleSaveState", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 2 - x "],
                         }),
@@ -1045,13 +1059,23 @@ describe("BattleSaveState", () => {
         })
 
         it("can export save data objects", () => {
-            const missionMap = new MissionMap({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 2 - x "],
                 }),
             })
-            missionMap.addSquaddie("template 0", "battle 0", { q: 0, r: 0 })
-            missionMap.addSquaddie("template 1", "battle 1", { q: 0, r: 1 })
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: "template 0",
+                battleSquaddieId: "battle 0",
+                location: { q: 0, r: 0 },
+            })
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: "template 1",
+                battleSquaddieId: "battle 1",
+                location: { q: 0, r: 1 },
+            })
 
             const teamStrategiesById: { [key: string]: TeamStrategy[] } = {
                 [enemyTeam.id]: [

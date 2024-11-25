@@ -350,7 +350,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     }
 
     it("hides dead squaddies after the action animates", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -360,7 +360,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             missionMap,
         })
         expect(
-            missionMap.isSquaddieHiddenFromDrawing(
+            MissionMapService.isSquaddieHiddenFromDrawing(
+                missionMap,
                 targetDynamic.battleSquaddieId
             )
         ).toBeFalsy()
@@ -396,14 +397,15 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
         expect(
-            missionMap.isSquaddieHiddenFromDrawing(
+            MissionMapService.isSquaddieHiddenFromDrawing(
+                missionMap,
                 targetDynamic.battleSquaddieId
             )
         ).toBeTruthy()
     })
 
     it("clears the action builder when the action finishes animating", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -445,7 +447,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("sends a message noting the animation is complete", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -491,7 +493,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("resets squaddie currently acting when it runs out of actions and finishes acting", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -546,7 +548,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("reopens HUD on squaddie when it finishes animating and can still act", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -745,7 +747,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("will generate message if the target was injured", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 "],
             }),
@@ -755,7 +757,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             missionMap,
         })
         expect(
-            missionMap.isSquaddieHiddenFromDrawing(
+            MissionMapService.isSquaddieHiddenFromDrawing(
+                missionMap,
                 targetDynamic.battleSquaddieId
             )
         ).toBeFalsy()

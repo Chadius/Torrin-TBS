@@ -112,7 +112,7 @@ describe("user clicks on the map to move", () => {
             .fn()
             .mockReturnValue(makeResult({ width: 1, height: 1 }))
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 ", " x x x x x ", "  x x 1 x x "],
             }),
@@ -315,7 +315,8 @@ describe("user clicks on the map to move", () => {
                 playerBattleSquaddie.squaddieTurn.remainingActionPoints
             ).toEqual(0)
 
-            const { mapLocation } = missionMap.getSquaddieByBattleId(
+            const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+                missionMap,
                 playerBattleSquaddie.battleSquaddieId
             )
             expect(mapLocation).toEqual({ q: 0, r: 3 })

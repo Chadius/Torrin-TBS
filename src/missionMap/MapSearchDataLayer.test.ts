@@ -1,4 +1,4 @@
-import { MissionMap } from "./missionMap"
+import { MissionMap, MissionMapService } from "./missionMap"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     MapSearchDataLayer,
@@ -7,7 +7,7 @@ import {
 
 describe("MapSearchDataLayer", () => {
     it("can generate a layer based on a given map and initial value", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -31,7 +31,7 @@ describe("MapSearchDataLayer", () => {
     })
 
     it("can generate a layer based on a given map and value filling function", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -59,7 +59,7 @@ describe("MapSearchDataLayer", () => {
     })
 
     it("can generate a layer based on a given map and use undefined if given", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -83,7 +83,7 @@ describe("MapSearchDataLayer", () => {
     })
 
     it("can set the value of an individual tile on the layer", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -103,7 +103,7 @@ describe("MapSearchDataLayer", () => {
     })
 
     it("throws an error if setting a location that is out of bounds", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),
@@ -129,7 +129,7 @@ describe("MapSearchDataLayer", () => {
     })
 
     it("knows when a location is out of bounds", () => {
-        const missionMap: MissionMap = new MissionMap({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
             }),

@@ -20,7 +20,7 @@ import {
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddiePhaseListener } from "./squaddiePhaseListener"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -104,7 +104,7 @@ describe("player phase listener", () => {
         let missionMap: MissionMap
 
         beforeEach(() => {
-            missionMap = new MissionMap({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 "],
                 }),
@@ -120,11 +120,12 @@ describe("player phase listener", () => {
             battleSquaddieIdToAdd: string
             camera: BattleCamera
         }): GameEngineState => {
-            missionMap.addSquaddie(
-                squaddieTemplateIdToAdd,
-                battleSquaddieIdToAdd,
-                { q: 0, r: 0 }
-            )
+            MissionMapService.addSquaddie({
+                missionMap,
+                battleSquaddieId: battleSquaddieIdToAdd,
+                squaddieTemplateId: squaddieTemplateIdToAdd,
+                location: { q: 0, r: 0 },
+            })
             const battleOrchestratorState: BattleOrchestratorState =
                 BattleOrchestratorStateService.new({
                     battleState: BattleStateService.newBattleState({
@@ -170,10 +171,10 @@ describe("player phase listener", () => {
                 gameEngineState.battleOrchestratorState.battleState.camera.isPanning()
             ).toBeTruthy()
 
-            const datum =
-                gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    playerTeam.battleSquaddieIds[0]
-                )
+            const datum = MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                playerTeam.battleSquaddieIds[0]
+            )
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                     datum.mapLocation.q,
@@ -202,10 +203,10 @@ describe("player phase listener", () => {
                 camera: new BattleCamera(worldX, worldY),
             })
 
-            const datum =
-                gameEngineState.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                    playerTeam.battleSquaddieIds[0]
-                )
+            const datum = MissionMapService.getByBattleSquaddieId(
+                gameEngineState.battleOrchestratorState.battleState.missionMap,
+                playerTeam.battleSquaddieIds[0]
+            )
             const playerSquaddieLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                     datum.mapLocation.q,

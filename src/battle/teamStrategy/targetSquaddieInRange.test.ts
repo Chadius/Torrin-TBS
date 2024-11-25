@@ -1,5 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import {
     BattleSquaddieTeam,
@@ -104,20 +104,18 @@ describe("target a squaddie within reach of actions", () => {
             actionTemplateIds: [],
         }))
 
-        missionMap = new MissionMap({
+        missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 1 1 1 "],
             }),
         })
 
-        missionMap.addSquaddie(
-            enemyBanditStatic.squaddieId.templateId,
-            enemyBattleSquaddie.battleSquaddieId,
-            {
-                q: 0,
-                r: 0,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
+            battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
 
         enemyTeam = BattleSquaddieTeamService.new({
             id: "teamId",
@@ -144,14 +142,12 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will return undefined if desired squaddies are out of range", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 3,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 3 },
+        })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredAffiliation: SquaddieAffiliation.PLAYER,
@@ -164,14 +160,12 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will raise an error if there is no target squaddie or affiliation with a given id", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({})
         const shouldThrowError = () => {
@@ -190,22 +184,18 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will target squaddie by dynamic id", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
-        missionMap.addSquaddie(
-            allyClericStatic.squaddieId.templateId,
-            allyClericDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 2,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
+            battleSquaddieId: allyClericDynamic.battleSquaddieId,
+            location: { q: 0, r: 2 },
+        })
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         })
@@ -232,22 +222,19 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will target squaddie by affiliation", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
-        missionMap.addSquaddie(
-            allyClericStatic.squaddieId.templateId,
-            allyClericDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 2,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
+            battleSquaddieId: allyClericDynamic.battleSquaddieId,
+            location: { q: 0, r: 2 },
+        })
+
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredAffiliation: SquaddieAffiliation.ALLY,
         })
@@ -274,14 +261,13 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will pass if there are no squaddies of the desired affiliation", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
+
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredAffiliation: SquaddieAffiliation.ALLY,
         })
@@ -295,22 +281,19 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will not use an action if there are not enough action points remaining", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
-        missionMap.addSquaddie(
-            allyClericStatic.squaddieId.templateId,
-            allyClericDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 2,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
+            battleSquaddieId: allyClericDynamic.battleSquaddieId,
+            location: { q: 0, r: 2 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
+
         SquaddieTurnService.spendActionPoints(
             enemyBattleSquaddie.squaddieTurn,
             4 - shortBowAction.actionPoints
@@ -329,14 +312,12 @@ describe("target a squaddie within reach of actions", () => {
     })
 
     it("will add to existing instruction", () => {
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
@@ -396,22 +377,19 @@ describe("target a squaddie within reach of actions", () => {
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [
             enemyBanditDynamic2.battleSquaddieId,
         ])
-        missionMap.addSquaddie(
-            enemyBanditStatic2.squaddieId.templateId,
-            enemyBanditDynamic2.battleSquaddieId,
-            {
-                q: 0,
-                r: 1,
-            }
-        )
-        missionMap.addSquaddie(
-            playerKnightStatic.squaddieId.templateId,
-            playerKnightDynamic.battleSquaddieId,
-            {
-                q: 0,
-                r: 2,
-            }
-        )
+
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemyBanditDynamic2.squaddieTemplateId,
+            battleSquaddieId: enemyBanditDynamic2.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
+            battleSquaddieId: playerKnightDynamic.battleSquaddieId,
+            location: { q: 0, r: 2 },
+        })
 
         const movementStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()

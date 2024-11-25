@@ -19,6 +19,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -286,10 +287,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 const { battleSquaddie, battleSquaddieId } = info
 
                 if (!battleSquaddieIdsToOmit.includes(battleSquaddieId)) {
-                    const datum =
-                        state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(
-                            battleSquaddieId
-                        )
+                    const datum = MissionMapService.getByBattleSquaddieId(
+                        state.battleOrchestratorState.battleState.missionMap,
+                        battleSquaddieId
+                    )
 
                     const squaddieIsOnTheMap: boolean =
                         MissionMapSquaddieLocationService.isValid(datum) &&
@@ -299,7 +300,9 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             datum.mapLocation
                         )
                     const squaddieIsHidden: boolean =
-                        state.battleOrchestratorState.battleState.missionMap.isSquaddieHiddenFromDrawing(
+                        MissionMapService.isSquaddieHiddenFromDrawing(
+                            state.battleOrchestratorState.battleState
+                                .missionMap,
                             battleSquaddieId
                         )
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {

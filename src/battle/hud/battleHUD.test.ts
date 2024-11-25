@@ -112,7 +112,7 @@ describe("Battle HUD", () => {
         const repository = ObjectRepositoryService.new()
         missionMap =
             missionMap ??
-            new MissionMap({
+            MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
                 }),
@@ -160,14 +160,12 @@ describe("Battle HUD", () => {
             "player_soldier_0",
         ])
 
-        missionMap.addSquaddie(
-            "player_soldier",
-            "player_soldier_0",
-            battleSquaddieLocation ?? {
-                q: 0,
-                r: 0,
-            }
-        )
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
+            location: battleSquaddieLocation ?? { q: 0, r: 0 },
+        })
 
         const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
             squaddieTemplateId: "player_soldier",
@@ -179,9 +177,11 @@ describe("Battle HUD", () => {
             "player_soldier_1",
         ])
 
-        missionMap.addSquaddie("player_soldier", "player_soldier_1", {
-            q: 0,
-            r: 1,
+        MissionMapService.addSquaddie({
+            missionMap: missionMap,
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_1",
+            location: { q: 0, r: 1 },
         })
 
         const gameEngineState = GameEngineStateService.new({

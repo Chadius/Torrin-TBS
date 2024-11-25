@@ -6,7 +6,7 @@ import {
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattleSquaddieMover } from "./battleSquaddieMover"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
@@ -53,7 +53,7 @@ describe("BattleSquaddieMover", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepo = ObjectRepositoryService.new()
-        map = new MissionMap({
+        map = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 ", " 1 1 "],
             }),
@@ -81,7 +81,12 @@ describe("BattleSquaddieMover", () => {
     })
 
     it("is complete once enough time passes and the squaddie finishes moving", () => {
-        map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
+        MissionMapService.addSquaddie({
+            missionMap: map,
+            squaddieTemplateId: "player_1",
+            battleSquaddieId: "player_1",
+            location: { q: 0, r: 0 },
+        })
 
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
@@ -152,7 +157,12 @@ describe("BattleSquaddieMover", () => {
     })
 
     it("sends a message once the squaddie finishes moving", () => {
-        map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
+        MissionMapService.addSquaddie({
+            missionMap: map,
+            squaddieTemplateId: "player_1",
+            battleSquaddieId: "player_1",
+            location: { q: 0, r: 0 },
+        })
 
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
@@ -283,7 +293,12 @@ describe("BattleSquaddieMover", () => {
             let gameEngineState: GameEngineState
 
             beforeEach(() => {
-                map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
+                MissionMapService.addSquaddie({
+                    missionMap: map,
+                    squaddieTemplateId: "player_1",
+                    battleSquaddieId: "player_1",
+                    location: { q: 0, r: 0 },
+                })
 
                 let mockResourceHandler = mocks.mockResourceHandler(
                     mockedP5GraphicsContext
@@ -344,7 +359,12 @@ describe("BattleSquaddieMover", () => {
             let dateSpy: jest.SpyInstance
 
             beforeEach(() => {
-                map.addSquaddie("player_1", "player_1", { q: 0, r: 0 })
+                MissionMapService.addSquaddie({
+                    missionMap: map,
+                    squaddieTemplateId: "player_1",
+                    battleSquaddieId: "player_1",
+                    location: { q: 0, r: 0 },
+                })
 
                 let mockResourceHandler = mocks.mockResourceHandler(
                     mockedP5GraphicsContext

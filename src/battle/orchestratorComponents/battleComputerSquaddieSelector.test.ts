@@ -18,7 +18,7 @@ import {
     TerrainTileMapService,
 } from "../../hexMap/terrainTileMap"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera, PanningInformation } from "../battleCamera"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -165,16 +165,18 @@ describe("BattleComputerSquaddieSelector", () => {
 
         teams.push(enemyTeam)
 
-        missionMap.addSquaddie(
-            enemyDemonTemplate.squaddieId.templateId,
-            enemyDemonBattleSquaddie.battleSquaddieId,
-            { q: 0, r: 0 }
-        )
-        missionMap.addSquaddie(
-            enemyDemonBattleSquaddie.squaddieTemplateId,
-            enemyDemonBattleSquaddie2.battleSquaddieId,
-            { q: 0, r: 1 }
-        )
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+            battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+            location: { q: 0, r: 0 },
+        })
+        MissionMapService.addSquaddie({
+            missionMap,
+            squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+            battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
+            location: { q: 0, r: 1 },
+        })
     }
 
     const makeSquaddieMoveAction = (
@@ -208,7 +210,7 @@ describe("BattleComputerSquaddieSelector", () => {
         let squaddieLocation: number[]
 
         beforeEach(() => {
-            missionMap = new MissionMap({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 "],
                 }),
@@ -319,7 +321,7 @@ describe("BattleComputerSquaddieSelector", () => {
         let missionMap: MissionMap
 
         beforeEach(() => {
-            missionMap = new MissionMap({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
                     movementCost: ["1 1 "],
                 }),
@@ -474,22 +476,46 @@ describe("BattleComputerSquaddieSelector", () => {
                 "addGraphicsLayer"
             )
 
-            missionMap = new MissionMap({
+            missionMap = MissionMapService.new({
                 terrainTileMap: hexMap,
             })
             makeBattlePhaseTrackerWithEnemyTeam(missionMap)
 
-            missionMap.addSquaddie(
-                enemyDemonTemplate.squaddieId.templateId,
-                enemyDemonBattleSquaddie.battleSquaddieId,
-                { q: 0, r: 0 }
-            )
-            missionMap.addSquaddie(
-                enemyDemonTemplate.squaddieId.templateId,
-                enemyDemonBattleSquaddie2.battleSquaddieId,
-                { q: 0, r: 1 }
-            )
-
+            MissionMapService.addSquaddie({
+                missionMap,
+                squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+                location: { q: 0, r: 0 },
+            })
+            MissionMapService.addSquaddie({
+                missionMap,
+                squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+                battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
+                location: { q: 0, r: 1 },
+            })
+            // TODO
+            // MissionMapService.addSquaddie({
+            //     missionMap,
+            //     battleSquaddieId: enemyDemonTemplate.squaddieId.templateId,
+            //     squaddieTemplateId: enemyDemonBattleSquaddie.battleSquaddieId,
+            //     location: { q: 0, r: 0 },
+            // })
+            // MissionMapService.addSquaddie({
+            //     missionMap,
+            //     battleSquaddieId: enemyDemonTemplate.squaddieId.templateId,
+            //     squaddieTemplateId: enemyDemonBattleSquaddie2.battleSquaddieId,
+            //     location: { q: 0, r: 1 },
+            // // })
+            // missionMap.addSquaddie(
+            //     enemyDemonTemplate.squaddieId.templateId,
+            //     enemyDemonBattleSquaddie.battleSquaddieId,
+            //     { q: 0, r: 0 }
+            // )
+            // missionMap.addSquaddie(
+            //     enemyDemonTemplate.squaddieId.templateId,
+            //     enemyDemonBattleSquaddie2.battleSquaddieId,
+            //     { q: 0, r: 1 }
+            // )
             const { worldX, worldY } =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                     0,

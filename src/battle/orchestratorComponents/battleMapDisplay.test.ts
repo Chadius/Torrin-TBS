@@ -8,7 +8,7 @@ import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -79,7 +79,7 @@ describe("battleMapDisplay", () => {
                         missionId: "test mission",
                         campaignId: "test campaign",
                         camera,
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 "],
                             }),

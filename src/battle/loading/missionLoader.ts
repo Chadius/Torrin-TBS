@@ -1,5 +1,5 @@
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import {
     LoadMissionFromFile,
     LoadPlayerArmyFromFile,
@@ -118,7 +118,7 @@ export const MissionLoader = {
 
         missionLoaderContext.id = missionData.id
 
-        missionLoaderContext.missionMap = new MissionMap({
+        missionLoaderContext.missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: missionData.terrain,
             }),
@@ -323,7 +323,8 @@ const initializeSquaddieResources = ({
             let image: p5.Image = resourceHandler.getResource(
                 squaddieTemplate.squaddieId.resources.mapIconResourceKey
             )
-            const datum = missionLoaderContext.missionMap.getSquaddieByBattleId(
+            const datum = MissionMapService.getByBattleSquaddieId(
+                missionLoaderContext.missionMap,
                 battleSquaddie.battleSquaddieId
             )
 
@@ -499,11 +500,12 @@ const spawnNPCSquaddiesAndAddToMap = ({
                     squaddieTurn: SquaddieTurnService.new(),
                 })
             )
-            missionLoaderContext.missionMap.addSquaddie(
+            MissionMapService.addSquaddie({
+                missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId,
                 battleSquaddieId,
-                location
-            )
+                location,
+            })
         })
     )
 }
@@ -561,11 +563,12 @@ const deployRequiredPlayerSquaddies = (
     }
     missionLoaderContext.missionMap.playerDeployment.required.forEach(
         (requiredDeployment) => {
-            missionLoaderContext.missionMap.addSquaddie(
-                requiredDeployment.squaddieTemplateId,
-                requiredDeployment.battleSquaddieId,
-                requiredDeployment.location
-            )
+            MissionMapService.addSquaddie({
+                missionMap: missionLoaderContext.missionMap,
+                squaddieTemplateId: requiredDeployment.squaddieTemplateId,
+                battleSquaddieId: requiredDeployment.battleSquaddieId,
+                location: requiredDeployment.location,
+            })
         }
     )
 }

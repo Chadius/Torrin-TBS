@@ -33,7 +33,7 @@ import { DefaultBattleOrchestrator } from "./defaultBattleOrchestrator"
 import { MissionRewardType } from "../missionResult/missionReward"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { MissionConditionType } from "../missionResult/missionCondition"
-import { MissionMap } from "../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MissionStartOfPhaseCutsceneTrigger } from "../cutscene/missionStartOfPhaseCutsceneTrigger"
 import { InitializeBattle } from "./initializeBattle"
 import { BattleStateService } from "./battleState"
@@ -272,7 +272,7 @@ describe("Battle Orchestrator", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
@@ -362,7 +362,7 @@ describe("Battle Orchestrator", () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     campaignId: "test campaign",
-                    missionMap: new MissionMap({
+                    missionMap: MissionMapService.new({
                         terrainTileMap: TerrainTileMapService.new({
                             movementCost: ["1 1 "],
                         }),
@@ -791,7 +791,7 @@ describe("Battle Orchestrator", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
@@ -839,7 +839,7 @@ describe("Battle Orchestrator", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
@@ -886,7 +886,7 @@ describe("Battle Orchestrator", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
-                        missionMap: new MissionMap({
+                        missionMap: MissionMapService.new({
                             terrainTileMap: TerrainTileMapService.new({
                                 movementCost: ["1 1 "],
                             }),
