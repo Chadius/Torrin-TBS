@@ -67,17 +67,17 @@ export const MovementCalculatorService = {
                     battleSquaddie,
                     squaddieTemplate,
                 }).crossOverPits,
+                ignoreTerrainCost:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).ignoreTerrainCost,
                 shapeGenerator: getResultOrThrowError(
                     GetTargetingShapeGenerator(TargetingShape.SNAKE)
                 ),
                 maximumDistanceMoved: undefined,
                 minimumDistanceMoved: undefined,
                 canStopOnSquaddies: true,
-                ignoreTerrainCost:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).ignoreTerrainCost,
                 stopLocations: [destination],
                 numberOfActions: actionPointsRemaining,
             }),

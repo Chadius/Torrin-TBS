@@ -31,6 +31,7 @@ import {
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository
@@ -51,7 +52,9 @@ describe("target a squaddie within reach of actions", () => {
         shortBowAction = ActionTemplateService.new({
             name: "short bow",
             id: "short_bow",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 2,
@@ -296,7 +299,7 @@ describe("target a squaddie within reach of actions", () => {
 
         SquaddieTurnService.spendActionPoints(
             enemyBattleSquaddie.squaddieTurn,
-            4 - shortBowAction.actionPoints
+            4 - shortBowAction.resourceCost.actionPoints
         )
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -348,7 +351,9 @@ describe("target a squaddie within reach of actions", () => {
         const longBowAction = ActionTemplateService.new({
             name: "long bow",
             id: "long_bow",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 2,

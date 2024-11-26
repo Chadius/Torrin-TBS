@@ -244,7 +244,8 @@ export const BattleSquaddieSelectorService = {
                         SquaddieService.getNumberOfActionPoints({
                             squaddieTemplate: actorSquaddieTemplate,
                             battleSquaddie: actorBattleSquaddie,
-                        }).actionPointsRemaining - actionTemplate.actionPoints
+                        }).actionPointsRemaining -
+                        actionTemplate.resourceCost.actionPoints
                     if (actionPointsRemaining <= 0) {
                         return usableActionInfo
                     }
@@ -404,13 +405,16 @@ const getAllTilesSquaddieCanReach = ({
                 battleSquaddie,
                 squaddieTemplate,
             }).crossOverPits,
+            ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
+                battleSquaddie,
+                squaddieTemplate,
+            }).ignoreTerrainCost,
             shapeGenerator: getResultOrThrowError(
                 GetTargetingShapeGenerator(TargetingShape.SNAKE)
             ),
             maximumDistanceMoved: undefined,
             minimumDistanceMoved: undefined,
             canStopOnSquaddies: undefined,
-            ignoreTerrainCost: undefined,
             stopLocations: stopLocation ? [stopLocation] : [],
             numberOfActions: actionPointsRemaining,
         }),
@@ -445,7 +449,7 @@ const getSquaddieAttackLocations = (
 
                     return (
                         numberOfMoveActionsToReachEndOfPath +
-                            actionTemplate.actionPoints <=
+                            actionTemplate.resourceCost.actionPoints <=
                         actionPointsRemaining
                     )
                 })

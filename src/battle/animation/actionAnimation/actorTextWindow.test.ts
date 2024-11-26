@@ -50,7 +50,6 @@ describe("ActorTextWindow", () => {
         attackThatUsesAttackRoll = ActionTemplateService.new({
             id: "action Id",
             name: "Action",
-            actionPoints: 1,
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,

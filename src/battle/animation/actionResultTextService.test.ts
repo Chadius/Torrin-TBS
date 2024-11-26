@@ -36,6 +36,7 @@ import {
     RollModifierType,
     RollResultService,
 } from "../calculator/actionCalculator/rollResult"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -79,7 +80,9 @@ describe("Action Result Text Writer", () => {
         bandageWoundsAction = ActionTemplateService.new({
             id: "Bandages",
             name: "Bandage Wounds",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,

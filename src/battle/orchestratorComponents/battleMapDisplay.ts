@@ -19,7 +19,7 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],

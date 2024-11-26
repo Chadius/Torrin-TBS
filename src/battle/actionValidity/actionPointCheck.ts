@@ -1,15 +1,7 @@
 import { BattleSquaddie } from "../battleSquaddie"
-import {
-    ActionPerformFailureReason,
-    SquaddieTurnService,
-} from "../../squaddie/turn"
+import { SquaddieTurnService } from "../../squaddie/turn"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-
-export type ActionCheckResult = {
-    isValid: boolean
-    reason?: ActionPerformFailureReason
-    message?: string
-}
+import { ActionCheckResult } from "./validityChecker"
 
 export const ActionPointCheck = {
     canAfford: ({
@@ -40,7 +32,7 @@ export const ActionPointCheck = {
             return {
                 isValid: false,
                 reason,
-                message: `Need ${actionTemplate.actionPoints} action point${actionTemplate.actionPoints !== 1 ? "s" : ""}`,
+                message: `Need ${actionTemplate.resourceCost.actionPoints} action point${actionTemplate.resourceCost.actionPoints !== 1 ? "s" : ""}`,
             }
         }
 

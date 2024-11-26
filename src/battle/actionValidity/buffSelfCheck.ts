@@ -1,6 +1,5 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionCheckResult } from "./actionPointCheck"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
@@ -21,6 +20,7 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
 import { CalculatedEffect } from "../calculator/actionCalculator/calculator"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
+import { ActionCheckResult } from "./validityChecker"
 
 export const BuffSelfCheck = {
     willBuffUser: ({

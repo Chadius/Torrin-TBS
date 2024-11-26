@@ -21,6 +21,7 @@ import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../action/actionResourceCost"
 
 describe("Object Repository", () => {
     let objectRepository: ObjectRepository
@@ -307,7 +308,9 @@ describe("Object Repository", () => {
             action = ActionTemplateService.new({
                 id: "action",
                 name: "Action Template",
-                actionPoints: 2,
+                resourceCost: ActionResourceCostService.new({
+                    actionPoints: 2,
+                }),
                 buttonIconResourceKey: "image key",
                 targetConstraints: TargetConstraintsService.new({
                     minimumRange: 0,

@@ -9,6 +9,7 @@ import {
     ActionTemplateService,
 } from "../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
+import { ActionResourceCostService } from "../action/actionResourceCost"
 
 describe("Squaddie turn and resources", () => {
     describe("actions", () => {
@@ -19,7 +20,9 @@ describe("Squaddie turn and resources", () => {
             actionSpends2ActionPoints = ActionTemplateService.new({
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
-                actionPoints: 2,
+                resourceCost: ActionResourceCostService.new({
+                    actionPoints: 2,
+                }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
@@ -46,14 +49,14 @@ describe("Squaddie turn and resources", () => {
                             ),
                         }),
                     ],
-                }).actionPoints
+                }).resourceCost.actionPoints
             )
             expect(turn.remainingActionPoints).toBe(2)
         })
         it("should spend multiple actions if action uses more", () => {
             SquaddieTurnService.spendActionPoints(
                 turn,
-                actionSpends2ActionPoints.actionPoints
+                actionSpends2ActionPoints.resourceCost.actionPoints
             )
             expect(turn.remainingActionPoints).toBe(1)
         })
@@ -64,7 +67,7 @@ describe("Squaddie turn and resources", () => {
         it("should report when an action cannot be spent", () => {
             SquaddieTurnService.spendActionPoints(
                 turn,
-                actionSpends2ActionPoints.actionPoints
+                actionSpends2ActionPoints.resourceCost.actionPoints
             )
             const query = SquaddieTurnService.canPerformAction(
                 turn,
@@ -78,7 +81,7 @@ describe("Squaddie turn and resources", () => {
         it("should give 3 action points upon starting a new round", () => {
             SquaddieTurnService.spendActionPoints(
                 turn,
-                actionSpends2ActionPoints.actionPoints
+                actionSpends2ActionPoints.resourceCost.actionPoints
             )
             SquaddieTurnService.beginNewRound(turn)
             expect(turn.remainingActionPoints).toBe(3)

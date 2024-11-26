@@ -67,6 +67,7 @@ import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../action/actionResourceCost"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -93,7 +94,9 @@ describe("User Selects Target and Confirms", () => {
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,

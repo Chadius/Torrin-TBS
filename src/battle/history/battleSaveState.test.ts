@@ -10,7 +10,7 @@ import {
     BattleOrchestratorStateService,
 } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
 import {
@@ -73,7 +73,6 @@ describe("BattleSaveState", () => {
         battleActionRecorder = BattleActionRecorderService.new()
 
         const actionTemplate: ActionTemplate = ActionTemplateService.new({
-            actionPoints: 1,
             name: "attack",
             id: "attackId",
         })

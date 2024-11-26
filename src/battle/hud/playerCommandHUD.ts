@@ -514,6 +514,7 @@ const createButtonsForFirstRow = ({
         ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
+            gameEngineState,
         })
 
     playerCommandState.actionButtons = squaddieTemplate.actionTemplateIds

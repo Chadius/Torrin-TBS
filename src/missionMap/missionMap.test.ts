@@ -1,7 +1,7 @@
 import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { SquaddieId } from "../squaddie/id"
 import { TraitStatusStorageService } from "../trait/traitStatusStorage"
-import { MissionMap, MissionMapService } from "./missionMap"
+import { MissionMapService } from "./missionMap"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import {
     MissionMapSquaddieLocation,

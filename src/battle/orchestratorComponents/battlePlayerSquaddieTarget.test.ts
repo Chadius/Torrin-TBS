@@ -43,6 +43,7 @@ import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddi
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -105,7 +106,9 @@ describe("BattleSquaddieTarget", () => {
         bandageWoundsAction = ActionTemplateService.new({
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,

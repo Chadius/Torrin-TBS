@@ -505,7 +505,7 @@ export const BattleHUDService = {
 
         SquaddieTurnService.spendActionPoints(
             actingBattleSquaddie.squaddieTurn,
-            actionTemplate.actionPoints
+            actionTemplate.resourceCost.actionPoints
         )
 
         const targetLocation = BattleActionDecisionStepService.getTarget(

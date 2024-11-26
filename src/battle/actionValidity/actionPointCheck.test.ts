@@ -8,6 +8,7 @@ import {
     SquaddieTurnService,
 } from "../../squaddie/turn"
 import { ActionPointCheck } from "./actionPointCheck"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("Action Point Checker", () => {
     const testNotEnoughActionPoints = [
@@ -63,7 +64,9 @@ describe("Action Point Checker", () => {
                 ActionTemplateService.new({
                     id: actionTemplateId,
                     name: actionTemplateId,
-                    actionPoints: actionPointCost,
+                    resourceCost: ActionResourceCostService.new({
+                        actionPoints: actionPointCost,
+                    }),
                 })
             )
 
@@ -142,7 +145,9 @@ describe("Action Point Checker", () => {
                 ActionTemplateService.new({
                     id: actionTemplateId,
                     name: actionTemplateId,
-                    actionPoints: actionPointCost,
+                    resourceCost: ActionResourceCostService.new({
+                        actionPoints: actionPointCost,
+                    }),
                 })
             )
             const { battleSquaddie, squaddieTemplate } =

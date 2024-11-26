@@ -1453,7 +1453,9 @@ describe("Battle HUD", () => {
                     squaddieTemplate,
                     battleSquaddie: playerSoldierBattleSquaddie,
                 })
-            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPoints)
+            expect(actionPointsRemaining).toBe(
+                3 - longswordAction.resourceCost.actionPoints
+            )
         })
 
         it("should add an action to the action builder with an expected context", () => {

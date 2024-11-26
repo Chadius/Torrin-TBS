@@ -14,7 +14,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { ObjectRepositoryService } from "../objectRepository"
 import { BattleStateService } from "../orchestrator/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
     GameEngineState,

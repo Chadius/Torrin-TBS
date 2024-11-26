@@ -51,6 +51,7 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../action/targetConstraints"
+import { ActionResourceCostService } from "../action/actionResourceCost"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -73,7 +74,9 @@ describe("user clicks on an action to consider it", () => {
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,
@@ -186,7 +189,7 @@ describe("user clicks on an action to consider it", () => {
             )
         expect(
             playerBattleSquaddie.squaddieTurn.remainingActionPoints
-        ).toBeLessThan(attackButtonAction.actionPoints)
+        ).toBeLessThan(attackButtonAction.resourceCost.actionPoints)
 
         selectorClicksOnSquaddie(selector, gameEngineState)
         attackButton =

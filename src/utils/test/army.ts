@@ -15,6 +15,7 @@ import { ActionEffectTemplateService } from "../../action/template/actionEffectT
 import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -125,7 +126,9 @@ export const TestArmyPlayerData = () => {
         ActionTemplateService.new({
             id: "young_torrin_healing_touch",
             name: "healing touch",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 0,
                 maximumRange: 1,

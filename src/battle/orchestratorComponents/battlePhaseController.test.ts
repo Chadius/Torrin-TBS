@@ -17,7 +17,7 @@ import {
     SquaddieTemplate,
     SquaddieTemplateService,
 } from "../../campaign/squaddieTemplate"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../../squaddie/armyAttributes"

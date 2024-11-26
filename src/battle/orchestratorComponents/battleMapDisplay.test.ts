@@ -8,7 +8,7 @@ import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleStateService } from "../orchestrator/battleState"
 import {

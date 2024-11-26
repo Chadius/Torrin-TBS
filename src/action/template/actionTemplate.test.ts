@@ -18,7 +18,7 @@ describe("ActionTemplate", () => {
         expect(justMovement.id).toEqual("Move it")
         expect(justMovement.name).toEqual("Move")
         expect(justMovement.actionEffectTemplates).toHaveLength(0)
-        expect(justMovement.actionPoints).toEqual(1)
+        expect(justMovement.resourceCost.actionPoints).toEqual(1)
         expect(justMovement.rank).toEqual(0)
         expect(justMovement.targetConstraints.minimumRange).toEqual(0)
         expect(justMovement.targetConstraints.maximumRange).toEqual(0)

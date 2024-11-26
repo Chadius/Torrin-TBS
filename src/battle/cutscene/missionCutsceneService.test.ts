@@ -23,7 +23,7 @@ import {
 import { MissionStartOfPhaseCutsceneTrigger } from "./missionStartOfPhaseCutsceneTrigger"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { MissionConditionType } from "../missionResult/missionCondition"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
+import { MissionMapService } from "../../missionMap/missionMap"
 import { BattleStateService } from "../orchestrator/battleState"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import {

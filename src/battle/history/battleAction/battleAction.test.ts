@@ -82,7 +82,6 @@ describe("BattleAction", () => {
                 ActionTemplateService.new({
                     id: "noMAP",
                     name: "noMAP",
-                    actionPoints: 1,
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
@@ -120,7 +119,6 @@ describe("BattleAction", () => {
                 ActionTemplateService.new({
                     id: "increaseMAP",
                     name: "increaseMAP",
-                    actionPoints: 1,
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(

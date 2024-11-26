@@ -56,6 +56,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -118,7 +119,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         powerAttackLongswordAction = ActionTemplateService.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
-            actionPoints: 3,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 3,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,
@@ -143,7 +146,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         attackLongswordAction = ActionTemplateService.new({
             name: "attack longsword",
             id: "attackLongsword",
-            actionPoints: 1,
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,
@@ -267,7 +269,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
-            powerAttackLongswordAction.actionPoints
+            powerAttackLongswordAction.resourceCost.actionPoints
         )
         return gameEngineState
     }
@@ -344,7 +346,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
 
         SquaddieTurnService.spendActionPoints(
             battleSquaddieBase.squaddieTurn,
-            powerAttackLongswordAction.actionPoints
+            powerAttackLongswordAction.resourceCost.actionPoints
         )
         return gameEngineState
     }

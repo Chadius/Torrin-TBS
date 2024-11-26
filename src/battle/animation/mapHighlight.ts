@@ -134,6 +134,11 @@ export const MapHighlightService = {
                         battleSquaddie,
                         squaddieTemplate,
                     }).movementPerAction,
+                ignoreTerrainCost:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).ignoreTerrainCost,
                 canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
                     battleSquaddie,
                     squaddieTemplate,

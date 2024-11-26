@@ -8,6 +8,8 @@ import { BattleSquaddieService } from "../battleSquaddie"
 import { ValidityCheckService } from "./validityChecker"
 import { ActionPointCheck } from "./actionPointCheck"
 import { BuffSelfCheck } from "./buffSelfCheck"
+import { PerRoundCheck } from "./perRoundCheck"
+import { GameEngineStateService } from "../../gameEngine/gameEngine"
 
 describe("validity checker", () => {
     const setupSingleSquaddie = () => {
@@ -17,7 +19,6 @@ describe("validity checker", () => {
             ActionTemplateService.new({
                 id: "actionTemplate",
                 name: "actionTemplate",
-                actionPoints: 1,
             })
         )
         ObjectRepositoryService.addSquaddie(
@@ -69,6 +70,22 @@ describe("validity checker", () => {
             },
             expectedMessages: ["Will have no effect on squaddieName"],
         },
+        {
+            checkerName: "perRoundCheck",
+            setupSpy: () => {
+                const spy = jest.spyOn(
+                    PerRoundCheck,
+                    "withinLimitedUsesThisRound"
+                )
+                spy.mockReturnValue({
+                    isValid: false,
+                    reason: ActionPerformFailureReason.TOO_MANY_USES_THIS_ROUND,
+                    message: "Already used during this round",
+                })
+                return spy
+            },
+            expectedMessages: ["Already used during this round"],
+        },
     ]
 
     it.each(actionIsInvalidTests)(
@@ -82,6 +99,7 @@ describe("validity checker", () => {
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
                 battleSquaddieId,
+                gameEngineState: GameEngineStateService.new({}),
             })
 
             expect(actionStatus[actionTemplateId]).toEqual({
@@ -114,6 +132,7 @@ describe("validity checker", () => {
         const actionStatus = ValidityCheckService.calculateActionValidity({
             objectRepository,
             battleSquaddieId,
+            gameEngineState: GameEngineStateService.new({}),
         })
 
         expect(actionStatus[actionTemplateId]).toEqual({

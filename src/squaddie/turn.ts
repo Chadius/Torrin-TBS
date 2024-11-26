@@ -8,6 +8,7 @@ export enum ActionPerformFailureReason {
     UNKNOWN = "UNKNOWN",
     TOO_FEW_ACTIONS_REMAINING = "TOO_FEW_ACTIONS_REMAINING",
     BUFF_HAS_NO_EFFECT = "BUFF_HAS_NO_EFFECT",
+    TOO_MANY_USES_THIS_ROUND = "TOO_MANY_USES_THIS_ROUND",
 }
 
 export interface SquaddieTurn {
@@ -36,7 +37,10 @@ export const SquaddieTurnService = {
         canPerform: boolean
         reason: ActionPerformFailureReason
     } => {
-        if (data.remainingActionPoints < actionTemplate.actionPoints) {
+        if (
+            data.remainingActionPoints <
+            actionTemplate.resourceCost.actionPoints
+        ) {
             return {
                 canPerform: false,
                 reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,

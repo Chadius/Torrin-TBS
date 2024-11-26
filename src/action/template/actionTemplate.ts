@@ -12,6 +12,10 @@ import {
     TargetConstraints,
     TargetConstraintsService,
 } from "../targetConstraints"
+import {
+    ActionResourceCost,
+    ActionResourceCostService,
+} from "../actionResourceCost"
 
 export enum ActionDecisionType {
     TARGET_SQUADDIE = "TARGET_SQUADDIE",
@@ -23,7 +27,7 @@ export interface ActionTemplate {
     id: string
     name: string
     rank?: number
-    actionPoints: number
+    resourceCost?: ActionResourceCost
     actionEffectTemplates: ActionEffectTemplate[]
     buttonIconResourceKey: string
     targetConstraints: TargetConstraints
@@ -34,7 +38,7 @@ export const ActionTemplateService = {
         id,
         name,
         actionEffectTemplates,
-        actionPoints,
+        resourceCost,
         buttonIconResourceKey,
         rank,
         targetConstraints,
@@ -42,7 +46,7 @@ export const ActionTemplateService = {
         id: string
         name: string
         actionEffectTemplates?: ActionEffectTemplate[]
-        actionPoints?: number
+        resourceCost?: ActionResourceCost
         buttonIconResourceKey?: string
         rank?: number
         targetConstraints?: TargetConstraints
@@ -51,7 +55,7 @@ export const ActionTemplateService = {
             id,
             name,
             actionEffectTemplates,
-            actionPoints,
+            resourceCost,
             rank: rank ?? 0,
             buttonIconResourceKey,
             targetConstraints:
@@ -187,7 +191,10 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
         throw new Error("ActionTemplate cannot sanitize, name required")
     }
 
-    template.actionPoints = getValidValueOrDefault(template.actionPoints, 1)
+    template.resourceCost = ActionResourceCostService.sanitize(
+        template.resourceCost
+    )
+
     template.actionEffectTemplates = getValidValueOrDefault(
         template.actionEffectTemplates,
         []

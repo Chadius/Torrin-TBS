@@ -50,6 +50,7 @@ import { BattleActionRecorderService } from "../battle/history/battleAction/batt
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionsDuringTurnService } from "../battle/history/battleAction/battleActionsDuringTurn"
 import { TargetConstraintsService } from "../action/targetConstraints"
+import { ActionResourceCostService } from "../action/actionResourceCost"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -73,7 +74,9 @@ describe("User cancels the previewed action", () => {
         attackAction = ActionTemplateService.new({
             id: "action",
             name: "action",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,

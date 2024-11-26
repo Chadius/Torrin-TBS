@@ -23,6 +23,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository
@@ -43,7 +44,6 @@ describe("battleSquaddieSelectorUtils", () => {
                 minimumRange: 0,
                 maximumRange: 1,
             }),
-            actionPoints: 1,
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
@@ -57,7 +57,6 @@ describe("battleSquaddieSelectorUtils", () => {
         rangedAttack = ActionTemplateService.new({
             id: "rangedAttack",
             name: "rangedAttack",
-            actionPoints: 1,
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 2,
                 maximumRange: 3,
@@ -393,7 +392,9 @@ describe("battleSquaddieSelectorUtils", () => {
             const bigMeleeAttack = ActionTemplateService.new({
                 id: "bigMeleeAttack",
                 name: "bigMeleeAttack",
-                actionPoints: 3,
+                resourceCost: ActionResourceCostService.new({
+                    actionPoints: 3,
+                }),
                 targetConstraints: TargetConstraintsService.new({
                     minimumRange: 0,
                     maximumRange: 1,
@@ -650,7 +651,6 @@ describe("battleSquaddieSelectorUtils", () => {
             meleeHeal = ActionTemplateService.new({
                 id: "meleeHeal",
                 name: "meleeHeal",
-                actionPoints: 1,
                 targetConstraints: TargetConstraintsService.new({
                     minimumRange: 0,
                     maximumRange: 1,

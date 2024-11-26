@@ -66,6 +66,7 @@ import {
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { ActionResourceCostService } from "../../action/actionResourceCost"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -100,7 +101,9 @@ describe("BattleComputerSquaddieSelector", () => {
         demonBiteAction = ActionTemplateService.new({
             name: "demon bite",
             id: "demon_bite",
-            actionPoints: 2,
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,
@@ -493,29 +496,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
                 location: { q: 0, r: 1 },
             })
-            // TODO
-            // MissionMapService.addSquaddie({
-            //     missionMap,
-            //     battleSquaddieId: enemyDemonTemplate.squaddieId.templateId,
-            //     squaddieTemplateId: enemyDemonBattleSquaddie.battleSquaddieId,
-            //     location: { q: 0, r: 0 },
-            // })
-            // MissionMapService.addSquaddie({
-            //     missionMap,
-            //     battleSquaddieId: enemyDemonTemplate.squaddieId.templateId,
-            //     squaddieTemplateId: enemyDemonBattleSquaddie2.battleSquaddieId,
-            //     location: { q: 0, r: 1 },
-            // // })
-            // missionMap.addSquaddie(
-            //     enemyDemonTemplate.squaddieId.templateId,
-            //     enemyDemonBattleSquaddie.battleSquaddieId,
-            //     { q: 0, r: 0 }
-            // )
-            // missionMap.addSquaddie(
-            //     enemyDemonTemplate.squaddieId.templateId,
-            //     enemyDemonBattleSquaddie2.battleSquaddieId,
-            //     { q: 0, r: 1 }
-            // )
+
             const { worldX, worldY } =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
                     0,
@@ -750,7 +731,7 @@ describe("BattleComputerSquaddieSelector", () => {
                         battleSquaddie: enemyDemonBattleSquaddie,
                     })
                 expect(actionPointsRemaining).toBe(
-                    3 - demonBiteAction.actionPoints
+                    3 - demonBiteAction.resourceCost.actionPoints
                 )
             })
 

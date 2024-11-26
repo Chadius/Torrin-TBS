@@ -703,7 +703,6 @@ export const TestMissionData = () => {
         {
             id: "demon_slither_bite",
             name: "Bite",
-            actionPoints: 1,
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
@@ -729,7 +728,6 @@ export const TestMissionData = () => {
         {
             id: "short_sword",
             name: "Short sword",
-            actionPoints: 1,
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
@@ -754,7 +752,6 @@ export const TestMissionData = () => {
         {
             id: "ignition",
             name: "Ignition",
-            actionPoints: 1,
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,

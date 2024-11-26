@@ -26,7 +26,9 @@
   {
     "id": "young_torrin_healing_touch",
     "name": "healing touch",
-    "actionPoints": 2,
+    "resourceCost": {
+      "actionPoints": 2
+    },
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
@@ -57,6 +59,10 @@
       "maximumRange": 0,
       "targetingShape": "SNAKE"
     },
+    "resourceCost": {
+      "actionPoints": 0,
+      "numberOfTimesPerRound": 1
+    },
     "actionEffectTemplates": [
       {
         "traits": {
@@ -67,18 +73,11 @@
         },
         "attributeModifiers": [
           {
-            "type": "MOVEMENT",
-            "source": "CIRCUMSTANCE",
-            "amount": 1,
-            "duration": 1,
-            "description": "Increase movement and ignore terrain penalties"
-          },
-          {
             "type": "IGNORE_TERRAIN_COST",
             "source": "CIRCUMSTANCE",
             "amount": 1,
             "duration": 1,
-            "description": "Increase movement and ignore terrain penalties"
+            "description": "Ignore terrain penalties"
           }
         ]
       }
@@ -113,6 +112,10 @@
   {
     "id": "sir_camil_raise_shield",
     "name": "raise shield",
+    "resourceCost": {
+      "actionPoints": 1,
+      "numberOfTimesPerRound": 1
+    },
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 0,

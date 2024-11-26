@@ -31,18 +31,22 @@ const capitalizeFirstLetter = (input: string) =>
 const getAttackPenaltyDescriptions = (
     actingSquaddieModifiers: AttributeTypeAndAmount[]
 ): string[] =>
-    actingSquaddieModifiers.map((attributeModifier) => {
-        let padding: string = attributeModifier.amount > 0 ? "+" : ""
-        return `   ${padding}${attributeModifier.amount}: ${capitalizeFirstLetter(attributeModifier.type)}`
-    })
+    actingSquaddieModifiers
+        .filter((attributeModifier) => attributeModifier.amount != 0)
+        .map((attributeModifier) => {
+            let padding: string = attributeModifier.amount > 0 ? "+" : ""
+            return `   ${padding}${attributeModifier.amount}: ${capitalizeFirstLetter(attributeModifier.type)}`
+        })
 
 const getRollModifierDescriptions = (rollModifiers: {
     [r in RollModifierType]?: number
 }): string[] =>
-    Object.entries(rollModifiers ?? {}).map(([type, amount]) => {
-        let padding: string = amount > 0 ? "+" : ""
-        return `   ${padding}${amount}: ${capitalizeFirstLetter(type)}`
-    })
+    Object.entries(rollModifiers ?? {})
+        .filter(([_, amount]) => amount != 0)
+        .map(([type, amount]) => {
+            let padding: string = amount > 0 ? "+" : ""
+            return `   ${padding}${amount}: ${capitalizeFirstLetter(type)}`
+        })
 
 const getActingSquaddieRollTotalIfNeeded = (
     actingContext: BattleActionActionContext

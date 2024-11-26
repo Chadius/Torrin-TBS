@@ -94,7 +94,6 @@ describe("Buff Self Checker", () => {
         const attackOthers = ActionTemplateService.new({
             id: "attackOthers",
             name: "attackOthers",
-            actionPoints: 1,
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({

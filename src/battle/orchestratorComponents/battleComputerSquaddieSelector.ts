@@ -610,7 +610,7 @@ export class BattleComputerSquaddieSelector
                     gameEngineState.repository,
                     actionTemplateIdUsed
                 )
-            actionPointCost += actionTemplate.actionPoints
+            actionPointCost += actionTemplate.resourceCost.actionPoints
         }
 
         battleActionDecisionSteps

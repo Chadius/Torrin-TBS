@@ -157,8 +157,24 @@ export class MakeDecisionButton {
         let infoTextTop =
             RectAreaService.bottom(buttonTextBox.area) +
             DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
+
         if (this.shouldDrawActionPoints(actionTemplate)) {
-            this.drawActionPoints(graphicsContext, actionTemplate, infoTextTop)
+            this.drawActionPointCost(
+                graphicsContext,
+                actionTemplate,
+                infoTextTop
+            )
+            infoTextTop +=
+                DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
+                DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
+        }
+
+        if (this.shouldDrawActionsPerRound(actionTemplate)) {
+            this.drawActionsPerRound(
+                graphicsContext,
+                actionTemplate,
+                infoTextTop
+            )
             infoTextTop +=
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
@@ -180,7 +196,7 @@ export class MakeDecisionButton {
         }
     }
 
-    drawActionPoints(
+    drawActionPointCost(
         graphicsContext: GraphicsBuffer,
         actionTemplate: ActionTemplate,
         top: number
@@ -188,7 +204,19 @@ export class MakeDecisionButton {
         this.drawInfoTextBox(
             graphicsContext,
             top,
-            `Action Points: ${actionTemplate.actionPoints}`
+            `Action Points: ${actionTemplate.resourceCost.actionPoints}`
+        )
+    }
+
+    drawActionsPerRound(
+        graphicsContext: GraphicsBuffer,
+        actionTemplate: ActionTemplate,
+        top: number
+    ) {
+        this.drawInfoTextBox(
+            graphicsContext,
+            top,
+            `${actionTemplate.resourceCost.numberOfTimesPerRound} per round`
         )
     }
 
@@ -305,9 +333,11 @@ export class MakeDecisionButton {
         }
     }
 
-    private shouldDrawActionPoints = (actionTemplate: ActionTemplate) => {
-        return actionTemplate.actionPoints !== 1
-    }
+    private shouldDrawActionPoints = (actionTemplate: ActionTemplate) =>
+        actionTemplate.resourceCost.actionPoints !== 1
+
+    private shouldDrawActionsPerRound = (actionTemplate: ActionTemplate) =>
+        actionTemplate.resourceCost.numberOfTimesPerRound != undefined
 
     private shouldDrawActionRange = (actionTemplate: ActionTemplate) => {
         const templateRange =

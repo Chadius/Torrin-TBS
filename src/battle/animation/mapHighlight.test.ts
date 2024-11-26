@@ -35,6 +35,12 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../squaddie/attributeModifier"
+import { InBattleAttributesService } from "../stats/inBattleAttributes"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap
@@ -411,6 +417,36 @@ describe("map highlight generator", () => {
                             .MOVE_2_ACTIONS_CONTROLLABLE_SQUADDIE,
                 },
             ])
+        })
+        it("highlights correct locations with squaddie can ignore double movement terrain", () => {
+            createSquaddie(SquaddieAffiliation.PLAYER)
+            SquaddieTurnService.spendActionPoints(
+                battleSquaddie.squaddieTurn,
+                2
+            )
+            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1)
+            InBattleAttributesService.addActiveAttributeModifier(
+                battleSquaddie.inBattleAttributes,
+                AttributeModifierService.new({
+                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    source: AttributeSource.CIRCUMSTANCE,
+                    amount: 1,
+                })
+            )
+            const highlightedDescription: HighlightTileDescription[] =
+                MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: terrainAllDoubleMovement,
+                    }),
+                    startLocation: { q: 0, r: 2 },
+                    repository: objectRepository,
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    campaignResources,
+                })
+
+            expect(highlightedDescription).toEqual(
+                expectedMovementWith1Action(campaignResources)
+            )
         })
     })
 
