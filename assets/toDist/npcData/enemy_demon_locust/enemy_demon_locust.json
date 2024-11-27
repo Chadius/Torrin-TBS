@@ -1,0 +1,31 @@
+{
+  "squaddieId": {
+    "name": "Locust Demon",
+    "templateId": "enemy_demon_locust",
+    "resources": {
+      "mapIconResourceKey": "map icon demon locust",
+      "actionSpritesByEmotion": {
+        "NEUTRAL": "combat-demon-locust-neutral",
+        "ATTACK": "combat-demon-locust-attack",
+        "TARGETED": "combat-demon-locust-targeted",
+        "DAMAGED": "combat-demon-locust-damaged",
+        "DEAD": "combat-demon-locust-dead"
+      }
+    },
+    "traits": {
+      "DEMON": true
+    },
+    "affiliation": "ENEMY"
+  },
+  "attributes": {
+    "maxHitPoints": 2,
+    "armorClass": 4,
+    "movement": {
+      "movementPerAction": 3
+    },
+    "tier": 0
+  },
+  "actionTemplateIds": [
+    "demon_locust_arrow"
+  ]
+}

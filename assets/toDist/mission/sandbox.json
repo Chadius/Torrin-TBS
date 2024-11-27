@@ -65,15 +65,40 @@
   "npcDeployments": {
     "enemy": {
       "templateIds": [
-        "enemy_demon_slither"
+        "enemy_demon_slither",
+        "enemy_demon_locust"
       ],
       "mapPlacements": [
         {
-          "squaddieTemplateId": "enemy_demon_slither",
-          "battleSquaddieId": "enemy_demon_slither_0",
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_0",
+          "location": {
+            "q": 0,
+            "r": 2
+          }
+        },
+        {
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_1",
           "location": {
             "q": 0,
             "r": 3
+          }
+        },
+        {
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_2",
+          "location": {
+            "q": 0,
+            "r": 4
+          }
+        },
+        {
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_3",
+          "location": {
+            "q": 2,
+            "r": 4
           }
         }
       ],
@@ -83,7 +108,10 @@
           "name": "Infiltrators",
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
-            "enemy_demon_slither_0"
+            "enemy_demon_locust_0",
+            "enemy_demon_locust_1",
+            "enemy_demon_locust_2",
+            "enemy_demon_locust_3"
           ],
           "strategies": [
             {

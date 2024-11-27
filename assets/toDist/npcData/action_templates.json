@@ -23,5 +23,30 @@
     ],
     "buttonIconResourceKey": "decision-button-sword",
     "actionDecisions": ["TARGET_SQUADDIE"]
+  },
+  {
+    "name": "Bite",
+    "id": "demon_locust_arrow",
+    "targetConstraints": {
+      "minimumRange": 2,
+      "maximumRange": 3,
+      "targetingShape": "SNAKE"
+    },
+    "actionEffectTemplates": [
+      {
+        "traits": {
+          "booleanTraits": {
+            "ATTACK": true,
+            "TARGET_FOE": true,
+            "VERSUS_ARMOR": true
+          }
+        },
+        "damageDescriptions": {
+          "BODY": 2
+        }
+      }
+    ],
+    "buttonIconResourceKey": "decision-button-bow",
+    "actionDecisions": ["TARGET_SQUADDIE"]
   }
 ]

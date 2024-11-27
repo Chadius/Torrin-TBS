@@ -16,8 +16,38 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/npcData/enemy_demon_slither//map-icon-demon-slither.png",
+    "path": "assets/npcData/enemy_demon_slither/map-icon-demon-slither.png",
     "key": "map icon demon slither"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/map-icon-demon-locust.png",
+    "key": "map icon demon locust"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-attack.png",
+    "key": "combat-demon-locust-attack"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-damaged.png",
+    "key": "combat-demon-locust-damaged"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-dead.png",
+    "key": "combat-demon-locust-dead"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-neutral.png",
+    "key": "combat-demon-locust-neutral"
+  },
+  {
+    "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-targeted.png",
+    "key": "combat-demon-locust-targeted"
   },
   {
     "type": "IMAGE",
