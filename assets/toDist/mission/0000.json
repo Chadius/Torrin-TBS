@@ -80,7 +80,8 @@
   "npcDeployments": {
     "enemy": {
       "templateIds": [
-        "enemy_demon_slither"
+        "enemy_demon_slither",
+        "enemy_demon_locust"
       ],
       "mapPlacements": [
         {
@@ -100,11 +101,11 @@
           }
         },
         {
-          "squaddieTemplateId": "enemy_demon_slither",
-          "battleSquaddieId": "enemy_demon_slither_2",
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_3",
           "location": {
             "q": 1,
-            "r": 12
+            "r": 14
           }
         },
         {
@@ -124,8 +125,8 @@
           }
         },
         {
-          "squaddieTemplateId": "enemy_demon_slither",
-          "battleSquaddieId": "enemy_demon_slither_5",
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_0",
           "location": {
             "q": 10,
             "r": 14
@@ -146,6 +147,22 @@
             "q": 15,
             "r": 10
           }
+        },
+        {
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_1",
+          "location": {
+            "q": 16,
+            "r": 11
+          }
+        },
+        {
+          "squaddieTemplateId": "enemy_demon_locust",
+          "battleSquaddieId": "enemy_demon_locust_2",
+          "location": {
+            "q": 14,
+            "r": 4
+          }
         }
       ],
       "teams": [
@@ -155,8 +172,7 @@
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
             "enemy_demon_slither_0",
-            "enemy_demon_slither_1",
-            "enemy_demon_slither_2"
+            "enemy_demon_slither_1"
           ],
           "strategies": [
             {
@@ -186,13 +202,35 @@
           ]
         },
         {
+          "id": "enemy4",
+          "name": "Infiltrators",
+          "iconResourceKey": "affiliate_icon_infiltrators",
+          "battleSquaddieIds": [
+            "enemy_demon_locust_3"
+          ],
+          "strategies": [
+            {
+              "type": "TARGET_SQUADDIE_IN_RANGE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            },
+            {
+              "type": "MOVE_CLOSER_TO_SQUADDIE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            }
+          ]
+        },
+        {
           "id": "enemy1",
           "name": "Infiltrators",
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
             "enemy_demon_slither_3",
             "enemy_demon_slither_4",
-            "enemy_demon_slither_5"
+            "enemy_demon_locust_0"
           ],
           "strategies": [
             {
@@ -221,7 +259,9 @@
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
             "enemy_demon_slither_6",
-            "enemy_demon_slither_7"
+            "enemy_demon_slither_7",
+            "enemy_demon_locust_1",
+            "enemy_demon_locust_2"
           ],
           "strategies": [
             {
@@ -473,6 +513,14 @@
             "speakerName": "Torrin",
             "dialogueText": "I can use Torrent Surge.\nSand won't slow me down!",
             "animationDuration": 0
+          },
+          {
+            "type": "DIALOGUE",
+            "id": "turn2_3",
+            "speakerPortraitResourceKey": "sir camil cutscene portrait",
+            "speakerName": "Sir Camil",
+            "dialogueText": "Watch out for that locust!\nHover over it to see its range\nand let me get in first!",
+            "animationDuration": 0
           }
         ]
       },
@@ -493,7 +541,7 @@
             "type": "DIALOGUE",
             "id": "turn3_1",
             "speakerName": "Sir Camil",
-            "dialogueText": "See those demons on the right?\nIf you hover over them,\nyou can see their reach.",
+            "dialogueText": "See those demons on the right?\nThey are sticking together.\nI'll Raise Shield and advance.",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           }
@@ -533,7 +581,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_1",
             "speakerName": "Torrin",
-            "dialogueText": "2 AP for 2 HP.\nAnd I have to be close...",
+            "dialogueText": "2 Action Points\nto heal 2 hit points.\nAnd I have to be close.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }

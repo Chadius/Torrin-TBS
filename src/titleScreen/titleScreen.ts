@@ -86,13 +86,21 @@ const TitleScreenDesign = {
             bottom: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
         },
     },
-    demon: {
+    demonSlither: {
         iconArea: {
             startColumn: 6,
-            width: 100,
+            width: 80,
         },
-        descriptionText: "Destroy these demons. They bite pretty hard!",
+        descriptionText: "Destroy all demons. These Slither demons bite!",
         iconImageResourceKey: "combat-demon-slither-neutral",
+    },
+    demonLocust: {
+        iconArea: {
+            startColumn: 6,
+            width: 80,
+        },
+        descriptionText: "Locust demons attack from range.",
+        iconImageResourceKey: "combat-demon-locust-neutral",
     },
     torrin: {
         iconArea: {
@@ -131,7 +139,8 @@ const TitleScreenDesign = {
 const resourceKeys: string[] = [
     TitleScreenDesign.logo.iconImageResourceKey,
     TitleScreenDesign.sirCamil.iconImageResourceKey,
-    TitleScreenDesign.demon.iconImageResourceKey,
+    TitleScreenDesign.demonSlither.iconImageResourceKey,
+    TitleScreenDesign.demonLocust.iconImageResourceKey,
     TitleScreenDesign.torrin.iconImageResourceKey,
 ]
 
@@ -151,7 +160,13 @@ export class TitleScreen implements GameEngineComponent {
     private titleBannerArea: RectArea
     private startNewGameButtonLabel: string
     private versionTextBox: TextBox
-    private demonUIElements: {
+    private demonSlitherUIElements: {
+        icon: ImageUI
+        iconArea: RectArea
+        descriptionText: TextBox
+    }
+
+    private demonLocustUIElements: {
         icon: ImageUI
         iconArea: RectArea
         descriptionText: TextBox
@@ -273,8 +288,8 @@ export class TitleScreen implements GameEngineComponent {
             })
         }
 
-        if (!isValidValue(this.demonUIElements)) {
-            this.demonUIElements = {
+        if (!isValidValue(this.demonSlitherUIElements)) {
+            this.demonSlitherUIElements = {
                 icon: undefined,
                 iconArea: RectAreaService.new({
                     left: 0,
@@ -285,8 +300,28 @@ export class TitleScreen implements GameEngineComponent {
                 descriptionText: undefined,
             }
         }
-        if (!isValidValue(this.demonUIElements.icon)) {
-            this.demonUIElements.iconArea = RectAreaService.new({
+        if (!isValidValue(this.demonSlitherUIElements.icon)) {
+            this.demonSlitherUIElements.iconArea = RectAreaService.new({
+                left: 0,
+                top: 0,
+                width: 0,
+                height: 0,
+            })
+        }
+        if (!isValidValue(this.demonLocustUIElements)) {
+            this.demonLocustUIElements = {
+                icon: undefined,
+                iconArea: RectAreaService.new({
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0,
+                }),
+                descriptionText: undefined,
+            }
+        }
+        if (!isValidValue(this.demonLocustUIElements.icon)) {
+            this.demonLocustUIElements.iconArea = RectAreaService.new({
                 left: 0,
                 top: 0,
                 width: 0,
@@ -781,7 +816,8 @@ export class TitleScreen implements GameEngineComponent {
     ) {
         this.drawTorrinCharacterIntroduction(graphicsContext)
         this.drawSirCamilCharacterIntroduction(graphicsContext)
-        this.drawDemonCharacterIntroduction(graphicsContext)
+        this.drawDemonSlitherCharacterIntroduction(graphicsContext)
+        this.drawDemonLocustCharacterIntroduction(graphicsContext)
     }
 
     private drawSirCamilCharacterIntroduction(graphicsContext: GraphicsBuffer) {
@@ -939,16 +975,18 @@ export class TitleScreen implements GameEngineComponent {
         })
     }
 
-    private drawDemonCharacterIntroduction(graphicsContext: GraphicsBuffer) {
-        if (!isValidValue(this.demonUIElements.icon)) {
-            this.createDemonPlaceholderIconAreaUnderSirCamil()
+    private drawDemonSlitherCharacterIntroduction(
+        graphicsContext: GraphicsBuffer
+    ) {
+        if (!isValidValue(this.demonSlitherUIElements.icon)) {
+            this.createDemonSlitherPlaceholderIconAreaUnderSirCamil()
         }
 
-        if (this.demonUIElements.descriptionText === undefined) {
-            this.setDemonDescriptionText()
+        if (this.demonSlitherUIElements.descriptionText === undefined) {
+            this.setDemonSlitherDescriptionText()
         }
         TextBoxService.draw(
-            this.demonUIElements.descriptionText,
+            this.demonSlitherUIElements.descriptionText,
             graphicsContext
         )
 
@@ -956,65 +994,148 @@ export class TitleScreen implements GameEngineComponent {
             return
         }
 
-        if (!isValidValue(this.demonUIElements.icon)) {
+        if (!isValidValue(this.demonSlitherUIElements.icon)) {
             let image: p5.Image = this.resourceHandler.getResource(
-                TitleScreenDesign.demon.iconImageResourceKey
+                TitleScreenDesign.demonSlither.iconImageResourceKey
             )
-            this.setDemonIconBasedOnImage(image)
-            this.setDemonDescriptionText()
+            this.setDemonSlitherIconBasedOnImage(image)
+            this.setDemonSlitherDescriptionText()
         }
 
-        this.demonUIElements.icon.draw(graphicsContext)
+        this.demonSlitherUIElements.icon.draw(graphicsContext)
     }
 
-    private setDemonDescriptionText() {
-        this.demonUIElements.descriptionText = TextBoxService.new({
+    private setDemonSlitherDescriptionText() {
+        this.demonSlitherUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
                 left:
-                    RectAreaService.right(this.demonUIElements.iconArea) +
-                    WINDOW_SPACING.SPACING1,
-                top: this.demonUIElements.iconArea.top,
-                height: this.demonUIElements.iconArea.height,
+                    RectAreaService.right(
+                        this.demonSlitherUIElements.iconArea
+                    ) + WINDOW_SPACING.SPACING1,
+                top: this.demonSlitherUIElements.iconArea.top,
+                height: this.demonSlitherUIElements.iconArea.height,
                 width:
                     ScreenDimensions.SCREEN_WIDTH -
-                    RectAreaService.right(this.demonUIElements.iconArea),
+                    RectAreaService.right(this.demonSlitherUIElements.iconArea),
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
-            text: TitleScreenDesign.demon.descriptionText,
+            text: TitleScreenDesign.demonSlither.descriptionText,
             textSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })
     }
 
-    private createDemonPlaceholderIconAreaUnderSirCamil() {
-        this.demonUIElements.iconArea = RectAreaService.new({
-            startColumn: TitleScreenDesign.demon.iconArea.startColumn,
-            endColumn: TitleScreenDesign.demon.iconArea.startColumn + 1,
+    private createDemonSlitherPlaceholderIconAreaUnderSirCamil() {
+        this.demonSlitherUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.demonSlither.iconArea.startColumn,
+            endColumn: TitleScreenDesign.demonSlither.iconArea.startColumn + 1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
             top:
                 RectAreaService.bottom(this.sirCamilUIElements.iconArea) +
-                WINDOW_SPACING.SPACING4,
+                WINDOW_SPACING.SPACING1,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         })
     }
 
-    private setDemonIconBasedOnImage(image: p5.Image) {
-        this.demonUIElements.iconArea = RectAreaService.new({
-            left: this.demonUIElements.iconArea.left,
-            top: this.demonUIElements.iconArea.top,
+    private setDemonSlitherIconBasedOnImage(image: p5.Image) {
+        this.demonSlitherUIElements.iconArea = RectAreaService.new({
+            left: this.demonSlitherUIElements.iconArea.left,
+            top: this.demonSlitherUIElements.iconArea.top,
             height: ImageUIService.ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
-                desiredWidth: TitleScreenDesign.demon.iconArea.width,
+                desiredWidth: TitleScreenDesign.demonSlither.iconArea.width,
             }),
-            width: TitleScreenDesign.demon.iconArea.width,
+            width: TitleScreenDesign.demonSlither.iconArea.width,
         })
 
-        this.demonUIElements.icon = new ImageUI({
+        this.demonSlitherUIElements.icon = new ImageUI({
             graphic: image,
-            area: this.demonUIElements.iconArea,
+            area: this.demonSlitherUIElements.iconArea,
+        })
+    }
+
+    private drawDemonLocustCharacterIntroduction(
+        graphicsContext: GraphicsBuffer
+    ) {
+        if (!isValidValue(this.demonLocustUIElements.icon)) {
+            this.createDemonLocustPlaceholderIconAreaUnderDemonSlither()
+        }
+
+        if (this.demonLocustUIElements.descriptionText === undefined) {
+            this.setDemonLocustDescriptionText()
+        }
+        TextBoxService.draw(
+            this.demonLocustUIElements.descriptionText,
+            graphicsContext
+        )
+
+        if (this.areResourcesLoaded() === false) {
+            return
+        }
+
+        if (!isValidValue(this.demonLocustUIElements.icon)) {
+            let image: p5.Image = this.resourceHandler.getResource(
+                TitleScreenDesign.demonLocust.iconImageResourceKey
+            )
+            this.setDemonLocustIconBasedOnImage(image)
+            this.setDemonLocustDescriptionText()
+        }
+
+        this.demonLocustUIElements.icon.draw(graphicsContext)
+    }
+
+    private setDemonLocustDescriptionText() {
+        this.demonLocustUIElements.descriptionText = TextBoxService.new({
+            area: RectAreaService.new({
+                left:
+                    RectAreaService.right(this.demonLocustUIElements.iconArea) +
+                    WINDOW_SPACING.SPACING1,
+                top: this.demonLocustUIElements.iconArea.top,
+                height: this.demonLocustUIElements.iconArea.height,
+                width:
+                    ScreenDimensions.SCREEN_WIDTH -
+                    RectAreaService.right(this.demonLocustUIElements.iconArea),
+                margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
+            }),
+            text: TitleScreenDesign.demonLocust.descriptionText,
+            textSize: WINDOW_SPACING.SPACING2,
+            fontColor: colors.descriptionText,
+            vertAlign: VERTICAL_ALIGN.CENTER,
+        })
+    }
+
+    private createDemonLocustPlaceholderIconAreaUnderDemonSlither() {
+        this.demonLocustUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.demonLocust.iconArea.startColumn,
+            endColumn: TitleScreenDesign.demonLocust.iconArea.startColumn + 1,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            screenHeight: ScreenDimensions.SCREEN_HEIGHT,
+            top:
+                RectAreaService.bottom(this.demonSlitherUIElements.iconArea) +
+                WINDOW_SPACING.SPACING1,
+            height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
+        })
+    }
+
+    // TODO set Icon based on Image could be a generic.
+    private setDemonLocustIconBasedOnImage(image: p5.Image) {
+        this.demonLocustUIElements.iconArea = RectAreaService.new({
+            left: this.demonLocustUIElements.iconArea.left,
+            top: this.demonLocustUIElements.iconArea.top,
+            height: ImageUIService.ScaleImageHeight({
+                imageWidth: image.width,
+                imageHeight: image.height,
+                desiredWidth: TitleScreenDesign.demonLocust.iconArea.width,
+            }),
+            width: TitleScreenDesign.demonLocust.iconArea.width,
+        })
+
+        this.demonLocustUIElements.icon = new ImageUI({
+            graphic: image,
+            area: this.demonLocustUIElements.iconArea,
         })
     }
 }

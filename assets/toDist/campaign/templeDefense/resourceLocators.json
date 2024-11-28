@@ -141,6 +141,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/npcData/enemy_demon_locust/map-icon-demon-locust.png",
+    "key": "map icon demon locust"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/npcData/enemy_demon_locust/combat-demon-locust-attack.png",
     "key": "combat-demon-locust-attack"
   },
