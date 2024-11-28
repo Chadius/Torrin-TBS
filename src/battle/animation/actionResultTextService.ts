@@ -28,6 +28,7 @@ import {
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 import { BattleActionActionContext } from "../history/battleAction/battleActionActionContext"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
@@ -237,14 +238,21 @@ export const ActionResultTextService = {
                 actionEffectSquaddieTemplate
             )
         ) {
+            const armorClass = SquaddieService.getArmorClass({
+                squaddieTemplate: targetTemplate,
+                battleSquaddie: targetBattle,
+            }).net
             const armorModifier =
                 targetModifiers.find(
                     (modifier) => modifier.type === AttributeType.ARMOR
                 )?.amount || 0
-            targetBeforeActionText += `\nArmor ${targetBattle.inBattleAttributes.armyAttributes.armorClass + armorModifier}`
+            targetBeforeActionText += `\nArmor ${armorClass + armorModifier}`
 
             if (armorModifier) {
                 targetBeforeActionText += `\n ${armorModifier > 0 ? "+" : ""}${armorModifier} Armor`
+            }
+            if (targetTemplate.attributes.tier != 0) {
+                targetBeforeActionText += `\n +${targetTemplate.attributes.tier} Tier`
             }
         }
 

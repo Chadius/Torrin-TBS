@@ -801,4 +801,38 @@ describe("Action Result Text Writer", () => {
             expect(outputString).not.toContain(`+9001 Armor`)
         })
     })
+
+    describe("Tier bonus", () => {
+        beforeEach(() => {
+            thiefStatic.attributes.tier = 1
+        })
+        it("Shows Tier bonuses against attacks", () => {
+            const outputString: string =
+                ActionResultTextService.getBeforeActionText({
+                    targetTemplate: thiefStatic,
+                    targetBattle: thiefDynamic,
+                    actionEffectSquaddieTemplate: longswordSweepAction
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                })
+
+            expect(outputString).toContain(
+                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + thiefStatic.attributes.tier}`
+            )
+            expect(outputString).toContain(`+1 Tier`)
+        })
+        it("Does not shows Armor bonuses against non attacks", () => {
+            const outputString: string =
+                ActionResultTextService.getBeforeActionText({
+                    targetTemplate: thiefStatic,
+                    targetBattle: thiefDynamic,
+                    actionEffectSquaddieTemplate: bandageWoundsAction
+                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                })
+
+            expect(outputString).not.toContain(
+                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + thiefStatic.attributes.tier}`
+            )
+            expect(outputString).not.toContain(`+1 Tier`)
+        })
+    })
 })

@@ -144,16 +144,16 @@
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_7",
           "location": {
-            "q": 15,
-            "r": 10
+            "q": 13,
+            "r": 11
           }
         },
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_1",
           "location": {
-            "q": 16,
-            "r": 11
+            "q": 14,
+            "r": 4
           }
         },
         {
@@ -161,7 +161,7 @@
           "battleSquaddieId": "enemy_demon_locust_2",
           "location": {
             "q": 14,
-            "r": 4
+            "r": 13
           }
         }
       ],
@@ -259,9 +259,7 @@
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
             "enemy_demon_slither_6",
-            "enemy_demon_slither_7",
-            "enemy_demon_locust_1",
-            "enemy_demon_locust_2"
+            "enemy_demon_locust_1"
           ],
           "strategies": [
             {
@@ -280,6 +278,35 @@
               "type": "MOVE_CLOSER_TO_SQUADDIE",
               "options": {
                 "desiredBattleSquaddieId": "enemy_demon_slither_6"
+              }
+            }
+          ]
+        },
+        {
+          "id": "enemy3",
+          "name": "Infiltrators",
+          "iconResourceKey": "affiliate_icon_infiltrators",
+          "battleSquaddieIds": [
+            "enemy_demon_slither_7",
+            "enemy_demon_locust_2"
+          ],
+          "strategies": [
+            {
+              "type": "TARGET_SQUADDIE_IN_RANGE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            },
+            {
+              "type": "MOVE_CLOSER_TO_SQUADDIE",
+              "options": {
+                "desiredAffiliation": "PLAYER"
+              }
+            },
+            {
+              "type": "MOVE_CLOSER_TO_SQUADDIE",
+              "options": {
+                "desiredBattleSquaddieId": "enemy_demon_slither_7"
               }
             }
           ]
@@ -581,7 +608,7 @@
             "type": "DIALOGUE",
             "id": "torrin_is_injured_1",
             "speakerName": "Torrin",
-            "dialogueText": "2 Action Points\nto heal 2 hit points.\nAnd I have to be close.",
+            "dialogueText": "2 Action Points\nto heal 2 Hit Points.\nAnd I have to be close.",
             "speakerPortraitResourceKey": "young torrin cutscene portrait",
             "animationDuration": 0
           }

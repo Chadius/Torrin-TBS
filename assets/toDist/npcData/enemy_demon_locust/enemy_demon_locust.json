@@ -21,7 +21,7 @@
     "maxHitPoints": 2,
     "armorClass": 4,
     "movement": {
-      "movementPerAction": 3
+      "movementPerAction": 2
     },
     "tier": 0
   },
