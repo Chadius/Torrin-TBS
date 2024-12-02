@@ -148,7 +148,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
@@ -190,7 +190,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
             SummaryHUDStateService.setTargetSummaryPopover({
                 summaryHUDState,
@@ -225,7 +225,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState,
@@ -337,7 +337,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -371,7 +371,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             const panelWindowRectArea =
@@ -420,7 +420,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -461,7 +461,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -506,7 +506,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             const dateNowSpy = jest
@@ -561,7 +561,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -614,7 +614,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -747,7 +747,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
         })
 
@@ -834,7 +834,7 @@ describe("summaryHUD", () => {
             })
 
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -982,7 +982,7 @@ describe("summaryHUD", () => {
         let summaryHUDState: SummaryHUDState
         beforeEach(() => {
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
@@ -1019,7 +1019,7 @@ describe("summaryHUD", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: {
+                screenSelectionCoordinates: {
                     x: 0,
                     y: 0,
                 },
@@ -1118,7 +1118,7 @@ describe("summaryHUD", () => {
 
             dateSpy = jest.spyOn(Date, "now")
             summaryHUDState = SummaryHUDStateService.new({
-                mouseSelectionLocation: {
+                screenSelectionCoordinates: {
                     x: 0,
                     y: 0,
                 },

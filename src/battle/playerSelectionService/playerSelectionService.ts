@@ -340,7 +340,7 @@ export const PlayerSelectionService = {
                     gameEngineState,
                     battleSquaddieSelectedId: context.battleSquaddieId,
                     selectionMethod: {
-                        mouseClick: context.mouseClick,
+                        mouse: context.mouseClick,
                     },
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -351,7 +351,7 @@ export const PlayerSelectionService = {
                     gameEngineState,
                     battleSquaddieSelectedId: context.battleSquaddieId,
                     selectionMethod: {
-                        mouseMovement: context.mouseMovement,
+                        mouse: context.mouseMovement,
                     },
                     squaddieSummaryPopoverPosition:
                         SquaddieSummaryPopoverPosition.SELECT_MAIN,

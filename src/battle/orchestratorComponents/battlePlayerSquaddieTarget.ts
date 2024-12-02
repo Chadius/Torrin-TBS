@@ -186,7 +186,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                         .battleSquaddieId
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new({
-                        mouseSelectionLocation:
+                        screenSelectionCoordinates:
                             BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
                                 { gameEngineState }
                             ),
@@ -450,7 +450,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieId,
             selectionMethod: {
-                mouseMovement: {
+                mouse: {
                     x: mouseEvent.mouseX,
                     y: mouseEvent.mouseY,
                 },

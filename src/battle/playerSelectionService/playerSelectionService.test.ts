@@ -312,7 +312,7 @@ describe("Player Selection Service", () => {
                         gameEngineState,
                         battleSquaddieSelectedId: "ENEMY",
                         selectionMethod: {
-                            mouseClick: MouseClickService.new({
+                            mouse: MouseClickService.new({
                                 x: screenX,
                                 y: screenY,
                                 button: MouseButton.ACCEPT,
@@ -397,7 +397,7 @@ describe("Player Selection Service", () => {
                         gameEngineState,
                         battleSquaddieSelectedId: "PLAYER",
                         selectionMethod: {
-                            mouseClick: MouseClickService.new({
+                            mouse: MouseClickService.new({
                                 x: screenX,
                                 y: screenY,
                                 button: MouseButton.ACCEPT,
@@ -442,7 +442,7 @@ describe("Player Selection Service", () => {
                     })
                     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                         SummaryHUDStateService.new({
-                            mouseSelectionLocation: { x: 0, y: 0 },
+                            screenSelectionCoordinates: { x: 0, y: 0 },
                         })
                     SummaryHUDStateService.setMainSummaryPopover({
                         objectRepository: gameEngineState.repository,
@@ -527,7 +527,7 @@ describe("Player Selection Service", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: "PLAYER",
                 selectionMethod: {
-                    mouseMovement: {
+                    mouse: {
                         x: screenX,
                         y: screenY,
                     },

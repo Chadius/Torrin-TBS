@@ -93,6 +93,7 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionPanelPosition } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -205,7 +206,7 @@ describe("Battle HUD", () => {
                 }),
                 battleHUDState: BattleHUDStateService.new({
                     summaryHUDState: SummaryHUDStateService.new({
-                        mouseSelectionLocation: { x: 0, y: 0 },
+                        screenSelectionCoordinates: { x: 0, y: 0 },
                     }),
                 }),
             }),
@@ -407,22 +408,25 @@ describe("Battle HUD", () => {
                     missionMap,
                     repository,
                 }))
+        })
 
+        const sendMessageViaMouseClick = () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseClick: MouseClickService.new({
+                    mouse: MouseClickService.new({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
                     }),
                 },
             })
-        })
+        }
 
         it("will begin to construct an action decision step using the selected squaddie", () => {
+            sendMessageViaMouseClick()
             expect(
                 BattleActionDecisionStepService.isActorSet(
                     gameEngineState.battleOrchestratorState.battleState
@@ -438,6 +442,7 @@ describe("Battle HUD", () => {
         })
 
         it("knows after selecting the player the hud has not selected actions", () => {
+            sendMessageViaMouseClick()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.playerCommandState
@@ -450,6 +455,7 @@ describe("Battle HUD", () => {
         })
 
         it("will show the main summary popover", () => {
+            sendMessageViaMouseClick()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.squaddieSummaryPopoversByType.MAIN
@@ -458,12 +464,51 @@ describe("Battle HUD", () => {
         })
 
         it("knows after selecting the player the hud has not selected actions", () => {
+            sendMessageViaMouseClick()
             let playerCommandState =
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState.playerCommandState
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
             expect(playerCommandState.playerSelectedEndTurn).toBeFalsy()
             expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
+        })
+
+        describe("begin creating a turn when a squaddie is selected", () => {
+            const selectionMethods = [
+                {
+                    name: "mouse click",
+                    selectionMethod: {
+                        mouse: { x: 0, y: 0, button: MouseButton.ACCEPT },
+                    },
+                },
+                {
+                    name: "directly selecting the squaddie location",
+                    selectionMethod: {
+                        mapLocation: { q: 0, r: 0 },
+                    },
+                },
+            ]
+
+            it.each(selectionMethods)(`$name`, ({ selectionMethod }) => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                    selectionMethod,
+                })
+                expect(
+                    BattleActionDecisionStepService.isActorSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
+                ).toEqual(battleSquaddie.battleSquaddieId)
+            })
         })
 
         describe("Player selects squaddie they cannot control because it is an enemy", () => {
@@ -492,7 +537,7 @@ describe("Battle HUD", () => {
                     battleSquaddieSelectedId:
                         enemyBattleSquaddie.battleSquaddieId,
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,
@@ -543,25 +588,40 @@ describe("Battle HUD", () => {
             )
         })
 
-        it("tells the summary hud it peeked at a squaddie", () => {
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-                gameEngineState,
-                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+        describe("tells the summary hud it peeked at a squaddie", () => {
+            const selectionMethods = [
+                {
+                    name: "mouse click",
+                    selectionMethod: {
+                        mouse: { x: 0, y: 0 },
+                    },
                 },
-                squaddieSummaryPopoverPosition:
-                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
+                {
+                    name: "directly selecting the squaddie location",
+                    selectionMethod: {
+                        mapLocation: { q: 0, r: 0 },
+                    },
+                },
+            ]
 
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieToPeekAt
-            ).toEqual({
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
-                expirationTime: expect.any(Number),
+            it.each(selectionMethods)(`$name`, ({ selectionMethod }) => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                    selectionMethod,
+                    squaddieSummaryPopoverPosition:
+                        SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                })
+
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieToPeekAt
+                ).toEqual({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    expirationTime: expect.any(Number),
+                })
             })
         })
 
@@ -571,7 +631,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -591,7 +651,7 @@ describe("Battle HUD", () => {
         it("will call the Summary HUD to open a new target window if the main window is open and does not expire", () => {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({
-                    mouseSelectionLocation: { x: 0, y: 0 },
+                    screenSelectionCoordinates: { x: 0, y: 0 },
                 })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState:
@@ -608,7 +668,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie2.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -628,7 +688,7 @@ describe("Battle HUD", () => {
         it("will call the Summary HUD to replace the main target window if the main window is open and will expire", () => {
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({
-                    mouseSelectionLocation: { x: 0, y: 0 },
+                    screenSelectionCoordinates: { x: 0, y: 0 },
                 })
             SummaryHUDStateService.setMainSummaryPopover({
                 summaryHUDState:
@@ -646,7 +706,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie2.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -673,7 +733,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -688,7 +748,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseClick: MouseClickService.new({
+                    mouse: MouseClickService.new({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
@@ -705,7 +765,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -727,7 +787,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseClick: MouseClickService.new({
+                    mouse: MouseClickService.new({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
@@ -739,7 +799,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -764,7 +824,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_MAIN,
@@ -810,7 +870,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: "enemy",
                 selectionMethod: {
-                    mouseMovement: { x: 0, y: 0 },
+                    mouse: { x: 0, y: 0 },
                 },
                 squaddieSummaryPopoverPosition:
                     SquaddieSummaryPopoverPosition.SELECT_TARGET,
@@ -2072,7 +2132,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseClick: MouseClickService.new({
+                    mouse: MouseClickService.new({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,
@@ -2589,7 +2649,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
                 selectionMethod: {
-                    mouseClick: MouseClickService.new({
+                    mouse: MouseClickService.new({
                         x: 0,
                         y: 0,
                         button: MouseButton.ACCEPT,

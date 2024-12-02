@@ -106,25 +106,23 @@ export interface MessageBoardMessagePlayerEndsTurn {
     battleAction: BattleAction
 }
 
+export type SquaddieSelectionMethod = {
+    mouse?: MouseClick | ScreenCoordinate
+    mapLocation?: HexCoordinate
+}
+
 export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
-    selectionMethod: {
-        mouseClick: MouseClick
-    }
+    selectionMethod: SquaddieSelectionMethod
 }
 
 export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
-    selectionMethod: {
-        mouseMovement: {
-            x: number
-            y: number
-        }
-    }
+    selectionMethod: SquaddieSelectionMethod
     squaddieSummaryPopoverPosition: SquaddieSummaryPopoverPosition
 }
 

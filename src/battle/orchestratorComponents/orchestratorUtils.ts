@@ -29,14 +29,6 @@ export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
         return isSquaddieCurrentlyTakingATurn(state)
     },
-    drawPlayableSquaddieReach: (gameEngineState: GameEngineState) => {
-        return drawPlayableSquaddieReach(gameEngineState)
-    },
-    drawOrResetHUDBasedOnSquaddieTurnAndAffiliation: (
-        state: GameEngineState
-    ) => {
-        return drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state)
-    },
     canTheCurrentSquaddieAct: (gameEngineState: GameEngineState): boolean => {
         return canTheCurrentSquaddieAct(gameEngineState)
     },
@@ -159,6 +151,11 @@ export const OrchestratorUtilities = {
     }: {
         gameEngineState: GameEngineState
     }): string => getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState }),
+    messageAndHighlightPlayableSquaddieTakingATurn: ({
+        gameEngineState,
+    }: {
+        gameEngineState: GameEngineState
+    }) => messageAndHighlightPlayableSquaddieTakingATurn({ gameEngineState }),
 }
 
 const canTheCurrentSquaddieAct = (gameEngineState: GameEngineState) => {
@@ -219,72 +216,19 @@ const isSquaddieCurrentlyTakingATurn = (
     )
 }
 
-const drawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (
+const messageAndHighlightPlayableSquaddieTakingATurn = ({
+    gameEngineState,
+}: {
     gameEngineState: GameEngineState
-) => {
-    if (!isSquaddieCurrentlyTakingATurn(gameEngineState)) {
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            undefined
-        return
-    }
-
-    const battleSquaddieId = getBattleSquaddieIdCurrentlyTakingATurn({
-        gameEngineState,
-    })
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            battleSquaddieId
-        )
-    )
-
-    const { playerCanControlThisSquaddieRightNow } =
-        SquaddieService.canPlayerControlSquaddieRightNow({
-            squaddieTemplate,
-            battleSquaddie,
-        })
-    if (!playerCanControlThisSquaddieRightNow) {
-        return
-    }
-
-    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        battleSquaddie.battleSquaddieId
-    )
-
-    let mouseX: number = 0,
-        mouseY: number = 0
-    if (mapLocation) {
-        ;({ screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-                q: mapLocation.q,
-                r: mapLocation.r,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            }))
-        mouseX -= HEX_TILE_WIDTH
-    }
-
-    gameEngineState.messageBoard.sendMessage({
-        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-        gameEngineState: gameEngineState,
-        battleSquaddieSelectedId: battleSquaddieId,
-        selectionMethod: {
-            mouseClick: MouseClickService.new({
-                x: mouseX,
-                y: mouseY,
-                button: MouseButton.ACCEPT,
-            }),
-        },
-    })
-}
-
-const drawPlayableSquaddieReach = (gameEngineState: GameEngineState) => {
+}) => {
     const currentlyActingBattleSquaddieId =
         getBattleSquaddieIdCurrentlyTakingATurn({ gameEngineState })
     if (
         !isValidValue(currentlyActingBattleSquaddieId) ||
         currentlyActingBattleSquaddieId === ""
     ) {
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            undefined
         return
     }
 
@@ -300,12 +244,29 @@ const drawPlayableSquaddieReach = (gameEngineState: GameEngineState) => {
             squaddieTemplate,
             battleSquaddie,
         })
-    if (playerCanControlThisSquaddieRightNow) {
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-            gameEngineState: gameEngineState,
-        })
+
+    if (!playerCanControlThisSquaddieRightNow) {
+        return
     }
+
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+        gameEngineState: gameEngineState,
+    })
+
+    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        battleSquaddie.battleSquaddieId
+    )
+
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+        gameEngineState: gameEngineState,
+        battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+        selectionMethod: {
+            mapLocation,
+        },
+    })
 }
 
 const getSquaddieAtScreenLocation = (param: {

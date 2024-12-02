@@ -405,7 +405,7 @@ describe("BattleSquaddieMover", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "player_1",
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,

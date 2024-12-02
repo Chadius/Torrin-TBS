@@ -415,7 +415,7 @@ const selectorAndHUDClickOnSquaddie = (
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddieId,
         selectionMethod: {
-            mouseClick: MouseClickService.new({
+            mouse: MouseClickService.new({
                 x: 0,
                 y: 0,
                 button: MouseButton.ACCEPT,

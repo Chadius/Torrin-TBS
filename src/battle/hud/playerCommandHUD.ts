@@ -147,8 +147,8 @@ export const PlayerCommandStateService = {
         playerCommandState.playerCommandWindow = {
             area: getPlayerCommandWindowAreaBasedOnMouse(
                 {
-                    x: summaryHUDState.mouseSelectionLocation.x,
-                    y: summaryHUDState.mouseSelectionLocation.y,
+                    x: summaryHUDState.screenSelectionCoordinates.x,
+                    y: summaryHUDState.screenSelectionCoordinates.y,
                 },
                 summaryHUDState,
                 objectRepository

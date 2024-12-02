@@ -91,10 +91,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                     .battleActionRecorder
             )
 
-        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
-            gameEngineState
-        )
-        OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
+        OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn({
+            gameEngineState,
+        })
 
         return {
             nextMode,

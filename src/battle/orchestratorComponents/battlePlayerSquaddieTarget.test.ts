@@ -217,7 +217,7 @@ describe("BattleSquaddieTarget", () => {
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
         SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState:
@@ -544,7 +544,7 @@ describe("BattleSquaddieTarget", () => {
             gameEngineState,
             battleSquaddieSelectedId: citizenDynamic.battleSquaddieId,
             selectionMethod: {
-                mouseMovement: {
+                mouse: {
                     x: mouseX,
                     y: mouseY,
                 },

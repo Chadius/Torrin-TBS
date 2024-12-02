@@ -777,11 +777,17 @@ describe("Orchestration Utils", () => {
         })
     })
 
-    describe("drawPlayableSquaddieReach", () => {
+    describe("messageAndHighlightPlayableSquaddieTakingATurn", () => {
         let gameEngineState: GameEngineState
         let thiefBattleSquaddie: BattleSquaddie
+        let missionMap: MissionMap
         let messageSpy: jest.SpyInstance
         beforeEach(() => {
+            missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 "],
+                }),
+            })
             ;({ battleSquaddie: thiefBattleSquaddie } =
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                     name: "thief",
@@ -802,7 +808,7 @@ describe("Orchestration Utils", () => {
             gameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
                     battleState: BattleStateService.new({
-                        missionMap: map,
+                        missionMap: missionMap,
                         campaignId: "campaign",
                         missionId: "mission",
                     }),
@@ -813,59 +819,8 @@ describe("Orchestration Utils", () => {
 
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
-        it("sends message if the squaddie is playable and previewing", () => {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                actionTemplateId: "actionTemplateId",
-            })
-
-            OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
-
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
-                gameEngineState,
-            })
-        })
-        it("does not send message if the squaddie is not playable", () => {
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
-                actionTemplateId: "actionTemplateId",
-            })
-
-            OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
-
-            expect(messageSpy).not.toBeCalled()
-        })
-    })
-
-    describe("drawOrResetHUDBasedOnSquaddieTurnAndAffiliation", () => {
-        let missionMap: MissionMap
-        beforeEach(() => {
-            missionMap = MissionMapService.new({
-                terrainTileMap: TerrainTileMapService.new({
-                    movementCost: ["1 1 1 "],
-                }),
-            })
+        afterEach(() => {
+            messageSpy.mockRestore()
         })
         it("should send a message that the player selected a squaddie if the player turn is still in progress", () => {
             MissionMapService.addSquaddie({
@@ -873,16 +828,6 @@ describe("Orchestration Utils", () => {
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 location: { q: 0, r: 2 },
-            })
-            const gameEngineState = GameEngineStateService.new({
-                repository: squaddieRepository,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.new({
-                        missionMap,
-                        campaignId: "campaignId",
-                        missionId: "missionId",
-                    }),
-                }),
             })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
@@ -906,13 +851,10 @@ describe("Orchestration Utils", () => {
                     .battleActionRecorder
             )
 
-            const messageSpy: jest.SpyInstance = jest.spyOn(
-                gameEngineState.messageBoard,
-                "sendMessage"
-            )
-
-            OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
-                gameEngineState
+            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
+                {
+                    gameEngineState,
+                }
             )
 
             expect(messageSpy).toBeCalledWith(
@@ -920,8 +862,6 @@ describe("Orchestration Utils", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 })
             )
-
-            messageSpy.mockRestore()
         })
         it("should close the summary HUD if the player turn is completed", () => {
             MissionMapService.addSquaddie({
@@ -966,14 +906,16 @@ describe("Orchestration Utils", () => {
 
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({
-                    mouseSelectionLocation: {
+                    screenSelectionCoordinates: {
                         x: 0,
                         y: 0,
                     },
                 })
 
-            OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
-                gameEngineState
+            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
+                {
+                    gameEngineState,
+                }
             )
 
             expect(
@@ -998,16 +940,6 @@ describe("Orchestration Utils", () => {
                 battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
                 location: { q: 0, r: 2 },
             })
-            const gameEngineState = GameEngineStateService.new({
-                repository: squaddieRepository,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.new({
-                        missionMap,
-                        campaignId: "campaignId",
-                        missionId: "missionId",
-                    }),
-                }),
-            })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionRecorder,
@@ -1030,13 +962,10 @@ describe("Orchestration Utils", () => {
                     .battleActionRecorder
             )
 
-            const messageSpy: jest.SpyInstance = jest.spyOn(
-                gameEngineState.messageBoard,
-                "sendMessage"
-            )
-
-            OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
-                gameEngineState
+            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
+                {
+                    gameEngineState,
+                }
             )
 
             expect(messageSpy).not.toBeCalled()
@@ -1046,6 +975,57 @@ describe("Orchestration Utils", () => {
             ).toBeUndefined()
 
             messageSpy.mockRestore()
+        })
+        it("sends message if the squaddie is playable and previewing", () => {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: "actionTemplateId",
+            })
+
+            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
+                {
+                    gameEngineState,
+                }
+            )
+
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
+                gameEngineState,
+            })
+        })
+        it("does not send message if the squaddie is not playable", () => {
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: "actionTemplateId",
+            })
+
+            OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
+                {
+                    gameEngineState,
+                }
+            )
+
+            expect(messageSpy).not.toBeCalled()
         })
     })
 })

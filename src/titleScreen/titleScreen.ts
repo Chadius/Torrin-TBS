@@ -273,7 +273,7 @@ export class TitleScreen implements GameEngineComponent {
 
         this.updateStartGameButton(graphicsContext).draw(graphicsContext)
         this.updateContinueGameButton(state).draw(graphicsContext)
-        this.drawCharacterIntroductions(state, graphicsContext)
+        this.drawCharacterIntroductions(graphicsContext)
     }
 
     private resetInternalState() {
@@ -810,10 +810,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.resourceHandler.areAllResourcesLoaded(resourceKeys)
     }
 
-    private drawCharacterIntroductions(
-        state: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
+    private drawCharacterIntroductions(graphicsContext: GraphicsBuffer) {
         this.drawTorrinCharacterIntroduction(graphicsContext)
         this.drawSirCamilCharacterIntroduction(graphicsContext)
         this.drawDemonSlitherCharacterIntroduction(graphicsContext)
@@ -849,23 +846,19 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setSirCamilIconBasedOnImageAndTorrinImage(image: p5.Image) {
-        this.sirCamilUIElements.iconArea = RectAreaService.new({
-            left: RectAreaService.left(this.sirCamilUIElements.iconArea),
-            top:
-                RectAreaService.bottom(this.torrinUIElements.iconArea) +
-                WINDOW_SPACING.SPACING1,
-            height: ImageUIService.ScaleImageHeight({
-                imageWidth: image.width,
-                imageHeight: image.height,
-                desiredWidth: 100,
-            }),
-            width: 100,
-        })
-
-        this.sirCamilUIElements.icon = new ImageUI({
-            graphic: image,
-            area: this.sirCamilUIElements.iconArea,
-        })
+        ;({
+            iconArea: this.sirCamilUIElements.iconArea,
+            icon: this.sirCamilUIElements.icon,
+        } = updateIconBasedOnImage({
+            iconArea: this.sirCamilUIElements.iconArea,
+            image,
+            desiredWidth: TitleScreenDesign.sirCamil.iconArea.width,
+            overrides: {
+                top:
+                    RectAreaService.bottom(this.torrinUIElements.iconArea) +
+                    WINDOW_SPACING.SPACING1,
+            },
+        }))
     }
 
     private createSirCamilPlaceholderIconAreaUnderTorrin() {
@@ -927,21 +920,14 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setTorrinIconBasedOnImage(image: p5.Image) {
-        this.torrinUIElements.iconArea = RectAreaService.new({
-            left: this.torrinUIElements.iconArea.left,
-            top: this.torrinUIElements.iconArea.top,
-            height: ImageUIService.ScaleImageHeight({
-                imageWidth: image.width,
-                imageHeight: image.height,
-                desiredWidth: TitleScreenDesign.torrin.iconArea.width,
-            }),
-            width: TitleScreenDesign.torrin.iconArea.width,
-        })
-
-        this.torrinUIElements.icon = new ImageUI({
-            graphic: image,
-            area: this.torrinUIElements.iconArea,
-        })
+        ;({
+            iconArea: this.torrinUIElements.iconArea,
+            icon: this.torrinUIElements.icon,
+        } = updateIconBasedOnImage({
+            iconArea: this.torrinUIElements.iconArea,
+            image,
+            desiredWidth: TitleScreenDesign.torrin.iconArea.width,
+        }))
     }
 
     private setTorrinDescriptionText() {
@@ -1040,21 +1026,14 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setDemonSlitherIconBasedOnImage(image: p5.Image) {
-        this.demonSlitherUIElements.iconArea = RectAreaService.new({
-            left: this.demonSlitherUIElements.iconArea.left,
-            top: this.demonSlitherUIElements.iconArea.top,
-            height: ImageUIService.ScaleImageHeight({
-                imageWidth: image.width,
-                imageHeight: image.height,
-                desiredWidth: TitleScreenDesign.demonSlither.iconArea.width,
-            }),
-            width: TitleScreenDesign.demonSlither.iconArea.width,
-        })
-
-        this.demonSlitherUIElements.icon = new ImageUI({
-            graphic: image,
-            area: this.demonSlitherUIElements.iconArea,
-        })
+        ;({
+            iconArea: this.demonSlitherUIElements.iconArea,
+            icon: this.demonSlitherUIElements.icon,
+        } = updateIconBasedOnImage({
+            iconArea: this.demonSlitherUIElements.iconArea,
+            image,
+            desiredWidth: TitleScreenDesign.torrin.iconArea.width,
+        }))
     }
 
     private drawDemonLocustCharacterIntroduction(
@@ -1080,7 +1059,7 @@ export class TitleScreen implements GameEngineComponent {
             let image: p5.Image = this.resourceHandler.getResource(
                 TitleScreenDesign.demonLocust.iconImageResourceKey
             )
-            this.setDemonLocustIconBasedOnImage(image)
+            this.updateDemonLocustIconBasedOnImage(image)
             this.setDemonLocustDescriptionText()
         }
 
@@ -1120,22 +1099,47 @@ export class TitleScreen implements GameEngineComponent {
         })
     }
 
-    // TODO set Icon based on Image could be a generic.
-    private setDemonLocustIconBasedOnImage(image: p5.Image) {
-        this.demonLocustUIElements.iconArea = RectAreaService.new({
-            left: this.demonLocustUIElements.iconArea.left,
-            top: this.demonLocustUIElements.iconArea.top,
-            height: ImageUIService.ScaleImageHeight({
-                imageWidth: image.width,
-                imageHeight: image.height,
-                desiredWidth: TitleScreenDesign.demonLocust.iconArea.width,
-            }),
-            width: TitleScreenDesign.demonLocust.iconArea.width,
-        })
+    private updateDemonLocustIconBasedOnImage(image: p5.Image) {
+        ;({
+            iconArea: this.demonLocustUIElements.iconArea,
+            icon: this.demonLocustUIElements.icon,
+        } = updateIconBasedOnImage({
+            iconArea: this.demonLocustUIElements.iconArea,
+            image,
+            desiredWidth: TitleScreenDesign.demonLocust.iconArea.width,
+        }))
+    }
+}
 
-        this.demonLocustUIElements.icon = new ImageUI({
+const updateIconBasedOnImage = ({
+    iconArea,
+    image,
+    desiredWidth,
+    overrides,
+}: {
+    iconArea: RectArea
+    image: p5.Image
+    desiredWidth: number
+    overrides?: {
+        top?: number
+    }
+}) => {
+    iconArea = RectAreaService.new({
+        left: RectAreaService.left(iconArea),
+        top: overrides?.top ?? RectAreaService.top(iconArea),
+        height: ImageUIService.ScaleImageHeight({
+            imageWidth: image.width,
+            imageHeight: image.height,
+            desiredWidth,
+        }),
+        width: desiredWidth,
+    })
+
+    return {
+        iconArea,
+        icon: new ImageUI({
             graphic: image,
-            area: this.demonLocustUIElements.iconArea,
-        })
+            area: iconArea,
+        }),
     }
 }

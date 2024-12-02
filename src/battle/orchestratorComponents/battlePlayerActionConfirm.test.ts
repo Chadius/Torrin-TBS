@@ -173,7 +173,7 @@ describe("BattleActionConfirm", () => {
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 0 },
+                screenSelectionCoordinates: { x: 0, y: 0 },
             })
         SummaryHUDStateService.setMainSummaryPopover({
             summaryHUDState:

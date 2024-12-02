@@ -204,7 +204,7 @@ describe("playerCommandHUD", () => {
             `$mouseLocationDescription`,
             ({ mouseLocation, expectation }) => {
                 summaryHUDState = SummaryHUDStateService.new({
-                    mouseSelectionLocation: {
+                    screenSelectionCoordinates: {
                         x: mouseLocation[0],
                         y: mouseLocation[1],
                     },
@@ -244,7 +244,7 @@ describe("playerCommandHUD", () => {
 
     const selectPlayer = () => {
         summaryHUDState = SummaryHUDStateService.new({
-            mouseSelectionLocation: {
+            screenSelectionCoordinates: {
                 x: 0,
                 y: 0,
             },

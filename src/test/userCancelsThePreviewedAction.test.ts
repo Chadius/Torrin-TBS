@@ -554,7 +554,9 @@ const getGameEngineState = ({
         battleSquaddieId,
     })
     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-        SummaryHUDStateService.new({ mouseSelectionLocation: { x: 0, y: 0 } })
+        SummaryHUDStateService.new({
+            screenSelectionCoordinates: { x: 0, y: 0 },
+        })
     SummaryHUDStateService.createCommandWindow({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState

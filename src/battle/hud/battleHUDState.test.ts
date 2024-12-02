@@ -9,10 +9,12 @@ describe("BattleHUDState", () => {
     it("can be initialized with given fields", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({
             summaryHUDState: SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 1 },
+                screenSelectionCoordinates: { x: 0, y: 1 },
             }),
         })
-        expect(battleHUDState.summaryHUDState.mouseSelectionLocation).toEqual({
+        expect(
+            battleHUDState.summaryHUDState.screenSelectionCoordinates
+        ).toEqual({
             x: 0,
             y: 1,
         })
@@ -20,7 +22,7 @@ describe("BattleHUDState", () => {
     it("can be cloned", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({
             summaryHUDState: SummaryHUDStateService.new({
-                mouseSelectionLocation: { x: 0, y: 1 },
+                screenSelectionCoordinates: { x: 0, y: 1 },
             }),
         })
 

@@ -13,11 +13,14 @@ export type PanningInformation = {
     respectConstraints: boolean
 }
 
-export const BattleCameraHelper = {
+export const BattleCameraService = {
+    getCoordinates: (
+        camera: BattleCamera
+    ): { cameraX: number; cameraY: number } => camera.getCoordinates(),
     clone: ({ original }: { original: BattleCamera }): BattleCamera => {
         const newCamera: BattleCamera = new BattleCamera(
-            original.xCoord,
-            original.yCoord
+            original.xCoordinate,
+            original.yCoordinate
         )
         newCamera.setMapDimensionBoundaries(
             original.mapDimensionBoundaries.widthOfWidestRow,
@@ -30,8 +33,8 @@ export const BattleCameraHelper = {
 }
 
 export class BattleCamera {
-    xCoord: number
-    yCoord: number
+    xCoordinate: number
+    yCoordinate: number
 
     xVelocity: number
     yVelocity: number
@@ -43,9 +46,9 @@ export class BattleCamera {
 
     panningInformation?: PanningInformation
 
-    constructor(xCoord: number = 0, yCoord: number = 0) {
-        this.xCoord = xCoord
-        this.yCoord = yCoord
+    constructor(xCoordinate: number = 0, yCoordinate: number = 0) {
+        this.xCoordinate = xCoordinate
+        this.yCoordinate = yCoordinate
 
         this.xVelocity = 0
         this.yVelocity = 0
@@ -60,7 +63,7 @@ export class BattleCamera {
     }
 
     getCoordinates(): { cameraX: number; cameraY: number } {
-        return { cameraX: this.xCoord, cameraY: this.yCoord }
+        return { cameraX: this.xCoordinate, cameraY: this.yCoordinate }
     }
 
     getVelocity(): { xVelocity: number; yVelocity: number } {
@@ -73,8 +76,8 @@ export class BattleCamera {
             return
         }
 
-        this.xCoord += this.xVelocity
-        this.yCoord += this.yVelocity
+        this.xCoordinate += this.xVelocity
+        this.yCoordinate += this.yVelocity
         this.constrainCamera()
     }
 
@@ -89,12 +92,12 @@ export class BattleCamera {
         if (!this.mapDimensionBoundaries) {
             const topOfFirstRow: number = 0
             if (
-                this.yCoord <
+                this.yCoordinate <
                 topOfFirstRow -
                     verticalCameraBuffer +
                     ScreenDimensions.SCREEN_HEIGHT / 2
             ) {
-                this.yCoord =
+                this.yCoordinate =
                     topOfFirstRow -
                     verticalCameraBuffer +
                     ScreenDimensions.SCREEN_HEIGHT / 2
@@ -113,7 +116,7 @@ export class BattleCamera {
             worldLocationOfStartOfFirstRow.worldY >= 0 &&
             worldLocationOfEndOfLastRow.worldY <= ScreenDimensions.SCREEN_HEIGHT
         if (mapVerticallyFitsOnScreen) {
-            this.yCoord =
+            this.yCoordinate =
                 (worldLocationOfStartOfFirstRow.worldY +
                     worldLocationOfEndOfLastRow.worldY) /
                 2
@@ -121,14 +124,14 @@ export class BattleCamera {
             return
         }
 
-        if (this.yCoord < coordinateLimits.top) {
-            this.yCoord = coordinateLimits.top
+        if (this.yCoordinate < coordinateLimits.top) {
+            this.yCoordinate = coordinateLimits.top
             this.setYVelocity(0)
             return
         }
 
-        if (this.yCoord > RectAreaService.bottom(coordinateLimits)) {
-            this.yCoord = RectAreaService.bottom(coordinateLimits)
+        if (this.yCoordinate > RectAreaService.bottom(coordinateLimits)) {
+            this.yCoordinate = RectAreaService.bottom(coordinateLimits)
             this.setYVelocity(0)
         }
     }
@@ -147,7 +150,7 @@ export class BattleCamera {
             worldLocationOfStartOfFirstRow.worldX >= 0 &&
             worldLocationOfEndOfLastRow.worldX <= ScreenDimensions.SCREEN_WIDTH
         if (doesMapFitHorizontallyOnScreen) {
-            this.xCoord =
+            this.xCoordinate =
                 (worldLocationOfStartOfFirstRow.worldX +
                     worldLocationOfEndOfLastRow.worldX) /
                 2
@@ -155,14 +158,14 @@ export class BattleCamera {
             return
         }
 
-        if (this.xCoord < coordinateLimits.left) {
-            this.xCoord = coordinateLimits.left
+        if (this.xCoordinate < coordinateLimits.left) {
+            this.xCoordinate = coordinateLimits.left
             this.setXVelocity(0)
             return
         }
 
-        if (this.xCoord > RectAreaService.right(coordinateLimits)) {
-            this.xCoord = RectAreaService.right(coordinateLimits)
+        if (this.xCoordinate > RectAreaService.right(coordinateLimits)) {
+            this.xCoordinate = RectAreaService.right(coordinateLimits)
             this.setXVelocity(0)
         }
     }
@@ -210,8 +213,8 @@ export class BattleCamera {
         }
 
         this.panningInformation = {
-            xStartCoordinate: this.xCoord,
-            yStartCoordinate: this.yCoord,
+            xStartCoordinate: this.xCoordinate,
+            yStartCoordinate: this.yCoordinate,
             xDestination: xDestination,
             yDestination: yDestination,
             timeToPan: timeToPan,
@@ -236,8 +239,8 @@ export class BattleCamera {
             Date.now() - this.panningInformation.panStartTime
 
         if (timePassed >= this.panningInformation.timeToPan) {
-            this.xCoord = this.panningInformation.xDestination
-            this.yCoord = this.panningInformation.yDestination
+            this.xCoordinate = this.panningInformation.xDestination
+            this.yCoordinate = this.panningInformation.yDestination
             if (this.panningInformation.respectConstraints) {
                 this.constrainCamera()
             }
@@ -246,13 +249,13 @@ export class BattleCamera {
             return
         }
 
-        this.xCoord =
+        this.xCoordinate =
             (this.panningInformation.xDestination -
                 this.panningInformation.xStartCoordinate) *
                 (timePassed / this.panningInformation.timeToPan) +
             this.panningInformation.xStartCoordinate
 
-        this.yCoord =
+        this.yCoordinate =
             (this.panningInformation.yDestination -
                 this.panningInformation.yStartCoordinate) *
                 (timePassed / this.panningInformation.timeToPan) +

@@ -17,6 +17,7 @@ import {
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
+    SquaddieSelectionMethod,
 } from "../../message/messageBoardMessage"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -64,6 +65,7 @@ import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { PopupWindowService } from "./popupWindow"
+import { BattleCamera, BattleCameraService } from "../battleCamera"
 
 const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
 
@@ -196,14 +198,14 @@ export const BattleHUDService = {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
 
+        const { x, y } = getScreenSelectionCoordinates(
+            message.selectionMethod,
+            gameEngineState.battleOrchestratorState.battleState.camera
+        )
+
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
             SummaryHUDStateService.new({
-                mouseSelectionLocation: message.selectionMethod.mouseClick
-                    ? {
-                          x: message.selectionMethod.mouseClick.x,
-                          y: message.selectionMethod.mouseClick.y,
-                      }
-                    : { x: 0, y: 0 },
+                screenSelectionCoordinates: { x, y },
             })
 
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
@@ -288,15 +290,14 @@ export const BattleHUDService = {
                     .summaryHUDState
             )
         ) {
+            const { x, y } = getScreenSelectionCoordinates(
+                message.selectionMethod,
+                gameEngineState.battleOrchestratorState.battleState.camera
+            )
+
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({
-                    mouseSelectionLocation: message.selectionMethod
-                        .mouseMovement
-                        ? {
-                              x: message.selectionMethod.mouseMovement.x,
-                              y: message.selectionMethod.mouseMovement.y,
-                          }
-                        : { x: 0, y: 0 },
+                    screenSelectionCoordinates: { x, y },
                 })
         }
 
@@ -651,10 +652,11 @@ export const BattleHUDService = {
             gameEngineState,
             battleSquaddieSelectedId: nextBattleSquaddieId,
             selectionMethod: {
-                mouseClick:
-                    BattleHUDStateService.getPositionToOpenPlayerCommandWindow({
+                mouse: BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
+                    {
                         gameEngineState,
-                    }),
+                    }
+                ),
             },
         })
     },
@@ -1073,4 +1075,24 @@ const playerControlledSquaddieNeedsNextAction = (
             .terrainTileMap,
         actionRangeOnMap
     )
+}
+
+const getScreenSelectionCoordinates = (
+    selectionMethod: SquaddieSelectionMethod,
+    camera: BattleCamera
+): { x: number; y: number } => {
+    if (selectionMethod.mouse) {
+        return {
+            x: selectionMethod.mouse.x,
+            y: selectionMethod.mouse.y,
+        }
+    }
+
+    const { screenX: x, screenY: y } =
+        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            q: selectionMethod.mapLocation.q,
+            r: selectionMethod.mapLocation.r,
+            ...BattleCameraService.getCoordinates(camera),
+        })
+    return { x, y }
 }

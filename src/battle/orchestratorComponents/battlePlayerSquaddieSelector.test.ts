@@ -297,7 +297,7 @@ describe("BattleSquaddieSelector", () => {
                 gameEngineState,
                 battleSquaddieSelectedId: "battleSquaddieId",
                 selectionMethod: {
-                    mouseMovement: {
+                    mouse: {
                         x: battleSquaddieScreenPositionX,
                         y: battleSquaddieScreenPositionY,
                     },
@@ -336,7 +336,7 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,
@@ -459,7 +459,7 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,
@@ -566,7 +566,7 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,
@@ -672,7 +672,7 @@ describe("BattleSquaddieSelector", () => {
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
                     selectionMethod: {
-                        mouseClick: MouseClickService.new({
+                        mouse: MouseClickService.new({
                             x: 0,
                             y: 0,
                             button: MouseButton.ACCEPT,

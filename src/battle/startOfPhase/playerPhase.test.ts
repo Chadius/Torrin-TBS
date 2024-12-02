@@ -212,9 +212,9 @@ describe("player phase listener", () => {
                     datum.mapLocation.q,
                     datum.mapLocation.r
                 )
-            gameEngineState.battleOrchestratorState.battleState.camera.xCoord =
+            gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate =
                 playerSquaddieLocation.worldX
-            gameEngineState.battleOrchestratorState.battleState.camera.yCoord =
+            gameEngineState.battleOrchestratorState.battleState.camera.yCoordinate =
                 playerSquaddieLocation.worldY
 
             gameEngineState.messageBoard.sendMessage({

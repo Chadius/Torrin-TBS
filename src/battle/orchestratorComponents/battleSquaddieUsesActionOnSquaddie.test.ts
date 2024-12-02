@@ -71,6 +71,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
+    let squaddieUpkeepSpy: jest.SpyInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -188,10 +189,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         )
 
         jest.spyOn(LabelService, "draw").mockReturnValue(null)
-        jest.spyOn(
-            OrchestratorUtilities,
-            "drawPlayableSquaddieReach"
-        ).mockImplementation(() => {})
+        squaddieUpkeepSpy = jest
+            .spyOn(
+                OrchestratorUtilities,
+                "messageAndHighlightPlayableSquaddieTakingATurn"
+            )
+            .mockImplementation(() => {})
 
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie()
 
@@ -199,6 +202,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         mockResourceHandler.getResource = jest
             .fn()
             .mockReturnValue(makeResult(null))
+    })
+
+    afterEach(() => {
+        squaddieUpkeepSpy.mockRestore()
     })
 
     const useMonkKoanAndReturnState = ({
@@ -244,7 +251,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
             selectionMethod: {
-                mouseClick: MouseClickService.new({
+                mouse: MouseClickService.new({
                     x: 0,
                     y: 0,
                     button: MouseButton.ACCEPT,
@@ -312,7 +319,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
             selectionMethod: {
-                mouseClick: MouseClickService.new({
+                mouse: MouseClickService.new({
                     x: 0,
                     y: 0,
                     button: MouseButton.ACCEPT,
@@ -494,113 +501,85 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         messageSpy.mockRestore()
     })
 
-    it("resets squaddie currently acting when it runs out of actions and finishes acting", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 "],
-            }),
+    describe("squaddie finishes acting", () => {
+        let missionMap: MissionMap
+        let gameEngineState: GameEngineState
+        let messageSpy: jest.SpyInstance
+        let animatorSpy: jest.SpyInstance
+        let squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy: jest.SpyInstance
+        beforeEach(() => {
+            missionMap = MissionMapService.new({
+                terrainTileMap: TerrainTileMapService.new({
+                    movementCost: ["1 1 1 "],
+                }),
+            })
+
+            gameEngineState = usePowerAttackLongswordAndReturnState({
+                missionMap,
+            })
+
+            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            animatorSpy = jest
+                .spyOn(
+                    squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                    "update"
+                )
+                .mockImplementation()
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+                .spyOn(
+                    squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
+                    "hasCompleted"
+                )
+                .mockReturnValue(true)
         })
-
-        const gameEngineState = usePowerAttackLongswordAndReturnState({
-            missionMap,
+        afterEach(() => {
+            animatorSpy.mockRestore()
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockRestore()
+            messageSpy.mockRestore()
         })
-        battleSquaddieBase.squaddieTurn.remainingActionPoints = 0
-
-        const messageSpy: jest.SpyInstance = jest.spyOn(
-            gameEngineState.messageBoard,
-            "sendMessage"
-        )
-
-        const animatorSpy = jest
-            .spyOn(
-                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
-                "update"
+        it("resets squaddie currently acting when it finishes acting", () => {
+            squaddieUsesActionOnSquaddie.update(
+                gameEngineState,
+                mockedP5GraphicsContext
             )
-            .mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
-            .spyOn(
-                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
-                "hasCompleted"
+            expect(
+                squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+            ).toBeCalled()
+            expect(
+                squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+            ).toBeTruthy()
+
+            squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+            expect(messageSpy).toBeCalledWith({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+            })
+            expect(animatorSpy).toHaveBeenCalled()
+            expect(
+                squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+            ).toHaveBeenCalled()
+        })
+        it("calls helper function to update squaddie after acting", () => {
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
-            .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(
-            gameEngineState,
-            mockedP5GraphicsContext
-        )
-        expect(
-            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
-        ).toBeCalled()
-        expect(
-            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
-        ).toBeTruthy()
-
-        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
-        expect(messageSpy).toBeCalledWith({
-            type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
-            gameEngineState,
-        })
-        expect(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState
-        ).toBeUndefined()
-
-        animatorSpy.mockRestore()
-        messageSpy.mockRestore()
-    })
-
-    it("reopens HUD on squaddie when it finishes animating and can still act", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 "],
-            }),
-        })
-
-        const gameEngineState = usePowerAttackLongswordAndReturnState({
-            missionMap,
-        })
-        const battleHUDListener = new BattleHUDListener("battleHUDListener")
-        gameEngineState.messageBoard.addListener(
-            battleHUDListener,
-            MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
-        )
-
-        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
-
-        jest.spyOn(
-            squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
-            "update"
-        ).mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
-            .spyOn(
-                squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
-                "hasCompleted"
+            squaddieUsesActionOnSquaddie.update(
+                gameEngineState,
+                mockedP5GraphicsContext
             )
-            .mockReturnValue(true)
+            expect(
+                squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
+            ).toBeCalled()
+            expect(
+                squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+            ).toBeTruthy()
 
-        squaddieUsesActionOnSquaddie.update(
-            gameEngineState,
-            mockedP5GraphicsContext
-        )
-        expect(
-            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
-        ).toBeCalled()
-        expect(
-            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
-        ).toBeTruthy()
-
-        squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
-        squaddieUsesActionOnSquaddie.reset(gameEngineState)
-        expect(
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.showSummaryHUD
-        ).toBeTruthy()
-        expect(
-            BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId
-        ).toEqual(battleSquaddieBase.battleSquaddieId)
+            squaddieUsesActionOnSquaddie.recommendStateChanges(gameEngineState)
+            expect(squaddieUpkeepSpy).toBeCalled()
+        })
     })
 
     it("uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes", () => {

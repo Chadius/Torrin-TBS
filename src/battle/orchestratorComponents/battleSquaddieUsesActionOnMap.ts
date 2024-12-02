@@ -62,10 +62,9 @@ export class BattleSquaddieUsesActionOnMap
                     .battleActionRecorder
             )
 
-        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(
-            gameEngineState
-        )
-        OrchestratorUtilities.drawPlayableSquaddieReach(gameEngineState)
+        OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn({
+            gameEngineState,
+        })
 
         return {
             nextMode,

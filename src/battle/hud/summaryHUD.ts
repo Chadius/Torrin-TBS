@@ -44,7 +44,7 @@ export interface SummaryHUDState {
     showPlayerCommand: boolean
     showSummaryHUD: boolean
     playerCommandState: PlayerCommandState
-    mouseSelectionLocation: { x: number; y: number }
+    screenSelectionCoordinates: { x: number; y: number }
     squaddieSummaryPopoversByType: {
         [t in SummaryPopoverType]: SquaddieSummaryPopover
     }
@@ -63,28 +63,26 @@ export interface SummaryHUDState {
 
 export const SummaryHUDStateService = {
     new: ({
-        mouseSelectionLocation,
+        screenSelectionCoordinates,
     }: {
-        mouseSelectionLocation: { x: number; y: number }
-    }): SummaryHUDState => {
-        return {
-            playerCommandState: PlayerCommandStateService.new(),
-            showPlayerCommand: false,
-            showSummaryHUD: false,
-            mouseSelectionLocation,
-            squaddieSummaryPopoversByType: {
-                MAIN: undefined,
-                TARGET: undefined,
-            },
-            squaddiePanels: {
-                [ActionPanelPosition.ACTOR]: undefined,
-                [ActionPanelPosition.PEEK_PLAYABLE]: undefined,
-                [ActionPanelPosition.PEEK_RIGHT]: undefined,
-                [ActionPanelPosition.TARGET]: undefined,
-                [ActionPanelPosition.TARGET]: undefined,
-            },
-        }
-    },
+        screenSelectionCoordinates?: { x: number; y: number }
+    }): SummaryHUDState => ({
+        playerCommandState: PlayerCommandStateService.new(),
+        showPlayerCommand: false,
+        showSummaryHUD: false,
+        screenSelectionCoordinates,
+        squaddieSummaryPopoversByType: {
+            MAIN: undefined,
+            TARGET: undefined,
+        },
+        squaddiePanels: {
+            [ActionPanelPosition.ACTOR]: undefined,
+            [ActionPanelPosition.PEEK_PLAYABLE]: undefined,
+            [ActionPanelPosition.PEEK_RIGHT]: undefined,
+            [ActionPanelPosition.TARGET]: undefined,
+            [ActionPanelPosition.TARGET]: undefined,
+        },
+    }),
     isMouseHoveringOver: ({
         summaryHUDState,
         mouseSelectionLocation,

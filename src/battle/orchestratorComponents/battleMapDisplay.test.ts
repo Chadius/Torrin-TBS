@@ -214,7 +214,7 @@ describe("battleMapDisplay", () => {
         const stateWithOpenedHUD = BattleOrchestratorStateService.new({
             battleHUDState: BattleHUDStateService.new({
                 summaryHUDState: SummaryHUDStateService.new({
-                    mouseSelectionLocation: {
+                    screenSelectionCoordinates: {
                         x: 0,
                         y: 0,
                     },
@@ -285,7 +285,7 @@ describe("battleMapDisplay", () => {
         const stateWithOpenedHUD = BattleOrchestratorStateService.new({
             battleHUDState: BattleHUDStateService.new({
                 summaryHUDState: SummaryHUDStateService.new({
-                    mouseSelectionLocation: {
+                    screenSelectionCoordinates: {
                         x: 0,
                         y: 0,
                     },
@@ -305,9 +305,9 @@ describe("battleMapDisplay", () => {
                 stateWithOpenedHUD.battleState.camera.setYVelocity(0)
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.showSummaryHUD =
                     true
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.mouseSelectionLocation.y =
+                stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.y =
                     ScreenDimensions.SCREEN_HEIGHT
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.mouseSelectionLocation.x =
+                stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.x =
                     mouseX
                 const mouseHoverSpy: jest.SpyInstance = jest
                     .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
