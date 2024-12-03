@@ -37,6 +37,7 @@ import { BattleHUDStateService } from "../hud/battleHUDState"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -382,7 +383,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return
         }
 
-        TerrainTileMapService.mouseClicked({
+        TerrainTileGraphicsService.mouseClicked({
             terrainTileMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap,

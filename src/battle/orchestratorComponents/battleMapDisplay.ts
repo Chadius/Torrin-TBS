@@ -20,6 +20,7 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -97,7 +98,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         event: OrchestratorComponentMouseEvent
     ): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            TerrainTileMapService.mouseClicked({
+            TerrainTileGraphicsService.mouseClicked({
                 terrainTileMap:
                     state.battleOrchestratorState.battleState.missionMap
                         .terrainTileMap,

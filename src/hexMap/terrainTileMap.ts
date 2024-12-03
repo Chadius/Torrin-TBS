@@ -3,14 +3,8 @@ import {
     convertStringToMovementCost,
     HexGridMovementCost,
 } from "./hexGridMovementCost"
-import { ConvertCoordinateService } from "./convertCoordinates"
-import { ResourceHandler } from "../resource/resourceHandler"
 import { PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
-import { MouseButton } from "../utils/mouseConfig"
-import { BattleCamera } from "../battle/battleCamera"
-import { HEX_TILE_WIDTH } from "../graphicsConstants"
-import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerHighlight,
@@ -27,7 +21,6 @@ export type HighlightTileDescription = {
 export interface TerrainTileMap {
     tiles: HexGridTile[]
     outlineTileCoordinates: HexCoordinate | undefined
-    resourceHandler: ResourceHandler
     highlightLayers: MapGraphicsLayer[]
 }
 
@@ -45,57 +38,15 @@ export const TerrainTileMapService = {
         }
         return tile.terrainType
     },
-    isLocationOnScreen: ({
+    selectCoordinate({
         terrainTileMap,
-        location,
-        camera,
+        q,
+        r,
     }: {
         terrainTileMap: TerrainTileMap
-        location: HexCoordinate
-        camera: BattleCamera
-    }): boolean =>
-        isLocationOnScreen({
-            terrainTileMap,
-            location,
-            camera,
-        }),
-    getAllOnscreenLocations: ({
-        terrainTileMap,
-        camera,
-    }: {
-        terrainTileMap: TerrainTileMap
-        camera: BattleCamera
-    }): HexGridTile[] =>
-        terrainTileMap.tiles.filter((tile) =>
-            isLocationOnScreen({
-                terrainTileMap,
-                location: tile,
-                camera,
-            })
-        ),
-    mouseClicked({
-        terrainTileMap,
-        mouseButton,
-        mouseX,
-        mouseY,
-        cameraX,
-        cameraY,
-    }: {
-        terrainTileMap: TerrainTileMap
-        mouseButton: MouseButton
-        mouseX: number
-        mouseY: number
-        cameraX: number
-        cameraY: number
+        q: number
+        r: number
     }) {
-        const { q, r } =
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
-                screenX: mouseX,
-                screenY: mouseY,
-                cameraX,
-                cameraY,
-            })
-
         if (terrainTileMap.tiles.some((tile) => tile.q == q && tile.r == r)) {
             terrainTileMap.outlineTileCoordinates = { q, r }
         } else {
@@ -105,11 +56,6 @@ export const TerrainTileMapService = {
     stopOutlineTiles: (terrainTileMap: TerrainTileMap): void => {
         terrainTileMap.outlineTileCoordinates = undefined
     },
-    getTileAtLocation: (
-        terrainTileMap: TerrainTileMap,
-        hexCoordinate: HexCoordinate
-    ): HexGridTile | undefined =>
-        getTileAtLocation(terrainTileMap, hexCoordinate),
     isLocationOnMap: (
         terrainTileMap: TerrainTileMap,
         hexCoordinate: HexCoordinate
@@ -221,6 +167,10 @@ export const TerrainTileMapService = {
     getMaximumDistance: (terrainTileMap: TerrainTileMap) =>
         TerrainTileMapService.getDimensions(terrainTileMap).widthOfWidestRow +
         TerrainTileMapService.getDimensions(terrainTileMap).numberOfRows,
+    getTileAtLocation: (
+        terrainTileMap: TerrainTileMap,
+        hexCoordinate: HexCoordinate
+    ) => getTileAtLocation(terrainTileMap, hexCoordinate),
 }
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
@@ -242,19 +192,10 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
                 costStringIndex + 2
             )
             let movementCostType = convertStringToMovementCost(stringToConvert)
-            const worldLocation =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    qIndex,
-                    rIndex
-                )
             newTiles.push({
                 q: qIndex,
                 r: rIndex,
                 terrainType: movementCostType,
-                worldLocation: {
-                    x: worldLocation.worldX,
-                    y: worldLocation.worldY,
-                },
             })
 
             rIndex += 1
@@ -274,10 +215,8 @@ const getTileAtLocation = (
 
 const newTerrainTileMap = ({
     movementCost,
-    resourceHandler,
 }: {
     movementCost?: string[]
-    resourceHandler?: ResourceHandler
 }): TerrainTileMap => {
     let tiles: HexGridTile[] = convertMovementCostToTiles(movementCost)
     tiles = [...tiles].sort((a, b) => {
@@ -299,7 +238,6 @@ const newTerrainTileMap = ({
     return {
         tiles,
         outlineTileCoordinates: undefined,
-        resourceHandler,
         highlightLayers: [],
     }
 }
@@ -336,36 +274,6 @@ const removeGraphicsLayerById = (
     terrainTileMap.highlightLayers = terrainTileMap.highlightLayers.filter(
         (layer) => layer.id !== mapGraphicsLayerId
     )
-}
-
-const isLocationOnScreen = ({
-    terrainTileMap,
-    location,
-    camera,
-}: {
-    terrainTileMap: TerrainTileMap
-    location: HexCoordinate
-    camera: BattleCamera
-}): boolean => {
-    const hexGridTile = getTileAtLocation(terrainTileMap, location)
-    const tileScreenCoordinates =
-        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
-            worldX: hexGridTile.worldLocation.x,
-            worldY: hexGridTile.worldLocation.y,
-            ...camera.getCoordinates(),
-        })
-
-    const horizontallyOnScreen =
-        tileScreenCoordinates.screenX + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates.screenX - HEX_TILE_WIDTH <=
-            ScreenDimensions.SCREEN_WIDTH
-
-    const verticallyOnScreen =
-        tileScreenCoordinates.screenY + HEX_TILE_WIDTH >= 0 &&
-        tileScreenCoordinates.screenY - HEX_TILE_WIDTH <=
-            ScreenDimensions.SCREEN_HEIGHT
-
-    return horizontallyOnScreen && verticallyOnScreen
 }
 
 const removeGraphicsLayerWithIdAndType = ({

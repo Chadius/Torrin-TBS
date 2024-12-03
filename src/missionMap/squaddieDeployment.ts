@@ -11,7 +11,7 @@ export interface SquaddieDeployment {
     affiliation: SquaddieAffiliation
 }
 
-export const SquaddieDeploymentHelper = {
+export const SquaddieDeploymentService = {
     default: () => {
         return defaultSquaddieDeployment()
     },

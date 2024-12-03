@@ -17,6 +17,7 @@ import { BattleCamera } from "../battle/battleCamera"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { HexGridTile } from "./hexGrid"
 import p5 from "p5"
+import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 
 export enum HighlightPulseColorNames {
     PURPLE = "PURPLE",
@@ -134,7 +135,7 @@ export const HexDrawingUtils = {
         resourceHandler: ResourceHandler
     }) => {
         const onScreenTiles: HexGridTile[] =
-            TerrainTileMapService.getAllOnscreenLocations({
+            TerrainTileGraphicsService.getAllOnscreenLocations({
                 terrainTileMap: map,
                 camera,
             })

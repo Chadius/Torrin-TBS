@@ -6,7 +6,7 @@ import {
 } from "./squaddieLocation"
 import {
     SquaddieDeployment,
-    SquaddieDeploymentHelper,
+    SquaddieDeploymentService,
 } from "./squaddieDeployment"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { NullMissionMap } from "../utils/test/battleOrchestratorState"
@@ -28,7 +28,7 @@ export const MissionMapService = {
         terrainTileMap: terrainTileMap,
         squaddieInfo: [],
         squaddiesHidden: [],
-        playerDeployment: SquaddieDeploymentHelper.new({
+        playerDeployment: SquaddieDeploymentService.new({
             affiliation: SquaddieAffiliation.PLAYER,
         }),
     }),

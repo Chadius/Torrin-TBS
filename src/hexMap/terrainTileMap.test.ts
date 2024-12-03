@@ -1,10 +1,5 @@
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
-import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { HexGridMovementCost } from "./hexGridMovementCost"
-import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { MouseButton } from "../utils/mouseConfig"
-import { ConvertCoordinateService } from "./convertCoordinates"
-import { BattleCamera } from "../battle/battleCamera"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerHighlight,
@@ -14,7 +9,7 @@ import {
 import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
 
 describe("Terrain Tile Map", () => {
-    describe("mouseClicks on the map change the outlined tile", () => {
+    describe("directly select the map to change the outlined tile", () => {
         let hexGrid: TerrainTileMap
 
         beforeEach(() => {
@@ -24,51 +19,26 @@ describe("Terrain Tile Map", () => {
         })
 
         it("should clear the outlined tile when you click off map", () => {
-            TerrainTileMapService.mouseClicked({
+            TerrainTileMapService.selectCoordinate({
                 terrainTileMap: hexGrid,
-                mouseX: -100,
-                mouseY: -100,
-                cameraX: 0,
-                cameraY: 0,
-                mouseButton: MouseButton.ACCEPT,
+                q: -100,
+                r: 9001,
             })
 
             expect(hexGrid.outlineTileCoordinates).toBe(undefined)
         })
 
-        const tests = [
-            { q: 0, r: 0 },
-            { q: 1, r: 0 },
-            { q: 2, r: 0 },
-            { q: 0, r: 1 },
-            { q: 1, r: 1 },
-            { q: 1, r: 1 },
-            { q: 0, r: 2 },
-            { q: 2, r: 1 },
-            { q: 1, r: 2 },
-            { q: 2, r: 2 },
-        ]
-        it.each(tests)(
-            `($q, $r): click on this region to select the tile`,
-            ({ q, r }) => {
-                TerrainTileMapService.mouseClicked({
-                    terrainTileMap: hexGrid,
-                    mouseButton: MouseButton.ACCEPT,
-                    mouseX:
-                        ScreenDimensions.SCREEN_WIDTH / 2 +
-                        HEX_TILE_WIDTH * (r + q * 0.5),
-                    mouseY:
-                        ScreenDimensions.SCREEN_HEIGHT / 2 +
-                        (q * 3 * HEX_TILE_RADIUS) / 2,
-                    cameraX: 0,
-                    cameraY: 0,
-                })
+        it("selects the tile as outlined", () => {
+            TerrainTileMapService.selectCoordinate({
+                terrainTileMap: hexGrid,
+                q: 0,
+                r: 0,
+            })
 
-                expect(hexGrid.outlineTileCoordinates).toEqual(
-                    expect.objectContaining({ q, r })
-                )
-            }
-        )
+            expect(hexGrid.outlineTileCoordinates).toEqual(
+                expect.objectContaining({ q: 0, r: 0 })
+            )
+        })
     })
     it("can note which tiles are at which locations", () => {
         const hexGrid = TerrainTileMapService.new({
@@ -334,7 +304,6 @@ describe("Terrain Tile Map", () => {
             ).toEqual(HexGridMovementCost.wall)
         })
     })
-
     describe("world location and bounding boxes", () => {
         let bigMap: TerrainTileMap
 
@@ -360,235 +329,6 @@ describe("Terrain Tile Map", () => {
             expect(TerrainTileMapService.getMaximumDistance(bigMap)).toEqual(9)
         })
     })
-
-    describe("isOnScreen", () => {
-        let map: TerrainTileMap
-
-        beforeEach(() => {
-            map = TerrainTileMapService.new({
-                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-            })
-        })
-
-        it("knows all of the tiles are on screen", () => {
-            const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    1,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY
-            )
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 0 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 2 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 1, r: 0 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 1, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 1, r: 2 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 2, r: 0 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 2, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 2, r: 2 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 2, r: -1 },
-                    camera,
-                })
-            ).toBeTruthy()
-
-            const onScreenLocations =
-                TerrainTileMapService.getAllOnscreenLocations({
-                    terrainTileMap: map,
-                    camera,
-                })
-            expect(onScreenLocations).toHaveLength(10)
-            expect(
-                onScreenLocations.map((location) => ({
-                    q: location.q,
-                    r: location.r,
-                }))
-            ).toEqual(
-                expect.arrayContaining([
-                    { q: 0, r: 0 },
-                    { q: 0, r: 1 },
-                    { q: 0, r: 2 },
-                    { q: 1, r: 0 },
-                    { q: 1, r: 1 },
-                    { q: 1, r: 2 },
-                    { q: 2, r: -1 },
-                    { q: 2, r: 0 },
-                    { q: 2, r: 1 },
-                    { q: 2, r: 2 },
-                ])
-            )
-        })
-
-        it("knows when tiles have scrolled off the top of the screen", () => {
-            const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    1,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY +
-                    ScreenDimensions.SCREEN_HEIGHT / 2 +
-                    HEX_TILE_WIDTH / 2
-            )
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 1 },
-                    camera,
-                })
-            ).toBeFalsy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 1, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-        })
-
-        it("knows when tiles have scrolled off the bottom of the screen", () => {
-            const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    1,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX,
-                centerOfMap.worldY -
-                    ScreenDimensions.SCREEN_HEIGHT / 2 -
-                    HEX_TILE_WIDTH / 2
-            )
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 1, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 2, r: 1 },
-                    camera,
-                })
-            ).toBeFalsy()
-        })
-
-        it("knows when tiles have scrolled off the left of the screen", () => {
-            const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    0,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX + ScreenDimensions.SCREEN_WIDTH / 2,
-                centerOfMap.worldY
-            )
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 0 },
-                    camera,
-                })
-            ).toBeFalsy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-        })
-
-        it("knows when tiles have scrolled off the right of the screen", () => {
-            const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    0,
-                    1
-                )
-            const camera = new BattleCamera(
-                centerOfMap.worldX -
-                    ScreenDimensions.SCREEN_WIDTH / 2 -
-                    HEX_TILE_WIDTH / 2,
-                centerOfMap.worldY
-            )
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 1 },
-                    camera,
-                })
-            ).toBeTruthy()
-            expect(
-                TerrainTileMapService.isLocationOnScreen({
-                    terrainTileMap: map,
-                    location: { q: 0, r: 2 },
-                    camera,
-                })
-            ).toBeFalsy()
-        })
-    })
-
     describe("graphics layer", () => {
         let map: TerrainTileMap
         let clickedLayer: MapGraphicsLayer

@@ -16,8 +16,4 @@ export interface HexGridTile {
     q: number
     r: number
     terrainType: HexGridMovementCost
-    worldLocation: {
-        x: number
-        y: number
-    }
 }

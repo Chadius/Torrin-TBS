@@ -3,7 +3,7 @@ import {
     MissionFileFormatService,
     NpcTeamMissionDeploymentService,
 } from "./missionLoader"
-import { SquaddieDeploymentHelper } from "../missionMap/squaddieDeployment"
+import { SquaddieDeploymentService } from "../missionMap/squaddieDeployment"
 
 describe("missionLoader", () => {
     describe("sanitization", () => {
@@ -14,7 +14,7 @@ describe("missionLoader", () => {
                 player: {
                     teamId: "player team",
                     teamName: "playaz",
-                    deployment: SquaddieDeploymentHelper.default(),
+                    deployment: SquaddieDeploymentService.default(),
                     iconResourceKey: "affiliate_icon_infiltrators",
                 },
             })
@@ -68,7 +68,7 @@ describe("missionLoader", () => {
             MissionFileFormatService.sanitize(validMission)
 
             expect(validMission.player.deployment).toEqual(
-                SquaddieDeploymentHelper.default()
+                SquaddieDeploymentService.default()
             )
         })
         it("makes empty enemy section if it is missing", () => {
