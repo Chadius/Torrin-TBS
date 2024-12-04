@@ -196,7 +196,7 @@ const convertRawPenaltyMultiplier = (
     )
 
     const multipleAttackPenalty =
-        penaltyMultiplier * MULTIPLE_ATTACK_PENALTY === -0
+        penaltyMultiplier * MULTIPLE_ATTACK_PENALTY === 0
             ? 0
             : penaltyMultiplier * MULTIPLE_ATTACK_PENALTY
 

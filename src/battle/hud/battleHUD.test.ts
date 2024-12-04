@@ -93,7 +93,6 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionPanelPosition } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
-import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
