@@ -46,7 +46,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             missionMap,
             squaddieTemplateId: blockingSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 1,
                 r: 2,
             },
@@ -125,7 +125,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             missionMap,
             squaddieTemplateId: blockingSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -197,7 +197,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             missionMap,
             squaddieTemplateId: blockingSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 1,
                 r: 2,
             },
@@ -252,7 +252,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             missionMap,
             squaddieTemplateId: blockingSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 1,
                 r: 2,
             },

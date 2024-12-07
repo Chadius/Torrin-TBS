@@ -18,6 +18,30 @@ import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
 import { AttributeType } from "./attributeModifier"
 
+export interface SquaddieActionPointsExplanation {
+    actionPointsRemaining: number
+}
+
+export interface SquaddieArmorExplanation {
+    net: number
+    initial: number
+}
+
+export interface SquaddieMovementExplanation {
+    initial: {
+        movementPerAction: number
+        crossOverPits: boolean
+        passThroughWalls: boolean
+        ignoreTerrainCost: boolean
+    }
+    net: {
+        movementPerAction: number
+        crossOverPits: boolean
+        passThroughWalls: boolean
+        ignoreTerrainCost: boolean
+    }
+}
+
 export const SquaddieService = {
     calculateDealtDamageToTheSquaddie: ({
         battleSquaddie,
@@ -43,9 +67,7 @@ export const SquaddieService = {
     }: {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
-    }): {
-        actionPointsRemaining: number
-    } => {
+    }): SquaddieActionPointsExplanation => {
         return getNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
     },
     searchPathLocationsByNumberOfMovementActions: ({
@@ -72,7 +94,7 @@ export const SquaddieService = {
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).movementPerAction
+                    }).net.movementPerAction
             )
             locationsByMoveAction[numberOfMovementActions] ||= []
             locationsByMoveAction[numberOfMovementActions].push(
@@ -165,10 +187,7 @@ export const SquaddieService = {
     }: {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
-    }): {
-        net: number
-        initial: number
-    } => {
+    }): SquaddieArmorExplanation => {
         return getArmorClass({ squaddieTemplate, battleSquaddie })
     },
     isSquaddieAlive: ({
@@ -224,36 +243,43 @@ export const SquaddieService = {
     }: {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
-    }): {
-        movementPerAction: number
-        crossOverPits: boolean
-        passThroughWalls: boolean
-        ignoreTerrainCost: boolean
-    } => {
+    }): SquaddieMovementExplanation => {
         return InBattleAttributesService.calculateCurrentAttributeModifiers(
             battleSquaddie.inBattleAttributes
         ).reduce(
             (currentMovementAttributes, attributeModifier) => {
                 if (attributeModifier.type === AttributeType.MOVEMENT) {
-                    currentMovementAttributes.movementPerAction +=
+                    currentMovementAttributes.net.movementPerAction +=
                         attributeModifier.amount
                 }
                 if (
                     attributeModifier.type === AttributeType.IGNORE_TERRAIN_COST
                 ) {
-                    currentMovementAttributes.ignoreTerrainCost = true
+                    currentMovementAttributes.net.ignoreTerrainCost = true
                 }
                 return currentMovementAttributes
             },
             {
-                movementPerAction:
-                    squaddieTemplate.attributes.movement.movementPerAction,
-                crossOverPits:
-                    squaddieTemplate.attributes.movement.crossOverPits,
-                passThroughWalls:
-                    squaddieTemplate.attributes.movement.passThroughWalls,
-                ignoreTerrainCost:
-                    squaddieTemplate.attributes.movement.ignoreTerrainCost,
+                initial: {
+                    movementPerAction:
+                        squaddieTemplate.attributes.movement.movementPerAction,
+                    crossOverPits:
+                        squaddieTemplate.attributes.movement.crossOverPits,
+                    passThroughWalls:
+                        squaddieTemplate.attributes.movement.passThroughWalls,
+                    ignoreTerrainCost:
+                        squaddieTemplate.attributes.movement.ignoreTerrainCost,
+                },
+                net: {
+                    movementPerAction:
+                        squaddieTemplate.attributes.movement.movementPerAction,
+                    crossOverPits:
+                        squaddieTemplate.attributes.movement.crossOverPits,
+                    passThroughWalls:
+                        squaddieTemplate.attributes.movement.passThroughWalls,
+                    ignoreTerrainCost:
+                        squaddieTemplate.attributes.movement.ignoreTerrainCost,
+                },
             }
         )
     },
@@ -265,9 +291,7 @@ const getNumberOfActionPoints = ({
 }: {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
-}): {
-    actionPointsRemaining: number
-} => {
+}): SquaddieActionPointsExplanation => {
     return {
         actionPointsRemaining:
             battleSquaddie.squaddieTurn.remainingActionPoints,
@@ -280,10 +304,7 @@ const getArmorClass = ({
 }: {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
-}): {
-    net: number
-    initial: number
-} => {
+}): SquaddieArmorExplanation => {
     return {
         initial: squaddieTemplate.attributes.armorClass,
         net:

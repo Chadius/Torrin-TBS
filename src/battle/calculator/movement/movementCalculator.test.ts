@@ -56,7 +56,7 @@ describe("movement calculator", () => {
             missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         gameEngineState = GameEngineStateService.new({
@@ -326,7 +326,7 @@ describe("movement calculator", () => {
                     missionMap,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                    location: info.location,
+                    coordinate: info.location,
                 })
             })
             ;({ battleSquaddie: player0 } = getResultOrThrowError(

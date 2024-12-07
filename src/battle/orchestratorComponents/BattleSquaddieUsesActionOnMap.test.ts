@@ -144,6 +144,8 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
     })
 
@@ -171,6 +173,8 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
             })
         })
 

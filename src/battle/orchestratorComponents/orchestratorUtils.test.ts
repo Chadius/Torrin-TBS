@@ -73,7 +73,7 @@ describe("Orchestration Utils", () => {
             missionMap: map,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            location: { q: 0, r: 2 },
+            coordinate: { q: 0, r: 2 },
         })
 
         camera = new BattleCamera()
@@ -103,8 +103,8 @@ describe("Orchestration Utils", () => {
 
     it("can return the squaddie and information at a given map location", () => {
         const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
-            OrchestratorUtilities.getSquaddieAtMapLocation({
-                mapLocation: { q: 0, r: 2 },
+            OrchestratorUtilities.getSquaddieAtMapCoordinate({
+                mapCoordinate: { q: 0, r: 2 },
                 map,
                 squaddieRepository,
             })
@@ -141,7 +141,7 @@ describe("Orchestration Utils", () => {
             missionMap: map,
             squaddieTemplateId: "does not exist",
             battleSquaddieId: "does not exist",
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -501,7 +501,7 @@ describe("Orchestration Utils", () => {
                     squaddieTemplateId:
                         playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    location: { q: 0, r: i },
+                    coordinate: { q: 0, r: i },
                 })
             }
 
@@ -534,7 +534,7 @@ describe("Orchestration Utils", () => {
                     squaddieTemplateId:
                         playerSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId,
-                    location: { q: 0, r: playerCount + i },
+                    coordinate: { q: 0, r: playerCount + i },
                 })
             }
 
@@ -713,7 +713,7 @@ describe("Orchestration Utils", () => {
                 missionMap: map,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 3 },
+                coordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
             addGraphicsLayerSpy = jest.spyOn(
@@ -755,7 +755,7 @@ describe("Orchestration Utils", () => {
                 missionMap: map,
                 squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 3 },
+                coordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
             addGraphicsLayerSpy = jest.spyOn(
@@ -802,7 +802,7 @@ describe("Orchestration Utils", () => {
                 missionMap: map,
                 squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -827,7 +827,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 2 },
+                coordinate: { q: 0, r: 2 },
             })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState
@@ -868,7 +868,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 2 },
+                coordinate: { q: 0, r: 2 },
             })
             const gameEngineState = GameEngineStateService.new({
                 repository: squaddieRepository,
@@ -938,7 +938,7 @@ describe("Orchestration Utils", () => {
                 missionMap: missionMap,
                 squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 2 },
+                coordinate: { q: 0, r: 2 },
             })
             BattleActionRecorderService.addReadyToAnimateBattleAction(
                 gameEngineState.battleOrchestratorState.battleState

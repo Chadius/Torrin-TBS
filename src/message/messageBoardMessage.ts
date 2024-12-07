@@ -7,6 +7,8 @@ import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../resource/resourceHandler"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -108,7 +110,7 @@ export interface MessageBoardMessagePlayerEndsTurn {
 
 export type SquaddieSelectionMethod = {
     mouse?: MouseClick | ScreenCoordinate
-    mapLocation?: HexCoordinate
+    mapCoordinate?: HexCoordinate
 }
 
 export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
@@ -129,6 +131,8 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
 export interface MessageBoardBattleActionFinishesAnimation {
     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
     gameEngineState: GameEngineState
+    graphicsContext: GraphicsBuffer
+    resourceHandler: ResourceHandler
 }
 
 export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {

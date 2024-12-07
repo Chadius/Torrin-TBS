@@ -207,7 +207,7 @@ export const BattleSquaddieSelectorService = {
                   objectRepository,
               })
 
-        const { mapLocation: targetMapLocation } =
+        const { mapCoordinate: targetMapLocation } =
             MissionMapService.getByBattleSquaddieId(map, targetBattleSquaddieId)
 
         const highestPriorityActionThatCanBeUsedOnTarget =
@@ -372,10 +372,10 @@ const getAllTilesSquaddieCanReach = ({
     stopLocation?: HexCoordinate
     actionPointsRemaining?: number
 }): SearchResult => {
-    const mapLocation = MissionMapService.getByBattleSquaddieId(
+    const mapCoordinate = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddie.battleSquaddieId
-    ).mapLocation
+    ).mapCoordinate
 
     if (actionPointsRemaining === undefined) {
         ;({ actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
@@ -389,26 +389,26 @@ const getAllTilesSquaddieCanReach = ({
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             startLocations: [
                 {
-                    q: mapLocation.q,
-                    r: mapLocation.r,
+                    q: mapCoordinate.q,
+                    r: mapCoordinate.r,
                 },
             ],
             movementPerAction: SquaddieService.getSquaddieMovementAttributes({
                 battleSquaddie,
                 squaddieTemplate,
-            }).movementPerAction,
+            }).net.movementPerAction,
             canPassThroughWalls: SquaddieService.getSquaddieMovementAttributes({
                 battleSquaddie,
                 squaddieTemplate,
-            }).passThroughWalls,
+            }).net.passThroughWalls,
             canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
                 battleSquaddie,
                 squaddieTemplate,
-            }).crossOverPits,
+            }).net.crossOverPits,
             ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
                 battleSquaddie,
                 squaddieTemplate,
-            }).ignoreTerrainCost,
+            }).net.ignoreTerrainCost,
             shapeGenerator: getResultOrThrowError(
                 GetTargetingShapeGenerator(TargetingShape.SNAKE)
             ),

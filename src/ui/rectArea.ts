@@ -237,6 +237,50 @@ export const RectAreaService = {
                 return
         }
     },
+    newRectangleBasedOnMultipleRectAreas: (rectAreas: RectArea[]): RectArea => {
+        const { left, right, top, bottom } = rectAreas.reduce(
+            (currentSides, rectArea) => {
+                if (currentSides.left === undefined) {
+                    currentSides.left = RectAreaService.left(rectArea)
+                    currentSides.right = RectAreaService.right(rectArea)
+                    currentSides.top = RectAreaService.top(rectArea)
+                    currentSides.bottom = RectAreaService.bottom(rectArea)
+                }
+
+                return {
+                    left: Math.min(
+                        RectAreaService.left(rectArea),
+                        currentSides.left
+                    ),
+                    right: Math.max(
+                        RectAreaService.right(rectArea),
+                        currentSides.right
+                    ),
+                    top: Math.min(
+                        RectAreaService.top(rectArea),
+                        currentSides.top
+                    ),
+                    bottom: Math.max(
+                        RectAreaService.bottom(rectArea),
+                        currentSides.bottom
+                    ),
+                }
+            },
+            {
+                left: undefined,
+                right: undefined,
+                top: undefined,
+                bottom: undefined,
+            }
+        )
+
+        return RectAreaService.new({
+            left,
+            right,
+            top,
+            bottom,
+        })
+    },
 }
 
 const getBaseRectangleFromParams = (

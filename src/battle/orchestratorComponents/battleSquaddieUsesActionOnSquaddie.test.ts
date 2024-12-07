@@ -291,7 +291,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 missionMap,
                 squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -497,6 +497,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
         messageSpy.mockRestore()
     })
@@ -553,6 +555,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
             })
             expect(animatorSpy).toHaveBeenCalled()
             expect(

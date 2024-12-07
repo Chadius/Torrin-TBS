@@ -90,9 +90,9 @@ import { BattleActionActionContextService } from "../history/battleAction/battle
 import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
 import { PopupWindow } from "./popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
-import { ActionPanelPosition } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
+import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
 
 describe("Battle HUD", () => {
     const createGameEngineState = ({
@@ -164,7 +164,7 @@ describe("Battle HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_0",
-            location: battleSquaddieLocation ?? { q: 0, r: 0 },
+            coordinate: battleSquaddieLocation ?? { q: 0, r: 0 },
         })
 
         const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
@@ -181,7 +181,7 @@ describe("Battle HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_1",
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         const gameEngineState = GameEngineStateService.new({
@@ -353,7 +353,7 @@ describe("Battle HUD", () => {
                 missionMap,
                 squaddieTemplateId: battleSquaddie.squaddieTemplateId,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -483,7 +483,7 @@ describe("Battle HUD", () => {
                 {
                     name: "directly selecting the squaddie location",
                     selectionMethod: {
-                        mapLocation: { q: 0, r: 0 },
+                        mapCoordinate: { q: 0, r: 0 },
                     },
                 },
             ]
@@ -598,7 +598,7 @@ describe("Battle HUD", () => {
                 {
                     name: "directly selecting the squaddie location",
                     selectionMethod: {
-                        mapLocation: { q: 0, r: 0 },
+                        mapCoordinate: { q: 0, r: 0 },
                     },
                 },
             ]
@@ -618,7 +618,10 @@ describe("Battle HUD", () => {
                         .summaryHUDState.squaddieToPeekAt
                 ).toEqual({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    actionPanelPositions: {
+                        nameAndPortrait: ActionTilePosition.PEEK_PLAYABLE_NAME,
+                        status: ActionTilePosition.PEEK_PLAYABLE_STATUS,
+                    },
                     expirationTime: expect.any(Number),
                 })
             })
@@ -861,7 +864,7 @@ describe("Battle HUD", () => {
                         .missionMap,
                 squaddieTemplateId: "enemy",
                 battleSquaddieId: "enemy",
-                location: { q: 0, r: 2 },
+                coordinate: { q: 0, r: 2 },
             })
 
             gameEngineState.messageBoard.sendMessage({
@@ -1444,7 +1447,7 @@ describe("Battle HUD", () => {
                         .missionMap,
                 squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 1,
                     r: 2,
                 },
@@ -2329,7 +2332,7 @@ describe("Battle HUD", () => {
                     battleSquaddie.battleSquaddieId
                 )
                 expect(mapDatum).not.toBeUndefined()
-                expect(mapDatum.mapLocation).toEqual({ q: 0, r: 2 })
+                expect(mapDatum.mapCoordinate).toEqual({ q: 0, r: 2 })
             })
 
             it("will submit an event saying the action is ready", () => {
@@ -2426,7 +2429,7 @@ describe("Battle HUD", () => {
                 ).toEqual({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                    mapLocation: { q: 0, r: 2 },
+                    mapCoordinate: { q: 0, r: 2 },
                 })
                 expect(
                     battleSquaddie.squaddieTurn.remainingActionPoints

@@ -141,7 +141,7 @@ describe("BattleSquaddieTarget", () => {
             missionMap: battleMap,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
         ;({ squaddieTemplate: citizenStatic, battleSquaddie: citizenDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -156,7 +156,7 @@ describe("BattleSquaddieTarget", () => {
             missionMap: battleMap,
             squaddieTemplateId: citizenDynamic.squaddieTemplateId,
             battleSquaddieId: citizenDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
         ;({ squaddieTemplate: thiefStatic, battleSquaddie: thiefDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -178,7 +178,7 @@ describe("BattleSquaddieTarget", () => {
             missionMap: battleMap,
             squaddieTemplateId: thiefDynamic.squaddieTemplateId,
             battleSquaddieId: thiefDynamic.battleSquaddieId,
-            location: { q: 1, r: 2 },
+            coordinate: { q: 1, r: 2 },
         })
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
@@ -238,14 +238,14 @@ describe("BattleSquaddieTarget", () => {
     })
 
     const clickOnThief = () => {
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             thiefDynamic.battleSquaddieId
         )
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-                q: mapLocation.q,
-                r: mapLocation.r,
+                q: mapCoordinate.q,
+                r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -259,14 +259,14 @@ describe("BattleSquaddieTarget", () => {
     }
 
     const clickOnCitizen = () => {
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             citizenDynamic.battleSquaddieId
         )
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-                q: mapLocation.q,
-                r: mapLocation.r,
+                q: mapCoordinate.q,
+                r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
 
@@ -408,7 +408,7 @@ describe("BattleSquaddieTarget", () => {
         })
 
         it("sends a message with the clicked target location", () => {
-            const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 thiefDynamic.battleSquaddieId
             )
@@ -416,7 +416,7 @@ describe("BattleSquaddieTarget", () => {
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
                 gameEngineState,
-                targetLocation: mapLocation,
+                targetLocation: mapCoordinate,
             })
         })
 
@@ -519,15 +519,15 @@ describe("BattleSquaddieTarget", () => {
             "sendMessage"
         )
 
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             citizenDynamic.battleSquaddieId
         )
 
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-                q: mapLocation.q,
-                r: mapLocation.r,
+                q: mapCoordinate.q,
+                r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
             })
 

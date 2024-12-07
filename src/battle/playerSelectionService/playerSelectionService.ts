@@ -595,7 +595,7 @@ const playerSelectsAnAction = ({
         BattleActionDecisionStepService.getActor(
             actionBuilderState
         ).battleSquaddieId
-    const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+    const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         battleSquaddieId
     )
@@ -604,7 +604,7 @@ const playerSelectsAnAction = ({
         gameEngineState,
         actionTemplateId: context.actionTemplateId,
         battleSquaddieId: context.battleSquaddieId,
-        mapStartingLocation: mapLocation,
+        mapStartingLocation: mapCoordinate,
         mouseLocation: {
             x: context.mouseClick.x,
             y: context.mouseClick.y,

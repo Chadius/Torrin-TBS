@@ -133,21 +133,21 @@ export const MapHighlightService = {
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).movementPerAction,
+                    }).net.movementPerAction,
                 ignoreTerrainCost:
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).ignoreTerrainCost,
+                    }).net.ignoreTerrainCost,
                 canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
                     battleSquaddie,
                     squaddieTemplate,
-                }).crossOverPits,
+                }).net.crossOverPits,
                 canPassThroughWalls:
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).passThroughWalls,
+                    }).net.passThroughWalls,
                 squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
                 canStopOnSquaddies: false,
             }),

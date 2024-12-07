@@ -123,7 +123,7 @@ describe("User clicks on a squaddie", () => {
             missionMap,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
             squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
     })
 
@@ -205,7 +205,7 @@ describe("User clicks on a squaddie", () => {
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -295,7 +295,7 @@ describe("User clicks on a squaddie", () => {
             missionMap: missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -304,7 +304,7 @@ describe("User clicks on a squaddie", () => {
             missionMap: missionMap,
             squaddieTemplateId: player2.squaddieTemplateId,
             battleSquaddieId: player2.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         const selector = new BattlePlayerSquaddieSelector()
@@ -401,7 +401,7 @@ describe("User clicks on a squaddie", () => {
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -450,7 +450,7 @@ describe("User clicks on a squaddie", () => {
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: "player 1",
-                location: { q: 0, r: 8 },
+                coordinate: { q: 0, r: 8 },
             })
 
             BattleSquaddieTeamService.addBattleSquaddieIds(

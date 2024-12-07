@@ -515,4 +515,28 @@ describe("RectArea", () => {
         expect(RectAreaService.height(rect)).toBe(30)
         expect(RectAreaService.width(rect)).toBe(20)
     })
+    it("create a new RectArea based on the bounding box of multiple RectAreas", () => {
+        const rectA = RectAreaService.new({
+            left: 0,
+            top: 10,
+            width: 20,
+            height: 30,
+        })
+        const rectB = RectAreaService.new({
+            left: 100,
+            top: 40,
+            width: 30,
+            height: 50,
+        })
+
+        const newRect = RectAreaService.newRectangleBasedOnMultipleRectAreas([
+            rectA,
+            rectB,
+        ])
+
+        expect(RectAreaService.left(newRect)).toBe(0)
+        expect(RectAreaService.top(newRect)).toBe(10)
+        expect(RectAreaService.right(newRect)).toBe(130)
+        expect(RectAreaService.bottom(newRect)).toBe(90)
+    })
 })

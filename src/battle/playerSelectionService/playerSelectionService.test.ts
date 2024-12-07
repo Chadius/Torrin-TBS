@@ -176,7 +176,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -431,7 +431,7 @@ describe("Player Selection Service", () => {
                         missionMap:
                             gameEngineState.battleOrchestratorState.battleState
                                 .missionMap,
-                        location: { q: 0, r: 2 },
+                        coordinate: { q: 0, r: 2 },
                     })
 
                     BattleActionDecisionStepService.setActor({
@@ -566,7 +566,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -575,7 +575,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie2.squaddieTemplateId,
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
             })
 
             gameEngineState = GameEngineStateService.new({
@@ -894,7 +894,7 @@ describe("Player Selection Service", () => {
                             .missionMap,
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                    location: {
+                    coordinate: {
                         q: 0,
                         r: 0,
                     },
@@ -911,7 +911,7 @@ describe("Player Selection Service", () => {
                             .missionMap,
                     battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
                     squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-                    location: {
+                    coordinate: {
                         q: 0,
                         r: endOfFirstRow,
                     },
@@ -1141,7 +1141,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -1150,7 +1150,7 @@ describe("Player Selection Service", () => {
                 missionMap,
                 battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie2.squaddieTemplateId,
-                location: player2Location ?? {
+                coordinate: player2Location ?? {
                     q: 0,
                     r: 2,
                 },
@@ -1846,7 +1846,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         missionMap,
         battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
         squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-        location: {
+        coordinate: {
             q: 0,
             r: 0,
         },
@@ -1866,7 +1866,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         missionMap,
         battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-        location: enemyMapLocation ?? {
+        coordinate: enemyMapLocation ?? {
             q: 0,
             r: 1,
         },

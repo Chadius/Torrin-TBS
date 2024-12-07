@@ -136,7 +136,7 @@ describe("User cancels the previewed action", () => {
             missionMap: missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -184,7 +184,7 @@ describe("User cancels the previewed action", () => {
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 0,
                     r: 0,
                 },
@@ -338,7 +338,7 @@ describe("User cancels the previewed action", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -440,7 +440,7 @@ describe("User cancels the previewed action", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieTemplateId: enemySquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 1,
             },
@@ -450,7 +450,7 @@ describe("User cancels the previewed action", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },

@@ -18,19 +18,6 @@ export type AttributeTypeAndAmount = {
     amount: number
 }
 
-export const AttributeTypeAndAmountService = {
-    new: ({
-        type,
-        amount,
-    }: {
-        type: AttributeType
-        amount: number
-    }): AttributeTypeAndAmount => ({
-        type,
-        amount,
-    }),
-}
-
 export interface AttributeModifier {
     type: AttributeType
     source: AttributeSource
@@ -218,6 +205,10 @@ export const AttributeModifierService = {
     clone: (a: AttributeModifier): AttributeModifier => newAttributeModifier(a),
     effectIsBinaryEffect: (a: AttributeModifier): boolean =>
         isAttributeModifierABinaryEffect(a),
+    isAttributeTypeABinaryEffect: (a: AttributeType): boolean =>
+        isAttributeTypeABinaryEffect(a),
+    getAttributeIconResourceKeyForAttributeType: (a: AttributeType): string =>
+        `attribute-icon-${a.toLowerCase().replaceAll("_", "-")}`,
     readableName: (attributeModifier: AttributeModifier): string => {
         return readableNameForAttributeModifier(attributeModifier)
     },
@@ -309,6 +300,8 @@ const readableNameForAttributeModifier = (
         input.slice(1).toLowerCase()
     return `${capitalizeFirstLetter(attributeModifier.type).replaceAll("_", " ")}`
 }
-const isAttributeModifierABinaryEffect = (a: AttributeModifier) => {
-    return [AttributeType.IGNORE_TERRAIN_COST].includes(a.type)
+const isAttributeModifierABinaryEffect = (a: AttributeModifier) =>
+    isAttributeTypeABinaryEffect(a.type)
+const isAttributeTypeABinaryEffect = (type: AttributeType) => {
+    return [AttributeType.IGNORE_TERRAIN_COST].includes(type)
 }

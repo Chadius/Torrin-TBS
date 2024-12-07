@@ -354,8 +354,8 @@ export class BattleComputerSquaddieSelector
             screenX: squaddieScreenLocationX,
             screenY: squaddieScreenLocationY,
         } = ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: datum.mapLocation.q,
-            r: datum.mapLocation.r,
+            q: datum.mapCoordinate.q,
+            r: datum.mapCoordinate.r,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
@@ -363,8 +363,8 @@ export class BattleComputerSquaddieSelector
             worldX: squaddieWorldLocationX,
             worldY: squaddieWorldLocationY,
         } = ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-            datum.mapLocation.q,
-            datum.mapLocation.r
+            datum.mapCoordinate.q,
+            datum.mapCoordinate.r
         )
 
         if (
@@ -493,7 +493,7 @@ export class BattleComputerSquaddieSelector
                 battleActions: BattleAction[],
                 battleActionDecisionStep: BattleActionDecisionStep
             ) => {
-                const { mapLocation: startLocation } =
+                const { mapCoordinate: startLocation } =
                     MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
@@ -670,7 +670,7 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
         )
     )
 
-    DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(
+    DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate(
         graphicsContext,
         gameEngineState.repository,
         battleSquaddie,

@@ -53,8 +53,8 @@ export const PlayerPhaseService = {
             const squaddieScreenLocation =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
-                        q: mapDatum.mapLocation.q,
-                        r: mapDatum.mapLocation.r,
+                        q: mapDatum.mapCoordinate.q,
+                        r: mapDatum.mapCoordinate.r,
                         ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
                     }
                 )
@@ -69,8 +69,8 @@ export const PlayerPhaseService = {
 
             const squaddieWorldLocation =
                 ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                    mapDatum.mapLocation.q,
-                    mapDatum.mapLocation.r
+                    mapDatum.mapCoordinate.q,
+                    mapDatum.mapCoordinate.r
                 )
             gameEngineState.battleOrchestratorState.battleState.camera.pan({
                 xDestination: squaddieWorldLocation.worldX,

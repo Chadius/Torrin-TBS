@@ -13,12 +13,15 @@ import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { ImageUI, ImageUIService } from "../../../../ui/imageUI"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { TextBox, TextBoxService } from "../../../../ui/textBox"
-import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
-import { GOLDEN_RATIO, WINDOW_SPACING } from "../../../../ui/constants"
+import { WINDOW_SPACING } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 import { TextHandlingService } from "../../../../utils/graphics/textHandlingService"
+import {
+    ActionTilePosition,
+    ActionTilePositionService,
+} from "./actionTilePosition"
 
 export interface SquaddieNameAndPortraitTile {
     squaddieNameTextBox?: TextBox
@@ -26,15 +29,8 @@ export interface SquaddieNameAndPortraitTile {
     squaddieName: string
     squaddieAffiliation: SquaddieAffiliation
     squaddiePortraitResourceKey: string
-    horizontalPosition: ActionPanelPosition
+    horizontalPosition: ActionTilePosition
     battleSquaddieId: string
-}
-
-export enum ActionPanelPosition {
-    ACTOR = "ACTOR",
-    PEEK_PLAYABLE = "PEEK_PLAYABLE",
-    PEEK_RIGHT = "PEEK_RIGHT",
-    TARGET = "TARGET",
 }
 
 export const SquaddieNameAndPortraitTileService = {
@@ -47,7 +43,7 @@ export const SquaddieNameAndPortraitTileService = {
         objectRepository: ObjectRepository
         battleSquaddieId: string
         team: BattleSquaddieTeam
-        horizontalPosition: ActionPanelPosition
+        horizontalPosition: ActionTilePosition
     }): SquaddieNameAndPortraitTile => {
         const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -80,7 +76,11 @@ export const SquaddieNameAndPortraitTileService = {
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
     }) => {
-        drawBackground(tile, graphicsContext)
+        ActionTilePositionService.drawBackground({
+            squaddieAffiliation: tile.squaddieAffiliation,
+            horizontalPosition: tile.horizontalPosition,
+            graphicsContext: graphicsContext,
+        })
 
         setPortraitImage(tile, resourceHandler)
         drawPortraitImage(tile, graphicsContext)
@@ -89,8 +89,11 @@ export const SquaddieNameAndPortraitTileService = {
         drawPortraitNameTextBox(tile, graphicsContext)
     },
     getBoundingBoxBasedOnActionPanelPosition: (
-        horizontalPosition: ActionPanelPosition
-    ): RectArea => getBoundingBoxBasedOnActionPanelPosition(horizontalPosition),
+        horizontalPosition: ActionTilePosition
+    ): RectArea =>
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            horizontalPosition
+        ),
 }
 
 const setPortraitImage = (
@@ -101,9 +104,10 @@ const setPortraitImage = (
     if (!resourceHandler.isResourceLoaded(tile.squaddiePortraitResourceKey))
         return
     const image = resourceHandler.getResource(tile.squaddiePortraitResourceKey)
-    const overallBoundingBox = getBoundingBoxBasedOnActionPanelPosition(
-        tile.horizontalPosition
-    )
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            tile.horizontalPosition
+        )
     const imageWidth = Math.min(
         image.width,
         RectAreaService.width(overallBoundingBox)
@@ -129,9 +133,10 @@ const setPortraitNameTextBox = (
     tile: SquaddieNameAndPortraitTile,
     graphicsContext: GraphicsBuffer
 ) => {
-    const overallBoundingBox = getBoundingBoxBasedOnActionPanelPosition(
-        tile.horizontalPosition
-    )
+    const overallBoundingBox =
+        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+            tile.horizontalPosition
+        )
     const squaddieAffiliationHue: number =
         HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
     const textColor = [squaddieAffiliationHue, 7, 192]
@@ -181,63 +186,4 @@ const drawPortraitNameTextBox = (
 ) => {
     if (!isValidValue(tile.squaddieNameTextBox)) return
     TextBoxService.draw(tile.squaddieNameTextBox, graphicsContext)
-}
-
-const drawBackground = (
-    tile: SquaddieNameAndPortraitTile,
-    graphicsContext: GraphicsBuffer
-) => {
-    const squaddieAffiliationHue: number =
-        HUE_BY_SQUADDIE_AFFILIATION[tile.squaddieAffiliation]
-    const overallBoundingBox = getBoundingBoxBasedOnActionPanelPosition(
-        tile.horizontalPosition
-    )
-
-    graphicsContext.push()
-    graphicsContext.fill(squaddieAffiliationHue, 10, 20)
-    graphicsContext.rect(
-        RectAreaService.left(overallBoundingBox),
-        RectAreaService.top(overallBoundingBox),
-        RectAreaService.width(overallBoundingBox),
-        RectAreaService.height(overallBoundingBox)
-    )
-    graphicsContext.pop()
-}
-
-const getBoundingBoxBasedOnActionPanelPosition = (
-    horizontalPosition: ActionPanelPosition
-): RectArea => {
-    const columnsByPosition: {
-        [q in ActionPanelPosition]: {
-            startColumn: number
-            endColumn: number
-        }
-    } = {
-        [ActionPanelPosition.ACTOR]: {
-            startColumn: 0,
-            endColumn: 0,
-        },
-        [ActionPanelPosition.PEEK_PLAYABLE]: {
-            startColumn: 0,
-            endColumn: 0,
-        },
-        [ActionPanelPosition.PEEK_RIGHT]: {
-            startColumn: 11,
-            endColumn: 11,
-        },
-        [ActionPanelPosition.TARGET]: {
-            startColumn: 11,
-            endColumn: 11,
-        },
-    }
-
-    return RectAreaService.new({
-        screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        startColumn: columnsByPosition[horizontalPosition].startColumn,
-        endColumn: columnsByPosition[horizontalPosition].endColumn,
-        top:
-            ScreenDimensions.SCREEN_HEIGHT -
-            (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO,
-        bottom: ScreenDimensions.SCREEN_HEIGHT,
-    })
 }

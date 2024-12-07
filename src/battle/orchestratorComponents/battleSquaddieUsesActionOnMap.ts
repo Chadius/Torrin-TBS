@@ -100,6 +100,8 @@ export class BattleSquaddieUsesActionOnMap
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
     }
 }

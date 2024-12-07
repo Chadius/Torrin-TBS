@@ -121,7 +121,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId:
                     playerSquaddieTemplate.squaddieId.templateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
         })
         it("will tell the squaddie to stand in place if it is at the destination", () => {
@@ -241,7 +241,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: missionMapBlockedByAPit,
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap =
                 missionMapBlockedByAPit
@@ -285,13 +285,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 3 },
+                coordinate: { q: 0, r: 3 },
             })
 
             const actionInfo =
@@ -315,13 +315,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
             })
 
             const actionInfo =
@@ -339,13 +339,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 5 },
+                coordinate: { q: 0, r: 5 },
             })
 
             const actionInfo =
@@ -369,13 +369,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 7 },
+                coordinate: { q: 0, r: 7 },
             })
 
             const actionInfo =
@@ -427,13 +427,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 battleSquaddieId: playerActorWithBigAttacks.battleSquaddieId,
                 squaddieTemplateId:
                     playerActorWithBigAttacks.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 5 },
+                coordinate: { q: 0, r: 5 },
             })
 
             const actionInfo =
@@ -454,13 +454,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 5 },
+                coordinate: { q: 0, r: 5 },
             })
 
             const actionInfo =
@@ -494,13 +494,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 7 },
+                coordinate: { q: 0, r: 7 },
             })
 
             const actionInfo =
@@ -530,13 +530,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: missionMapBlockedByAPit,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: missionMapBlockedByAPit,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 3 },
+                coordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap =
                 missionMapBlockedByAPit
@@ -564,7 +564,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: enemyActor.battleSquaddieId,
                 squaddieTemplateId: enemyActor.squaddieTemplateId,
-                location: { q: 0, r: 5 },
+                coordinate: { q: 0, r: 5 },
             })
         })
 
@@ -582,7 +582,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             const actionInfo =
                 BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
@@ -614,7 +614,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             const actionInfo =
                 BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
@@ -683,13 +683,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: allyActor.battleSquaddieId,
                 squaddieTemplateId: allyActor.squaddieTemplateId,
-                location: { q: 0, r: 4 },
+                coordinate: { q: 0, r: 4 },
             })
             const actionInfo =
                 BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
@@ -721,13 +721,13 @@ describe("battleSquaddieSelectorUtils", () => {
                 missionMap: map,
                 battleSquaddieId: playerActor.battleSquaddieId,
                 squaddieTemplateId: playerActor.squaddieTemplateId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap: map,
                 battleSquaddieId: allyActor.battleSquaddieId,
                 squaddieTemplateId: allyActor.squaddieTemplateId,
-                location: { q: 0, r: 7 },
+                coordinate: { q: 0, r: 7 },
             })
             const actionInfo =
                 BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(

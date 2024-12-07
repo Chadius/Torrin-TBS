@@ -516,10 +516,18 @@ describe("Squaddie Service", () => {
                 })
 
             expect(squaddieMovementAttributes).toEqual({
-                movementPerAction: 9001,
-                crossOverPits: false,
-                passThroughWalls: false,
-                ignoreTerrainCost: false,
+                initial: {
+                    movementPerAction: 9001,
+                    crossOverPits: false,
+                    passThroughWalls: false,
+                    ignoreTerrainCost: false,
+                },
+                net: {
+                    movementPerAction: 9001,
+                    crossOverPits: false,
+                    passThroughWalls: false,
+                    ignoreTerrainCost: false,
+                },
             })
         })
 
@@ -554,10 +562,18 @@ describe("Squaddie Service", () => {
                 })
 
             expect(squaddieMovementAttributes).toEqual({
-                movementPerAction: 3,
-                crossOverPits: true,
-                passThroughWalls: true,
-                ignoreTerrainCost: false,
+                initial: {
+                    movementPerAction: 1,
+                    crossOverPits: true,
+                    passThroughWalls: true,
+                    ignoreTerrainCost: false,
+                },
+                net: {
+                    movementPerAction: 3,
+                    crossOverPits: true,
+                    passThroughWalls: true,
+                    ignoreTerrainCost: false,
+                },
             })
         })
 
@@ -592,10 +608,18 @@ describe("Squaddie Service", () => {
                 })
 
             expect(squaddieMovementAttributes).toEqual({
-                movementPerAction: 1,
-                crossOverPits: false,
-                passThroughWalls: false,
-                ignoreTerrainCost: true,
+                initial: {
+                    movementPerAction: 1,
+                    crossOverPits: false,
+                    passThroughWalls: false,
+                    ignoreTerrainCost: false,
+                },
+                net: {
+                    movementPerAction: 1,
+                    crossOverPits: false,
+                    passThroughWalls: false,
+                    ignoreTerrainCost: true,
+                },
             })
         })
     })

@@ -19,7 +19,7 @@ describe("Mission File validation", () => {
         const badJSON = "Bad JSON"
         expect(() => {
             MissionFileValidationService.validateJSON(badJSON)
-        }).toThrow("Unexpected token B in JSON at position 0")
+        }).toThrow("is not valid JSON")
         expect(consoleErrorSpy).toBeCalled()
     })
 

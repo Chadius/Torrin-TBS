@@ -164,12 +164,12 @@ export const BattleHUDService = {
             )
         )
 
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
         )
 
-        processEndTurnAction(gameEngineState, battleSquaddie, mapLocation)
+        processEndTurnAction(gameEngineState, battleSquaddie, mapCoordinate)
 
         TerrainTileMapService.removeAllGraphicsLayers(
             gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -320,7 +320,7 @@ export const BattleHUDService = {
             expirationTime: Date.now() + SUMMARY_POPOVER_PEEK_EXPIRATION_MS,
             position: squaddieSummaryPopoverPosition,
         }
-        const { mapLocation: startLocation } =
+        const { mapCoordinate: startLocation } =
             MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 battleSquaddieId
@@ -875,7 +875,7 @@ export class BattleHUDListener implements MessageBoardListener {
 const processEndTurnAction = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
-    mapLocation: HexCoordinate
+    mapCoordinate: HexCoordinate
 ) => {
     const endTurnDecision: BattleActionDecisionStep =
         BattleActionDecisionStepService.new()
@@ -916,7 +916,7 @@ const processEndTurnAction = (
         actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep,
-        targetLocation: mapLocation,
+        targetLocation: mapCoordinate,
     })
 
     MapGraphicsLayerSquaddieTypes.forEach((t) =>
@@ -984,8 +984,8 @@ const panCameraToSquaddie = (
     if (MissionMapSquaddieLocationService.isValid(selectedMapCoordinates)) {
         const selectedWorldCoordinates =
             ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                selectedMapCoordinates.mapLocation.q,
-                selectedMapCoordinates.mapLocation.r
+                selectedMapCoordinates.mapCoordinate.q,
+                selectedMapCoordinates.mapCoordinate.r
             )
         gameEngineState.battleOrchestratorState.battleState.camera.pan({
             xDestination: selectedWorldCoordinates.worldX,
@@ -1024,7 +1024,7 @@ const resetNextBattleSquaddieIds = (gameEngineState: GameEngineState) => {
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
                         info.battleSquaddieId
-                    ).mapLocation !== undefined
+                    ).mapCoordinate !== undefined
             )
             .map((info) => info.battleSquaddieId)
 }
@@ -1048,7 +1048,7 @@ const playerControlledSquaddieNeedsNextAction = (
             .terrainTileMap
     )
 
-    const { mapLocation: startLocation } =
+    const { mapCoordinate: startLocation } =
         MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId
@@ -1090,8 +1090,8 @@ const getScreenSelectionCoordinates = (
 
     const { screenX: x, screenY: y } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: selectionMethod.mapLocation.q,
-            r: selectionMethod.mapLocation.r,
+            q: selectionMethod.mapCoordinate.q,
+            r: selectionMethod.mapCoordinate.r,
             ...BattleCameraService.getCoordinates(camera),
         })
     return { x, y }

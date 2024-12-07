@@ -85,7 +85,7 @@ describe("BattleSquaddieMover", () => {
             missionMap: map,
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         const searchResults: SearchResult = PathfinderService.search({
@@ -161,7 +161,7 @@ describe("BattleSquaddieMover", () => {
             missionMap: map,
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         const searchResults: SearchResult = PathfinderService.search({
@@ -236,6 +236,8 @@ describe("BattleSquaddieMover", () => {
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
     })
 
@@ -297,7 +299,7 @@ describe("BattleSquaddieMover", () => {
                     missionMap: map,
                     squaddieTemplateId: "player_1",
                     battleSquaddieId: "player_1",
-                    location: { q: 0, r: 0 },
+                    coordinate: { q: 0, r: 0 },
                 })
 
                 let mockResourceHandler = mocks.mockResourceHandler(
@@ -363,7 +365,7 @@ describe("BattleSquaddieMover", () => {
                     missionMap: map,
                     squaddieTemplateId: "player_1",
                     battleSquaddieId: "player_1",
-                    location: { q: 0, r: 0 },
+                    coordinate: { q: 0, r: 0 },
                 })
 
                 let mockResourceHandler = mocks.mockResourceHandler(

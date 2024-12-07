@@ -7,7 +7,6 @@ import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../../squaddie/id"
 import { BattleSquaddieService } from "../../../battleSquaddie"
 import {
-    ActionPanelPosition,
     SquaddieNameAndPortraitTile,
     SquaddieNameAndPortraitTileService,
 } from "./squaddieNameAndPortraitTile"
@@ -24,6 +23,7 @@ import { RectAreaService } from "../../../../ui/rectArea"
 import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
+import { ActionTilePosition } from "./actionTilePosition"
 
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
@@ -61,7 +61,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 objectRepository,
                 battleSquaddieId: "battleJoeTheSoldier",
                 team: undefined,
-                horizontalPosition: ActionPanelPosition.ACTOR,
+                horizontalPosition: ActionTilePosition.ACTOR_NAME,
             })
 
         expect(tile.squaddieName).toBe("Joe the Soldier")
@@ -103,7 +103,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 objectRepository,
                 battleSquaddieId: "generic_enemy_1",
                 team: enemyTeam,
-                horizontalPosition: ActionPanelPosition.ACTOR,
+                horizontalPosition: ActionTilePosition.ACTOR_NAME,
             })
 
         expect(tile.squaddieName).toBe("Generic Enemy")
@@ -307,7 +307,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         it("positions the text on top near the left corner", () => {
             const boundingBox =
                 SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
-                    ActionPanelPosition.ACTOR
+                    ActionTilePosition.ACTOR_NAME
                 )
 
             SquaddieNameAndPortraitTileService.draw({
@@ -386,7 +386,7 @@ const createSquaddieOfGivenAffiliation = ({
         objectRepository,
         battleSquaddieId: "battleJoeTheSoldier",
         team: undefined,
-        horizontalPosition: ActionPanelPosition.ACTOR,
+        horizontalPosition: ActionTilePosition.ACTOR_NAME,
     })
     return { objectRepository, tile }
 }

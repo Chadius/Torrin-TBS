@@ -167,7 +167,7 @@ describe("User Selects Target and Confirms", () => {
             missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 1,
             },
@@ -215,7 +215,7 @@ describe("User Selects Target and Confirms", () => {
             missionMap,
             squaddieTemplateId: enemySquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 2,
             },
@@ -741,7 +741,7 @@ const clickOnEnemy = ({
         missionMap,
         squaddieTemplateId: targetBattleTemplateId,
         battleSquaddieId: targetBattleSquaddieId,
-        location: {
+        coordinate: {
             q: 0,
             r: 2,
         },

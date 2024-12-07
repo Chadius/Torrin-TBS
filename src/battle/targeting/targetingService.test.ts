@@ -85,7 +85,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
 
         const results: TargetingResults =
@@ -173,7 +173,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: archerBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: archerBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
 
         const results: TargetingResults =
@@ -229,7 +229,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            location,
+            coordinate: location,
         })
     }
 
@@ -244,7 +244,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -298,7 +298,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -393,7 +393,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         const results: TargetingResults =
@@ -429,7 +429,7 @@ describe("Targeting Service", () => {
                 missionMap: battleMap,
                 squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
                 battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-                location: { q: 1, r: 1 },
+                coordinate: { q: 1, r: 1 },
             })
 
             gameEngineState = GameEngineStateService.new({

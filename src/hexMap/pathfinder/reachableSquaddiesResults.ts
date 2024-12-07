@@ -34,13 +34,13 @@ export class HexCoordinatesByDistance {
         this.coordinatesByDistance[distance].push(coordinate)
     }
 
-    getDistanceFromLocation(mapLocation: HexCoordinate): number {
+    getDistanceFromLocation(mapCoordinate: HexCoordinate): number {
         const distanceStr = Object.keys(this.coordinatesByDistance).find(
             (distanceStr: string) =>
                 this.coordinatesByDistance[parseInt(distanceStr)].some(
                     (coordinate) =>
-                        coordinate.q === mapLocation.q &&
-                        coordinate.r === mapLocation.r
+                        coordinate.q === mapCoordinate.q &&
+                        coordinate.r === mapCoordinate.r
                 )
         )
         if (distanceStr === undefined) {
@@ -83,9 +83,9 @@ export class ReachableSquaddieDescription {
         )[0]
     }
 
-    getDistanceFromLocation(mapLocation: HexCoordinate): number {
+    getDistanceFromLocation(mapCoordinate: HexCoordinate): number {
         return this.closestCoordinatesByDistance.getDistanceFromLocation(
-            mapLocation
+            mapCoordinate
         )
     }
 }
@@ -140,11 +140,11 @@ export class ReachableSquaddiesResults {
         return this.coordinatesCloseToSquaddieByDistance[squaddieId]
     }
 
-    addSquaddie(squaddieId: string, mapLocation: HexCoordinate) {
+    addSquaddie(squaddieId: string, mapCoordinate: HexCoordinate) {
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId]) {
             this.coordinatesCloseToSquaddieByDistance[squaddieId] =
                 new ReachableSquaddieDescription({
-                    squaddieMapLocation: mapLocation,
+                    squaddieMapLocation: mapCoordinate,
                     closestCoordinatesByDistance:
                         new HexCoordinatesByDistance(),
                 })
@@ -152,7 +152,7 @@ export class ReachableSquaddiesResults {
 
         this.coordinatesCloseToSquaddieByDistance[
             squaddieId
-        ].squaddieMapLocation = mapLocation
+        ].squaddieMapLocation = mapCoordinate
     }
 
     getClosestSquaddies(): {
@@ -207,10 +207,10 @@ export class ReachableSquaddiesResults {
 
     getCurrentDistanceFromSquaddie(
         targetSquaddieId: string,
-        mapLocation: HexCoordinate
+        mapCoordinate: HexCoordinate
     ): number {
         const allCoordinatesFromSquaddie =
             this.getCoordinatesCloseToSquaddieByDistance(targetSquaddieId)
-        return allCoordinatesFromSquaddie.getDistanceFromLocation(mapLocation)
+        return allCoordinatesFromSquaddie.getDistanceFromLocation(mapCoordinate)
     }
 }

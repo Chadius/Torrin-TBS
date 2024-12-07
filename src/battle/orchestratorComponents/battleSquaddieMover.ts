@@ -181,6 +181,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
         this.finishedCleanup = true
         gameEngineState.battleOrchestratorState.battleState.squaddieMovePath =

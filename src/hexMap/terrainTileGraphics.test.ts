@@ -1,17 +1,9 @@
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
-import { HexGridMovementCost } from "./hexGridMovementCost"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { MouseButton } from "../utils/mouseConfig"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { BattleCamera } from "../battle/battleCamera"
-import {
-    MapGraphicsLayer,
-    MapGraphicsLayerHighlight,
-    MapGraphicsLayerService,
-    MapGraphicsLayerType,
-} from "./mapGraphicsLayer"
-import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
 
 describe("Terrain Tile Graphics", () => {

@@ -77,7 +77,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             )
         )
 
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieIdToAct
         )
@@ -90,10 +90,10 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             SquaddieService.getSquaddieMovementAttributes({
                 battleSquaddie,
                 squaddieTemplate,
-            }).movementPerAction
+            }).net.movementPerAction
 
         const routesToAllSquaddies: SearchResult = getAllPossibleMovements({
-            mapLocation,
+            mapCoordinate,
             squaddieTemplate,
             movementPerActionThisRound,
             actionPointsRemaining,
@@ -173,7 +173,7 @@ const getClosestSquaddieAndLocationToFollow = ({
         desiredAffiliation
     )
 
-    const { mapLocation: actorLocation } =
+    const { mapCoordinate: actorLocation } =
         MissionMapService.getByBattleSquaddieId(
             missionMap,
             actingSquaddieBattleId
@@ -220,12 +220,12 @@ const getClosestSquaddieAndLocationToFollow = ({
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie: actorBattleSquaddie,
                             squaddieTemplate: actorSquaddieTemplate,
-                        }).crossOverPits,
+                        }).net.crossOverPits,
                     canPassThroughWalls:
                         SquaddieService.getSquaddieMovementAttributes({
                             battleSquaddie: actorBattleSquaddie,
                             squaddieTemplate: actorSquaddieTemplate,
-                        }).passThroughWalls,
+                        }).net.passThroughWalls,
                     shapeGenerator: getResultOrThrowError(
                         GetTargetingShapeGenerator(TargetingShape.SNAKE)
                     ),
@@ -284,7 +284,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             closestSquaddies[
                 Math.floor(Math.random() * closestSquaddies.length)
             ]
-        const { mapLocation: candidateLocation }: MissionMapSquaddieLocation =
+        const { mapCoordinate: candidateLocation }: MissionMapSquaddieLocation =
             MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 candidateToChase.battleSquaddieId
@@ -364,7 +364,7 @@ const getClosestSquaddiesToActor = (
     closestReachableLocations: HexCoordinate[]
 ) =>
     desiredBattleSquaddies.filter((battleSquaddieIter) => {
-        const { mapLocation: location } =
+        const { mapCoordinate: location } =
             MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 battleSquaddieIter.battleSquaddieId
@@ -380,14 +380,14 @@ const getClosestSquaddiesToActor = (
     })
 
 const getAllPossibleMovements = ({
-    mapLocation,
+    mapCoordinate,
     squaddieTemplate,
     movementPerActionThisRound,
     actionPointsRemaining,
     missionMap,
     objectRepository,
 }: {
-    mapLocation: HexCoordinate
+    mapCoordinate: HexCoordinate
     squaddieTemplate: SquaddieTemplate
     movementPerActionThisRound: number
     actionPointsRemaining: number
@@ -396,7 +396,7 @@ const getAllPossibleMovements = ({
 }) => {
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
-            startLocations: [mapLocation],
+            startLocations: [mapCoordinate],
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             movementPerAction: movementPerActionThisRound,
             canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,

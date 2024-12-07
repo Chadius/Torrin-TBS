@@ -145,7 +145,7 @@ const findValidTargets = ({
         actingBattleSquaddie.battleSquaddieId
     )
     const invalidSourceTiles = !(sourceTiles?.length > 0)
-    const invalidSquaddieLocation = squaddieInfo?.mapLocation === undefined
+    const invalidSquaddieLocation = squaddieInfo?.mapCoordinate === undefined
     if (invalidSourceTiles && invalidSquaddieLocation) {
         return new TargetingResults()
     }
@@ -155,7 +155,7 @@ const findValidTargets = ({
             startLocations:
                 sourceTiles && sourceTiles.length > 0
                     ? sourceTiles
-                    : [squaddieInfo.mapLocation],
+                    : [squaddieInfo.mapCoordinate],
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,

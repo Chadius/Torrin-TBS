@@ -35,7 +35,6 @@ import {
 } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 

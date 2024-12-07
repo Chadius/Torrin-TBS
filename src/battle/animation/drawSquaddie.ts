@@ -95,7 +95,7 @@ export const DrawSquaddieUtilities = {
         repository: ObjectRepository
         campaign: Campaign
     }) => {
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             missionMap,
             battleSquaddieId
         )
@@ -104,7 +104,7 @@ export const DrawSquaddieUtilities = {
                 repository: repository,
                 missionMap,
                 battleSquaddieId,
-                startLocation: mapLocation,
+                startLocation: mapCoordinate,
                 campaignResources: campaign.resources,
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -173,20 +173,20 @@ export const DrawSquaddieUtilities = {
             repository
         )
     },
-    drawSquaddieMapIconAtMapLocation: (
+    drawSquaddieMapIconAtMapCoordinate: (
         graphics: GraphicsBuffer,
         squaddieRepository: ObjectRepository,
         battleSquaddie: BattleSquaddie,
         battleSquaddieId: string,
-        mapLocation: HexCoordinate,
+        mapCoordinate: HexCoordinate,
         camera: BattleCamera
     ) => {
-        return drawSquaddieMapIconAtMapLocation(
+        return drawSquaddieMapIconAtMapCoordinate(
             graphics,
             squaddieRepository,
             battleSquaddie,
             battleSquaddieId,
-            mapLocation,
+            mapCoordinate,
             camera
         )
     },
@@ -246,18 +246,18 @@ const unTintSquaddieMapIcon = (
     }
 }
 
-const drawSquaddieMapIconAtMapLocation = (
+const drawSquaddieMapIconAtMapCoordinate = (
     graphics: GraphicsBuffer,
     squaddieRepository: ObjectRepository,
     battleSquaddie: BattleSquaddie,
     battleSquaddieId: string,
-    mapLocation: HexCoordinate,
+    mapCoordinate: HexCoordinate,
     camera: BattleCamera
 ) => {
     const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: mapLocation.q,
-            r: mapLocation.r,
+            q: mapCoordinate.q,
+            r: mapCoordinate.r,
             ...camera.getCoordinates(),
         })
     const mapIcon =
@@ -280,14 +280,14 @@ const drawSquaddieMapIconAtMapLocation = (
         graphics,
         squaddieTemplate,
         battleSquaddie,
-        mapLocation,
+        mapCoordinate,
         camera
     )
     drawMapIconHitPointBar(
         graphics,
         squaddieTemplate,
         battleSquaddie,
-        mapLocation,
+        mapCoordinate,
         camera
     )
 }
@@ -312,7 +312,7 @@ const drawMapIconActionPointsBar = (
     graphics: GraphicsBuffer,
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
-    mapLocation: HexCoordinate,
+    mapCoordinate: HexCoordinate,
     camera: BattleCamera
 ) => {
     const { squaddieCanCurrentlyAct } =
@@ -333,8 +333,8 @@ const drawMapIconActionPointsBar = (
     }
     const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: mapLocation.q,
-            r: mapLocation.r,
+            q: mapCoordinate.q,
+            r: mapCoordinate.r,
             ...camera.getCoordinates(),
         })
 
@@ -381,7 +381,7 @@ const drawMapIconHitPointBar = (
     graphics: GraphicsBuffer,
     squaddieTemplate: SquaddieTemplate,
     battleSquaddie: BattleSquaddie,
-    mapLocation: HexCoordinate,
+    mapCoordinate: HexCoordinate,
     camera: BattleCamera
 ) => {
     const { currentHitPoints, maxHitPoints } = SquaddieService.getHitPoints({
@@ -398,8 +398,8 @@ const drawMapIconHitPointBar = (
 
     const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: mapLocation.q,
-            r: mapLocation.r,
+            q: mapCoordinate.q,
+            r: mapCoordinate.r,
             ...camera.getCoordinates(),
         })
 

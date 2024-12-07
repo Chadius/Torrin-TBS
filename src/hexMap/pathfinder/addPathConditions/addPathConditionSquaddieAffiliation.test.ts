@@ -84,7 +84,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     squaddieTemplateId:
                         blockingSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    location: {
+                    coordinate: {
                         q: 1,
                         r: 2,
                     },
@@ -179,7 +179,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     squaddieTemplateId:
                         blockingSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    location: {
+                    coordinate: {
                         q: 1,
                         r: 2,
                     },
@@ -274,7 +274,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                     squaddieTemplateId:
                         blockingSquaddieTemplate.squaddieId.templateId,
                     battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    location: {
+                    coordinate: {
                         q: 1,
                         r: 2,
                     },
@@ -406,7 +406,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 squaddieTemplateId:
                     blockingSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 1,
                     r: 2,
                 },

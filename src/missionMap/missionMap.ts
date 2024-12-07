@@ -39,22 +39,22 @@ export const MissionMapService = {
         missionMap,
         squaddieTemplateId,
         battleSquaddieId,
-        location,
+        coordinate,
     }: {
         missionMap: MissionMap
         squaddieTemplateId: string
         battleSquaddieId: string
-        location?: HexCoordinate
+        coordinate?: HexCoordinate
     }): Error | undefined => {
         if (
-            location !== undefined &&
+            coordinate !== undefined &&
             !TerrainTileMapService.isLocationOnMap(
                 missionMap.terrainTileMap,
-                location
+                coordinate
             )
         ) {
             return new Error(
-                `cannot add ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`
+                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}) is not on map`
             )
         }
 
@@ -67,22 +67,22 @@ export const MissionMapService = {
         }
 
         const squaddieAlreadyOccupyingLocation: MissionMapSquaddieLocation =
-            getSquaddieAtLocation(missionMap, location)
+            getSquaddieAtLocation(missionMap, coordinate)
         if (
             MissionMapSquaddieLocationService.isValid(
                 squaddieAlreadyOccupyingLocation
             ) &&
-            !!location
+            !!coordinate
         ) {
             return new Error(
-                `cannot add ${battleSquaddieId} to (${location.q}, ${location.r}), already occupied by ${squaddieAlreadyOccupyingLocation.battleSquaddieId}`
+                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}), already occupied by ${squaddieAlreadyOccupyingLocation.battleSquaddieId}`
             )
         }
 
         missionMap.squaddieInfo.push({
             squaddieTemplateId,
             battleSquaddieId,
-            mapLocation: location,
+            mapCoordinate: coordinate,
         })
         return undefined
     },
@@ -92,7 +92,7 @@ export const MissionMapService = {
     ): MissionMapSquaddieLocation => {
         if (!isValidValue(missionMap)) {
             return {
-                mapLocation: undefined,
+                mapCoordinate: undefined,
                 squaddieTemplateId: undefined,
                 battleSquaddieId: undefined,
             }
@@ -106,7 +106,7 @@ export const MissionMapService = {
             : {
                   battleSquaddieId: undefined,
                   squaddieTemplateId: undefined,
-                  mapLocation: undefined,
+                  mapCoordinate: undefined,
               }
     },
     updateBattleSquaddieLocation: (
@@ -153,7 +153,7 @@ export const MissionMapService = {
             }
         }
 
-        foundDatum.mapLocation = location
+        foundDatum.mapCoordinate = location
     },
     getBattleSquaddieAtLocation: (
         missionMap: MissionMap,
@@ -163,7 +163,7 @@ export const MissionMapService = {
     },
     getSquaddiesThatHaveNoLocation: (missionMap: MissionMap) =>
         missionMap.squaddieInfo
-            .filter((datum) => datum.mapLocation === undefined)
+            .filter((datum) => datum.mapCoordinate === undefined)
             .map((datum) => MissionMapSquaddieLocationService.clone(datum)),
     getAllSquaddieData: (missionMap: MissionMap) =>
         missionMap.squaddieInfo.map((datum) =>
@@ -200,16 +200,16 @@ const getSquaddieAtLocation = (
     const foundDatum: MissionMapSquaddieLocation = missionMap.squaddieInfo.find(
         (datum) =>
             location &&
-            datum.mapLocation &&
-            datum.mapLocation.q === location.q &&
-            datum.mapLocation.r === location.r
+            datum.mapCoordinate &&
+            datum.mapCoordinate.q === location.q &&
+            datum.mapCoordinate.r === location.r
     )
     return foundDatum
         ? MissionMapSquaddieLocationService.clone(foundDatum)
         : {
               battleSquaddieId: undefined,
               squaddieTemplateId: undefined,
-              mapLocation: undefined,
+              mapCoordinate: undefined,
           }
 }
 

@@ -107,7 +107,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             missionMap,
             squaddieTemplateId: actingTemplate.squaddieId.templateId,
             battleSquaddieId: actingSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -133,7 +133,7 @@ describe("Armor Attribute affects Armor Attacks", () => {
             missionMap,
             squaddieTemplateId: targetTemplate.squaddieId.templateId,
             battleSquaddieId: targetSquaddie.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         gameEngineState = GameEngineStateService.new({

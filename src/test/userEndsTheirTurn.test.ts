@@ -144,7 +144,7 @@ describe("User ends their turn", () => {
             missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -451,6 +451,8 @@ describe("User ends their turn", () => {
             expect(messageSpy).toBeCalledWith({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
+                graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
             })
         })
 

@@ -143,7 +143,7 @@ describe("user clicks on an action to consider it", () => {
             missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },

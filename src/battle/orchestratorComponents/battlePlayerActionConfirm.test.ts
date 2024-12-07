@@ -102,7 +102,7 @@ describe("BattleActionConfirm", () => {
             missionMap: battleMap,
             squaddieTemplateId: knightBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 1 },
+            coordinate: { q: 1, r: 1 },
         })
         ;({ battleSquaddie: citizenBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -117,7 +117,7 @@ describe("BattleActionConfirm", () => {
             missionMap: battleMap,
             squaddieTemplateId: citizenBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: citizenBattleSquaddie.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
         ;({ battleSquaddie: thiefBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -140,7 +140,7 @@ describe("BattleActionConfirm", () => {
             missionMap: battleMap,
             squaddieTemplateId: thiefBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-            location: { q: 1, r: 2 },
+            coordinate: { q: 1, r: 2 },
         })
 
         gameEngineState = GameEngineStateService.new({
@@ -201,7 +201,7 @@ describe("BattleActionConfirm", () => {
             actionTemplateId: longswordAction.id,
         })
 
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             thiefBattleSquaddie.battleSquaddieId
         )
@@ -210,7 +210,7 @@ describe("BattleActionConfirm", () => {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
-            targetLocation: mapLocation,
+            targetLocation: mapCoordinate,
         })
 
         SummaryHUDStateService.setTargetSummaryPopover({

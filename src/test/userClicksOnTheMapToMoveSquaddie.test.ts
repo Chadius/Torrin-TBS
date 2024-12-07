@@ -153,7 +153,7 @@ describe("user clicks on the map to move", () => {
             missionMap,
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-            location: {
+            coordinate: {
                 q: 0,
                 r: 0,
             },
@@ -205,7 +205,7 @@ describe("user clicks on the map to move", () => {
                 missionMap,
                 squaddieTemplateId: anotherPlayer.squaddieTemplateId,
                 battleSquaddieId: anotherPlayer.battleSquaddieId,
-                location: {
+                coordinate: {
                     q: 2,
                     r: 2,
                 },
@@ -251,7 +251,7 @@ describe("user clicks on the map to move", () => {
                         .missionMap,
                 battleSquaddieId: playerBattleSquaddie2.battleSquaddieId,
                 squaddieTemplateId: playerBattleSquaddie2.squaddieTemplateId,
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
             })
             BattleSquaddieTeamService.addBattleSquaddieIds(
                 gameEngineState.battleOrchestratorState.battleState.teams[0],
@@ -315,11 +315,11 @@ describe("user clicks on the map to move", () => {
                 playerBattleSquaddie.squaddieTurn.remainingActionPoints
             ).toEqual(0)
 
-            const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 playerBattleSquaddie.battleSquaddieId
             )
-            expect(mapLocation).toEqual({ q: 0, r: 3 })
+            expect(mapCoordinate).toEqual({ q: 0, r: 3 })
         })
 
         it("Squaddie Selector is complete", () => {

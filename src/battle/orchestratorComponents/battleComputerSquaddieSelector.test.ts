@@ -172,13 +172,13 @@ describe("BattleComputerSquaddieSelector", () => {
             missionMap,
             squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
     }
 
@@ -278,7 +278,7 @@ describe("BattleComputerSquaddieSelector", () => {
             drawSquaddieUtilitiesSpy = jest
                 .spyOn(
                     DrawSquaddieUtilities,
-                    "drawSquaddieMapIconAtMapLocation"
+                    "drawSquaddieMapIconAtMapCoordinate"
                 )
                 .mockImplementation(() => {})
         })
@@ -488,13 +488,13 @@ describe("BattleComputerSquaddieSelector", () => {
                 missionMap,
                 squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                 battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
             })
             MissionMapService.addSquaddie({
                 missionMap,
                 squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                 battleSquaddieId: enemyDemonBattleSquaddie2.battleSquaddieId,
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
             })
 
             const { worldX, worldY } =

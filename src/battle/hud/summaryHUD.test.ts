@@ -36,12 +36,10 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import {
-    ActionPanelPosition,
-    SquaddieNameAndPortraitTileService,
-} from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { SquaddieNameAndPortraitTileService } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -328,7 +326,7 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("will draw a squaddie name and portrait tile for the acting squaddie", () => {
+    describe("will draw tiles for the acting squaddie", () => {
         it("can draw the acting window on the left side", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
@@ -357,62 +355,117 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
+                summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.ACTOR]
+                summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.ACTOR_STATUS
+                ]
+            ).not.toBeUndefined()
+            expect(
+                summaryHUDState.squaddieNameTiles[ActionTilePosition.ACTOR_NAME]
                     .squaddieName
             ).toEqual("player")
         })
-        it("knows when the mouse is hovering over the portrait tile", () => {
-            let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+        describe("knows when it is hovering", () => {
+            const tests = [
+                {
+                    name: "actor selected",
+                    positions: [
+                        ActionTilePosition.ACTOR_NAME,
+                        ActionTilePosition.ACTOR_STATUS,
+                    ],
+                },
+            ]
 
-            const panelWindowRectArea =
-                SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
-                    ActionPanelPosition.ACTOR
+            it.each(tests)(`$name`, ({ positions }) => {
+                let gameEngineState = GameEngineStateService.new({
+                    resourceHandler,
+                    repository: objectRepository,
+                    campaign: CampaignService.default(),
+                })
+                summaryHUDState = SummaryHUDStateService.new({
+                    screenSelectionCoordinates: { x: 0, y: 0 },
+                })
+
+                const { left, right, top, bottom } = positions.reduce(
+                    (currentSides, position) => {
+                        const rectArea =
+                            SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
+                                position
+                            )
+
+                        if (currentSides.left === undefined) {
+                            currentSides.left = RectAreaService.left(rectArea)
+                            currentSides.right = RectAreaService.right(rectArea)
+                            currentSides.top = RectAreaService.top(rectArea)
+                            currentSides.bottom =
+                                RectAreaService.bottom(rectArea)
+                        }
+
+                        return {
+                            left: Math.min(
+                                RectAreaService.left(rectArea),
+                                currentSides.left
+                            ),
+                            right: Math.max(
+                                RectAreaService.right(rectArea),
+                                currentSides.right
+                            ),
+                            top: RectAreaService.top(rectArea),
+                            bottom: RectAreaService.bottom(rectArea),
+                        }
+                    },
+                    {
+                        left: undefined,
+                        right: undefined,
+                        top: undefined,
+                        bottom: undefined,
+                    }
                 )
 
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(panelWindowRectArea),
-                        y: RectAreaService.centerY(panelWindowRectArea),
-                    },
+                const panelWindowRectArea = RectAreaService.new({
+                    left,
+                    right,
+                    top,
+                    bottom,
                 })
-            ).toBeFalsy()
 
-            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
-                BattleActionDecisionStepService.new()
+                expect(
+                    SummaryHUDStateService.isMouseHoveringOver({
+                        summaryHUDState,
+                        mouseSelectionLocation: {
+                            x: RectAreaService.centerX(panelWindowRectArea),
+                            y: RectAreaService.centerY(panelWindowRectArea),
+                        },
+                    })
+                ).toBeFalsy()
 
-            BattleActionDecisionStepService.setActor({
-                battleSquaddieId: "player",
-                actionDecisionStep:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionDecisionStep,
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+
+                BattleActionDecisionStepService.setActor({
+                    battleSquaddieId: "player",
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
+                })
+                SummaryHUDStateService.draw({
+                    summaryHUDState,
+                    graphicsBuffer,
+                    gameEngineState,
+                })
+
+                expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
+                    summaryHUDState,
+                    panelWindowRectArea
+                )
             })
-            SummaryHUDStateService.draw({
-                summaryHUDState,
-                graphicsBuffer,
-                gameEngineState,
-            })
-
-            expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
-                summaryHUDState,
-                panelWindowRectArea
-            )
         })
     })
 
-    describe("will draw a squaddie name and portrait tile for the peeked squaddie", () => {
-        it("can draw the playable squaddie window", () => {
+    describe("will draw tiles for the peeked squaddie", () => {
+        it("can draw the playable squaddie tiles", () => {
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
@@ -436,19 +489,27 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[
-                    ActionPanelPosition.PEEK_PLAYABLE
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
                 ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[
-                    ActionPanelPosition.PEEK_PLAYABLE
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
                 ].squaddieName
             ).toEqual("player")
+            expect(
+                summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_STATUS
+                ]
+            ).not.toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toEqual(
                 expect.objectContaining({
                     battleSquaddieId: "player",
-                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    actionPanelPositions: {
+                        nameAndPortrait: ActionTilePosition.PEEK_PLAYABLE_NAME,
+                        status: ActionTilePosition.PEEK_PLAYABLE_STATUS,
+                    },
                     expirationTime: expect.any(Number),
                 })
             )
@@ -477,25 +538,39 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
-                    .squaddieName
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ].squaddieName
             ).toEqual("enemy")
+            expect(
+                summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.PEEK_RIGHT_STATUS
+                ]
+            ).not.toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toEqual(
                 expect.objectContaining({
                     battleSquaddieId: "enemy",
-                    actionPanelPosition: ActionPanelPosition.PEEK_RIGHT,
+                    actionPanelPositions: {
+                        nameAndPortrait: ActionTilePosition.PEEK_RIGHT_NAME,
+                        status: ActionTilePosition.PEEK_RIGHT_STATUS,
+                    },
                     expirationTime: expect.any(Number),
                 })
             )
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
-                    .squaddieName
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ].squaddieName
             ).toEqual("enemy")
         })
         it("will expire over time", () => {
@@ -524,7 +599,9 @@ describe("summaryHUD", () => {
                 gameEngineState,
             })
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).not.toBeUndefined()
             dateNowSpy.mockImplementation(() => 1000)
             SummaryHUDStateService.draw({
@@ -533,7 +610,9 @@ describe("summaryHUD", () => {
                 gameEngineState,
             })
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).not.toBeUndefined()
             dateNowSpy.mockImplementation(() => 2001)
             SummaryHUDStateService.draw({
@@ -542,7 +621,9 @@ describe("summaryHUD", () => {
                 gameEngineState,
             })
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).toBeUndefined()
         })
         it("will override the peeked squaddie if a different one is peeked", () => {
@@ -589,14 +670,17 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[
-                    ActionPanelPosition.PEEK_PLAYABLE
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
                 ]
             ).not.toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toEqual(
                 expect.objectContaining({
                     battleSquaddieId: "player2",
-                    actionPanelPosition: ActionPanelPosition.PEEK_PLAYABLE,
+                    actionPanelPositions: {
+                        nameAndPortrait: ActionTilePosition.PEEK_PLAYABLE_NAME,
+                        status: ActionTilePosition.PEEK_PLAYABLE_STATUS,
+                    },
                     expirationTime: expect.any(Number),
                 })
             )
@@ -657,17 +741,22 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[
-                    ActionPanelPosition.PEEK_PLAYABLE
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
                 ]
             ).toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).not.toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toEqual(
                 expect.objectContaining({
                     battleSquaddieId: "player2",
-                    actionPanelPosition: ActionPanelPosition.PEEK_RIGHT,
+                    actionPanelPositions: {
+                        nameAndPortrait: ActionTilePosition.PEEK_RIGHT_NAME,
+                        status: ActionTilePosition.PEEK_RIGHT_STATUS,
+                    },
                     expirationTime: expect.any(Number),
                 })
             )
@@ -687,12 +776,14 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[
-                    ActionPanelPosition.PEEK_PLAYABLE
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
                 ]
             ).toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
             ).toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
         })
@@ -729,7 +820,7 @@ describe("summaryHUD", () => {
                         .missionMap,
                 squaddieTemplateId: "enemy",
                 battleSquaddieId: "enemy",
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
             })
 
             BattleActionDecisionStepService.setConsideredTarget({
@@ -761,40 +852,76 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.TARGET_NAME
+                ]
             ).not.toBeUndefined()
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.TARGET]
-                    .squaddieName
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.TARGET_NAME
+                ].squaddieName
             ).toEqual("enemy")
-        })
-        it("knows when the mouse is hovering over the portrait tile", () => {
-            const panelWindowRectArea =
-                SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
-                    ActionPanelPosition.TARGET
-                )
             expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(panelWindowRectArea),
-                        y: RectAreaService.centerY(panelWindowRectArea),
-                    },
-                })
-            ).toBeFalsy()
-
-            considerTarget()
-
-            SummaryHUDStateService.draw({
-                summaryHUDState,
-                graphicsBuffer,
-                gameEngineState,
-            })
-            expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
-                summaryHUDState,
-                panelWindowRectArea
-            )
+                summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.TARGET_STATUS
+                ]
+            ).not.toBeUndefined()
         })
+        describe("knows when the mouse is hovering over the tiles", () => {
+            const tests = [
+                {
+                    name: "target selected",
+                    positions: [
+                        ActionTilePosition.TARGET_NAME,
+                        ActionTilePosition.TARGET_STATUS,
+                    ],
+                },
+            ]
+
+            it.each(tests)(`$name`, ({ positions }) => {
+                gameEngineState = GameEngineStateService.new({
+                    resourceHandler,
+                    repository: objectRepository,
+                    campaign: CampaignService.default(),
+                })
+                summaryHUDState = SummaryHUDStateService.new({
+                    screenSelectionCoordinates: { x: 0, y: 0 },
+                })
+
+                const panelWindowRectArea =
+                    RectAreaService.newRectangleBasedOnMultipleRectAreas(
+                        positions.map((position) =>
+                            SquaddieNameAndPortraitTileService.getBoundingBoxBasedOnActionPanelPosition(
+                                position
+                            )
+                        )
+                    )
+
+                expect(
+                    SummaryHUDStateService.isMouseHoveringOver({
+                        summaryHUDState,
+                        mouseSelectionLocation: {
+                            x: RectAreaService.centerX(panelWindowRectArea),
+                            y: RectAreaService.centerY(panelWindowRectArea),
+                        },
+                    })
+                ).toBeFalsy()
+
+                considerTarget()
+
+                SummaryHUDStateService.draw({
+                    summaryHUDState,
+                    graphicsBuffer,
+                    gameEngineState,
+                })
+
+                expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
+                    summaryHUDState,
+                    panelWindowRectArea
+                )
+            })
+        })
+
         it("will not create peekable tiles if the peeked squaddie is the same as the target tile", () => {
             considerTarget()
 
@@ -817,7 +944,14 @@ describe("summaryHUD", () => {
             })
 
             expect(
-                summaryHUDState.squaddiePanels[ActionPanelPosition.PEEK_RIGHT]
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_NAME
+                ]
+            ).toBeUndefined()
+            expect(
+                summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_RIGHT_STATUS
+                ]
             ).toBeUndefined()
             expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
         })

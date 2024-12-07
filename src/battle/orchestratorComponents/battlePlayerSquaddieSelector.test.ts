@@ -197,7 +197,7 @@ describe("BattleSquaddieSelector", () => {
             missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "battleSquaddieId",
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         return {

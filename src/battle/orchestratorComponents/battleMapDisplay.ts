@@ -298,7 +298,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         TerrainTileMapService.isLocationOnMap(
                             state.battleOrchestratorState.battleState.missionMap
                                 .terrainTileMap,
-                            datum.mapLocation
+                            datum.mapCoordinate
                         )
                     const squaddieIsHidden: boolean =
                         MissionMapService.isSquaddieHiddenFromDrawing(
@@ -307,12 +307,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                             battleSquaddieId
                         )
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(
+                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate(
                             graphicsContext,
                             state.repository,
                             battleSquaddie,
                             battleSquaddieId,
-                            datum.mapLocation,
+                            datum.mapCoordinate,
                             state.battleOrchestratorState.battleState.camera
                         )
                     }

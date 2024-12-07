@@ -51,27 +51,27 @@ export const MovementCalculatorService = {
             })
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [squaddieDatum.mapLocation],
+                startLocations: [squaddieDatum.mapCoordinate],
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 movementPerAction:
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).movementPerAction,
+                    }).net.movementPerAction,
                 canPassThroughWalls:
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).passThroughWalls,
+                    }).net.passThroughWalls,
                 canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
                     battleSquaddie,
                     squaddieTemplate,
-                }).crossOverPits,
+                }).net.crossOverPits,
                 ignoreTerrainCost:
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
-                    }).ignoreTerrainCost,
+                    }).net.ignoreTerrainCost,
                 shapeGenerator: getResultOrThrowError(
                     GetTargetingShapeGenerator(TargetingShape.SNAKE)
                 ),
@@ -162,7 +162,7 @@ export const MovementCalculatorService = {
         battleSquaddie: BattleSquaddie
         destination: HexCoordinate
     }) => {
-        const { mapLocation: startLocation } =
+        const { mapCoordinate: startLocation } =
             MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 battleSquaddie.battleSquaddieId

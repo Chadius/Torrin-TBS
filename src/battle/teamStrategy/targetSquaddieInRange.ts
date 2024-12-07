@@ -115,13 +115,13 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             firstActionTemplateWithTarget.actionTemplateId
         )
         if (desiredBattleSquaddieIsInRange) {
-            const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+            const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 this.desiredBattleSquaddieId
             )
             return createBattleActionDecisionSteps(
                 actionTemplate,
-                mapLocation,
+                mapCoordinate,
                 battleSquaddieIdToAct
             )
         }
@@ -156,13 +156,13 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         const battleSquaddieIdToTarget =
             battleSquaddieIdsOfDesiredAffiliation[0]
-        const { mapLocation } = MissionMapService.getByBattleSquaddieId(
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieIdToTarget
         )
         return createBattleActionDecisionSteps(
             actionTemplate,
-            mapLocation,
+            mapCoordinate,
             battleSquaddieIdToAct
         )
     }
@@ -218,7 +218,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
 const createBattleActionDecisionSteps = (
     actionTemplate: ActionTemplate,
-    mapLocation: HexCoordinate,
+    mapCoordinate: HexCoordinate,
     battleSquaddieIdToAct: string
 ): BattleActionDecisionStep[] => {
     const actionStep: BattleActionDecisionStep =
@@ -233,7 +233,7 @@ const createBattleActionDecisionSteps = (
     })
     BattleActionDecisionStepService.setConfirmedTarget({
         actionDecisionStep: actionStep,
-        targetLocation: mapLocation,
+        targetLocation: mapCoordinate,
     })
 
     return [actionStep]

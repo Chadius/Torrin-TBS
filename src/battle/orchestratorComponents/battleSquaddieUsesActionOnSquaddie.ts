@@ -134,11 +134,14 @@ export class BattleSquaddieUsesActionOnSquaddie
             !this.sawResultAftermath &&
             this.squaddieActionAnimator.hasCompleted(gameEngineState)
         ) {
-            this.reactToAnimationCompletion(gameEngineState)
+            this.reactToAnimationCompletion(gameEngineState, graphicsContext)
         }
     }
 
-    private reactToAnimationCompletion = (gameEngineState: GameEngineState) => {
+    private reactToAnimationCompletion = (
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) => {
         this.hideDeadSquaddies(gameEngineState)
         const battleSquaddieId =
             BattleActionRecorderService.peekAtAnimationQueue(
@@ -156,6 +159,8 @@ export class BattleSquaddieUsesActionOnSquaddie
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
         })
 
         this.sawResultAftermath = true

@@ -117,7 +117,7 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
             battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
-            location: { q: 0, r: 0 },
+            coordinate: { q: 0, r: 0 },
         })
 
         enemyTeam = BattleSquaddieTeamService.new({
@@ -149,7 +149,7 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 3 },
+            coordinate: { q: 0, r: 3 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -167,7 +167,7 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({})
@@ -191,13 +191,13 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
             battleSquaddieId: allyClericDynamic.battleSquaddieId,
-            location: { q: 0, r: 2 },
+            coordinate: { q: 0, r: 2 },
         })
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
@@ -229,13 +229,13 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
             battleSquaddieId: allyClericDynamic.battleSquaddieId,
-            location: { q: 0, r: 2 },
+            coordinate: { q: 0, r: 2 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -268,7 +268,7 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -288,13 +288,13 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: allyClericDynamic.squaddieTemplateId,
             battleSquaddieId: allyClericDynamic.battleSquaddieId,
-            location: { q: 0, r: 2 },
+            coordinate: { q: 0, r: 2 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         SquaddieTurnService.spendActionPoints(
@@ -319,7 +319,7 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -387,13 +387,13 @@ describe("target a squaddie within reach of actions", () => {
             missionMap,
             squaddieTemplateId: enemyBanditDynamic2.squaddieTemplateId,
             battleSquaddieId: enemyBanditDynamic2.battleSquaddieId,
-            location: { q: 0, r: 1 },
+            coordinate: { q: 0, r: 1 },
         })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: playerKnightDynamic.squaddieTemplateId,
             battleSquaddieId: playerKnightDynamic.battleSquaddieId,
-            location: { q: 0, r: 2 },
+            coordinate: { q: 0, r: 2 },
         })
 
         const movementStep: BattleActionDecisionStep =

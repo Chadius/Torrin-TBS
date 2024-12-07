@@ -45,6 +45,10 @@ import { BattleActionsDuringTurnService } from "../history/battleAction/battleAc
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { CampaignService } from "../../campaign/campaign"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
+import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
+import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -565,6 +569,8 @@ describe("Battle State", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                 gameEngineState,
+                graphicsContext: new MockedP5GraphicsBuffer(),
+                resourceHandler: gameEngineState.resourceHandler,
             })
 
             expect(
@@ -586,11 +592,74 @@ describe("Battle State", () => {
             ).toEqual(battleAction)
         })
 
+        it("tries to update the inBattleAttributes for the summary window", () => {
+            const updateTileUsingSquaddieSpy: jest.SpyInstance = jest
+                .spyOn(SquaddieStatusTileService, "updateTileUsingSquaddie")
+                .mockImplementation()
+
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+                SummaryHUDStateService.new({})
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles =
+                {}
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles[
+                ActionTilePosition.ACTOR_STATUS
+            ] = SquaddieStatusTileService.new({
+                objectRepository: objectRepository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                horizontalPosition: ActionTilePosition.ACTOR_STATUS,
+            })
+
+            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles[
+                ActionTilePosition.TARGET_STATUS
+            ] = SquaddieStatusTileService.new({
+                objectRepository: objectRepository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                horizontalPosition: ActionTilePosition.TARGET_STATUS,
+            })
+
+            const graphicsContext = new MockedP5GraphicsBuffer()
+            graphicsContext.textWidth = jest.fn().mockReturnValue(10)
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
+                gameEngineState,
+                graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+
+            expect(updateTileUsingSquaddieSpy).toBeCalledWith({
+                tile: gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.ACTOR_STATUS
+                ],
+                objectRepository: objectRepository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                graphicsContext: expect.anything(),
+            })
+            expect(updateTileUsingSquaddieSpy).toBeCalledWith({
+                tile: gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.TARGET_STATUS
+                ],
+                objectRepository: objectRepository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                graphicsContext: expect.anything(),
+            })
+
+            updateTileUsingSquaddieSpy.mockRestore()
+        })
+
         describe("Squaddie still has a turn after finishing the action", () => {
             beforeEach(() => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                     gameEngineState,
+                    graphicsContext: new MockedP5GraphicsBuffer(),
+                    resourceHandler: gameEngineState.resourceHandler,
                 })
             })
 
@@ -619,6 +688,8 @@ describe("Battle State", () => {
                 gameEngineState.messageBoard.sendMessage({
                     type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
                     gameEngineState,
+                    graphicsContext: new MockedP5GraphicsBuffer(),
+                    resourceHandler: gameEngineState.resourceHandler,
                 })
             })
 

@@ -116,7 +116,7 @@ export const BattleSaveStateService = {
                 MissionMapService.updateBattleSquaddieLocation(
                     battleOrchestratorState.battleState.missionMap,
                     locationData.battleSquaddieId,
-                    locationData.mapLocation
+                    locationData.mapCoordinate
                 )
         )
 

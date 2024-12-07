@@ -48,6 +48,10 @@ import {
 } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
+import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
+import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -304,6 +308,8 @@ const battleActionFinishesAnimation = (
         )
     )
 
+    updateSummaryHUDAfterFinishingAnimation(message)
+
     DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
         battleSquaddie,
         squaddieTemplate,
@@ -362,4 +368,42 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
     BattleActionRecorderService.turnComplete(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
+}
+
+const updateSummaryHUDAfterFinishingAnimation = (
+    message: MessageBoardBattleActionFinishesAnimation
+) => {
+    const gameEngineState: GameEngineState = message.gameEngineState
+    const graphicsContext: GraphicsBuffer = message.graphicsContext
+    const resourceHandler: ResourceHandler = message.resourceHandler
+
+    if (
+        !gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState
+    ) {
+        return
+    }
+
+    ;[ActionTilePosition.ACTOR_STATUS, ActionTilePosition.TARGET_STATUS]
+        .filter((tilePosition) =>
+            isValidValue(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieStatusTiles[tilePosition]
+            )
+        )
+        .map(
+            (tilePosition) =>
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieStatusTiles[tilePosition]
+        )
+        .forEach((tile) =>
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                objectRepository: gameEngineState.repository,
+                missionMap:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                graphicsContext,
+                resourceHandler,
+            })
+        )
 }
