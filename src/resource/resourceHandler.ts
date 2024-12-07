@@ -70,15 +70,16 @@ class P5ImageLoader implements ResourceTypeLoader {
     }
 
     loadResource(resourceKey: string, handler: ResourceHandler): void {
-        if (!handler.getResourceLocator(resourceKey)) {
-            return
-        }
-
         if (handler.isResourceLoaded(resourceKey)) {
             return
         }
 
-        const path = handler.getResourceLocator(resourceKey).path
+        const resourceLocator = handler.getResourceLocator(resourceKey)
+        if (!resourceLocator) {
+            return
+        }
+
+        const path = resourceLocator.path
         const loader = this
         if (this.p5Instance) {
             this.p5Instance.loadImage(
@@ -114,6 +115,7 @@ export class ResourceHandler {
         [key: string]: ImageResource
     }
     graphicsContext: GraphicsBuffer
+    unknownKeys: string[]
 
     constructor({
         resourceLocators,
@@ -140,37 +142,45 @@ export class ResourceHandler {
         this.resourcesByKey = {}
         addResourceLocators(this, resourceList)
         this.imagesByKey = {}
+        this.unknownKeys = []
     }
 
-    loadResources(resourceKeys: string[]): Error[] {
-        const errors = resourceKeys.map((key) => {
+    loadResources(resourceKeys: string[]) {
+        resourceKeys.forEach((key) => {
             return this.loadResource(key)
         })
-        return errors.filter((x) => x)
     }
 
-    loadResource(resourceKey: string): Error | undefined {
+    loadResource(resourceKey: string) {
         const resourceLoadersByType = {
             [ResourceType.IMAGE]: this.imageLoader,
         }
 
         const resource = this.resourcesByKey[resourceKey]
         if (!resource) {
-            return new Error(`resource key does not exist: ${resourceKey}`)
+            this.warnTheFirstTimeAnUnknownResourceKeyIsUsed(
+                resourceKey,
+                "loadResource"
+            )
+            return
         }
 
         const resourceLoader = resourceLoadersByType[resource.type]
         if (!resourceLoader) {
-            return new Error(
-                `no loader exists for resource type: ${resource.type}`
-            )
+            return
         }
 
         resourceLoader.loadResource(resourceKey, this)
-        return undefined
     }
 
     getResource(resourceKey: string): p5.Image {
+        if (this.resourcesByKey[resourceKey] === undefined) {
+            this.warnTheFirstTimeAnUnknownResourceKeyIsUsed(
+                resourceKey,
+                "getResource"
+            )
+            return undefined
+        }
         const resourceType = this.resourcesByKey[resourceKey].type
 
         if (resourceType === ResourceType.IMAGE) {
@@ -205,7 +215,10 @@ export class ResourceHandler {
 
     isResourceLoaded = (resourceKey: string): boolean => {
         if (this.resourcesByKey[resourceKey] === undefined) {
-            console.error(`isResourceLoaded: ${resourceKey} not defined.`)
+            this.warnTheFirstTimeAnUnknownResourceKeyIsUsed(
+                resourceKey,
+                "isResourceLoaded"
+            )
             return false
         }
         const resourceType = this.resourcesByKey[resourceKey].type
@@ -217,26 +230,16 @@ export class ResourceHandler {
         return false
     }
 
-    deleteResource(resourceKey: string) {
-        const storageLocationByType = {
-            [ResourceType.IMAGE]: this.imagesByKey,
+    warnTheFirstTimeAnUnknownResourceKeyIsUsed(
+        resourceKey: string,
+        functionName: string
+    ) {
+        if (!this.unknownKeys.includes(resourceKey)) {
+            console.warn(
+                `[resourceHandler.${functionName}] "${resourceKey}" not defined.`
+            )
+            this.unknownKeys.push(resourceKey)
         }
-
-        const resource = this.resourcesByKey[resourceKey]
-        if (!resource) {
-            return
-        }
-
-        const typeStorage = storageLocationByType[resource.type]
-        if (!typeStorage) {
-            return
-        }
-
-        delete typeStorage[resourceKey]
-    }
-
-    deleteResources(resourceKeys: string[]) {
-        resourceKeys.forEach((key) => this.deleteResource(key))
     }
 
     getResourceLocator(key: string): ResourceLocator {

@@ -57,6 +57,9 @@ describe("GameEngineGameLoader", () => {
             .mockReturnValueOnce(false)
             .mockReturnValue(true)
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
+        resourceHandler.loadResource = jest
+            .fn()
+            .mockReturnValue({ width: 1, height: 1 })
         squaddieRepository = ObjectRepositoryService.new()
 
         gameEngineState = GameEngineStateService.new({

@@ -27,8 +27,8 @@ describe("Resource Handler", () => {
                 },
             ],
         })
-        const error = loader.loadResource("some_image_key")
-        expect(error).toBeUndefined()
+        loader.loadResource("some_image_key")
+        expect(loader.unknownKeys).toHaveLength(0)
     })
     it("can load a list of resources", () => {
         const loader = ResourceHandlerService.new({
@@ -47,33 +47,67 @@ describe("Resource Handler", () => {
                 },
             ],
         })
-        const errors = loader.loadResources(["key1", "key2"])
-        expect(errors).toHaveLength(0)
+        loader.loadResources(["key1", "key2"])
+        expect(loader.unknownKeys).toHaveLength(0)
     })
-    it("returns an error if resource key is unknown", () => {
-        const loader = ResourceHandlerService.new({
-            graphics: new MockedP5GraphicsBuffer(),
-            imageLoader: new StubImmediateLoader(mockedP5Graphics),
-            resourceLocators: [
-                {
-                    type: ResourceType.IMAGE,
-                    path: "path/to/image",
-                    key: "some_image_key",
-                },
-            ],
-        })
-        const error = loader.loadResource("different_key")
-        expect(
-            error.message.includes("resource key does not exist: different_key")
-        ).toBeTruthy()
+    describe("warn the first time an unknown key is used", () => {
+        let resourceHandler: ResourceHandler
+        let consoleWarnStub: jest.SpyInstance
 
-        const errors = loader.loadResources(["different_key"])
-        expect(errors).toHaveLength(1)
-        expect(
-            errors[0].message.includes(
-                "resource key does not exist: different_key"
-            )
-        ).toBeTruthy()
+        beforeEach(() => {
+            resourceHandler = ResourceHandlerService.new({
+                graphics: new MockedP5GraphicsBuffer(),
+                imageLoader: new StubImmediateLoader(mockedP5Graphics),
+                resourceLocators: [
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "path/to/image",
+                        key: "some_image_key",
+                    },
+                ],
+            })
+            consoleWarnStub = jest.spyOn(console, "warn").mockImplementation()
+        })
+
+        afterEach(() => {
+            consoleWarnStub.mockRestore()
+        })
+
+        const tests = [
+            {
+                name: "isResourceLoaded",
+                action: (resourceHandler: ResourceHandler) => {
+                    resourceHandler.isResourceLoaded("unknown resource key")
+                },
+                expectedWarning:
+                    '[resourceHandler.isResourceLoaded] "unknown resource key" not defined.',
+            },
+            {
+                name: "getResource",
+                action: (resourceHandler: ResourceHandler) => {
+                    resourceHandler.getResource("unknown resource key")
+                },
+                expectedWarning:
+                    '[resourceHandler.getResource] "unknown resource key" not defined.',
+            },
+            {
+                name: "loadResource",
+                action: (resourceHandler: ResourceHandler) => {
+                    resourceHandler.loadResource("unknown resource key")
+                },
+                expectedWarning:
+                    '[resourceHandler.loadResource] "unknown resource key" not defined.',
+            },
+        ]
+
+        it.each(tests)(`$name`, ({ action, expectedWarning }) => {
+            action(resourceHandler)
+            expect(consoleWarnStub).toBeCalledTimes(1)
+            expect(consoleWarnStub).toBeCalledWith(expectedWarning)
+
+            action(resourceHandler)
+            expect(consoleWarnStub).toBeCalledTimes(1)
+        })
     })
 
     describe("return defaults if the resource has not been loaded", () => {
@@ -174,58 +208,6 @@ describe("Resource Handler", () => {
         expect(loader.isResourceLoaded("image1")).toBeTruthy()
         expect(loader.isResourceLoaded("image2")).toBeFalsy()
     })
-    it("can forget an individual resource key", () => {
-        const loader = ResourceHandlerService.new({
-            graphics: new MockedP5GraphicsBuffer(),
-            imageLoader: new StubImmediateLoader(mockedP5Graphics),
-            resourceLocators: [
-                {
-                    type: ResourceType.IMAGE,
-                    path: "path/to/image",
-                    key: "some_image_key",
-                },
-            ],
-        })
-        const error = loader.loadResource("some_image_key")
-        expect(error).toBeUndefined()
-
-        loader.deleteResource("some_image_key")
-
-        const defaultImage = loader.getResource("some_image_key")
-        expect(defaultImage.height).toEqual(1)
-        expect(defaultImage.width).toEqual(1)
-    })
-    it("can forget a list of resource keys", () => {
-        const loader = ResourceHandlerService.new({
-            graphics: new MockedP5GraphicsBuffer(),
-            imageLoader: new StubImmediateLoader(mockedP5Graphics),
-            resourceLocators: [
-                {
-                    type: ResourceType.IMAGE,
-                    path: "path/to/image1",
-                    key: "image1",
-                },
-                {
-                    type: ResourceType.IMAGE,
-                    path: "path/to/image2",
-                    key: "image2",
-                },
-            ],
-        })
-
-        const errors = loader.loadResources(["image1", "image2"])
-        expect(errors).toHaveLength(0)
-
-        loader.deleteResources(["image1"])
-
-        expect(loader.isResourceLoaded("image1")).toBeFalsy()
-        const defaultImage1 = loader.getResource("image1")
-        expect(defaultImage1.height).toEqual(1)
-        expect(defaultImage1.width).toEqual(1)
-
-        expect(loader.isResourceLoaded("image2")).toBeTruthy()
-    })
-
     describe("load resource locations", () => {
         it("knows it does not have resource locations upon creation", () => {
             const resourceHandler = ResourceHandlerService.new({

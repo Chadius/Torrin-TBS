@@ -44,6 +44,9 @@ describe("Squaddie Status Tile", () => {
         objectRepository = ObjectRepositoryService.new()
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
         resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
+        resourceHandler.loadResource = jest
+            .fn()
+            .mockReturnValue({ width: 1, height: 1 })
         graphicsBufferSpies = {}
         graphicsBufferSpies["text"] = jest
             .spyOn(mockP5GraphicsContext, "text")
@@ -81,27 +84,6 @@ describe("Squaddie Status Tile", () => {
                 affiliation: SquaddieAffiliation.NONE,
             },
         ]
-
-        beforeEach(() => {
-            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-            resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            graphicsBufferSpies = {}
-            graphicsBufferSpies["text"] = jest
-                .spyOn(mockP5GraphicsContext, "text")
-                .mockReturnValue()
-            graphicsBufferSpies["image"] = jest
-                .spyOn(mockP5GraphicsContext, "image")
-                .mockReturnValue()
-            graphicsBufferSpies["rect"] = jest
-                .spyOn(mockP5GraphicsContext, "rect")
-                .mockReturnValue()
-            graphicsBufferSpies["fill"] = jest
-                .spyOn(mockP5GraphicsContext, "fill")
-                .mockReturnValue()
-            graphicsBufferSpies["textWidth"] = jest
-                .spyOn(mockP5GraphicsContext, "textWidth")
-                .mockReturnValue(10)
-        })
 
         it.each(tests)(`$affiliation`, ({ affiliation }) => {
             ;({ tile } = createSquaddieOfGivenAffiliation({
