@@ -158,14 +158,11 @@ export const BattleSquaddieTeamService = {
     sanitize: (data: BattleSquaddieTeam): BattleSquaddieTeam => {
         return sanitize(data)
     },
-    endTurn: (
-        team: BattleSquaddieTeam,
-        squaddieRepository: ObjectRepository
-    ) => {
+    endTurn: (team: BattleSquaddieTeam, objectRepository: ObjectRepository) => {
         team.battleSquaddieIds.forEach((battleSquaddieId) => {
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    squaddieRepository,
+                    objectRepository,
                     battleSquaddieId
                 )
             )
@@ -173,7 +170,7 @@ export const BattleSquaddieTeamService = {
             DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(
                 battleSquaddie,
                 squaddieTemplate,
-                squaddieRepository
+                objectRepository
             )
         })
     },

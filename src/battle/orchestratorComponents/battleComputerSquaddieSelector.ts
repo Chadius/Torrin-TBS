@@ -56,6 +56,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { isValidValue } from "../../utils/validityCheck"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ActionTemplate } from "../../action/template/actionTemplate"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000
 export const SHOW_SELECTED_ACTION_TIME = 500
@@ -112,32 +113,44 @@ export class BattleComputerSquaddieSelector
         })
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         const currentTeam: BattleSquaddieTeam =
             BattleStateService.getCurrentTeam(
-                state.battleOrchestratorState.battleState,
-                state.repository
+                gameEngineState.battleOrchestratorState.battleState,
+                gameEngineState.repository
             )
         if (
             this.mostRecentDecisionSteps === undefined &&
             currentTeam &&
             BattleSquaddieTeamService.hasAnActingSquaddie(
                 currentTeam,
-                state.repository
+                gameEngineState.repository
             ) &&
             !BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(
                 currentTeam,
-                state.repository
+                gameEngineState.repository
             )
         ) {
-            this.askComputerControlSquaddie(state)
+            this.askComputerControlSquaddie(gameEngineState)
         }
 
         if (
-            state.battleOrchestratorState.battleState.camera.isPanning() &&
+            gameEngineState.battleOrchestratorState.battleState.camera.isPanning() &&
             this.mostRecentDecisionSteps !== undefined
         ) {
-            drawSquaddieAtInitialPositionAsCameraPans(state, graphicsContext)
+            drawSquaddieAtInitialPositionAsCameraPans(
+                gameEngineState,
+                graphicsContext,
+                resourceHandler
+            )
         }
     }
 
@@ -656,7 +669,8 @@ export class BattleComputerSquaddieSelector
 
 const drawSquaddieAtInitialPositionAsCameraPans = (
     gameEngineState: GameEngineState,
-    graphicsContext: GraphicsBuffer
+    graphicsContext: GraphicsBuffer,
+    resourceHandler: ResourceHandler
 ) => {
     const battleAction = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
@@ -670,12 +684,13 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
         )
     )
 
-    DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate(
-        graphicsContext,
-        gameEngineState.repository,
-        battleSquaddie,
-        battleSquaddieId,
-        startLocation,
-        gameEngineState.battleOrchestratorState.battleState.camera
-    )
+    DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate({
+        graphics: graphicsContext,
+        squaddieRepository: gameEngineState.repository,
+        battleSquaddie: battleSquaddie,
+        battleSquaddieId: battleSquaddieId,
+        mapCoordinate: startLocation,
+        camera: gameEngineState.battleOrchestratorState.battleState.camera,
+        resourceHandler,
+    })
 }

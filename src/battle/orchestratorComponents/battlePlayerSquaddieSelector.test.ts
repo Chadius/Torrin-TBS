@@ -35,7 +35,6 @@ import {
     PlayerCommandStateService,
 } from "../hud/playerCommandHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
-import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     PlayerIntent,
@@ -302,8 +301,6 @@ describe("BattleSquaddieSelector", () => {
                         y: battleSquaddieScreenPositionY,
                     },
                 },
-                squaddieSummaryPopoverPosition:
-                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
             })
         })
     })
@@ -588,8 +585,8 @@ describe("BattleSquaddieSelector", () => {
                     (button) => button.actionTemplateId === "melee"
                 )
 
-            x = RectAreaService.centerX(meleeButton.buttonArea)
-            y = RectAreaService.centerY(meleeButton.buttonArea)
+            x = RectAreaService.centerX(meleeButton.buttonIcon.drawArea)
+            y = RectAreaService.centerY(meleeButton.buttonIcon.drawArea)
             selector.mouseClicked({
                 mouseX: x,
                 mouseY: y,

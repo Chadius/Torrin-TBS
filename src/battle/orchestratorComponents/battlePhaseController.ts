@@ -6,7 +6,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { BattlePhase, BattlePhaseService } from "./battlePhaseTracker"
-import { ImageUI } from "../../ui/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
@@ -23,6 +22,8 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { ResourceHandler } from "../../resource/resourceHandler"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
 
 export const BANNER_ANIMATION_TIME = 2000
 
@@ -101,10 +102,15 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         })
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
+        resourceHandler: ResourceHandler
+    }): void {
         if (
             !this.newBannerShown &&
             gameEngineState.battleOrchestratorState.battleState.battlePhaseState
@@ -122,7 +128,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             Date.now() - this.bannerDisplayAnimationStartTime <
                 BANNER_ANIMATION_TIME
         ) {
-            this.draw(gameEngineState.battleOrchestratorState, graphicsContext)
+            this.draw(
+                gameEngineState.battleOrchestratorState,
+                graphicsContext,
+                resourceHandler
+            )
             return
         }
 
@@ -225,6 +235,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
 
         this.bannerImageUI = new ImageUI({
+            imageLoadingBehavior: {
+                resourceKey: undefined,
+                loadingBehavior: ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+            },
             graphic: this.bannerImage,
             area: RectAreaService.new({
                 left: 0,
@@ -237,6 +251,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         })
 
         this.affiliationImageUI = new ImageUI({
+            imageLoadingBehavior: {
+                resourceKey: undefined,
+                loadingBehavior: ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+            },
             graphic: this.affiliationImage,
             area: RectAreaService.new({
                 startColumn: 1,
@@ -253,11 +271,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
     draw(
         state: BattleOrchestratorState,
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ): void {
         if (this.bannerImageUI) {
-            this.bannerImageUI.draw(graphicsContext)
-            this.affiliationImageUI.draw(graphicsContext)
+            this.bannerImageUI.draw({ graphicsContext, resourceHandler })
+            this.affiliationImageUI.draw({ graphicsContext, resourceHandler })
         }
     }
 

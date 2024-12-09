@@ -10,7 +10,6 @@ import {
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
@@ -104,7 +103,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult(null))
+            .mockReturnValue({ width: 32, height: 32 })
 
         knightHitsThiefWithLongswordInstructionBattleAction =
             BattleActionService.new({
@@ -157,7 +156,11 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         )
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(animator.actorSprite).not.toBeUndefined()
         expect(animator.actorSprite.battleSquaddieId).toBe(
@@ -191,13 +194,21 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         )
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         mockActionTimerPhase(
             animator.actionAnimationTimer,
             ActionAnimationPhase.DURING_ACTION
         )
 
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -208,7 +219,11 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         }
 
         animator.mouseEventHappened(gameEngineState, mouseEvent)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
@@ -235,14 +250,22 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         )
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
         mockActionTimerPhase(
             animator.actionAnimationTimer,
             ActionAnimationPhase.FINISHED_SHOWING_RESULTS
         )
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 

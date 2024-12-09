@@ -26,6 +26,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { isValidValue } from "../../utils/validityCheck"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class BattleSquaddieUsesActionOnSquaddie
     implements BattleOrchestratorComponent
@@ -120,16 +121,25 @@ export class BattleSquaddieUsesActionOnSquaddie
         this.resetInternalState()
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
+        resourceHandler: ResourceHandler
+    }): void {
         if (
             this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator
         ) {
             this.setSquaddieActionAnimatorBasedOnAction(gameEngineState)
         }
-        this.squaddieActionAnimator.update(gameEngineState, graphicsContext)
+        this.squaddieActionAnimator.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler,
+        })
         if (
             !this.sawResultAftermath &&
             this.squaddieActionAnimator.hasCompleted(gameEngineState)

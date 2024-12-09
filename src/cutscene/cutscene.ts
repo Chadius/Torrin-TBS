@@ -136,7 +136,11 @@ export const CutsceneService = {
             cutscene.currentDirection === undefined
         )
     },
-    draw: (cutscene: Cutscene, graphicsContext: GraphicsBuffer) => {
+    draw: (
+        cutscene: Cutscene,
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) => {
         if (cutscene.currentDirection !== undefined) {
             switch (cutscene.currentDirection.type) {
                 case CutsceneActionPlayerType.DIALOGUE:
@@ -144,7 +148,8 @@ export const CutsceneService = {
                         cutscene.cutscenePlayerStateById[
                             cutscene.currentDirection.id
                         ] as DialoguePlayerState,
-                        graphicsContext
+                        graphicsContext,
+                        resourceHandler
                     )
                     break
                 case CutsceneActionPlayerType.SPLASH_SCREEN:
@@ -152,7 +157,8 @@ export const CutsceneService = {
                         cutscene.cutscenePlayerStateById[
                             cutscene.currentDirection.id
                         ] as SplashScreenPlayerState,
-                        graphicsContext
+                        graphicsContext,
+                        resourceHandler
                     )
                     break
             }

@@ -28,10 +28,6 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import {
-    getResultOrThrowError,
-    makeResult,
-} from "../../../../utils/ResultOrError"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -363,9 +359,7 @@ describe("Squaddie Status Tile", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
 
-            resourceHandler.getResource = jest
-                .fn()
-                .mockReturnValue(makeResult(fakeImage))
+            resourceHandler.getResource = jest.fn().mockReturnValue(fakeImage)
             getResourceSpy = jest.spyOn(resourceHandler, "getResource")
         })
 
@@ -418,9 +412,7 @@ describe("Squaddie Status Tile", () => {
 
             const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
             expect(
-                drawSpyCalls.some(
-                    (call) => getResultOrThrowError(call[0]) === fakeImage
-                )
+                drawSpyCalls.some((call) => call[0] === fakeImage)
             ).toBeTruthy()
 
             isResourceLoadedSpy.mockRestore()
@@ -484,10 +476,7 @@ describe("Squaddie Status Tile", () => {
 
                     const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
                     expect(
-                        drawSpyCalls.some(
-                            (call) =>
-                                getResultOrThrowError(call[0]) === fakeImage
-                        )
+                        drawSpyCalls.some((call) => call[0] === fakeImage)
                     ).toBeTruthy()
                     isResourceLoadedSpy.mockRestore()
                 }
@@ -531,9 +520,9 @@ describe("Squaddie Status Tile", () => {
                         .fn()
                         .mockImplementation((key) => {
                             if (key === armorAttributeIcon) {
-                                return makeResult(fakeAttributeImage)
+                                return fakeAttributeImage
                             }
-                            return makeResult(fakeComparisonImage)
+                            return fakeComparisonImage
                         })
                     getResourceSpy = jest.spyOn(resourceHandler, "getResource")
                     const isResourceLoadedSpy =
@@ -577,12 +566,7 @@ describe("Squaddie Status Tile", () => {
                     expect(
                         drawSpyCalls.some(
                             (call) =>
-                                (
-                                    getResultOrThrowError(call[0]) as {
-                                        width: number
-                                        height: number
-                                    }
-                                ).width === fakeComparisonImage.width
+                                call[0].width === fakeComparisonImage.width
                         )
                     ).toBeTruthy()
 
@@ -607,9 +591,9 @@ describe("Squaddie Status Tile", () => {
                 .fn()
                 .mockImplementation((key) => {
                     if (key === ignoreTerrainCostAttributeIcon) {
-                        return makeResult(fakeAttributeImage)
+                        return fakeAttributeImage
                     }
-                    return makeResult(fakeComparisonImage)
+                    return fakeComparisonImage
                 })
             getResourceSpy = jest.spyOn(resourceHandler, "getResource")
             const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = jest
@@ -647,13 +631,7 @@ describe("Squaddie Status Tile", () => {
             const drawSpyCalls = graphicsBufferSpies["image"].mock.calls
             expect(
                 drawSpyCalls.some(
-                    (call) =>
-                        (
-                            getResultOrThrowError(call[0]) as {
-                                width: number
-                                height: number
-                            }
-                        ).width === fakeComparisonImage.width
+                    (call) => call[0].width === fakeComparisonImage.width
                 )
             ).toBeFalsy()
 
@@ -689,9 +667,9 @@ describe("Squaddie Status Tile", () => {
                     .fn()
                     .mockImplementation((key) => {
                         if (key.includes("attribute-icon")) {
-                            return makeResult(fakeAttributeImage)
+                            return fakeAttributeImage
                         }
-                        return makeResult(fakeComparisonImage)
+                        return fakeComparisonImage
                     })
                 getResourceSpy = jest.spyOn(resourceHandler, "getResource")
 
@@ -734,7 +712,7 @@ describe("Squaddie Status Tile", () => {
                 expect(
                     drawSpyCalls.some((call) =>
                         [fakeAttributeImage, fakeComparisonImage].includes(
-                            getResultOrThrowError(call[0])
+                            call[0]
                         )
                     )
                 ).toBeFalsy()

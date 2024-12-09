@@ -11,6 +11,7 @@ import { Cutscene, CutsceneService } from "../../cutscene/cutscene"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { isValidValue } from "../../utils/validityCheck"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     private _currentCutscene: Cutscene
@@ -82,7 +83,15 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         })
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         if (!isValidValue(this.currentCutscene)) {
             return
         }
@@ -90,24 +99,34 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         if (
             CutsceneService.hasLoaded(
                 this.currentCutscene,
-                state.resourceHandler
+                gameEngineState.resourceHandler
             ) &&
             !CutsceneService.isInProgress(this.currentCutscene)
         ) {
             CutsceneService.setResources(
                 this.currentCutscene,
-                state.resourceHandler
+                gameEngineState.resourceHandler
             )
-            CutsceneService.start(this.currentCutscene, state.resourceHandler, {
-                battleOrchestratorState: state.battleOrchestratorState,
-            })
+            CutsceneService.start(
+                this.currentCutscene,
+                gameEngineState.resourceHandler,
+                {
+                    battleOrchestratorState:
+                        gameEngineState.battleOrchestratorState,
+                }
+            )
         }
 
         if (CutsceneService.isInProgress(this.currentCutscene)) {
             CutsceneService.update(this.currentCutscene, {
-                battleOrchestratorState: state.battleOrchestratorState,
+                battleOrchestratorState:
+                    gameEngineState.battleOrchestratorState,
             })
-            CutsceneService.draw(this.currentCutscene, graphicsContext)
+            CutsceneService.draw(
+                this.currentCutscene,
+                graphicsContext,
+                resourceHandler
+            )
         }
     }
 

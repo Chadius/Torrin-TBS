@@ -10,7 +10,6 @@ import {
     SquaddieEmotion,
 } from "./actionAnimationConstants"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import { SquaddieSprite } from "./squaddieSprite"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
 import {
@@ -26,7 +25,10 @@ import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
 } from "../../../action/template/actionEffectTemplate"
-import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../../../utils/test/mocks"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
@@ -160,14 +162,6 @@ describe("Target Sprite", () => {
         const getterSpy = mockActionTimerPhase(
             ActionAnimationPhase.BEFORE_ACTION
         )
-        jest.spyOn(
-            SquaddieSprite.prototype,
-            "beginLoadingActorImages"
-        ).mockReturnValue()
-        jest.spyOn(
-            SquaddieSprite.prototype,
-            "createActorImagesWithLoadedData"
-        ).mockReturnValue({ justCreatedImages: false })
         const getSquaddieEmotionSpy = jest
             .spyOn(sprite, "getSquaddieEmotion")
             .mockReturnValue(SquaddieEmotion.NEUTRAL)
@@ -185,7 +179,8 @@ describe("Target Sprite", () => {
             timer,
             mockedP5GraphicsContext,
             ActionEffectTemplateService.new({}),
-            resultTookDamage
+            resultTookDamage,
+            mockResourceHandler(mockedP5GraphicsContext)
         )
 
         expect(getSquaddieEmotionSpy).toBeCalled()

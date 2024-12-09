@@ -1,4 +1,9 @@
-import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
+import {
+    GOLDEN_RATIO,
+    HORIZONTAL_ALIGN,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
@@ -25,18 +30,53 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import {
-    SquaddieSummaryPopoverPosition,
-    SquaddieSummaryPopoverService,
-} from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { CalculatorAttack } from "../calculator/actionCalculator/attack"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { RollModifierType } from "../calculator/actionCalculator/rollResult"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
-export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
 const MESSAGE_TEXT_SIZE = 24
+
+const layout = {
+    middleButton: {
+        fillColor: [0, 0, 60],
+        strokeColor: [0, 0, 0],
+        strokeWeight: 4,
+        fontColor: [0, 0, 16],
+        textBoxMargin: [0, 0, 0, 0],
+    },
+    okButton: {
+        startColumn: 6,
+        endColumn: 6,
+        text: "OK",
+        fontSize: 24,
+        height: ScreenDimensions.SCREEN_WIDTH / 12,
+        top:
+            ScreenDimensions.SCREEN_HEIGHT -
+            (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO,
+        fillColor: [0, 0, 128],
+        strokeColor: [0, 0, 0],
+        strokeWeight: 2,
+        fontColor: [0, 0, 16],
+        textBoxMargin: [0, 0, 0, 0],
+        margin: [0, WINDOW_SPACING.SPACING1],
+    },
+    cancelButton: {
+        startColumn: 6,
+        endColumn: 6,
+        text: "Cancel",
+        fontSize: 16,
+        height: (ScreenDimensions.SCREEN_WIDTH / 12) * (GOLDEN_RATIO - 1),
+        fillColor: [0, 0, 64],
+        strokeColor: [0, 0, 0],
+        strokeWeight: 0,
+        fontColor: [0, 0, 16],
+        textBoxMargin: [0, 0, 0, 0],
+        margin: 0,
+    },
+}
 
 export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     private cancelAbility: boolean
@@ -91,15 +131,15 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         })
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
-        movePopoversPositions(
-            gameEngineState,
-            SquaddieSummaryPopoverPosition.SELECT_TARGET
-        )
-
+        resourceHandler: ResourceHandler
+    }): void {
         if (this.hasCompleted(gameEngineState)) {
             return
         }
@@ -113,20 +153,12 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             gameEngineState
         )
         if (this.cancelAbility) {
-            movePopoversPositions(
-                gameEngineState,
-                SquaddieSummaryPopoverPosition.SELECT_MAIN
-            )
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET,
             }
         }
         if (this.hasConfirmedAction) {
-            movePopoversPositions(
-                gameEngineState,
-                SquaddieSummaryPopoverPosition.ANIMATE_SQUADDIE_ACTION
-            )
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -215,17 +247,35 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        this.drawButton(
-            RectAreaService.new({
-                left: 0,
-                top: TARGET_CANCEL_BUTTON_TOP,
-                width: ScreenDimensions.SCREEN_WIDTH,
-                height:
-                    ScreenDimensions.SCREEN_HEIGHT - TARGET_CANCEL_BUTTON_TOP,
+        this.drawButton({
+            ...layout.okButton,
+            area: RectAreaService.new({
+                screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                startColumn: layout.okButton.startColumn,
+                endColumn: layout.okButton.endColumn,
+                margin: layout.okButton.margin,
+                top: layout.okButton.top,
+                height: layout.okButton.height,
             }),
-            "CANCEL: Click here.",
-            graphicsContext
-        )
+            buttonText: layout.okButton.text,
+            graphicsContext: graphicsContext,
+            textSize: layout.okButton.fontSize,
+        })
+        this.drawButton({
+            ...layout.cancelButton,
+            area: RectAreaService.new({
+                screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                startColumn: layout.cancelButton.startColumn,
+                endColumn: layout.cancelButton.endColumn,
+                margin: layout.cancelButton.margin,
+                top:
+                    ScreenDimensions.SCREEN_HEIGHT - layout.cancelButton.height,
+                height: layout.cancelButton.height,
+            }),
+            buttonText: layout.cancelButton.text,
+            graphicsContext: graphicsContext,
+            textSize: layout.cancelButton.fontSize,
+        })
 
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
@@ -276,35 +326,53 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
 
         const messageToShow = intentMessages.join("\n")
 
-        this.drawButton(
-            RectAreaService.new({
+        this.drawButton({
+            ...layout.middleButton,
+            area: RectAreaService.new({
                 left: ScreenDimensions.SCREEN_WIDTH / 12,
                 top: ScreenDimensions.SCREEN_HEIGHT / 2,
                 width: BUTTON_MIDDLE_DIVIDER,
                 height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2),
             }),
-            messageToShow,
-            graphicsContext
-        )
+            buttonText: messageToShow,
+            graphicsContext: graphicsContext,
+            textSize: MESSAGE_TEXT_SIZE,
+        })
     }
 
-    private drawButton(
-        area: RectArea,
-        buttonText: string,
+    private drawButton({
+        area,
+        buttonText,
+        graphicsContext,
+        textSize,
+        fillColor,
+        strokeColor,
+        strokeWeight,
+        fontColor,
+        textBoxMargin,
+    }: {
+        area: RectArea
+        buttonText: string
         graphicsContext: GraphicsBuffer
-    ) {
+        textSize: number
+        fillColor: number[]
+        strokeColor: number[]
+        strokeWeight: number
+        fontColor: number[]
+        textBoxMargin: number[]
+    }) {
         const buttonBackground = LabelService.new({
             area,
-            fillColor: [0, 0, 60],
-            strokeColor: [0, 0, 0],
-            strokeWeight: 4,
+            fillColor,
+            strokeColor,
+            strokeWeight,
 
             text: buttonText,
-            textSize: MESSAGE_TEXT_SIZE,
+            textSize: textSize,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            fontColor: [0, 0, 16],
-            textBoxMargin: [0, 0, 0, 0],
+            fontColor,
+            textBoxMargin,
         })
 
         LabelService.draw(buttonBackground, graphicsContext)
@@ -353,32 +421,26 @@ const didUserCancelActionConfirmation = ({
     mouseEvent?: OrchestratorComponentMouseEventClicked
     keyboardEvent?: OrchestratorComponentKeyEvent
 }): boolean => {
+    const cancelButtonArea = RectAreaService.new({
+        screenWidth: ScreenDimensions.SCREEN_WIDTH,
+        startColumn: layout.cancelButton.startColumn,
+        endColumn: layout.cancelButton.endColumn,
+        margin: [0, WINDOW_SPACING.SPACING2],
+        top: ScreenDimensions.SCREEN_HEIGHT - layout.cancelButton.height,
+        height: layout.cancelButton.height,
+    })
     if (isValidValue(mouseEvent)) {
         return (
             mouseEvent.mouseButton === MouseButton.CANCEL ||
-            mouseEvent.mouseY > TARGET_CANCEL_BUTTON_TOP
+            RectAreaService.isInside(
+                cancelButtonArea,
+                mouseEvent.mouseX,
+                mouseEvent.mouseY
+            )
         )
     }
     if (isValidValue(keyboardEvent)) {
         return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
     }
     return false
-}
-
-const movePopoversPositions = (
-    gameEngineState: GameEngineState,
-    position: SquaddieSummaryPopoverPosition
-) => {
-    SquaddieSummaryPopoverService.changePopoverPosition({
-        popover:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-        position,
-    })
-    SquaddieSummaryPopoverService.changePopoverPosition({
-        popover:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-        position,
-    })
 }

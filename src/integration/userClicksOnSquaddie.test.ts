@@ -25,7 +25,6 @@ import { BattleCamera } from "../battle/battleCamera"
 import { MakeDecisionButton } from "../battle/hud/playerActionPanel/makeDecisionButton"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { makeResult } from "../utils/ResultOrError"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
@@ -46,9 +45,13 @@ import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
+import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
+import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository
+    let mockP5GraphicsContext: MockedP5GraphicsBuffer
 
     let playerTeam: BattleSquaddieTeam
     let playerSquaddieTemplate: SquaddieTemplate
@@ -112,7 +115,7 @@ describe("User clicks on a squaddie", () => {
             .mockReturnValueOnce(true)
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -125,6 +128,9 @@ describe("User clicks on a squaddie", () => {
             squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
             coordinate: { q: 0, r: 0 },
         })
+
+        mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
     })
 
     it("HUD produces a button for each ActionTemplate", () => {
@@ -160,12 +166,14 @@ describe("User clicks on a squaddie", () => {
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
             gameEngineState: gameEngineState,
+            graphicsContext: mockP5GraphicsContext,
         })
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                .battleSquaddieId
+                .summaryHUDState.squaddieNameTiles[
+                ActionTilePosition.ACTOR_NAME
+            ].battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
         const actionButtons: MakeDecisionButton[] =
@@ -355,7 +363,10 @@ describe("User clicks on a squaddie", () => {
     describe("player hovers over squaddie", () => {
         let gameEngineState: GameEngineState
 
-        const selectorHoversOnSquaddie = (gameEngineState: GameEngineState) => {
+        const selectorHoversOnSquaddie = (
+            gameEngineState: GameEngineState,
+            graphicsContext: GraphicsBuffer
+        ) => {
             const selector = new BattlePlayerSquaddieSelector()
             gameEngineState.messageBoard.addListener(
                 selector,
@@ -374,6 +385,15 @@ describe("User clicks on a squaddie", () => {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
                 mouseX: screenX,
                 mouseY: screenY,
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: graphicsContext,
             })
         }
 
@@ -419,17 +439,17 @@ describe("User clicks on a squaddie", () => {
         })
 
         it("shows the main popover with the squaddie for a limited amount of time", () => {
-            selectorHoversOnSquaddie(gameEngineState)
+            selectorHoversOnSquaddie(gameEngineState, mockP5GraphicsContext)
 
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
+                ].battleSquaddieId
             ).toEqual(playerBattleSquaddie.battleSquaddieId)
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .expirationTime
+                    .summaryHUDState.squaddieToPeekAt.expirationTime
             ).not.toBeUndefined()
         })
 
@@ -499,19 +519,32 @@ describe("User clicks on a squaddie", () => {
                 mouseButton: MouseButton.ACCEPT,
             })
 
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
+
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ].battleSquaddieId
             ).toEqual("player 1")
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .expirationTime
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.PEEK_PLAYABLE_NAME
+                ]
             ).toBeUndefined()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.TARGET_NAME
+                ]
             ).toBeUndefined()
         })
     })
@@ -550,9 +583,11 @@ const getGameEngineState = ({
 const selectSquaddieForTheHUD = ({
     battleSquaddie,
     gameEngineState,
+    graphicsContext,
 }: {
     battleSquaddie: BattleSquaddie
     gameEngineState: GameEngineState
+    graphicsContext: GraphicsBuffer
 }) => {
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
@@ -565,5 +600,14 @@ const selectSquaddieForTheHUD = ({
                 button: MouseButton.ACCEPT,
             }),
         },
+    })
+
+    SummaryHUDStateService.draw({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        gameEngineState,
+        resourceHandler: gameEngineState.resourceHandler,
+        graphicsBuffer: graphicsContext,
     })
 }

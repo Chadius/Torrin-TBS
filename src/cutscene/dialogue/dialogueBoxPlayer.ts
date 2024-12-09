@@ -18,6 +18,7 @@ import {
     DialogueComponent,
     DialogueTextService,
 } from "./constants"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE
@@ -118,10 +119,14 @@ export const DialoguePlayerService = {
             state.dialogFinished = true
         }
     },
-    draw: (state: DialoguePlayerState, graphicsContext: GraphicsBuffer) => {
+    draw: (
+        state: DialoguePlayerState,
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) => {
         graphicsContext.push()
         drawBackground(state, graphicsContext)
-        state.speakerImage?.draw(graphicsContext)
+        state.speakerImage?.draw(graphicsContext, resourceHandler)
         state.textBox?.draw(graphicsContext)
 
         state.speakerNameBox?.draw(graphicsContext)

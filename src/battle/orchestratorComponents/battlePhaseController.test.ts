@@ -9,9 +9,8 @@ import {
     BANNER_ANIMATION_TIME,
     BattlePhaseController,
 } from "./battlePhaseController"
-import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     SquaddieTemplate,
@@ -27,6 +26,9 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { RectAreaService } from "../../ui/rectArea"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 describe("BattlePhaseController", () => {
     let squaddieRepo: ObjectRepository
@@ -122,7 +124,7 @@ describe("BattlePhaseController", () => {
         ))({}) as jest.Mocked<ResourceHandler>
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult("Hi"))
+            .mockReturnValue({ width: 32, height: 32 })
 
         gameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
@@ -164,7 +166,11 @@ describe("BattlePhaseController", () => {
                 .currentAffiliation
         ).toBe(BattlePhase.PLAYER)
 
-        battlePhaseController.update(gameEngineState, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
         expect(battlePhaseController.draw).not.toBeCalled()
         expect(
@@ -174,7 +180,7 @@ describe("BattlePhaseController", () => {
     })
 
     it("starts showing the player phase banner by default", () => {
-        const state: GameEngineState = GameEngineStateService.new({
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -194,31 +200,40 @@ describe("BattlePhaseController", () => {
         const startTime = 0
         jest.spyOn(Date, "now").mockImplementation(() => startTime)
 
-        state.battleOrchestratorState.battleState.battlePhaseState = {
+        gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
-        battlePhaseController.update(state, mockedP5GraphicsContext)
-        expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
+        expect(battlePhaseController.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
         ).toBe(BattlePhase.PLAYER)
         expect(
-            state.battleOrchestratorState.battleState.battlePhaseState.turnCount
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
+                .turnCount
         ).toBe(1)
         expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(
             startTime
         )
 
-        battlePhaseController.update(state, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         jest.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME + diffTime
         )
-        expect(battlePhaseController.hasCompleted(state)).toBeTruthy()
+        expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
         expect(
-            state.battleOrchestratorState.battleState.battlePhaseState
+            gameEngineState.battleOrchestratorState.battleState.battlePhaseState
                 .currentAffiliation
         ).toBe(BattlePhase.PLAYER)
     })
@@ -248,7 +263,11 @@ describe("BattlePhaseController", () => {
         const startTime = 0
         jest.spyOn(Date, "now").mockImplementation(() => startTime)
 
-        battlePhaseController.update(state, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
 
         expect(
@@ -277,7 +296,11 @@ describe("BattlePhaseController", () => {
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
         )
-        battlePhaseController.update(gameEngineState, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
 
         expect(messageSpy).toHaveBeenCalledWith({
             type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS,
@@ -321,10 +344,11 @@ describe("BattlePhaseController", () => {
             BattleSquaddieService.endTurn(battleSquaddie0)
 
             jest.spyOn(Date, "now").mockImplementation(() => startTime)
-            battlePhaseController.update(
+            battlePhaseController.update({
                 gameEngineState,
-                mockedP5GraphicsContext
-            )
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)
             ).toBeFalsy()
@@ -338,10 +362,11 @@ describe("BattlePhaseController", () => {
             jest.spyOn(Date, "now").mockImplementation(
                 () => startTime + BANNER_ANIMATION_TIME + diffTime
             )
-            battlePhaseController.update(
+            battlePhaseController.update({
                 gameEngineState,
-                mockedP5GraphicsContext
-            )
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(
                 battlePhaseController.hasCompleted(gameEngineState)
             ).toBeTruthy()
@@ -353,7 +378,7 @@ describe("BattlePhaseController", () => {
     })
 
     it("only draws the banner while the timer is going", () => {
-        const state: GameEngineState = GameEngineStateService.new({
+        const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
             resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -379,7 +404,11 @@ describe("BattlePhaseController", () => {
         const startTime = 0
         jest.spyOn(Date, "now").mockImplementation(() => startTime)
 
-        battlePhaseController.update(state, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         expect(battlePhaseController.draw).not.toBeCalled()
         expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(
             startTime
@@ -388,19 +417,43 @@ describe("BattlePhaseController", () => {
         jest.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME * 0.5
         )
-        battlePhaseController.update(state, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         expect(battlePhaseController.draw).toBeCalledTimes(1)
 
         jest.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME * 0.75
         )
-        battlePhaseController.update(state, mockedP5GraphicsContext)
+        battlePhaseController.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler,
+        })
         expect(battlePhaseController.draw).toBeCalledTimes(2)
     })
 
     it("resets internal variables once completed", () => {
         battlePhaseController = new BattlePhaseController()
-        battlePhaseController.affiliationImageUI = mocks.mockImageUI()
+
+        const emptyImage = mockedP5GraphicsContext.createImage(1, 1)
+        emptyImage.loadPixels()
+
+        battlePhaseController.affiliationImageUI = new ImageUI({
+            area: RectAreaService.new({
+                left: 0,
+                top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
+                width: emptyImage.width,
+                height: emptyImage.height,
+            }),
+            graphic: emptyImage,
+            imageLoadingBehavior: {
+                loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+                resourceKey: undefined,
+            },
+        })
 
         expect(battlePhaseController.affiliationImageUI).toBeTruthy()
         battlePhaseController.reset(
@@ -456,36 +509,46 @@ describe("BattlePhaseController", () => {
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn)
             })
 
-            const state: GameEngineState = GameEngineStateService.new({
-                repository: squaddieRepo,
-                resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap: MissionMapService.new({
-                            terrainTileMap: TerrainTileMapService.new({
-                                movementCost: ["1 1 1 "],
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    repository: squaddieRepo,
+                    resourceHandler,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                teams,
+                                missionMap: MissionMapService.new({
+                                    terrainTileMap: TerrainTileMapService.new({
+                                        movementCost: ["1 1 1 "],
+                                    }),
+                                }),
+                                battlePhaseState: {
+                                    currentAffiliation: BattlePhase.PLAYER,
+                                    turnCount: 0,
+                                },
                             }),
-                        }),
-                        battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
-                            turnCount: 0,
-                        },
-                    }),
-                }),
-            })
+                        }
+                    ),
+                }
+            )
             battlePhaseController = new BattlePhaseController()
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(battlePhaseController.hasCompleted(state)).toBeTruthy()
+            battlePhaseController.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
+                battlePhaseController.hasCompleted(gameEngineState)
+            ).toBeTruthy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.PLAYER)
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .turnCount
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.turnCount
             ).toBe(0)
         })
         it("will move on to the next phase when all teams of the current affiliation are done", () => {
@@ -501,36 +564,46 @@ describe("BattlePhaseController", () => {
                 })
             )
 
-            const state: GameEngineState = GameEngineStateService.new({
-                repository: squaddieRepo,
-                resourceHandler,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                        teams,
-                        missionMap: MissionMapService.new({
-                            terrainTileMap: TerrainTileMapService.new({
-                                movementCost: ["1 1 1 "],
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    repository: squaddieRepo,
+                    resourceHandler,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                teams,
+                                missionMap: MissionMapService.new({
+                                    terrainTileMap: TerrainTileMapService.new({
+                                        movementCost: ["1 1 1 "],
+                                    }),
+                                }),
+                                battlePhaseState: {
+                                    currentAffiliation: BattlePhase.PLAYER,
+                                    turnCount: 0,
+                                },
                             }),
-                        }),
-                        battlePhaseState: {
-                            currentAffiliation: BattlePhase.PLAYER,
-                            turnCount: 0,
-                        },
-                    }),
-                }),
-            })
+                        }
+                    ),
+                }
+            )
             battlePhaseController = new BattlePhaseController()
-            battlePhaseController.update(state, mockedP5GraphicsContext)
-            expect(battlePhaseController.hasCompleted(state)).toBeFalsy()
+            battlePhaseController.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .currentAffiliation
+                battlePhaseController.hasCompleted(gameEngineState)
+            ).toBeFalsy()
+            expect(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.currentAffiliation
             ).toBe(BattlePhase.ENEMY)
             expect(
-                state.battleOrchestratorState.battleState.battlePhaseState
-                    .turnCount
+                gameEngineState.battleOrchestratorState.battleState
+                    .battlePhaseState.turnCount
             ).toBe(0)
         })
     })

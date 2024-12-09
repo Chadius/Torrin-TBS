@@ -18,7 +18,6 @@ import {
 import { LabelService } from "../../ui/label"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
@@ -201,7 +200,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult(null))
+            .mockReturnValue({ width: 32, height: 32 })
     })
 
     afterEach(() => {
@@ -398,10 +397,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
@@ -436,10 +436,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
@@ -483,10 +484,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()
@@ -540,10 +542,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             messageSpy.mockRestore()
         })
         it("resets squaddie currently acting when it finishes acting", () => {
-            squaddieUsesActionOnSquaddie.update(
+            squaddieUsesActionOnSquaddie.update({
                 gameEngineState,
-                mockedP5GraphicsContext
-            )
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(
                 squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
             ).toBeCalled()
@@ -570,10 +573,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
-            squaddieUsesActionOnSquaddie.update(
+            squaddieUsesActionOnSquaddie.update({
                 gameEngineState,
-                mockedP5GraphicsContext
-            )
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(
                 squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
             ).toBeCalled()
@@ -601,10 +605,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 "hasCompleted"
             )
             .mockReturnValue(false)
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -620,10 +625,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockReturnValue(
             true
         )
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled()
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
@@ -646,10 +652,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockImplementation()
 
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
         ).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator)
@@ -669,7 +676,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     })
 
     it("uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes", () => {
-        const state = useMonkKoanAndReturnState({})
+        const gameEngineState = useMonkKoanAndReturnState({})
 
         const squaddieSkipsAnimationAnimatorUpdateSpy = jest
             .spyOn(
@@ -689,22 +696,34 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 "hasCompleted"
             )
             .mockReturnValue(false)
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(
             squaddieUsesActionOnSquaddie.squaddieActionAnimator
         ).toBeInstanceOf(SquaddieSkipsAnimationAnimator)
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled()
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeFalsy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeFalsy()
 
         squaddieSkipsAnimationAnimatorHasCompletedSpy.mockReturnValue(true)
-        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext)
+        squaddieUsesActionOnSquaddie.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled()
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled()
-        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy()
+        expect(
+            squaddieUsesActionOnSquaddie.hasCompleted(gameEngineState)
+        ).toBeTruthy()
 
-        squaddieUsesActionOnSquaddie.reset(state)
+        squaddieUsesActionOnSquaddie.reset(gameEngineState)
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled()
     })
 
@@ -765,10 +784,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
             .mockReturnValue(true)
 
-        squaddieUsesActionOnSquaddie.update(
+        squaddieUsesActionOnSquaddie.update({
             gameEngineState,
-            mockedP5GraphicsContext
-        )
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy
         ).toBeCalled()

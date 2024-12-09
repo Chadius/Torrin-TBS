@@ -27,7 +27,6 @@ import {
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
-import { makeResult } from "../utils/ResultOrError"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
@@ -35,21 +34,16 @@ import { BattleCamera } from "../battle/battleCamera"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
-    OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventType,
 } from "../battle/orchestrator/battleOrchestratorComponent"
-import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { DegreeOfSuccess } from "../battle/calculator/actionCalculator/degreeOfSuccess"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../battle/animation/squaddieTargetsOtherSquaddiesAnimatior"
 import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie"
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkipsAnimationAnimator"
-import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
@@ -68,6 +62,8 @@ import { BattleActionRecorderService } from "../battle/history/battleAction/batt
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../action/actionResourceCost"
+import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmSpec"
+import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -156,7 +152,7 @@ describe("User Selects Target and Confirms", () => {
             .mockReturnValueOnce(true)
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -233,21 +229,15 @@ describe("User Selects Target and Confirms", () => {
             playerBattleActionBuilderState,
         })
 
-        targeting.update(gameEngineState, graphicsContext)
+        targeting.update({ gameEngineState, graphicsContext, resourceHandler })
 
-        let { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-                q: 0,
-                r: 2,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            })
-        targeting.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
+        BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
+            targeting,
+            gameEngineState,
+            q: 0,
+            r: 2,
         })
-        targeting.update(gameEngineState, graphicsContext)
+        targeting.update({ gameEngineState, graphicsContext, resourceHandler })
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
         expect(
@@ -295,7 +285,10 @@ describe("User Selects Target and Confirms", () => {
             {
                 name: "mouse clicks confirm",
                 action: () => {
-                    clickOnConfirmTarget({ confirm, gameEngineState })
+                    BattlePlayerActionConfirmSpec.clickOnConfirmTarget({
+                        confirm,
+                        gameEngineState,
+                    })
                 },
             },
             {
@@ -366,7 +359,7 @@ describe("User Selects Target and Confirms", () => {
         )
 
         it.each(confirmMethods)(
-            `Knows the targeting system is done via $name`,
+            `Knows the confirm system is done via $name`,
             ({ action }) => {
                 action()
                 expect(confirm.hasCompleted(gameEngineState)).toBeTruthy()
@@ -461,35 +454,29 @@ describe("User Selects Target and Confirms", () => {
 
         const cancelMethods = [
             {
-                name: "mouse clicks ACCEPT on lower right corner",
+                name: "mouse clicks ACCEPT on the CANCEL button",
                 action: () => {
-                    confirm.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: ScreenDimensions.SCREEN_WIDTH,
-                        mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                        mouseButton: MouseButton.ACCEPT,
+                    BattlePlayerActionConfirmSpec.clickOnCancelButton({
+                        confirm,
+                        gameEngineState,
                     })
                 },
             },
             {
                 name: "mouse clicks CANCEL",
                 action: () => {
-                    confirm.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: 0,
-                        mouseY: 0,
-                        mouseButton: MouseButton.CANCEL,
+                    BattlePlayerActionConfirmSpec.clickCancelButton({
+                        confirm,
+                        gameEngineState,
                     })
                 },
             },
             {
                 name: "keyboard presses CANCEL",
                 action: () => {
-                    confirm.keyEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode: JSON.parse(
-                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL
-                        )[0],
+                    BattlePlayerActionConfirmSpec.pressCancelKey({
+                        confirm,
+                        gameEngineState,
                     })
                 },
             },
@@ -585,7 +572,10 @@ describe("User Selects Target and Confirms", () => {
                     graphicsContext,
                     resourceHandler,
                 }))
-                clickOnConfirmTarget({ confirm, gameEngineState })
+                BattlePlayerActionConfirmSpec.clickOnConfirmTarget({
+                    confirm,
+                    gameEngineState,
+                })
 
                 confirm.recommendStateChanges(gameEngineState)
                 confirm.reset(gameEngineState)
@@ -594,10 +584,11 @@ describe("User Selects Target and Confirms", () => {
             it("If the action animates we should switch to SquaddieSquaddieAnimation", () => {
                 clickAndConfirmWithAttackAction(attackAction)
 
-                squaddieUsesActionOnSquaddie.update(
+                squaddieUsesActionOnSquaddie.update({
                     gameEngineState,
-                    graphicsContext
-                )
+                    graphicsContext,
+                    resourceHandler,
+                })
 
                 expect(
                     squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -620,10 +611,11 @@ describe("User Selects Target and Confirms", () => {
                 ).traits.booleanTraits[Trait.SKIP_ANIMATION] = true
                 clickAndConfirmWithAttackAction(attackAction)
 
-                squaddieUsesActionOnSquaddie.update(
+                squaddieUsesActionOnSquaddie.update({
                     gameEngineState,
-                    graphicsContext
-                )
+                    graphicsContext,
+                    resourceHandler,
+                })
 
                 expect(
                     squaddieUsesActionOnSquaddie.squaddieActionAnimator
@@ -694,7 +686,7 @@ const getGameEngineState = ({
         SummaryHUDStateService.new({
             screenSelectionCoordinates: { x: 0, y: 0 },
         })
-    SummaryHUDStateService.createCommandWindow({
+    SummaryHUDStateService.createActorTiles({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
@@ -759,42 +751,19 @@ const clickOnEnemy = ({
         playerBattleActionBuilderState,
     })
 
-    targeting.update(gameEngineState, graphicsContext)
+    targeting.update({ gameEngineState, graphicsContext, resourceHandler })
 
-    let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: 0,
-            r: 2,
-            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-        })
-    targeting.mouseEventHappened(gameEngineState, {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX,
-        mouseY,
-        mouseButton: MouseButton.ACCEPT,
+    BattlePlayerActionTargetSpec.clickOnMapAtCoordinates({
+        targeting,
+        gameEngineState,
+        q: 0,
+        r: 2,
     })
-    targeting.update(gameEngineState, graphicsContext)
+    targeting.update({ gameEngineState, graphicsContext, resourceHandler })
 
     return {
         gameEngineState,
     }
-}
-
-const clickOnConfirmTarget = ({
-    confirm,
-    gameEngineState,
-}: {
-    confirm: BattlePlayerActionConfirm
-    gameEngineState: GameEngineState
-}) => {
-    const confirmSelectionClick: OrchestratorComponentMouseEvent = {
-        eventType: OrchestratorComponentMouseEventType.CLICKED,
-        mouseX: ScreenDimensions.SCREEN_WIDTH,
-        mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-        mouseButton: MouseButton.ACCEPT,
-    }
-
-    confirm.mouseEventHappened(gameEngineState, confirmSelectionClick)
 }
 
 const keyboardPressToConfirmTarget = ({

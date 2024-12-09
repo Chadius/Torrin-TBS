@@ -52,10 +52,14 @@ import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ActionResourceCostService } from "../action/actionResourceCost"
+import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
+import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
     let gameEngineState: GameEngineState
+    let mockP5GraphicsContext: MockedP5GraphicsBuffer
 
     let playerTeam: BattleSquaddieTeam
     let playerSquaddieTemplate: SquaddieTemplate
@@ -174,6 +178,9 @@ describe("user clicks on an action to consider it", () => {
             selector,
             MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR
         )
+
+        mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
     })
 
     it("If the action costs too many ActionPoints, do not select it", () => {
@@ -191,29 +198,38 @@ describe("user clicks on an action to consider it", () => {
             playerBattleSquaddie.squaddieTurn.remainingActionPoints
         ).toBeLessThan(attackButtonAction.resourceCost.actionPoints)
 
-        selectorClicksOnSquaddie(selector, gameEngineState)
+        selectorClicksOnSquaddie(
+            selector,
+            gameEngineState,
+            mockP5GraphicsContext
+        )
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
                 (button) => button.actionTemplateId === attackAction.id
             )
 
         selector.mouseClicked({
-            mouseX: RectAreaService.centerX(attackButton.buttonArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
             mouseButton: MouseButton.ACCEPT,
             gameEngineState,
         })
 
         expect(
             gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                .battleSquaddieId
+                .summaryHUDState.squaddieNameTiles[
+                ActionTilePosition.ACTOR_NAME
+            ].battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
         expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
     })
 
     it("BattleDecisionStep should mark it as being considered when HUD selects an action", () => {
-        selectorClicksOnSquaddie(selector, gameEngineState)
+        selectorClicksOnSquaddie(
+            selector,
+            gameEngineState,
+            mockP5GraphicsContext
+        )
 
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
@@ -222,8 +238,8 @@ describe("user clicks on an action to consider it", () => {
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
             mouseButton: MouseButton.ACCEPT,
         })
         expect(
@@ -255,7 +271,11 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Squaddie Selector is Complete and recommends Player HUD Controller phase", () => {
-        selectorClicksOnSquaddie(selector, gameEngineState)
+        selectorClicksOnSquaddie(
+            selector,
+            gameEngineState,
+            mockP5GraphicsContext
+        )
 
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
@@ -264,8 +284,8 @@ describe("user clicks on an action to consider it", () => {
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
             mouseButton: MouseButton.ACCEPT,
         })
 
@@ -278,7 +298,11 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Squaddie Target should tell Map to highlight targetable squares", () => {
-        selectorClicksOnSquaddie(selector, gameEngineState)
+        selectorClicksOnSquaddie(
+            selector,
+            gameEngineState,
+            mockP5GraphicsContext
+        )
 
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
@@ -287,8 +311,8 @@ describe("user clicks on an action to consider it", () => {
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
             mouseButton: MouseButton.ACCEPT,
         })
         selector.recommendStateChanges(gameEngineState)
@@ -300,7 +324,11 @@ describe("user clicks on an action to consider it", () => {
             TerrainTileMapService,
             "addGraphicsLayer"
         )
-        targeting.update(gameEngineState, graphicsContext)
+        targeting.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(addGraphicsLayerSpy).toHaveBeenCalled()
         const addGraphicsLayerSpyLayer: MapGraphicsLayer =
@@ -313,7 +341,11 @@ describe("user clicks on an action to consider it", () => {
     })
 
     it("Hides the action selector", () => {
-        selectorClicksOnSquaddie(selector, gameEngineState)
+        selectorClicksOnSquaddie(
+            selector,
+            gameEngineState,
+            mockP5GraphicsContext
+        )
 
         attackButton =
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
@@ -321,8 +353,8 @@ describe("user clicks on an action to consider it", () => {
             )
 
         selector.mouseClicked({
-            mouseX: RectAreaService.centerX(attackButton.buttonArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonArea),
+            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
+            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
             mouseButton: MouseButton.ACCEPT,
             gameEngineState,
         })
@@ -366,7 +398,8 @@ const getGameEngineState = ({
 
 const selectorClicksOnSquaddie = (
     selector: BattlePlayerSquaddieSelector,
-    gameEngineState: GameEngineState
+    gameEngineState: GameEngineState,
+    graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -379,5 +412,14 @@ const selectorClicksOnSquaddie = (
         mouseX,
         mouseY,
         mouseButton: MouseButton.ACCEPT,
+    })
+
+    SummaryHUDStateService.draw({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        gameEngineState,
+        resourceHandler: gameEngineState.resourceHandler,
+        graphicsBuffer: graphicsContext,
     })
 }

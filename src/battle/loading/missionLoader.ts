@@ -28,7 +28,6 @@ import {
 } from "../../campaign/squaddieTemplate"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { ImageUI } from "../../ui/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import { BattleCamera } from "../battleCamera"
@@ -43,6 +42,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -340,7 +340,13 @@ const initializeSquaddieResources = ({
 
                 repository.imageUIByBattleSquaddieId[battleSquaddieId] =
                     new ImageUI({
-                        graphic: image,
+                        imageLoadingBehavior: {
+                            resourceKey:
+                                squaddieTemplate.squaddieId.resources
+                                    .mapIconResourceKey,
+                            loadingBehavior:
+                                ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                        },
                         area: RectAreaService.new({
                             left: screenX,
                             top: screenY,

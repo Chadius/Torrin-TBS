@@ -24,10 +24,9 @@ import {
 } from "../../trait/traitStatusStorage"
 import { MouseButton } from "../../utils/mouseConfig"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { CampaignService } from "../../campaign/campaign"
 import { ButtonStatus } from "../../ui/button"
-import { SquaddieSummaryPopoverPosition } from "./playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ValidityCheckService } from "../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -35,6 +34,7 @@ import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow } from "./popupWindow"
 import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -48,15 +48,16 @@ describe("playerCommandHUD", () => {
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
+        graphicsBuffer.textWidth = jest.fn().mockReturnValue(1)
+        resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
+        resourceHandler.getResource = jest
+            .fn()
+            .mockReturnValue({ width: 32, height: 32 })
         gameEngineState = GameEngineStateService.new({
             resourceHandler,
             repository: objectRepository,
             campaign: CampaignService.default(),
         })
-        resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-        resourceHandler.getResource = jest
-            .fn()
-            .mockReturnValue(makeResult(null))
 
         const actionTemplate0 = ActionTemplateService.new({
             id: "actionTemplate0",
@@ -214,15 +215,16 @@ describe("playerCommandHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default(),
                 })
-                SummaryHUDStateService.setMainSummaryPopover({
-                    summaryHUDState,
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep,
                     battleSquaddieId: "player",
-                    resourceHandler,
-                    objectRepository,
-                    gameEngineState,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
                 })
-                SummaryHUDStateService.createCommandWindow({
+
+                SummaryHUDStateService.createActorTiles({
                     summaryHUDState,
                     resourceHandler,
                     objectRepository,
@@ -233,6 +235,7 @@ describe("playerCommandHUD", () => {
                     summaryHUDState,
                     graphicsBuffer,
                     gameEngineState,
+                    resourceHandler,
                 })
 
                 expectation(
@@ -249,15 +252,17 @@ describe("playerCommandHUD", () => {
                 y: 0,
             },
         })
-        SummaryHUDStateService.setMainSummaryPopover({
-            summaryHUDState,
+
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
             battleSquaddieId: "player",
-            resourceHandler,
-            objectRepository,
-            gameEngineState,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
-        SummaryHUDStateService.createCommandWindow({
+
+        SummaryHUDStateService.createActorTiles({
             summaryHUDState,
             resourceHandler,
             objectRepository,
@@ -268,6 +273,7 @@ describe("playerCommandHUD", () => {
             summaryHUDState,
             graphicsBuffer,
             gameEngineState,
+            resourceHandler,
         })
         playerCommandState = summaryHUDState.playerCommandState
     }
@@ -314,13 +320,15 @@ describe("playerCommandHUD", () => {
     })
 
     it("when the mouse hovers over before clicking the button will change to HOVER state", () => {
+        selectPlayer()
+
         PlayerCommandStateService.mouseMoved({
             playerCommandState,
             mouseX: RectAreaService.centerX(
-                playerCommandState.actionButtons[0].buttonArea
+                playerCommandState.actionButtons[0].buttonIcon.drawArea
             ),
             mouseY: RectAreaService.centerY(
-                playerCommandState.actionButtons[0].buttonArea
+                playerCommandState.actionButtons[0].buttonIcon.drawArea
             ),
             gameEngineState,
         })
@@ -358,16 +366,23 @@ describe("playerCommandHUD", () => {
     })
 
     it("when the mouse hovers off of the button before clicking the button will change to ACTIVE state", () => {
+        selectPlayer()
+        PlayerCommandStateService.draw({
+            playerCommandState,
+            graphicsBuffer,
+            gameEngineState,
+            resourceHandler,
+        })
         playerCommandState.actionButtons[0].status = ButtonStatus.HOVER
         PlayerCommandStateService.mouseMoved({
             playerCommandState,
             mouseX:
                 RectAreaService.left(
-                    playerCommandState.actionButtons[0].buttonArea
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea
                 ) - 5,
             mouseY:
                 RectAreaService.bottom(
-                    playerCommandState.actionButtons[0].buttonArea
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea
                 ) - 5,
             gameEngineState,
         })
@@ -434,7 +449,8 @@ describe("playerCommandHUD", () => {
             )
 
             clickOnButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
 
             expect(playerCommandState.playerSelectedSquaddieAction).toBeFalsy()
@@ -457,7 +473,8 @@ describe("playerCommandHUD", () => {
             )
 
             clickOnButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
             expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
         })
@@ -467,7 +484,8 @@ describe("playerCommandHUD", () => {
         it("will select the action if the player selects an action", () => {
             selectPlayer()
             clickOnButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
 
             expect(playerCommandState.playerSelectedSquaddieAction).toBeTruthy()
@@ -480,7 +498,8 @@ describe("playerCommandHUD", () => {
         it("will indicate the action button was clicked", () => {
             selectPlayer()
             const selectedButton = clickOnButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
             expect(selectedButton).toEqual(
                 PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
@@ -517,7 +536,8 @@ describe("playerCommandHUD", () => {
             it("will not click on a button if the action is disabled", () => {
                 selectPlayer()
                 const selectedButton = clickOnButton({
-                    buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                    buttonArea:
+                        playerCommandState.actionButtons[0].buttonIcon.drawArea,
                 })
                 expect(selectedButton).toEqual(
                     PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
@@ -552,7 +572,8 @@ describe("playerCommandHUD", () => {
 
             selectPlayer()
             hoverOverButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
             expect(playerCommandState.newInvalidPopup).not.toBeUndefined()
 
@@ -605,7 +626,8 @@ describe("playerCommandHUD", () => {
 
             selectPlayer()
             hoverOverButton({
-                buttonArea: playerCommandState.actionButtons[0].buttonArea,
+                buttonArea:
+                    playerCommandState.actionButtons[0].buttonIcon.drawArea,
             })
 
             expect(messageSpy).not.toBeCalledWith(

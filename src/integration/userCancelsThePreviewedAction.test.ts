@@ -23,7 +23,6 @@ import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { makeResult } from "../utils/ResultOrError"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
@@ -36,13 +35,11 @@ import {
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEventType,
 } from "../battle/orchestrator/battleOrchestratorComponent"
-import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
-import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
@@ -51,6 +48,9 @@ import { BattleActionService } from "../battle/history/battleAction/battleAction
 import { BattleActionsDuringTurnService } from "../battle/history/battleAction/battleActionsDuringTurn"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ActionResourceCostService } from "../action/actionResourceCost"
+import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmSpec"
+import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
+import { SummaryHUDSpec } from "./spec/summaryHUD"
 import SpyInstance = jest.SpyInstance
 
 describe("User cancels the previewed action", () => {
@@ -118,6 +118,8 @@ describe("User cancels the previewed action", () => {
         )
 
         graphicsContext = new MockedP5GraphicsBuffer()
+        graphicsContext.textWidth = jest.fn().mockReturnValue(1)
+
         resourceHandler = mocks.mockResourceHandler(graphicsContext)
         resourceHandler.areAllResourcesLoaded = jest
             .fn()
@@ -125,7 +127,7 @@ describe("User cancels the previewed action", () => {
             .mockReturnValueOnce(true)
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -190,7 +192,11 @@ describe("User cancels the previewed action", () => {
                 },
             })
 
-            targeting.update(gameEngineState, graphicsContext)
+            targeting.update({
+                gameEngineState,
+                graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
         })
         afterEach(() => {
             orchestratorSpy.mockRestore()
@@ -200,11 +206,9 @@ describe("User cancels the previewed action", () => {
             {
                 name: "mouse clicks ACCEPT on lower right corner",
                 action: () => {
-                    targeting.mouseEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentMouseEventType.CLICKED,
-                        mouseX: ScreenDimensions.SCREEN_WIDTH,
-                        mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                        mouseButton: MouseButton.ACCEPT,
+                    BattlePlayerActionTargetSpec.clickOnCancelButton({
+                        targeting: targeting,
+                        gameEngineState: gameEngineState,
                     })
                 },
             },
@@ -264,31 +268,17 @@ describe("User cancels the previewed action", () => {
             "Shows a summary window and a player command via $name",
             ({ action }) => {
                 action()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState
-                ).toBeTruthy()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showSummaryHUD
-                ).toBeTruthy()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                ).toBeTruthy()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                        .battleSquaddieId
-                ).toEqual(playerBattleSquaddie.battleSquaddieId)
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showPlayerCommand
-                ).toBeTruthy()
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.playerCommandState
-                ).toBeTruthy()
+
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: graphicsContext,
+                })
+
+                SummaryHUDSpec.expectActorNameToBe(gameEngineState, "player")
             }
         )
     })
@@ -344,12 +334,14 @@ describe("User cancels the previewed action", () => {
             },
         })
 
-        targeting.update(gameEngineState, graphicsContext)
-        targeting.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            mouseButton: MouseButton.ACCEPT,
+        targeting.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
+        BattlePlayerActionTargetSpec.clickOnCancelButton({
+            targeting: targeting,
+            gameEngineState: gameEngineState,
         })
 
         expect(targeting.hasCompleted(gameEngineState)).toBeTruthy()
@@ -456,7 +448,11 @@ describe("User cancels the previewed action", () => {
             },
         })
 
-        targeting.update(gameEngineState, graphicsContext)
+        targeting.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         let { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -470,15 +466,17 @@ describe("User cancels the previewed action", () => {
             mouseY,
             mouseButton: MouseButton.ACCEPT,
         })
-        targeting.update(gameEngineState, graphicsContext)
+        targeting.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy()
 
-        confirm.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            mouseButton: MouseButton.ACCEPT,
+        BattlePlayerActionConfirmSpec.clickOnCancelButton({
+            confirm: confirm,
+            gameEngineState: gameEngineState,
         })
 
         expect(
@@ -557,7 +555,7 @@ const getGameEngineState = ({
         SummaryHUDStateService.new({
             screenSelectionCoordinates: { x: 0, y: 0 },
         })
-    SummaryHUDStateService.createCommandWindow({
+    SummaryHUDStateService.createActorTiles({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
@@ -565,16 +563,5 @@ const getGameEngineState = ({
         objectRepository: gameEngineState.repository,
         gameEngineState,
     })
-    SummaryHUDStateService.setMainSummaryPopover({
-        summaryHUDState:
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState,
-        resourceHandler: gameEngineState.resourceHandler,
-        objectRepository: gameEngineState.repository,
-        gameEngineState,
-        battleSquaddieId,
-        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-    })
-
     return gameEngineState
 }

@@ -8,7 +8,10 @@ import { BattleStateService } from "../../battle/orchestrator/battleState"
 import { Dialogue, DialogueService } from "./dialogue"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import {
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../../utils/test/mocks"
 
 describe("dialogue box player", () => {
     describe("dialog box without answers finishes", () => {
@@ -251,7 +254,8 @@ describe("dialogue box player", () => {
         it("will draw the substituted text", () => {
             DialoguePlayerService.draw(
                 dialoguePlayerState,
-                mockedP5GraphicsContext
+                mockedP5GraphicsContext,
+                mockResourceHandler(mockedP5GraphicsContext)
             )
             expect(textSpy).toBeCalledWith(
                 "Turns: 5",
@@ -303,7 +307,8 @@ describe("dialogue box player", () => {
 
             DialoguePlayerService.draw(
                 dialoguePlayerState,
-                mockedP5GraphicsContext
+                mockedP5GraphicsContext,
+                mockResourceHandler(mockedP5GraphicsContext)
             )
             expect(drawRectSpy).toBeCalled()
             expect(drawRectSpy).toBeCalledWith(
@@ -326,7 +331,8 @@ describe("dialogue box player", () => {
 
             DialoguePlayerService.draw(
                 dialoguePlayerState,
-                mockedP5GraphicsContext
+                mockedP5GraphicsContext,
+                mockResourceHandler(mockedP5GraphicsContext)
             )
             expect(drawRectSpy).not.toBeCalled()
         })

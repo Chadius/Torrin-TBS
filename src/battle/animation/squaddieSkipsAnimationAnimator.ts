@@ -16,6 +16,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000
 
@@ -59,9 +60,17 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         this.maybeInitializeAnimationTimer()
     }
 
-    update(state: GameEngineState, graphics: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         this.maybeInitializeAnimationTimer()
-        this.draw(state, graphics)
+        this.draw(gameEngineState, graphicsContext)
     }
 
     private resetInternalState() {

@@ -292,30 +292,38 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public updateComponent(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         currentComponent: BattleOrchestratorComponent,
         graphicsContext: GraphicsBuffer,
         defaultNextMode: BattleOrchestratorMode
     ) {
-        currentComponent.update(state, graphicsContext)
+        currentComponent.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         const newUIControlSettingsChanges =
-            currentComponent.uiControlSettings(state)
+            currentComponent.uiControlSettings(gameEngineState)
         this.uiControlSettings.update(newUIControlSettingsChanges)
 
-        if (currentComponent.hasCompleted(state)) {
+        if (currentComponent.hasCompleted(gameEngineState)) {
             if (
-                state.battleOrchestratorState.battleState
+                gameEngineState.battleOrchestratorState.battleState
                     .battleCompletionStatus ===
                     BattleCompletionStatus.VICTORY ||
-                state.battleOrchestratorState.battleState
+                gameEngineState.battleOrchestratorState.battleState
                     .battleCompletionStatus === BattleCompletionStatus.DEFEAT
             ) {
                 this._battleComplete = true
             }
 
-            this.setNextComponentMode(state, currentComponent, defaultNextMode)
+            this.setNextComponentMode(
+                gameEngineState,
+                currentComponent,
+                defaultNextMode
+            )
 
-            currentComponent.reset(state)
+            currentComponent.reset(gameEngineState)
         }
     }
 
@@ -534,10 +542,14 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     private displayBattleMap(
-        state: GameEngineState,
+        gameEngineState: GameEngineState,
         graphicsContext: GraphicsBuffer
     ) {
-        this.mapDisplay.update(state, graphicsContext)
+        this.mapDisplay.update({
+            gameEngineState,
+            graphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
     }
 
     private resetInternalState() {

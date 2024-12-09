@@ -1,9 +1,6 @@
 import p5 from "p5"
-import { ImageUI } from "../../ui/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
-import { RectAreaService } from "../../ui/rectArea"
-import { makeResult } from "../ResultOrError"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
 
 jest.mock("p5", () => () => {
@@ -43,20 +40,6 @@ export const mockedP5 = () => {
     return new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>
 }
 
-export const mockImageUI = () => {
-    const imageUI = new (<new (options: any) => ImageUI>ImageUI)(
-        {}
-    ) as jest.Mocked<ImageUI>
-    imageUI.area = RectAreaService.new({
-        left: 10,
-        right: 20,
-        top: 10,
-        bottom: 20,
-    })
-    imageUI.draw = jest.fn()
-    return imageUI
-}
-
 export const mockResourceHandler = (graphics: GraphicsBuffer) => {
     const handler = new (<new (options: any) => ResourceHandler>(
         ResourceHandler
@@ -67,9 +50,9 @@ export const mockResourceHandler = (graphics: GraphicsBuffer) => {
     handler.loadResources = jest.fn()
     handler.getResource = jest
         .fn()
-        .mockReturnValue(makeResult(graphics.createImage(1, 1)))
-    handler.isResourceLoaded = jest.fn().mockReturnValueOnce(true)
-    handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true)
+        .mockReturnValue(graphics.createImage(32, 32))
+    handler.isResourceLoaded = jest.fn().mockReturnValue(true)
+    handler.areAllResourcesLoaded = jest.fn().mockReturnValue(true)
     return handler
 }
 
@@ -250,4 +233,8 @@ export class MockedP5GraphicsRenderer
     windowHeight(): number {
         return this.mockedP5.windowHeight
     }
+}
+
+export const mockConsoleWarn = () => {
+    return jest.spyOn(console, "warn").mockImplementation()
 }

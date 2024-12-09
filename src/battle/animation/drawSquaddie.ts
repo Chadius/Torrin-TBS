@@ -21,7 +21,6 @@ import { SquaddieService } from "../../squaddie/squaddieService"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { ImageUI } from "../../ui/imageUI"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { MapHighlightService } from "./mapHighlight"
 import { Campaign } from "../../campaign/campaign"
@@ -33,6 +32,8 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
+import { ImageUI } from "../../ui/ImageUI"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 const MAP_ICON_CONSTANTS = {
     ActionPointsBarColors: {
@@ -173,21 +174,31 @@ export const DrawSquaddieUtilities = {
             repository
         )
     },
-    drawSquaddieMapIconAtMapCoordinate: (
-        graphics: GraphicsBuffer,
-        squaddieRepository: ObjectRepository,
-        battleSquaddie: BattleSquaddie,
-        battleSquaddieId: string,
-        mapCoordinate: HexCoordinate,
+    drawSquaddieMapIconAtMapCoordinate: ({
+        graphics,
+        squaddieRepository,
+        battleSquaddie,
+        battleSquaddieId,
+        mapCoordinate,
+        camera,
+        resourceHandler,
+    }: {
+        graphics: GraphicsBuffer
+        squaddieRepository: ObjectRepository
+        battleSquaddie: BattleSquaddie
+        battleSquaddieId: string
+        mapCoordinate: HexCoordinate
         camera: BattleCamera
-    ) => {
+        resourceHandler: ResourceHandler
+    }) => {
         return drawSquaddieMapIconAtMapCoordinate(
             graphics,
             squaddieRepository,
             battleSquaddie,
             battleSquaddieId,
             mapCoordinate,
-            camera
+            camera,
+            resourceHandler
         )
     },
     moveSquaddieAlongPath: ({
@@ -226,10 +237,10 @@ const tintSquaddieMapIcon = (
 ) => {
     const squaddieAffiliationHue: number =
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
-    const mapIcon =
-        squaddieRepository.imageUIByBattleSquaddieId[
-            battleSquaddie.battleSquaddieId
-        ]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        squaddieRepository,
+        battleSquaddie.battleSquaddieId
+    )
     if (mapIcon) {
         mapIcon.setTint(squaddieAffiliationHue, 50, 50, 192)
     }
@@ -239,8 +250,10 @@ const unTintSquaddieMapIcon = (
     repository: ObjectRepository,
     battleSquaddie: BattleSquaddie
 ) => {
-    const mapIcon =
-        repository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        repository,
+        battleSquaddie.battleSquaddieId
+    )
     if (mapIcon) {
         mapIcon.removeTint()
     }
@@ -252,7 +265,8 @@ const drawSquaddieMapIconAtMapCoordinate = (
     battleSquaddie: BattleSquaddie,
     battleSquaddieId: string,
     mapCoordinate: HexCoordinate,
-    camera: BattleCamera
+    camera: BattleCamera,
+    resourceHandler: ResourceHandler
 ) => {
     const { screenX, screenY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -260,16 +274,16 @@ const drawSquaddieMapIconAtMapCoordinate = (
             r: mapCoordinate.r,
             ...camera.getCoordinates(),
         })
-    const mapIcon =
-        squaddieRepository.imageUIByBattleSquaddieId[
-            battleSquaddie.battleSquaddieId
-        ]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        squaddieRepository,
+        battleSquaddie.battleSquaddieId
+    )
     setImageToLocation({
         mapIcon,
         screenX,
         screenY,
     })
-    mapIcon.draw(graphics)
+    mapIcon.draw({ graphicsContext: graphics, resourceHandler })
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             squaddieRepository,
@@ -301,8 +315,8 @@ const setImageToLocation = ({
     screenX: number
     screenY: number
 }) => {
-    RectAreaService.move(mapIcon.area, { left: screenX, top: screenY })
-    RectAreaService.align(mapIcon.area, {
+    RectAreaService.move(mapIcon.drawArea, { left: screenX, top: screenY })
+    RectAreaService.align(mapIcon.drawArea, {
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
     })
@@ -461,10 +475,11 @@ const updateSquaddieIconLocation = (
             r: destination.r,
             ...camera.getCoordinates(),
         })
-    const mapIcon =
-        squaddieRepository.imageUIByBattleSquaddieId[
-            battleSquaddie.battleSquaddieId
-        ]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        squaddieRepository,
+        battleSquaddie.battleSquaddieId
+    )
+
     setImageToLocation({ mapIcon, screenX, screenY })
 }
 
@@ -504,10 +519,10 @@ export const moveSquaddieAlongPath = (
         TIME_TO_MOVE,
         camera
     )
-    const mapIcon =
-        squaddieRepository.imageUIByBattleSquaddieId[
-            battleSquaddie.battleSquaddieId
-        ]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        squaddieRepository,
+        battleSquaddie.battleSquaddieId
+    )
     if (mapIcon) {
         setImageToLocation({ mapIcon, screenX, screenY })
     }

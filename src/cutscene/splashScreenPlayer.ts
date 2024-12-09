@@ -1,11 +1,12 @@
 import { CutsceneActionPlayerType } from "./cutsceneAction"
-import { ImageUI } from "../ui/imageUI"
-import { RectAreaService } from "../ui/rectArea"
+import { RectArea, RectAreaService } from "../ui/rectArea"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { SplashScreen } from "./splashScreen"
 import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { ImageUI, ImageUILoadingBehavior } from "../ui/ImageUI"
+import { ResourceHandler } from "../resource/resourceHandler"
 
 export interface SplashScreenPlayerState {
     type: CutsceneActionPlayerType.SPLASH_SCREEN
@@ -67,12 +68,16 @@ export const SplashScreenPlayerService = {
     },
     draw: (
         splashScreenPlayerState: SplashScreenPlayerState,
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ): void => {
         drawBackground(splashScreenPlayerState, graphicsContext)
 
         if (splashScreenPlayerState.screenImage) {
-            splashScreenPlayerState.screenImage.draw(graphicsContext)
+            splashScreenPlayerState.screenImage.draw({
+                resourceHandler,
+                graphicsContext,
+            })
         }
     },
     isAnimating: (
@@ -109,12 +114,31 @@ const setScreenImage = (
     splashImage: p5.Image
 ) => {
     state.screenImage = new ImageUI({
+        imageLoadingBehavior: {
+            loadingBehavior: ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK,
+            resourceKey: undefined,
+            customAreaCallback: ({
+                imageSize,
+                originalArea,
+            }: {
+                imageSize: { width: number; height: number }
+                originalArea: RectArea
+            }): RectArea => {
+                return RectAreaService.new({
+                    left: (ScreenDimensions.SCREEN_WIDTH - imageSize.width) / 2,
+                    top:
+                        (ScreenDimensions.SCREEN_HEIGHT - imageSize.height) / 2,
+                    width: imageSize.width,
+                    height: imageSize.height,
+                })
+            },
+        },
         graphic: splashImage,
         area: RectAreaService.new({
-            left: (ScreenDimensions.SCREEN_WIDTH - splashImage.width) / 2,
-            top: (ScreenDimensions.SCREEN_HEIGHT - splashImage.height) / 2,
-            width: splashImage.width,
-            height: splashImage.height,
+            left: 0,
+            top: 0,
+            width: 0,
+            height: 0,
         }),
     })
 }

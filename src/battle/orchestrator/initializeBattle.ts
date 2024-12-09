@@ -13,6 +13,7 @@ import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {
@@ -67,7 +68,15 @@ export class InitializeBattle implements BattleOrchestratorComponent {
         return undefined
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         // Required by inheritance
     }
 }

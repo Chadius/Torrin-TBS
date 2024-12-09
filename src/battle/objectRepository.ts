@@ -1,9 +1,9 @@
 import { BattleSquaddie, BattleSquaddieService } from "./battleSquaddie"
 import { makeError, makeResult, ResultOrError } from "../utils/ResultOrError"
 import { SquaddieTemplate } from "../campaign/squaddieTemplate"
-import { ImageUI } from "../ui/imageUI"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { ActionTemplate } from "../action/template/actionTemplate"
+import { ImageUI } from "../ui/ImageUI"
 
 export interface ObjectRepository {
     actionTemplatesById: {
@@ -175,10 +175,32 @@ export const ObjectRepositoryService = {
     ): boolean => {
         return repository.actionTemplatesById[actionTemplateId] !== undefined
     },
+    getImageUIByBattleSquaddieId: (
+        repository: ObjectRepository,
+        battleSquaddieId: string
+    ): ImageUI => {
+        const imageUI = repository.imageUIByBattleSquaddieId[battleSquaddieId]
+        if (imageUI === undefined) {
+            throw new Error(
+                `[objectRepository.getImageUIByBattleSquaddieId] '${battleSquaddieId}' not found`
+            )
+        }
+        return imageUI
+    },
+    addImageUIByBattleSquaddieId: ({
+        repository,
+        imageUI,
+        battleSquaddieId,
+    }: {
+        repository: ObjectRepository
+        imageUI: ImageUI
+        battleSquaddieId: string
+    }) => {
+        repository.imageUIByBattleSquaddieId[battleSquaddieId] = imageUI
+    },
 }
 
 const reset = (repo: ObjectRepository) => {
-    repo.imageUIByBattleSquaddieId = {}
     repo.squaddieTemplates = {}
     repo.battleSquaddies = {}
     repo.actionTemplatesById = {}

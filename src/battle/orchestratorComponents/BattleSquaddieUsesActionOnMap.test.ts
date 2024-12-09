@@ -88,12 +88,20 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     it("can wait half a second before ending turn", () => {
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(mapAction.animationCompleteStartTime).not.toBeUndefined()
         expect(mapAction.hasCompleted(gameEngineState)).toBeFalsy()
         dateSpy.mockImplementation(() => 500)
 
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(mapAction.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
@@ -116,9 +124,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     it("sets the animation as complete", () => {
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         dateSpy.mockImplementation(() => 500)
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(
             BattleActionService.isAnimationComplete(
                 BattleActionRecorderService.peekAtAnimationQueue(
@@ -131,16 +147,28 @@ describe("BattleSquaddieUsesActionOnMap", () => {
 
     it("displays the map", () => {
         dateSpy.mockImplementation(() => 500)
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         const stateChanges = mapAction.recommendStateChanges(gameEngineState)
         expect(stateChanges.displayMap).toBeTruthy()
     })
 
     it("sends a message noting the animation is complete", () => {
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         dateSpy.mockImplementation(() => 500)
-        mapAction.update(gameEngineState, mockedP5GraphicsContext)
+        mapAction.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(messageSpy).toBeCalledWith({
             type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,
             gameEngineState,
@@ -154,9 +182,17 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         beforeEach(() => {
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-            mapAction.update(gameEngineState, mockedP5GraphicsContext)
+            mapAction.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             dateSpy.mockImplementation(() => 500)
-            mapAction.update(gameEngineState, mockedP5GraphicsContext)
+            mapAction.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             mapAction.recommendStateChanges(gameEngineState)
             mapAction.reset(gameEngineState)
         })

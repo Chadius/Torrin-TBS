@@ -291,7 +291,11 @@ describe("BattleComputerSquaddieSelector", () => {
 
         it("moves camera to an uncontrollable squaddie before before moving", () => {
             camera.moveCamera()
-            selector.update(gameEngineState, mockedP5GraphicsContext)
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(strategySpy).toHaveBeenCalled()
 
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
@@ -303,7 +307,11 @@ describe("BattleComputerSquaddieSelector", () => {
 
             dateSpy.mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME)
             camera.moveCamera()
-            selector.update(gameEngineState, mockedP5GraphicsContext)
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
 
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             expect(camera.isPanning()).toBeFalsy()
@@ -312,7 +320,11 @@ describe("BattleComputerSquaddieSelector", () => {
         it("clears the action builder", () => {
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
-            selector.update(gameEngineState, mockedP5GraphicsContext)
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep
@@ -365,7 +377,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 }
             )
 
-            selector.update(gameEngineState, mockedP5GraphicsContext)
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
 
             const recommendation: BattleOrchestratorChanges =
@@ -430,7 +446,11 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("will default to ending its turn if none of the strategies provide instruction", () => {
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
                 expect(
@@ -453,7 +473,11 @@ describe("BattleComputerSquaddieSelector", () => {
                         ScreenDimensions.SCREEN_WIDTH * 10,
                         ScreenDimensions.SCREEN_HEIGHT * 10
                     )
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
                 expect(determineNextDecisionSpy).toBeCalled()
 
@@ -546,7 +570,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 DetermineNextDecisionService,
                 "determineNextDecision"
             ).mockReturnValue(moveAction)
-            selector.update(gameEngineState, mockedP5GraphicsContext)
+            selector.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
 
             expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             const recommendation: BattleOrchestratorChanges =
@@ -630,7 +658,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 ).mockReturnValue(demonBiteDecisionSteps)
 
                 jest.spyOn(Date, "now").mockImplementation(() => 0)
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
             })
 
             it("will indicate the next action", () => {
@@ -666,12 +698,20 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("waits and then completes the component", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
 
                 jest.spyOn(Date, "now").mockImplementation(
                     () => SHOW_SELECTED_ACTION_TIME
                 )
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
 
@@ -679,7 +719,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 jest.spyOn(Date, "now").mockImplementation(
                     () => SHOW_SELECTED_ACTION_TIME
                 )
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 const recommendation: BattleOrchestratorChanges =
                     selector.recommendStateChanges(gameEngineState)
                 expect(recommendation.nextMode).toBe(
@@ -710,7 +754,11 @@ describe("BattleComputerSquaddieSelector", () => {
 
             it("player can click to complete the component if an action is selected", () => {
                 expect(selector.hasCompleted(gameEngineState)).toBeFalsy()
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
 
                 const mouseEvent: OrchestratorComponentMouseEvent = {
                     eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -720,7 +768,11 @@ describe("BattleComputerSquaddieSelector", () => {
                 }
 
                 selector.mouseEventHappened(gameEngineState, mouseEvent)
-                selector.update(gameEngineState, mockedP5GraphicsContext)
+                selector.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
             })
 

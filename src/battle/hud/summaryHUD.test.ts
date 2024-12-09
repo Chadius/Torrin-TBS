@@ -1,12 +1,13 @@
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import {
+    mockConsoleWarn,
     MockedP5GraphicsBuffer,
     mockResourceHandler,
 } from "../../utils/test/mocks"
 import {
+    SUMMARY_HUD_PEEK_EXPIRATION_MS,
     SummaryHUDState,
     SummaryHUDStateService,
-    SummaryPopoverType,
 } from "./summaryHUD"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
@@ -23,17 +24,11 @@ import {
 import { CampaignService } from "../../campaign/campaign"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import {
-    SquaddieSummaryPopoverPosition,
-    SquaddieSummaryPopoverService,
-} from "./playerActionPanel/squaddieSummaryPopover"
-import { isValidValue } from "../../utils/validityCheck"
-import {
     PlayerCommandSelection,
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { SquaddieNameAndPortraitTileService } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
@@ -46,12 +41,14 @@ describe("summaryHUD", () => {
     let objectRepository: ObjectRepository
     let summaryHUDState: SummaryHUDState
     let resourceHandler: ResourceHandler
+    let consoleWarnSpy: jest.SpyInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
         graphicsBuffer.textWidth = jest.fn().mockReturnValue(1)
         resourceHandler = mockResourceHandler(graphicsBuffer)
+        consoleWarnSpy = mockConsoleWarn()
 
         const actionTemplate0 = ActionTemplateService.new({
             id: "actionTemplate0",
@@ -130,200 +127,8 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("will draw a summary window for a squaddie", () => {
-        it("can draw the main summary window on the left side", () => {
-            const battleSquaddieId = "player"
-
-            const panelSpy: jest.SpyInstance = jest.spyOn(
-                SquaddieSummaryPopoverService,
-                "new"
-            )
-
-            let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId,
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            expect(
-                isValidValue(summaryHUDState.squaddieSummaryPopoversByType.MAIN)
-            ).toBeTruthy()
-            expect(
-                isValidValue(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                )
-            ).toBeFalsy()
-
-            expect(panelSpy).toBeCalledWith({
-                startingColumn: 0,
-                battleSquaddieId,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            panelSpy.mockRestore()
-        })
-        it("can draw the target summary window on the right side", () => {
-            const battleSquaddieId = "enemy"
-
-            const panelSpy: jest.SpyInstance = jest.spyOn(
-                SquaddieSummaryPopoverService,
-                "new"
-            )
-
-            let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId,
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            expect(
-                isValidValue(summaryHUDState.squaddieSummaryPopoversByType.MAIN)
-            ).toBeFalsy()
-            expect(
-                isValidValue(
-                    summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                )
-            ).toBeTruthy()
-
-            expect(panelSpy).toBeCalledWith({
-                startingColumn: 9,
-                battleSquaddieId,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            panelSpy.mockRestore()
-        })
-
-        it("knows when the mouse is hovering over the summary window", () => {
-            let gameEngineState = GameEngineStateService.new({
-                resourceHandler,
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                objectRepository,
-                gameEngineState,
-                resourceHandler,
-                battleSquaddieId: "player",
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x:
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea.left - 5,
-                        y: RectAreaService.centerY(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x:
-                            RectAreaService.right(
-                                summaryHUDState.squaddieSummaryPopoversByType[
-                                    SummaryPopoverType.MAIN
-                                ].windowArea
-                            ) + 5,
-                        y: RectAreaService.centerY(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                        y:
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea.top - 5,
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                        y:
-                            RectAreaService.bottom(
-                                summaryHUDState.squaddieSummaryPopoversByType[
-                                    SummaryPopoverType.MAIN
-                                ].windowArea
-                            ) + 5,
-                    },
-                })
-            ).toBeFalsy()
-
-            expect(
-                SummaryHUDStateService.isMouseHoveringOver({
-                    summaryHUDState,
-                    mouseSelectionLocation: {
-                        x: RectAreaService.centerX(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                        y: RectAreaService.centerY(
-                            summaryHUDState.squaddieSummaryPopoversByType[
-                                SummaryPopoverType.MAIN
-                            ].windowArea
-                        ),
-                    },
-                })
-            ).toBeTruthy()
-        })
+    afterEach(() => {
+        consoleWarnSpy.mockRestore()
     })
 
     describe("will draw tiles for the acting squaddie", () => {
@@ -352,6 +157,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -454,6 +260,7 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     graphicsBuffer,
                     gameEngineState,
+                    resourceHandler,
                 })
 
                 expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
@@ -486,6 +293,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -535,6 +343,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -597,6 +406,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -608,6 +418,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -619,6 +430,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
             expect(
                 summaryHUDState.squaddieNameTiles[
@@ -655,6 +467,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -667,6 +480,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -724,6 +538,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
         })
 
@@ -738,6 +553,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -773,6 +589,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -849,6 +666,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -913,6 +731,7 @@ describe("summaryHUD", () => {
                     summaryHUDState,
                     graphicsBuffer,
                     gameEngineState,
+                    resourceHandler,
                 })
 
                 expectIsMouseHoveringOverTheExpectedPanelWindowRectArea(
@@ -929,6 +748,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             SummaryHUDStateService.peekAtSquaddie({
@@ -941,6 +761,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
 
             expect(
@@ -957,158 +778,129 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("resetting expiration time", () => {
-        let gameEngineState: GameEngineState
+    describe("peekable windows expire over time", () => {
         let summaryHUDState: SummaryHUDState
+        let dateSpy: jest.SpyInstance
+        let gameEngineState: GameEngineState
+
         beforeEach(() => {
+            dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+            summaryHUDState = SummaryHUDStateService.new({
+                screenSelectionCoordinates: { x: 0, y: 0 },
+            })
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
-
-            SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                name: "another_player",
-                battleId: "another_player",
-                templateId: "another_player",
-                objectRepository: objectRepository,
-                affiliation: SquaddieAffiliation.PLAYER,
-                actionTemplateIds: [],
-            })
         })
 
-        it("will not change the main summary popover if the current popover has no expiration time and the new one would", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "another_player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 100,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
-            ).toEqual("player")
+        afterEach(() => {
+            dateSpy.mockRestore()
         })
 
-        it("will change the main summary popover if the current popover has an expiration time", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
+        const drawAndExpectTileToExist = (
+            expectedBattleSquaddieId: string,
+            actionTilePosition: ActionTilePosition
+        ) => {
+            SummaryHUDStateService.draw({
                 summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
+                graphicsBuffer,
                 gameEngineState,
-                expirationTime: 100,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                resourceHandler,
             })
 
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "another_player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 200,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
+            expect(summaryHUDState.squaddieToPeekAt.battleSquaddieId).toEqual(
+                expectedBattleSquaddieId
+            )
             expect(
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN
+                summaryHUDState.squaddieNameTiles[actionTilePosition]
                     .battleSquaddieId
-            ).toEqual("another_player")
+            ).toEqual(expectedBattleSquaddieId)
+        }
+
+        const drawAndExpectTileNotToExist = (
+            actionTilePosition: ActionTilePosition
+        ) => {
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                graphicsBuffer,
+                gameEngineState,
+                resourceHandler,
+            })
+
+            expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
+            expect(
+                summaryHUDState.squaddieNameTiles[actionTilePosition]
+            ).toBeUndefined()
+        }
+
+        it("will expire the playable tile over time", () => {
+            SummaryHUDStateService.peekAtSquaddie({
+                summaryHUDState,
+                gameEngineState,
+                battleSquaddieId: "player",
+            })
+
+            drawAndExpectTileToExist(
+                "player",
+                ActionTilePosition.PEEK_PLAYABLE_NAME
+            )
+
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS - 1)
+            drawAndExpectTileToExist(
+                "player",
+                ActionTilePosition.PEEK_PLAYABLE_NAME
+            )
+
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS + 1)
+            drawAndExpectTileNotToExist(ActionTilePosition.PEEK_PLAYABLE_NAME)
         })
-
-        it("will not change the target summary popover if the existing one will not expire and the new one will", () => {
-            SummaryHUDStateService.setTargetSummaryPopover({
+        it("will expire the right side tile over time", () => {
+            SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
                 gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                battleSquaddieId: "enemy",
             })
 
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "another_player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 100,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
+            drawAndExpectTileToExist(
+                "enemy",
+                ActionTilePosition.PEEK_RIGHT_NAME
+            )
 
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                    .battleSquaddieId
-            ).toEqual("player")
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS - 1)
+            drawAndExpectTileToExist(
+                "enemy",
+                ActionTilePosition.PEEK_RIGHT_NAME
+            )
+
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS + 1)
+            drawAndExpectTileNotToExist(ActionTilePosition.PEEK_RIGHT_NAME)
         })
-
-        it("will change the target summary popover if the existing will expire", () => {
-            SummaryHUDStateService.setTargetSummaryPopover({
+        it("will never expire the right tile if no date was set", () => {
+            SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
                 gameEngineState,
-                expirationTime: 100,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                battleSquaddieId: "enemy",
+                removeExpirationTime: true,
             })
 
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "another_player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
+            drawAndExpectTileToExist(
+                "enemy",
+                ActionTilePosition.PEEK_RIGHT_NAME
+            )
 
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                    .battleSquaddieId
-            ).toEqual("another_player")
-        })
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS - 1)
+            drawAndExpectTileToExist(
+                "enemy",
+                ActionTilePosition.PEEK_RIGHT_NAME
+            )
 
-        it("will change the target summary popover if the existing and new ones do not expire", () => {
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "another_player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET
-                    .battleSquaddieId
-            ).toEqual("another_player")
+            dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS + 1)
+            drawAndExpectTileToExist(
+                "enemy",
+                ActionTilePosition.PEEK_RIGHT_NAME
+            )
         })
     })
 
@@ -1123,15 +915,17 @@ describe("summaryHUD", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
                 battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
             })
-            SummaryHUDStateService.createCommandWindow({
+
+            SummaryHUDStateService.createActorTiles({
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
@@ -1141,6 +935,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
         })
         it("will create a playerCommandHUD when the squaddie is player controllable", () => {
@@ -1164,15 +959,16 @@ describe("summaryHUD", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                gameEngineState,
-                objectRepository,
-                resourceHandler,
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
                 battleSquaddieId: "player",
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
             })
-            SummaryHUDStateService.createCommandWindow({
+
+            SummaryHUDStateService.createActorTiles({
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
@@ -1182,6 +978,7 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 gameEngineState,
                 graphicsBuffer,
+                resourceHandler,
             })
         })
 
@@ -1191,10 +988,12 @@ describe("summaryHUD", () => {
                 "mouseMoved"
             )
             const mouseX = RectAreaService.centerX(
-                summaryHUDState.playerCommandState.actionButtons[0].buttonArea
+                summaryHUDState.playerCommandState.actionButtons[0].buttonIcon
+                    .drawArea
             )
             const mouseY = RectAreaService.centerY(
-                summaryHUDState.playerCommandState.actionButtons[0].buttonArea
+                summaryHUDState.playerCommandState.actionButtons[0].buttonIcon
+                    .drawArea
             )
 
             SummaryHUDStateService.mouseMoved({
@@ -1222,11 +1021,11 @@ describe("summaryHUD", () => {
                 mouseButton: MouseButton.ACCEPT,
                 mouseX: RectAreaService.centerX(
                     summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonArea
+                        .buttonIcon.drawArea
                 ),
                 mouseY: RectAreaService.centerY(
                     summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonArea
+                        .buttonIcon.drawArea
                 ),
                 gameEngineState,
             })
@@ -1235,174 +1034,6 @@ describe("summaryHUD", () => {
                 PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
             )
             playerCommandSpy.mockRestore()
-        })
-    })
-
-    describe("Timed expiration", () => {
-        let dateSpy: jest.SpyInstance
-        let gameEngineState: GameEngineState
-        let messageSpy: jest.SpyInstance
-
-        beforeEach(() => {
-            gameEngineState = GameEngineStateService.new({
-                resourceHandler,
-                repository: objectRepository,
-                campaign: CampaignService.default(),
-            })
-
-            dateSpy = jest.spyOn(Date, "now")
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: {
-                    x: 0,
-                    y: 0,
-                },
-            })
-
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-        })
-        afterEach(() => {
-            dateSpy.mockRestore()
-        })
-
-        it("Does not expire if no expiration time is set", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            dateSpy.mockReturnValue(1000)
-            expect(
-                SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                    summaryHUDState,
-                })
-            ).toBeFalsy()
-        })
-        it("Does not expire if expiration time has not been reached yet", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 2000,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .expirationTime
-            ).toEqual(2000)
-            dateSpy.mockReturnValue(1000)
-            expect(
-                SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                    summaryHUDState,
-                })
-            ).toBeFalsy()
-        })
-        it("Will expire if expiration time has been reached", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 999,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            dateSpy.mockReturnValue(1000)
-            expect(
-                SummaryHUDStateService.hasMainSummaryPopoverExpired({
-                    summaryHUDState,
-                })
-            ).toBeTruthy()
-        })
-        it("Will send a message if it has expired", () => {
-            dateSpy.mockReturnValue(0)
-
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 999,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "enemy",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 1999,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            dateSpy.mockReturnValue(1000)
-            SummaryHUDStateService.draw({
-                summaryHUDState,
-                graphicsBuffer,
-                gameEngineState,
-            })
-
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
-                gameEngineState,
-                popoverType: SummaryPopoverType.MAIN,
-            })
-
-            dateSpy.mockReturnValue(2000)
-            SummaryHUDStateService.draw({
-                summaryHUDState,
-                graphicsBuffer,
-                gameEngineState,
-            })
-            expect(messageSpy).toBeCalledWith({
-                type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
-                gameEngineState,
-                popoverType: SummaryPopoverType.TARGET,
-            })
-        })
-
-        it("will remove popovers when requested", () => {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 999,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            SummaryHUDStateService.setTargetSummaryPopover({
-                summaryHUDState,
-                battleSquaddieId: "player",
-                resourceHandler,
-                objectRepository,
-                gameEngineState,
-                expirationTime: 1999,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-
-            SummaryHUDStateService.removeSummaryPopover({
-                summaryHUDState,
-                popoverType: SummaryPopoverType.MAIN,
-            })
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN
-            ).toBeUndefined()
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET
-            ).not.toBeUndefined()
-
-            SummaryHUDStateService.removeSummaryPopover({
-                summaryHUDState,
-                popoverType: SummaryPopoverType.TARGET,
-            })
-            expect(
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET
-            ).toBeUndefined()
         })
     })
 })

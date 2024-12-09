@@ -17,7 +17,6 @@ import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { makeResult } from "../utils/ResultOrError"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     GameEngineState,
@@ -41,7 +40,7 @@ import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrato
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
-import { MouseButton, MouseClickService } from "../utils/mouseConfig"
+import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import {
@@ -50,6 +49,8 @@ import {
 } from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
+import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -64,6 +65,7 @@ describe("user clicks on the map to move", () => {
     let missionMap: MissionMap
 
     let resourceHandler: ResourceHandler
+    let mockP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
@@ -110,7 +112,7 @@ describe("user clicks on the map to move", () => {
             .mockReturnValueOnce(true)
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -128,6 +130,8 @@ describe("user clicks on the map to move", () => {
                 turnCount: 0,
             }),
         })
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+            SummaryHUDStateService.new({})
 
         selector = new BattlePlayerSquaddieSelector()
         gameEngineState.messageBoard.addListener(
@@ -159,16 +163,26 @@ describe("user clicks on the map to move", () => {
             },
         })
 
+        mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
+
         selectorAndHUDClickOnSquaddie(
             selector,
             playerBattleSquaddie.battleSquaddieId,
-            gameEngineState
+            gameEngineState,
+            mockP5GraphicsContext
         )
     })
 
     describe("Invalid locations", () => {
         it("When user clicks off map", () => {
-            selectorClicksOnMapLocation(selector, gameEngineState, -10, 9001)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                -10,
+                9001,
+                mockP5GraphicsContext
+            )
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -177,20 +191,36 @@ describe("user clicks on the map to move", () => {
         })
 
         it("When user clicks out of range", () => {
-            selectorClicksOnMapLocation(selector, gameEngineState, 0, 4)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                0,
+                4,
+                mockP5GraphicsContext
+            )
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showSummaryHUD
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ]
             ).toBeTruthy()
         })
 
         it("When user clicks in range but on invalid terrain", () => {
-            selectorClicksOnMapLocation(selector, gameEngineState, 1, 0)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                1,
+                0,
+                mockP5GraphicsContext
+            )
             expectNoActionWasMadeAndSelectorIsComplete()
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showSummaryHUD
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ]
             ).toBeTruthy()
         })
 
@@ -210,16 +240,28 @@ describe("user clicks on the map to move", () => {
                     r: 2,
                 },
             })
-            selectorClicksOnMapLocation(selector, gameEngineState, 2, 2)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                2,
+                2,
+                mockP5GraphicsContext
+            )
             expectNoActionWasMadeAndSelectorIsComplete()
+
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
             expect(
                 gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showSummaryHUD
-            ).toBeTruthy()
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
+                    .summaryHUDState.squaddieNameTiles[
+                    ActionTilePosition.ACTOR_NAME
+                ].battleSquaddieId
             ).toEqual(anotherPlayer.battleSquaddieId)
         })
 
@@ -258,7 +300,13 @@ describe("user clicks on the map to move", () => {
                 [playerBattleSquaddie2.battleSquaddieId]
             )
 
-            selectorClicksOnMapLocation(selector, gameEngineState, 0, 3)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                0,
+                3,
+                mockP5GraphicsContext
+            )
         })
 
         it("Squaddie Selector will create a new route", () => {
@@ -341,7 +389,13 @@ describe("user clicks on the map to move", () => {
         let moveSquaddieAlongPathSpy: jest.SpyInstance
 
         beforeEach(() => {
-            selectorClicksOnMapLocation(selector, gameEngineState, 0, 3)
+            selectorClicksOnMapLocation(
+                selector,
+                gameEngineState,
+                0,
+                3,
+                mockP5GraphicsContext
+            )
             mover = new BattleSquaddieMover()
             graphicsContext = new MockedP5GraphicsBuffer()
             moveSquaddieAlongPathSpy = jest.spyOn(
@@ -353,11 +407,20 @@ describe("user clicks on the map to move", () => {
         it("mover tries to move the squaddie icon", () => {
             expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
             jest.spyOn(Date, "now").mockImplementation(() => 1)
-            mover.update(gameEngineState, graphicsContext)
+            let getImageUISpy: jest.SpyInstance
+            getImageUISpy = jest
+                .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+                .mockReturnValue(undefined)
+            mover.update({
+                gameEngineState,
+                graphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             expect(
                 moveSquaddieAlongPathSpy.mock.calls[0][0].battleSquaddie
                     .battleSquaddieId
             ).toEqual(playerBattleSquaddie.battleSquaddieId)
+            getImageUISpy.mockRestore()
         })
     })
 })
@@ -396,7 +459,8 @@ const getGameEngineState = ({
 const selectorAndHUDClickOnSquaddie = (
     selector: BattlePlayerSquaddieSelector,
     battleSquaddieId: string,
-    gameEngineState: GameEngineState
+    gameEngineState: GameEngineState,
+    graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
@@ -410,17 +474,14 @@ const selectorAndHUDClickOnSquaddie = (
         mouseY,
         mouseButton: MouseButton.ACCEPT,
     })
-    gameEngineState.messageBoard.sendMessage({
-        type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+
+    SummaryHUDStateService.draw({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
         gameEngineState,
-        battleSquaddieSelectedId: battleSquaddieId,
-        selectionMethod: {
-            mouse: MouseClickService.new({
-                x: 0,
-                y: 0,
-                button: MouseButton.ACCEPT,
-            }),
-        },
+        resourceHandler: gameEngineState.resourceHandler,
+        graphicsBuffer: graphicsContext,
     })
 }
 
@@ -428,7 +489,8 @@ const selectorClicksOnMapLocation = (
     selector: BattlePlayerSquaddieSelector,
     gameEngineState: GameEngineState,
     q: number,
-    r: number
+    r: number,
+    graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
         ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({

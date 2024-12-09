@@ -1,9 +1,7 @@
 import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
-import { SquaddieSummaryPopoverPosition } from "../battle/hud/playerActionPanel/squaddieSummaryPopover"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { SummaryPopoverType } from "../battle/hud/summaryHUD"
 import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow"
@@ -27,7 +25,6 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerConfirmsAction
     | MessageBoardMessageSquaddiePhaseStarts
     | MessageBoardMessageSquaddiePhaseEnds
-    | MessageBoardMessageSummaryPopoverExpires
     | MessageBoardMessageSelectAndLockNextSquaddie
     | MessageBoardMessageMoveSquaddieToLocation
     | MessageBoardMessagePlayerCancelsSquaddieSelection
@@ -55,7 +52,6 @@ export enum MessageBoardMessageType {
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
     SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
-    SUMMARY_POPOVER_EXPIRES = "SUMMARY_POPOVER_EXPIRES",
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
     MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
@@ -125,7 +121,6 @@ export interface MessageBoardMessagePlayerPeeksAtSquaddie {
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
     selectionMethod: SquaddieSelectionMethod
-    squaddieSummaryPopoverPosition: SquaddieSummaryPopoverPosition
 }
 
 export interface MessageBoardBattleActionFinishesAnimation {
@@ -173,12 +168,6 @@ export interface MessageBoardMessageSquaddiePhaseEnds {
     type: MessageBoardMessageType.SQUADDIE_PHASE_ENDS
     phase: BattlePhase
     gameEngineState: GameEngineState
-}
-
-export interface MessageBoardMessageSummaryPopoverExpires {
-    type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES
-    gameEngineState: GameEngineState
-    popoverType: SummaryPopoverType
 }
 
 export interface MessageBoardMessageSelectAndLockNextSquaddie {

@@ -10,7 +10,6 @@ import {
     isValidValue,
 } from "../../../../utils/validityCheck"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
-import { ImageUI, ImageUIService } from "../../../../ui/imageUI"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { TextBox, TextBoxService } from "../../../../ui/textBox"
 import { WINDOW_SPACING } from "../../../../ui/constants"
@@ -22,6 +21,11 @@ import {
     ActionTilePosition,
     ActionTilePositionService,
 } from "./actionTilePosition"
+import {
+    ImageUI,
+    ImageUILoadingBehavior,
+    ImageUIService,
+} from "../../../../ui/ImageUI"
 
 export interface SquaddieNameAndPortraitTile {
     squaddieNameTextBox?: TextBox
@@ -82,8 +86,7 @@ export const SquaddieNameAndPortraitTileService = {
             graphicsContext: graphicsContext,
         })
 
-        setPortraitImage(tile, resourceHandler)
-        drawPortraitImage(tile, graphicsContext)
+        drawPortraitImage({ tile, graphicsContext, resourceHandler })
 
         setPortraitNameTextBox(tile, graphicsContext)
         drawPortraitNameTextBox(tile, graphicsContext)
@@ -94,39 +97,6 @@ export const SquaddieNameAndPortraitTileService = {
         ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
             horizontalPosition
         ),
-}
-
-const setPortraitImage = (
-    tile: SquaddieNameAndPortraitTile,
-    resourceHandler: ResourceHandler
-) => {
-    if (isValidValue(tile.portraitImage)) return
-    if (!resourceHandler.isResourceLoaded(tile.squaddiePortraitResourceKey))
-        return
-    const image = resourceHandler.getResource(tile.squaddiePortraitResourceKey)
-    const overallBoundingBox =
-        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-            tile.horizontalPosition
-        )
-    const imageWidth = Math.min(
-        image.width,
-        RectAreaService.width(overallBoundingBox)
-    )
-    const imageHeight = ImageUIService.ScaleImageHeight({
-        desiredWidth: imageWidth,
-        imageHeight: image.height,
-        imageWidth: image.width,
-    })
-
-    tile.portraitImage = new ImageUI({
-        graphic: image,
-        area: RectAreaService.new({
-            left: RectAreaService.centerX(overallBoundingBox) - imageWidth / 2,
-            top: RectAreaService.bottom(overallBoundingBox) - image.height,
-            width: imageWidth,
-            height: imageHeight,
-        }),
-    })
 }
 
 const setPortraitNameTextBox = (
@@ -172,12 +142,66 @@ const setPortraitNameTextBox = (
     })
 }
 
-const drawPortraitImage = (
-    tile: SquaddieNameAndPortraitTile,
+const drawPortraitImage = ({
+    tile,
+    graphicsContext,
+    resourceHandler,
+}: {
+    tile: SquaddieNameAndPortraitTile
     graphicsContext: GraphicsBuffer
-) => {
-    if (!isValidValue(tile.portraitImage)) return
-    tile.portraitImage.draw(graphicsContext)
+    resourceHandler: ResourceHandler
+}) => {
+    if (!isValidValue(tile.portraitImage)) {
+        const overallBoundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                tile.horizontalPosition
+            )
+
+        tile.portraitImage = new ImageUI({
+            imageLoadingBehavior: {
+                resourceKey: tile.squaddiePortraitResourceKey,
+                loadingBehavior:
+                    ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK,
+                customAreaCallback: ({
+                    imageSize,
+                    originalArea,
+                }: {
+                    imageSize: { width: number; height: number }
+                    originalArea: RectArea
+                }): RectArea => {
+                    const imageWidth = Math.min(
+                        imageSize.width,
+                        RectAreaService.width(overallBoundingBox)
+                    )
+                    const imageHeight = ImageUIService.scaleImageHeight({
+                        desiredWidth: imageWidth,
+                        imageWidth: imageSize.width,
+                        imageHeight: imageSize.height,
+                    })
+
+                    return RectAreaService.new({
+                        left:
+                            RectAreaService.centerX(originalArea) -
+                            imageWidth / 2,
+                        top: RectAreaService.bottom(originalArea) - imageHeight,
+                        width: imageWidth,
+                        height: imageHeight,
+                    })
+                },
+            },
+            area: RectAreaService.new({
+                left:
+                    RectAreaService.left(overallBoundingBox) +
+                    WINDOW_SPACING.SPACING1,
+                top: RectAreaService.bottom(overallBoundingBox),
+                width:
+                    RectAreaService.width(overallBoundingBox) -
+                    WINDOW_SPACING.SPACING2,
+                height: 0,
+            }),
+        })
+    }
+    tile.portraitImage.draw({ graphicsContext, resourceHandler })
 }
 
 const drawPortraitNameTextBox = (

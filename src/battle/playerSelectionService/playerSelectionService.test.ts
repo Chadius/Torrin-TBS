@@ -39,7 +39,6 @@ import {
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import {
     CoordinateSystem,
@@ -444,16 +443,6 @@ describe("Player Selection Service", () => {
                         SummaryHUDStateService.new({
                             screenSelectionCoordinates: { x: 0, y: 0 },
                         })
-                    SummaryHUDStateService.setMainSummaryPopover({
-                        objectRepository: gameEngineState.repository,
-                        position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                        resourceHandler: gameEngineState.resourceHandler,
-                        summaryHUDState:
-                            gameEngineState.battleOrchestratorState
-                                .battleHUDState.summaryHUDState,
-                        gameEngineState,
-                        battleSquaddieId: "PLAYER",
-                    })
                     actualContext = clickOnMapCoordinate({
                         q: 0,
                         r: 2,
@@ -532,8 +521,6 @@ describe("Player Selection Service", () => {
                         y: screenY,
                     },
                 },
-                squaddieSummaryPopoverPosition:
-                    SquaddieSummaryPopoverPosition.SELECT_MAIN,
             }
             expect(messageSpy).toBeCalledWith(expectedMessage)
             expect(actualChanges.messageSent).toEqual(expectedMessage)

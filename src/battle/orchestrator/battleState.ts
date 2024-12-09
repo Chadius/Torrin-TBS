@@ -368,6 +368,8 @@ const squaddieTurnEnds = (message: MessageBoardMessageSquaddieTurnEnds) => {
     BattleActionRecorderService.turnComplete(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
+    gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
+        undefined
 }
 
 const updateSummaryHUDAfterFinishingAnimation = (

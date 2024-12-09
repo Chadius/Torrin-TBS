@@ -19,11 +19,11 @@ import { TextBox, TextBoxService } from "../ui/textBox"
 import { KeyButtonName, KeyWasPressed } from "../utils/keyboardConfig"
 import { Rectangle, RectangleHelper } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"
-import { ImageUI, ImageUIService } from "../ui/imageUI"
 import { LoadSaveStateService } from "../dataLoader/loadSaveState"
 import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "../ui/ImageUI"
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000
 
@@ -209,7 +209,7 @@ export class TitleScreen implements GameEngineComponent {
         if (this.startLoadingResources === false) {
             this.loadResourcesFromHandler()
         }
-        this.draw(state, graphicsContext)
+        this.draw(state, graphicsContext, state.resourceHandler)
     }
 
     keyPressed(state: GameEngineState, keyCode: number): void {
@@ -262,9 +262,13 @@ export class TitleScreen implements GameEngineComponent {
         LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState)
     }
 
-    private draw(state: GameEngineState, graphicsContext: GraphicsBuffer) {
+    private draw(
+        state: GameEngineState,
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ): void {
         RectangleHelper.draw(this.lazyLoadBackground(), graphicsContext)
-        this.drawTitleBanner(graphicsContext)
+        this.drawTitleBanner(graphicsContext, resourceHandler)
 
         TextBoxService.draw(this.lazyLoadTitle(), graphicsContext)
         TextBoxService.draw(this.lazyLoadByLine(), graphicsContext)
@@ -273,7 +277,7 @@ export class TitleScreen implements GameEngineComponent {
 
         this.updateStartGameButton(graphicsContext).draw(graphicsContext)
         this.updateContinueGameButton(state).draw(graphicsContext)
-        this.drawCharacterIntroductions(graphicsContext)
+        this.drawCharacterIntroductions(graphicsContext, resourceHandler)
     }
 
     private resetInternalState() {
@@ -380,7 +384,10 @@ export class TitleScreen implements GameEngineComponent {
         this.errorDuringLoadingDisplayStartTimestamp = undefined
     }
 
-    private drawTitleBanner(graphicsContext: GraphicsBuffer) {
+    private drawTitleBanner(
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) {
         if (this.titleBanner === undefined) {
             this.titleBannerArea = RectAreaService.new({
                 left: WINDOW_SPACING.SPACING1,
@@ -403,7 +410,7 @@ export class TitleScreen implements GameEngineComponent {
                 height:
                     ScreenDimensions.SCREEN_HEIGHT *
                     TitleScreenDesign.logo.screenHeight,
-                width: ImageUIService.ScaleImageWidth({
+                width: ImageUIService.scaleImageWidth({
                     imageWidth: image.width,
                     imageHeight: image.height,
                     desiredHeight:
@@ -413,12 +420,17 @@ export class TitleScreen implements GameEngineComponent {
             })
 
             this.titleBanner = new ImageUI({
+                imageLoadingBehavior: {
+                    resourceKey: undefined,
+                    loadingBehavior:
+                        ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                },
                 graphic: image,
                 area: this.titleBannerArea,
             })
         }
 
-        this.titleBanner.draw(graphicsContext)
+        this.titleBanner.draw({ graphicsContext, resourceHandler })
     }
 
     private lazyLoadTitle() {
@@ -810,14 +822,26 @@ export class TitleScreen implements GameEngineComponent {
         return this.resourceHandler.areAllResourcesLoaded(resourceKeys)
     }
 
-    private drawCharacterIntroductions(graphicsContext: GraphicsBuffer) {
-        this.drawTorrinCharacterIntroduction(graphicsContext)
-        this.drawSirCamilCharacterIntroduction(graphicsContext)
-        this.drawDemonSlitherCharacterIntroduction(graphicsContext)
-        this.drawDemonLocustCharacterIntroduction(graphicsContext)
+    private drawCharacterIntroductions(
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) {
+        this.drawTorrinCharacterIntroduction(graphicsContext, resourceHandler)
+        this.drawSirCamilCharacterIntroduction(graphicsContext, resourceHandler)
+        this.drawDemonSlitherCharacterIntroduction(
+            graphicsContext,
+            resourceHandler
+        )
+        this.drawDemonLocustCharacterIntroduction(
+            graphicsContext,
+            resourceHandler
+        )
     }
 
-    private drawSirCamilCharacterIntroduction(graphicsContext: GraphicsBuffer) {
+    private drawSirCamilCharacterIntroduction(
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) {
         if (this.sirCamilUIElements.icon === undefined) {
             this.createSirCamilPlaceholderIconAreaUnderTorrin()
         }
@@ -842,7 +866,7 @@ export class TitleScreen implements GameEngineComponent {
             this.setSirCamilIconBasedOnImageAndTorrinImage(image)
             this.setSirCamilDescriptionText()
         }
-        this.sirCamilUIElements.icon.draw(graphicsContext)
+        this.sirCamilUIElements.icon.draw({ graphicsContext, resourceHandler })
     }
 
     private setSirCamilIconBasedOnImageAndTorrinImage(image: p5.Image) {
@@ -892,7 +916,10 @@ export class TitleScreen implements GameEngineComponent {
         })
     }
 
-    private drawTorrinCharacterIntroduction(graphicsContext: GraphicsBuffer) {
+    private drawTorrinCharacterIntroduction(
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
+    ) {
         if (this.torrinUIElements.icon === undefined) {
             this.createPlaceholderTorrinIconArea()
         }
@@ -916,7 +943,7 @@ export class TitleScreen implements GameEngineComponent {
             this.setTorrinIconBasedOnImage(image)
             this.setTorrinDescriptionText()
         }
-        this.torrinUIElements.icon.draw(graphicsContext)
+        this.torrinUIElements.icon.draw({ graphicsContext, resourceHandler })
     }
 
     private setTorrinIconBasedOnImage(image: p5.Image) {
@@ -962,7 +989,8 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private drawDemonSlitherCharacterIntroduction(
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ) {
         if (!isValidValue(this.demonSlitherUIElements.icon)) {
             this.createDemonSlitherPlaceholderIconAreaUnderSirCamil()
@@ -988,7 +1016,10 @@ export class TitleScreen implements GameEngineComponent {
             this.setDemonSlitherDescriptionText()
         }
 
-        this.demonSlitherUIElements.icon.draw(graphicsContext)
+        this.demonSlitherUIElements.icon.draw({
+            graphicsContext,
+            resourceHandler,
+        })
     }
 
     private setDemonSlitherDescriptionText() {
@@ -1037,7 +1068,8 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private drawDemonLocustCharacterIntroduction(
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ) {
         if (!isValidValue(this.demonLocustUIElements.icon)) {
             this.createDemonLocustPlaceholderIconAreaUnderDemonSlither()
@@ -1063,7 +1095,10 @@ export class TitleScreen implements GameEngineComponent {
             this.setDemonLocustDescriptionText()
         }
 
-        this.demonLocustUIElements.icon.draw(graphicsContext)
+        this.demonLocustUIElements.icon.draw({
+            graphicsContext,
+            resourceHandler,
+        })
     }
 
     private setDemonLocustDescriptionText() {
@@ -1127,7 +1162,7 @@ const updateIconBasedOnImage = ({
     iconArea = RectAreaService.new({
         left: RectAreaService.left(iconArea),
         top: overrides?.top ?? RectAreaService.top(iconArea),
-        height: ImageUIService.ScaleImageHeight({
+        height: ImageUIService.scaleImageHeight({
             imageWidth: image.width,
             imageHeight: image.height,
             desiredWidth,
@@ -1138,6 +1173,10 @@ const updateIconBasedOnImage = ({
     return {
         iconArea,
         icon: new ImageUI({
+            imageLoadingBehavior: {
+                resourceKey: undefined,
+                loadingBehavior: ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+            },
             graphic: image,
             area: iconArea,
         }),

@@ -330,10 +330,14 @@ describe("Battle State", () => {
         let playerTeam1: BattleSquaddieTeam
         let enemyTeam0: BattleSquaddieTeam
         let battleState: BattleState
-        let squaddieRepository: ObjectRepository
+        let objectRepository: ObjectRepository
+        let getImageUISpy: jest.SpyInstance
 
         beforeEach(() => {
-            squaddieRepository = ObjectRepositoryService.new()
+            objectRepository = ObjectRepositoryService.new()
+            getImageUISpy = jest
+                .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+                .mockReturnValue(undefined)
             const playerTemplate: SquaddieTemplate =
                 SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
@@ -343,25 +347,25 @@ describe("Battle State", () => {
                     }),
                 })
             ObjectRepositoryService.addSquaddieTemplate(
-                squaddieRepository,
+                objectRepository,
                 playerTemplate
             )
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepository,
+                objectRepository,
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 0",
                     squaddieTemplate: playerTemplate,
                 })
             )
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepository,
+                objectRepository,
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 0 1",
                     squaddieTemplate: playerTemplate,
                 })
             )
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepository,
+                objectRepository,
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 1",
                     squaddieTemplate: playerTemplate,
@@ -394,11 +398,11 @@ describe("Battle State", () => {
                 }
             )
             ObjectRepositoryService.addSquaddieTemplate(
-                squaddieRepository,
+                objectRepository,
                 enemyTemplate
             )
             ObjectRepositoryService.addBattleSquaddie(
-                squaddieRepository,
+                objectRepository,
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "enemy 0",
                     squaddieTemplate: enemyTemplate,
@@ -423,45 +427,38 @@ describe("Battle State", () => {
                 teams: [playerTeam0, playerTeam1, enemyTeam0],
             })
         })
+        afterEach(() => {
+            getImageUISpy.mockRestore()
+        })
         it("reports no teams when there are no teams with the current affiliation", () => {
             battleState.battlePhaseState.currentAffiliation =
                 BattlePhase.UNKNOWN
             expect(
-                BattleStateService.getCurrentTeam(
-                    battleState,
-                    squaddieRepository
-                )
+                BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBeUndefined()
         })
         it("reports the first added team of a given affiliation when all teams are ready", () => {
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
             expect(
-                BattleStateService.getCurrentTeam(
-                    battleState,
-                    squaddieRepository
-                )
+                BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBe(playerTeam0)
         })
         it("reports the second added team of a given affiliation if the first team cannot act", () => {
-            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository)
+            BattleSquaddieTeamService.endTurn(playerTeam0, objectRepository)
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
             expect(
-                BattleStateService.getCurrentTeam(
-                    battleState,
-                    squaddieRepository
-                )
+                BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBe(playerTeam1)
+            expect(getImageUISpy).toHaveBeenCalled()
         })
         it("reports no teams when all of the teams of a given affiliation cannot act", () => {
-            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository)
-            BattleSquaddieTeamService.endTurn(playerTeam1, squaddieRepository)
+            BattleSquaddieTeamService.endTurn(playerTeam0, objectRepository)
+            BattleSquaddieTeamService.endTurn(playerTeam1, objectRepository)
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER
             expect(
-                BattleStateService.getCurrentTeam(
-                    battleState,
-                    squaddieRepository
-                )
+                BattleStateService.getCurrentTeam(battleState, objectRepository)
             ).toBeUndefined()
+            expect(getImageUISpy).toHaveBeenCalled()
         })
     })
 
@@ -801,7 +798,7 @@ describe("Battle State", () => {
             }
         }
 
-        it("Moves current turn to a previous turn", () => {
+        it("Records the current turn into the turn history", () => {
             const { moveBattleAction, endTurnAction } =
                 setupBattleActionRecorder()
 
@@ -850,6 +847,20 @@ describe("Battle State", () => {
                     battleActionRecorder
                 )
             ).toBeTruthy()
+        })
+
+        it("clears the summary HUD is no longer drawn", () => {
+            setupBattleActionRecorder()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.SQUADDIE_TURN_ENDS,
+                gameEngineState,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState
+            ).toBeUndefined()
         })
     })
 })

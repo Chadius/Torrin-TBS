@@ -1,9 +1,18 @@
 import { RectArea } from "./rectArea"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../resource/resourceHandler"
+
+export enum ImageUILoadingBehavior {
+    USE_IMAGE_SIZE = "USE_IMAGE_SIZE",
+    KEEP_AREA_WIDTH_USE_ASPECT_RATIO = "KEEP_AREA_WIDTH_USE_ASPECT_RATIO",
+    KEEP_AREA_HEIGHT_USE_ASPECT_RATIO = "KEEP_AREA_HEIGHT_USE_ASPECT_RATIO",
+    KEEP_AREA_RESIZE_IMAGE = "KEEP_AREA_RESIZE_IMAGE",
+    USE_CUSTOM_AREA_CALLBACK = "USE_CUSTOM_AREA_CALLBACK",
+}
 
 export const ImageUIService = {
-    ScaleImageWidth: ({
+    scaleImageWidth: ({
         imageWidth,
         imageHeight,
         desiredHeight,
@@ -14,7 +23,7 @@ export const ImageUIService = {
     }): number => {
         return scaleImageWidth({ imageWidth, imageHeight, desiredHeight })
     },
-    ScaleImageHeight: ({
+    scaleImageHeight: ({
         imageWidth,
         imageHeight,
         desiredWidth,
@@ -57,16 +66,56 @@ const scaleImageHeight = ({
 
 export class ImageUI {
     graphic: p5.Image
-    area: RectArea
+    drawArea: RectArea
     tintColor: number[]
+    resourceKey: string
+    loadingBehavior: ImageUILoadingBehavior
+    customAreaCallback?: ({
+        imageSize,
+        originalArea,
+    }: {
+        imageSize: { width: number; height: number }
+        originalArea: RectArea
+    }) => RectArea
 
-    constructor({ graphic, area }: { graphic: p5.Image; area: RectArea }) {
+    constructor({
+        graphic,
+        area,
+        imageLoadingBehavior,
+    }: {
+        graphic?: p5.Image
+        area: RectArea
+        imageLoadingBehavior: {
+            resourceKey: string
+            loadingBehavior: ImageUILoadingBehavior
+            customAreaCallback?: ({
+                imageSize,
+                originalArea,
+            }: {
+                imageSize: { width: number; height: number }
+                originalArea: RectArea
+            }) => RectArea
+        }
+    }) {
+        this.loadingBehavior = imageLoadingBehavior.loadingBehavior
+        this.resourceKey = imageLoadingBehavior.resourceKey
+        this.customAreaCallback = imageLoadingBehavior.customAreaCallback
         this.graphic = graphic
-        this.area = area
+        this.drawArea = area
         this.tintColor = []
     }
 
-    draw(graphicsContext: GraphicsBuffer) {
+    draw({
+        graphicsContext,
+        resourceHandler,
+    }: {
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }) {
+        this.load(resourceHandler)
+        if (!this.graphic) return
+
+        graphicsContext.push()
         if (this.tintColor) {
             graphicsContext.tint(
                 this.tintColor[0],
@@ -77,13 +126,56 @@ export class ImageUI {
         }
         graphicsContext.image(
             this.graphic,
-            this.area.left,
-            this.area.top,
-            this.area.width,
-            this.area.height
+            this.drawArea.left,
+            this.drawArea.top,
+            this.drawArea.width,
+            this.drawArea.height
         )
         if (this.tintColor) {
             graphicsContext.noTint()
+        }
+        graphicsContext.pop()
+    }
+
+    private resizeDrawAreaBasedOnLoadingBehavior() {
+        switch (true) {
+            case this.loadingBehavior === ImageUILoadingBehavior.USE_IMAGE_SIZE:
+                this.drawArea.width = this.graphic.width
+                this.drawArea.height = this.graphic.height
+                break
+            case this.loadingBehavior ===
+                ImageUILoadingBehavior.KEEP_AREA_WIDTH_USE_ASPECT_RATIO:
+                this.drawArea.height = scaleImageHeight({
+                    imageWidth: this.graphic.width,
+                    imageHeight: this.graphic.height,
+                    desiredWidth: this.drawArea.width,
+                })
+                break
+            case this.loadingBehavior ===
+                ImageUILoadingBehavior.KEEP_AREA_HEIGHT_USE_ASPECT_RATIO:
+                this.drawArea.width = scaleImageWidth({
+                    imageWidth: this.graphic.width,
+                    imageHeight: this.graphic.height,
+                    desiredHeight: this.drawArea.height,
+                })
+                break
+            case this.loadingBehavior ===
+                ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK &&
+                !!this.customAreaCallback:
+                this.drawArea = this.customAreaCallback({
+                    imageSize: {
+                        width: this.graphic.width,
+                        height: this.graphic.height,
+                    },
+                    originalArea: this.drawArea,
+                })
+                break
+            case this.loadingBehavior ===
+                ImageUILoadingBehavior.USE_CUSTOM_AREA_CALLBACK:
+                console.warn(
+                    `[ImageUI.draw] no custom callback provided for "${this.resourceKey}"`
+                )
+                break
         }
     }
 
@@ -96,11 +188,22 @@ export class ImageUI {
         this.tintColor = [hue, saturation, brightness, alpha]
     }
 
-    getTint() {
-        return [...this.tintColor]
-    }
-
     removeTint() {
         this.tintColor = []
+    }
+
+    load(resourceHandler: ResourceHandler) {
+        if (this.graphic) return
+        if (resourceHandler.isResourceLoaded(this.resourceKey)) {
+            this.graphic = resourceHandler.getResource(this.resourceKey)
+            this.resizeDrawAreaBasedOnLoadingBehavior()
+            return
+        }
+
+        resourceHandler.loadResource(this.resourceKey)
+    }
+
+    isImageLoaded(): boolean {
+        return !!this.graphic
     }
 }

@@ -9,7 +9,7 @@ import {
 } from "../../dataLoader/missionLoader"
 import { MissionLoader, MissionLoaderContext } from "./missionLoader"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { DEFAULT_VICTORY_CUTSCENE_ID } from "../orchestrator/missionCutsceneCollection"
 import { MissionObjectiveHelper } from "../missionResult/missionObjective"
 import {
@@ -630,7 +630,7 @@ describe("Mission Loader", () => {
         beforeEach(async () => {
             resourceHandler.getResource = jest
                 .fn()
-                .mockReturnValue(makeResult({ width: 1, height: 1 }))
+                .mockReturnValue({ width: 1, height: 1 })
 
             await MissionLoader.loadMissionFromFile({
                 missionLoaderContext: missionLoaderContext,

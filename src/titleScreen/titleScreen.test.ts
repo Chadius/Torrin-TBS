@@ -6,7 +6,6 @@ import { GameModeEnum } from "../utils/startupConfig"
 import { MouseButton } from "../utils/mouseConfig"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { ResourceHandler } from "../resource/resourceHandler"
-import { makeResult } from "../utils/ResultOrError"
 import { RectAreaService } from "../ui/rectArea"
 import {
     GameEngineState,
@@ -37,7 +36,7 @@ describe("Title Screen", () => {
             .mockReturnValue(true)
         mockResourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
         titleScreen = new TitleScreen({
             resourceHandler: mockResourceHandler,
             version: "TEST",

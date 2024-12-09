@@ -36,6 +36,7 @@ import {
     WARNING_POPUP_TEXT_CONSTANTS,
 } from "../../cutscene/dialogue/constants"
 import { PopupWindowService } from "./popupWindow"
+import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -151,7 +152,8 @@ export const PlayerCommandStateService = {
                     y: summaryHUDState.screenSelectionCoordinates.y,
                 },
                 summaryHUDState,
-                objectRepository
+                objectRepository,
+                gameEngineState
             ),
         }
 
@@ -220,7 +222,11 @@ export const PlayerCommandStateService = {
 
         const actionButtonClicked = playerCommandState.actionButtons.find(
             (button) =>
-                RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
+                RectAreaService.isInside(
+                    button.buttonIcon.drawArea,
+                    mouseX,
+                    mouseY
+                )
         )
         if (!actionButtonClicked) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
@@ -251,30 +257,57 @@ export const PlayerCommandStateService = {
             return
         }
 
-        const changeButtonStatusBasedOnMouseLocation = (button: {
+        const calculateNewButtonStatus = (button: {
             buttonArea: RectArea
             status: ButtonStatus
-            popupMessage?: string
-        }) => {
+        }): ButtonStatus => {
             const isMouseInsideButton = RectAreaService.isInside(
                 button.buttonArea,
                 mouseX,
                 mouseY
             )
 
-            if (button.status === ButtonStatus.HOVER && !isMouseInsideButton) {
-                button.status = ButtonStatus.ACTIVE
+            switch (true) {
+                case button.status === ButtonStatus.HOVER &&
+                    !isMouseInsideButton:
+                    button.status = ButtonStatus.ACTIVE
+                    return button.status
+                case button.status === ButtonStatus.ACTIVE &&
+                    isMouseInsideButton:
+                    return ButtonStatus.HOVER
+                default:
+                    return button.status
+            }
+        }
+
+        const clearPopupWindowWhenChangingToHover = (button: {
+            buttonArea: RectArea
+            currentStatus: ButtonStatus
+            newStatus: ButtonStatus
+        }) => {
+            if (
+                button.newStatus !== ButtonStatus.HOVER ||
+                button.currentStatus === button.newStatus
+            ) {
                 return
             }
 
-            if (button.status === ButtonStatus.ACTIVE && isMouseInsideButton) {
-                button.status = ButtonStatus.HOVER
+            PlayerDecisionHUDService.clearPopupWindow(
+                gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                PopupWindowType.PLAYER_INVALID_SELECTION
+            )
+        }
 
-                PlayerDecisionHUDService.clearPopupWindow(
-                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
-                    PopupWindowType.PLAYER_INVALID_SELECTION
-                )
-            }
+        const showDisabledButtonExplanationIfHoveringOver = (button: {
+            buttonArea: RectArea
+            status: ButtonStatus
+            popupMessage: string
+        }) => {
+            const isMouseInsideButton = RectAreaService.isInside(
+                button.buttonArea,
+                mouseX,
+                mouseY
+            )
 
             if (
                 button.status === ButtonStatus.DISABLED &&
@@ -289,19 +322,53 @@ export const PlayerCommandStateService = {
         }
 
         playerCommandState.actionButtons.forEach((button) => {
-            changeButtonStatusBasedOnMouseLocation(button)
+            const newButtonStatus = calculateNewButtonStatus({
+                buttonArea: button.buttonIcon.drawArea,
+                status: button.status,
+            })
+
+            clearPopupWindowWhenChangingToHover({
+                buttonArea: button.buttonIcon.drawArea,
+                currentStatus: button.status,
+                newStatus: newButtonStatus,
+            })
+
+            showDisabledButtonExplanationIfHoveringOver({
+                buttonArea: button.buttonIcon.drawArea,
+                status: button.status,
+                popupMessage: button.popupMessage,
+            })
+
+            button.status = newButtonStatus
         })
-        changeButtonStatusBasedOnMouseLocation(playerCommandState.moveButton)
-        changeButtonStatusBasedOnMouseLocation(playerCommandState.endTurnButton)
+        ;[
+            playerCommandState.moveButton,
+            playerCommandState.endTurnButton,
+        ].forEach((button) => {
+            const newButtonStatus = calculateNewButtonStatus({
+                buttonArea: button.buttonArea,
+                status: button.status,
+            })
+
+            clearPopupWindowWhenChangingToHover({
+                buttonArea: button.buttonArea,
+                currentStatus: button.status,
+                newStatus: newButtonStatus,
+            })
+
+            button.status = newButtonStatus
+        })
     },
     draw({
         playerCommandState,
         graphicsBuffer,
         gameEngineState,
+        resourceHandler,
     }: {
         playerCommandState: PlayerCommandState
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
+        resourceHandler: ResourceHandler
     }) {
         createQueuedPopupIfNeeded(
             playerCommandState,
@@ -316,7 +383,11 @@ export const PlayerCommandStateService = {
         }
 
         playerCommandState.actionButtons.forEach((button) => {
-            button.draw(gameEngineState.repository, graphicsBuffer)
+            button.draw({
+                objectRepository: gameEngineState.repository,
+                graphicsContext: graphicsBuffer,
+                resourceHandler,
+            })
         })
 
         drawEndTurnButton(playerCommandState, graphicsBuffer)
@@ -343,12 +414,16 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
         y: number
     },
     summaryHUDState: SummaryHUDState,
-    objectRepository: ObjectRepository
+    objectRepository: ObjectRepository,
+    gameEngineState: GameEngineState
 ): RectArea => {
     const { squaddieTemplate } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            summaryHUDState.squaddieSummaryPopoversByType.MAIN.battleSquaddieId
+            BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId
         )
     )
 
@@ -543,7 +618,6 @@ const createButtonsForFirstRow = ({
                     width: DECISION_BUTTON_LAYOUT.width,
                     height: DECISION_BUTTON_LAYOUT.height,
                 }),
-                resourceHandler,
                 actionTemplateId: actionTemplate.id,
                 buttonIconResourceKey: isValidValue(
                     actionTemplate.buttonIconResourceKey

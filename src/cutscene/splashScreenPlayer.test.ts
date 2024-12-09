@@ -4,7 +4,10 @@ import {
 } from "./splashScreenPlayer"
 import { SplashScreen, SplashScreenService } from "./splashScreen"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import {
+    MockedP5GraphicsBuffer,
+    mockResourceHandler,
+} from "../utils/test/mocks"
 
 describe("splash screen", () => {
     describe("splash screen finishes", () => {
@@ -103,7 +106,8 @@ describe("splash screen", () => {
 
             SplashScreenPlayerService.draw(
                 splashPlayerState,
-                mockedP5GraphicsContext
+                mockedP5GraphicsContext,
+                mockResourceHandler(mockedP5GraphicsContext)
             )
             expect(drawRectSpy).toBeCalled()
             expect(drawRectSpy).toBeCalledWith(
@@ -126,7 +130,8 @@ describe("splash screen", () => {
 
             SplashScreenPlayerService.draw(
                 splashPlayerState,
-                mockedP5GraphicsContext
+                mockedP5GraphicsContext,
+                mockResourceHandler(mockedP5GraphicsContext)
             )
             expect(drawRectSpy).not.toBeCalled()
         })

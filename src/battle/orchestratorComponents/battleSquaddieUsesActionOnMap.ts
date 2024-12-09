@@ -12,6 +12,7 @@ import { ActionComponentCalculator } from "../actionDecision/actionComponentCalc
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500
 
@@ -77,10 +78,15 @@ export class BattleSquaddieUsesActionOnMap
         this.animationCompleteStartTime = undefined
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
+        resourceHandler: ResourceHandler
+    }): void {
         if (this.animationCompleteStartTime === undefined) {
             this.animationCompleteStartTime = Date.now()
         }

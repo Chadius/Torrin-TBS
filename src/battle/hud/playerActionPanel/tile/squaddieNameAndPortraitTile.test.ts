@@ -27,6 +27,7 @@ import { ActionTilePosition } from "./actionTilePosition"
 
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
+
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
     })
@@ -125,6 +126,10 @@ describe("Squaddie Name and Portrait Tile", () => {
         beforeEach(() => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
+            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
+            resourceHandler.loadResource = jest
+                .fn()
+                .mockImplementation(() => {})
             graphicsBufferSpies = {}
             graphicsBufferSpies["text"] = jest
                 .spyOn(mockP5GraphicsContext, "text")
@@ -154,7 +159,6 @@ describe("Squaddie Name and Portrait Tile", () => {
                 tile,
             }))
 
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
             SquaddieNameAndPortraitTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
@@ -186,6 +190,10 @@ describe("Squaddie Name and Portrait Tile", () => {
 
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
+            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
+            resourceHandler.loadResource = jest
+                .fn()
+                .mockImplementation(() => {})
             graphicsBufferSpies = {}
             graphicsBufferSpies["textWidth"] = jest
                 .spyOn(mockP5GraphicsContext, "textWidth")
@@ -194,30 +202,6 @@ describe("Squaddie Name and Portrait Tile", () => {
 
         afterEach(() => {
             resetSpies(graphicsBufferSpies)
-        })
-
-        it("image is created when the resources are loaded and we attempt to draw", () => {
-            expect(tile.portraitImage).toBeUndefined()
-
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
-            SquaddieNameAndPortraitTileService.draw({
-                tile: tile,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
-            })
-            expect(tile.portraitImage).toBeUndefined()
-
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-            resourceHandler.getResource = jest
-                .fn()
-                .mockReturnValue({ width: 32, height: 32 })
-
-            SquaddieNameAndPortraitTileService.draw({
-                tile: tile,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
-            })
-            expect(tile.portraitImage).not.toBeUndefined()
         })
 
         describe("drawing", () => {
@@ -245,11 +229,11 @@ describe("Squaddie Name and Portrait Tile", () => {
 
             it("positions the image against the bottom of the screen", () => {
                 expect(
-                    RectAreaService.centerX(tile.portraitImage.area)
+                    RectAreaService.centerX(tile.portraitImage.drawArea)
                 ).toBeCloseTo(ScreenDimensions.SCREEN_WIDTH / 24)
 
                 expect(
-                    RectAreaService.bottom(tile.portraitImage.area)
+                    RectAreaService.bottom(tile.portraitImage.drawArea)
                 ).toBeCloseTo(ScreenDimensions.SCREEN_HEIGHT)
             })
 
@@ -274,6 +258,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
+            resourceHandler.loadResource = jest
+                .fn()
+                .mockImplementation(() => {})
             graphicsBufferSpies = {}
             graphicsBufferSpies["text"] = jest.spyOn(
                 mockP5GraphicsContext,
@@ -289,8 +276,6 @@ describe("Squaddie Name and Portrait Tile", () => {
         })
 
         it("does not create the text until we try to draw", () => {
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
-
             graphicsBufferSpies["textWidth"] = jest
                 .spyOn(mockP5GraphicsContext, "textWidth")
                 .mockReturnValue(10)

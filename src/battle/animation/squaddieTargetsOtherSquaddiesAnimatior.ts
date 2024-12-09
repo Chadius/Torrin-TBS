@@ -28,6 +28,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -118,7 +119,15 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         this._targetHitPointMeters = {}
     }
 
-    update(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         if (
             this.actionAnimationTimer.currentPhase ===
             ActionAnimationPhase.INITIALIZED
@@ -136,7 +145,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             case ActionAnimationPhase.INITIALIZED:
             case ActionAnimationPhase.BEFORE_ACTION:
             case ActionAnimationPhase.DURING_ACTION:
-                this.drawActionAnimation(gameEngineState, graphics)
+                this.drawActionAnimation(
+                    gameEngineState,
+                    graphicsContext,
+                    resourceHandler
+                )
                 break
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.TARGET_REACTS:
@@ -144,10 +157,18 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     this.updateHitPointMeters(gameEngineState)
                     this.startedShowingResults = true
                 }
-                this.drawActionAnimation(gameEngineState, graphics)
+                this.drawActionAnimation(
+                    gameEngineState,
+                    graphicsContext,
+                    resourceHandler
+                )
                 break
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                this.drawActionAnimation(gameEngineState, graphics)
+                this.drawActionAnimation(
+                    gameEngineState,
+                    graphicsContext,
+                    resourceHandler
+                )
                 this.sawResultAftermath = true
                 break
         }
@@ -370,7 +391,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
 
     private drawActionAnimation(
         gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer)
 
@@ -396,6 +418,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             timer: this.actionAnimationTimer,
             graphicsContext,
             actionEffectSquaddieTemplate,
+            resourceHandler,
         })
         this.weaponIcon.draw({
             graphicsContext,
@@ -403,7 +426,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 this.actionAnimationTimer,
                 graphicsContext,
                 actionEffectSquaddieTemplate
-            ).area,
+            ).drawArea,
             actionEffectSquaddieTemplate,
         })
         this.targetTextWindows.forEach((t) =>
@@ -417,7 +440,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                 actionEffectSquaddieTemplate,
                 actionToShow.effect.squaddie.find(
                     (change) => change.battleSquaddieId === t.battleSquaddieId
-                )
+                ),
+                resourceHandler
             )
         })
         Object.values(this.targetHitPointMeters).forEach((t) =>

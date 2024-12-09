@@ -17,6 +17,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number
@@ -59,7 +60,15 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         })
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         if (!this.animationStartTime) {
             this.animationStartTime = Date.now()
         }
@@ -67,15 +76,20 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         if (
             !DrawSquaddieUtilities.hasMovementAnimationFinished(
                 this.animationStartTime,
-                state.battleOrchestratorState.battleState.squaddieMovePath
+                gameEngineState.battleOrchestratorState.battleState
+                    .squaddieMovePath
             )
         ) {
-            this.updateWhileAnimationIsInProgress(state, graphicsContext)
+            this.updateWhileAnimationIsInProgress(
+                gameEngineState,
+                graphicsContext,
+                resourceHandler
+            )
             return
         }
 
         if (!this.finishedCleanup) {
-            this.updateWhenAnimationCompletes(state, graphicsContext)
+            this.updateWhenAnimationCompletes(gameEngineState, graphicsContext)
         }
     }
 
@@ -109,7 +123,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
     private updateWhileAnimationIsInProgress(
         gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
+        graphicsContext: GraphicsBuffer,
+        resourceHandler: ResourceHandler
     ) {
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -131,12 +146,12 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             camera: gameEngineState.battleOrchestratorState.battleState.camera,
         })
 
-        const mapIcon =
-            gameEngineState.repository.imageUIByBattleSquaddieId[
-                battleSquaddie.battleSquaddieId
-            ]
+        const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+            gameEngineState.repository,
+            battleSquaddie.battleSquaddieId
+        )
         if (mapIcon) {
-            mapIcon.draw(graphicsContext)
+            mapIcon.draw({ graphicsContext, resourceHandler })
         }
     }
 
@@ -169,7 +184,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         updateIconAndMapBasedOnWhetherSquaddieCanAct(
             gameEngineState,
             battleSquaddie,
-            graphicsContext
+            graphicsContext,
+            gameEngineState.resourceHandler
         )
         BattleActionService.setAnimationCompleted({
             battleAction: BattleActionRecorderService.peekAtAnimationQueue(
@@ -193,12 +209,13 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
     gameEngineState: GameEngineState,
     battleSquaddie: BattleSquaddie,
-    graphicsContext: GraphicsBuffer
+    graphicsContext: GraphicsBuffer,
+    resourceHandler: ResourceHandler
 ) => {
-    const mapIcon =
-        gameEngineState.repository.imageUIByBattleSquaddieId[
-            battleSquaddie.battleSquaddieId
-        ]
+    const mapIcon = ObjectRepositoryService.getImageUIByBattleSquaddieId(
+        gameEngineState.repository,
+        battleSquaddie.battleSquaddieId
+    )
     if (!mapIcon) {
         return
     }
@@ -212,5 +229,5 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
         destination,
         camera: gameEngineState.battleOrchestratorState.battleState.camera,
     })
-    mapIcon.draw(graphicsContext)
+    mapIcon.draw({ graphicsContext, resourceHandler })
 }

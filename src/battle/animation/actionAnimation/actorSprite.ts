@@ -8,7 +8,7 @@ import {
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { ActionTimer } from "./actionTimer"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import { SquaddieSprite } from "./squaddieSprite"
+import { SquaddieSprite, SquaddieSpriteService } from "./squaddieSprite"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -85,34 +85,33 @@ export class ActorSprite {
             )
         )
 
-        this._sprite = new SquaddieSprite({
-            resourceHandler,
+        this._sprite = SquaddieSpriteService.new({
             actionSpritesResourceKeysByEmotion: {
                 ...squaddieTemplate.squaddieId.resources.actionSpritesByEmotion,
             },
         })
-        this.sprite.beginLoadingActorImages()
     }
 
     draw({
         timer,
         graphicsContext,
         actionEffectSquaddieTemplate,
+        resourceHandler,
     }: {
         timer: ActionTimer
         graphicsContext: GraphicsBuffer
         actionEffectSquaddieTemplate: ActionEffectTemplate
+        resourceHandler: ResourceHandler
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
 
-        this.sprite.createActorImagesWithLoadedData()
-
         this.drawActorSprite(
             timer,
             graphicsContext,
-            actionEffectSquaddieTemplate
+            actionEffectSquaddieTemplate,
+            resourceHandler
         )
     }
 
@@ -128,7 +127,11 @@ export class ActorSprite {
             action,
         })
 
-        return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext)
+        return SquaddieSpriteService.getSpriteBasedOnEmotion({
+            squaddieSprite: this.sprite,
+            emotion,
+            graphicsContext,
+        })
     }
 
     public getSquaddieEmotion({
@@ -164,7 +167,8 @@ export class ActorSprite {
     private drawActorSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
-        action: ActionEffectTemplate
+        action: ActionEffectTemplate,
+        resourceHandler: ResourceHandler
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,
@@ -173,14 +177,16 @@ export class ActorSprite {
         )
         let { horizontalDistance, verticalDistance } =
             this.getDistanceBasedOnTimer(timer)
-        RectAreaService.move(spriteToDraw.area, {
+        spriteToDraw.load(resourceHandler)
+        if (!spriteToDraw.isImageLoaded()) return
+        RectAreaService.move(spriteToDraw.drawArea, {
             left: this.startingPosition + horizontalDistance,
             top:
                 ScreenDimensions.SCREEN_HEIGHT * 0.33 -
-                spriteToDraw.area.height +
+                spriteToDraw.drawArea.height +
                 verticalDistance,
         })
-        spriteToDraw.draw(graphicsContext)
+        spriteToDraw.draw({ resourceHandler, graphicsContext })
     }
 
     private getDistanceBasedOnTimer(timer: ActionTimer) {
@@ -192,7 +198,7 @@ export class ActorSprite {
             (5 * ScreenDimensions.SCREEN_WIDTH) / 12 - this._startingPosition
         let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion
             .NEUTRAL
-            ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 16
+            ? this.sprite.actionSpritesByEmotion.NEUTRAL.drawArea.height / 16
             : ScreenDimensions.SCREEN_HEIGHT / 24
         let attackTime: number = 0
 

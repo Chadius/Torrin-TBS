@@ -37,7 +37,7 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { CalculateAgainstArmor } from "../../../calculator/actionCalculator/calculateAgainstArmor"
-import { ImageUI } from "../../../../ui/imageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/ImageUI"
 
 const layoutConstants = {
     rowSize: 28,
@@ -103,9 +103,7 @@ export interface SquaddieStatusTile {
         graphicsByAttributeType: {
             [t in AttributeType]?: {
                 icon: ImageUI
-                iconResourceKey: string
                 arrowIcon?: ImageUI
-                arrowIconResourceKey?: string
                 textBox: TextBox
             }
         }
@@ -170,9 +168,7 @@ export const SquaddieStatusTileService = {
         })
 
         drawTextBoxes({ tile, graphicsContext })
-
-        loadImages({ tile, resourceHandler })
-        drawImages({ tile, graphicsContext })
+        drawImages({ tile, graphicsContext, resourceHandler })
     },
     updateTileUsingSquaddie: ({
         tile,
@@ -595,21 +591,27 @@ const updateNumericalAttributeModifiers = ({
                 attributeTypeAndAmount.type
             ] = {
                 icon: new ImageUI({
-                    graphic: undefined,
+                    imageLoadingBehavior: {
+                        resourceKey:
+                            AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+                                attributeTypeAndAmount.type
+                            ),
+                        loadingBehavior:
+                            ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                    },
                     area: iconImageRectArea,
                 }),
-                iconResourceKey:
-                    AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
-                        attributeTypeAndAmount.type
-                    ),
                 arrowIcon: new ImageUI({
-                    graphic: undefined,
+                    imageLoadingBehavior: {
+                        resourceKey:
+                            attributeTypeAndAmount.amount > 0
+                                ? "attribute-up"
+                                : "attribute-down",
+                        loadingBehavior:
+                            ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                    },
                     area: arrowImageRectArea,
                 }),
-                arrowIconResourceKey:
-                    attributeTypeAndAmount.amount > 0
-                        ? "attribute-up"
-                        : "attribute-down",
                 textBox,
             }
         }
@@ -659,13 +661,16 @@ const updateBinaryAttributeModifiers = ({
             attributeTypeAndAmount.type
         ] = {
             icon: new ImageUI({
-                graphic: undefined,
+                imageLoadingBehavior: {
+                    resourceKey:
+                        AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+                            attributeTypeAndAmount.type
+                        ),
+                    loadingBehavior:
+                        ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                },
                 area: iconImageRectArea,
             }),
-            iconResourceKey:
-                AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
-                    attributeTypeAndAmount.type
-                ),
             arrowIcon: undefined,
             textBox: undefined,
         }
@@ -769,9 +774,11 @@ const drawTextBoxes = ({
 const drawImages = ({
     tile,
     graphicsContext,
+    resourceHandler,
 }: {
     tile: SquaddieStatusTile
     graphicsContext: GraphicsBuffer
+    resourceHandler: ResourceHandler
 }) => {
     ;[
         ...Object.values(tile.attributeModifiers.graphicsByAttributeType).map(
@@ -781,47 +788,8 @@ const drawImages = ({
             (info) => info.arrowIcon
         ),
     ]
-        .filter((icon) => isValidValue(icon?.graphic))
+        .filter((icon) => !!icon)
         .forEach((icon) => {
-            icon.draw(graphicsContext)
-        })
-}
-
-const loadImages = ({
-    tile,
-    resourceHandler,
-}: {
-    tile: SquaddieStatusTile
-    resourceHandler: ResourceHandler
-}) => {
-    const pendingIconGraphics = [
-        ...Object.values(tile.attributeModifiers.graphicsByAttributeType),
-    ].filter((info) => info.iconResourceKey && !isValidValue(info.icon.graphic))
-
-    pendingIconGraphics
-        .filter((info) =>
-            resourceHandler.isResourceLoaded(info.iconResourceKey)
-        )
-        .forEach((info) => {
-            info.icon.graphic = resourceHandler.getResource(
-                info.iconResourceKey
-            )
-        })
-
-    const pendingArrowGraphics = [
-        ...Object.values(tile.attributeModifiers.graphicsByAttributeType),
-    ].filter(
-        (info) =>
-            info.arrowIconResourceKey && !isValidValue(info.arrowIcon.graphic)
-    )
-
-    pendingArrowGraphics
-        .filter((info) =>
-            resourceHandler.isResourceLoaded(info.arrowIconResourceKey)
-        )
-        .forEach((info) => {
-            info.arrowIcon.graphic = resourceHandler.getResource(
-                info.arrowIconResourceKey
-            )
+            icon.draw({ graphicsContext, resourceHandler })
         })
 }

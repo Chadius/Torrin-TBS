@@ -47,10 +47,12 @@ class P5ImageLoader implements ResourceTypeLoader {
     ) => {}
     failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any
     p5Instance: p5
+    resourceKeysAttemptedToLoad: string[]
 
     constructor(graphicsBuffer: GraphicsBuffer, p5Instance: p5) {
         this.graphicsBuffer = graphicsBuffer
         this.p5Instance = p5Instance
+        this.resourceKeysAttemptedToLoad = []
     }
 
     setCallbacks(
@@ -70,6 +72,11 @@ class P5ImageLoader implements ResourceTypeLoader {
     }
 
     loadResource(resourceKey: string, handler: ResourceHandler): void {
+        if (this.resourceKeysAttemptedToLoad.includes(resourceKey)) {
+            return
+        }
+        this.resourceKeysAttemptedToLoad.push(resourceKey)
+
         if (handler.isResourceLoaded(resourceKey)) {
             return
         }

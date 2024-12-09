@@ -30,6 +30,7 @@ describe("squaddie phase ends", () => {
     let gameEngineState: GameEngineState
     let repository: ObjectRepository
     let drawUtilitiesSpy: jest.SpyInstance
+    let getImageUISpy: jest.SpyInstance
 
     const addListenerToGameState = (gameEngineState: GameEngineState) => {
         squaddiePhaseListener = new SquaddiePhaseListener(
@@ -102,9 +103,13 @@ describe("squaddie phase ends", () => {
             DrawSquaddieUtilities,
             "unTintSquaddieMapIcon"
         )
+        getImageUISpy = jest
+            .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+            .mockReturnValue(undefined)
     })
 
     afterEach(() => {
+        getImageUISpy.mockRestore()
         drawUtilitiesSpy.mockRestore()
     })
 

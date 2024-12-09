@@ -22,7 +22,6 @@ import {
     MessageBoardMessage,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -353,8 +352,6 @@ export const PlayerSelectionService = {
                     selectionMethod: {
                         mouse: context.mouseMovement,
                     },
-                    squaddieSummaryPopoverPosition:
-                        SquaddieSummaryPopoverPosition.SELECT_MAIN,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

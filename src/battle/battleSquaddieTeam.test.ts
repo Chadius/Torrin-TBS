@@ -23,9 +23,13 @@ describe("Battle Squaddie Team", () => {
     let enemySquaddieTemplateBase: SquaddieTemplate
     let enemyBattleSquaddie0: BattleSquaddie
     let enemyBattleSquaddie1: BattleSquaddie
+    let getImageUISpy: jest.SpyInstance
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new()
+        getImageUISpy = jest
+            .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+            .mockReturnValue(undefined)
         twoPlayerTeam = {
             id: "teamId",
             name: "awesome test team",
@@ -127,6 +131,9 @@ describe("Battle Squaddie Team", () => {
             "enemy_slither_demon_0",
             "enemy_slither_demon_1",
         ])
+    })
+    afterEach(() => {
+        getImageUISpy.mockRestore()
     })
     it("knows at least 1 squaddie can act", () => {
         expect(

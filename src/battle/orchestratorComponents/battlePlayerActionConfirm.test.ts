@@ -34,7 +34,6 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
@@ -175,16 +174,6 @@ describe("BattleActionConfirm", () => {
             SummaryHUDStateService.new({
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
-        SummaryHUDStateService.setMainSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            resourceHandler: gameEngineState.resourceHandler,
-            objectRepository: gameEngineState.repository,
-            gameEngineState,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-        })
 
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
@@ -212,17 +201,6 @@ describe("BattleActionConfirm", () => {
                     .battleActionDecisionStep,
             targetLocation: mapCoordinate,
         })
-
-        SummaryHUDStateService.setTargetSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: thiefBattleSquaddie.battleSquaddieId,
-            gameEngineState,
-            objectRepository: gameEngineState.repository,
-            resourceHandler: gameEngineState.resourceHandler,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-        })
     }
 
     const clickOnConfirm = () => {
@@ -242,7 +220,7 @@ describe("BattleActionConfirm", () => {
     const clickOnCancel = () => {
         const cancelTargetClick: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
+            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
             mouseButton: MouseButton.ACCEPT,
         }
@@ -256,7 +234,11 @@ describe("BattleActionConfirm", () => {
     describe("user cancels confirmation", () => {
         beforeEach(() => {
             attackThiefWithLongsword()
-            playerActionConfirm.update(gameEngineState, mockedP5GraphicsContext)
+            playerActionConfirm.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             clickOnCancel()
         })
 
@@ -285,7 +267,11 @@ describe("BattleActionConfirm", () => {
 
     describe("user confirms the target", () => {
         beforeEach(() => {
-            playerActionConfirm.update(gameEngineState, mockedP5GraphicsContext)
+            playerActionConfirm.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             attackThiefWithLongsword()
             clickOnConfirm()
         })

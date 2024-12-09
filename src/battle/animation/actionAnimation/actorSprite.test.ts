@@ -9,8 +9,8 @@ import {
     ActionAnimationPhase,
     SquaddieEmotion,
 } from "./actionAnimationConstants"
+import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
-import { SquaddieSprite } from "./squaddieSprite"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
@@ -25,11 +25,13 @@ import {
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
+import { ResourceHandler } from "../../../resource/resourceHandler"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository
     let timer: ActionTimer
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let resourceHandler: ResourceHandler
     const battleSquaddieId = "actor0"
 
     let hinderingAction: ActionTemplate
@@ -37,7 +39,9 @@ describe("Actor Sprite", () => {
 
     beforeEach(() => {
         jest.spyOn(Date, "now").mockImplementation(() => 0)
-
+        resourceHandler = mocks.mockResourceHandler(
+            new MockedP5GraphicsBuffer()
+        )
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
@@ -97,14 +101,7 @@ describe("Actor Sprite", () => {
         const getterSpy = mockActionTimerPhase(
             ActionAnimationPhase.BEFORE_ACTION
         )
-        jest.spyOn(
-            SquaddieSprite.prototype,
-            "beginLoadingActorImages"
-        ).mockReturnValue()
-        jest.spyOn(
-            SquaddieSprite.prototype,
-            "createActorImagesWithLoadedData"
-        ).mockReturnValue({ justCreatedImages: false })
+
         const getSquaddieEmotionSpy = jest
             .spyOn(sprite, "getSquaddieEmotion")
             .mockReturnValue(SquaddieEmotion.NEUTRAL)
@@ -124,6 +121,7 @@ describe("Actor Sprite", () => {
             graphicsContext: mockedP5GraphicsContext,
             actionEffectSquaddieTemplate: hinderingAction
                 .actionEffectTemplates[0] as ActionEffectTemplate,
+            resourceHandler,
         })
 
         expect(getSquaddieEmotionSpy).toBeCalled()

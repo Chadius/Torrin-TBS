@@ -7,6 +7,7 @@ import { ObjectRepositoryService } from "../objectRepository"
 import { BattleCamera } from "../battleCamera"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
+import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -18,10 +19,12 @@ import {
 import { BattleHUDService } from "../hud/battleHUD"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let resourceHandler: ResourceHandler
 
     beforeEach(() => {
         jest.spyOn(
@@ -32,6 +35,7 @@ describe("battleMapDisplay", () => {
         battleMapDisplay = new BattleMapDisplay()
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
+        resourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
     })
 
     it("will move the camera if the mouse is near the edge of the screen", () => {
@@ -107,7 +111,11 @@ describe("battleMapDisplay", () => {
             })
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
-            battleMapDisplay.draw(state, mockedP5GraphicsContext)
+            battleMapDisplay.draw({
+                gameEngineState: state,
+                graphics: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 (initialCameraCoordinates[0] + destinationCoordinates[0]) / 2
             )
@@ -124,7 +132,11 @@ describe("battleMapDisplay", () => {
             expect(camera.setYVelocity).not.toBeCalled()
 
             jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
-            battleMapDisplay.draw(state, mockedP5GraphicsContext)
+            battleMapDisplay.draw({
+                gameEngineState: state,
+                graphics: mockedP5GraphicsContext,
+                resourceHandler,
+            })
             expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 destinationCoordinates[0]
             )
@@ -229,7 +241,6 @@ describe("battleMapDisplay", () => {
 
         stateWithOpenedHUD.battleState.camera.setXVelocity(0)
         stateWithOpenedHUD.battleState.camera.setYVelocity(0)
-        stateWithOpenedHUD.battleHUDState.summaryHUDState.showSummaryHUD = true
         const mouseHoverSpy: jest.SpyInstance = jest
             .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
             .mockReturnValue(true)
@@ -300,11 +311,9 @@ describe("battleMapDisplay", () => {
 
         it.each(tests)(
             `when hovering over the HUD at mouseX $mouseX, the camera should $cameraDescription`,
-            ({ cameraDescription, mouseX, cameraVelocityTest }) => {
+            ({ mouseX, cameraVelocityTest }) => {
                 stateWithOpenedHUD.battleState.camera.setXVelocity(0)
                 stateWithOpenedHUD.battleState.camera.setYVelocity(0)
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.showSummaryHUD =
-                    true
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.y =
                     ScreenDimensions.SCREEN_HEIGHT
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.x =

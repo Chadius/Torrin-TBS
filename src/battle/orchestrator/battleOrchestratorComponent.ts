@@ -3,6 +3,7 @@ import { UIControlSettings } from "./uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MouseButton } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -44,10 +45,15 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void
+        resourceHandler: ResourceHandler
+    }): void
 
     uiControlSettings(gameEngineState: GameEngineState): UIControlSettings
 

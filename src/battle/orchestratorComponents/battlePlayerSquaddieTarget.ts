@@ -29,14 +29,11 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
-import {
-    SquaddieSummaryPopoverPosition,
-    SquaddieSummaryPopoverService,
-} from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
 const MESSAGE_TEXT_SIZE = 24
@@ -106,18 +103,18 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         })
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
+        resourceHandler: ResourceHandler
+    }): void {
         if (!this.hasHighlightedTargetRange) {
             return this.highlightTargetRange(gameEngineState)
         }
-
-        this.movePopoversPositions(
-            gameEngineState,
-            SquaddieSummaryPopoverPosition.SELECT_TARGET
-        )
 
         if (!this.hasSelectedValidTarget) {
             this.drawCancelAbilityButton(
@@ -134,10 +131,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             gameEngineState
         )
         if (this.cancelAbility) {
-            this.movePopoversPositions(
-                gameEngineState,
-                SquaddieSummaryPopoverPosition.SELECT_MAIN
-            )
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
@@ -180,10 +173,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
             ) {
-                const actingSquaddieBattleId =
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                        .battleSquaddieId
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                     SummaryHUDStateService.new({
                         screenSelectionCoordinates:
@@ -192,17 +181,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                             ),
                     })
 
-                SummaryHUDStateService.setMainSummaryPopover({
-                    battleSquaddieId: actingSquaddieBattleId,
-                    summaryHUDState:
-                        gameEngineState.battleOrchestratorState.battleHUDState
-                            .summaryHUDState,
-                    gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
-                    objectRepository: gameEngineState.repository,
-                    position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-                })
-                SummaryHUDStateService.createCommandWindow({
+                SummaryHUDStateService.createActorTiles({
                     summaryHUDState:
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState,
@@ -455,25 +434,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     y: mouseEvent.mouseY,
                 },
             },
-            squaddieSummaryPopoverPosition:
-                SquaddieSummaryPopoverPosition.SELECT_TARGET,
-        })
-    }
-    private movePopoversPositions = (
-        gameEngineState: GameEngineState,
-        position: SquaddieSummaryPopoverPosition
-    ) => {
-        SquaddieSummaryPopoverService.changePopoverPosition({
-            popover:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            position,
-        })
-        SquaddieSummaryPopoverService.changePopoverPosition({
-            popover:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-            position,
         })
     }
 }

@@ -23,7 +23,6 @@ import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { makeResult } from "../utils/ResultOrError"
 import { TerrainTileMapService } from "../hexMap/terrainTileMap"
 import {
     BattlePhaseState,
@@ -73,6 +72,7 @@ describe("User ends their turn", () => {
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
+    let getImageUISpy: jest.SpyInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -133,7 +133,7 @@ describe("User ends their turn", () => {
         )
         resourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult({ width: 1, height: 1 }))
+            .mockReturnValue({ width: 32, height: 32 })
 
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
@@ -180,6 +180,14 @@ describe("User ends their turn", () => {
             battleHUDListener,
             MessageBoardMessageType.PLAYER_ENDS_TURN
         )
+
+        getImageUISpy = jest
+            .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+            .mockReturnValue(undefined)
+    })
+
+    afterEach(() => {
+        getImageUISpy.mockRestore()
     })
 
     it("HUD knows the user selected end turn", () => {
@@ -324,15 +332,6 @@ describe("User ends their turn", () => {
             highlightTileSpy.mockClear()
         })
 
-        it("Selector has completed and HUD is no longer drawn", () => {
-            expect(selector.hasCompleted(gameEngineState)).toBeTruthy()
-            selector.reset(gameEngineState)
-            expect(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.showSummaryHUD
-            ).toBeFalsy()
-        })
-
         it("ends the squaddie turn", () => {
             expect(
                 playerBattleSquaddie.squaddieTurn.remainingActionPoints
@@ -429,12 +428,20 @@ describe("User ends their turn", () => {
             )
 
             jest.spyOn(Date, "now").mockImplementation(() => 0)
-            mapAction.update(gameEngineState, graphicsContext)
+            mapAction.update({
+                gameEngineState,
+                graphicsContext,
+                resourceHandler,
+            })
             jest.spyOn(Date, "now").mockImplementation(
                 () => ACTION_COMPLETED_WAIT_TIME_MS + 1
             )
             messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-            mapAction.update(gameEngineState, graphicsContext)
+            mapAction.update({
+                gameEngineState,
+                graphicsContext,
+                resourceHandler,
+            })
         })
 
         afterEach(() => {

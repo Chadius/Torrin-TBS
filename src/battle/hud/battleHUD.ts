@@ -15,7 +15,6 @@ import {
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessagePlayerSelectsTargetLocation,
     MessageBoardMessageSelectAndLockNextSquaddie,
-    MessageBoardMessageSummaryPopoverExpires,
     MessageBoardMessageType,
     SquaddieSelectionMethod,
 } from "../../message/messageBoardMessage"
@@ -42,10 +41,6 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import {
-    SquaddieSummaryPopoverPosition,
-    SquaddieSummaryPopoverService,
-} from "./playerActionPanel/squaddieSummaryPopover"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
@@ -66,8 +61,7 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { PopupWindowService } from "./popupWindow"
 import { BattleCamera, BattleCameraService } from "../battleCamera"
-
-const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
+import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -158,9 +152,10 @@ export const BattleHUDService = {
         const { battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 gameEngineState.repository,
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
             )
         )
 
@@ -181,9 +176,6 @@ export const BattleHUDService = {
                 .battleActionRecorder,
             battleAction
         )
-
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showSummaryHUD =
-            false
 
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
@@ -244,17 +236,7 @@ export const BattleHUDService = {
         }
 
         if (squaddieIsNormallyControllableByPlayer) {
-            SummaryHUDStateService.setMainSummaryPopover({
-                summaryHUDState:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState,
-                battleSquaddieId,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-            })
-            SummaryHUDStateService.createCommandWindow({
+            SummaryHUDStateService.createActorTiles({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
@@ -263,15 +245,13 @@ export const BattleHUDService = {
                 gameEngineState,
             })
         } else {
-            SummaryHUDStateService.setTargetSummaryPopover({
+            SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
-                battleSquaddieId,
-                resourceHandler: gameEngineState.resourceHandler,
-                objectRepository: gameEngineState.repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
                 gameEngineState,
-                position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
+                removeExpirationTime: true,
             })
         }
     },
@@ -281,8 +261,6 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
-        const squaddieSummaryPopoverPosition =
-            message.squaddieSummaryPopoverPosition
 
         if (
             !isValidValue(
@@ -309,17 +287,6 @@ export const BattleHUDService = {
             gameEngineState,
         })
 
-        const popoverArgs = {
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId,
-            resourceHandler: gameEngineState.resourceHandler,
-            objectRepository: gameEngineState.repository,
-            gameEngineState,
-            expirationTime: Date.now() + SUMMARY_POPOVER_PEEK_EXPIRATION_MS,
-            position: squaddieSummaryPopoverPosition,
-        }
         const { mapCoordinate: startLocation } =
             MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -379,25 +346,6 @@ export const BattleHUDService = {
                 .terrainTileMap,
             actionRangeLayer
         )
-
-        switch (true) {
-            case !isValidValue(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-            ):
-            case SquaddieSummaryPopoverService.willExpireOverTime({
-                squaddieSummaryPopover:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            }):
-                SummaryHUDStateService.setMainSummaryPopover(popoverArgs)
-                return
-            case gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                .battleSquaddieId !== battleSquaddieId:
-                SummaryHUDStateService.setTargetSummaryPopover(popoverArgs)
-                return
-        }
     },
     playerSelectsActionThatRequiresATarget: (
         battleHUD: BattleHUD,
@@ -448,23 +396,6 @@ export const BattleHUDService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
             targetLocation: message.targetLocation,
-        })
-
-        const { battleSquaddieId: targetBattleSquaddieId } =
-            MissionMapService.getBattleSquaddieAtLocation(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                message.targetLocation
-            )
-
-        SummaryHUDStateService.setTargetSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: targetBattleSquaddieId,
-            gameEngineState,
-            objectRepository: gameEngineState.repository,
-            resourceHandler: gameEngineState.resourceHandler,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
         })
 
         TerrainTileMapService.removeAllGraphicsLayers(
@@ -570,49 +501,6 @@ export const BattleHUDService = {
             squaddieTemplate
         )
     },
-    enablePlayerCommand: (
-        battleHUD: BattleHUD,
-        gameEngineState: GameEngineState
-    ) => {
-        if (
-            gameEngineState?.battleOrchestratorState?.battleHUDState
-                ?.summaryHUDState?.squaddieSummaryPopoversByType?.MAIN
-        ) {
-            SquaddieSummaryPopoverService.update({
-                objectRepository: gameEngineState.repository,
-                gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
-                squaddieSummaryPopover:
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            })
-        }
-    },
-    summaryPopoverExpires: (
-        message: MessageBoardMessageSummaryPopoverExpires
-    ) => {
-        const gameEngineState = message.gameEngineState
-        const summaryHUDState =
-            gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState
-        const popoverType = message.popoverType
-
-        ;[
-            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
-            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
-        ].forEach((t) => {
-            TerrainTileMapService.removeGraphicsLayerWithIdAndType({
-                terrainTileMap:
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap.terrainTileMap,
-                id: summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-                    .battleSquaddieId,
-                type: t,
-            })
-        })
-
-        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
-    },
     selectAndLockNextSquaddie: (
         message: MessageBoardMessageSelectAndLockNextSquaddie
     ) => {
@@ -637,8 +525,9 @@ export const BattleHUDService = {
                 (id) =>
                     id !==
                     gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState?.squaddieSummaryPopoversByType.MAIN
-                        ?.battleSquaddieId
+                        .summaryHUDState?.squaddieNameTiles[
+                        ActionTilePosition.ACTOR_NAME
+                    ]?.battleSquaddieId
             )
 
         gameEngineState.battleOrchestratorState.battleHUDState.nextSquaddieBattleSquaddieIdsToCycleThrough =
@@ -727,9 +616,6 @@ export const BattleHUDService = {
             destination
         )
 
-        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.showSummaryHUD =
-            false
-
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             gameEngineState,
@@ -795,10 +681,6 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.gameEngineState.battleOrchestratorState.battleHUD
                         .fileAccessHUD
                 )
-                BattleHUDService.enablePlayerCommand(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message.gameEngineState
-                )
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
                 BattleHUDService.cancelTargetSelection(
@@ -847,9 +729,6 @@ export class BattleHUDListener implements MessageBoardListener {
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )
-                break
-            case MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES:
-                BattleHUDService.summaryPopoverExpires(message)
                 break
             case MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE:
                 BattleHUDService.selectAndLockNextSquaddie(message)

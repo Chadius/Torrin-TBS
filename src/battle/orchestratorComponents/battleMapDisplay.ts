@@ -21,6 +21,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -30,7 +31,15 @@ const SCREEN_EDGES = {
 }
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(gameEngineState: GameEngineState, graphics: GraphicsBuffer): void {
+    draw({
+        gameEngineState,
+        graphics,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphics: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
         graphics.background(50, 10, 20)
 
         if (
@@ -56,7 +65,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         this.drawSquaddieMapIcons(
             gameEngineState,
             graphics,
-            battleSquaddieIdsToOmit
+            battleSquaddieIdsToOmit,
+            resourceHandler
         )
         gameEngineState.battleOrchestratorState.battleState.camera.moveCamera()
 
@@ -75,7 +85,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
         if (
             !gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.showSummaryHUD
+                .summaryHUDState
         ) {
             return
         }
@@ -86,6 +96,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     .summaryHUDState,
             graphicsBuffer: graphics,
             gameEngineState,
+            resourceHandler,
         })
     }
 
@@ -138,8 +149,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
 
         if (
-            battleOrchestraState.battleHUDState.summaryHUDState
-                ?.showSummaryHUD &&
+            !!battleOrchestraState.battleHUDState.summaryHUDState &&
             SummaryHUDStateService.isMouseHoveringOver({
                 summaryHUDState:
                     battleOrchestraState.battleHUDState.summaryHUDState,
@@ -259,8 +269,20 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
     }
 
-    update(state: GameEngineState, graphicsContext: GraphicsBuffer): void {
-        this.draw(state, graphicsContext)
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
+        this.draw({
+            gameEngineState,
+            graphics: graphicsContext,
+            resourceHandler,
+        })
     }
 
     recommendStateChanges(
@@ -276,7 +298,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     private drawSquaddieMapIcons(
         state: GameEngineState,
         graphicsContext: GraphicsBuffer,
-        battleSquaddieIdsToOmit: string[]
+        battleSquaddieIdsToOmit: string[],
+        resourceHandler: ResourceHandler
     ) {
         ObjectRepositoryService.getBattleSquaddieIterator(state.repository)
             .filter(
@@ -308,12 +331,16 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                         )
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
                         DrawSquaddieUtilities.drawSquaddieMapIconAtMapCoordinate(
-                            graphicsContext,
-                            state.repository,
-                            battleSquaddie,
-                            battleSquaddieId,
-                            datum.mapCoordinate,
-                            state.battleOrchestratorState.battleState.camera
+                            {
+                                graphics: graphicsContext,
+                                squaddieRepository: state.repository,
+                                battleSquaddie: battleSquaddie,
+                                battleSquaddieId: battleSquaddieId,
+                                mapCoordinate: datum.mapCoordinate,
+                                camera: state.battleOrchestratorState
+                                    .battleState.camera,
+                                resourceHandler,
+                            }
                         )
                     }
                 }

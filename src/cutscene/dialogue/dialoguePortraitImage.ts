@@ -1,5 +1,4 @@
 import { RectAreaService } from "../../ui/rectArea"
-import { ImageUI } from "../../ui/imageUI"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import p5 from "p5"
@@ -8,6 +7,8 @@ import {
     DialoguePosition,
     DialogueTextService,
 } from "./constants"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class DialoguePortraitImage {
     speakerPortrait: p5.Image
@@ -26,8 +27,8 @@ export class DialoguePortraitImage {
         this.createUIObjects()
     }
 
-    draw(graphicsContext: GraphicsBuffer) {
-        this.speakerImage.draw(graphicsContext)
+    draw(graphicsContext: GraphicsBuffer, resourceHandler: ResourceHandler) {
+        this.speakerImage.draw({ graphicsContext, resourceHandler })
     }
 
     private createUIObjects() {
@@ -62,6 +63,10 @@ export class DialoguePortraitImage {
             rectStyle.bottomOffset
 
         this.speakerImage = new ImageUI({
+            imageLoadingBehavior: {
+                loadingBehavior: ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                resourceKey: undefined,
+            },
             graphic: this.speakerPortrait,
             area: RectAreaService.new({
                 left: speakerBoxLeft,

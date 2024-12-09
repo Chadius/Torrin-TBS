@@ -9,7 +9,7 @@ import {
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import { ActionTimer } from "./actionTimer"
 import { ResourceHandler } from "../../../resource/resourceHandler"
-import { SquaddieSprite } from "./squaddieSprite"
+import { SquaddieSprite, SquaddieSpriteService } from "./squaddieSprite"
 import {
     ObjectRepository,
     ObjectRepositoryService,
@@ -98,39 +98,30 @@ export class TargetSprite {
             )
         )
 
-        this._sprite = new SquaddieSprite({
-            resourceHandler,
+        this._sprite = SquaddieSpriteService.new({
             actionSpritesResourceKeysByEmotion: {
                 ...squaddieTemplate.squaddieId.resources.actionSpritesByEmotion,
             },
         })
-        this.sprite.beginLoadingActorImages()
     }
 
     draw(
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplate: ActionEffectTemplate,
-        result: BattleActionSquaddieChange
+        result: BattleActionSquaddieChange,
+        resourceHandler: ResourceHandler
     ) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return
         }
 
-        const justCreatedSpritesStatue =
-            this.sprite.createActorImagesWithLoadedData()
-        if (justCreatedSpritesStatue.justCreatedImages) {
-            this._startingPosition -= this.sprite.getSpriteBasedOnEmotion(
-                SquaddieEmotion.NEUTRAL,
-                graphicsContext
-            ).area.width
-        }
-
-        this.drawActorSprite(
+        this.drawTargetSprite(
             timer,
             graphicsContext,
             actionEffectSquaddieTemplate,
-            result
+            result,
+            resourceHandler
         )
     }
 
@@ -213,14 +204,19 @@ export class TargetSprite {
             squaddieRepository: this.squaddieRepository,
             actionEffectSquaddieTemplateService: actionEffectSquaddieTemplate,
         })
-        return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext)
+        return SquaddieSpriteService.getSpriteBasedOnEmotion({
+            squaddieSprite: this.sprite,
+            emotion,
+            graphicsContext,
+        })
     }
 
-    private drawActorSprite(
+    private drawTargetSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsBuffer,
         actionEffectSquaddieTemplateService: ActionEffectTemplate,
-        result: BattleActionSquaddieChange
+        result: BattleActionSquaddieChange,
+        resourceHandler: ResourceHandler
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,
@@ -283,15 +279,19 @@ export class TargetSprite {
                     this.getSpritePositionTargetReactsAndMisses(timer))
             }
         }
-
-        RectAreaService.move(spriteToDraw.area, {
-            left: this.startingPosition + horizontalDistance,
+        spriteToDraw.load(resourceHandler)
+        if (!spriteToDraw.isImageLoaded()) return
+        RectAreaService.move(spriteToDraw.drawArea, {
+            left:
+                this.startingPosition +
+                horizontalDistance -
+                spriteToDraw.drawArea.width,
             top:
                 ScreenDimensions.SCREEN_HEIGHT * 0.33 -
-                spriteToDraw.area.height +
+                spriteToDraw.drawArea.height +
                 verticalDistance,
         })
-        spriteToDraw.draw(graphicsContext)
+        spriteToDraw.draw({ graphicsContext, resourceHandler })
     }
 
     private getSpritePositionBeforeActionAndDuringAction(
@@ -321,7 +321,7 @@ export class TargetSprite {
             ScreenDimensions.SCREEN_WIDTH / 12
         let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion
             .NEUTRAL
-            ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 8
+            ? this.sprite.actionSpritesByEmotion.NEUTRAL.drawArea.height / 8
             : ScreenDimensions.SCREEN_HEIGHT / 24
         const attackTime = getAttackTime(timeElapsed)
         switch (timer.currentPhase) {

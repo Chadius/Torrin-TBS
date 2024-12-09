@@ -1,6 +1,5 @@
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
@@ -57,7 +56,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult(null))
+            .mockReturnValue({ width: 32, height: 32 })
 
         objectRepository = ObjectRepositoryService.new()
 
@@ -129,7 +128,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         const drawLabelSpy = jest.spyOn(LabelService, "draw")
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(animator.outputTextDisplay).not.toBeUndefined()
         expect(outputResultForTextOnlySpy).toBeCalled()
@@ -166,14 +169,22 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         )
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
         jest.spyOn(Date, "now").mockImplementation(
             () => ANIMATE_TEXT_WINDOW_WAIT_TIME
         )
 
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
@@ -196,7 +207,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         )
 
         animator.reset(gameEngineState)
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -207,7 +222,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         }
         animator.mouseEventHappened(gameEngineState, mouseEvent)
 
-        animator.update(gameEngineState, mockedP5GraphicsContext)
+        animator.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 

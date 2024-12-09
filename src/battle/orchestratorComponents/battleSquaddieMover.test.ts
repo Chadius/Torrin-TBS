@@ -10,7 +10,7 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
-import { getResultOrThrowError, makeResult } from "../../utils/ResultOrError"
+import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
 import {
     GetTargetingShapeGenerator,
@@ -30,29 +30,29 @@ import {
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import {
-    BattleAction,
-    BattleActionService,
-} from "../history/battleAction/battleAction"
+import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 describe("BattleSquaddieMover", () => {
-    let squaddieRepo: ObjectRepository
+    let objectRepository: ObjectRepository
     let player1Static: SquaddieTemplate
     let player1BattleSquaddie: BattleSquaddie
     let enemy1Static: SquaddieTemplate
     let enemy1Dynamic: BattleSquaddie
     let map: MissionMap
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
+    let getImageUISpy: jest.SpyInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        squaddieRepo = ObjectRepositoryService.new()
+        objectRepository = ObjectRepositoryService.new()
+        getImageUISpy = jest
+            .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
+            .mockReturnValue(undefined)
         map = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 ", " 1 1 "],
@@ -66,7 +66,7 @@ describe("BattleSquaddieMover", () => {
             templateId: "player_1",
             battleId: "player_1",
             affiliation: SquaddieAffiliation.PLAYER,
-            objectRepository: squaddieRepo,
+            objectRepository: objectRepository,
             actionTemplateIds: [],
         }))
         ;({ squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic } =
@@ -75,9 +75,13 @@ describe("BattleSquaddieMover", () => {
                 templateId: "enemy_1",
                 battleId: "enemy_1",
                 affiliation: SquaddieAffiliation.ENEMY,
-                objectRepository: squaddieRepo,
+                objectRepository: objectRepository,
                 actionTemplateIds: [],
             }))
+    })
+
+    afterEach(() => {
+        getImageUISpy.mockRestore()
     })
 
     it("is complete once enough time passes and the squaddie finishes moving", () => {
@@ -106,14 +110,14 @@ describe("BattleSquaddieMover", () => {
                 numberOfActions: 1,
             }),
             missionMap: map,
-            objectRepository: squaddieRepo,
+            objectRepository: objectRepository,
         })
 
         const movePath: SearchPath =
             SearchResultsService.getShortestPathToLocation(searchResults, 1, 1)
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -146,11 +150,19 @@ describe("BattleSquaddieMover", () => {
 
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         jest.spyOn(Date, "now").mockImplementation(() => 1)
-        mover.update(gameEngineState, mockedP5GraphicsContext)
+        mover.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
         jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
-        mover.update(gameEngineState, mockedP5GraphicsContext)
+        mover.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         expect(mover.hasCompleted(gameEngineState)).toBeTruthy()
         mover.reset(gameEngineState)
         expect(mover.animationStartTime).toBeUndefined()
@@ -182,14 +194,14 @@ describe("BattleSquaddieMover", () => {
                 numberOfActions: 1,
             }),
             missionMap: map,
-            objectRepository: squaddieRepo,
+            objectRepository: objectRepository,
         })
 
         const movePath: SearchPath =
             SearchResultsService.getShortestPathToLocation(searchResults, 1, 1)
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: squaddieRepo,
+            repository: objectRepository,
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -227,10 +239,18 @@ describe("BattleSquaddieMover", () => {
 
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
         jest.spyOn(Date, "now").mockImplementation(() => 1)
-        mover.update(gameEngineState, mockedP5GraphicsContext)
+        mover.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
-        mover.update(gameEngineState, mockedP5GraphicsContext)
+        mover.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         mover.reset(gameEngineState)
 
         expect(messageSpy).toBeCalledWith({
@@ -265,7 +285,7 @@ describe("BattleSquaddieMover", () => {
                     numberOfActions: 1,
                 }),
                 missionMap: map,
-                objectRepository: squaddieRepo,
+                objectRepository: objectRepository,
             })
 
             const movePath: SearchPath =
@@ -307,13 +327,13 @@ describe("BattleSquaddieMover", () => {
                 )
                 mockResourceHandler.getResource = jest
                     .fn()
-                    .mockReturnValue(makeResult(null))
+                    .mockReturnValue({ width: 32, height: 32 })
 
                 gameEngineState = GameEngineStateService.new({
                     battleOrchestratorState: setupSquaddie({
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     }),
-                    repository: squaddieRepo,
+                    repository: objectRepository,
                     resourceHandler: mockResourceHandler,
                 })
                 BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -339,11 +359,19 @@ describe("BattleSquaddieMover", () => {
 
                 mover = new BattleSquaddieMover()
                 jest.spyOn(Date, "now").mockImplementation(() => 1)
-                mover.update(gameEngineState, mockedP5GraphicsContext)
+                mover.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 jest.spyOn(Date, "now").mockImplementation(
                     () => 1 + TIME_TO_MOVE
                 )
-                mover.update(gameEngineState, mockedP5GraphicsContext)
+                mover.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
             })
 
             it("hides the HUD", () => {
@@ -352,88 +380,6 @@ describe("BattleSquaddieMover", () => {
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState
                 ).toBeUndefined()
-            })
-        })
-
-        describe("squaddie has action points remaining after moving", () => {
-            let mover: BattleSquaddieMover
-            let gameEngineState: GameEngineState
-            let dateSpy: jest.SpyInstance
-
-            beforeEach(() => {
-                MissionMapService.addSquaddie({
-                    missionMap: map,
-                    squaddieTemplateId: "player_1",
-                    battleSquaddieId: "player_1",
-                    coordinate: { q: 0, r: 0 },
-                })
-
-                let mockResourceHandler = mocks.mockResourceHandler(
-                    mockedP5GraphicsContext
-                )
-                mockResourceHandler.getResource = jest
-                    .fn()
-                    .mockReturnValue(makeResult(null))
-                gameEngineState = GameEngineStateService.new({
-                    battleOrchestratorState: setupSquaddie({
-                        squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                    }),
-                    resourceHandler: mockResourceHandler,
-                    repository: squaddieRepo,
-                    campaign: CampaignService.default(),
-                })
-
-                const battleAction: BattleAction = BattleActionService.new({
-                    actor: { actorBattleSquaddieId: "player_1" },
-                    action: { isMovement: true },
-                    effect: {
-                        movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 0 },
-                        },
-                    },
-                })
-                BattleActionRecorderService.addReadyToAnimateBattleAction(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .battleActionRecorder,
-                    battleAction
-                )
-
-                const battleHUDListener = new BattleHUDListener(
-                    "battleHUDListener"
-                )
-                battleHUDListener.receiveMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: "player_1",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
-                })
-
-                mover = new BattleSquaddieMover()
-                dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 1)
-                mover.update(gameEngineState, mockedP5GraphicsContext)
-                dateSpy = jest
-                    .spyOn(Date, "now")
-                    .mockImplementation(() => 1 + TIME_TO_MOVE)
-                mover.update(gameEngineState, mockedP5GraphicsContext)
-            })
-
-            afterEach(() => {
-                dateSpy.mockRestore()
-            })
-
-            it("should open the HUD if the squaddie turn has actions remaining", () => {
-                mover.reset(gameEngineState)
-                expect(
-                    gameEngineState.battleOrchestratorState.battleHUDState
-                        .summaryHUDState.showSummaryHUD
-                ).toBeTruthy()
             })
         })
     })

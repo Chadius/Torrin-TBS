@@ -17,7 +17,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { makeResult } from "../../utils/ResultOrError"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { DamageType } from "../../squaddie/squaddieService"
@@ -39,7 +38,6 @@ import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { SquaddieSummaryPopoverPosition } from "../hud/playerActionPanel/squaddieSummaryPopover"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
@@ -184,7 +182,7 @@ describe("BattleSquaddieTarget", () => {
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
         mockResourceHandler.getResource = jest
             .fn()
-            .mockReturnValue(makeResult(null))
+            .mockReturnValue({ width: 32, height: 32 })
 
         gameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
@@ -219,16 +217,6 @@ describe("BattleSquaddieTarget", () => {
             SummaryHUDStateService.new({
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
-        SummaryHUDStateService.setMainSummaryPopover({
-            summaryHUDState:
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState,
-            battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            resourceHandler: gameEngineState.resourceHandler,
-            objectRepository: gameEngineState.repository,
-            gameEngineState,
-            position: SquaddieSummaryPopoverPosition.SELECT_MAIN,
-        })
 
         messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
@@ -281,7 +269,11 @@ describe("BattleSquaddieTarget", () => {
     }
 
     it("should highlight the map with the ability range", () => {
-        targetComponent.update(gameEngineState, mockedP5GraphicsContext)
+        targetComponent.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
 
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
 
@@ -384,7 +376,11 @@ describe("BattleSquaddieTarget", () => {
             thiefDynamic.battleSquaddieId,
             { q: 0, r: 0 }
         )
-        targetComponent.update(gameEngineState, mockedP5GraphicsContext)
+        targetComponent.update({
+            gameEngineState,
+            graphicsContext: mockedP5GraphicsContext,
+            resourceHandler: gameEngineState.resourceHandler,
+        })
         clickOnThief()
         expect(targetComponent.hasCompleted(gameEngineState)).toBeFalsy()
         expect(
@@ -403,7 +399,11 @@ describe("BattleSquaddieTarget", () => {
 
     describe("user clicks on target with attack", () => {
         beforeEach(() => {
-            targetComponent.update(gameEngineState, mockedP5GraphicsContext)
+            targetComponent.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
             clickOnThief()
         })
 
@@ -503,7 +503,11 @@ describe("BattleSquaddieTarget", () => {
                     actionTemplateId: action.id,
                 })
 
-                targetComponent.update(gameEngineState, mockedP5GraphicsContext)
+                targetComponent.update({
+                    gameEngineState,
+                    graphicsContext: mockedP5GraphicsContext,
+                    resourceHandler: gameEngineState.resourceHandler,
+                })
                 invalidTargetClicker()
 
                 expect(
@@ -549,8 +553,6 @@ describe("BattleSquaddieTarget", () => {
                     y: mouseY,
                 },
             },
-            squaddieSummaryPopoverPosition:
-                SquaddieSummaryPopoverPosition.SELECT_TARGET,
         })
     })
 })

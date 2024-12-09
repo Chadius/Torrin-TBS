@@ -12,7 +12,6 @@ import {
     getValidValueOrDefault,
     isValidValue,
 } from "../../../utils/validityCheck"
-import { ImageUI } from "../../../ui/imageUI"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import {
@@ -23,6 +22,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
+import { ImageUI, ImageUILoadingBehavior } from "../../../ui/ImageUI"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     hover: {
@@ -47,10 +47,8 @@ const DECISION_BUTTON_LAYOUT_COLORS = {
 }
 
 export class MakeDecisionButton {
-    buttonArea: RectArea
     actionTemplateId: string
     hue: number
-    buttonIconResourceKey: string
     buttonIcon: ImageUI
     name: string
     popupMessage: string
@@ -59,7 +57,6 @@ export class MakeDecisionButton {
         buttonArea,
         actionTemplateId,
         hue,
-        resourceHandler,
         buttonIconResourceKey,
         popupMessage,
     }: {
@@ -67,22 +64,27 @@ export class MakeDecisionButton {
         actionTemplateId: string
         hue?: number
         buttonIconResourceKey: string
-        resourceHandler: ResourceHandler
         popupMessage?: string
     }) {
-        this.buttonArea = buttonArea
         this.actionTemplateId = actionTemplateId
         this.hue = getValidValueOrDefault(
             hue,
             HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN]
         )
-        this.buttonIconResourceKey = buttonIconResourceKey
-        this.createButtonGraphic(resourceHandler)
-        this.buttonArea = RectAreaService.new({
-            left: this.buttonIcon.area.left,
-            top: this.buttonIcon.area.top,
-            width: this.buttonIcon.area.width,
-            height: this.buttonIcon.area.height,
+
+        this.buttonIcon = new ImageUI({
+            imageLoadingBehavior: {
+                resourceKey: buttonIconResourceKey,
+                loadingBehavior: ImageUILoadingBehavior.USE_IMAGE_SIZE,
+            },
+            area:
+                buttonArea ??
+                RectAreaService.new({
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0,
+                }),
         })
         this.popupMessage = popupMessage
     }
@@ -97,11 +99,19 @@ export class MakeDecisionButton {
         this._status = value
     }
 
-    draw(objectRepository: ObjectRepository, graphicsContext: GraphicsBuffer) {
-        this.buttonIcon.draw(graphicsContext)
+    draw({
+        objectRepository,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        objectRepository: ObjectRepository
+        graphicsContext: GraphicsBuffer
+        resourceHandler: ResourceHandler
+    }): void {
+        this.buttonIcon.draw({ graphicsContext, resourceHandler })
         if (this.status === ButtonStatus.HOVER) {
             const hoverOutline = RectangleHelper.new({
-                area: this.buttonArea,
+                area: this.buttonIcon.drawArea,
                 strokeColor: [
                     this.hue,
                     DECISION_BUTTON_LAYOUT_COLORS.hover.strokeSaturation,
@@ -120,7 +130,7 @@ export class MakeDecisionButton {
         }
         if (this.status === ButtonStatus.DISABLED) {
             const disabledFill = RectangleHelper.new({
-                area: this.buttonArea,
+                area: this.buttonIcon.drawArea,
                 fillColor: [
                     this.hue,
                     DECISION_BUTTON_LAYOUT_COLORS.disabled.fillSaturation,
@@ -140,11 +150,11 @@ export class MakeDecisionButton {
         let actionDescription = actionTemplate.name
         const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
-                left: RectAreaService.left(this.buttonIcon.area),
+                left: RectAreaService.left(this.buttonIcon.drawArea),
                 top:
-                    RectAreaService.bottom(this.buttonIcon.area) +
+                    RectAreaService.bottom(this.buttonIcon.drawArea) +
                     DECISION_BUTTON_LAYOUT_COLORS.templateNameTextTopMargin,
-                width: RectAreaService.width(this.buttonIcon.area) * 2,
+                width: RectAreaService.width(this.buttonIcon.drawArea) * 2,
                 height:
                     DECISION_BUTTON_LAYOUT_COLORS.templateNameTextSize * 1.5,
             }),
@@ -270,9 +280,9 @@ export class MakeDecisionButton {
             : 1
         const buttonTextBox: TextBox = TextBoxService.new({
             area: RectAreaService.new({
-                left: RectAreaService.left(this.buttonIcon.area),
+                left: RectAreaService.left(this.buttonIcon.drawArea),
                 top: top,
-                width: RectAreaService.width(this.buttonIcon.area) * 2,
+                width: RectAreaService.width(this.buttonIcon.drawArea) * 2,
                 height:
                     DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * numberOfLines +
                     DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin,
@@ -282,19 +292,6 @@ export class MakeDecisionButton {
             textSize: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize,
         })
         TextBoxService.draw(buttonTextBox, graphicsContext)
-    }
-
-    createButtonGraphic(resourceHandler: ResourceHandler) {
-        const image = resourceHandler.getResource(this.buttonIconResourceKey)
-        this.buttonIcon = new ImageUI({
-            graphic: image,
-            area: RectAreaService.new({
-                left: this.buttonArea.left,
-                top: this.buttonArea.top,
-                width: image.width,
-                height: image.height,
-            }),
-        })
     }
 
     private getActionTemplateEffectDescriptions = (

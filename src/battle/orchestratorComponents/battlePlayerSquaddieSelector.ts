@@ -30,6 +30,7 @@ import {
 import { PlayerSelectionChanges } from "../playerSelectionService/playerSelectionChanges"
 import { PlayerSelectionContext } from "../playerSelectionService/playerSelectionContext"
 import { MessageBoardListener } from "../../message/messageBoardListener"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -155,7 +156,7 @@ export class BattlePlayerSquaddieSelector
 
         if (
             !gameEngineState.battleOrchestratorState.battleHUDState
-                .summaryHUDState?.showSummaryHUD
+                .summaryHUDState
         ) {
             return
         }
@@ -202,10 +203,15 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    update(
-        gameEngineState: GameEngineState,
+    update({
+        gameEngineState,
+        graphicsContext,
+        resourceHandler,
+    }: {
+        gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-    ): void {
+        resourceHandler: ResourceHandler
+    }): void {
         // Required by inheritance
     }
 

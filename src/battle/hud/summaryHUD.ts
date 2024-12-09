@@ -8,13 +8,7 @@ import {
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { MouseButton } from "../../utils/mouseConfig"
-import {
-    SquaddieSummaryPopover,
-    SquaddieSummaryPopoverPosition,
-    SquaddieSummaryPopoverService,
-} from "./playerActionPanel/squaddieSummaryPopover"
 import { isValidValue } from "../../utils/validityCheck"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
     SquaddieNameAndPortraitTile,
     SquaddieNameAndPortraitTileService,
@@ -33,19 +27,7 @@ import {
     SquaddieStatusTileService,
 } from "./playerActionPanel/tile/squaddieStatusTile"
 
-const SUMMARY_POPOVER_PEEK_EXPIRATION_MS = 2000
-
-export enum SummaryPopoverType {
-    MAIN = "MAIN",
-    TARGET = "TARGET",
-}
-
-const SUMMARY_WINDOW_DISPLAY = {
-    squaddieSummaryPopoversByType: {
-        MAIN: 0,
-        TARGET: 9,
-    },
-}
+export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
 const ActionPanelPositionForNames = [
     ActionTilePosition.ACTOR_NAME,
@@ -63,12 +45,8 @@ const ActionPanelPositionForStatus = [
 
 export interface SummaryHUDState {
     showPlayerCommand: boolean
-    showSummaryHUD: boolean
     playerCommandState: PlayerCommandState
     screenSelectionCoordinates: { x: number; y: number }
-    squaddieSummaryPopoversByType: {
-        [t in SummaryPopoverType]: SquaddieSummaryPopover
-    }
     squaddieNameTiles: {
         [q in ActionTilePosition]?: SquaddieNameAndPortraitTile
     }
@@ -93,12 +71,7 @@ export const SummaryHUDStateService = {
     }): SummaryHUDState => ({
         playerCommandState: PlayerCommandStateService.new(),
         showPlayerCommand: false,
-        showSummaryHUD: false,
         screenSelectionCoordinates,
-        squaddieSummaryPopoversByType: {
-            MAIN: undefined,
-            TARGET: undefined,
-        },
         squaddieNameTiles: {
             [ActionTilePosition.ACTOR_NAME]: undefined,
             [ActionTilePosition.PEEK_PLAYABLE_NAME]: undefined,
@@ -136,40 +109,17 @@ export const SummaryHUDStateService = {
             return true
         }
 
-        if (
-            Object.entries(summaryHUDState.squaddieStatusTiles)
-                .filter(([_, tile]) => isValidValue(tile))
-                .map(([position, _]) => position as ActionTilePosition)
-                .some((position) =>
-                    RectAreaService.isInside(
-                        ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
-                            position
-                        ),
-                        mouseSelectionLocation.x,
-                        mouseSelectionLocation.y
-                    )
+        return Object.entries(summaryHUDState.squaddieStatusTiles)
+            .filter(([_, tile]) => isValidValue(tile))
+            .map(([position, _]) => position as ActionTilePosition)
+            .some((position) =>
+                RectAreaService.isInside(
+                    ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                        position
+                    ),
+                    mouseSelectionLocation.x,
+                    mouseSelectionLocation.y
                 )
-        ) {
-            return true
-        }
-
-        if (!summaryHUDState.showSummaryHUD) {
-            return false
-        }
-
-        return [
-            summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-            summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-        ]
-            .filter((x) => x)
-            .some((popover: SquaddieSummaryPopover) =>
-                SquaddieSummaryPopoverService.isMouseHoveringOver({
-                    mouseLocation: {
-                        x: mouseSelectionLocation.x,
-                        y: mouseSelectionLocation.y,
-                    },
-                    squaddieSummaryPopover: popover,
-                })
             )
     },
     mouseClicked: ({
@@ -201,17 +151,13 @@ export const SummaryHUDStateService = {
         summaryHUDState,
         graphicsBuffer,
         gameEngineState,
+        resourceHandler,
     }: {
         summaryHUDState: SummaryHUDState
         graphicsBuffer: GraphicsBuffer
         gameEngineState: GameEngineState
+        resourceHandler: ResourceHandler
     }) => {
-        drawOldStuff({
-            summaryHUDState,
-            gameEngineState,
-            graphicsBuffer,
-        })
-
         drawActorTiles({
             summaryHUDState,
             graphicsBuffer,
@@ -238,72 +184,9 @@ export const SummaryHUDStateService = {
                 playerCommandState: summaryHUDState.playerCommandState,
                 graphicsBuffer,
                 gameEngineState,
+                resourceHandler,
             })
         }
-    },
-    setMainSummaryPopover: ({
-        summaryHUDState,
-        gameEngineState,
-        objectRepository,
-        resourceHandler,
-        battleSquaddieId,
-        position,
-        expirationTime,
-    }: {
-        summaryHUDState: SummaryHUDState
-        gameEngineState: GameEngineState
-        objectRepository: ObjectRepository
-        resourceHandler: ResourceHandler
-        battleSquaddieId: string
-        position: SquaddieSummaryPopoverPosition
-        expirationTime?: number
-    }) => {
-        maybeCreateSummaryPanel({
-            summaryHUDState,
-            battleSquaddieId,
-            popoverType: SummaryPopoverType.MAIN,
-            expirationTime,
-            position,
-        })
-        SquaddieSummaryPopoverService.update({
-            objectRepository,
-            gameEngineState,
-            resourceHandler,
-            squaddieSummaryPopover:
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN,
-        })
-    },
-    setTargetSummaryPopover: ({
-        summaryHUDState,
-        gameEngineState,
-        objectRepository,
-        resourceHandler,
-        battleSquaddieId,
-        expirationTime,
-        position,
-    }: {
-        summaryHUDState: SummaryHUDState
-        gameEngineState: GameEngineState
-        objectRepository: ObjectRepository
-        resourceHandler: ResourceHandler
-        battleSquaddieId: string
-        position: SquaddieSummaryPopoverPosition
-        expirationTime?: number
-    }) => {
-        maybeCreateSummaryPanel({
-            summaryHUDState,
-            battleSquaddieId,
-            popoverType: SummaryPopoverType.TARGET,
-            expirationTime,
-            position,
-        })
-        SquaddieSummaryPopoverService.update({
-            objectRepository,
-            gameEngineState,
-            resourceHandler,
-            squaddieSummaryPopover:
-                summaryHUDState.squaddieSummaryPopoversByType.TARGET,
-        })
     },
     mouseMoved: ({
         mouseY,
@@ -327,7 +210,7 @@ export const SummaryHUDStateService = {
             playerCommandState: summaryHUDState.playerCommandState,
         })
     },
-    createCommandWindow: ({
+    createActorTiles: ({
         summaryHUDState,
         objectRepository,
         gameEngineState,
@@ -339,7 +222,10 @@ export const SummaryHUDStateService = {
         resourceHandler: ResourceHandler
     }) => {
         if (
-            !isValidValue(summaryHUDState?.squaddieSummaryPopoversByType.MAIN)
+            !BattleActionDecisionStepService.isActorSet(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            )
         ) {
             return
         }
@@ -351,38 +237,22 @@ export const SummaryHUDStateService = {
             objectRepository,
             gameEngineState,
             resourceHandler,
-            battleSquaddieId:
-                summaryHUDState.squaddieSummaryPopoversByType.MAIN
-                    .battleSquaddieId,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
         })
-    },
-    hasMainSummaryPopoverExpired: ({
-        summaryHUDState,
-    }: {
-        summaryHUDState: SummaryHUDState
-    }): boolean => {
-        return hasSummaryPopoverExpired({
-            summaryHUDState,
-            popoverType: SummaryPopoverType.MAIN,
-        })
-    },
-    removeSummaryPopover: ({
-        summaryHUDState,
-        popoverType,
-    }: {
-        summaryHUDState: SummaryHUDState
-        popoverType: SummaryPopoverType
-    }) => {
-        summaryHUDState.squaddieSummaryPopoversByType[popoverType] = undefined
     },
     peekAtSquaddie: ({
         gameEngineState,
         battleSquaddieId,
         summaryHUDState,
+        removeExpirationTime,
     }: {
         summaryHUDState: SummaryHUDState
         gameEngineState: GameEngineState
         battleSquaddieId: string
+        removeExpirationTime?: boolean
     }) => {
         if (
             battleSquaddieId ===
@@ -431,104 +301,11 @@ export const SummaryHUDStateService = {
                 nameAndPortrait: nameAndPortraitPosition,
                 status: statusPosition,
             },
-            expirationTime: Date.now() + SUMMARY_POPOVER_PEEK_EXPIRATION_MS,
+            expirationTime: removeExpirationTime
+                ? undefined
+                : Date.now() + SUMMARY_HUD_PEEK_EXPIRATION_MS,
         }
     },
-}
-
-const maybeCreateSummaryPanel = ({
-    summaryHUDState,
-    battleSquaddieId,
-    popoverType,
-    expirationTime,
-    position,
-}: {
-    summaryHUDState: SummaryHUDState
-    battleSquaddieId: string
-    popoverType: SummaryPopoverType
-    position: SquaddieSummaryPopoverPosition
-    expirationTime?: number
-}) => {
-    if (!isValidValue(battleSquaddieId) || battleSquaddieId === "") {
-        return
-    }
-
-    const newPanel = SquaddieSummaryPopoverService.new({
-        battleSquaddieId: battleSquaddieId,
-        startingColumn:
-            SUMMARY_WINDOW_DISPLAY.squaddieSummaryPopoversByType[popoverType],
-        expirationTime,
-        position,
-    })
-
-    if (
-        !shouldReplacePopover(
-            summaryHUDState.squaddieSummaryPopoversByType[popoverType],
-            expirationTime
-        )
-    ) {
-        return
-    }
-
-    summaryHUDState.showSummaryHUD = true
-    summaryHUDState.squaddieSummaryPopoversByType[popoverType] = newPanel
-}
-
-const shouldReplacePopover = (
-    popover: SquaddieSummaryPopover,
-    expirationTime?: number
-) => {
-    const summaryPopoverExists: boolean = isValidValue(popover)
-    const summaryPopoverWillExpireOverTime: boolean =
-        summaryPopoverExists && isValidValue(popover.expirationTime)
-    const newPopoverWillExpireOverTime: boolean = isValidValue(expirationTime)
-
-    return !(
-        summaryPopoverExists &&
-        !summaryPopoverWillExpireOverTime &&
-        newPopoverWillExpireOverTime
-    )
-}
-
-const sendMessageIfPopoverExpired = ({
-    summaryHUDState,
-    popoverType,
-    gameEngineState,
-}: {
-    summaryHUDState: SummaryHUDState
-    popoverType: SummaryPopoverType
-    gameEngineState: GameEngineState
-}) => {
-    if (hasSummaryPopoverExpired({ summaryHUDState, popoverType })) {
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.SUMMARY_POPOVER_EXPIRES,
-            gameEngineState,
-            popoverType,
-        })
-    }
-}
-
-const hasSummaryPopoverExpired = ({
-    summaryHUDState,
-    popoverType,
-}: {
-    summaryHUDState: SummaryHUDState
-    popoverType: SummaryPopoverType
-}) => {
-    if (
-        !isValidValue(
-            summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-                ?.expirationTime
-        )
-    ) {
-        return false
-    }
-
-    return (
-        Date.now() >
-        summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-            ?.expirationTime
-    )
 }
 
 const drawActorTiles = ({
@@ -758,6 +535,7 @@ const didPeekableTileExpire = (
     summaryHUDState: SummaryHUDState,
     nameTilePosition: ActionTilePosition
 ): boolean =>
+    isValidValue(summaryHUDState.squaddieToPeekAt?.expirationTime) &&
     Date.now() > summaryHUDState.squaddieToPeekAt?.expirationTime &&
     !!summaryHUDState.squaddieNameTiles[nameTilePosition]
 
@@ -944,44 +722,4 @@ const createSquaddieStatusTile = ({
             gameEngineState.battleOrchestratorState.battleState.missionMap,
         resourceHandler: gameEngineState.resourceHandler,
     })
-}
-
-const drawOldStuff = ({
-    summaryHUDState,
-    gameEngineState,
-    graphicsBuffer,
-}: {
-    summaryHUDState: SummaryHUDState
-    gameEngineState: GameEngineState
-    graphicsBuffer: GraphicsBuffer
-}) => {
-    if (!summaryHUDState.showSummaryHUD) {
-        return
-    }
-
-    ;[SummaryPopoverType.MAIN, SummaryPopoverType.TARGET]
-        .filter(
-            (popoverType) =>
-                !!summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-        )
-        .map((popoverType) => {
-            sendMessageIfPopoverExpired({
-                summaryHUDState,
-                popoverType,
-                gameEngineState,
-            })
-            return popoverType
-        })
-        .filter(
-            (popoverType) =>
-                !!summaryHUDState.squaddieSummaryPopoversByType[popoverType]
-        )
-        .forEach((popoverType) => {
-            SquaddieSummaryPopoverService.draw({
-                graphicsBuffer,
-                gameEngineState,
-                squaddieSummaryPopover:
-                    summaryHUDState.squaddieSummaryPopoversByType[popoverType],
-            })
-        })
 }
