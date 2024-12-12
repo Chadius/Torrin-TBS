@@ -49,6 +49,7 @@ import { BattleActionRecorderService } from "../../history/battleAction/battleAc
 import { BattleActionService } from "../../history/battleAction/battleAction"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { RollModifierType } from "./rollResult"
+import { CalculatorAttack } from "./attack"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -953,14 +954,14 @@ describe("calculator", () => {
             expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
-        it("will critically hit if the roll is 6 and 6", () => {
+        it("will critically hit if the roll is 6 and 6 and the attack would have hit", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     objectRepository,
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -982,6 +983,88 @@ describe("calculator", () => {
             expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount * 2)
         })
 
+        it("will hit normally if the roll is 6 and 6 and the attack would have missed", () => {
+            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    objectRepository,
+                    enemy1DynamicId
+                )
+            )
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
+
+            const expectedRolls: number[] = [6, 6]
+            const numberGenerator: StreamNumberGenerator =
+                new StreamNumberGenerator({ results: expectedRolls })
+
+            const battleSquaddieId = getActingBattleSquaddieIdForDealBodyDamage(
+                {
+                    actingBattleSquaddie: player1BattleSquaddie,
+                }
+            )
+
+            const gameEngineState = getGameEngineStateForDealBodyDamage({
+                numberGenerator,
+            })
+
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            player1BattleSquaddie.battleSquaddieId,
+                    },
+                    action: {
+                        actionTemplateId:
+                            actionNeedsAnAttackRollToDealBodyDamage.id,
+                    },
+                    effect: { squaddie: [] },
+                })
+            )
+            BattleActionRecorderService.battleActionFinishedAnimating(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder
+            )
+
+            const actionStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionStep,
+                battleSquaddieId: battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionStep,
+                actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionStep,
+                targetLocation: { q: 0, r: 1 },
+            })
+
+            expect(
+                CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
+                    gameEngineState
+                )
+            ).toBe(-3)
+
+            const results = ActionCalculator.calculateResults({
+                gameEngineState,
+                battleActionDecisionStep: actionStep,
+                actingBattleSquaddie: player1BattleSquaddie,
+                validTargetLocation: { q: 0, r: 1 },
+            })
+
+            const enemy1Changes = results[0].squaddieChanges.find(
+                (change) =>
+                    change.battleSquaddieId ===
+                    enemy1BattleSquaddie.battleSquaddieId
+            )
+            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+        })
+
         it("will increment the number of critical hits dealt by the player squaddies in the mission statistics", () => {
             const { battleSquaddie: enemyBattle } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
@@ -989,7 +1072,7 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 1
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1011,7 +1094,7 @@ describe("calculator", () => {
         })
 
         it("will increment the number of critical hits taken by the player squaddies in the mission statistics", () => {
-            player1BattleSquaddie.inBattleAttributes.armyAttributes.armorClass = 9001
+            player1BattleSquaddie.inBattleAttributes.armyAttributes.armorClass = 1
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1161,7 +1244,7 @@ describe("calculator", () => {
                     enemy1BattleSquaddie.battleSquaddieId
             )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
-                DegreeOfSuccess.CRITICAL_FAILURE
+                DegreeOfSuccess.FAILURE
             )
             expect(enemy1Changes.damage.net).toBe(0)
         })

@@ -34,10 +34,9 @@ export const RollResultService = {
     sanitize: (rollResult: RollResult): RollResult => {
         return sanitize(rollResult)
     },
-    isACriticalSuccess: (rollResult: RollResult) =>
-        totalAttackRoll(rollResult) >= DIE_SIZE * 2,
-    isACriticalFailure: (rollResult: RollResult) =>
-        totalAttackRoll(rollResult) <= 2,
+    isMaximumRoll: (rollResult: RollResult) =>
+        sumOfDiceRolls(rollResult) >= DIE_SIZE * 2,
+    isMinimumRoll: (rollResult: RollResult) => sumOfDiceRolls(rollResult) <= 2,
     totalAttackRoll: (rollResult: RollResult) => totalAttackRoll(rollResult),
 }
 
@@ -48,15 +47,15 @@ const sanitize = (rollResult: RollResult): RollResult => {
     return rollResult
 }
 
-const totalAttackRoll = (rollResult: RollResult) => {
-    return (
-        rollResult.rolls.reduce(
-            (currentSum, currentValue) => currentSum + currentValue,
-            0
-        ) +
-        Object.values(rollResult.rollModifiers ?? []).reduce(
-            (currentSum, currentValue) => currentSum + currentValue,
-            0
-        )
+const totalAttackRoll = (rollResult: RollResult) =>
+    sumOfDiceRolls(rollResult) +
+    Object.values(rollResult.rollModifiers ?? []).reduce(
+        (currentSum, currentValue) => currentSum + currentValue,
+        0
     )
-}
+
+const sumOfDiceRolls = (rollResult: RollResult) =>
+    rollResult.rolls.reduce(
+        (currentSum, currentValue) => currentSum + currentValue,
+        0
+    )

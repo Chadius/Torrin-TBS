@@ -1,9 +1,9 @@
 import { RollModifierType, RollResultService } from "./rollResult"
 
 describe("Roll Result", () => {
-    it("knows when the dice roll is a critical success", () => {
+    it("knows when the dice roll is the maximum", () => {
         expect(
-            RollResultService.isACriticalSuccess(
+            RollResultService.isMaximumRoll(
                 RollResultService.new({
                     rolls: [1, 3],
                     occurred: true,
@@ -11,18 +11,29 @@ describe("Roll Result", () => {
             )
         ).toBeFalsy()
         expect(
-            RollResultService.isACriticalSuccess(
+            RollResultService.isMaximumRoll(
                 RollResultService.new({
                     rolls: [6, 6],
                     occurred: true,
                 })
             )
         ).toBeTruthy()
+        expect(
+            RollResultService.isMaximumRoll(
+                RollResultService.new({
+                    rolls: [6, 6],
+                    occurred: true,
+                    rollModifiers: {
+                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -3,
+                    },
+                })
+            )
+        ).toBeTruthy()
     })
 
-    it("knows when the dice roll is a critical failure", () => {
+    it("knows when the dice roll is the minimum", () => {
         expect(
-            RollResultService.isACriticalFailure(
+            RollResultService.isMinimumRoll(
                 RollResultService.new({
                     rolls: [1, 3],
                     occurred: true,
@@ -30,10 +41,21 @@ describe("Roll Result", () => {
             )
         ).toBeFalsy()
         expect(
-            RollResultService.isACriticalFailure(
+            RollResultService.isMinimumRoll(
                 RollResultService.new({
                     rolls: [1, 1],
                     occurred: true,
+                })
+            )
+        ).toBeTruthy()
+        expect(
+            RollResultService.isMinimumRoll(
+                RollResultService.new({
+                    rolls: [1, 1],
+                    occurred: true,
+                    rollModifiers: {
+                        [RollModifierType.TIER]: 3,
+                    },
                 })
             )
         ).toBeTruthy()

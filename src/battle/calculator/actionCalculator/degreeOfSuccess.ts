@@ -19,4 +19,32 @@ export const DegreeOfSuccessService = {
             DegreeOfSuccess.CRITICAL_FAILURE,
         ].includes(degree)
     },
+    upgradeByOneStep: (degreeOfSuccess: DegreeOfSuccess): DegreeOfSuccess => {
+        switch (degreeOfSuccess) {
+            case DegreeOfSuccess.CRITICAL_FAILURE:
+                return DegreeOfSuccess.FAILURE
+            case DegreeOfSuccess.FAILURE:
+                return DegreeOfSuccess.SUCCESS
+            case DegreeOfSuccess.SUCCESS:
+                return DegreeOfSuccess.CRITICAL_SUCCESS
+            case DegreeOfSuccess.CRITICAL_SUCCESS:
+                return DegreeOfSuccess.CRITICAL_SUCCESS
+        }
+
+        return DegreeOfSuccess.NONE
+    },
+    degradeByOneStep: (degreeOfSuccess: DegreeOfSuccess) => {
+        switch (degreeOfSuccess) {
+            case DegreeOfSuccess.CRITICAL_FAILURE:
+                return DegreeOfSuccess.CRITICAL_FAILURE
+            case DegreeOfSuccess.FAILURE:
+                return DegreeOfSuccess.CRITICAL_FAILURE
+            case DegreeOfSuccess.SUCCESS:
+                return DegreeOfSuccess.FAILURE
+            case DegreeOfSuccess.CRITICAL_SUCCESS:
+                return DegreeOfSuccess.SUCCESS
+        }
+
+        return DegreeOfSuccess.NONE
+    },
 }

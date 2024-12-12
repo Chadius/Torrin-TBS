@@ -217,6 +217,39 @@ const getTargetSquaddieModifiers = ({
     return []
 }
 
+const adjustDegreeOfSuccessBasedOnExtremeRoll = (
+    actingSquaddieRoll: RollResult,
+    degreeOfSuccess: DegreeOfSuccess
+) => {
+    if (RollResultService.isMaximumRoll(actingSquaddieRoll)) {
+        degreeOfSuccess =
+            DegreeOfSuccessService.upgradeByOneStep(degreeOfSuccess)
+    }
+    if (RollResultService.isMinimumRoll(actingSquaddieRoll)) {
+        degreeOfSuccess =
+            DegreeOfSuccessService.degradeByOneStep(degreeOfSuccess)
+    }
+    return degreeOfSuccess
+}
+
+const calculateDegreeOfSuccessBasedOnRollTotalVersusTarget = (
+    totalAttackRoll: any,
+    targetArmorClass: number
+): DegreeOfSuccess => {
+    let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.FAILURE
+    switch (true) {
+        case totalAttackRoll >= targetArmorClass + DIE_SIZE:
+            degreeOfSuccess = DegreeOfSuccess.CRITICAL_SUCCESS
+            break
+        case totalAttackRoll >= targetArmorClass:
+            degreeOfSuccess = DegreeOfSuccess.SUCCESS
+            break
+        case totalAttackRoll <= targetArmorClass - DIE_SIZE:
+            degreeOfSuccess = DegreeOfSuccess.CRITICAL_FAILURE
+            break
+    }
+    return degreeOfSuccess
+}
 const compareAttackRollToGetDegreeOfSuccess = ({
     actor,
     actingSquaddieRoll,
@@ -241,27 +274,6 @@ const compareAttackRollToGetDegreeOfSuccess = ({
         return DegreeOfSuccess.SUCCESS
     }
 
-    const canCriticallySucceed: boolean = !TraitStatusStorageService.getStatus(
-        actionEffectSquaddieTemplate.traits,
-        Trait.CANNOT_CRITICALLY_SUCCEED
-    )
-    if (
-        RollResultService.isACriticalSuccess(actingSquaddieRoll) &&
-        canCriticallySucceed
-    ) {
-        return DegreeOfSuccess.CRITICAL_SUCCESS
-    }
-    const canCriticallyFail: boolean = !TraitStatusStorageService.getStatus(
-        actionEffectSquaddieTemplate.traits,
-        Trait.CANNOT_CRITICALLY_FAIL
-    )
-    if (
-        RollResultService.isACriticalFailure(actingSquaddieRoll) &&
-        canCriticallyFail
-    ) {
-        return DegreeOfSuccess.CRITICAL_FAILURE
-    }
-
     let totalAttackRoll =
         RollResultService.totalAttackRoll(actingSquaddieRoll) +
         actingSquaddieModifierTotal
@@ -269,18 +281,57 @@ const compareAttackRollToGetDegreeOfSuccess = ({
         battleSquaddie: targetBattleSquaddie,
         squaddieTemplate: targetSquaddieTemplate,
     }).net
+    let degreeOfSuccess = calculateDegreeOfSuccessBasedOnRollTotalVersusTarget(
+        totalAttackRoll,
+        targetArmorClass
+    )
+    degreeOfSuccess = adjustDegreeOfSuccessBasedOnExtremeRoll(
+        actingSquaddieRoll,
+        degreeOfSuccess
+    )
+    degreeOfSuccess = capCriticalSuccessIfResultCannotCriticallySucceed(
+        actionEffectSquaddieTemplate,
+        degreeOfSuccess
+    )
+    degreeOfSuccess = capCriticalFailureIfResultCannotCriticallyFail(
+        actionEffectSquaddieTemplate,
+        degreeOfSuccess
+    )
+    return degreeOfSuccess
+}
+
+const capCriticalSuccessIfResultCannotCriticallySucceed = (
+    actionEffectSquaddieTemplate: ActionEffectTemplate,
+    degreeOfSuccess: DegreeOfSuccess
+) => {
+    const canCriticallySucceed: boolean = !TraitStatusStorageService.getStatus(
+        actionEffectSquaddieTemplate.traits,
+        Trait.CANNOT_CRITICALLY_SUCCEED
+    )
     if (
-        canCriticallySucceed &&
-        totalAttackRoll >= targetArmorClass + DIE_SIZE
+        !canCriticallySucceed &&
+        degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS
     ) {
-        return DegreeOfSuccess.CRITICAL_SUCCESS
-    } else if (totalAttackRoll >= targetArmorClass) {
-        return DegreeOfSuccess.SUCCESS
-    } else if (totalAttackRoll <= targetArmorClass - DIE_SIZE) {
-        return DegreeOfSuccess.CRITICAL_FAILURE
-    } else {
-        return DegreeOfSuccess.FAILURE
+        degreeOfSuccess = DegreeOfSuccess.SUCCESS
     }
+    return degreeOfSuccess
+}
+
+const capCriticalFailureIfResultCannotCriticallyFail = (
+    actionEffectSquaddieTemplate: ActionEffectTemplate,
+    degreeOfSuccess: DegreeOfSuccess
+) => {
+    const canCriticallyFail: boolean = !TraitStatusStorageService.getStatus(
+        actionEffectSquaddieTemplate.traits,
+        Trait.CANNOT_CRITICALLY_FAIL
+    )
+    if (
+        !canCriticallyFail &&
+        degreeOfSuccess === DegreeOfSuccess.CRITICAL_FAILURE
+    ) {
+        degreeOfSuccess = DegreeOfSuccess.FAILURE
+    }
+    return degreeOfSuccess
 }
 
 const getDegreeOfSuccess = ({

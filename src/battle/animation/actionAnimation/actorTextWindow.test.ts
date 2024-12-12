@@ -144,7 +144,7 @@ describe("ActorTextWindow", () => {
         expect(window.actorUsesActionDescriptionText).toBe("Actor uses\nAction")
     })
 
-    it("will indicate a critical hit if the actor rolled critically high", () => {
+    it("will indicate a maximum roll if the actor rolled critically high", () => {
         const window = new ActorTextWindow()
 
         window.start({
@@ -173,11 +173,11 @@ describe("ActorTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(6, 6)\n Total 12\n\nCRITICAL HIT!"
+            "Actor uses\nAction\n\n   rolls(6, 6)\n Total 12\n\nMax!"
         )
     })
 
-    it("will indicate a critical miss if the actor rolled critically low", () => {
+    it("will indicate a minimum roll if the actor rolled critically low", () => {
         const window = new ActorTextWindow()
 
         window.start({
@@ -206,7 +206,7 @@ describe("ActorTextWindow", () => {
         expect(timerSpy).toBeCalled()
 
         expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(1, 1)\n Total 2\n\nCRITICAL MISS!!"
+            "Actor uses\nAction\n\n   rolls(1, 1)\n Total 2\n\nbotch..."
         )
     })
 

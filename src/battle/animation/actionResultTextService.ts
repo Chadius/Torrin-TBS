@@ -199,18 +199,14 @@ export const ActionResultTextService = {
             actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actingContext)}`
 
             if (
-                RollResultService.isACriticalSuccess(
-                    results.actingContext.actorRoll
-                )
+                RollResultService.isMaximumRoll(results.actingContext.actorRoll)
             ) {
-                actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`
+                actorUsesActionDescriptionText += `\n\nMax!`
             }
             if (
-                RollResultService.isACriticalFailure(
-                    results.actingContext.actorRoll
-                )
+                RollResultService.isMinimumRoll(results.actingContext.actorRoll)
             ) {
-                actorUsesActionDescriptionText += `\n\nCRITICAL MISS!!`
+                actorUsesActionDescriptionText += `\n\nbotch...`
             }
         }
         return actorUsesActionDescriptionText

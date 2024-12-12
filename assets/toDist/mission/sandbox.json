@@ -72,8 +72,8 @@
       ],
       "mapPlacements": [
         {
-          "squaddieTemplateId": "enemy_demon_locust",
-          "battleSquaddieId": "enemy_demon_locust_0",
+          "squaddieTemplateId": "enemy_demon_slither",
+          "battleSquaddieId": "enemy_demon_slither_0",
           "location": {
             "q": 0,
             "r": 2
@@ -110,7 +110,7 @@
           "name": "Infiltrators",
           "iconResourceKey": "affiliate_icon_infiltrators",
           "battleSquaddieIds": [
-            "enemy_demon_locust_0",
+            "enemy_demon_slither_0",
             "enemy_demon_locust_1",
             "enemy_demon_locust_2",
             "enemy_demon_locust_3"

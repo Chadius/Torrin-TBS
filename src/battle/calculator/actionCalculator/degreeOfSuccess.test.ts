@@ -37,4 +37,40 @@ describe("degree of success", () => {
             )
         ).toBeTruthy()
     })
+    it("can upgrade the degree of success by one step at a time", () => {
+        expect(
+            DegreeOfSuccessService.upgradeByOneStep(
+                DegreeOfSuccess.CRITICAL_FAILURE
+            )
+        ).toBe(DegreeOfSuccess.FAILURE)
+        expect(
+            DegreeOfSuccessService.upgradeByOneStep(DegreeOfSuccess.FAILURE)
+        ).toBe(DegreeOfSuccess.SUCCESS)
+        expect(
+            DegreeOfSuccessService.upgradeByOneStep(DegreeOfSuccess.SUCCESS)
+        ).toBe(DegreeOfSuccess.CRITICAL_SUCCESS)
+        expect(
+            DegreeOfSuccessService.upgradeByOneStep(
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            )
+        ).toBe(DegreeOfSuccess.CRITICAL_SUCCESS)
+    })
+    it("can degrade the degree of success by one step at a time", () => {
+        expect(
+            DegreeOfSuccessService.degradeByOneStep(
+                DegreeOfSuccess.CRITICAL_FAILURE
+            )
+        ).toBe(DegreeOfSuccess.CRITICAL_FAILURE)
+        expect(
+            DegreeOfSuccessService.degradeByOneStep(DegreeOfSuccess.FAILURE)
+        ).toBe(DegreeOfSuccess.CRITICAL_FAILURE)
+        expect(
+            DegreeOfSuccessService.degradeByOneStep(DegreeOfSuccess.SUCCESS)
+        ).toBe(DegreeOfSuccess.FAILURE)
+        expect(
+            DegreeOfSuccessService.degradeByOneStep(
+                DegreeOfSuccess.CRITICAL_SUCCESS
+            )
+        ).toBe(DegreeOfSuccess.SUCCESS)
+    })
 })
