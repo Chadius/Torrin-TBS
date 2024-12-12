@@ -824,11 +824,9 @@ const createQueuedPopupIfNeeded = (
                 fillColor: WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
                 text: playerCommandState.newInvalidPopup.message,
                 area: RectAreaService.new({
-                    left:
-                        RectAreaService.left(
-                            playerCommandState.newInvalidPopup.buttonArea
-                        ) -
-                        windowWidth / 2,
+                    centerX: RectAreaService.left(
+                        playerCommandState.newInvalidPopup.buttonArea
+                    ),
                     top:
                         RectAreaService.bottom(
                             playerCommandState.newInvalidPopup.buttonArea

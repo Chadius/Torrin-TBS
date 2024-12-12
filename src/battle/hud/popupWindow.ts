@@ -86,7 +86,7 @@ export const PopupWindowService = {
                 fillColor: WARNING_POPUP_TEXT_CONSTANTS.label.fillColor,
                 text,
                 area: RectAreaService.new({
-                    left: coordinates.x - popupWidth / 2,
+                    centerX: coordinates.x,
                     top: coordinates.y + HEX_TILE_WIDTH / 2,
                     width: popupWidth,
                     height: WARNING_POPUP_TEXT_CONSTANTS.minHeight,

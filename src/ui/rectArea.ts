@@ -40,6 +40,14 @@ type PositionRight = {
     right: number
 }
 
+type PositionCenterX = {
+    centerX: number
+}
+
+type PositionCenterY = {
+    centerY: number
+}
+
 type ScreenWidth = {
     screenWidth: number
 }
@@ -108,14 +116,18 @@ type BaseRectangle = {
 
 type RectTop =
     | PositionTop
+    | (PositionBottom & PositionHeight)
     | (ScreenHeight & ScreenPercentTop)
     | (BaseRectangle & (AnchorTop | PositionTop | ScreenPercentTop | Margins))
+    | (PositionCenterY & PositionHeight)
 type RectLeft =
     | PositionLeft
+    | (PositionRight & PositionWidth)
     | (ScreenWidth & ScreenPercentLeft)
     | (ScreenWidth & TwelvePointColumnStart)
     | (BaseRectangle &
           (AnchorLeft | PositionLeft | ScreenPercentLeft | Margins))
+    | (PositionCenterX & PositionWidth)
 type RectHeightTopBottom = RectTop & PositionBottom
 type RectHeightPercentHeight = ScreenHeight & ScreenPercentHeight
 type RectHeightTopPercentBottom = ScreenHeight & RectTop & ScreenPercentBottom
@@ -366,16 +378,34 @@ const setRectTop = (rectArea: RectArea, params: RectTop): void => {
             (params as AnchorTop) &&
             isValidValue((params as AnchorTop).anchorTop) &&
             (params as AnchorTop).anchorTop != VerticalAnchor.NONE,
+        bottomAndHeight:
+            (params as PositionBottom & PositionHeight) &&
+            isValidValue((params as PositionBottom).bottom) &&
+            isValidValue((params as PositionHeight).height),
+        centerYAndHeight:
+            (params as PositionCenterY & PositionHeight) &&
+            isValidValue((params as PositionCenterY).centerY) &&
+            isValidValue((params as PositionHeight).height),
     }
 
     const paramValue = {
         anchorTop: paramIsValid.anchorTop
             ? (params as AnchorTop).anchorTop
             : VerticalAnchor.NONE,
+        bottomAndHeight: paramIsValid.bottomAndHeight
+            ? (params as PositionBottom).bottom -
+              (params as PositionHeight).height
+            : 0,
+        centerYAndHeight: paramIsValid.centerYAndHeight
+            ? (params as PositionCenterY).centerY -
+              (params as PositionHeight).height / 2
+            : 0,
     }
 
     let top = getValidValueOrDefault(baseRectangleTop, 0)
     top += positionTop || 0
+    top += paramValue.bottomAndHeight
+    top += paramValue.centerYAndHeight
 
     if (isValidValue(percentTop) && isValidValue(screenHeight)) {
         top += (screenHeight * percentTop) / 100
@@ -427,6 +457,10 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
             (params as AnchorLeft) &&
             isValidValue((params as AnchorLeft).anchorLeft) &&
             (params as AnchorLeft).anchorLeft != HorizontalAnchor.NONE,
+        rightAndWidth:
+            (params as PositionRight & PositionWidth) &&
+            isValidValue((params as PositionRight).right) &&
+            isValidValue((params as PositionWidth).width),
     }
 
     const paramValue = {
@@ -444,10 +478,15 @@ const setRectLeft = (rectArea: RectArea, params: RectLeft): void => {
         anchorLeft: paramIsValid.anchorLeft
             ? (params as AnchorLeft).anchorLeft
             : HorizontalAnchor.NONE,
+        rightAndWidth: paramIsValid.rightAndWidth
+            ? (params as PositionRight).right - (params as PositionWidth).width
+            : 0,
     }
 
     let left = getValidValueOrDefault(baseRectangleLeft, 0)
     left += positionLeft || 0
+    left += paramValue.rightAndWidth
+    left += calculateRectLeftBasedOnCenterXWidthOffset(params)
 
     if (isValidValue(percentLeft) && isValidValue(screenWidth)) {
         left += (screenWidth * percentLeft) / 100
@@ -722,4 +761,31 @@ const marginValues = (
     }
 
     return [0, 0, 0, 0]
+}
+
+const calculateRectLeftBasedOnCenterXWidthOffset = (
+    params: RectLeft
+): number => {
+    if (!params) {
+        return 0
+    }
+
+    if (!(params as PositionCenterX & PositionWidth)) {
+        return 0
+    }
+
+    const centerX = getValidValueOrDefault(
+        (params as PositionCenterX).centerX,
+        undefined
+    )
+    const width = getValidValueOrDefault(
+        (params as PositionWidth).width,
+        undefined
+    )
+
+    if (centerX === undefined || width === undefined) {
+        return 0
+    }
+
+    return centerX - width / 2
 }

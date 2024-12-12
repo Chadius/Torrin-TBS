@@ -134,6 +134,54 @@ describe("RectArea", () => {
             expect(rect.width).toBe(400 - 20 - (100 + 40))
         })
     })
+    describe("RectArea created from right and width and bottom and height", () => {
+        it("left and width", () => {
+            const rect = RectAreaService.new({
+                right: 50,
+                width: 40,
+                top: 100,
+                height: 20,
+            })
+
+            expect(RectAreaService.left(rect)).toBe(10)
+        })
+
+        it("bottom and height", () => {
+            const rect = RectAreaService.new({
+                left: 10,
+                right: 50,
+                height: 20,
+                bottom: 100,
+            })
+
+            expect(RectAreaService.top(rect)).toBe(80)
+        })
+    })
+    describe("RectArea created from center and length", () => {
+        it("centerX and width", () => {
+            const rect = RectAreaService.new({
+                centerX: 30,
+                width: 20,
+                top: 100,
+                height: 20,
+            })
+
+            expect(RectAreaService.left(rect)).toBe(20)
+            expect(RectAreaService.right(rect)).toBe(40)
+        })
+
+        it("centerY and height", () => {
+            const rect = RectAreaService.new({
+                left: 20,
+                width: 40,
+                centerY: 400,
+                height: 20,
+            })
+
+            expect(RectAreaService.top(rect)).toBe(390)
+            expect(RectAreaService.bottom(rect)).toBe(410)
+        })
+    })
     describe("RectArea anchored to another rect", () => {
         it("can create a rect with the same top and left corner", () => {
             const baseRect = RectAreaService.new({

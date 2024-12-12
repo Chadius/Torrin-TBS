@@ -180,10 +180,8 @@ const drawPortraitImage = ({
                     })
 
                     return RectAreaService.new({
-                        left:
-                            RectAreaService.centerX(originalArea) -
-                            imageWidth / 2,
-                        top: RectAreaService.bottom(originalArea) - imageHeight,
+                        centerX: RectAreaService.centerX(originalArea),
+                        bottom: RectAreaService.bottom(originalArea),
                         width: imageWidth,
                         height: imageHeight,
                     })
