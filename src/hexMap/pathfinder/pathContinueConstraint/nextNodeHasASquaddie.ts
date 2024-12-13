@@ -1,9 +1,9 @@
 import {
-    AddPathCondition,
+    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
-} from "./addPathCondition"
+} from "./pathContinueConstraint"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import {
     ObjectRepository,
@@ -15,8 +15,9 @@ import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
+import { getSquaddieAtEndOfPath } from "../getSquaddieAtEndOfPath"
 
-export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
+export class NextNodeHasASquaddie implements PathContinueConstraint {
     missionMap: MissionMap
     repository: ObjectRepository
 
@@ -31,7 +32,7 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         this.repository = objectRepository
     }
 
-    shouldAddNewPath({
+    shouldContinue({
         newPath,
         searchParameters,
     }: {
@@ -43,47 +44,30 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         }
 
         if (
-            searchParameters.squaddieAffiliation === SquaddieAffiliation.UNKNOWN
+            searchParameters.pathContinueConstraints.squaddieAffiliation
+                .searchingSquaddieAffiliation === SquaddieAffiliation.UNKNOWN
         ) {
             return true
         }
 
-        if (searchParameters.canStopOnSquaddies === true) {
+        if (searchParameters.pathStopConstraints.canStopOnSquaddies === true) {
             return true
         }
 
-        const head = SearchPathService.getMostRecentLocation(newPath)
+        const { battleSquaddie, squaddieTemplate } = getSquaddieAtEndOfPath({
+            searchPath: newPath,
+            missionMap: this.missionMap,
+            objectRepository: this.repository,
+        })
 
-        const { battleSquaddieId } =
-            MissionMapService.getBattleSquaddieAtLocation(this.missionMap, {
-                q: head.hexCoordinate.q,
-                r: head.hexCoordinate.r,
-            })
-        if (battleSquaddieId === undefined) {
+        if (battleSquaddie === undefined) {
             return true
         }
 
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                this.repository,
-                battleSquaddieId
-            )
-        )
-
-        if (!squaddieTemplate) {
-            return true
-        }
-
-        if (
-            !SquaddieService.isSquaddieAlive({
-                squaddieTemplate,
-                battleSquaddie,
-            })
-        ) {
-            return true
-        }
         return SquaddieAffiliationService.areSquaddieAffiliationsAllies({
-            actingAffiliation: searchParameters.squaddieAffiliation,
+            actingAffiliation:
+                searchParameters.pathContinueConstraints.squaddieAffiliation
+                    .searchingSquaddieAffiliation,
             targetAffiliation: squaddieTemplate.squaddieId.affiliation,
         })
     }

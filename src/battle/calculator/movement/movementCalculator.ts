@@ -5,13 +5,8 @@ import {
     SearchResultsService,
 } from "../../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { SearchParametersService } from "../../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../../hexMap/pathfinder/searchParameters"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
-import {
-    GetTargetingShapeGenerator,
-    TargetingShape,
-} from "../../targeting/targetingShapeGenerator"
 import { SearchPath } from "../../../hexMap/pathfinder/searchPath"
 import { isValidValue } from "../../../utils/validityCheck"
 import { BattleSquaddie } from "../../battleSquaddie"
@@ -51,35 +46,44 @@ export const MovementCalculatorService = {
             })
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [squaddieDatum.mapCoordinate],
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                movementPerAction:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.movementPerAction,
-                canPassThroughWalls:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.passThroughWalls,
-                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
-                    battleSquaddie,
-                    squaddieTemplate,
-                }).net.crossOverPits,
-                ignoreTerrainCost:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.ignoreTerrainCost,
-                shapeGenerator: getResultOrThrowError(
-                    GetTargetingShapeGenerator(TargetingShape.SNAKE)
-                ),
-                maximumDistanceMoved: undefined,
-                minimumDistanceMoved: undefined,
-                canStopOnSquaddies: true,
-                stopLocations: [destination],
-                numberOfActions: actionPointsRemaining,
+                pathGenerators: {
+                    startCoordinates: [squaddieDatum.mapCoordinate],
+                },
+                pathSizeConstraints: {
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.movementPerAction,
+                    numberOfActions: actionPointsRemaining,
+                },
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            SquaddieAffiliation.PLAYER,
+                    },
+                    canPassThroughWalls:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.passThroughWalls,
+                    canPassOverPits:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.crossOverPits,
+                    ignoreTerrainCost:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.ignoreTerrainCost,
+                },
+                pathStopConstraints: {
+                    canStopOnSquaddies: true,
+                },
+                goal: {
+                    stopCoordinates: [destination],
+                },
             }),
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,

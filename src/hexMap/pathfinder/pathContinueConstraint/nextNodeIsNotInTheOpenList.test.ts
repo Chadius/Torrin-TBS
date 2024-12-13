@@ -1,11 +1,11 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { AddPathConditionNotInMapLayer } from "./addPathConditionNotInMapLayer"
+import { NextNodeIsNotInTheOpenList } from "./nextNodeIsNotInTheOpenList"
 
 describe("AddPathConditionNotInMapLayer", () => {
     it("knows when a path has not been enqueued yet", () => {
@@ -16,7 +16,7 @@ describe("AddPathConditionNotInMapLayer", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionNotInMapLayer({
+        const condition = new NextNodeIsNotInTheOpenList({
             enqueuedMapLayer: mapLayer,
         })
 
@@ -27,10 +27,12 @@ describe("AddPathConditionNotInMapLayer", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -45,7 +47,7 @@ describe("AddPathConditionNotInMapLayer", () => {
         })
         mapLayer.valueByLocation[1][0] = true
 
-        const condition = new AddPathConditionNotInMapLayer({
+        const condition = new NextNodeIsNotInTheOpenList({
             enqueuedMapLayer: mapLayer,
         })
 
@@ -56,10 +58,12 @@ describe("AddPathConditionNotInMapLayer", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -73,7 +77,7 @@ describe("AddPathConditionNotInMapLayer", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionNotInMapLayer({
+        const condition = new NextNodeIsNotInTheOpenList({
             enqueuedMapLayer: mapLayer,
         })
 
@@ -84,10 +88,12 @@ describe("AddPathConditionNotInMapLayer", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -101,16 +107,18 @@ describe("AddPathConditionNotInMapLayer", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionNotInMapLayer({
+        const condition = new NextNodeIsNotInTheOpenList({
             enqueuedMapLayer: mapLayer,
         })
 
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })

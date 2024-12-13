@@ -1,9 +1,9 @@
 import {
-    AddPathCondition,
+    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
-} from "./addPathCondition"
+} from "./pathContinueConstraint"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
@@ -11,7 +11,7 @@ import {
 import { LocationTraveled } from "../locationTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
-export class AddPathConditionNotInMapLayer implements AddPathCondition {
+export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
     enqueuedMapLayer: MapSearchDataLayer
 
     constructor({
@@ -22,7 +22,7 @@ export class AddPathConditionNotInMapLayer implements AddPathCondition {
         this.enqueuedMapLayer = enqueuedMapLayer
     }
 
-    shouldAddNewPath({
+    shouldContinue({
         newPath,
         searchParameters,
     }: {

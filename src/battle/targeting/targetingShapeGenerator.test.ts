@@ -1,23 +1,20 @@
 import { SnakeShapeGenerator } from "./snakeShapeGenerator"
 import {
-    GetTargetingShapeGenerator,
     TargetingShape,
+    TargetingShapeGeneratorService,
 } from "./targetingShapeGenerator"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
 
 describe("Targeting Shape Generator", () => {
     it("generates a Snake Shape when requested", () => {
-        const snake: SnakeShapeGenerator = getResultOrThrowError(
-            GetTargetingShapeGenerator(TargetingShape.SNAKE)
+        const snake: SnakeShapeGenerator = TargetingShapeGeneratorService.new(
+            TargetingShape.SNAKE
         )
         expect(snake).toBeInstanceOf(SnakeShapeGenerator)
     })
 
     it("throws an error when asked to generate an unknown Shape", () => {
         const shouldThrowError = () => {
-            getResultOrThrowError(
-                GetTargetingShapeGenerator(TargetingShape.UNKNOWN)
-            )
+            TargetingShapeGeneratorService.new(TargetingShape.UNKNOWN)
         }
 
         expect(() => {
@@ -25,6 +22,6 @@ describe("Targeting Shape Generator", () => {
         }).toThrow(Error)
         expect(() => {
             shouldThrowError()
-        }).toThrow("Unexpected shape generator: Unknown")
+        }).toThrowError("Unexpected shape generator name: UNKNOWN")
     })
 })

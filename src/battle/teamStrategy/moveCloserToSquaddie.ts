@@ -3,12 +3,8 @@ import {
     TeamStrategyService,
 } from "./teamStrategyCalculator"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import {
-    GetTargetingShapeGenerator,
-    TargetingShape,
-} from "../targeting/targetingShapeGenerator"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { TeamStrategyOptions } from "./teamStrategy"
@@ -212,26 +208,36 @@ const getClosestSquaddieAndLocationToFollow = ({
         const routesThatEndCloseToCandidate: SearchResult =
             PathfinderService.search({
                 searchParameters: SearchParametersService.new({
-                    startLocations: [actorLocation],
-                    squaddieAffiliation:
-                        actorSquaddieTemplate.squaddieId.affiliation,
-                    movementPerAction: movementPerAction,
-                    canPassOverPits:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie: actorBattleSquaddie,
-                            squaddieTemplate: actorSquaddieTemplate,
-                        }).net.crossOverPits,
-                    canPassThroughWalls:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie: actorBattleSquaddie,
-                            squaddieTemplate: actorSquaddieTemplate,
-                        }).net.passThroughWalls,
-                    shapeGenerator: getResultOrThrowError(
-                        GetTargetingShapeGenerator(TargetingShape.SNAKE)
-                    ),
-                    canStopOnSquaddies: false,
-                    numberOfActions: numberOfActions,
-                    stopLocations: closestReachableLocationsFromTheCandidate,
+                    pathGenerators: {
+                        startCoordinates: [actorLocation],
+                    },
+                    pathSizeConstraints: {
+                        movementPerAction: movementPerAction,
+                        numberOfActions: numberOfActions,
+                    },
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation:
+                                actorSquaddieTemplate.squaddieId.affiliation,
+                        },
+                        canPassOverPits:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie: actorBattleSquaddie,
+                                squaddieTemplate: actorSquaddieTemplate,
+                            }).net.crossOverPits,
+                        canPassThroughWalls:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie: actorBattleSquaddie,
+                                squaddieTemplate: actorSquaddieTemplate,
+                            }).net.passThroughWalls,
+                    },
+                    pathStopConstraints: {
+                        canStopOnSquaddies: false,
+                    },
+                    goal: {
+                        stopCoordinates:
+                            closestReachableLocationsFromTheCandidate,
+                    },
                 }),
                 missionMap,
                 objectRepository: objectRepository,
@@ -396,18 +402,28 @@ const getAllPossibleMovements = ({
 }) => {
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
-            startLocations: [mapCoordinate],
-            squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
-            movementPerAction: movementPerActionThisRound,
-            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-            canPassThroughWalls:
-                squaddieTemplate.attributes.movement.passThroughWalls,
-            shapeGenerator: getResultOrThrowError(
-                GetTargetingShapeGenerator(TargetingShape.SNAKE)
-            ),
-            canStopOnSquaddies: true,
-            ignoreTerrainCost: false,
-            numberOfActions: actionPointsRemaining,
+            pathGenerators: {
+                startCoordinates: [mapCoordinate],
+            },
+            pathSizeConstraints: {
+                movementPerAction: movementPerActionThisRound,
+                numberOfActions: actionPointsRemaining,
+            },
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation:
+                        squaddieTemplate.squaddieId.affiliation,
+                },
+                canPassOverPits:
+                    squaddieTemplate.attributes.movement.crossOverPits,
+                canPassThroughWalls:
+                    squaddieTemplate.attributes.movement.passThroughWalls,
+                ignoreTerrainCost: false,
+            },
+            pathStopConstraints: {
+                canStopOnSquaddies: true,
+            },
+            goal: {},
         }),
         missionMap,
         objectRepository: objectRepository,

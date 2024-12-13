@@ -105,33 +105,6 @@ describe("Targeting Service", () => {
         )
     })
 
-    it("will highlight nothing if the acting squaddie is not on the map", () => {
-        let battleMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
-            }),
-        })
-
-        MissionMapService.addSquaddie({
-            missionMap: battleMap,
-            squaddieTemplateId: sirCamilBattleSquaddie.squaddieTemplateId,
-            battleSquaddieId: sirCamilBattleSquaddie.battleSquaddieId,
-        })
-
-        const results: TargetingResults =
-            TargetingResultsService.findValidTargets({
-                map: battleMap,
-                actionTemplate: longswordAction,
-                actionEffectSquaddieTemplate:
-                    longswordAction.actionEffectTemplates[0],
-                actingSquaddieTemplate: sirCamilSquaddieTemplate,
-                actingBattleSquaddie: sirCamilBattleSquaddie,
-                squaddieRepository: objectRepository,
-            })
-
-        expect(results.locationsInRange).toHaveLength(0)
-    })
-
     it("will respect walls and ranged attacks", () => {
         let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({

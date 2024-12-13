@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
@@ -16,7 +16,6 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
-import { GetTargetingShapeGenerator } from "../targeting/targetingShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../teamStrategy/teamStrategy"
 import { DetermineNextDecisionService } from "../teamStrategy/determineNextDecision"
@@ -226,21 +225,28 @@ export class BattleComputerSquaddieSelector
     ) {
         const searchResult: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [targetLocation],
-                squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
-                maximumDistanceMoved: 0,
-                minimumDistanceMoved: 0,
-                canStopOnSquaddies: true,
-                ignoreTerrainCost: false,
-                shapeGenerator: getResultOrThrowError(
-                    GetTargetingShapeGenerator(
-                        action.targetConstraints.targetingShape
-                    )
-                ),
-                movementPerAction: action.targetConstraints.maximumRange,
-                canPassOverPits: false,
-                canPassThroughWalls: false,
-                numberOfActions: 1,
+                pathGenerators: {
+                    startCoordinates: [targetLocation],
+                },
+                pathSizeConstraints: {
+                    maximumDistanceMoved: 0,
+                    minimumDistanceMoved: 0,
+                    movementPerAction: action.targetConstraints.maximumRange,
+                    numberOfActions: 1,
+                },
+                pathStopConstraints: {
+                    canStopOnSquaddies: true,
+                },
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            SquaddieAffiliation.UNKNOWN,
+                    },
+                    ignoreTerrainCost: false,
+                    canPassOverPits: false,
+                    canPassThroughWalls: false,
+                },
+                goal: {},
             }),
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -450,26 +456,6 @@ export class BattleComputerSquaddieSelector
         this.mostRecentDecisionSteps = battleActionDecisionSteps
     }
 
-    private updateSquaddieLocationForEachMovementDecisionStep = (
-        battleActionDecisionSteps: BattleActionDecisionStep[],
-        gameEngineState: GameEngineState,
-        battleSquaddie: BattleSquaddie
-    ) => {
-        battleActionDecisionSteps
-            .filter(
-                (battleActionDecisionStep) =>
-                    battleActionDecisionStep.action.movement
-            )
-            .forEach((battleActionDecisionStep) =>
-                MissionMapService.updateBattleSquaddieLocation(
-                    gameEngineState.battleOrchestratorState.battleState
-                        .missionMap,
-                    battleSquaddie.battleSquaddieId,
-                    battleActionDecisionStep.target.targetLocation
-                )
-            )
-    }
-
     private highlightRangeForFirstActionTemplateDecisionStep = (
         battleActionDecisionSteps: BattleActionDecisionStep[],
         gameEngineState: GameEngineState,
@@ -495,6 +481,26 @@ export class BattleComputerSquaddieSelector
             firstActionTemplateDecisionStep.target.targetLocation,
             battleSquaddie.battleSquaddieId
         )
+    }
+
+    private updateSquaddieLocationForEachMovementDecisionStep = (
+        battleActionDecisionSteps: BattleActionDecisionStep[],
+        gameEngineState: GameEngineState,
+        battleSquaddie: BattleSquaddie
+    ) => {
+        battleActionDecisionSteps
+            .filter(
+                (battleActionDecisionStep) =>
+                    battleActionDecisionStep.action.movement
+            )
+            .forEach((battleActionDecisionStep) =>
+                MissionMapService.updateBattleSquaddieLocation(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .missionMap,
+                    battleSquaddie.battleSquaddieId,
+                    battleActionDecisionStep.target.targetLocation
+                )
+            )
     }
 
     private createBattleActions(

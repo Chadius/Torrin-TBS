@@ -1,13 +1,13 @@
 import {
-    AddPathCondition,
+    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
-} from "./addPathCondition"
+} from "./pathContinueConstraint"
 import { SearchPath } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { isValidValue } from "../../../utils/validityCheck"
 
-export class AddPathConditionMaximumDistance implements AddPathCondition {
-    shouldAddNewPath({
+export class NewPathLengthIsLessThanMaximum implements PathContinueConstraint {
+    shouldContinue({
         newPath,
         searchParameters,
     }: {
@@ -18,13 +18,17 @@ export class AddPathConditionMaximumDistance implements AddPathCondition {
             return undefined
         }
 
-        if (!isValidValue(searchParameters.maximumDistanceMoved)) {
+        if (
+            !isValidValue(
+                searchParameters.pathSizeConstraints.maximumDistanceMoved
+            )
+        ) {
             return true
         }
 
         return (
             newPath.locationsTraveled.length <=
-            searchParameters.maximumDistanceMoved + 1
+            searchParameters.pathSizeConstraints.maximumDistanceMoved + 1
         )
     }
 }

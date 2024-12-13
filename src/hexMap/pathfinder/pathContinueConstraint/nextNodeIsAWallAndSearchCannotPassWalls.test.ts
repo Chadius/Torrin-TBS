@@ -1,11 +1,11 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { AddPathConditionPathLeadsToPit } from "./addPathConditionPathLeadsToPit"
+import { NextNodeIsAWallAndSearchCannotPassWalls } from "./nextNodeIsAWallAndSearchCannotPassWalls"
 
-describe("addPathConditionPathLeadsToPit", () => {
-    it("returns true if the path is not on a Pit", () => {
+describe("addPathConditionPathLeadsToWall", () => {
+    it("returns true if the path is not on a wall", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -24,18 +24,22 @@ describe("addPathConditionPathLeadsToPit", () => {
             1
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToPit({ missionMap })
+        const condition = new NextNodeIsAWallAndSearchCannotPassWalls({
+            missionMap,
+        })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
         ).toBe(true)
     })
 
-    it("returns false if the path is in a Pit and search cannot cross pits", () => {
+    it("returns false if the path is in a wall", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -50,32 +54,31 @@ describe("addPathConditionPathLeadsToPit", () => {
         )
         SearchPathService.add(
             pathAtHead,
-            { hexCoordinate: { q: 0, r: 1 }, cumulativeMovementCost: 0 },
+            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
         SearchPathService.add(
             pathAtHead,
-            { hexCoordinate: { q: 0, r: 2 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
+            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             1
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToPit({ missionMap })
+        const condition = new NextNodeIsAWallAndSearchCannotPassWalls({
+            missionMap,
+        })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
         ).toBe(false)
     })
 
-    it("returns true if the path is in a Pit and search can cross pits", () => {
+    it("returns true if the path is in a wall and search can pass through walls", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -90,27 +93,27 @@ describe("addPathConditionPathLeadsToPit", () => {
         )
         SearchPathService.add(
             pathAtHead,
-            { hexCoordinate: { q: 0, r: 1 }, cumulativeMovementCost: 0 },
+            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
             1
         )
         SearchPathService.add(
             pathAtHead,
-            { hexCoordinate: { q: 0, r: 2 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
+            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             1
         )
 
         const searchParameters = SearchParametersService.new({
-            canPassOverPits: true,
+            pathContinueConstraints: {
+                canPassThroughWalls: true,
+            },
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathLeadsToPit({ missionMap })
+        const condition = new NextNodeIsAWallAndSearchCannotPassWalls({
+            missionMap,
+        })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -124,11 +127,15 @@ describe("addPathConditionPathLeadsToPit", () => {
             }),
         })
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToPit({ missionMap })
+        const condition = new NextNodeIsAWallAndSearchCannotPassWalls({
+            missionMap,
+        })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })

@@ -1,9 +1,9 @@
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { SearchPath, SearchPathService } from "../searchPath"
 import { isValidValue } from "../../../utils/validityCheck"
 
-export interface AddPathCondition {
-    shouldAddNewPath({
+export interface PathContinueConstraint {
+    shouldContinue({
         newPath,
         searchParameters,
     }: {

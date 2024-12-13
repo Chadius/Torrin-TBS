@@ -1,11 +1,11 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { AddPathConditionPathLeadsToWall } from "./addPathConditionPathLeadsToWall"
+import { PathDoesNotEndOnAWallOrPit } from "./pathDoesNotEndOnAWallOrPit"
 
-describe("addPathConditionPathLeadsToWall", () => {
-    it("returns true if the path is not on a wall", () => {
+describe("pathCanStopConditionNotAWallOrPit", () => {
+    it("returns true if the path is not on a wall or pit", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -24,11 +24,13 @@ describe("addPathConditionPathLeadsToWall", () => {
             1
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToWall({ missionMap })
+        const condition = new PathDoesNotEndOnAWallOrPit({ missionMap })
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -59,18 +61,20 @@ describe("addPathConditionPathLeadsToWall", () => {
             1
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToWall({ missionMap })
+        const condition = new PathDoesNotEndOnAWallOrPit({ missionMap })
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
         ).toBe(false)
     })
 
-    it("returns true if the path is in a wall and search can pass through walls", () => {
+    it("returns false if the path is in a pit", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -93,18 +97,23 @@ describe("addPathConditionPathLeadsToWall", () => {
             { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 0 },
             1
         )
+        SearchPathService.add(
+            pathAtHead,
+            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 0 },
+            1
+        )
 
         const searchParameters = SearchParametersService.new({
-            canPassThroughWalls: true,
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathLeadsToWall({ missionMap })
+        const condition = new PathDoesNotEndOnAWallOrPit({ missionMap })
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
-        ).toBe(true)
+        ).toBe(false)
     })
 
     it("returns undefined if there is no path", () => {
@@ -114,11 +123,13 @@ describe("addPathConditionPathLeadsToWall", () => {
             }),
         })
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionPathLeadsToWall({ missionMap })
+        const condition = new PathDoesNotEndOnAWallOrPit({ missionMap })
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })

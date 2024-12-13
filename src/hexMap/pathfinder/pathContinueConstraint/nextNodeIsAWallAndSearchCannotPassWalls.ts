@@ -1,22 +1,24 @@
 import {
-    AddPathCondition,
+    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
-} from "./addPathCondition"
+} from "./pathContinueConstraint"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
 
-export class AddPathConditionPathLeadsToWall implements AddPathCondition {
+export class NextNodeIsAWallAndSearchCannotPassWalls
+    implements PathContinueConstraint
+{
     missionMap: MissionMap
 
     constructor({ missionMap }: { missionMap: MissionMap }) {
         this.missionMap = missionMap
     }
 
-    shouldAddNewPath({
+    shouldContinue({
         newPath,
         searchParameters,
     }: {
@@ -27,7 +29,7 @@ export class AddPathConditionPathLeadsToWall implements AddPathCondition {
             return undefined
         }
 
-        if (searchParameters.passThroughWalls) {
+        if (searchParameters.pathContinueConstraints.passThroughWalls) {
             return true
         }
 

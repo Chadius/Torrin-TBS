@@ -1,9 +1,9 @@
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { isValidValue } from "../../../utils/validityCheck"
 
-export interface PathCanStopCondition {
-    shouldMarkPathLocationAsStoppable({
+export interface PathStopConstraint {
+    squaddieCanStopAtTheEndOfThisPath({
         newPath,
         searchParameters,
     }: {

@@ -1,4 +1,4 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -11,7 +11,7 @@ import { SquaddieIdService } from "../../../squaddie/id"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../../../battle/battleSquaddie"
 import { DamageType } from "../../../squaddie/squaddieService"
-import { PathCanStopConditionNotOnAnotherSquaddie } from "./pathCanStopConditionNotOnAnotherSquaddie"
+import { PathDoesNotEndOnAnotherSquaddie } from "./pathDoesNotEndOnAnotherSquaddie"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
 
 describe("PathCanStopConditionNotOnASquaddie", () => {
@@ -74,14 +74,16 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             2
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -131,14 +133,16 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             },
         })
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -208,14 +212,16 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             damageType: DamageType.UNKNOWN,
         })
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -281,15 +287,18 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            canStopOnSquaddies: true,
+            pathStopConstraints: {
+                canStopOnSquaddies: true,
+            },
+            goal: {},
         })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -326,15 +335,20 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
         const searchParameters = SearchParametersService.new({
-            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation: SquaddieAffiliation.PLAYER,
+                },
+            },
+            goal: {},
         })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -348,14 +362,16 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
         })
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new PathCanStopConditionNotOnAnotherSquaddie({
+        const condition = new PathDoesNotEndOnAnotherSquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })

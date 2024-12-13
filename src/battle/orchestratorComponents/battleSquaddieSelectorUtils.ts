@@ -2,11 +2,8 @@ import { BattleSquaddie } from "../battleSquaddie"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
-import {
-    GetTargetingShapeGenerator,
-    TargetingShape,
-} from "../targeting/targetingShapeGenerator"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
+import { TargetingShapeGeneratorService } from "../targeting/targetingShapeGenerator"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
@@ -386,37 +383,46 @@ const getAllTilesSquaddieCanReach = ({
 
     return PathfinderService.search({
         searchParameters: SearchParametersService.new({
-            squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
-            startLocations: [
-                {
-                    q: mapCoordinate.q,
-                    r: mapCoordinate.r,
+            pathGenerators: {
+                startCoordinates: [
+                    {
+                        q: mapCoordinate.q,
+                        r: mapCoordinate.r,
+                    },
+                ],
+            },
+            pathSizeConstraints: {
+                movementPerAction:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).net.movementPerAction,
+                numberOfActions: actionPointsRemaining,
+            },
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation:
+                        squaddieTemplate.squaddieId.affiliation,
                 },
-            ],
-            movementPerAction: SquaddieService.getSquaddieMovementAttributes({
-                battleSquaddie,
-                squaddieTemplate,
-            }).net.movementPerAction,
-            canPassThroughWalls: SquaddieService.getSquaddieMovementAttributes({
-                battleSquaddie,
-                squaddieTemplate,
-            }).net.passThroughWalls,
-            canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
-                battleSquaddie,
-                squaddieTemplate,
-            }).net.crossOverPits,
-            ignoreTerrainCost: SquaddieService.getSquaddieMovementAttributes({
-                battleSquaddie,
-                squaddieTemplate,
-            }).net.ignoreTerrainCost,
-            shapeGenerator: getResultOrThrowError(
-                GetTargetingShapeGenerator(TargetingShape.SNAKE)
-            ),
-            maximumDistanceMoved: undefined,
-            minimumDistanceMoved: undefined,
-            canStopOnSquaddies: undefined,
-            stopLocations: stopLocation ? [stopLocation] : [],
-            numberOfActions: actionPointsRemaining,
+                canPassThroughWalls:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).net.passThroughWalls,
+                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
+                    battleSquaddie,
+                    squaddieTemplate,
+                }).net.crossOverPits,
+                ignoreTerrainCost:
+                    SquaddieService.getSquaddieMovementAttributes({
+                        battleSquaddie,
+                        squaddieTemplate,
+                    }).net.ignoreTerrainCost,
+            },
+            pathStopConstraints: {},
+            goal: {
+                stopCoordinates: stopLocation ? [stopLocation] : [],
+            },
         }),
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
@@ -462,31 +468,43 @@ const getSquaddieAttackLocations = (
                                 {
                                     searchParameters:
                                         SearchParametersService.new({
-                                            startLocations: [coordinate],
-                                            canStopOnSquaddies: true,
-                                            canPassOverPits: true,
-                                            canPassThroughWalls:
-                                                TraitStatusStorageService.getStatus(
-                                                    actionSquaddieEffectTemplate.traits,
-                                                    Trait.PASS_THROUGH_WALLS
-                                                ),
-                                            minimumDistanceMoved:
-                                                actionTemplate.targetConstraints
-                                                    .minimumRange,
-                                            maximumDistanceMoved:
-                                                actionTemplate.targetConstraints
-                                                    .maximumRange,
-                                            squaddieAffiliation:
-                                                SquaddieAffiliation.UNKNOWN,
-                                            ignoreTerrainCost: true,
-                                            shapeGenerator:
-                                                getResultOrThrowError(
-                                                    GetTargetingShapeGenerator(
+                                            pathGenerators: {
+                                                startCoordinates: [coordinate],
+                                                shapeGenerator:
+                                                    TargetingShapeGeneratorService.new(
                                                         actionTemplate
                                                             .targetConstraints
                                                             .targetingShape
-                                                    )
-                                                ),
+                                                    ),
+                                            },
+                                            pathStopConstraints: {
+                                                canStopOnSquaddies: true,
+                                            },
+                                            pathContinueConstraints: {
+                                                canPassOverPits: true,
+                                                canPassThroughWalls:
+                                                    TraitStatusStorageService.getStatus(
+                                                        actionSquaddieEffectTemplate.traits,
+                                                        Trait.PASS_THROUGH_WALLS
+                                                    ),
+                                                ignoreTerrainCost: true,
+                                                squaddieAffiliation: {
+                                                    searchingSquaddieAffiliation:
+                                                        SquaddieAffiliation.UNKNOWN,
+                                                },
+                                            },
+                                            pathSizeConstraints: {
+                                                minimumDistanceMoved:
+                                                    actionTemplate
+                                                        .targetConstraints
+                                                        .minimumRange,
+                                                maximumDistanceMoved:
+                                                    actionTemplate
+                                                        .targetConstraints
+                                                        .maximumRange,
+                                            },
+
+                                            goal: {},
                                         }),
                                     missionMap,
                                     objectRepository: repository,

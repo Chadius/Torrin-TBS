@@ -9,13 +9,8 @@ import { BattleSquaddieMover } from "./battleSquaddieMover"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { TIME_TO_MOVE } from "../animation/squaddieMoveAnimationUtils"
-import {
-    GetTargetingShapeGenerator,
-    TargetingShape,
-} from "../targeting/targetingShapeGenerator"
 import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -94,20 +89,28 @@ describe("BattleSquaddieMover", () => {
 
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                canStopOnSquaddies: true,
-                movementPerAction: 99,
-                shapeGenerator: getResultOrThrowError(
-                    GetTargetingShapeGenerator(TargetingShape.SNAKE)
-                ),
-                maximumDistanceMoved: undefined,
-                minimumDistanceMoved: undefined,
-                ignoreTerrainCost: false,
-                canPassOverPits: false,
-                canPassThroughWalls: false,
-                stopLocations: [{ q: 1, r: 1 }],
-                numberOfActions: 1,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathStopConstraints: {
+                    canStopOnSquaddies: true,
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 99,
+                    numberOfActions: 1,
+                },
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            SquaddieAffiliation.PLAYER,
+                    },
+                    ignoreTerrainCost: false,
+                    canPassOverPits: false,
+                    canPassThroughWalls: false,
+                },
+                goal: {
+                    stopCoordinates: [{ q: 1, r: 1 }],
+                },
             }),
             missionMap: map,
             objectRepository: objectRepository,
@@ -178,20 +181,28 @@ describe("BattleSquaddieMover", () => {
 
         const searchResults: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                canStopOnSquaddies: true,
-                movementPerAction: 99,
-                shapeGenerator: getResultOrThrowError(
-                    GetTargetingShapeGenerator(TargetingShape.SNAKE)
-                ),
-                maximumDistanceMoved: undefined,
-                minimumDistanceMoved: undefined,
-                ignoreTerrainCost: false,
-                canPassOverPits: false,
-                canPassThroughWalls: false,
-                stopLocations: [{ q: 1, r: 1 }],
-                numberOfActions: 1,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathStopConstraints: {
+                    canStopOnSquaddies: true,
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 99,
+                    numberOfActions: 1,
+                },
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            SquaddieAffiliation.PLAYER,
+                    },
+                    ignoreTerrainCost: false,
+                    canPassOverPits: false,
+                    canPassThroughWalls: false,
+                },
+                goal: {
+                    stopCoordinates: [{ q: 1, r: 1 }],
+                },
             }),
             missionMap: map,
             objectRepository: objectRepository,
@@ -269,20 +280,28 @@ describe("BattleSquaddieMover", () => {
         }): BattleOrchestratorState => {
             const searchResults: SearchResult = PathfinderService.search({
                 searchParameters: SearchParametersService.new({
-                    startLocations: [{ q: 0, r: 0 }],
-                    squaddieAffiliation: squaddieAffiliation,
-                    canStopOnSquaddies: true,
-                    movementPerAction: 999,
-                    shapeGenerator: getResultOrThrowError(
-                        GetTargetingShapeGenerator(TargetingShape.SNAKE)
-                    ),
-                    maximumDistanceMoved: undefined,
-                    minimumDistanceMoved: 0,
-                    ignoreTerrainCost: false,
-                    canPassOverPits: false,
-                    canPassThroughWalls: false,
-                    stopLocations: [{ q: 1, r: 1 }],
-                    numberOfActions: 1,
+                    pathGenerators: {
+                        startCoordinates: [{ q: 0, r: 0 }],
+                    },
+                    pathStopConstraints: {
+                        canStopOnSquaddies: true,
+                    },
+                    pathSizeConstraints: {
+                        movementPerAction: 999,
+                        numberOfActions: 1,
+                        minimumDistanceMoved: 0,
+                    },
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: squaddieAffiliation,
+                        },
+                        ignoreTerrainCost: false,
+                        canPassOverPits: false,
+                        canPassThroughWalls: false,
+                    },
+                    goal: {
+                        stopCoordinates: [{ q: 1, r: 1 }],
+                    },
                 }),
                 missionMap: map,
                 objectRepository: objectRepository,

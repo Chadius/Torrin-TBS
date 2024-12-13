@@ -1,10 +1,10 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
-import { PathCanStopConditionMinimumDistance } from "./pathCanStopConditionMinimumDistance"
+import { PathLengthIsMoreThanMinimum } from "./pathLengthIsMoreThanMinimum"
 
 describe("PathCanStopConditionMinimumDistance", () => {
     it("knows when a path is less than the minimum distance", () => {
-        const condition = new PathCanStopConditionMinimumDistance()
+        const condition = new PathLengthIsMoreThanMinimum()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -24,11 +24,14 @@ describe("PathCanStopConditionMinimumDistance", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            minimumDistanceMoved: 3,
+            pathSizeConstraints: {
+                minimumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -36,7 +39,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("knows when a path is more than the minimum distance", () => {
-        const condition = new PathCanStopConditionMinimumDistance()
+        const condition = new PathLengthIsMoreThanMinimum()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -61,11 +64,14 @@ describe("PathCanStopConditionMinimumDistance", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            minimumDistanceMoved: 3,
+            pathSizeConstraints: {
+                minimumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -73,7 +79,7 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("always returns true if no minimum distance is given", () => {
-        const condition = new PathCanStopConditionMinimumDistance()
+        const condition = new PathLengthIsMoreThanMinimum()
 
         const pathAtHead = SearchPathService.newSearchPath()
         SearchPathService.add(
@@ -102,10 +108,12 @@ describe("PathCanStopConditionMinimumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -113,15 +121,18 @@ describe("PathCanStopConditionMinimumDistance", () => {
     })
 
     it("returns undefined if there is no path", () => {
-        const condition = new PathCanStopConditionMinimumDistance()
+        const condition = new PathLengthIsMoreThanMinimum()
         const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersService.new({
-            minimumDistanceMoved: 3,
+            pathSizeConstraints: {
+                minimumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })

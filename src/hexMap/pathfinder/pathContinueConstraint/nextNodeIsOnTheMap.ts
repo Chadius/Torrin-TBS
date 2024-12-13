@@ -1,9 +1,9 @@
 import {
-    AddPathCondition,
+    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
-} from "./addPathCondition"
+} from "./pathContinueConstraint"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
@@ -11,14 +11,14 @@ import {
 import { LocationTraveled } from "../locationTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
-export class AddPathConditionIsInsideMap implements AddPathCondition {
+export class NextNodeIsOnTheMap implements PathContinueConstraint {
     terrainMapLayer: MapSearchDataLayer
 
     constructor({ terrainMapLayer }: { terrainMapLayer: MapSearchDataLayer }) {
         this.terrainMapLayer = terrainMapLayer
     }
 
-    shouldAddNewPath({
+    shouldContinue({
         newPath,
         searchParameters,
     }: {

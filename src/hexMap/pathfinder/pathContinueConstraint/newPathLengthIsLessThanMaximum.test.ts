@@ -1,9 +1,9 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
-import { AddPathConditionMaximumDistance } from "./addPathConditionMaximumDistance"
+import { NewPathLengthIsLessThanMaximum } from "./newPathLengthIsLessThanMaximum"
 
 const createSearchPathFixture = () => {
-    const condition = new AddPathConditionMaximumDistance()
+    const condition = new NewPathLengthIsLessThanMaximum()
 
     const pathAtHead = SearchPathService.newSearchPath()
     SearchPathService.add(
@@ -34,11 +34,14 @@ describe("addPathConditionMaximumDistance", () => {
         const { condition, pathAtHead } = createSearchPathFixture()
 
         const searchParameters = SearchParametersService.new({
-            maximumDistanceMoved: 3,
+            pathSizeConstraints: {
+                maximumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -54,11 +57,14 @@ describe("addPathConditionMaximumDistance", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            maximumDistanceMoved: 3,
+            pathSizeConstraints: {
+                maximumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -73,10 +79,12 @@ describe("addPathConditionMaximumDistance", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -84,15 +92,18 @@ describe("addPathConditionMaximumDistance", () => {
     })
 
     it("returns undefined if there is no path", () => {
-        const condition = new AddPathConditionMaximumDistance()
+        const condition = new NewPathLengthIsLessThanMaximum()
         const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersService.new({
-            maximumDistanceMoved: 3,
+            pathSizeConstraints: {
+                maximumDistanceMoved: 3,
+            },
+            goal: {},
         })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })

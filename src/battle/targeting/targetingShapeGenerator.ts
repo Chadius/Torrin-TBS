@@ -15,18 +15,15 @@ export enum TargetingShape {
     SNAKE = "SNAKE",
 }
 
-const TargetingShapeToName: { [value in TargetingShape]: string } = {
-    [TargetingShape.UNKNOWN]: "Unknown",
-    [TargetingShape.SNAKE]: "Snake",
-}
+export const TargetingShapeGeneratorService = {
+    new: (shape: TargetingShape): TargetingShapeGenerator => {
+        if (shape === TargetingShape.SNAKE) {
+            return new SnakeShapeGenerator()
+        }
 
-export const GetTargetingShapeGenerator = (
-    shape: TargetingShape
-): ResultOrError<TargetingShapeGenerator, Error> => {
-    if (shape === TargetingShape.SNAKE) {
-        return makeResult(new SnakeShapeGenerator())
-    }
-    return makeError(
-        new Error(`Unexpected shape generator: ${TargetingShapeToName[shape]}`)
-    )
+        throw new Error(
+            `[TargetingShapeGeneratorService.new] Unexpected shape generator name: ${shape}`
+        )
+    },
+    snake: () => new SnakeShapeGenerator(),
 }

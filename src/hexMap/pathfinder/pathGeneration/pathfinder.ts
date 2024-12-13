@@ -1,4 +1,4 @@
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { TerrainTileMap, TerrainTileMapService } from "../../terrainTileMap"
 import {
     SearchPathByLocation,
@@ -14,21 +14,21 @@ import {
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
 import { MovingCostByTerrainType } from "../../hexGridMovementCost"
-import { AddPathCondition } from "../addPathConditions/addPathCondition"
-import { AddPathConditionNotInMapLayer } from "../addPathConditions/addPathConditionNotInMapLayer"
-import { AddPathConditionIsInsideMap } from "../addPathConditions/addPathConditionIsInsideMap"
-import { AddPathConditionPathIsLessThanTotalMovement } from "../addPathConditions/addPathConditionPathIsLessThanTotalMovement"
-import { AddPathConditionSquaddieAffiliation } from "../addPathConditions/addPathConditionSquaddieAffiliation"
+import { PathContinueConstraint } from "../pathContinueConstraint/pathContinueConstraint"
+import { NextNodeIsNotInTheOpenList } from "../pathContinueConstraint/nextNodeIsNotInTheOpenList"
+import { NextNodeIsOnTheMap } from "../pathContinueConstraint/nextNodeIsOnTheMap"
+import { PathLengthIsLessThanMaximum } from "../pathStopConstraint/pathLengthIsLessThanMaximum"
+import { NextNodeHasASquaddie } from "../pathContinueConstraint/nextNodeHasASquaddie"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { ObjectRepository } from "../../../battle/objectRepository"
-import { AddPathConditionPathLeadsToWall } from "../addPathConditions/addPathConditionPathLeadsToWall"
+import { NextNodeIsAWallAndSearchCannotPassWalls } from "../pathContinueConstraint/nextNodeIsAWallAndSearchCannotPassWalls"
 import { isValidValue } from "../../../utils/validityCheck"
-import { AddPathConditionPathLeadsToPit } from "../addPathConditions/addPathConditionPathLeadsToPit"
-import { AddPathConditionMaximumDistance } from "../addPathConditions/addPathConditionMaximumDistance"
-import { PathCanStopCondition } from "../pathCanStopConditions/pathCanStopCondition"
-import { PathCanStopConditionNotAWallOrPit } from "../pathCanStopConditions/pathCanStopConditionNotAWallOrPit"
-import { PathCanStopConditionMinimumDistance } from "../pathCanStopConditions/pathCanStopConditionMinimumDistance"
-import { PathCanStopConditionNotOnAnotherSquaddie } from "../pathCanStopConditions/pathCanStopConditionNotOnAnotherSquaddie"
+import { NextNodeIsAPitAndSearchCannotCrossPits } from "../pathContinueConstraint/nextNodeIsAPitAndSearchCannotCrossPits"
+import { NewPathLengthIsLessThanMaximum } from "../pathContinueConstraint/newPathLengthIsLessThanMaximum"
+import { PathStopConstraint } from "../pathStopConstraint/pathStopConstraint"
+import { PathDoesNotEndOnAWallOrPit } from "../pathStopConstraint/pathDoesNotEndOnAWallOrPit"
+import { PathLengthIsMoreThanMinimum } from "../pathStopConstraint/pathLengthIsMoreThanMinimum"
+import { PathDoesNotEndOnAnotherSquaddie } from "../pathStopConstraint/pathDoesNotEndOnAnotherSquaddie"
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>
@@ -39,8 +39,8 @@ export interface PathfinderWorkingState {
         stopped: MapSearchDataLayer
     }
     shortestPathByLocation: SearchPathByLocation
-    addPathConditions: AddPathCondition[]
-    pathCanStopConditions: PathCanStopCondition[]
+    addPathConditions: PathContinueConstraint[]
+    pathCanStopConditions: PathStopConstraint[]
     stopLocationsReached: HexCoordinate[]
 }
 
@@ -60,7 +60,7 @@ export const PathfinderWorkingStateHelper = {
             searchPathQueue: new PriorityQueue<SearchPath>(
                 SearchPathService.compare
             ),
-            shapeGenerator: searchParameters.shapeGenerator,
+            shapeGenerator: searchParameters.pathGenerators.shapeGenerator,
             mapLayers: {
                 visited: MapSearchDataLayerService.new({
                     terrainTileMap,
@@ -77,25 +77,25 @@ export const PathfinderWorkingStateHelper = {
             },
             shortestPathByLocation: {},
             addPathConditions: [
-                new AddPathConditionIsInsideMap({
+                new NextNodeIsOnTheMap({
                     terrainMapLayer: MapSearchDataLayerService.new({
                         terrainTileMap,
                         initialValue: false,
                     }),
                 }),
-                new AddPathConditionPathLeadsToWall({ missionMap }),
-                new AddPathConditionPathLeadsToPit({ missionMap }),
-                new AddPathConditionPathIsLessThanTotalMovement(),
-                new AddPathConditionMaximumDistance(),
-                new AddPathConditionSquaddieAffiliation({
+                new NextNodeIsAWallAndSearchCannotPassWalls({ missionMap }),
+                new NextNodeIsAPitAndSearchCannotCrossPits({ missionMap }),
+                new NewPathLengthIsLessThanMaximum(),
+                new NextNodeHasASquaddie({
                     missionMap,
                     objectRepository: objectRepository,
                 }),
             ],
             pathCanStopConditions: [
-                new PathCanStopConditionNotAWallOrPit({ missionMap }),
-                new PathCanStopConditionMinimumDistance(),
-                new PathCanStopConditionNotOnAnotherSquaddie({
+                new PathLengthIsLessThanMaximum(),
+                new PathDoesNotEndOnAWallOrPit({ missionMap }),
+                new PathLengthIsMoreThanMinimum(),
+                new PathDoesNotEndOnAnotherSquaddie({
                     missionMap,
                     objectRepository: objectRepository,
                 }),
@@ -104,17 +104,17 @@ export const PathfinderWorkingStateHelper = {
         }
 
         workingState.addPathConditions.push(
-            new AddPathConditionNotInMapLayer({
+            new NextNodeIsNotInTheOpenList({
                 enqueuedMapLayer: workingState.mapLayers.queued,
             })
         )
         workingState.addPathConditions.push(
-            new AddPathConditionNotInMapLayer({
+            new NextNodeIsNotInTheOpenList({
                 enqueuedMapLayer: workingState.mapLayers.visited,
             })
         )
         workingState.addPathConditions.push(
-            new AddPathConditionNotInMapLayer({
+            new NextNodeIsNotInTheOpenList({
                 enqueuedMapLayer: workingState.mapLayers.stopped,
             })
         )
@@ -152,8 +152,8 @@ export const PathfinderService = {
         objectRepository: ObjectRepository
     }): SearchResult => {
         if (
-            !isValidValue(searchParameters.startLocations) ||
-            searchParameters.startLocations.length < 1
+            !isValidValue(searchParameters.pathGenerators.startCoordinates) ||
+            searchParameters.pathGenerators.startCoordinates.length < 1
         ) {
             throw new Error("no start location specified")
         }
@@ -181,28 +181,30 @@ const populateStartingLocations = ({
     searchParameters: SearchParameters
     workingState: PathfinderWorkingState
 }) => {
-    searchParameters.startLocations.forEach((startLocation) => {
-        MapSearchDataLayerService.setValueOfLocation({
-            mapLayer: workingState.mapLayers.queued,
-            q: startLocation.q,
-            r: startLocation.r,
-            value: true,
-        })
-        const startingPath = SearchPathService.newSearchPath()
-        SearchPathService.startNewMovementAction(startingPath, false)
-        SearchPathService.add(
-            startingPath,
-            {
-                hexCoordinate: {
-                    q: startLocation.q,
-                    r: startLocation.r,
+    searchParameters.pathGenerators.startCoordinates.forEach(
+        (startLocation) => {
+            MapSearchDataLayerService.setValueOfLocation({
+                mapLayer: workingState.mapLayers.queued,
+                q: startLocation.q,
+                r: startLocation.r,
+                value: true,
+            })
+            const startingPath = SearchPathService.newSearchPath()
+            SearchPathService.startNewMovementAction(startingPath, false)
+            SearchPathService.add(
+                startingPath,
+                {
+                    hexCoordinate: {
+                        q: startLocation.q,
+                        r: startLocation.r,
+                    },
+                    cumulativeMovementCost: 0,
                 },
-                cumulativeMovementCost: 0,
-            },
-            0
-        )
-        workingState.searchPathQueue.enqueue(startingPath)
-    })
+                0
+            )
+            workingState.searchPathQueue.enqueue(startingPath)
+        }
+    )
 }
 
 const generateValidPaths = ({
@@ -216,10 +218,10 @@ const generateValidPaths = ({
 }) => {
     const anyStopConditionWasReached = () => {
         const allStopLocationsFoundStopSearching: boolean =
-            searchParameters.stopLocations &&
-            searchParameters.stopLocations.length > 0 &&
+            searchParameters.goal.stopCoordinates &&
+            searchParameters.goal.stopCoordinates.length > 0 &&
             workingState.stopLocationsReached.length >=
-                searchParameters.stopLocations.length
+                searchParameters.goal.stopCoordinates.length
 
         return (
             workingState.searchPathQueue.isEmpty() ||
@@ -251,7 +253,8 @@ const generateValidPaths = ({
                     terrainTileMap,
                     nextLocation
                 )
-            let movementCostForThisTile = searchParameters.ignoreTerrainCost
+            let movementCostForThisTile = searchParameters
+                .pathContinueConstraints.ignoreTerrainCost
                 ? 1
                 : MovingCostByTerrainType[terrainType]
 
@@ -269,7 +272,10 @@ const generateValidPaths = ({
                 movementCostForThisTile: number
                 searchParameters: SearchParameters
             }) => {
-                if (searchParameters.movementPerAction === undefined) {
+                if (
+                    searchParameters.pathSizeConstraints.movementPerAction ===
+                    undefined
+                ) {
                     searchPath.currentNumberOfMoveActions = 1
                     return
                 }
@@ -277,7 +283,8 @@ const generateValidPaths = ({
                 const cumulativeMovementCost =
                     searchPathMovementCost + movementCostForThisTile
                 searchPath.currentNumberOfMoveActions = Math.ceil(
-                    cumulativeMovementCost / searchParameters.movementPerAction
+                    cumulativeMovementCost /
+                        searchParameters.pathSizeConstraints.movementPerAction
                 )
             }
 
@@ -310,7 +317,7 @@ const generateValidPaths = ({
                 if (
                     workingState.addPathConditions.every(
                         (condition) =>
-                            condition.shouldAddNewPath({
+                            condition.shouldContinue({
                                 newPath: candidatePath,
                                 searchParameters,
                             }) === true
@@ -333,7 +340,7 @@ const generateValidPaths = ({
         currentSearchPath: SearchPath
     }): boolean => {
         return workingState.pathCanStopConditions.every((condition) =>
-            condition.shouldMarkPathLocationAsStoppable({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: currentSearchPath,
                 searchParameters,
             })
@@ -365,7 +372,7 @@ const generateValidPaths = ({
                 currentLocation.r
             ] = currentSearchPath
             if (
-                searchParameters.stopLocations.some(
+                searchParameters.goal.stopCoordinates.some(
                     (coordinate) =>
                         coordinate.q === currentLocation.q &&
                         coordinate.r === currentLocation.r

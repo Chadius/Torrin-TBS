@@ -184,9 +184,13 @@ describe("movement calculator", () => {
             expect(pathfinderSpy).toHaveBeenCalled()
             const searchParameters =
                 pathfinderSpy.mock.calls[0][0].searchParameters
-            expect(searchParameters).toEqual(
+            expect(searchParameters.pathContinueConstraints).toEqual(
                 expect.objectContaining({
                     ignoreTerrainCost: true,
+                })
+            )
+            expect(searchParameters.pathSizeConstraints).toEqual(
+                expect.objectContaining({
                     movementPerAction:
                         battleSquaddie.inBattleAttributes.armyAttributes
                             .movement.movementPerAction + 2,

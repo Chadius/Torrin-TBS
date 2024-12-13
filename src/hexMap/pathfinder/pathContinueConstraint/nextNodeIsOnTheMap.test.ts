@@ -1,11 +1,11 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { AddPathConditionIsInsideMap } from "./addPathConditionIsInsideMap"
+import { NextNodeIsOnTheMap } from "./nextNodeIsOnTheMap"
 
 describe("AddPathConditionIsInsideMap", () => {
     it("knows when a path is inside the map boundary", () => {
@@ -16,7 +16,7 @@ describe("AddPathConditionIsInsideMap", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionIsInsideMap({
+        const condition = new NextNodeIsOnTheMap({
             terrainMapLayer: mapLayer,
         })
 
@@ -27,10 +27,12 @@ describe("AddPathConditionIsInsideMap", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -45,7 +47,7 @@ describe("AddPathConditionIsInsideMap", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionIsInsideMap({
+        const condition = new NextNodeIsOnTheMap({
             terrainMapLayer: mapLayer,
         })
 
@@ -56,10 +58,12 @@ describe("AddPathConditionIsInsideMap", () => {
             0
         )
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -74,16 +78,18 @@ describe("AddPathConditionIsInsideMap", () => {
             initialValue: false,
         })
 
-        const condition = new AddPathConditionIsInsideMap({
+        const condition = new NextNodeIsOnTheMap({
             terrainMapLayer: mapLayer,
         })
 
         const pathAtHead = SearchPathService.newSearchPath()
 
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })

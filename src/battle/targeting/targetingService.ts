@@ -1,14 +1,14 @@
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { GetTargetingShapeGenerator } from "./targetingShapeGenerator"
+import { TargetingShapeGeneratorService } from "./targetingShapeGenerator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     MissionMapSquaddieLocation,
@@ -144,31 +144,45 @@ const findValidTargets = ({
         map,
         actingBattleSquaddie.battleSquaddieId
     )
-    const invalidSourceTiles = !(sourceTiles?.length > 0)
+    const invalidSourceTiles = sourceTiles?.length <= 0
     const invalidSquaddieLocation = squaddieInfo?.mapCoordinate === undefined
     if (invalidSourceTiles && invalidSquaddieLocation) {
         return new TargetingResults()
     }
 
+    let startCoordinates = sourceTiles
+    if (!sourceTiles || sourceTiles.length <= 0) {
+        startCoordinates = squaddieInfo?.mapCoordinate
+            ? [squaddieInfo.mapCoordinate]
+            : []
+    }
+
     const allLocationsInRange: SearchResult = PathfinderService.search({
         searchParameters: SearchParametersService.new({
-            startLocations:
-                sourceTiles && sourceTiles.length > 0
-                    ? sourceTiles
-                    : [squaddieInfo.mapCoordinate],
-            squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
-            canStopOnSquaddies: true,
-            ignoreTerrainCost: true,
-            minimumDistanceMoved: actionTemplate.targetConstraints.minimumRange,
-            maximumDistanceMoved: actionTemplate.targetConstraints.maximumRange,
-            shapeGenerator: getResultOrThrowError(
-                GetTargetingShapeGenerator(
+            pathGenerators: {
+                startCoordinates,
+                shapeGenerator: TargetingShapeGeneratorService.new(
                     actionTemplate.targetConstraints.targetingShape
-                )
-            ),
-            movementPerAction: undefined,
-            canPassOverPits: false,
-            canPassThroughWalls: false,
+                ),
+            },
+            pathStopConstraints: {
+                canStopOnSquaddies: true,
+            },
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation: SquaddieAffiliation.UNKNOWN,
+                },
+                ignoreTerrainCost: true,
+                canPassOverPits: false,
+                canPassThroughWalls: false,
+            },
+            pathSizeConstraints: {
+                minimumDistanceMoved:
+                    actionTemplate.targetConstraints.minimumRange,
+                maximumDistanceMoved:
+                    actionTemplate.targetConstraints.maximumRange,
+            },
+            goal: {},
         }),
         missionMap: map,
         objectRepository: squaddieRepository,

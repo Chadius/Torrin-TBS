@@ -1,6 +1,6 @@
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
-import { SearchParameters, SearchParametersService } from "../searchParams"
+import { SearchParameters, SearchParametersService } from "../searchParameters"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
 import { SearchPath, SearchPathService } from "../searchPath"
 import {
@@ -24,7 +24,10 @@ describe("Pathfinder", () => {
             })
 
             searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 2 }],
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 2 }],
+                },
+                goal: {},
             })
 
             searchResults = PathfinderService.search({
@@ -86,7 +89,9 @@ describe("Pathfinder", () => {
     it("throws an error when no start location is given", () => {
         const shouldThrowError = () => {
             PathfinderService.search({
-                searchParameters: SearchParametersService.new({}),
+                searchParameters: SearchParametersService.new({
+                    goal: {},
+                }),
                 missionMap: MissionMapService.default(),
                 objectRepository: ObjectRepositoryService.new(),
             })
@@ -106,9 +111,14 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                movementPerAction: 3,
-                numberOfActions: 2,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 3,
+                    numberOfActions: 2,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -151,9 +161,14 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                movementPerAction: 3,
-                numberOfActions: 2,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 3,
+                    numberOfActions: 2,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -186,10 +201,17 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                movementPerAction: 3,
-                numberOfActions: 2,
-                ignoreTerrainCost: true,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 3,
+                    numberOfActions: 2,
+                },
+                pathContinueConstraints: {
+                    ignoreTerrainCost: true,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -225,7 +247,10 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -255,8 +280,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                canPassOverPits: false,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathContinueConstraints: {
+                    canPassOverPits: false,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -286,8 +316,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                canPassOverPits: true,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathContinueConstraints: {
+                    canPassOverPits: true,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -317,8 +352,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                canPassThroughWalls: true,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathContinueConstraints: {
+                    canPassThroughWalls: true,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -351,8 +391,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                movementPerAction: 2,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    movementPerAction: 2,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -447,9 +492,14 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                numberOfActions: 3,
-                movementPerAction: 2,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    numberOfActions: 3,
+                    movementPerAction: 2,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -509,7 +559,10 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -552,8 +605,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                maximumDistanceMoved: 3,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    maximumDistanceMoved: 3,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -586,8 +644,13 @@ describe("Pathfinder", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                minimumDistanceMoved: 3,
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                pathSizeConstraints: {
+                    minimumDistanceMoved: 3,
+                },
+                goal: {},
             })
 
             const searchResults = PathfinderService.search({
@@ -633,10 +696,13 @@ describe("Pathfinder", () => {
             })
 
             searchParameters = SearchParametersService.new({
-                startLocations: [
-                    { q: 0, r: 0 },
-                    { q: 1, r: 4 },
-                ],
+                pathGenerators: {
+                    startCoordinates: [
+                        { q: 0, r: 0 },
+                        { q: 1, r: 4 },
+                    ],
+                },
+                goal: {},
             })
 
             searchResults = PathfinderService.search({
@@ -703,13 +769,20 @@ describe("Pathfinder", () => {
 
         it("can use minimum and maximum distance to generate a spreading effect", () => {
             searchParameters = SearchParametersService.new({
-                startLocations: [
-                    { q: 0, r: 1 },
-                    { q: 0, r: 2 },
-                ],
-                minimumDistanceMoved: 1,
-                maximumDistanceMoved: 2,
-                canPassOverPits: true,
+                pathGenerators: {
+                    startCoordinates: [
+                        { q: 0, r: 1 },
+                        { q: 0, r: 2 },
+                    ],
+                },
+                pathSizeConstraints: {
+                    minimumDistanceMoved: 1,
+                    maximumDistanceMoved: 2,
+                },
+                pathContinueConstraints: {
+                    canPassOverPits: true,
+                },
+                goal: {},
             })
 
             searchResults = PathfinderService.search({
@@ -745,12 +818,16 @@ describe("Pathfinder", () => {
 
         it("will acknowledge that the search ended when it reached all stop locations", () => {
             const searchParameters = SearchParametersService.new({
-                startLocations: [{ q: 0, r: 0 }],
-                stopLocations: [
-                    { q: 0, r: 0 },
-                    { q: 1, r: 3 },
-                    { q: -1, r: 9001 },
-                ],
+                pathGenerators: {
+                    startCoordinates: [{ q: 0, r: 0 }],
+                },
+                goal: {
+                    stopCoordinates: [
+                        { q: 0, r: 0 },
+                        { q: 1, r: 3 },
+                        { q: -1, r: 9001 },
+                    ],
+                },
             })
 
             const searchResults: SearchResult = PathfinderService.search({

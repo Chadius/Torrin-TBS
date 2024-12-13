@@ -10,7 +10,7 @@ import {
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { SearchParametersService } from "../../hexMap/pathfinder/searchParams"
+import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { CampaignResources } from "../../campaign/campaignResources"
 import { SquaddieTurn } from "../../squaddie/turn"
@@ -127,29 +127,42 @@ export const MapHighlightService = {
 
         const reachableLocationSearch: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
-                startLocations: [startLocation],
-                numberOfActions: actionPointsRemaining,
-                movementPerAction:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.movementPerAction,
-                ignoreTerrainCost:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.ignoreTerrainCost,
-                canPassOverPits: SquaddieService.getSquaddieMovementAttributes({
-                    battleSquaddie,
-                    squaddieTemplate,
-                }).net.crossOverPits,
-                canPassThroughWalls:
-                    SquaddieService.getSquaddieMovementAttributes({
-                        battleSquaddie,
-                        squaddieTemplate,
-                    }).net.passThroughWalls,
-                squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
-                canStopOnSquaddies: false,
+                pathGenerators: {
+                    startCoordinates: [startLocation],
+                },
+                pathSizeConstraints: {
+                    numberOfActions: actionPointsRemaining,
+                    movementPerAction:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.movementPerAction,
+                },
+                pathContinueConstraints: {
+                    ignoreTerrainCost:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.ignoreTerrainCost,
+                    canPassOverPits:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.crossOverPits,
+                    canPassThroughWalls:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.passThroughWalls,
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation:
+                            squaddieTemplate.squaddieId.affiliation,
+                    },
+                },
+                pathStopConstraints: {
+                    canStopOnSquaddies: false,
+                },
+                goal: {},
             }),
             missionMap,
             objectRepository: repository,

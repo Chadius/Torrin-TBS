@@ -1,6 +1,6 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
-import { AddPathConditionPathIsLessThanTotalMovement } from "./addPathConditionPathIsLessThanTotalMovement"
+import { PathLengthIsLessThanMaximum } from "./pathLengthIsLessThanMaximum"
 
 describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     it("knows if the current path is shorter than the total movement", () => {
@@ -27,13 +27,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            numberOfActions: 3,
-            movementPerAction: 2,
+            pathSizeConstraints: {
+                numberOfActions: 3,
+                movementPerAction: 2,
+            },
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement()
+        const condition = new PathLengthIsLessThanMaximum()
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -73,13 +76,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            numberOfActions: 3,
-            movementPerAction: 2,
+            pathSizeConstraints: {
+                numberOfActions: 3,
+                movementPerAction: 2,
+            },
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement()
+        const condition = new PathLengthIsLessThanMaximum()
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -119,13 +125,12 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         )
 
         const searchParameters = SearchParametersService.new({
-            numberOfActions: undefined,
-            movementPerAction: undefined,
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement()
+        const condition = new PathLengthIsLessThanMaximum()
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -135,13 +140,12 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         const pathAtHead = SearchPathService.newSearchPath()
 
         const searchParameters = SearchParametersService.new({
-            numberOfActions: undefined,
-            movementPerAction: undefined,
+            goal: {},
         })
 
-        const condition = new AddPathConditionPathIsLessThanTotalMovement()
+        const condition = new PathLengthIsLessThanMaximum()
         expect(
-            condition.shouldAddNewPath({
+            condition.squaddieCanStopAtTheEndOfThisPath({
                 newPath: pathAtHead,
                 searchParameters,
             })

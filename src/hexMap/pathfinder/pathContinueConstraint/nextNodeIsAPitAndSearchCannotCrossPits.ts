@@ -1,30 +1,36 @@
+import {
+    PathContinueConstraint,
+    AreValidParametersForAddPathCondition,
+} from "./pathContinueConstraint"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { SearchParameters } from "../searchParams"
+import { SearchParameters } from "../searchParameters"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { HexGridMovementCost } from "../../hexGridMovementCost"
-import {
-    AreValidParametersForPathCanStopCondition,
-    PathCanStopCondition,
-} from "./pathCanStopCondition"
 
-export class PathCanStopConditionNotAWallOrPit implements PathCanStopCondition {
+export class NextNodeIsAPitAndSearchCannotCrossPits
+    implements PathContinueConstraint
+{
     missionMap: MissionMap
 
     constructor({ missionMap }: { missionMap: MissionMap }) {
         this.missionMap = missionMap
     }
 
-    shouldMarkPathLocationAsStoppable({
+    shouldContinue({
         newPath,
         searchParameters,
     }: {
         newPath: SearchPath
         searchParameters: SearchParameters
     }): boolean {
-        if (!AreValidParametersForPathCanStopCondition({ newPath })) {
+        if (!AreValidParametersForAddPathCondition({ newPath })) {
             return undefined
+        }
+
+        if (searchParameters.pathContinueConstraints.passOverPits) {
+            return true
         }
 
         const coordinate: HexCoordinate =
@@ -33,8 +39,6 @@ export class PathCanStopConditionNotAWallOrPit implements PathCanStopCondition {
             this.missionMap.terrainTileMap,
             coordinate
         )
-        return ![HexGridMovementCost.pit, HexGridMovementCost.wall].includes(
-            terrainType
-        )
+        return terrainType !== HexGridMovementCost.pit
     }
 }

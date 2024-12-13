@@ -1,4 +1,4 @@
-import { SearchParametersService } from "../searchParams"
+import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
@@ -13,7 +13,7 @@ import {
     SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
 import { BattleSquaddieService } from "../../../battle/battleSquaddie"
-import { AddPathConditionSquaddieAffiliation } from "./addPathConditionSquaddieAffiliation"
+import { NextNodeHasASquaddie } from "./nextNodeHasASquaddie"
 import { DamageType } from "../../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
 
@@ -91,7 +91,12 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 })
 
                 const searchParameters = SearchParametersService.new({
-                    squaddieAffiliation: searchingAffiliation,
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: searchingAffiliation,
+                        },
+                    },
+                    goal: {},
                 })
 
                 const squaddiesAreFriends =
@@ -100,12 +105,12 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                         targetAffiliation: blockingAffiliation,
                     })
 
-                const condition = new AddPathConditionSquaddieAffiliation({
+                const condition = new NextNodeHasASquaddie({
                     missionMap,
                     objectRepository: repository,
                 })
                 expect(
-                    condition.shouldAddNewPath({
+                    condition.shouldContinue({
                         newPath: pathAtHead,
                         searchParameters,
                     })
@@ -192,15 +197,20 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 })
 
                 const searchParameters = SearchParametersService.new({
-                    squaddieAffiliation: searchingAffiliation,
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: searchingAffiliation,
+                        },
+                    },
+                    goal: {},
                 })
 
-                const condition = new AddPathConditionSquaddieAffiliation({
+                const condition = new NextNodeHasASquaddie({
                     missionMap,
                     objectRepository: repository,
                 })
                 expect(
-                    condition.shouldAddNewPath({
+                    condition.shouldContinue({
                         newPath: pathAtHead,
                         searchParameters,
                     })
@@ -281,16 +291,23 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                 })
 
                 const searchParameters = SearchParametersService.new({
-                    squaddieAffiliation: searchingAffiliation,
-                    canStopOnSquaddies: true,
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: searchingAffiliation,
+                        },
+                    },
+                    pathStopConstraints: {
+                        canStopOnSquaddies: true,
+                    },
+                    goal: {},
                 })
 
-                const condition = new AddPathConditionSquaddieAffiliation({
+                const condition = new NextNodeHasASquaddie({
                     missionMap,
                     objectRepository: repository,
                 })
                 expect(
-                    condition.shouldAddNewPath({
+                    condition.shouldContinue({
                         newPath: pathAtHead,
                         searchParameters,
                     })
@@ -329,15 +346,20 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
         const searchParameters = SearchParametersService.new({
-            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            pathContinueConstraints: {
+                squaddieAffiliation: {
+                    searchingSquaddieAffiliation: SquaddieAffiliation.PLAYER,
+                },
+            },
+            goal: {},
         })
 
-        const condition = new AddPathConditionSquaddieAffiliation({
+        const condition = new NextNodeHasASquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: pathAtHead,
                 searchParameters,
             })
@@ -413,15 +435,20 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             })
 
             const searchParameters = SearchParametersService.new({
-                squaddieAffiliation: searchingAffiliation,
+                pathContinueConstraints: {
+                    squaddieAffiliation: {
+                        searchingSquaddieAffiliation: searchingAffiliation,
+                    },
+                },
+                goal: {},
             })
 
-            const condition = new AddPathConditionSquaddieAffiliation({
+            const condition = new NextNodeHasASquaddie({
                 missionMap,
                 objectRepository: repository,
             })
             expect(
-                condition.shouldAddNewPath({
+                condition.shouldContinue({
                     newPath: pathAtHead,
                     searchParameters,
                 })
@@ -436,14 +463,16 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         })
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
-        const searchParameters = SearchParametersService.new({})
+        const searchParameters = SearchParametersService.new({
+            goal: {},
+        })
 
-        const condition = new AddPathConditionSquaddieAffiliation({
+        const condition = new NextNodeHasASquaddie({
             missionMap,
             objectRepository: repository,
         })
         expect(
-            condition.shouldAddNewPath({
+            condition.shouldContinue({
                 newPath: SearchPathService.newSearchPath(),
                 searchParameters,
             })
