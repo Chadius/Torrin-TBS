@@ -12,6 +12,7 @@ export interface SearchParameters {
     pathContinueConstraints: {
         squaddieAffiliation: {
             searchingSquaddieAffiliation: SquaddieAffiliation
+            canCrossThroughUnfriendlySquaddies: boolean
         }
         ignoreTerrainCost: boolean
         passThroughWalls: boolean
@@ -49,6 +50,7 @@ export const SearchParametersService = {
         pathContinueConstraints?: {
             squaddieAffiliation?: {
                 searchingSquaddieAffiliation?: SquaddieAffiliation
+                canCrossThroughUnfriendlySquaddies?: boolean
             }
             ignoreTerrainCost?: boolean
             canPassThroughWalls?: boolean
@@ -81,6 +83,11 @@ export const SearchParametersService = {
                         pathContinueConstraints?.squaddieAffiliation
                             ?.searchingSquaddieAffiliation,
                         SquaddieAffiliation.UNKNOWN
+                    ),
+                    canCrossThroughUnfriendlySquaddies: getValidValueOrDefault(
+                        pathContinueConstraints?.squaddieAffiliation
+                            ?.canCrossThroughUnfriendlySquaddies,
+                        false
                     ),
                 },
                 ignoreTerrainCost: getValidValueOrDefault(

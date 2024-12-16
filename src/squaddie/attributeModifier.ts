@@ -5,6 +5,7 @@ export enum AttributeType {
     ABSORB = "ABSORB",
     MOVEMENT = "MOVEMENT",
     IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
+    ELUSIVE = "ELUSIVE",
 }
 
 export enum AttributeSource {
@@ -303,5 +304,7 @@ const readableNameForAttributeModifier = (
 const isAttributeModifierABinaryEffect = (a: AttributeModifier) =>
     isAttributeTypeABinaryEffect(a.type)
 const isAttributeTypeABinaryEffect = (type: AttributeType) => {
-    return [AttributeType.IGNORE_TERRAIN_COST].includes(type)
+    return [AttributeType.IGNORE_TERRAIN_COST, AttributeType.ELUSIVE].includes(
+        type
+    )
 }

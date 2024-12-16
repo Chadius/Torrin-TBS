@@ -50,7 +50,7 @@
           "battleSquaddieId": "player_young_torrin",
           "location": {
             "q": 0,
-            "r": 0
+            "r": 1
           }
         },
         {
@@ -58,7 +58,7 @@
           "battleSquaddieId": "player_sir_camil",
           "location": {
             "q": 0,
-            "r": 1
+            "r": 0
           }
         }
       ]
@@ -83,8 +83,8 @@
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_1",
           "location": {
-            "q": 0,
-            "r": 3
+            "q": 1,
+            "r": 2
           }
         },
         {

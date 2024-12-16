@@ -8,12 +8,14 @@ describe("movement for squaddies", () => {
             passThroughWalls: true,
             crossOverPits: false,
             ignoreTerrainCost: true,
+            passThroughSquaddies: true,
         }
 
         expect(movement.movementPerAction).toBe(3)
         expect(movement.passThroughWalls).toBeTruthy()
         expect(movement.crossOverPits).toBeFalsy()
         expect(movement.ignoreTerrainCost).toBeTruthy()
+        expect(movement.passThroughSquaddies).toBeTruthy()
     })
 
     it("can make movement using traits and movement speed", () => {
@@ -22,6 +24,7 @@ describe("movement for squaddies", () => {
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.PASS_THROUGH_WALLS]: true,
                 [Trait.IGNORE_TERRAIN_COST]: true,
+                [Trait.ELUSIVE]: true,
             }),
         })
 
@@ -29,6 +32,7 @@ describe("movement for squaddies", () => {
         expect(movement.passThroughWalls).toBeTruthy()
         expect(movement.crossOverPits).toBeFalsy()
         expect(movement.ignoreTerrainCost).toBeTruthy()
+        expect(movement.passThroughSquaddies).toBeTruthy()
     })
 
     describe("sanitize", () => {
@@ -38,12 +42,16 @@ describe("movement for squaddies", () => {
                 passThroughWalls: undefined,
                 crossOverPits: null,
                 ignoreTerrainCost: undefined,
+                passThroughSquaddies: undefined,
             }
             SquaddieMovementService.sanitize(movementWithMissingFields)
             expect(movementWithMissingFields.movementPerAction).toEqual(0)
             expect(movementWithMissingFields.crossOverPits).toEqual(false)
             expect(movementWithMissingFields.passThroughWalls).toEqual(false)
             expect(movementWithMissingFields.ignoreTerrainCost).toEqual(false)
+            expect(movementWithMissingFields.passThroughSquaddies).toEqual(
+                false
+            )
         })
     })
 })

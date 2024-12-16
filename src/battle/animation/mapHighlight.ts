@@ -157,6 +157,11 @@ export const MapHighlightService = {
                     squaddieAffiliation: {
                         searchingSquaddieAffiliation:
                             squaddieTemplate.squaddieId.affiliation,
+                        canCrossThroughUnfriendlySquaddies:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie,
+                                squaddieTemplate,
+                            }).net.passThroughSquaddies,
                     },
                 },
                 pathStopConstraints: {

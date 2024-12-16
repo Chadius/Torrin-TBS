@@ -39,7 +39,8 @@
     "attributeIcons": {
       "ARMOR": "attribute-icon-armor",
       "MOVEMENT": "attribute-icon-movement",
-      "IGNORE_TERRAIN_COST": "attribute-icon-ignore-terrain-cost"
+      "IGNORE_TERRAIN_COST": "attribute-icon-ignore-terrain-cost",
+      "ELUSIVE": "attribute-icon-elusive"
     },
     "attributeComparisons": {
       "up": "attribute-up",

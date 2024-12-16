@@ -435,6 +435,11 @@ describe("Squaddie Status Tile", () => {
                     attributeType: AttributeType.IGNORE_TERRAIN_COST,
                     expectedIconKey: "attribute-icon-ignore-terrain-cost",
                 },
+                {
+                    name: "Elusive",
+                    attributeType: AttributeType.ELUSIVE,
+                    expectedIconKey: "attribute-icon-elusive",
+                },
             ]
 
             it.each(drawAttributeTests)(

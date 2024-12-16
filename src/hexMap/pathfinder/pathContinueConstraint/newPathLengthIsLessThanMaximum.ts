@@ -1,6 +1,6 @@
 import {
-    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
+    PathContinueConstraint,
 } from "./pathContinueConstraint"
 import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"

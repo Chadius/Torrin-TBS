@@ -78,6 +78,13 @@
             "amount": 1,
             "duration": 1,
             "description": "Ignore terrain penalties"
+          },
+          {
+            "type": "ELUSIVE",
+            "source": "CIRCUMSTANCE",
+            "amount": 1,
+            "duration": 1,
+            "description": "Pass through enemies"
           }
         ]
       }

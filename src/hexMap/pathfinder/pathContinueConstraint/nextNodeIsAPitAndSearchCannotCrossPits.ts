@@ -1,6 +1,6 @@
 import {
-    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
+    PathContinueConstraint,
 } from "./pathContinueConstraint"
 import { MissionMap } from "../../../missionMap/missionMap"
 import { SearchPath, SearchPathService } from "../searchPath"

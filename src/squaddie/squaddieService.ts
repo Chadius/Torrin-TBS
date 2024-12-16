@@ -33,12 +33,14 @@ export interface SquaddieMovementExplanation {
         crossOverPits: boolean
         passThroughWalls: boolean
         ignoreTerrainCost: boolean
+        passThroughSquaddies: boolean
     }
     net: {
         movementPerAction: number
         crossOverPits: boolean
         passThroughWalls: boolean
         ignoreTerrainCost: boolean
+        passThroughSquaddies: boolean
     }
 }
 
@@ -254,9 +256,10 @@ export const SquaddieService = {
                 }
                 if (
                     attributeModifier.type === AttributeType.IGNORE_TERRAIN_COST
-                ) {
+                )
                     currentMovementAttributes.net.ignoreTerrainCost = true
-                }
+                if (attributeModifier.type === AttributeType.ELUSIVE)
+                    currentMovementAttributes.net.passThroughSquaddies = true
                 return currentMovementAttributes
             },
             {
@@ -269,6 +272,9 @@ export const SquaddieService = {
                         squaddieTemplate.attributes.movement.passThroughWalls,
                     ignoreTerrainCost:
                         squaddieTemplate.attributes.movement.ignoreTerrainCost,
+                    passThroughSquaddies:
+                        squaddieTemplate.attributes.movement
+                            .passThroughSquaddies,
                 },
                 net: {
                     movementPerAction:
@@ -279,6 +285,9 @@ export const SquaddieService = {
                         squaddieTemplate.attributes.movement.passThroughWalls,
                     ignoreTerrainCost:
                         squaddieTemplate.attributes.movement.ignoreTerrainCost,
+                    passThroughSquaddies:
+                        squaddieTemplate.attributes.movement
+                            .passThroughSquaddies,
                 },
             }
         )

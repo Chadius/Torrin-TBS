@@ -91,6 +91,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const routesToAllSquaddies: SearchResult = getAllPossibleMovements({
             mapCoordinate,
             squaddieTemplate,
+            battleSquaddie,
             movementPerActionThisRound,
             actionPointsRemaining,
             missionMap:
@@ -219,6 +220,11 @@ const getClosestSquaddieAndLocationToFollow = ({
                         squaddieAffiliation: {
                             searchingSquaddieAffiliation:
                                 actorSquaddieTemplate.squaddieId.affiliation,
+                            canCrossThroughUnfriendlySquaddies:
+                                SquaddieService.getSquaddieMovementAttributes({
+                                    battleSquaddie: actorBattleSquaddie,
+                                    squaddieTemplate: actorSquaddieTemplate,
+                                }).net.passThroughSquaddies,
                         },
                         canPassOverPits:
                             SquaddieService.getSquaddieMovementAttributes({
@@ -387,6 +393,7 @@ const getClosestSquaddiesToActor = (
 
 const getAllPossibleMovements = ({
     mapCoordinate,
+    battleSquaddie,
     squaddieTemplate,
     movementPerActionThisRound,
     actionPointsRemaining,
@@ -395,6 +402,7 @@ const getAllPossibleMovements = ({
 }: {
     mapCoordinate: HexCoordinate
     squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie
     movementPerActionThisRound: number
     actionPointsRemaining: number
     missionMap: MissionMap
@@ -413,6 +421,11 @@ const getAllPossibleMovements = ({
                 squaddieAffiliation: {
                     searchingSquaddieAffiliation:
                         squaddieTemplate.squaddieId.affiliation,
+                    canCrossThroughUnfriendlySquaddies:
+                        SquaddieService.getSquaddieMovementAttributes({
+                            battleSquaddie,
+                            squaddieTemplate,
+                        }).net.passThroughSquaddies,
                 },
                 canPassOverPits:
                     squaddieTemplate.attributes.movement.crossOverPits,

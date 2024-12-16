@@ -21,6 +21,7 @@ export enum Trait {
     CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
     NO_MULTIPLE_ATTACK_PENALTY = "NO_MULTIPLE_ATTACK_PENALTY",
     IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
+    ELUSIVE = "ELUSIVE",
 }
 
 export enum TraitCategory {
@@ -122,6 +123,11 @@ const traitInformation: {
     [Trait.CANNOT_CRITICALLY_FAIL]: {
         description: "This ability cannot critically fail.",
         categories: [TraitCategory.ACTION],
+    },
+    [Trait.ELUSIVE]: {
+        description:
+            "You can move through squaddies, even if they are not your ally",
+        categories: [TraitCategory.MOVEMENT],
     },
 }
 

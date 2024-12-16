@@ -1,5 +1,4 @@
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { makeError, makeResult, ResultOrError } from "../../utils/ResultOrError"
 import { SnakeShapeGenerator } from "./snakeShapeGenerator"
 
 export interface TargetingShapeGenerator {

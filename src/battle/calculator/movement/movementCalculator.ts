@@ -61,6 +61,11 @@ export const MovementCalculatorService = {
                     squaddieAffiliation: {
                         searchingSquaddieAffiliation:
                             SquaddieAffiliation.PLAYER,
+                        canCrossThroughUnfriendlySquaddies:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie,
+                                squaddieTemplate,
+                            }).net.passThroughSquaddies,
                     },
                     canPassThroughWalls:
                         SquaddieService.getSquaddieMovementAttributes({

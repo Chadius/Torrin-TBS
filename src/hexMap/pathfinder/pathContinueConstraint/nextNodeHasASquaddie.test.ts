@@ -6,89 +6,26 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../../battle/objectRepository"
-import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../../../squaddie/id"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
 } from "../../../squaddie/squaddieAffiliation"
-import { BattleSquaddieService } from "../../../battle/battleSquaddie"
 import { NextNodeHasASquaddie } from "./nextNodeHasASquaddie"
 import { DamageType } from "../../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
 
-describe("AddPathConditionPathIsLessThanTotalMovement", () => {
+describe("next node has a squaddie", () => {
     it("returns true if squaddies are friendly, false if they are not", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
+        const { missionMap, pathAtHead } = setupPath()
 
-        const pathAtHead = SearchPathService.newSearchPath()
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
-            2
-        )
-        ;[
-            SquaddieAffiliation.PLAYER,
-            SquaddieAffiliation.ENEMY,
-            SquaddieAffiliation.ALLY,
-            SquaddieAffiliation.NONE,
-        ].forEach((searchingAffiliation) => {
-            ;[
-                SquaddieAffiliation.PLAYER,
-                SquaddieAffiliation.ENEMY,
-                SquaddieAffiliation.ALLY,
-                SquaddieAffiliation.NONE,
-            ].forEach((blockingAffiliation) => {
-                const repository: ObjectRepository =
-                    ObjectRepositoryService.new()
-                const blockingSquaddieTemplate = SquaddieTemplateService.new({
-                    squaddieId: SquaddieIdService.new({
-                        templateId: "blocker",
-                        name: "blocker",
-                        affiliation: blockingAffiliation,
-                    }),
-                })
-                ObjectRepositoryService.addSquaddieTemplate(
-                    repository,
-                    blockingSquaddieTemplate
+        getAllAffiliationPairs().forEach(
+            ({ searchingAffiliation, blockingAffiliation }) => {
+                const repository: ObjectRepository = addBlockingSquaddieToMap(
+                    blockingAffiliation,
+                    missionMap
                 )
-                const blockingSquaddieBattle = BattleSquaddieService.new({
-                    squaddieTemplate: blockingSquaddieTemplate,
-                    battleSquaddieId: "blocker 0",
-                })
-                ObjectRepositoryService.addBattleSquaddie(
-                    repository,
-                    blockingSquaddieBattle
-                )
-                MissionMapService.addSquaddie({
-                    missionMap,
-                    squaddieTemplateId:
-                        blockingSquaddieTemplate.squaddieId.templateId,
-                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    coordinate: {
-                        q: 1,
-                        r: 2,
-                    },
-                })
 
                 const searchParameters = SearchParametersService.new({
                     pathContinueConstraints: {
@@ -115,80 +52,24 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                         searchParameters,
                     })
                 ).toBe(squaddiesAreFriends)
-            })
-        })
+            }
+        )
     })
     it("returns true if squaddies are not friendly but one is not alive", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-
-        const pathAtHead = SearchPathService.newSearchPath()
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
-            2
-        )
-        ;[
-            SquaddieAffiliation.PLAYER,
-            SquaddieAffiliation.ENEMY,
-            SquaddieAffiliation.ALLY,
-            SquaddieAffiliation.NONE,
-        ].forEach((searchingAffiliation) => {
-            ;[
-                SquaddieAffiliation.PLAYER,
-                SquaddieAffiliation.ENEMY,
-                SquaddieAffiliation.ALLY,
-                SquaddieAffiliation.NONE,
-            ].forEach((blockingAffiliation) => {
-                const repository: ObjectRepository =
-                    ObjectRepositoryService.new()
-                const blockingSquaddieTemplate = SquaddieTemplateService.new({
-                    squaddieId: SquaddieIdService.new({
-                        templateId: "blocker",
-                        name: "blocker",
-                        affiliation: blockingAffiliation,
-                    }),
-                })
-                ObjectRepositoryService.addSquaddieTemplate(
-                    repository,
-                    blockingSquaddieTemplate
+        const { missionMap, pathAtHead } = setupPath()
+        getAllAffiliationPairs().forEach(
+            ({ searchingAffiliation, blockingAffiliation }) => {
+                const repository: ObjectRepository = addBlockingSquaddieToMap(
+                    blockingAffiliation,
+                    missionMap
                 )
-                const blockingSquaddieBattle = BattleSquaddieService.new({
-                    squaddieTemplate: blockingSquaddieTemplate,
-                    battleSquaddieId: "blocker 0",
-                })
-                ObjectRepositoryService.addBattleSquaddie(
-                    repository,
-                    blockingSquaddieBattle
-                )
-                MissionMapService.addSquaddie({
-                    missionMap,
-                    squaddieTemplateId:
-                        blockingSquaddieTemplate.squaddieId.templateId,
-                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    coordinate: {
-                        q: 1,
-                        r: 2,
-                    },
-                })
+                const { battleSquaddie: blockingSquaddieBattle } =
+                    getResultOrThrowError(
+                        ObjectRepositoryService.getSquaddieByBattleId(
+                            repository,
+                            "blocker 0"
+                        )
+                    )
                 InBattleAttributesService.takeDamage({
                     inBattleAttributes:
                         blockingSquaddieBattle.inBattleAttributes,
@@ -215,80 +96,17 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                         searchParameters,
                     })
                 ).toBe(true)
-            })
-        })
+            }
+        )
     })
-    it("returns true if squaddies are not friendly but search parameters can stop on squaddies anyway", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-
-        const pathAtHead = SearchPathService.newSearchPath()
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
-            2
-        )
-        ;[
-            SquaddieAffiliation.PLAYER,
-            SquaddieAffiliation.ENEMY,
-            SquaddieAffiliation.ALLY,
-            SquaddieAffiliation.NONE,
-        ].forEach((searchingAffiliation) => {
-            ;[
-                SquaddieAffiliation.PLAYER,
-                SquaddieAffiliation.ENEMY,
-                SquaddieAffiliation.ALLY,
-                SquaddieAffiliation.NONE,
-            ].forEach((blockingAffiliation) => {
-                const repository: ObjectRepository =
-                    ObjectRepositoryService.new()
-                const blockingSquaddieTemplate = SquaddieTemplateService.new({
-                    squaddieId: SquaddieIdService.new({
-                        templateId: "blocker",
-                        name: "blocker",
-                        affiliation: blockingAffiliation,
-                    }),
-                })
-                ObjectRepositoryService.addSquaddieTemplate(
-                    repository,
-                    blockingSquaddieTemplate
+    it("returns true if squaddies are not friendly but searching squaddie can stop on squaddies anyway", () => {
+        const { missionMap, pathAtHead } = setupPath()
+        getAllAffiliationPairs().forEach(
+            ({ searchingAffiliation, blockingAffiliation }) => {
+                const repository: ObjectRepository = addBlockingSquaddieToMap(
+                    blockingAffiliation,
+                    missionMap
                 )
-                const blockingSquaddieBattle = BattleSquaddieService.new({
-                    squaddieTemplate: blockingSquaddieTemplate,
-                    battleSquaddieId: "blocker 0",
-                })
-                ObjectRepositoryService.addBattleSquaddie(
-                    repository,
-                    blockingSquaddieBattle
-                )
-                MissionMapService.addSquaddie({
-                    missionMap,
-                    squaddieTemplateId:
-                        blockingSquaddieTemplate.squaddieId.templateId,
-                    battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                    coordinate: {
-                        q: 1,
-                        r: 2,
-                    },
-                })
 
                 const searchParameters = SearchParametersService.new({
                     pathContinueConstraints: {
@@ -312,37 +130,43 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
                         searchParameters,
                     })
                 ).toBe(true)
-            })
-        })
+            }
+        )
+    })
+    it("returns true if squaddies are not friendly but searching squaddie can pass through squaddies", () => {
+        const { missionMap, pathAtHead } = setupPath()
+        getAllAffiliationPairs().forEach(
+            ({ searchingAffiliation, blockingAffiliation }) => {
+                const repository: ObjectRepository = addBlockingSquaddieToMap(
+                    blockingAffiliation,
+                    missionMap
+                )
+
+                const searchParameters = SearchParametersService.new({
+                    pathContinueConstraints: {
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation: searchingAffiliation,
+                            canCrossThroughUnfriendlySquaddies: true,
+                        },
+                    },
+                    goal: {},
+                })
+
+                const condition = new NextNodeHasASquaddie({
+                    missionMap,
+                    objectRepository: repository,
+                })
+                expect(
+                    condition.shouldContinue({
+                        newPath: pathAtHead,
+                        searchParameters,
+                    })
+                ).toBe(true)
+            }
+        )
     })
     it("returns true if there is no squaddie at the location", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-
-        const pathAtHead = SearchPathService.newSearchPath()
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
-            2
-        )
+        const { missionMap, pathAtHead } = setupPath()
 
         const repository: ObjectRepository = ObjectRepositoryService.new()
         const searchParameters = SearchParametersService.new({
@@ -366,33 +190,7 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         ).toBe(true)
     })
     it("returns true if the searching squaddie has an unknown affiliation", () => {
-        const missionMap: MissionMap = MissionMapService.new({
-            terrainTileMap: TerrainTileMapService.new({
-                movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
-            }),
-        })
-
-        const pathAtHead = SearchPathService.newSearchPath()
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
-            0
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
-            1
-        )
-        SearchPathService.add(
-            pathAtHead,
-            { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
-            2
-        )
+        const { missionMap, pathAtHead } = setupPath()
 
         const searchingAffiliation: SquaddieAffiliation =
             SquaddieAffiliation.UNKNOWN
@@ -403,36 +201,10 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
             SquaddieAffiliation.ALLY,
             SquaddieAffiliation.NONE,
         ].forEach((blockingAffiliation) => {
-            const repository: ObjectRepository = ObjectRepositoryService.new()
-            const blockingSquaddieTemplate = SquaddieTemplateService.new({
-                squaddieId: SquaddieIdService.new({
-                    templateId: "blocker",
-                    name: "blocker",
-                    affiliation: blockingAffiliation,
-                }),
-            })
-            ObjectRepositoryService.addSquaddieTemplate(
-                repository,
-                blockingSquaddieTemplate
+            const repository: ObjectRepository = addBlockingSquaddieToMap(
+                blockingAffiliation,
+                missionMap
             )
-            const blockingSquaddieBattle = BattleSquaddieService.new({
-                squaddieTemplate: blockingSquaddieTemplate,
-                battleSquaddieId: "blocker 0",
-            })
-            ObjectRepositoryService.addBattleSquaddie(
-                repository,
-                blockingSquaddieBattle
-            )
-            MissionMapService.addSquaddie({
-                missionMap,
-                squaddieTemplateId:
-                    blockingSquaddieTemplate.squaddieId.templateId,
-                battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
-                coordinate: {
-                    q: 1,
-                    r: 2,
-                },
-            })
 
             const searchParameters = SearchParametersService.new({
                 pathContinueConstraints: {
@@ -479,3 +251,87 @@ describe("AddPathConditionPathIsLessThanTotalMovement", () => {
         ).toBeUndefined()
     })
 })
+
+const setupPath = () => {
+    const missionMap: MissionMap = MissionMapService.new({
+        terrainTileMap: TerrainTileMapService.new({
+            movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
+        }),
+    })
+
+    const pathAtHead = SearchPathService.newSearchPath()
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 0, r: 0 }, cumulativeMovementCost: 0 },
+        0
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 0 }, cumulativeMovementCost: 0 },
+        1
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 1 }, cumulativeMovementCost: 1 },
+        1
+    )
+    SearchPathService.add(
+        pathAtHead,
+        { hexCoordinate: { q: 1, r: 2 }, cumulativeMovementCost: 2 },
+        2
+    )
+    return { missionMap, pathAtHead }
+}
+
+const addBlockingSquaddieToMap = (
+    blockingAffiliation: SquaddieAffiliation,
+    missionMap: MissionMap
+) => {
+    const repository: ObjectRepository = ObjectRepositoryService.new()
+    const {
+        battleSquaddie: blockingSquaddieBattle,
+        squaddieTemplate: blockingSquaddieTemplate,
+    } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+        affiliation: blockingAffiliation,
+        battleId: "blocker 0",
+        templateId: "blocker",
+        name: "blocker",
+        objectRepository: repository,
+        actionTemplateIds: [],
+    })
+    MissionMapService.addSquaddie({
+        missionMap,
+        squaddieTemplateId: blockingSquaddieTemplate.squaddieId.templateId,
+        battleSquaddieId: blockingSquaddieBattle.battleSquaddieId,
+        coordinate: {
+            q: 1,
+            r: 2,
+        },
+    })
+    return repository
+}
+const getAllAffiliationPairs = () => {
+    const pairs: {
+        searchingAffiliation: SquaddieAffiliation
+        blockingAffiliation: SquaddieAffiliation
+    }[] = []
+    ;[
+        SquaddieAffiliation.PLAYER,
+        SquaddieAffiliation.ENEMY,
+        SquaddieAffiliation.ALLY,
+        SquaddieAffiliation.NONE,
+    ].forEach((searchingAffiliation) => {
+        pairs.push(
+            ...[
+                SquaddieAffiliation.PLAYER,
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.ALLY,
+                SquaddieAffiliation.NONE,
+            ].map((blockingAffiliation) => ({
+                searchingAffiliation,
+                blockingAffiliation,
+            }))
+        )
+    })
+    return pairs
+}

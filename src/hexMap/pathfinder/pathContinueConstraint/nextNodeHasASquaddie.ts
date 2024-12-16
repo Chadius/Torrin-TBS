@@ -1,16 +1,11 @@
 import {
-    PathContinueConstraint,
     AreValidParametersForAddPathCondition,
+    PathContinueConstraint,
 } from "./pathContinueConstraint"
-import { SearchPath, SearchPathService } from "../searchPath"
+import { SearchPath } from "../searchPath"
 import { SearchParameters } from "../searchParameters"
-import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
-import {
-    ObjectRepository,
-    ObjectRepositoryService,
-} from "../../../battle/objectRepository"
-import { SquaddieService } from "../../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { MissionMap } from "../../../missionMap/missionMap"
+import { ObjectRepository } from "../../../battle/objectRepository"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
@@ -50,9 +45,12 @@ export class NextNodeHasASquaddie implements PathContinueConstraint {
             return true
         }
 
-        if (searchParameters.pathStopConstraints.canStopOnSquaddies === true) {
+        if (searchParameters.pathStopConstraints.canStopOnSquaddies) return true
+        if (
+            searchParameters.pathContinueConstraints.squaddieAffiliation
+                .canCrossThroughUnfriendlySquaddies
+        )
             return true
-        }
 
         const { battleSquaddie, squaddieTemplate } = getSquaddieAtEndOfPath({
             searchPath: newPath,
@@ -60,9 +58,7 @@ export class NextNodeHasASquaddie implements PathContinueConstraint {
             objectRepository: this.repository,
         })
 
-        if (battleSquaddie === undefined) {
-            return true
-        }
+        if (battleSquaddie === undefined) return true
 
         return SquaddieAffiliationService.areSquaddieAffiliationsAllies({
             actingAffiliation:

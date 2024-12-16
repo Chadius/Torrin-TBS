@@ -79,6 +79,11 @@ const layoutConstants = {
                 row: 3,
                 percentLeft: 45,
             },
+            {
+                type: AttributeType.ELUSIVE,
+                row: 3,
+                percentLeft: 55,
+            },
         ],
         arrowIconWidth: 16,
         arrowIconHeight: 24,

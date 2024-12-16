@@ -366,6 +366,11 @@
   },
   {
     "type": "IMAGE",
+    "path": "assets/ui/attribute/elusive.png",
+    "key": "attribute-icon-elusive"
+  },
+  {
+    "type": "IMAGE",
     "path": "assets/ui/attribute/down.png",
     "key": "attribute-down"
   },

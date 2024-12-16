@@ -125,6 +125,10 @@ describe("AttributeModifier", () => {
                 type: AttributeType.IGNORE_TERRAIN_COST,
                 shouldBeActive: false,
             },
+            {
+                type: AttributeType.ELUSIVE,
+                shouldBeActive: false,
+            },
         ]
 
         it.each(tests)(
@@ -345,6 +349,7 @@ describe("AttributeModifier", () => {
             [AttributeType.ABSORB]: false,
             [AttributeType.MOVEMENT]: false,
             [AttributeType.IGNORE_TERRAIN_COST]: true,
+            [AttributeType.ELUSIVE]: true,
         }
 
         test.each`
@@ -353,6 +358,7 @@ describe("AttributeModifier", () => {
             ${AttributeType.ABSORB}              | ${binaryStatus[AttributeType.ABSORB]}
             ${AttributeType.MOVEMENT}            | ${binaryStatus[AttributeType.MOVEMENT]}
             ${AttributeType.IGNORE_TERRAIN_COST} | ${binaryStatus[AttributeType.IGNORE_TERRAIN_COST]}
+            ${AttributeType.ELUSIVE}             | ${binaryStatus[AttributeType.ELUSIVE]}
         `(
             "$attributeType is binary: $isBinary",
             ({ attributeType, isBinary }) => {
@@ -375,6 +381,7 @@ describe("AttributeModifier", () => {
             [AttributeType.ABSORB]: "Absorb",
             [AttributeType.MOVEMENT]: "Movement",
             [AttributeType.IGNORE_TERRAIN_COST]: "Ignore terrain cost",
+            [AttributeType.ELUSIVE]: "Elusive",
         }
 
         test.each`
@@ -383,6 +390,7 @@ describe("AttributeModifier", () => {
             ${AttributeType.ABSORB}              | ${readableName[AttributeType.ABSORB]}
             ${AttributeType.MOVEMENT}            | ${readableName[AttributeType.MOVEMENT]}
             ${AttributeType.IGNORE_TERRAIN_COST} | ${readableName[AttributeType.IGNORE_TERRAIN_COST]}
+            ${AttributeType.ELUSIVE}             | ${readableName[AttributeType.ELUSIVE]}
         `(
             "$attributeType readable name is: $readableName",
             ({ attributeType, readableName }) => {
@@ -406,6 +414,7 @@ describe("AttributeModifier", () => {
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
             [AttributeType.IGNORE_TERRAIN_COST]:
                 "Ignore terrain cost (Circumstance)",
+            [AttributeType.ELUSIVE]: "Elusive (Status)",
         }
 
         test.each`
@@ -431,6 +440,7 @@ describe("AttributeModifier", () => {
         test.each`
             attributeType                        | source                          | readableDescription
             ${AttributeType.IGNORE_TERRAIN_COST} | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.IGNORE_TERRAIN_COST]}
+            ${AttributeType.ELUSIVE}             | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.ELUSIVE]}
         `(
             "$attributeType $amount $source description is: $readableDescription",
             ({ attributeType, source, readableDescription }) => {

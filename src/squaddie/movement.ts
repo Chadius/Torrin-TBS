@@ -3,13 +3,15 @@ import {
     TraitStatusStorage,
     TraitStatusStorageService,
 } from "../trait/traitStatusStorage"
-import { isValidValue } from "../utils/validityCheck"
+import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
 
+// TODO Next add it to action templates
 export interface SquaddieMovement {
     movementPerAction: number
     passThroughWalls: boolean
     crossOverPits: boolean
     ignoreTerrainCost: boolean
+    passThroughSquaddies: boolean
 }
 
 export const SquaddieMovementService = {
@@ -43,6 +45,7 @@ const createNewSquaddieMovementWithTraits = ({
     }
 
     let passThroughWalls = false
+    let passThroughSquaddies = false
     let crossOverPits = false
     let ignoreTerrainCost = false
 
@@ -59,6 +62,10 @@ const createNewSquaddieMovementWithTraits = ({
             traits,
             Trait.IGNORE_TERRAIN_COST
         )
+        passThroughSquaddies = TraitStatusStorageService.getStatus(
+            traits,
+            Trait.ELUSIVE
+        )
     }
 
     return {
@@ -66,6 +73,7 @@ const createNewSquaddieMovementWithTraits = ({
         crossOverPits,
         passThroughWalls,
         ignoreTerrainCost,
+        passThroughSquaddies,
     }
 }
 
@@ -73,17 +81,15 @@ const sanitize = (data: SquaddieMovement): SquaddieMovement => {
     data.movementPerAction = isValidValue(data.movementPerAction)
         ? data.movementPerAction
         : 0
-    data.passThroughWalls =
-        data.passThroughWalls === false || isValidValue(data.passThroughWalls)
-            ? data.passThroughWalls
-            : false
-    data.crossOverPits =
-        data.crossOverPits === false || isValidValue(data.crossOverPits)
-            ? data.crossOverPits
-            : false
-    data.ignoreTerrainCost =
-        data.ignoreTerrainCost === false || isValidValue(data.ignoreTerrainCost)
-            ? data.ignoreTerrainCost
-            : false
+    data.passThroughWalls = getValidValueOrDefault(data.passThroughWalls, false)
+    data.crossOverPits = getValidValueOrDefault(data.crossOverPits, false)
+    data.ignoreTerrainCost = getValidValueOrDefault(
+        data.ignoreTerrainCost,
+        false
+    )
+    data.passThroughSquaddies = getValidValueOrDefault(
+        data.passThroughSquaddies,
+        false
+    )
     return data
 }
