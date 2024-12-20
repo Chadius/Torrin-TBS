@@ -3,6 +3,7 @@ import {
     TargetingShape,
     TargetingShapeGeneratorService,
 } from "./targetingShapeGenerator"
+import { describe, expect, it } from "vitest"
 
 describe("Targeting Shape Generator", () => {
     it("generates a Snake Shape when requested", () => {

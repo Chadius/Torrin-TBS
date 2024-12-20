@@ -50,6 +50,7 @@ import { BattleActionService } from "../../history/battleAction/battleAction"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { RollModifierType } from "./rollResult"
 import { CalculatorAttack } from "./attack"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository

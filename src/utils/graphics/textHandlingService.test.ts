@@ -1,5 +1,15 @@
 import { TextHandlingService } from "./textHandlingService"
 import { MockedP5GraphicsBuffer } from "../test/mocks"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    test,
+    vi,
+} from "vitest"
 
 describe("Text Handling Service", () => {
     let mockGraphicsContext: MockedP5GraphicsBuffer
@@ -9,11 +19,11 @@ describe("Text Handling Service", () => {
     })
 
     it("asks the graphics buffer for the text width", () => {
-        let pushSpy = jest.spyOn(mockGraphicsContext, "push")
-        let popSpy = jest.spyOn(mockGraphicsContext, "pop")
-        let textSizeSpy = jest.spyOn(mockGraphicsContext, "textSize")
-        let strokeWeightSpy = jest.spyOn(mockGraphicsContext, "strokeWeight")
-        let textWidthSpy = jest
+        let pushSpy = vi.spyOn(mockGraphicsContext, "push")
+        let popSpy = vi.spyOn(mockGraphicsContext, "pop")
+        let textSizeSpy = vi.spyOn(mockGraphicsContext, "textSize")
+        let strokeWeightSpy = vi.spyOn(mockGraphicsContext, "strokeWeight")
+        let textWidthSpy = vi
             .spyOn(mockGraphicsContext, "textWidth")
             .mockReturnValue(9001)
 
@@ -57,8 +67,8 @@ describe("Text Handling Service", () => {
         }
     )
     describe("determine font size", () => {
-        let textWidthSpy: jest.SpyInstance
-        let textSizeSpy: jest.SpyInstance
+        let textWidthSpy: MockInstance
+        let textSizeSpy: MockInstance
 
         beforeEach(() => {})
 
@@ -68,7 +78,7 @@ describe("Text Handling Service", () => {
         })
 
         it("Returns default font size if text fits on one line", () => {
-            textWidthSpy = jest
+            textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockReturnValue(24)
             expect(
@@ -91,7 +101,7 @@ describe("Text Handling Service", () => {
             })
         })
         it("Will split the text across multiple lines if it does not fit on a single line", () => {
-            textWidthSpy = jest
+            textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockImplementation((text: string) => {
                     return text.length * 100
@@ -117,12 +127,12 @@ describe("Text Handling Service", () => {
         })
         it("Will reduce the font size if it does not fit on a single line", () => {
             let textSize = 20
-            textSizeSpy = jest
+            textSizeSpy = vi
                 .spyOn(mockGraphicsContext, "textSize")
                 .mockImplementation((size: number) => {
                     textSize = size
                 })
-            textWidthSpy = jest
+            textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockImplementation((text: string) => {
                     return text.length * textSize

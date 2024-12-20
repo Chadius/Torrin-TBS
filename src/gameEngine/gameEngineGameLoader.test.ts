@@ -35,12 +35,21 @@ import { LoadSaveStateService } from "../dataLoader/loadSaveState"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { BattleHUDService } from "../battle/hud/battleHUD"
 import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
     let missionData: MissionFileFormat
     let campaignFileData: CampaignFileFormat
-    let loadFileIntoFormatSpy: jest.SpyInstance
+    let loadFileIntoFormatSpy: MockInstance
     let gameEngineState: GameEngineState
     let resourceHandler: ResourceHandler
     let squaddieRepository: ObjectRepository
@@ -52,12 +61,12 @@ describe("GameEngineGameLoader", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValue(true)
-        resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-        resourceHandler.loadResource = jest
+        resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+        resourceHandler.loadResource = vi
             .fn()
             .mockReturnValue({ width: 1, height: 1 })
         squaddieRepository = ObjectRepositoryService.new()
@@ -162,7 +171,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("reports errors", async () => {
-            const consoleErrorSpy = jest
+            const consoleErrorSpy = vi
                 .spyOn(console, "error")
                 .mockImplementation(() => {})
             loadFileIntoFormatSpy.mockRejectedValue("Error")
@@ -345,7 +354,7 @@ describe("GameEngineGameLoader", () => {
     })
 
     describe("user wants to load a file while in BattleOrchestrator mode", () => {
-        let openDialogSpy: jest.SpyInstance
+        let openDialogSpy: MockInstance
         let loadedBattleSaveState: BattleSaveState
         let originalState: GameEngineState
         let currentState: GameEngineState
@@ -381,7 +390,7 @@ describe("GameEngineGameLoader", () => {
                     },
                 ],
             }
-            openDialogSpy = jest
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockResolvedValue(loadedBattleSaveState)
 
@@ -460,7 +469,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will try to begin retrieving file content", async () => {
-            const retrieveSpy = jest.spyOn(SaveFile, "RetrieveFileContent")
+            const retrieveSpy = vi.spyOn(SaveFile, "RetrieveFileContent")
             await loader.update(currentState)
             expect(retrieveSpy).toBeCalled()
         })
@@ -537,10 +546,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("should print error message if retrieving a file throws an error", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            openDialogSpy = jest
+                .mockImplementation(() => {})
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockRejectedValue(null)
             await loader.update(currentState)
@@ -550,10 +559,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("should abort loading if the applied file is invalid.", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            jest.spyOn(
+                .mockImplementation(() => {})
+            vi.spyOn(
                 currentState.battleOrchestratorState,
                 "isValid",
                 "get"
@@ -586,10 +595,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will be complete and return to battle mode if there is an error", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            openDialogSpy = jest
+                .mockImplementation(() => {})
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockRejectedValue(null)
             await loader.update(currentState)
@@ -602,7 +611,7 @@ describe("GameEngineGameLoader", () => {
     })
 
     describe("user wants to load a file while in TitleScreen mode", () => {
-        let openDialogSpy: jest.SpyInstance
+        let openDialogSpy: MockInstance
         let loadedBattleSaveState: BattleSaveState
         let originalState: GameEngineState
         let currentState: GameEngineState
@@ -638,7 +647,7 @@ describe("GameEngineGameLoader", () => {
                     },
                 ],
             }
-            openDialogSpy = jest
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockResolvedValue(loadedBattleSaveState)
 
@@ -666,7 +675,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will try to begin retrieving file content", async () => {
-            const retrieveSpy = jest.spyOn(SaveFile, "RetrieveFileContent")
+            const retrieveSpy = vi.spyOn(SaveFile, "RetrieveFileContent")
             await loader.update(currentState)
             await loader.update(currentState)
             expect(retrieveSpy).toBeCalled()
@@ -741,10 +750,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("should print error message if retrieving a file throws an error", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            openDialogSpy = jest
+                .mockImplementation(() => {})
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockRejectedValue(null)
             await loader.update(currentState)
@@ -755,10 +764,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("should abort loading if the applied file is invalid.", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            jest.spyOn(
+                .mockImplementation(() => {})
+            vi.spyOn(
                 currentState.battleOrchestratorState,
                 "isValid",
                 "get"
@@ -789,10 +798,10 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will be complete and return to title screen mode if there is an error", async () => {
-            let consoleErrorSpy = jest
+            let consoleErrorSpy = vi
                 .spyOn(console, "error")
-                .mockImplementation()
-            openDialogSpy = jest
+                .mockImplementation(() => {})
+            openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockRejectedValue(null)
             LoadSaveStateService.userRequestsLoad(

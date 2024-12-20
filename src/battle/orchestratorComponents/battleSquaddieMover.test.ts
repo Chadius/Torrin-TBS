@@ -31,6 +31,15 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleSquaddieMover", () => {
     let objectRepository: ObjectRepository
@@ -40,12 +49,12 @@ describe("BattleSquaddieMover", () => {
     let enemy1Dynamic: BattleSquaddie
     let map: MissionMap
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let getImageUISpy: jest.SpyInstance
+    let getImageUISpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         objectRepository = ObjectRepositoryService.new()
-        getImageUISpy = jest
+        getImageUISpy = vi
             .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
             .mockReturnValue(undefined)
         map = MissionMapService.new({
@@ -152,7 +161,7 @@ describe("BattleSquaddieMover", () => {
         )
 
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
-        jest.spyOn(Date, "now").mockImplementation(() => 1)
+        vi.spyOn(Date, "now").mockImplementation(() => 1)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -160,7 +169,7 @@ describe("BattleSquaddieMover", () => {
         })
         expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
 
-        jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+        vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -243,20 +252,20 @@ describe("BattleSquaddieMover", () => {
             })
         )
 
-        const messageSpy: jest.SpyInstance = jest.spyOn(
+        const messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
         )
 
         const mover: BattleSquaddieMover = new BattleSquaddieMover()
-        jest.spyOn(Date, "now").mockImplementation(() => 1)
+        vi.spyOn(Date, "now").mockImplementation(() => 1)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
             resourceHandler: gameEngineState.resourceHandler,
         })
 
-        jest.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
+        vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
         mover.update({
             gameEngineState,
             graphicsContext: mockedP5GraphicsContext,
@@ -344,7 +353,7 @@ describe("BattleSquaddieMover", () => {
                 let mockResourceHandler = mocks.mockResourceHandler(
                     mockedP5GraphicsContext
                 )
-                mockResourceHandler.getResource = jest
+                mockResourceHandler.getResource = vi
                     .fn()
                     .mockReturnValue({ width: 32, height: 32 })
 
@@ -377,15 +386,13 @@ describe("BattleSquaddieMover", () => {
                 player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0
 
                 mover = new BattleSquaddieMover()
-                jest.spyOn(Date, "now").mockImplementation(() => 1)
+                vi.spyOn(Date, "now").mockImplementation(() => 1)
                 mover.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
                     resourceHandler: gameEngineState.resourceHandler,
                 })
-                jest.spyOn(Date, "now").mockImplementation(
-                    () => 1 + TIME_TO_MOVE
-                )
+                vi.spyOn(Date, "now").mockImplementation(() => 1 + TIME_TO_MOVE)
                 mover.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,

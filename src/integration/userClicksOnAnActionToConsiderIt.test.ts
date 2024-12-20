@@ -55,6 +55,7 @@ import { ActionResourceCostService } from "../action/actionResourceCost"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -130,11 +131,11 @@ describe("user clicks on an action to consider it", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -180,7 +181,7 @@ describe("user clicks on an action to consider it", () => {
         )
 
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
+        mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
     })
 
     it("If the action costs too many ActionPoints, do not select it", () => {
@@ -320,7 +321,7 @@ describe("user clicks on an action to consider it", () => {
 
         const targeting = new BattlePlayerSquaddieTarget()
         const graphicsContext = new MockedP5GraphicsBuffer()
-        const addGraphicsLayerSpy = jest.spyOn(
+        const addGraphicsLayerSpy = vi.spyOn(
             TerrainTileMapService,
             "addGraphicsLayer"
         )

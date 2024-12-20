@@ -13,6 +13,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../battle/objectRepository"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Squaddie Template", () => {
     let objectRepository: ObjectRepository

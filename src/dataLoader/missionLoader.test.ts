@@ -4,6 +4,7 @@ import {
     NpcTeamMissionDeploymentService,
 } from "./missionLoader"
 import { SquaddieDeploymentService } from "../missionMap/squaddieDeployment"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("missionLoader", () => {
     describe("sanitization", () => {

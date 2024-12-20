@@ -37,6 +37,7 @@ import {
     RollResultService,
 } from "../calculator/actionCalculator/rollResult"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()

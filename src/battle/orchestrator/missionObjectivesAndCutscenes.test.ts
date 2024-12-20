@@ -9,6 +9,7 @@ import {
     MissionObjectivesAndCutscenesHelper,
 } from "./missionObjectivesAndCutscenes"
 import { MissionConditionType } from "../missionResult/missionCondition"
+import { describe, expect, it } from "vitest"
 
 describe("Mission Objectives and Cutscenes", () => {
     it("creates an instant win objective if none is given", () => {

@@ -1,5 +1,6 @@
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
+import { describe, expect, it } from "vitest"
 
 describe("movement for squaddies", () => {
     it("can make movement from data", () => {

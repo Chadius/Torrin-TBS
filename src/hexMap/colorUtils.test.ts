@@ -3,6 +3,7 @@ import {
     PulseBlendColor,
     pulseBlendColorToBlendColor,
 } from "./colorUtils"
+import { describe, expect, test, vi } from "vitest"
 
 describe("PulseBlendColor to BlendColor", () => {
     test("Should return blended color", () => {
@@ -36,17 +37,17 @@ describe("PulseBlendColor to BlendColor", () => {
             pulseBlendColor.highAlpha,
         ]
 
-        jest.spyOn(Date, "now").mockImplementation(() => 250) // peak value
+        vi.spyOn(Date, "now").mockImplementation(() => 250) // peak value
         expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
             highBlendColor
         )
 
-        jest.spyOn(Date, "now").mockImplementation(() => 0) // base value
+        vi.spyOn(Date, "now").mockImplementation(() => 0) // base value
         expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
             baseBlendColor
         )
 
-        jest.spyOn(Date, "now").mockImplementation(() => 750) // valley value
+        vi.spyOn(Date, "now").mockImplementation(() => 750) // valley value
         expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
             lowBlendColor
         )

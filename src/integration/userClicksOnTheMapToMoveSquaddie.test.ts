@@ -51,6 +51,7 @@ import { BattleActionService } from "../battle/history/battleAction/battleAction
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository
@@ -106,11 +107,11 @@ describe("user clicks on the map to move", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -164,7 +165,7 @@ describe("user clicks on the map to move", () => {
         })
 
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
+        mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
 
         selectorAndHUDClickOnSquaddie(
             selector,
@@ -386,7 +387,7 @@ describe("user clicks on the map to move", () => {
     describe("Squaddie Mover knows to move over", () => {
         let mover: BattleSquaddieMover
         let graphicsContext: GraphicsBuffer
-        let moveSquaddieAlongPathSpy: jest.SpyInstance
+        let moveSquaddieAlongPathSpy: MockInstance
 
         beforeEach(() => {
             selectorClicksOnMapLocation(
@@ -398,7 +399,7 @@ describe("user clicks on the map to move", () => {
             )
             mover = new BattleSquaddieMover()
             graphicsContext = new MockedP5GraphicsBuffer()
-            moveSquaddieAlongPathSpy = jest.spyOn(
+            moveSquaddieAlongPathSpy = vi.spyOn(
                 DrawSquaddieUtilities,
                 "moveSquaddieAlongPath"
             )
@@ -406,9 +407,9 @@ describe("user clicks on the map to move", () => {
 
         it("mover tries to move the squaddie icon", () => {
             expect(mover.hasCompleted(gameEngineState)).toBeFalsy()
-            jest.spyOn(Date, "now").mockImplementation(() => 1)
-            let getImageUISpy: jest.SpyInstance
-            getImageUISpy = jest
+            vi.spyOn(Date, "now").mockImplementation(() => 1)
+            let getImageUISpy: MockInstance
+            getImageUISpy = vi
                 .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
                 .mockReturnValue(undefined)
             mover.update({

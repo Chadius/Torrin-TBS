@@ -24,12 +24,13 @@ import { BattleCamera } from "../battleCamera"
 import { CampaignService } from "../../campaign/campaign"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import { FileState, FileStateService } from "../../gameEngine/fileState"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("File Access HUD", () => {
     let fileAccessHUD: FileAccessHUD
     let fileState: FileState
-    let dateSpy: jest.SpyInstance
-    let takingATurnSpy: jest.SpyInstance
+    let dateSpy: MockInstance
+    let takingATurnSpy: MockInstance
 
     const createGameEngineStateWithBattlePhase = (
         battlePhaseAffiliation: BattlePhase
@@ -155,7 +156,7 @@ describe("File Access HUD", () => {
         })
 
         it("should disable the save and load buttons during the player phase if a squaddie is taking a turn", () => {
-            takingATurnSpy = jest
+            takingATurnSpy = vi
                 .spyOn(OrchestratorUtilities, "isSquaddieCurrentlyTakingATurn")
                 .mockReturnValue(true)
             const gameEngineState: GameEngineState =
@@ -192,7 +193,7 @@ describe("File Access HUD", () => {
 
     describe("clicking on Save Game", () => {
         beforeEach(() => {
-            jest.clearAllMocks()
+            vi.clearAllMocks()
             FileAccessHUDService.mouseClicked({
                 fileAccessHUD,
                 mouseButton: MouseButton.ACCEPT,
@@ -223,7 +224,7 @@ describe("File Access HUD", () => {
                     fileState.saveSaveState
                 )
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
-                dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+                dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
             it("tells the user the save is complete", () => {
                 const initialMessage: string =
@@ -278,7 +279,7 @@ describe("File Access HUD", () => {
                     fileState.saveSaveState
                 )
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
-                dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+                dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
             it("generates a message indicating the Save failed for a period of time", () => {
                 const initialMessage: string =
@@ -372,7 +373,7 @@ describe("File Access HUD", () => {
                     })
                 )
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
-                dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+                dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
             it("enables the button after load completes and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage(
@@ -399,7 +400,7 @@ describe("File Access HUD", () => {
                     fileState.loadSaveState
                 )
                 FileAccessHUDService.updateButtonStatus(fileAccessHUD)
-                dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+                dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             })
             it("enables the button after load errors and the message expires", () => {
                 FileAccessHUDService.updateStatusMessage(
@@ -419,6 +420,7 @@ describe("File Access HUD", () => {
                     ButtonStatus.READY
                 )
             })
+            // TODO Legit error?
             it("generates a message indicating the Load failed for a period of time", () => {
                 const initialMessage: string =
                     FileAccessHUDService.updateStatusMessage(
@@ -438,11 +440,11 @@ describe("File Access HUD", () => {
 })
 
 const expectNoMessageAfterDisplayDuration = (
-    dateSpy: jest.SpyInstance<any, any>,
+    dateSpy: MockInstance,
     fileState: FileState,
     fileAccessHUD: FileAccessHUD
 ) => {
-    dateSpy = jest
+    dateSpy = vi
         .spyOn(Date, "now")
         .mockReturnValue(FileAccessHUDDesign.MESSAGE_DISPLAY_DURATION + 1)
     const noMessage: string = FileAccessHUDService.updateStatusMessage(

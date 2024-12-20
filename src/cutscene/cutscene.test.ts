@@ -21,6 +21,7 @@ import {
     mockResourceHandler,
 } from "../utils/test/mocks"
 import { RectAreaService } from "../ui/rectArea"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Cutscene", () => {
     let splash1: SplashScreen
@@ -463,7 +464,7 @@ describe("Cutscene", () => {
                 mockResourceHandler(new MockedP5GraphicsBuffer()),
                 {}
             )
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             CutsceneService.mouseClicked(
                 dinnerDate,
                 RectAreaService.centerX(
@@ -477,7 +478,7 @@ describe("Cutscene", () => {
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()
             expect(dinnerDate.currentDirection).toEqual(waiterGreets)
 
-            jest.spyOn(Date, "now").mockImplementation(() => 101)
+            vi.spyOn(Date, "now").mockImplementation(() => 101)
             CutsceneService.update(dinnerDate, {})
             expect(dinnerDate.currentDirection).toEqual(waiterHandsMenu)
         })
@@ -488,7 +489,7 @@ describe("Cutscene", () => {
                 mockResourceHandler(new MockedP5GraphicsBuffer()),
                 {}
             )
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy()
             CutsceneService.mouseClicked(
                 dinnerDate,
@@ -500,9 +501,9 @@ describe("Cutscene", () => {
                 ),
                 {}
             )
-            jest.spyOn(Date, "now").mockImplementation(() => 101)
+            vi.spyOn(Date, "now").mockImplementation(() => 101)
             CutsceneService.update(dinnerDate, {})
-            jest.spyOn(Date, "now").mockImplementation(() => 202)
+            vi.spyOn(Date, "now").mockImplementation(() => 202)
             CutsceneService.update(dinnerDate, {})
             expect(dinnerDate.currentDirection).toEqual(waiterHandsMenu)
             expect(CutsceneService.isFastForward(dinnerDate)).toBeFalsy()
@@ -534,7 +535,7 @@ describe("Cutscene", () => {
                 mockResourceHandler(new MockedP5GraphicsBuffer()),
                 {}
             )
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             expect(dinnerDate.currentDirection.id).toBe("waiterGreets")
             CutsceneService.mouseClicked(
                 dinnerDate,
@@ -547,15 +548,15 @@ describe("Cutscene", () => {
                 {}
             )
 
-            jest.spyOn(Date, "now").mockImplementation(() => 101)
+            vi.spyOn(Date, "now").mockImplementation(() => 101)
             CutsceneService.update(dinnerDate, {})
             expect(dinnerDate.currentDirection.id).toBe("waiterHandsMenu")
 
-            jest.spyOn(Date, "now").mockImplementation(() => 202)
+            vi.spyOn(Date, "now").mockImplementation(() => 202)
             CutsceneService.update(dinnerDate, {})
             expect(dinnerDate.currentDirection.id).toBe("waiterAsks")
 
-            jest.spyOn(Date, "now").mockImplementation(() => 303)
+            vi.spyOn(Date, "now").mockImplementation(() => 303)
             CutsceneService.update(dinnerDate, {})
             expect(dinnerDate.currentDirection.id).toBe("waiterAsks")
 
@@ -637,7 +638,7 @@ describe("Cutscene", () => {
             frontDoorGreeting.id
         ] as DialoguePlayerState
 
-        const greetingSpy = jest.spyOn(DialoguePlayerService, "start")
+        const greetingSpy = vi.spyOn(DialoguePlayerService, "start")
         CutsceneService.start(
             dinnerDate,
             mockResourceHandler(new MockedP5GraphicsBuffer()),

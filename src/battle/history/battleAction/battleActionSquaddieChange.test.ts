@@ -10,6 +10,7 @@ import {
     AttributeSource,
     AttributeType,
 } from "../../../squaddie/attributeModifier"
+import { describe, expect, it } from "vitest"
 
 describe("BattleActionSquaddieChange", () => {
     describe("knows when the result hinders the squaddie", () => {

@@ -7,6 +7,7 @@ import {
 } from "../../trait/traitStatusStorage"
 import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import { TargetConstraintsService } from "../targetConstraints"
+import { describe, expect, it } from "vitest"
 
 describe("ActionTemplate", () => {
     it("can create a template with defaults and required fields", () => {

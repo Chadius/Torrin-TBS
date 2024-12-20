@@ -3,6 +3,7 @@ import {
     HexCoordinateToKey,
     ValidateHexCoordinateOrThrowError,
 } from "./hexCoordinate"
+import { describe, expect, it } from "vitest"
 
 describe("HexCoordinates", () => {
     it("creates HexCoordinates given q & r", () => {

@@ -8,6 +8,15 @@ import { StubImmediateLoader } from "./resourceHandlerTestUtils"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import * as DataLoader from "../dataLoader/dataLoader"
 import p5 from "p5"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Resource Handler", () => {
     let mockedP5Graphics: MockedP5GraphicsBuffer
@@ -52,7 +61,7 @@ describe("Resource Handler", () => {
     })
     describe("warn the first time an unknown key is used", () => {
         let resourceHandler: ResourceHandler
-        let consoleWarnStub: jest.SpyInstance
+        let consoleWarnStub: MockInstance
 
         beforeEach(() => {
             resourceHandler = ResourceHandlerService.new({
@@ -66,7 +75,9 @@ describe("Resource Handler", () => {
                     },
                 ],
             })
-            consoleWarnStub = jest.spyOn(console, "warn").mockImplementation()
+            consoleWarnStub = vi
+                .spyOn(console, "warn")
+                .mockImplementation(() => {})
         })
 
         afterEach(() => {
@@ -113,8 +124,8 @@ describe("Resource Handler", () => {
     describe("return defaults if the resource has not been loaded", () => {
         let loader: ResourceHandler
         let imageLoader: StubImmediateLoader
-        let imageLoaderSpy: jest.SpyInstance
-        let consoleWarnSpy: jest.SpyInstance
+        let imageLoaderSpy: MockInstance
+        let consoleWarnSpy: MockInstance
 
         beforeEach(() => {
             imageLoader = new StubImmediateLoader(mockedP5Graphics)
@@ -130,8 +141,10 @@ describe("Resource Handler", () => {
                 ],
             })
 
-            imageLoaderSpy = jest.spyOn(imageLoader, "loadResource")
-            consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation()
+            imageLoaderSpy = vi.spyOn(imageLoader, "loadResource")
+            consoleWarnSpy = vi
+                .spyOn(console, "warn")
+                .mockImplementation(() => {})
         })
 
         it("returns a default image and attempts a reload if the image has not been loaded yet", () => {
@@ -250,7 +263,7 @@ describe("Resource Handler", () => {
                 },
             ]
 
-            const loadFileIntoFormatSpy = jest
+            const loadFileIntoFormatSpy = vi
                 .spyOn(DataLoader, "LoadFileIntoFormat")
                 .mockResolvedValue(resourceLocators)
 

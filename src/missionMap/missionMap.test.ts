@@ -7,6 +7,7 @@ import {
     MissionMapSquaddieLocation,
     MissionMapSquaddieLocationService,
 } from "./squaddieLocation"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Mission Map", () => {
     let map: TerrainTileMap

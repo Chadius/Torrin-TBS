@@ -27,6 +27,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../orchestrator/battleState"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("move towards closest squaddie in range", () => {
     let repository: ObjectRepository

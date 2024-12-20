@@ -27,9 +27,18 @@ import {
     AttributeSource,
     AttributeType,
 } from "../../../squaddie/attributeModifier"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("movement calculator", () => {
-    let pathfinderSpy: jest.SpyInstance
+    let pathfinderSpy: MockInstance
     let gameEngineState: GameEngineState
     let battleSquaddie: BattleSquaddie
     let squaddieTemplate: SquaddieTemplate
@@ -79,7 +88,7 @@ describe("movement calculator", () => {
 
     describe("isMovementPossible", () => {
         it("is not possible if the pathfinder says it is not", () => {
-            pathfinderSpy = jest
+            pathfinderSpy = vi
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
@@ -119,7 +128,7 @@ describe("movement calculator", () => {
                 1
             )
 
-            pathfinderSpy = jest
+            pathfinderSpy = vi
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
@@ -165,7 +174,7 @@ describe("movement calculator", () => {
                 })
             )
 
-            pathfinderSpy = jest
+            pathfinderSpy = vi
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({

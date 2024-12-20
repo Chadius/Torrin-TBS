@@ -3,6 +3,7 @@ import { CampaignLoaderService } from "./campaignLoader"
 import { TestCampaignData } from "../utils/test/campaignData"
 import * as DataLoader from "./dataLoader"
 import { CampaignResourcesService } from "../campaign/campaignResources"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("campaign loader", () => {
     describe("sanitization", () => {
@@ -36,12 +37,12 @@ describe("campaign loader", () => {
     })
     describe("load from a file", () => {
         let campaignFileData: CampaignFileFormat
-        let loadFileIntoFormatSpy: jest.SpyInstance
+        let loadFileIntoFormatSpy: MockInstance
 
         beforeEach(() => {
             ;({ campaignFile: campaignFileData } = TestCampaignData())
 
-            loadFileIntoFormatSpy = jest
+            loadFileIntoFormatSpy = vi
                 .spyOn(DataLoader, "LoadFileIntoFormat")
                 .mockImplementation(
                     async (filename: string): Promise<CampaignFileFormat> => {

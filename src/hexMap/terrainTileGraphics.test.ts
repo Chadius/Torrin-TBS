@@ -5,6 +5,7 @@ import { MouseButton } from "../utils/mouseConfig"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { BattleCamera } from "../battle/battleCamera"
 import { TerrainTileGraphicsService } from "./terrainTileGraphics"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Terrain Tile Graphics", () => {
     describe("mouseClicks on the map change the outlined tile", () => {

@@ -18,6 +18,7 @@ import {
 import { ObjectRepositoryService } from "../../objectRepository"
 import { BattleActionActionContextService } from "./battleActionActionContext"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
+import { describe, expect, it } from "vitest"
 
 describe("BattleAction", () => {
     describe("Creation and Sanitization", () => {

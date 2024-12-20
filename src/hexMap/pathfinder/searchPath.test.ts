@@ -1,4 +1,5 @@
 import { SearchPathService } from "./searchPath"
+import { describe, expect, it } from "vitest"
 
 describe("SearchPath", () => {
     it("knows if two paths share the same ancestor", () => {

@@ -6,10 +6,11 @@ import {
     ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase,
 } from "./actionAnimationConstants"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("ActionTimer", () => {
     beforeEach(() => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
     })
 
     it("knows it has not been started upon construction", () => {
@@ -30,7 +31,7 @@ describe("ActionTimer", () => {
     it("knows when it is during action", () => {
         const timer = new ActionTimer()
         timer.start()
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () => ACTION_ANIMATION_BEFORE_ACTION_TIME + 1
         )
         expect(timer.currentPhase).toBe(ActionAnimationPhase.DURING_ACTION)
@@ -39,7 +40,7 @@ describe("ActionTimer", () => {
     it("knows when target is reacting", () => {
         const timer = new ActionTimer()
         timer.start()
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () =>
                 ACTION_ANIMATION_BEFORE_ACTION_TIME +
                 ACTION_ANIMATION_ACTION_TIME +
@@ -51,7 +52,7 @@ describe("ActionTimer", () => {
     it("knows when action is finished and showing results", () => {
         const timer = new ActionTimer()
         timer.start()
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () =>
                 ACTION_ANIMATION_BEFORE_ACTION_TIME +
                 ACTION_ANIMATION_ACTION_TIME +
@@ -64,7 +65,7 @@ describe("ActionTimer", () => {
     it("knows when results are finished showing", () => {
         const timer = new ActionTimer()
         timer.start()
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () =>
                 ACTION_ANIMATION_SHOW_RESULTS_TIME +
                 ACTION_ANIMATION_BEFORE_ACTION_TIME +

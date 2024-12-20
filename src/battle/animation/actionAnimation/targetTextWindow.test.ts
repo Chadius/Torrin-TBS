@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TargetTextWindow } from "./targetTextWindow"
 import {
     SquaddieTemplate,
@@ -91,10 +92,7 @@ describe("TargetTextWindow", () => {
     })
 
     it("calls a submodule to generate the before text", () => {
-        const textSpy = jest.spyOn(
-            ActionResultTextService,
-            "getBeforeActionText"
-        )
+        const textSpy = vi.spyOn(ActionResultTextService, "getBeforeActionText")
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
@@ -111,10 +109,7 @@ describe("TargetTextWindow", () => {
     })
 
     it("generates the after text once the timer is ready", () => {
-        const textSpy = jest.spyOn(
-            ActionResultTextService,
-            "getAfterActionText"
-        )
+        const textSpy = vi.spyOn(ActionResultTextService, "getAfterActionText")
 
         targetWindow.start({
             targetTemplate: targetSquaddie,
@@ -125,7 +120,7 @@ describe("TargetTextWindow", () => {
         })
 
         const timer = new ActionTimer()
-        const timerSpy = jest
+        const timerSpy = vi
             .spyOn(timer, "currentPhase", "get")
             .mockReturnValue(ActionAnimationPhase.TARGET_REACTS)
 

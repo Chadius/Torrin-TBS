@@ -60,6 +60,15 @@ import { DamageType } from "../../squaddie/squaddieService"
 import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -68,9 +77,9 @@ describe("BattleSquaddieSelector", () => {
     let missionMap: MissionMap
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     let teams: BattleSquaddieTeam[]
-    let messageSpy: jest.SpyInstance
-    let calculateContextSpy: jest.SpyInstance
-    let applyContextSpy: jest.SpyInstance
+    let messageSpy: MockInstance
+    let calculateContextSpy: MockInstance
+    let applyContextSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -82,11 +91,11 @@ describe("BattleSquaddieSelector", () => {
             }),
         })
         teams = []
-        calculateContextSpy = jest.spyOn(
+        calculateContextSpy = vi.spyOn(
             PlayerSelectionService,
             "calculateContext"
         )
-        applyContextSpy = jest.spyOn(
+        applyContextSpy = vi.spyOn(
             PlayerSelectionService,
             "applyContextToGetChanges"
         )
@@ -248,7 +257,7 @@ describe("BattleSquaddieSelector", () => {
                 battlePhaseState,
                 missionMap,
             })
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({
                 screenX: battleSquaddieScreenPositionX,
                 screenY: battleSquaddieScreenPositionY,
@@ -341,7 +350,7 @@ describe("BattleSquaddieSelector", () => {
                     },
                 }
             )
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
 
         describe("user clicks on destination to start movement", () => {
@@ -409,7 +418,7 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("Does not make a movement action if you click on the player command HUD", () => {
-            const playerCommandSpy = jest
+            const playerCommandSpy = vi
                 .spyOn(PlayerCommandStateService, "mouseClicked")
                 .mockReturnValue(
                     PlayerCommandSelection.PLAYER_COMMAND_SELECTION_MOVE
@@ -465,7 +474,7 @@ describe("BattleSquaddieSelector", () => {
                 }
             )
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             x = RectAreaService.centerX(
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -578,7 +587,7 @@ describe("BattleSquaddieSelector", () => {
                 MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             const meleeButton =
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
@@ -684,7 +693,7 @@ describe("BattleSquaddieSelector", () => {
                 MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
             )
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             selector.keyEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentKeyEventType.PRESSED,

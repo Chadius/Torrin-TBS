@@ -1,5 +1,6 @@
 import { NumberGeneratorStrategy } from "./strategy"
 import { FixedNumberGenerator } from "./fixed"
+import { describe, expect, it } from "vitest"
 
 describe("fixed number generator", () => {
     it("will always produce the given number", () => {

@@ -20,6 +20,15 @@ import * as DataLoader from "../dataLoader/dataLoader"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { CampaignService } from "../campaign/campaign"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 const resourceLocators: ResourceLocator[] = [
     {
@@ -36,11 +45,11 @@ const resourceLocators: ResourceLocator[] = [
 
 describe("Game Engine", () => {
     let mockedP5GraphicsBuffer: MockedP5GraphicsBuffer
-    let loadFileIntoFormatSpy: jest.SpyInstance
+    let loadFileIntoFormatSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsBuffer = new MockedP5GraphicsBuffer()
-        loadFileIntoFormatSpy = jest
+        loadFileIntoFormatSpy = vi
             .spyOn(DataLoader, "LoadFileIntoFormat")
             .mockResolvedValue(resourceLocators)
     })
@@ -57,11 +66,11 @@ describe("Game Engine", () => {
         })
 
         const nextComponent = newGameEngine.component
-        const updateSpy = jest.spyOn(nextComponent, "update").mockReturnValue()
-        const hasCompletedSpy = jest
+        const updateSpy = vi.spyOn(nextComponent, "update").mockReturnValue()
+        const hasCompletedSpy = vi
             .spyOn(nextComponent, "hasCompleted")
             .mockReturnValue(true)
-        const recommendedSpy = jest
+        const recommendedSpy = vi
             .spyOn(nextComponent, "recommendStateChanges")
             .mockReturnValue({ nextMode: GameModeEnum.BATTLE })
 
@@ -77,7 +86,7 @@ describe("Game Engine", () => {
 
     describe("Game Engine component hooks ", () => {
         async function expectUpdate(newGameEngine: GameEngine) {
-            const updateSpy = jest
+            const updateSpy = vi
                 .spyOn(newGameEngine.component, "update")
                 .mockImplementation(() => {})
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
@@ -85,7 +94,7 @@ describe("Game Engine", () => {
         }
 
         function expectKeyPressed(newGameEngine: GameEngine) {
-            const keyPressedSpy = jest
+            const keyPressedSpy = vi
                 .spyOn(newGameEngine.component, "keyPressed")
                 .mockImplementation(() => {})
             newGameEngine.keyPressed(10)
@@ -94,7 +103,7 @@ describe("Game Engine", () => {
         }
 
         function expectMouseClicked(newGameEngine: GameEngine) {
-            const mouseClickedSpy = jest
+            const mouseClickedSpy = vi
                 .spyOn(newGameEngine.component, "mouseClicked")
                 .mockImplementation(() => {})
             newGameEngine.mouseClicked(MouseButton.ACCEPT, 100, 200)
@@ -105,7 +114,7 @@ describe("Game Engine", () => {
         }
 
         function expectMouseMoved(newGameEngine: GameEngine) {
-            const mouseMovedSpy = jest
+            const mouseMovedSpy = vi
                 .spyOn(newGameEngine.component, "mouseMoved")
                 .mockImplementation(() => {})
             newGameEngine.mouseMoved(100, 200)
@@ -182,7 +191,7 @@ describe("Game Engine", () => {
 
     describe("save the game", () => {
         beforeEach(() => {
-            loadFileIntoFormatSpy = jest
+            loadFileIntoFormatSpy = vi
                 .spyOn(DataLoader, "LoadFileIntoFormat")
                 .mockResolvedValue(resourceLocators)
         })
@@ -210,7 +219,7 @@ describe("Game Engine", () => {
                 "save with this mission id"
             newGameEngine.gameEngineState.repository =
                 ObjectRepositoryService.new()
-            const saveSpy = jest
+            const saveSpy = vi
                 .spyOn(BattleSaveStateService, "SaveToFile")
                 .mockReturnValue(null)
 
@@ -229,7 +238,7 @@ describe("Game Engine", () => {
             )
         })
         it("will set the error flag if there is an error while saving", async () => {
-            const consoleLoggerSpy: jest.SpyInstance = jest
+            const consoleLoggerSpy: MockInstance = vi
                 .spyOn(console, "log")
                 .mockImplementation(() => {})
             const newGameEngine = new GameEngine({
@@ -249,7 +258,7 @@ describe("Game Engine", () => {
             SaveSaveStateService.userRequestsSave(
                 newGameEngine.gameEngineState.fileState.saveSaveState
             )
-            const saveSpy = jest
+            const saveSpy = vi
                 .spyOn(BattleSaveStateService, "SaveToFile")
                 .mockImplementation(() => {
                     throw new Error("Failed for some reason")
@@ -275,7 +284,7 @@ describe("Game Engine", () => {
         let newGameEngine: GameEngine
 
         beforeEach(async () => {
-            loadFileIntoFormatSpy = jest
+            loadFileIntoFormatSpy = vi
                 .spyOn(DataLoader, "LoadFileIntoFormat")
                 .mockResolvedValue(resourceLocators)
             newGameEngine = new GameEngine({
@@ -308,14 +317,14 @@ describe("Game Engine", () => {
                         ],
                     }),
                 ]
-            jest.spyOn(
+            vi.spyOn(
                 newGameEngine.battleOrchestrator,
                 "hasCompleted"
             ).mockReturnValue(true)
             expect(loadFileIntoFormatSpy).toBeCalled()
         })
         afterEach(() => {
-            jest.clearAllMocks()
+            vi.clearAllMocks()
         })
         it("will switch to loading battle", () => {
             newGameEngine.update({ graphics: mockedP5GraphicsBuffer })
@@ -329,10 +338,10 @@ describe("Game Engine", () => {
             ).toBe("test")
         })
         it("loader will go to the previous mode upon completion", async () => {
-            const loaderUpdateSpy = jest
+            const loaderUpdateSpy = vi
                 .spyOn(newGameEngine.component, "update")
                 .mockImplementation(() => {})
-            const loaderCompletedSpy = jest
+            const loaderCompletedSpy = vi
                 .spyOn(newGameEngine.component, "hasCompleted")
                 .mockReturnValue(true)
             await newGameEngine.update({ graphics: mockedP5GraphicsBuffer })

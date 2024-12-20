@@ -4,6 +4,7 @@ import {
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
 import { HIGHLIGHT_PULSE_COLOR } from "./hexDrawingUtils"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Map Graphics Layer", () => {
     it("has an Id", () => {

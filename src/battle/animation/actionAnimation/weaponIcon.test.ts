@@ -14,12 +14,13 @@ import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
 } from "../../../action/template/actionEffectTemplate"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("weapon icon", () => {
     let hinderingAction: ActionTemplate
     let helpingAction: ActionTemplate
 
-    let textSpy: jest.SpyInstance
+    let textSpy: MockInstance
     let mockedGraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
@@ -56,7 +57,7 @@ describe("weapon icon", () => {
         })
 
         mockedGraphicsContext = new MockedP5GraphicsBuffer()
-        textSpy = jest
+        textSpy = vi
             .spyOn(mockedGraphicsContext.mockedP5, "text")
             .mockReturnValue(undefined)
     })

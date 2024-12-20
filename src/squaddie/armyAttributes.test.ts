@@ -1,4 +1,5 @@
 import { ArmyAttributes, ArmyAttributesService } from "./armyAttributes"
+import { describe, expect, it } from "vitest"
 
 describe("sanitize", () => {
     it("can be sanitized to fill in missing fields", () => {

@@ -15,6 +15,7 @@ import { DamageType } from "../../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { describe, expect, it } from "vitest"
 
 describe("next node has a squaddie", () => {
     it("returns true if squaddies are friendly, false if they are not", () => {

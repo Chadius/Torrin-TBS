@@ -9,6 +9,7 @@ import {
 } from "../searchResults/searchResult"
 import { PathfinderService } from "./pathfinder"
 import { ObjectRepositoryService } from "../../../battle/objectRepository"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Pathfinder", () => {
     describe("generate shortest paths for every location in a given map", () => {

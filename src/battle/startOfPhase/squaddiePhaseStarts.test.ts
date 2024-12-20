@@ -28,12 +28,21 @@ import {
 } from "../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("squaddie phase starts", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
     let gameEngineState: GameEngineState
     let repository: ObjectRepository
-    let getImageUISpy: jest.SpyInstance
+    let getImageUISpy: MockInstance
 
     const addListenerToGameState = (gameEngineState: GameEngineState) => {
         squaddiePhaseListener = new SquaddiePhaseListener(
@@ -97,7 +106,7 @@ describe("squaddie phase starts", () => {
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
-        getImageUISpy = jest
+        getImageUISpy = vi
             .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
             .mockReturnValue(undefined)
     })

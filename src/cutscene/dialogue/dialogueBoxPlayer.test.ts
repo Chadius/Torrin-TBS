@@ -12,6 +12,15 @@ import {
     MockedP5GraphicsBuffer,
     mockResourceHandler,
 } from "../../utils/test/mocks"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("dialogue box player", () => {
     describe("dialog box without answers finishes", () => {
@@ -32,7 +41,7 @@ describe("dialogue box player", () => {
         })
 
         it("should wait for a certain amount of time before saying it is finished", () => {
-            const dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
+            const dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
             DialoguePlayerService.start(dialoguePlayerState, {})
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
@@ -41,7 +50,7 @@ describe("dialogue box player", () => {
                 DialoguePlayerService.isFinished(dialoguePlayerState)
             ).toBeFalsy()
 
-            jest.spyOn(Date, "now").mockImplementation(() => 501)
+            vi.spyOn(Date, "now").mockImplementation(() => 501)
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
             ).toBeFalsy()
@@ -112,7 +121,7 @@ describe("dialogue box player", () => {
             })
         })
         it("should not finish if the player needs to answer", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             DialoguePlayerService.start(dialoguePlayerState, {})
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
@@ -121,7 +130,7 @@ describe("dialogue box player", () => {
                 DialoguePlayerService.isFinished(dialoguePlayerState)
             ).toBeFalsy()
 
-            jest.spyOn(Date, "now").mockImplementation(() => 501)
+            vi.spyOn(Date, "now").mockImplementation(() => 501)
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
             ).toBeTruthy()
@@ -198,7 +207,7 @@ describe("dialogue box player", () => {
     })
 
     describe("text substitution", () => {
-        let textSpy: jest.SpyInstance
+        let textSpy: MockInstance
         let mockedP5GraphicsContext: MockedP5GraphicsBuffer
         let dialoguePlayerState: DialoguePlayerState
 
@@ -232,7 +241,7 @@ describe("dialogue box player", () => {
             })
 
             mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-            textSpy = jest.spyOn(mockedP5GraphicsContext, "text")
+            textSpy = vi.spyOn(mockedP5GraphicsContext, "text")
         })
 
         afterEach(() => {
@@ -282,12 +291,12 @@ describe("dialogue box player", () => {
     })
 
     describe("backgroundColor", () => {
-        let drawRectSpy: jest.SpyInstance
+        let drawRectSpy: MockInstance
         let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
         beforeEach(() => {
             mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-            drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect")
+            drawRectSpy = vi.spyOn(mockedP5GraphicsContext, "rect")
         })
 
         afterEach(() => {

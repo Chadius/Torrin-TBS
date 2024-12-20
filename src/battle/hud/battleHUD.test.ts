@@ -90,13 +90,22 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
+        mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
     })
 
     const createGameEngineState = ({
@@ -240,20 +249,20 @@ describe("Battle HUD", () => {
     }
 
     describe("enable buttons as a reaction", () => {
-        let fileAccessHUDSpy: jest.SpyInstance
+        let fileAccessHUDSpy: MockInstance
         let fileAccessHUD: FileAccessHUD
         let battleHUDListener: BattleHUDListener
-        let listenerSpy: jest.SpyInstance
+        let listenerSpy: MockInstance
         let messageBoard: MessageBoard
         let gameEngineStateWithPlayerPhase: GameEngineState
 
         beforeEach(() => {
-            fileAccessHUDSpy = jest.spyOn(FileAccessHUDService, "enableButtons")
+            fileAccessHUDSpy = vi.spyOn(FileAccessHUDService, "enableButtons")
             fileAccessHUD = FileAccessHUDService.new()
             fileAccessHUD.loadButton.setStatus(ButtonStatus.DISABLED)
             fileAccessHUD.saveButton.setStatus(ButtonStatus.DISABLED)
             battleHUDListener = new BattleHUDListener("battleHUDListener")
-            listenerSpy = jest.spyOn(battleHUDListener, "receiveMessage")
+            listenerSpy = vi.spyOn(battleHUDListener, "receiveMessage")
             messageBoard = new MessageBoard()
             gameEngineStateWithPlayerPhase = GameEngineStateService.new({
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -804,7 +813,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let addGraphicsLayerSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: MockInstance
 
         beforeEach(() => {
             ;({
@@ -815,7 +824,7 @@ describe("Battle HUD", () => {
                 battleSquaddieLocation: { q: 1, r: 1 },
             }))
 
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 DrawSquaddieUtilities,
                 "highlightSquaddieRange"
             )
@@ -835,7 +844,7 @@ describe("Battle HUD", () => {
                 actionTemplateId: longswordAction.id,
             })
 
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -939,7 +948,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let addGraphicsLayerSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: MockInstance
 
         beforeEach(() => {
             ;({
@@ -980,7 +989,7 @@ describe("Battle HUD", () => {
                 targetLocation: { q: 0, r: 1 },
             })
 
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -1012,7 +1021,7 @@ describe("Battle HUD", () => {
         let battleHUDListener: BattleHUDListener
         let gameEngineState: GameEngineState
         let playerSoldierBattleSquaddie: BattleSquaddie
-        let messageSpy: jest.SpyInstance
+        let messageSpy: MockInstance
         let endTurnBattleAction: BattleAction
 
         beforeEach(() => {
@@ -1021,7 +1030,7 @@ describe("Battle HUD", () => {
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             endTurnBattleAction = BattleActionService.new({
                 actor: {
@@ -1121,7 +1130,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let playerSoldierBattleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
-        let messageSpy: jest.SpyInstance
+        let messageSpy: MockInstance
 
         beforeEach(() => {
             ;({
@@ -1131,7 +1140,7 @@ describe("Battle HUD", () => {
             } = createGameEngineState({}))
 
             const repository = gameEngineState.repository
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             SummaryHUDStateService.createActorTiles({
                 summaryHUDState:
@@ -1723,7 +1732,7 @@ describe("Battle HUD", () => {
         let battleSquaddie: BattleSquaddie
         let battleSquaddie2: BattleSquaddie
         let battleHUDListener: BattleHUDListener
-        let messageSpy: jest.SpyInstance
+        let messageSpy: MockInstance
 
         beforeEach(() => {
             ;({
@@ -1743,7 +1752,7 @@ describe("Battle HUD", () => {
                 battleHUDListener,
                 MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE
             )
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -1842,8 +1851,8 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleHUDListener: BattleHUDListener
         let battleSquaddie: BattleSquaddie
-        let movementCalculatorSpy: jest.SpyInstance
-        let messageSpy: jest.SpyInstance
+        let movementCalculatorSpy: MockInstance
+        let messageSpy: MockInstance
 
         beforeEach(() => {
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
@@ -1880,7 +1889,7 @@ describe("Battle HUD", () => {
                 },
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             movementCalculatorSpy.mockRestore()
@@ -1900,7 +1909,7 @@ describe("Battle HUD", () => {
             }
 
             it("sends a message stating the player selection is invalid", () => {
-                movementCalculatorSpy = jest
+                movementCalculatorSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(false)
 
@@ -1931,7 +1940,7 @@ describe("Battle HUD", () => {
             })
 
             it("does not complete the action", () => {
-                movementCalculatorSpy = jest
+                movementCalculatorSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(false)
 
@@ -1948,7 +1957,7 @@ describe("Battle HUD", () => {
 
         describe("calculator returns a valid path", () => {
             beforeEach(() => {
-                movementCalculatorSpy = jest
+                movementCalculatorSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(true)
 
@@ -2087,7 +2096,7 @@ describe("Battle HUD", () => {
 
         describe("add an additional movement action during a turn", () => {
             beforeEach(() => {
-                movementCalculatorSpy = jest
+                movementCalculatorSpy = vi
                     .spyOn(MovementCalculatorService, "isMovementPossible")
                     .mockReturnValue(true)
 
@@ -2266,7 +2275,7 @@ describe("Battle HUD", () => {
             ).toBeFalsy()
         })
         it("clears the map graphics layer for all clicked controllable units", () => {
-            const terrainTileMapSpy: jest.SpyInstance = jest.spyOn(
+            const terrainTileMapSpy: MockInstance = vi.spyOn(
                 TerrainTileMapService,
                 "removeGraphicsLayerByType"
             )
@@ -2428,7 +2437,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie
         let battleHUDListener: BattleHUDListener
-        let addGraphicsSpy: jest.SpyInstance
+        let addGraphicsSpy: MockInstance
         beforeEach(() => {
             ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
                 createGameEngineState({}))
@@ -2457,10 +2466,7 @@ describe("Battle HUD", () => {
                 MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION
             )
 
-            addGraphicsSpy = jest.spyOn(
-                TerrainTileMapService,
-                "addGraphicsLayer"
-            )
+            addGraphicsSpy = vi.spyOn(TerrainTileMapService, "addGraphicsLayer")
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,

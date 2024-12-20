@@ -41,6 +41,7 @@ import {
     AttributeType,
 } from "../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap

@@ -4,12 +4,21 @@ import {
     NpcTeamMissionDeploymentService,
 } from "../src/dataLoader/missionLoader"
 import { SquaddieDeploymentService } from "../src/missionMap/squaddieDeployment"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Mission File validation", () => {
-    let consoleErrorSpy: jest.SpyInstance
+    let consoleErrorSpy: MockInstance
 
     beforeEach(() => {
-        consoleErrorSpy = jest.spyOn(console, "error").mockReturnValue()
+        consoleErrorSpy = vi.spyOn(console, "error").mockReturnValue()
     })
     afterEach(() => {
         consoleErrorSpy.mockRestore()

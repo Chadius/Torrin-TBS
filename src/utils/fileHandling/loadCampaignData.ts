@@ -7,6 +7,7 @@ import * as DataLoader from "../../dataLoader/dataLoader"
 import { MissionFileFormat } from "../../dataLoader/missionLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
+import { vi } from "vitest"
 
 export const LoadCampaignData = {
     createLoadFileSpy: () => {
@@ -30,7 +31,7 @@ export const LoadCampaignData = {
         ;({ playerArmy, playerActionTemplates } = TestArmyPlayerData())
         ;({ campaignFile: campaignFileData } = TestCampaignData())
 
-        let loadFileIntoFormatSpy = jest
+        let loadFileIntoFormatSpy = vi
             .spyOn(DataLoader, "LoadFileIntoFormat")
             .mockImplementation(
                 async (

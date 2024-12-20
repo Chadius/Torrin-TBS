@@ -4,6 +4,15 @@ import {
     TraitStatusStorage,
     TraitStatusStorageService,
 } from "./traitStatusStorage"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Trait Status Storage", () => {
     let storage: TraitStatusStorage
@@ -71,9 +80,9 @@ describe("Trait Status Storage", () => {
     })
     describe("warn when the trait names are unknown", () => {
         const jsonBlob: string = `{"ATTACK": true, "BOGUS": true}`
-        let consoleLogSpy: jest.SpyInstance
+        let consoleLogSpy: MockInstance
         beforeEach(() => {
-            consoleLogSpy = jest
+            consoleLogSpy = vi
                 .spyOn(console, "log")
                 .mockImplementation(() => {})
         })

@@ -2,6 +2,7 @@ import {
     MissionStatistics,
     MissionStatisticsService,
 } from "./missionStatistics"
+import { describe, expect, it } from "vitest"
 
 describe("MissionStatistics", () => {
     it("can track time elapsed", () => {

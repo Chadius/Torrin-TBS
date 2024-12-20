@@ -1,20 +1,21 @@
 import { TextBox, TextBoxService } from "./textBox"
 import { RectAreaService } from "./rectArea"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Pop up text", () => {
-    let p5TextSpy: jest.SpyInstance
+    let p5TextSpy: MockInstance
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        p5TextSpy = jest
+        p5TextSpy = vi
             .spyOn(mockedP5GraphicsContext.mockedP5, "text")
             .mockReturnValue(undefined)
     })
 
     it("will try to draw the text for a given amount of time", () => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         const textBox: TextBox = TextBoxService.new({
             text: "A text box",
             textSize: 18,
@@ -31,7 +32,7 @@ describe("Pop up text", () => {
         TextBoxService.draw(textBox, mockedP5GraphicsContext)
         expect(TextBoxService.isDone(textBox)).toBeFalsy()
 
-        jest.spyOn(Date, "now").mockImplementation(() => 1000)
+        vi.spyOn(Date, "now").mockImplementation(() => 1000)
         TextBoxService.draw(textBox, mockedP5GraphicsContext)
         expect(p5TextSpy).toBeCalledTimes(1)
         expect(TextBoxService.isDone(textBox)).toBeTruthy()
@@ -51,10 +52,10 @@ describe("Pop up text", () => {
             duration: undefined,
         })
 
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         TextBoxService.draw(textBox, mockedP5GraphicsContext)
 
-        jest.spyOn(Date, "now").mockImplementation(() => 1000)
+        vi.spyOn(Date, "now").mockImplementation(() => 1000)
         TextBoxService.draw(textBox, mockedP5GraphicsContext)
         expect(p5TextSpy).toBeCalledTimes(2)
         expect(TextBoxService.isDone(textBox)).toBeFalsy()

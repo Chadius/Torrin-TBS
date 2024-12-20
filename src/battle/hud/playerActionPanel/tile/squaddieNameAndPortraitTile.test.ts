@@ -24,6 +24,15 @@ import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { ActionTilePosition } from "./actionTilePosition"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Squaddie Name and Portrait Tile", () => {
     let objectRepository: ObjectRepository
@@ -115,7 +124,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         let tile: SquaddieNameAndPortraitTile
         let resourceHandler: ResourceHandler
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
-        let graphicsBufferSpies: { [key: string]: jest.SpyInstance }
+        let graphicsBufferSpies: { [key: string]: MockInstance }
 
         const tests = [
             {
@@ -126,24 +135,22 @@ describe("Squaddie Name and Portrait Tile", () => {
         beforeEach(() => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
-            resourceHandler.loadResource = jest
-                .fn()
-                .mockImplementation(() => {})
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
+            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
             graphicsBufferSpies = {}
-            graphicsBufferSpies["text"] = jest
+            graphicsBufferSpies["text"] = vi
                 .spyOn(mockP5GraphicsContext, "text")
                 .mockReturnValue()
-            graphicsBufferSpies["image"] = jest
+            graphicsBufferSpies["image"] = vi
                 .spyOn(mockP5GraphicsContext, "image")
                 .mockReturnValue()
-            graphicsBufferSpies["rect"] = jest
+            graphicsBufferSpies["rect"] = vi
                 .spyOn(mockP5GraphicsContext, "rect")
                 .mockReturnValue()
-            graphicsBufferSpies["fill"] = jest
+            graphicsBufferSpies["fill"] = vi
                 .spyOn(mockP5GraphicsContext, "fill")
                 .mockReturnValue()
-            graphicsBufferSpies["textWidth"] = jest
+            graphicsBufferSpies["textWidth"] = vi
                 .spyOn(mockP5GraphicsContext, "textWidth")
                 .mockReturnValue(10)
         })
@@ -180,7 +187,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         let tile: SquaddieNameAndPortraitTile
         let resourceHandler: ResourceHandler
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
-        let graphicsBufferSpies: { [key: string]: jest.SpyInstance }
+        let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
             ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
@@ -190,12 +197,10 @@ describe("Squaddie Name and Portrait Tile", () => {
 
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
-            resourceHandler.loadResource = jest
-                .fn()
-                .mockImplementation(() => {})
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
+            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
             graphicsBufferSpies = {}
-            graphicsBufferSpies["textWidth"] = jest
+            graphicsBufferSpies["textWidth"] = vi
                 .spyOn(mockP5GraphicsContext, "textWidth")
                 .mockReturnValue(10)
         })
@@ -206,17 +211,15 @@ describe("Squaddie Name and Portrait Tile", () => {
 
         describe("drawing", () => {
             beforeEach(() => {
-                resourceHandler.isResourceLoaded = jest
-                    .fn()
-                    .mockReturnValue(true)
-                resourceHandler.getResource = jest
+                resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+                resourceHandler.getResource = vi
                     .fn()
                     .mockReturnValue({ width: 32, height: 32 })
-                graphicsBufferSpies["image"] = jest.spyOn(
+                graphicsBufferSpies["image"] = vi.spyOn(
                     mockP5GraphicsContext,
                     "image"
                 )
-                graphicsBufferSpies["textWidth"] = jest
+                graphicsBufferSpies["textWidth"] = vi
                     .spyOn(mockP5GraphicsContext, "textWidth")
                     .mockReturnValue(10)
 
@@ -247,7 +250,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         let tile: SquaddieNameAndPortraitTile
         let resourceHandler: ResourceHandler
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
-        let graphicsBufferSpies: { [key: string]: jest.SpyInstance }
+        let graphicsBufferSpies: { [key: string]: MockInstance }
 
         beforeEach(() => {
             ;({ tile, objectRepository } = createSquaddieOfGivenAffiliation({
@@ -257,16 +260,14 @@ describe("Squaddie Name and Portrait Tile", () => {
 
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
-            resourceHandler.loadResource = jest
-                .fn()
-                .mockImplementation(() => {})
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
+            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
             graphicsBufferSpies = {}
-            graphicsBufferSpies["text"] = jest.spyOn(
+            graphicsBufferSpies["text"] = vi.spyOn(
                 mockP5GraphicsContext,
                 "text"
             )
-            graphicsBufferSpies["textWidth"] = jest
+            graphicsBufferSpies["textWidth"] = vi
                 .spyOn(mockP5GraphicsContext, "textWidth")
                 .mockReturnValue(10)
         })
@@ -276,7 +277,7 @@ describe("Squaddie Name and Portrait Tile", () => {
         })
 
         it("does not create the text until we try to draw", () => {
-            graphicsBufferSpies["textWidth"] = jest
+            graphicsBufferSpies["textWidth"] = vi
                 .spyOn(mockP5GraphicsContext, "textWidth")
                 .mockReturnValue(10)
 
@@ -328,7 +329,7 @@ describe("Squaddie Name and Portrait Tile", () => {
     })
 })
 
-const resetSpies = (spies: { [key: string]: jest.SpyInstance }) => {
+const resetSpies = (spies: { [key: string]: MockInstance }) => {
     Object.values(spies ?? {}).forEach((spy) => {
         spy.mockRestore()
     })

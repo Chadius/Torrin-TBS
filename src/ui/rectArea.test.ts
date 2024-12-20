@@ -5,6 +5,7 @@ import {
     VerticalAnchor,
 } from "./rectArea"
 import { HORIZONTAL_ALIGN, VERTICAL_ALIGN, WINDOW_SPACING } from "./constants"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("RectArea", () => {
     describe("RectArea created from Position arguments", () => {

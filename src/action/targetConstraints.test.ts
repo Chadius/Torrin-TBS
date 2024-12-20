@@ -1,5 +1,6 @@
 import { TargetConstraintsService } from "./targetConstraints"
 import { TargetingShape } from "../battle/targeting/targetingShapeGenerator"
+import { describe, expect, it } from "vitest"
 
 describe("Target Constraints", () => {
     it("can make an action range with defaults", () => {

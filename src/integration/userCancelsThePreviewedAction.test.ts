@@ -51,7 +51,15 @@ import { ActionResourceCostService } from "../action/actionResourceCost"
 import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmSpec"
 import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
 import { SummaryHUDSpec } from "./spec/summaryHUD"
-import SpyInstance = jest.SpyInstance
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("User cancels the previewed action", () => {
     let objectRepository: ObjectRepository
@@ -118,14 +126,14 @@ describe("User cancels the previewed action", () => {
         )
 
         graphicsContext = new MockedP5GraphicsBuffer()
-        graphicsContext.textWidth = jest.fn().mockReturnValue(1)
+        graphicsContext.textWidth = vi.fn().mockReturnValue(1)
 
         resourceHandler = mocks.mockResourceHandler(graphicsContext)
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -149,8 +157,8 @@ describe("User cancels the previewed action", () => {
     })
 
     describe("when the user cancels after selecting an action", () => {
-        let orchestratorSpy: SpyInstance
-        let messageSpy: SpyInstance
+        let orchestratorSpy: MockInstance
+        let messageSpy: MockInstance
 
         beforeEach(() => {
             gameEngineState = getGameEngineState({
@@ -173,11 +181,11 @@ describe("User cancels the previewed action", () => {
                 actionTemplateId: attackAction.id,
             })
 
-            orchestratorSpy = jest.spyOn(
+            orchestratorSpy = vi.spyOn(
                 OrchestratorUtilities,
                 "generateMessagesIfThePlayerCanActWithANewSquaddie"
             )
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             MissionMapService.addSquaddie({
                 missionMap:

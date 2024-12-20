@@ -2,6 +2,7 @@ import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
 } from "./squaddieAffiliation"
+import { describe, expect, it } from "vitest"
 
 describe("squaddieAffiliation", () => {
     const affiliationFriendlinessTests = [

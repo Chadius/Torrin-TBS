@@ -1,4 +1,5 @@
 import { RollModifierType, RollResultService } from "./rollResult"
+import { describe, expect, it } from "vitest"
 
 describe("Roll Result", () => {
     it("knows when the dice roll is the maximum", () => {

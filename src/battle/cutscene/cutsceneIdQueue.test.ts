@@ -1,4 +1,5 @@
 import { CutsceneIdQueue, CutsceneQueueService } from "./cutsceneIdQueue"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Cutscene Queue", () => {
     it("can create a new empty queue", () => {

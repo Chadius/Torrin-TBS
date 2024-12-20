@@ -7,6 +7,7 @@ import {
     BattleActionActionContext,
     BattleActionActionContextService,
 } from "./battleActionActionContext"
+import { describe, expect, it } from "vitest"
 
 describe("Battle Action Action Context", () => {
     it("can be cloned to a separate object", () => {

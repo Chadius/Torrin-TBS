@@ -24,6 +24,7 @@ import {
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("battleSquaddieSelectorUtils", () => {
     let objectRepository: ObjectRepository

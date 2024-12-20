@@ -28,35 +28,44 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
     let tile: SquaddieStatusTile
     let resourceHandler: ResourceHandler
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
-    let graphicsBufferSpies: { [key: string]: jest.SpyInstance }
+    let graphicsBufferSpies: { [key: string]: MockInstance }
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
         resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-        resourceHandler.loadResource = jest
+        resourceHandler.loadResource = vi
             .fn()
             .mockReturnValue({ width: 1, height: 1 })
         graphicsBufferSpies = {}
-        graphicsBufferSpies["text"] = jest
+        graphicsBufferSpies["text"] = vi
             .spyOn(mockP5GraphicsContext, "text")
             .mockReturnValue()
-        graphicsBufferSpies["image"] = jest
+        graphicsBufferSpies["image"] = vi
             .spyOn(mockP5GraphicsContext, "image")
             .mockReturnValue()
-        graphicsBufferSpies["rect"] = jest
+        graphicsBufferSpies["rect"] = vi
             .spyOn(mockP5GraphicsContext, "rect")
             .mockReturnValue()
-        graphicsBufferSpies["fill"] = jest
+        graphicsBufferSpies["fill"] = vi
             .spyOn(mockP5GraphicsContext, "fill")
             .mockReturnValue()
-        graphicsBufferSpies["textWidth"] = jest
+        graphicsBufferSpies["textWidth"] = vi
             .spyOn(mockP5GraphicsContext, "textWidth")
             .mockReturnValue(10)
     })
@@ -87,7 +96,7 @@ describe("Squaddie Status Tile", () => {
                 affiliation,
             }))
 
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(false)
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             SquaddieStatusTileService.draw({
                 tile: tile,
                 graphicsContext: mockP5GraphicsContext,
@@ -349,7 +358,7 @@ describe("Squaddie Status Tile", () => {
     })
 
     describe("attribute modifiers", () => {
-        let getResourceSpy: jest.SpyInstance
+        let getResourceSpy: MockInstance
         let battleSquaddie: BattleSquaddie
         const fakeImage = { width: 1, height: 1 }
 
@@ -359,8 +368,8 @@ describe("Squaddie Status Tile", () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             }))
 
-            resourceHandler.getResource = jest.fn().mockReturnValue(fakeImage)
-            getResourceSpy = jest.spyOn(resourceHandler, "getResource")
+            resourceHandler.getResource = vi.fn().mockReturnValue(fakeImage)
+            getResourceSpy = vi.spyOn(resourceHandler, "getResource")
         })
 
         afterEach(() => {
@@ -369,7 +378,7 @@ describe("Squaddie Status Tile", () => {
 
         it("will not draw attribute modifier icons until it loads", () => {
             const armorAttributeIcon = "attribute-icon-armor"
-            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = jest
+            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = vi
                 .fn()
                 .mockReturnValue(false))
 
@@ -399,7 +408,7 @@ describe("Squaddie Status Tile", () => {
             expect(isResourceLoadedSpy).toBeCalledWith(armorAttributeIcon)
             expect(graphicsBufferSpies["image"]).not.toBeCalled()
 
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
 
             SquaddieStatusTileService.draw({
                 tile,
@@ -446,7 +455,7 @@ describe("Squaddie Status Tile", () => {
                 `$name`,
                 ({ attributeType, expectedIconKey }) => {
                     const isResourceLoadedSpy =
-                        (resourceHandler.isResourceLoaded = jest
+                        (resourceHandler.isResourceLoaded = vi
                             .fn()
                             .mockImplementation(
                                 (resourceKey: string) =>
@@ -521,7 +530,7 @@ describe("Squaddie Status Tile", () => {
 
                     let fakeAttributeImage = { width: 1, height: 1 }
                     let fakeComparisonImage = { width: 2, height: 2 }
-                    resourceHandler.getResource = jest
+                    resourceHandler.getResource = vi
                         .fn()
                         .mockImplementation((key) => {
                             if (key === armorAttributeIcon) {
@@ -529,9 +538,9 @@ describe("Squaddie Status Tile", () => {
                             }
                             return fakeComparisonImage
                         })
-                    getResourceSpy = jest.spyOn(resourceHandler, "getResource")
+                    getResourceSpy = vi.spyOn(resourceHandler, "getResource")
                     const isResourceLoadedSpy =
-                        (resourceHandler.isResourceLoaded = jest
+                        (resourceHandler.isResourceLoaded = vi
                             .fn()
                             .mockReturnValue(true))
 
@@ -592,16 +601,14 @@ describe("Squaddie Status Tile", () => {
 
             let fakeAttributeImage = { width: 1, height: 1 }
             let fakeComparisonImage = { width: 2, height: 2 }
-            resourceHandler.getResource = jest
-                .fn()
-                .mockImplementation((key) => {
-                    if (key === ignoreTerrainCostAttributeIcon) {
-                        return fakeAttributeImage
-                    }
-                    return fakeComparisonImage
-                })
-            getResourceSpy = jest.spyOn(resourceHandler, "getResource")
-            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = jest
+            resourceHandler.getResource = vi.fn().mockImplementation((key) => {
+                if (key === ignoreTerrainCostAttributeIcon) {
+                    return fakeAttributeImage
+                }
+                return fakeComparisonImage
+            })
+            getResourceSpy = vi.spyOn(resourceHandler, "getResource")
+            const isResourceLoadedSpy = (resourceHandler.isResourceLoaded = vi
                 .fn()
                 .mockReturnValue(true))
 
@@ -665,10 +672,8 @@ describe("Squaddie Status Tile", () => {
                     })
                 )
 
-                resourceHandler.isResourceLoaded = jest
-                    .fn()
-                    .mockReturnValue(true)
-                resourceHandler.getResource = jest
+                resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+                resourceHandler.getResource = vi
                     .fn()
                     .mockImplementation((key) => {
                         if (key.includes("attribute-icon")) {
@@ -676,7 +681,7 @@ describe("Squaddie Status Tile", () => {
                         }
                         return fakeComparisonImage
                     })
-                getResourceSpy = jest.spyOn(resourceHandler, "getResource")
+                getResourceSpy = vi.spyOn(resourceHandler, "getResource")
 
                 SquaddieStatusTileService.updateTileUsingSquaddie({
                     tile,
@@ -726,7 +731,7 @@ describe("Squaddie Status Tile", () => {
     })
 })
 
-const resetSpies = (spies: { [key: string]: jest.SpyInstance }) => {
+const resetSpies = (spies: { [key: string]: MockInstance }) => {
     Object.values(spies ?? {}).forEach((spy) => {
         spy.mockRestore()
     })

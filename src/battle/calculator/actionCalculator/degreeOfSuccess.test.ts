@@ -1,4 +1,5 @@
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
+import { describe, expect, it } from "vitest"
 
 describe("degree of success", () => {
     it("at least successful", () => {

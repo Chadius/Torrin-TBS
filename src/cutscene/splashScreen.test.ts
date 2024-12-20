@@ -1,4 +1,5 @@
 import { SplashScreenService } from "./splashScreen"
+import { describe, expect, it } from "vitest"
 
 describe("Splash Screen", () => {
     it("new will sanitize the fields", () => {

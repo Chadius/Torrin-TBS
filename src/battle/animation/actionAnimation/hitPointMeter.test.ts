@@ -1,13 +1,14 @@
 import { ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME } from "./actionAnimationConstants"
 import { HIT_POINT_METER_HP_WIDTH, HitPointMeter } from "./hitPointMeter"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Hit Point Meter", () => {
     let hitPointMeter: HitPointMeter
     let hue: number
-    let textDrawSpy: jest.SpyInstance
-    let rectDrawSpy: jest.SpyInstance
-    let strokeSpy: jest.SpyInstance
+    let textDrawSpy: MockInstance
+    let rectDrawSpy: MockInstance
+    let strokeSpy: MockInstance
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
     beforeEach(() => {
@@ -21,9 +22,9 @@ describe("Hit Point Meter", () => {
         })
 
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        textDrawSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
-        rectDrawSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "rect")
-        strokeSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "stroke")
+        textDrawSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        rectDrawSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "rect")
+        strokeSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "stroke")
     })
 
     it("knows to draw the current and max hit points", () => {
@@ -70,7 +71,7 @@ describe("Hit Point Meter", () => {
 
     describe("hit point change", () => {
         it("will draw hit point change with a brighter color", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             hitPointMeter.changeHitPoints(-2)
             hitPointMeter.draw(mockedP5GraphicsContext)
 
@@ -81,7 +82,7 @@ describe("Hit Point Meter", () => {
         })
 
         it("will animate the length of the changed hit points when damaged", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             hitPointMeter.changeHitPoints(-2)
             hitPointMeter.draw(mockedP5GraphicsContext)
 
@@ -99,7 +100,7 @@ describe("Hit Point Meter", () => {
             expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(
                 2 * HIT_POINT_METER_HP_WIDTH
             )
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2
             )
 
@@ -109,14 +110,14 @@ describe("Hit Point Meter", () => {
                 1 * HIT_POINT_METER_HP_WIDTH
             )
 
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
             )
             hitPointMeter.draw(mockedP5GraphicsContext)
             expect(rectDrawSpy).toBeCalledTimes(9)
             expect(rectDrawSpy.mock.calls[8][2]).toBeCloseTo(0)
 
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1
             )
             hitPointMeter.draw(mockedP5GraphicsContext)
@@ -124,7 +125,7 @@ describe("Hit Point Meter", () => {
         })
 
         it("will animate the length of the changed hit points when healed", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             hitPointMeter.changeHitPoints(2)
             hitPointMeter.draw(mockedP5GraphicsContext)
 
@@ -139,7 +140,7 @@ describe("Hit Point Meter", () => {
                 3 * HIT_POINT_METER_HP_WIDTH
             )
             expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(0)
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2
             )
 
@@ -149,7 +150,7 @@ describe("Hit Point Meter", () => {
                 1 * HIT_POINT_METER_HP_WIDTH
             )
 
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME
             )
             hitPointMeter.draw(mockedP5GraphicsContext)
@@ -158,7 +159,7 @@ describe("Hit Point Meter", () => {
                 2 * HIT_POINT_METER_HP_WIDTH
             )
 
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1
             )
             hitPointMeter.draw(mockedP5GraphicsContext)

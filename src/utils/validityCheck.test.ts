@@ -1,4 +1,5 @@
 import { getValidValueOrDefault, isValidValue } from "./validityCheck"
+import { describe, expect, it } from "vitest"
 
 describe("validity test", () => {
     it("knows when a field is invalid", () => {

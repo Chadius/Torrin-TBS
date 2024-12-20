@@ -8,12 +8,13 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
+import { describe, expect, it, vi } from "vitest"
 
 describe("Mission Objective", () => {
     const mockMissionConditionChecks = (stubReturnValues: {
         [key: string]: boolean | undefined
     }) => {
-        jest.spyOn(mc, "MissionShouldBeComplete").mockImplementation(
+        vi.spyOn(mc, "MissionShouldBeComplete").mockImplementation(
             (
                 missionCondition: MissionCondition,
                 state: GameEngineState,
@@ -76,7 +77,7 @@ describe("Mission Objective", () => {
             MissionObjectiveHelper.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockMissionConditionChecks({
             test0: true,
             test1: true,
@@ -145,7 +146,7 @@ describe("Mission Objective", () => {
             MissionObjectiveHelper.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockMissionConditionChecks({
             test0: true,
             test1: true,
@@ -155,7 +156,7 @@ describe("Mission Objective", () => {
             MissionObjectiveHelper.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockMissionConditionChecks({
             test0: true,
             test1: true,
@@ -223,7 +224,7 @@ describe("Mission Objective", () => {
             MissionObjectiveHelper.shouldBeComplete(objective, state)
         ).toBeFalsy()
 
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockMissionConditionChecks({
             test0: true,
             test1: true,
@@ -275,7 +276,7 @@ describe("Mission Objective", () => {
                 }),
             }),
         })
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockMissionConditionChecks({
             test0: false,
             test1: false,

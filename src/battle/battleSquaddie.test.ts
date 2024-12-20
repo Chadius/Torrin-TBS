@@ -10,6 +10,7 @@ import {
 } from "../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../squaddie/movement"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("BattleSquaddie", () => {
     it("throws an error if battle squaddie has no template Id", () => {

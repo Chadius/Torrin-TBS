@@ -1,5 +1,6 @@
 import { SquaddieResource, SquaddieResourceService } from "./resource"
 import { SquaddieEmotion } from "../battle/animation/actionAnimation/actionAnimationConstants"
+import { describe, expect, it } from "vitest"
 
 describe("resource", () => {
     it("can be sanitized for missing values", () => {

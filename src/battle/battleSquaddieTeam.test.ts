@@ -11,6 +11,15 @@ import {
 } from "../campaign/squaddieTemplate"
 import { TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../squaddie/armyAttributes"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Battle Squaddie Team", () => {
     let squaddieRepository: ObjectRepository
@@ -23,11 +32,11 @@ describe("Battle Squaddie Team", () => {
     let enemySquaddieTemplateBase: SquaddieTemplate
     let enemyBattleSquaddie0: BattleSquaddie
     let enemyBattleSquaddie1: BattleSquaddie
-    let getImageUISpy: jest.SpyInstance
+    let getImageUISpy: MockInstance
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new()
-        getImageUISpy = jest
+        getImageUISpy = vi
             .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
             .mockReturnValue(undefined)
         twoPlayerTeam = {

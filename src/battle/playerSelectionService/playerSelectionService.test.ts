@@ -51,12 +51,21 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { PopupWindow } from "../hud/popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
     let objectRepository: ObjectRepository
     let missionMap: MissionMap
-    let messageSpy: jest.SpyInstance
+    let messageSpy: MockInstance
 
     describe("At the start of the turn, Player selects an empty tile on the map before a squaddie's turn", () => {
         beforeEach(() => {
@@ -119,7 +128,7 @@ describe("Player Selection Service", () => {
         })
         describe("Apply Context", () => {
             let actualContext: PlayerSelectionContext
-            let messageSpy: jest.SpyInstance
+            let messageSpy: MockInstance
             let changes: PlayerSelectionChanges
             let expectedMessage: MessageBoardMessagePlayerSelectsEmptyTile
             beforeEach(() => {
@@ -128,7 +137,7 @@ describe("Player Selection Service", () => {
                     r: 1,
                     gameEngineState,
                 })
-                messageSpy = jest.spyOn(
+                messageSpy = vi.spyOn(
                     gameEngineState.messageBoard,
                     "sendMessage"
                 )
@@ -237,7 +246,7 @@ describe("Player Selection Service", () => {
             missionMap,
         })
 
-        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     }
     describe("At the start of the turn, Player tries to select a squaddie when there are controllable squaddies around", () => {
         beforeEach(() => {
@@ -582,7 +591,7 @@ describe("Player Selection Service", () => {
                 campaign: CampaignService.default(),
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             actualContext = pressButton({
                 keyButtonName: KeyButtonName.NEXT_SQUADDIE,
@@ -674,7 +683,7 @@ describe("Player Selection Service", () => {
                 battleSquaddieId: "PLAYER",
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({ screenX: x, screenY: y } =
                 ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
                     {
@@ -750,7 +759,7 @@ describe("Player Selection Service", () => {
             battleSquaddieId: "PLAYER",
         })
 
-        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
         return ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
             {
@@ -1049,7 +1058,7 @@ describe("Player Selection Service", () => {
                 battleSquaddieId: "PLAYER",
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -1178,7 +1187,7 @@ describe("Player Selection Service", () => {
                     .battleActionRecorder
             )
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         }
 
         beforeEach(() => {
@@ -1472,7 +1481,7 @@ describe("Player Selection Service", () => {
             let expectedMessage: MessageBoardMessage
 
             beforeEach(() => {
-                messageSpy = jest.spyOn(
+                messageSpy = vi.spyOn(
                     gameEngineState.messageBoard,
                     "sendMessage"
                 )
@@ -1567,7 +1576,7 @@ describe("Player Selection Service", () => {
             let expectedMessage: MessageBoardMessage
 
             beforeEach(() => {
-                messageSpy = jest.spyOn(
+                messageSpy = vi.spyOn(
                     gameEngineState.messageBoard,
                     "sendMessage"
                 )

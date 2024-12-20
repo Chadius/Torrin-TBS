@@ -4,6 +4,7 @@ import {
     MessageBoardMessageType,
 } from "./messageBoardMessage"
 import { MessageBoard } from "./messageBoard"
+import { afterEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 class TestMessageListener implements MessageBoardListener {
     messageBoardListenerId: string
@@ -60,7 +61,7 @@ describe("MessageBoard", () => {
 
     it("calls listener function if the id is used", () => {
         const messageBoard = new MessageBoard()
-        const messageBoardLoggerSpy = jest.spyOn(messageBoard, "logMessage")
+        const messageBoardLoggerSpy = vi.spyOn(messageBoard, "logMessage")
         const messageBoardListener = new TestMessageListener(
             "testMessageListener"
         )
@@ -69,7 +70,7 @@ describe("MessageBoard", () => {
             MessageBoardMessageType.BASE
         )
 
-        const messageReceivedSpy = jest.spyOn(
+        const messageReceivedSpy = vi.spyOn(
             messageBoardListener,
             "receiveMessage"
         )
@@ -92,7 +93,7 @@ describe("MessageBoard", () => {
     describe("logMessages flag will control printing messages", () => {
         let messageBoard: MessageBoard
         let messageBoardListener: MessageBoardListener
-        let consoleSpy: jest.SpyInstance
+        let consoleSpy: MockInstance
 
         afterEach(() => {
             consoleSpy.mockRestore()
@@ -100,7 +101,7 @@ describe("MessageBoard", () => {
 
         const setupMessageBoardAndListener = (logMessages: boolean) => {
             messageBoard = new MessageBoard({ logMessages })
-            consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {})
+            consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
             messageBoardListener = new TestMessageListener(
                 "testMessageListener"
             )

@@ -26,6 +26,7 @@ import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 import { ResourceHandler } from "../../../resource/resourceHandler"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Actor Sprite", () => {
     let squaddieRepository: ObjectRepository
@@ -38,7 +39,8 @@ describe("Actor Sprite", () => {
     let helpfulAction: ActionTemplate
 
     beforeEach(() => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
+
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
@@ -102,7 +104,7 @@ describe("Actor Sprite", () => {
             ActionAnimationPhase.BEFORE_ACTION
         )
 
-        const getSquaddieEmotionSpy = jest
+        const getSquaddieEmotionSpy = vi
             .spyOn(sprite, "getSquaddieEmotion")
             .mockReturnValue(SquaddieEmotion.NEUTRAL)
 
@@ -129,7 +131,7 @@ describe("Actor Sprite", () => {
     })
 
     function mockActionTimerPhase(actionAnimationPhase: ActionAnimationPhase) {
-        return jest
+        return vi
             .spyOn(timer, "currentPhase", "get")
             .mockReturnValue(actionAnimationPhase)
     }

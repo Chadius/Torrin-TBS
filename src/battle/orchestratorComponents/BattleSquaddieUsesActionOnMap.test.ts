@@ -23,14 +23,23 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleSquaddieUsesActionOnMap", () => {
     let squaddieRepository: ObjectRepository
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let dateSpy: jest.SpyInstance
+    let dateSpy: MockInstance
     let mapAction: BattleSquaddieUsesActionOnMap
     let gameEngineState: GameEngineState
-    let messageSpy: jest.SpyInstance
+    let messageSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -54,7 +63,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
             actionTemplateIds: [],
         })
 
-        dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
+        dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
 
         mapAction = new BattleSquaddieUsesActionOnMap()
 
@@ -79,7 +88,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                 .battleActionRecorder,
             battleAction
         )
-        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
     afterEach(() => {
@@ -178,9 +187,9 @@ describe("BattleSquaddieUsesActionOnMap", () => {
     })
 
     describe("reset the component", () => {
-        let messageSpy: jest.SpyInstance
+        let messageSpy: MockInstance
         beforeEach(() => {
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
             mapAction.update({
                 gameEngineState,

@@ -1,6 +1,7 @@
 import { PriorityQueue } from "./priorityQueue"
 import { CostReportable } from "./costReportable"
 import { SearchPath, SearchPathService } from "../hexMap/pathfinder/searchPath"
+import { describe, expect, it } from "vitest"
 
 class PathWithCost implements CostReportable {
     cost: number

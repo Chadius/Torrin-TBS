@@ -20,6 +20,7 @@ import { BattleHUDService } from "../hud/battleHUD"
 import { BattleHUDStateService } from "../hud/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
@@ -27,7 +28,7 @@ describe("battleMapDisplay", () => {
     let resourceHandler: ResourceHandler
 
     beforeEach(() => {
-        jest.spyOn(
+        vi.spyOn(
             ObjectRepositoryService,
             "getBattleSquaddieIterator"
         ).mockReturnValue([])
@@ -41,8 +42,8 @@ describe("battleMapDisplay", () => {
     it("will move the camera if the mouse is near the edge of the screen", () => {
         const initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT]
         let camera = new BattleCamera(...initialCameraCoordinates)
-        camera.setXVelocity = jest.fn()
-        camera.setYVelocity = jest.fn()
+        camera.setXVelocity = vi.fn()
+        camera.setYVelocity = vi.fn()
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: undefined,
@@ -99,10 +100,10 @@ describe("battleMapDisplay", () => {
                 -ScreenDimensions.SCREEN_HEIGHT + 200,
             ]
             const timeToPan: number = 1000
-            camera.setXVelocity = jest.fn()
-            camera.setYVelocity = jest.fn()
+            camera.setXVelocity = vi.fn()
+            camera.setYVelocity = vi.fn()
 
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             camera.pan({
                 xDestination: destinationCoordinates[0],
                 yDestination: destinationCoordinates[1],
@@ -110,7 +111,7 @@ describe("battleMapDisplay", () => {
                 respectConstraints: false,
             })
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             battleMapDisplay.draw({
                 gameEngineState: state,
                 graphics: mockedP5GraphicsContext,
@@ -131,7 +132,7 @@ describe("battleMapDisplay", () => {
             expect(camera.setXVelocity).not.toBeCalled()
             expect(camera.setYVelocity).not.toBeCalled()
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan)
             battleMapDisplay.draw({
                 gameEngineState: state,
                 graphics: mockedP5GraphicsContext,
@@ -241,7 +242,7 @@ describe("battleMapDisplay", () => {
 
         stateWithOpenedHUD.battleState.camera.setXVelocity(0)
         stateWithOpenedHUD.battleState.camera.setYVelocity(0)
-        const mouseHoverSpy: jest.SpyInstance = jest
+        const mouseHoverSpy: MockInstance = vi
             .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
             .mockReturnValue(true)
 
@@ -318,7 +319,7 @@ describe("battleMapDisplay", () => {
                     ScreenDimensions.SCREEN_HEIGHT
                 stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.x =
                     mouseX
-                const mouseHoverSpy: jest.SpyInstance = jest
+                const mouseHoverSpy: MockInstance = vi
                     .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
                     .mockReturnValue(true)
                 battleMapDisplay.moveCameraBasedOnMouseMovement(

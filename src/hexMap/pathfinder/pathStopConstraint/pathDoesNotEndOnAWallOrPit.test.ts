@@ -3,6 +3,7 @@ import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { PathDoesNotEndOnAWallOrPit } from "./pathDoesNotEndOnAWallOrPit"
+import { describe, expect, it } from "vitest"
 
 describe("pathCanStopConditionNotAWallOrPit", () => {
     it("returns true if the path is not on a wall or pit", () => {

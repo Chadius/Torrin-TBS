@@ -38,9 +38,10 @@ import { BattleActionSquaddieChangeService } from "../history/battleAction/battl
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("SquaddieSkipsAnimationAnimator", () => {
-    let mockResourceHandler: jest.Mocked<ResourceHandler>
+    let mockResourceHandler: ResourceHandler
 
     let objectRepository: ObjectRepository
     let monkStaticId = "monk static"
@@ -54,7 +55,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = jest
+        mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -121,11 +122,11 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             monkMeditatesBattleAction
         )
 
-        const outputResultForTextOnlySpy = jest.spyOn(
+        const outputResultForTextOnlySpy = vi.spyOn(
             ActionResultTextService.ActionResultTextService,
             "outputResultForTextOnly"
         )
-        const drawLabelSpy = jest.spyOn(LabelService, "draw")
+        const drawLabelSpy = vi.spyOn(LabelService, "draw")
 
         animator.reset(gameEngineState)
         animator.update({
@@ -151,7 +152,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     })
 
     it("will complete at the end of the display time", () => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -176,7 +177,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
         })
         expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
 
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () => ANIMATE_TEXT_WINDOW_WAIT_TIME
         )
 
@@ -189,7 +190,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
     })
 
     it("will skip displaying the results if the user clicks", () => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.new({

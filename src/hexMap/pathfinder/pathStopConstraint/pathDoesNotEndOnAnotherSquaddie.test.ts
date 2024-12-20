@@ -13,6 +13,7 @@ import { BattleSquaddieService } from "../../../battle/battleSquaddie"
 import { DamageType } from "../../../squaddie/squaddieService"
 import { PathDoesNotEndOnAnotherSquaddie } from "./pathDoesNotEndOnAnotherSquaddie"
 import { InBattleAttributesService } from "../../../battle/stats/inBattleAttributes"
+import { describe, expect, it } from "vitest"
 
 describe("PathCanStopConditionNotOnASquaddie", () => {
     it("returns false if there is a squaddie at the location", () => {

@@ -8,6 +8,15 @@ import {
     MockedP5GraphicsBuffer,
     mockResourceHandler,
 } from "../utils/test/mocks"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("splash screen", () => {
     describe("splash screen finishes", () => {
@@ -25,7 +34,7 @@ describe("splash screen", () => {
         })
 
         it("should mark as finished if clicked", () => {
-            const dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
+            const dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
             SplashScreenPlayerService.start(player)
             expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
             expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
@@ -64,7 +73,7 @@ describe("splash screen", () => {
             splashScreen: titleScreenData,
         })
 
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         SplashScreenPlayerService.start(player)
         expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
         expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
@@ -73,7 +82,7 @@ describe("splash screen", () => {
         expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
         expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
 
-        jest.spyOn(Date, "now").mockImplementation(() => 501)
+        vi.spyOn(Date, "now").mockImplementation(() => 501)
         SplashScreenPlayerService.mouseClicked(player, 100, 100)
 
         expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy()
@@ -81,12 +90,12 @@ describe("splash screen", () => {
     })
 
     describe("backgroundColor", () => {
-        let drawRectSpy: jest.SpyInstance
+        let drawRectSpy: MockInstance
         let mockedP5GraphicsContext: MockedP5GraphicsBuffer
 
         beforeEach(() => {
             mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-            drawRectSpy = jest.spyOn(mockedP5GraphicsContext, "rect")
+            drawRectSpy = vi.spyOn(mockedP5GraphicsContext, "rect")
         })
 
         afterEach(() => {

@@ -4,6 +4,7 @@ import {
     NumberGeneratorStrategy,
 } from "./strategy"
 import { RandomNumberGenerator } from "./random"
+import { describe, expect, it } from "vitest"
 
 describe("random number generator", () => {
     it("will produce numbers in range (non deterministic)", () => {

@@ -8,6 +8,7 @@ import {
     ActionEffectTemplateService,
 } from "./actionEffectTemplate"
 import { ActionDecisionType } from "./actionTemplate"
+import { describe, expect, it } from "vitest"
 
 describe("ActionEffectTemplate", () => {
     it("can be constructed using data object", () => {

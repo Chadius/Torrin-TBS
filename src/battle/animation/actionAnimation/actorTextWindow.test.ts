@@ -25,6 +25,7 @@ import {
     RollModifierType,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -101,7 +102,7 @@ describe("ActorTextWindow", () => {
             }),
         })
 
-        const timerSpy = jest
+        const timerSpy = vi
             .spyOn(mockedActionTimer, "currentPhase", "get")
             .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 
@@ -134,7 +135,7 @@ describe("ActorTextWindow", () => {
             }),
         })
 
-        const timerSpy = jest
+        const timerSpy = vi
             .spyOn(mockedActionTimer, "currentPhase", "get")
             .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 
@@ -165,7 +166,7 @@ describe("ActorTextWindow", () => {
             }),
         })
 
-        const timerSpy = jest
+        const timerSpy = vi
             .spyOn(mockedActionTimer, "currentPhase", "get")
             .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 
@@ -198,7 +199,7 @@ describe("ActorTextWindow", () => {
             }),
         })
 
-        const timerSpy = jest
+        const timerSpy = vi
             .spyOn(mockedActionTimer, "currentPhase", "get")
             .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 
@@ -235,7 +236,7 @@ describe("ActorTextWindow", () => {
                 }),
             })
 
-            const timerSpy = jest
+            const timerSpy = vi
                 .spyOn(mockedActionTimer, "currentPhase", "get")
                 .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 
@@ -271,7 +272,7 @@ describe("ActorTextWindow", () => {
                 }),
             })
 
-            const timerSpy = jest
+            const timerSpy = vi
                 .spyOn(mockedActionTimer, "currentPhase", "get")
                 .mockReturnValue(ActionAnimationPhase.DURING_ACTION)
 

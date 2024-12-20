@@ -56,6 +56,15 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository
@@ -67,10 +76,10 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let attackLongswordAction: ActionTemplate
     let monkKoanAction: ActionTemplate
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
-    let mockResourceHandler: jest.Mocked<ResourceHandler>
+    let mockResourceHandler: ResourceHandler
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
     const targetDynamicSquaddieBattleSquaddieId = "target_dynamic_squaddie"
-    let squaddieUpkeepSpy: jest.SpyInstance
+    let squaddieUpkeepSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -187,8 +196,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             monkKoanAction
         )
 
-        jest.spyOn(LabelService, "draw").mockReturnValue(null)
-        squaddieUpkeepSpy = jest
+        vi.spyOn(LabelService, "draw").mockReturnValue(null)
+        squaddieUpkeepSpy = vi
             .spyOn(
                 OrchestratorUtilities,
                 "messageAndHighlightPlayableSquaddieTakingATurn"
@@ -198,7 +207,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie()
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = jest
+        mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
     })
@@ -386,11 +395,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             })
         ).toBeFalsy()
 
-        jest.spyOn(
+        vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
             "update"
-        ).mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+        ).mockImplementation(() => {})
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "hasCompleted"
@@ -425,11 +434,11 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         })
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
 
-        jest.spyOn(
+        vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
             "update"
-        ).mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+        ).mockImplementation(() => {})
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "hasCompleted"
@@ -468,16 +477,16 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
         })
         battleSquaddieBase.squaddieTurn.remainingActionPoints = 1
 
-        const messageSpy: jest.SpyInstance = jest.spyOn(
+        const messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
         )
 
-        jest.spyOn(
+        vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
             "update"
-        ).mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+        ).mockImplementation(() => {})
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "hasCompleted"
@@ -508,9 +517,9 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     describe("squaddie finishes acting", () => {
         let missionMap: MissionMap
         let gameEngineState: GameEngineState
-        let messageSpy: jest.SpyInstance
-        let animatorSpy: jest.SpyInstance
-        let squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy: jest.SpyInstance
+        let messageSpy: MockInstance
+        let animatorSpy: MockInstance
+        let squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy: MockInstance
         beforeEach(() => {
             missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
@@ -522,14 +531,14 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 missionMap,
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
-            animatorSpy = jest
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+            animatorSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                     "update"
                 )
-                .mockImplementation()
-            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+                .mockImplementation(() => {})
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                     "hasCompleted"
@@ -593,13 +602,13 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     it("uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({})
 
-        const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest
+        const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "update"
             )
-            .mockImplementation()
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+            .mockImplementation(() => {})
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "hasCompleted"
@@ -645,12 +654,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     it("recommends the player hud when the battle action queue is empty ", () => {
         const gameEngineState = usePowerAttackLongswordAndReturnState({})
 
-        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest
+        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "reset"
             )
-            .mockImplementation()
+            .mockImplementation(() => {})
 
         squaddieUsesActionOnSquaddie.update({
             gameEngineState,
@@ -678,19 +687,19 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     it("uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes", () => {
         const gameEngineState = useMonkKoanAndReturnState({})
 
-        const squaddieSkipsAnimationAnimatorUpdateSpy = jest
+        const squaddieSkipsAnimationAnimatorUpdateSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator,
                 "update"
             )
-            .mockImplementation()
-        const squaddieSkipsAnimationAnimatorResetSpy = jest
+            .mockImplementation(() => {})
+        const squaddieSkipsAnimationAnimatorResetSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator,
                 "reset"
             )
-            .mockImplementation()
-        const squaddieSkipsAnimationAnimatorHasCompletedSpy = jest
+            .mockImplementation(() => {})
+        const squaddieSkipsAnimationAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator,
                 "hasCompleted"
@@ -730,12 +739,12 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
     it("passes mouse events on to the animator", () => {
         const state = usePowerAttackLongswordAndReturnState({})
 
-        const squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy = jest
+        const squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "mouseEventHappened"
             )
-            .mockImplementation()
+            .mockImplementation(() => {})
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -767,17 +776,17 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             )
         ).toBeFalsy()
 
-        jest.spyOn(
+        vi.spyOn(
             squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
             "update"
-        ).mockImplementation()
+        ).mockImplementation(() => {})
 
-        const messageBoardSendSpy: jest.SpyInstance = jest.spyOn(
+        const messageBoardSendSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
         )
 
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
             .spyOn(
                 squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                 "hasCompleted"

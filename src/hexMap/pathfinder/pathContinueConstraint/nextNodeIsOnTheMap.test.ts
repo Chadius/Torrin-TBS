@@ -6,6 +6,7 @@ import {
 } from "../../../missionMap/mapSearchDataLayer"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { NextNodeIsOnTheMap } from "./nextNodeIsOnTheMap"
+import { describe, expect, it } from "vitest"
 
 describe("AddPathConditionIsInsideMap", () => {
     it("knows when a path is inside the map boundary", () => {

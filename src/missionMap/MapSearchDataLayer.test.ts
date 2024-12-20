@@ -4,6 +4,7 @@ import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "./mapSearchDataLayer"
+import { describe, expect, it } from "vitest"
 
 describe("MapSearchDataLayer", () => {
     it("can generate a layer based on a given map and initial value", () => {

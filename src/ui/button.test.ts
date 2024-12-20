@@ -1,6 +1,7 @@
 import { Button, ButtonStatus } from "./button"
 import { LabelService } from "./label"
 import { RectAreaService } from "./rectArea"
+import { describe, expect, it, vi } from "vitest"
 
 describe("Button UI", () => {
     it("defaults to ready status", () => {
@@ -50,8 +51,8 @@ describe("Button UI", () => {
     })
 
     it("can react to button clicks", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -78,8 +79,8 @@ describe("Button UI", () => {
     })
 
     it("can react to button clicks even if in hover state", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -118,8 +119,8 @@ describe("Button UI", () => {
     })
 
     it("can disable the button and ignore mouse clicks", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -145,8 +146,8 @@ describe("Button UI", () => {
     })
 
     it("can enter hovered state if the mouse hovers over the button and it has a hover label", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -186,8 +187,8 @@ describe("Button UI", () => {
     })
 
     it("cannot enter hovered state if the mouse hovers over the button, and it does not have a hover label", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -212,8 +213,8 @@ describe("Button UI", () => {
     })
 
     it("cannot enter hovered state if the button is disabled, even if the button has a hover label and the mouse hovers over the button", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -250,8 +251,8 @@ describe("Button UI", () => {
     })
 
     it("cannot enter hovered state if the button is active, even if the button has a hover label and the mouse hovers over the button", () => {
-        const buttonHandler = jest.fn()
-        const callerObject = jest.fn()
+        const buttonHandler = vi.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({
@@ -288,7 +289,7 @@ describe("Button UI", () => {
     })
 
     it("can revert to hovered state if the mouse was hovering over the button and then it moves away", () => {
-        const callerObject = jest.fn()
+        const callerObject = vi.fn()
 
         const button = new Button({
             readyLabel: LabelService.new({

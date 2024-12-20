@@ -37,6 +37,15 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleActionConfirm", () => {
     let playerActionConfirm: BattlePlayerActionConfirm
@@ -51,7 +60,7 @@ describe("BattleActionConfirm", () => {
     let gameEngineState: GameEngineState
 
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let messageSpy: jest.SpyInstance
+    let messageSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -175,7 +184,7 @@ describe("BattleActionConfirm", () => {
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
-        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
     afterEach(() => {

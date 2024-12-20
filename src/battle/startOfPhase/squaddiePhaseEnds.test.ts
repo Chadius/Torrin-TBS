@@ -24,13 +24,22 @@ import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("squaddie phase ends", () => {
     let squaddiePhaseListener: SquaddiePhaseListener
     let gameEngineState: GameEngineState
     let repository: ObjectRepository
-    let drawUtilitiesSpy: jest.SpyInstance
-    let getImageUISpy: jest.SpyInstance
+    let drawUtilitiesSpy: MockInstance
+    let getImageUISpy: MockInstance
 
     const addListenerToGameState = (gameEngineState: GameEngineState) => {
         squaddiePhaseListener = new SquaddiePhaseListener(
@@ -99,11 +108,11 @@ describe("squaddie phase ends", () => {
 
     beforeEach(() => {
         repository = ObjectRepositoryService.new()
-        drawUtilitiesSpy = jest.spyOn(
+        drawUtilitiesSpy = vi.spyOn(
             DrawSquaddieUtilities,
             "unTintSquaddieMapIcon"
         )
-        getImageUISpy = jest
+        getImageUISpy = vi
             .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
             .mockReturnValue(undefined)
     })

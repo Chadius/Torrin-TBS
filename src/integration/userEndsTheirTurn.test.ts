@@ -57,6 +57,15 @@ import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository
@@ -72,7 +81,7 @@ describe("User ends their turn", () => {
 
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
-    let getImageUISpy: jest.SpyInstance
+    let getImageUISpy: MockInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -124,14 +133,14 @@ describe("User ends their turn", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -181,7 +190,7 @@ describe("User ends their turn", () => {
             MessageBoardMessageType.PLAYER_ENDS_TURN
         )
 
-        getImageUISpy = jest
+        getImageUISpy = vi
             .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
             .mockReturnValue(undefined)
     })
@@ -291,10 +300,10 @@ describe("User ends their turn", () => {
     })
 
     describe("player squaddie selector reacts to ending the turn", () => {
-        let highlightTileSpy: jest.SpyInstance
+        let highlightTileSpy: MockInstance
 
         beforeEach(() => {
-            highlightTileSpy = jest.spyOn(
+            highlightTileSpy = vi.spyOn(
                 TerrainTileMapService,
                 "removeAllGraphicsLayers"
             )
@@ -374,8 +383,8 @@ describe("User ends their turn", () => {
     describe("When MapAction phase completes", () => {
         let mapAction: BattleSquaddieUsesActionOnMap
         let graphicsContext: GraphicsBuffer
-        let tintSpy: jest.SpyInstance
-        let messageSpy: jest.SpyInstance
+        let tintSpy: MockInstance
+        let messageSpy: MockInstance
 
         beforeEach(() => {
             graphicsContext = new MockedP5GraphicsBuffer()
@@ -415,7 +424,7 @@ describe("User ends their turn", () => {
             )
 
             BattleSquaddieService.endTurn(playerBattleSquaddie)
-            tintSpy = jest.spyOn(
+            tintSpy = vi.spyOn(
                 DrawSquaddieUtilities,
                 "tintSquaddieMapIconIfTheyCannotAct"
             )
@@ -427,16 +436,16 @@ describe("User ends their turn", () => {
                 MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
             )
 
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             mapAction.update({
                 gameEngineState,
                 graphicsContext,
                 resourceHandler,
             })
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => ACTION_COMPLETED_WAIT_TIME_MS + 1
             )
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             mapAction.update({
                 gameEngineState,
                 graphicsContext,

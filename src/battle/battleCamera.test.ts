@@ -2,6 +2,7 @@ import { BattleCamera } from "./battleCamera"
 import { HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
+import { describe, expect, it, vi } from "vitest"
 
 describe("BattleCamera", () => {
     it("can be constrained so it cannot scroll too high up", () => {
@@ -137,7 +138,7 @@ describe("BattleCamera", () => {
 
     describe("camera pan", () => {
         it("can pan over to a coordinate", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             const initialCoordinates: number[] = [
                 0,
                 -ScreenDimensions.SCREEN_HEIGHT,
@@ -172,7 +173,7 @@ describe("BattleCamera", () => {
                 cameraY: initialCoordinates[1],
             })
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             camera.moveCamera()
             expect(camera.getCoordinates().cameraX).toBeCloseTo(
                 (initialCoordinates[0] + destinationCoordinates[0]) / 2
@@ -181,7 +182,7 @@ describe("BattleCamera", () => {
                 (initialCoordinates[1] + destinationCoordinates[1]) / 2
             )
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
             expect(camera.getCoordinates()).toEqual({
                 cameraX: destinationCoordinates[0],
@@ -241,7 +242,7 @@ describe("BattleCamera", () => {
             })
         })
         it("can pan over to a coordinate, respecting constraints", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             const initialCoordinates: number[] = [
                 0,
                 -ScreenDimensions.SCREEN_HEIGHT,
@@ -272,14 +273,14 @@ describe("BattleCamera", () => {
             )
             expect(camera.isPanning()).toBeTruthy()
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             camera.moveCamera()
             expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 verticalTopLimit
             )
             expect(camera.isPanning()).toBeTruthy()
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
             expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 verticalTopLimit
@@ -287,7 +288,7 @@ describe("BattleCamera", () => {
             expect(camera.isPanning()).toBeFalsy()
         })
         it("can pan over to a coordinate, ignoring constraints", () => {
-            jest.spyOn(Date, "now").mockImplementation(() => 0)
+            vi.spyOn(Date, "now").mockImplementation(() => 0)
             const initialCoordinates: number[] = [
                 0,
                 -ScreenDimensions.SCREEN_HEIGHT,
@@ -316,7 +317,7 @@ describe("BattleCamera", () => {
             expect(camera.getCoordinates().cameraY).toBe(initialCoordinates[1])
             expect(camera.isPanning()).toBeTruthy()
 
-            jest.spyOn(Date, "now").mockImplementation(() => timeToPan)
+            vi.spyOn(Date, "now").mockImplementation(() => timeToPan)
             camera.moveCamera()
             expect(camera.getCoordinates().cameraY).toBeCloseTo(
                 destinationCoordinates[1]

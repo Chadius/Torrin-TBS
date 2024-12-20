@@ -67,6 +67,15 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleComputerSquaddieSelector", () => {
     let selector: BattleComputerSquaddieSelector =
@@ -205,11 +214,11 @@ describe("BattleComputerSquaddieSelector", () => {
 
     describe("before making a decision", () => {
         let missionMap: MissionMap
-        let strategySpy: jest.SpyInstance
+        let strategySpy: MockInstance
         let camera: BattleCamera
         let gameEngineState: GameEngineState
-        let dateSpy: jest.SpyInstance
-        let drawSquaddieUtilitiesSpy: jest.SpyInstance
+        let dateSpy: MockInstance
+        let drawSquaddieUtilitiesSpy: MockInstance
         let squaddieLocation: number[]
 
         beforeEach(() => {
@@ -236,7 +245,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 targetLocation: { q: 0, r: 0 },
             })
 
-            strategySpy = jest
+            strategySpy = vi
                 .spyOn(DetermineNextDecisionService, "determineNextDecision")
                 .mockReturnValue([movementStep])
 
@@ -274,8 +283,8 @@ describe("BattleComputerSquaddieSelector", () => {
                 campaign: CampaignService.default(),
             })
 
-            dateSpy = jest.spyOn(Date, "now").mockImplementation(() => 0)
-            drawSquaddieUtilitiesSpy = jest
+            dateSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
+            drawSquaddieUtilitiesSpy = vi
                 .spyOn(
                     DrawSquaddieUtilities,
                     "drawSquaddieMapIconAtMapCoordinate"
@@ -345,7 +354,7 @@ describe("BattleComputerSquaddieSelector", () => {
         })
 
         it("instructs the squaddie to end turn when the player cannot control the team squaddies", () => {
-            const strategySpy = jest.spyOn(
+            const strategySpy = vi.spyOn(
                 DetermineNextDecisionService,
                 "determineNextDecision"
             )
@@ -412,7 +421,7 @@ describe("BattleComputerSquaddieSelector", () => {
 
         describe("default to ending its turn if none of the strategies provide instruction", () => {
             let gameEngineState: GameEngineState
-            let determineNextDecisionSpy: jest.SpyInstance
+            let determineNextDecisionSpy: MockInstance
             beforeEach(() => {
                 gameEngineState = GameEngineStateService.new({
                     repository: objectRepository,
@@ -437,7 +446,7 @@ describe("BattleComputerSquaddieSelector", () => {
                         }
                     ),
                 })
-                determineNextDecisionSpy = jest
+                determineNextDecisionSpy = vi
                     .spyOn(
                         DetermineNextDecisionService,
                         "determineNextDecision"
@@ -491,14 +500,14 @@ describe("BattleComputerSquaddieSelector", () => {
     describe("computer decides to act", () => {
         let missionMap: MissionMap
         let hexMap: TerrainTileMap
-        let addGraphicsLayerSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: MockInstance
         let camera: BattleCamera
 
         beforeEach(() => {
             hexMap = TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 "],
             })
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -566,7 +575,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 }
             )
 
-            jest.spyOn(
+            vi.spyOn(
                 DetermineNextDecisionService,
                 "determineNextDecision"
             ).mockReturnValue(moveAction)
@@ -652,12 +661,12 @@ describe("BattleComputerSquaddieSelector", () => {
                         }
                     ),
                 })
-                jest.spyOn(
+                vi.spyOn(
                     DetermineNextDecisionService,
                     "determineNextDecision"
                 ).mockReturnValue(demonBiteDecisionSteps)
 
-                jest.spyOn(Date, "now").mockImplementation(() => 0)
+                vi.spyOn(Date, "now").mockImplementation(() => 0)
                 selector.update({
                     gameEngineState,
                     graphicsContext: mockedP5GraphicsContext,
@@ -704,7 +713,7 @@ describe("BattleComputerSquaddieSelector", () => {
                     resourceHandler: gameEngineState.resourceHandler,
                 })
 
-                jest.spyOn(Date, "now").mockImplementation(
+                vi.spyOn(Date, "now").mockImplementation(
                     () => SHOW_SELECTED_ACTION_TIME
                 )
                 selector.update({
@@ -716,7 +725,7 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             it("waits and then will recommend squaddie squaddie action as the next field", () => {
-                jest.spyOn(Date, "now").mockImplementation(
+                vi.spyOn(Date, "now").mockImplementation(
                     () => SHOW_SELECTED_ACTION_TIME
                 )
                 selector.update({

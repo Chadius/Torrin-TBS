@@ -31,6 +31,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { MapGraphicsLayerService } from "../../hexMap/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Targeting Service", () => {
     let longswordAction: ActionTemplate
@@ -390,7 +391,7 @@ describe("Targeting Service", () => {
 
     describe("highlightTargetRange using a gameEngineState", () => {
         let gameEngineState: GameEngineState
-        let addGraphicsLayerSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: MockInstance
 
         beforeEach(() => {
             const battleMap: MissionMap = MissionMapService.new({
@@ -431,7 +432,7 @@ describe("Targeting Service", () => {
                 actionTemplateId: longswordAction.id,
             })
 
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )

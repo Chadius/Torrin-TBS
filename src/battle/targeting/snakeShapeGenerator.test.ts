@@ -1,5 +1,6 @@
 import { SnakeShapeGenerator } from "./snakeShapeGenerator"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { describe, expect, it } from "vitest"
 
 describe("Snake Shape", () => {
     it("generates neighboring tiles in all directions", () => {

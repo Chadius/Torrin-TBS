@@ -48,6 +48,7 @@ import { BattleActionDecisionStepService } from "../battle/actionDecision/battle
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
 import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository
@@ -109,11 +110,11 @@ describe("User clicks on a squaddie", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -130,7 +131,7 @@ describe("User clicks on a squaddie", () => {
         })
 
         mockP5GraphicsContext = new MockedP5GraphicsBuffer()
-        mockP5GraphicsContext.textWidth = jest.fn().mockReturnValue(1)
+        mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
     })
 
     it("HUD produces a button for each ActionTemplate", () => {
@@ -264,7 +265,7 @@ describe("User clicks on a squaddie", () => {
         })
 
         it("Map should highlight all the tiles it can reach when BattlePlayerSquaddieSelector selects a squaddie", () => {
-            const addGraphicsLayerSpy = jest.spyOn(
+            const addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )

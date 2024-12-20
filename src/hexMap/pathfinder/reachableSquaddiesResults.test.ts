@@ -2,6 +2,7 @@ import {
     ReachableSquaddieDescription,
     ReachableSquaddiesResults,
 } from "./reachableSquaddiesResults"
+import { describe, expect, it } from "vitest"
 
 describe("Reachable Squaddies Results", () => {
     it("can add squaddies by distance", () => {

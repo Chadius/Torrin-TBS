@@ -32,6 +32,7 @@ import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestrat
 import { BattleStateService } from "../orchestrator/battleState"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("target a squaddie within reach of actions", () => {
     let objectRepository: ObjectRepository

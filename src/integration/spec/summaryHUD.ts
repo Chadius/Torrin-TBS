@@ -2,6 +2,7 @@ import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ActionTilePosition } from "../../battle/hud/playerActionPanel/tile/actionTilePosition"
 import { ObjectRepositoryService } from "../../battle/objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
+import { expect } from "vitest"
 
 export const SummaryHUDSpec = {
     expectActorNameToBe: (

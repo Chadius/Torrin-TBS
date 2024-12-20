@@ -22,6 +22,7 @@ import { SquaddieMovementService } from "../squaddie/movement"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../action/actionResourceCost"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Object Repository", () => {
     let objectRepository: ObjectRepository

@@ -42,6 +42,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -53,7 +54,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
 
     let longswordActionTemplate: ActionTemplate
     let animator: SquaddieTargetsOtherSquaddiesAnimator
-    let mockResourceHandler: jest.Mocked<ResourceHandler>
+    let mockResourceHandler: ResourceHandler
 
     let knightHitsThiefWithLongswordInstructionBattleAction: BattleAction
 
@@ -101,7 +102,7 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         animator = new SquaddieTargetsOtherSquaddiesAnimator()
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = jest
+        mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -131,13 +132,13 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         timer: ActionTimer,
         actionAnimationPhase: ActionAnimationPhase
     ) {
-        return jest
+        return vi
             .spyOn(timer, "currentPhase", "get")
             .mockReturnValue(actionAnimationPhase)
     }
 
     it("will create an actor sprite and a target sprite", () => {
-        jest.spyOn(Date, "now").mockImplementation(() => 0)
+        vi.spyOn(Date, "now").mockImplementation(() => 0)
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
             resourceHandler: mockResourceHandler,

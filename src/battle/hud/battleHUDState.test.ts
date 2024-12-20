@@ -1,5 +1,6 @@
 import { BattleHUDState, BattleHUDStateService } from "./battleHUDState"
 import { SummaryHUDStateService } from "./summaryHUD"
+import { describe, expect, it } from "vitest"
 
 describe("BattleHUDState", () => {
     it("can be initialized with default fields", () => {

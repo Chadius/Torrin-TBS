@@ -12,6 +12,7 @@ import {
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
 import { LoadSaveState } from "../dataLoader/loadSaveState"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -22,19 +23,19 @@ describe("Title Screen", () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             ScreenDimensions.SCREEN_WIDTH
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             ScreenDimensions.SCREEN_HEIGHT
         )
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-        mockResourceHandler.areAllResourcesLoaded = jest
+        mockResourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+        mockResourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValue(true)
-        mockResourceHandler.getResource = jest
+        mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
         titleScreen = new TitleScreen({
@@ -67,7 +68,7 @@ describe("Title Screen", () => {
             )
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         expect(textSpy).toBeCalled()
@@ -81,10 +82,10 @@ describe("Title Screen", () => {
     })
 
     it("will declare itself complete when the user presses the enter key", () => {
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             ScreenDimensions.SCREEN_WIDTH
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             ScreenDimensions.SCREEN_HEIGHT
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
@@ -95,7 +96,7 @@ describe("Title Screen", () => {
             JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         expect(textSpy).toBeCalled()
@@ -116,7 +117,7 @@ describe("Title Screen", () => {
     })
 
     it("after resetting it will not immediately complete", () => {
-        const spy = jest
+        const spy = vi
             .spyOn(titleScreen, "hasCompleted")
             .mockReturnValueOnce(true)
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
@@ -130,13 +131,13 @@ describe("Title Screen", () => {
             ScreenDimensions.SCREEN_WIDTH / 2,
             ScreenDimensions.SCREEN_HEIGHT / 2,
         ]
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             mockedWidth
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             mockedHeight
         )
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.reset(gameEngineState)
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
@@ -152,13 +153,13 @@ describe("Title Screen", () => {
 
     it("will say the window is too small if the window is too small", () => {
         const [mockedWidth, mockedHeight] = [1, 1]
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             mockedWidth
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             mockedHeight
         )
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.reset(gameEngineState)
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
@@ -174,23 +175,23 @@ describe("Title Screen", () => {
 
     it("will reset the screen size warning if the window is restored", () => {
         const [mockedWidth, mockedHeight] = [1, 1]
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             mockedWidth
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             mockedHeight
         )
         titleScreen.reset(gameEngineState)
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             ScreenDimensions.SCREEN_WIDTH
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             ScreenDimensions.SCREEN_HEIGHT
         )
 
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(textSpy).toBeCalledWith(
             "START: click here / press enter",
@@ -203,15 +204,15 @@ describe("Title Screen", () => {
 
     it("will gather resources once upon startup", () => {
         const [mockedWidth, mockedHeight] = [1, 1]
-        jest.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "width", "get").mockReturnValue(
             mockedWidth
         )
-        jest.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
+        vi.spyOn(mockedP5GraphicsContext, "height", "get").mockReturnValue(
             mockedHeight
         )
 
-        mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-        const isResourceLoadedMock = jest.spyOn(
+        mockResourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+        const isResourceLoadedMock = vi.spyOn(
             mockResourceHandler,
             "isResourceLoaded"
         )
@@ -234,7 +235,7 @@ describe("Title Screen", () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
-            const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded")
+            const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
             titleScreen.mouseClicked(
                 gameEngineState,
                 MouseButton.ACCEPT,
@@ -252,7 +253,7 @@ describe("Title Screen", () => {
                 gameEngineState.fileState.loadSaveState.userRequestedLoad
             ).toBeTruthy()
 
-            let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+            let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             expect(textSpy).toBeCalled()
             expect(textSpy).toBeCalledWith(
@@ -324,11 +325,8 @@ describe("Title Screen", () => {
                     expectedSaveStateField,
                     expectedErrorMessage,
                 }) => {
-                    jest.spyOn(Date, "now").mockReturnValue(0)
-                    const loadGame = jest.spyOn(
-                        titleScreen,
-                        "markGameToBeLoaded"
-                    )
+                    vi.spyOn(Date, "now").mockReturnValue(0)
+                    const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
                     titleScreen.update(gameEngineState, mockedP5GraphicsContext)
                     titleScreen.mouseClicked(
                         gameEngineState,
@@ -344,7 +342,7 @@ describe("Title Screen", () => {
                     )
                     loadSaveStateChange(gameEngineState.fileState.loadSaveState)
 
-                    const textSpy = jest.spyOn(
+                    const textSpy = vi.spyOn(
                         mockedP5GraphicsContext.mockedP5,
                         "text"
                     )
@@ -365,7 +363,7 @@ describe("Title Screen", () => {
                         )
                     ).toBeTruthy()
 
-                    jest.spyOn(Date, "now").mockReturnValue(
+                    vi.spyOn(Date, "now").mockReturnValue(
                         FILE_MESSAGE_DISPLAY_DURATION
                     )
                     textSpy.mockClear()
@@ -388,8 +386,8 @@ describe("Title Screen", () => {
         })
 
         it("should show a failure message if the load failed", () => {
-            jest.spyOn(Date, "now").mockReturnValue(0)
-            const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded")
+            vi.spyOn(Date, "now").mockReturnValue(0)
+            const loadGame = vi.spyOn(titleScreen, "markGameToBeLoaded")
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             titleScreen.mouseClicked(
                 gameEngineState,
@@ -404,7 +402,7 @@ describe("Title Screen", () => {
             gameEngineState.fileState.loadSaveState.applicationErroredWhileLoading =
                 true
 
-            const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+            const textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
 
             expect(loadGame).toBeCalled()
@@ -421,9 +419,7 @@ describe("Title Screen", () => {
                     .applicationErroredWhileLoading
             ).toBeTruthy()
 
-            jest.spyOn(Date, "now").mockReturnValue(
-                FILE_MESSAGE_DISPLAY_DURATION
-            )
+            vi.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION)
             textSpy.mockClear()
             titleScreen.update(gameEngineState, mockedP5GraphicsContext)
             expect(textSpy).not.toBeCalledWith(
@@ -460,7 +456,7 @@ describe("Title Screen", () => {
     })
 
     it("will show the version", () => {
-        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text")
+        let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")
         titleScreen.update(gameEngineState, mockedP5GraphicsContext)
         expect(textSpy).toBeCalled()
         expect(textSpy).toBeCalledWith(

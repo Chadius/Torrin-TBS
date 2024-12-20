@@ -14,6 +14,7 @@ import {
     PopupWindowType,
 } from "./playerDecisionHUD"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -131,10 +132,7 @@ describe("Player Decision HUD", () => {
         })
 
         it("will draw popup windows if they are defined", () => {
-            const drawSpy: jest.SpyInstance = jest.spyOn(
-                PopupWindowService,
-                "draw"
-            )
+            const drawSpy: MockInstance = vi.spyOn(PopupWindowService, "draw")
 
             const playerDecisionHUD = PlayerDecisionHUDService.new()
 
@@ -152,10 +150,7 @@ describe("Player Decision HUD", () => {
             drawSpy.mockRestore()
         })
         it("will not draw popup windows if they are undefined", () => {
-            const drawSpy: jest.SpyInstance = jest.spyOn(
-                PopupWindowService,
-                "draw"
-            )
+            const drawSpy: MockInstance = vi.spyOn(PopupWindowService, "draw")
 
             const battleHUD = PlayerDecisionHUDService.new()
             PlayerDecisionHUDService.draw(battleHUD, mockGraphicsContext)

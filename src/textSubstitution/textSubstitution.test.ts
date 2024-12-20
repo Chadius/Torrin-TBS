@@ -2,10 +2,11 @@ import * as battleOrchestratorStateSubstitution from "./battleOrchestratorStateS
 import { SubstituteText } from "./textSubstitution"
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
+import { describe, expect, it, vi } from "vitest"
 
 describe("TextSubstitution", () => {
     it("will pass input to the BattleOrchestratorStateSubstitution when a battle orchestrator state is provided", () => {
-        const battleOrchestratorStateSubstitutionSpy = jest.spyOn(
+        const battleOrchestratorStateSubstitutionSpy = vi.spyOn(
             battleOrchestratorStateSubstitution,
             "SubstituteTextUsingBattleOrchestraState"
         )

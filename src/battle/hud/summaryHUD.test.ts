@@ -35,18 +35,27 @@ import { SquaddieNameAndPortraitTileService } from "./playerActionPanel/tile/squ
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("summaryHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
     let objectRepository: ObjectRepository
     let summaryHUDState: SummaryHUDState
     let resourceHandler: ResourceHandler
-    let consoleWarnSpy: jest.SpyInstance
+    let consoleWarnSpy: MockInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
-        graphicsBuffer.textWidth = jest.fn().mockReturnValue(1)
+        graphicsBuffer.textWidth = vi.fn().mockReturnValue(1)
         resourceHandler = mockResourceHandler(graphicsBuffer)
         consoleWarnSpy = mockConsoleWarn()
 
@@ -393,9 +402,7 @@ describe("summaryHUD", () => {
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
-            const dateNowSpy = jest
-                .spyOn(Date, "now")
-                .mockImplementation(() => 0)
+            const dateNowSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
@@ -780,11 +787,11 @@ describe("summaryHUD", () => {
 
     describe("peekable windows expire over time", () => {
         let summaryHUDState: SummaryHUDState
-        let dateSpy: jest.SpyInstance
+        let dateSpy: MockInstance
         let gameEngineState: GameEngineState
 
         beforeEach(() => {
-            dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+            dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
             summaryHUDState = SummaryHUDStateService.new({
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
@@ -983,7 +990,7 @@ describe("summaryHUD", () => {
         })
 
         it("will delegate mouseMoved events to playerCommandHUD when it is active", () => {
-            const playerCommandSpy = jest.spyOn(
+            const playerCommandSpy = vi.spyOn(
                 PlayerCommandStateService,
                 "mouseMoved"
             )
@@ -1011,7 +1018,7 @@ describe("summaryHUD", () => {
         })
 
         it("will return which button was clicked on the PlayerCommandHUD", () => {
-            const playerCommandSpy: jest.SpyInstance = jest.spyOn(
+            const playerCommandSpy: MockInstance = vi.spyOn(
                 PlayerCommandStateService,
                 "mouseClicked"
             )

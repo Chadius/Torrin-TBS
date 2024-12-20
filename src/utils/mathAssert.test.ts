@@ -1,4 +1,5 @@
 import { assertsInteger, assertsNonNegativeNumber } from "./mathAssert"
+import { describe, expect, it } from "vitest"
 
 describe("Math Asserts", () => {
     it("throws an error if non integer asserts to be an integer", () => {

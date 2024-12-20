@@ -8,6 +8,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { DialogueService } from "../../cutscene/dialogue/dialogue"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("BattleCutscenePlayer", () => {
     let dinnerDate: Cutscene

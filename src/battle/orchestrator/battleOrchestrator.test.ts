@@ -50,6 +50,7 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -90,83 +91,64 @@ describe("Battle Orchestrator", () => {
     function setupMocks() {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
 
-        mockInitializeBattle = new (<new () => InitializeBattle>(
-            InitializeBattle
-        ))() as jest.Mocked<InitializeBattle>
-        mockInitializeBattle.reset = jest.fn()
-        mockInitializeBattle.update = jest.fn()
+        mockInitializeBattle = new InitializeBattle()
+        mockInitializeBattle.reset = vi.fn()
+        mockInitializeBattle.update = vi.fn()
 
-        mockBattleCutscenePlayer = new (<
-            new (options: any) => BattleCutscenePlayer
-        >BattleCutscenePlayer)({
-            cutsceneById: {},
-        }) as jest.Mocked<BattleCutscenePlayer>
-
-        mockBattleCutscenePlayer.update = jest.fn()
-        mockBattleCutscenePlayer.uiControlSettings = jest
+        mockBattleCutscenePlayer = new BattleCutscenePlayer()
+        mockBattleCutscenePlayer.update = vi.fn()
+        mockBattleCutscenePlayer.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockBattleCutscenePlayer.mouseEventHappened = jest.fn()
-        mockBattleCutscenePlayer.hasCompleted = jest.fn().mockReturnValue(true)
+        mockBattleCutscenePlayer.mouseEventHappened = vi.fn()
+        mockBattleCutscenePlayer.hasCompleted = vi.fn().mockReturnValue(true)
 
-        mockPlayerSquaddieSelector = new (<
-            new () => BattlePlayerSquaddieSelector
-        >BattlePlayerSquaddieSelector)() as jest.Mocked<BattlePlayerSquaddieSelector>
-        mockPlayerSquaddieSelector.update = jest.fn()
-        mockPlayerSquaddieSelector.uiControlSettings = jest
-            .fn()
-            .mockReturnValue(
-                new UIControlSettings({
-                    displayMap: true,
-                    scrollCamera: true,
-                })
-            )
-        mockPlayerSquaddieSelector.mouseEventHappened = jest.fn()
-        mockPlayerSquaddieSelector.keyEventHappened = jest.fn()
-        mockPlayerSquaddieSelector.hasCompleted = jest
-            .fn()
-            .mockReturnValue(true)
-        mockPlayerSquaddieSelector.recommendStateChanges = jest
-            .fn()
-            .mockReturnValue({ displayMap: true })
-
-        mockPlayerSquaddieTarget = new (<new () => BattlePlayerSquaddieTarget>(
-            BattlePlayerSquaddieTarget
-        ))() as jest.Mocked<BattlePlayerSquaddieTarget>
-        mockPlayerSquaddieTarget.update = jest.fn()
-        mockPlayerSquaddieTarget.uiControlSettings = jest.fn().mockReturnValue(
+        mockPlayerSquaddieSelector = new BattlePlayerSquaddieSelector()
+        mockPlayerSquaddieSelector.update = vi.fn()
+        mockPlayerSquaddieSelector.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: true,
                 scrollCamera: true,
             })
         )
-        mockPlayerSquaddieTarget.mouseEventHappened = jest.fn()
-        mockPlayerSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true)
-        mockPlayerSquaddieTarget.recommendStateChanges = jest
+        mockPlayerSquaddieSelector.mouseEventHappened = vi.fn()
+        mockPlayerSquaddieSelector.keyEventHappened = vi.fn()
+        mockPlayerSquaddieSelector.hasCompleted = vi.fn().mockReturnValue(true)
+        mockPlayerSquaddieSelector.recommendStateChanges = vi
             .fn()
             .mockReturnValue({ displayMap: true })
 
-        mockPlayerConfirm = new (<new () => BattlePlayerActionConfirm>(
-            BattlePlayerActionConfirm
-        ))() as jest.Mocked<BattlePlayerActionConfirm>
-        mockPlayerConfirm.update = jest.fn()
-        mockPlayerConfirm.uiControlSettings = jest.fn().mockReturnValue(
+        mockPlayerSquaddieTarget = new BattlePlayerSquaddieTarget()
+        mockPlayerSquaddieTarget.update = vi.fn()
+        mockPlayerSquaddieTarget.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: true,
                 scrollCamera: true,
             })
         )
-        mockPlayerConfirm.mouseEventHappened = jest.fn()
-        mockPlayerConfirm.hasCompleted = jest.fn().mockReturnValue(true)
-        mockPlayerConfirm.recommendStateChanges = jest
+        mockPlayerSquaddieTarget.mouseEventHappened = vi.fn()
+        mockPlayerSquaddieTarget.hasCompleted = vi.fn().mockReturnValue(true)
+        mockPlayerSquaddieTarget.recommendStateChanges = vi
             .fn()
             .mockReturnValue({ displayMap: true })
 
-        mockComputerSquaddieSelector = new (<
-            new () => BattleComputerSquaddieSelector
-        >BattleComputerSquaddieSelector)() as jest.Mocked<BattleComputerSquaddieSelector>
-        mockComputerSquaddieSelector.update = jest.fn()
-        mockComputerSquaddieSelector.uiControlSettings = jest
+        mockPlayerConfirm = new BattlePlayerActionConfirm()
+        mockPlayerConfirm.update = vi.fn()
+        mockPlayerConfirm.uiControlSettings = vi.fn().mockReturnValue(
+            new UIControlSettings({
+                displayMap: true,
+                scrollCamera: true,
+            })
+        )
+        mockPlayerConfirm.mouseEventHappened = vi.fn()
+        mockPlayerConfirm.hasCompleted = vi.fn().mockReturnValue(true)
+        mockPlayerConfirm.recommendStateChanges = vi
+            .fn()
+            .mockReturnValue({ displayMap: true })
+
+        mockComputerSquaddieSelector = new BattleComputerSquaddieSelector()
+        mockComputerSquaddieSelector.update = vi.fn()
+        mockComputerSquaddieSelector.uiControlSettings = vi
             .fn()
             .mockReturnValue(
                 new UIControlSettings({
@@ -174,92 +156,79 @@ describe("Battle Orchestrator", () => {
                     scrollCamera: false,
                 })
             )
-        mockComputerSquaddieSelector.mouseEventHappened = jest.fn()
-        mockComputerSquaddieSelector.keyEventHappened = jest.fn()
-        mockComputerSquaddieSelector.hasCompleted = jest
+        mockComputerSquaddieSelector.mouseEventHappened = vi.fn()
+        mockComputerSquaddieSelector.keyEventHappened = vi.fn()
+        mockComputerSquaddieSelector.hasCompleted = vi
             .fn()
             .mockReturnValue(true)
-        mockComputerSquaddieSelector.recommendStateChanges = jest
+        mockComputerSquaddieSelector.recommendStateChanges = vi
             .fn()
             .mockReturnValue({ displayMap: true })
 
-        mockSquaddieMover = new (<new () => BattleSquaddieMover>(
-            BattleSquaddieMover
-        ))() as jest.Mocked<BattleSquaddieMover>
-        mockSquaddieMover.update = jest.fn()
-        mockSquaddieMover.reset = jest.fn()
-        mockSquaddieMover.uiControlSettings = jest
+        mockSquaddieMover = new BattleSquaddieMover()
+        mockSquaddieMover.update = vi.fn()
+        mockSquaddieMover.reset = vi.fn()
+        mockSquaddieMover.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockSquaddieMover.mouseEventHappened = jest.fn()
-        mockSquaddieMover.hasCompleted = jest.fn().mockReturnValue(true)
+        mockSquaddieMover.mouseEventHappened = vi.fn()
+        mockSquaddieMover.hasCompleted = vi.fn().mockReturnValue(true)
 
-        mockSquaddieUsesActionOnMap = new (<
-            new () => BattleSquaddieUsesActionOnMap
-        >BattleSquaddieUsesActionOnMap)() as jest.Mocked<BattleSquaddieUsesActionOnMap>
-        mockSquaddieUsesActionOnMap.update = jest.fn()
-        mockSquaddieUsesActionOnMap.uiControlSettings = jest
+        mockSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap()
+        mockSquaddieUsesActionOnMap.update = vi.fn()
+        mockSquaddieUsesActionOnMap.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockSquaddieUsesActionOnMap.mouseEventHappened = jest.fn()
-        mockSquaddieUsesActionOnMap.hasCompleted = jest
-            .fn()
-            .mockReturnValue(true)
+        mockSquaddieUsesActionOnMap.mouseEventHappened = vi.fn()
+        mockSquaddieUsesActionOnMap.hasCompleted = vi.fn().mockReturnValue(true)
 
-        mockSquaddieUsesActionOnSquaddie = new (<
-            new () => BattleSquaddieUsesActionOnSquaddie
-        >BattleSquaddieUsesActionOnSquaddie)() as jest.Mocked<BattleSquaddieUsesActionOnSquaddie>
-        mockSquaddieUsesActionOnSquaddie.update = jest.fn()
-        mockSquaddieUsesActionOnSquaddie.uiControlSettings = jest
+        mockSquaddieUsesActionOnSquaddie =
+            new BattleSquaddieUsesActionOnSquaddie()
+        mockSquaddieUsesActionOnSquaddie.update = vi.fn()
+        mockSquaddieUsesActionOnSquaddie.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockSquaddieUsesActionOnSquaddie.mouseEventHappened = jest.fn()
-        mockSquaddieUsesActionOnSquaddie.hasCompleted = jest
+        mockSquaddieUsesActionOnSquaddie.mouseEventHappened = vi.fn()
+        mockSquaddieUsesActionOnSquaddie.hasCompleted = vi
             .fn()
             .mockReturnValue(true)
 
         defaultBattleOrchestrator = new DefaultBattleOrchestrator()
-        defaultBattleOrchestrator.update = jest.fn()
+        defaultBattleOrchestrator.update = vi.fn()
 
-        mockMapDisplay = new (<new () => BattleMapDisplay>(
-            BattleMapDisplay
-        ))() as jest.Mocked<BattleMapDisplay>
-        mockMapDisplay.update = jest.fn()
-        mockMapDisplay.uiControlSettings = jest
+        mockMapDisplay = new BattleMapDisplay()
+        mockMapDisplay.update = vi.fn()
+        mockMapDisplay.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockMapDisplay.mouseEventHappened = jest.fn()
-        mockMapDisplay.keyEventHappened = jest.fn()
-        mockMapDisplay.hasCompleted = jest.fn().mockReturnValue(true)
-        mockMapDisplay.draw = jest.fn()
+        mockMapDisplay.mouseEventHappened = vi.fn()
+        mockMapDisplay.keyEventHappened = vi.fn()
+        mockMapDisplay.hasCompleted = vi.fn().mockReturnValue(true)
+        mockMapDisplay.draw = vi.fn()
 
-        mockPhaseController = new (<new () => BattlePhaseController>(
-            BattlePhaseController
-        ))() as jest.Mocked<BattlePhaseController>
-        mockPhaseController.update = jest.fn()
-        mockPhaseController.uiControlSettings = jest
+        mockPhaseController = new BattlePhaseController()
+        mockPhaseController.update = vi.fn()
+        mockPhaseController.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        mockPhaseController.mouseEventHappened = jest.fn()
-        mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true)
-        mockPhaseController.draw = jest.fn()
+        mockPhaseController.mouseEventHappened = vi.fn()
+        mockPhaseController.hasCompleted = vi.fn().mockReturnValue(true)
+        mockPhaseController.draw = vi.fn()
 
-        mockPlayerHudController = new (<new () => PlayerHudController>(
-            PlayerHudController
-        ))() as jest.Mocked<PlayerHudController>
-        mockPlayerHudController.recommendStateChanges = jest.fn()
-        mockPlayerHudController.reset = jest.fn()
-        mockPlayerHudController.update = jest.fn()
-        mockPlayerHudController.uiControlSettings = jest.fn().mockReturnValue(
+        mockPlayerHudController = new PlayerHudController()
+        mockPlayerHudController.recommendStateChanges = vi.fn()
+        mockPlayerHudController.reset = vi.fn()
+        mockPlayerHudController.update = vi.fn()
+        mockPlayerHudController.uiControlSettings = vi.fn().mockReturnValue(
             new UIControlSettings({
                 displayMap: false,
                 scrollCamera: false,
             })
         )
-        mockPlayerHudController.mouseEventHappened = jest.fn()
-        mockPlayerHudController.keyEventHappened = jest.fn()
-        mockPlayerHudController.hasCompleted = jest.fn().mockReturnValue(true)
-        mockPlayerHudController.recommendStateChanges = jest
+        mockPlayerHudController.mouseEventHappened = vi.fn()
+        mockPlayerHudController.keyEventHappened = vi.fn()
+        mockPlayerHudController.hasCompleted = vi.fn().mockReturnValue(true)
+        mockPlayerHudController.recommendStateChanges = vi
             .fn()
             .mockReturnValue({ displayMap: true })
     }
@@ -463,7 +432,7 @@ describe("Battle Orchestrator", () => {
             repository: ObjectRepositoryService.new(),
         })
 
-        const cutsceneSpy: jest.SpyInstance = jest.spyOn(
+        const cutsceneSpy: MockInstance = vi.spyOn(
             orchestrator.cutscenePlayer,
             "startCutscene"
         )
@@ -623,7 +592,7 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will move from squaddie move mode to player hud mode", () => {
-        jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
+        vi.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
             false
         )
 
@@ -654,7 +623,7 @@ describe("Battle Orchestrator", () => {
             mockInitializeBattle
         )
 
-        const initializeBattleSpy = jest.spyOn(mockInitializeBattle, "update")
+        const initializeBattleSpy = vi.spyOn(mockInitializeBattle, "update")
         orchestrator.update(nullState, mockedP5GraphicsContext)
         expect(initializeBattleSpy).toBeCalled()
     })
@@ -730,18 +699,16 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will use the recommended next mode to switch", () => {
-        const battleCutscenePlayerRecommendsAMode = new (<
-            new () => BattleCutscenePlayer
-        >BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>
-        battleCutscenePlayerRecommendsAMode.update = jest.fn()
-        battleCutscenePlayerRecommendsAMode.uiControlSettings = jest
+        const battleCutscenePlayerRecommendsAMode = new BattleCutscenePlayer()
+        battleCutscenePlayerRecommendsAMode.update = vi.fn()
+        battleCutscenePlayerRecommendsAMode.uiControlSettings = vi
             .fn()
             .mockReturnValue(new UIControlSettings({}))
-        battleCutscenePlayerRecommendsAMode.mouseEventHappened = jest.fn()
-        battleCutscenePlayerRecommendsAMode.hasCompleted = jest
+        battleCutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
+        battleCutscenePlayerRecommendsAMode.hasCompleted = vi
             .fn()
             .mockReturnValue(true)
-        battleCutscenePlayerRecommendsAMode.recommendStateChanges = jest
+        battleCutscenePlayerRecommendsAMode.recommendStateChanges = vi
             .fn()
             .mockReturnValue({
                 nextMode: BattleOrchestratorMode.SQUADDIE_MOVER,
@@ -768,7 +735,7 @@ describe("Battle Orchestrator", () => {
         let mockCutscene: Cutscene
         let cutsceneCollection: MissionCutsceneCollection
         let cutscenePlayer: BattleCutscenePlayer
-        let missionObjectiveCompleteCheck: jest.SpyInstance
+        let missionObjectiveCompleteCheck: MockInstance
 
         let victoryState: GameEngineState
         let defeatState: GameEngineState
@@ -947,7 +914,7 @@ describe("Battle Orchestrator", () => {
                 cutscenePlayer,
             })
 
-            missionObjectiveCompleteCheck = jest
+            missionObjectiveCompleteCheck = vi
                 .spyOn(MissionObjectiveHelper, "shouldBeComplete")
                 .mockReturnValue(true)
         })
@@ -1087,19 +1054,17 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will update its UI Control Settings after updating", () => {
-        const cutscenePlayerRecommendsAMode = new (<
-            new () => BattleCutscenePlayer
-        >BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>
-        cutscenePlayerRecommendsAMode.update = jest.fn()
-        cutscenePlayerRecommendsAMode.uiControlSettings = jest
+        const cutscenePlayerRecommendsAMode = new BattleCutscenePlayer()
+        cutscenePlayerRecommendsAMode.update = vi.fn()
+        cutscenePlayerRecommendsAMode.uiControlSettings = vi
             .fn()
             .mockReturnValue(
                 new UIControlSettings({
                     displayMap: true,
                 })
             )
-        cutscenePlayerRecommendsAMode.mouseEventHappened = jest.fn()
-        cutscenePlayerRecommendsAMode.hasCompleted = jest.fn()
+        cutscenePlayerRecommendsAMode.mouseEventHappened = vi.fn()
+        cutscenePlayerRecommendsAMode.hasCompleted = vi.fn()
 
         const orchestrator1 = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
@@ -1112,7 +1077,7 @@ describe("Battle Orchestrator", () => {
     })
 
     it("will move from squaddie map action mode to player hud mode", () => {
-        jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
+        vi.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(
             false
         )
 
@@ -1209,24 +1174,22 @@ describe("Battle Orchestrator", () => {
         })
 
         it("will update the time elapsed if the mode recommends it", () => {
-            const needsTwoUpdatesToFinishLoading = new (<
-                new () => BattleCutscenePlayer
-            >BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>
-            needsTwoUpdatesToFinishLoading.uiControlSettings = jest
+            const needsTwoUpdatesToFinishLoading = new BattleCutscenePlayer()
+            needsTwoUpdatesToFinishLoading.uiControlSettings = vi
                 .fn()
                 .mockReturnValue(new UIControlSettings({ pauseTimer: true }))
-            needsTwoUpdatesToFinishLoading.hasCompleted = jest
+            needsTwoUpdatesToFinishLoading.hasCompleted = vi
                 .fn()
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(true)
-            needsTwoUpdatesToFinishLoading.update = jest.fn()
-            needsTwoUpdatesToFinishLoading.recommendStateChanges = jest
+            needsTwoUpdatesToFinishLoading.update = vi.fn()
+            needsTwoUpdatesToFinishLoading.recommendStateChanges = vi
                 .fn()
                 .mockReturnValueOnce({
                     nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
                 })
 
-            mockPlayerSquaddieSelector.uiControlSettings = jest
+            mockPlayerSquaddieSelector.uiControlSettings = vi
                 .fn()
                 .mockReturnValue(new UIControlSettings({ pauseTimer: false }))
 
@@ -1269,14 +1232,14 @@ describe("Battle Orchestrator", () => {
             expect(orchestrator.getCurrentComponent()).toBe(
                 mockPlayerHudController
             )
-            jest.spyOn(Date, "now").mockReturnValue(0)
+            vi.spyOn(Date, "now").mockReturnValue(0)
             orchestrator.update(state, mockedP5GraphicsContext)
             expect(
                 state.battleOrchestratorState.battleState.missionStatistics
                     .timeElapsedInMilliseconds
             ).toBe(0)
 
-            jest.spyOn(Date, "now").mockReturnValue(100)
+            vi.spyOn(Date, "now").mockReturnValue(100)
             orchestrator.update(state, mockedP5GraphicsContext)
             expect(
                 state.battleOrchestratorState.battleState.missionStatistics

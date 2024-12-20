@@ -4,6 +4,7 @@ import {
     AttributeSource,
     AttributeType,
 } from "./attributeModifier"
+import { beforeEach, describe, expect, it, test } from "vitest"
 
 describe("AttributeModifier", () => {
     let armorModifierFor1Round: AttributeModifier

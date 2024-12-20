@@ -44,6 +44,7 @@ import {
 import { CutsceneQueueService } from "./cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Mission Cutscene Service", () => {
     let mockCutscene: Cutscene
@@ -162,7 +163,7 @@ describe("Mission Cutscene Service", () => {
             it.each(modes)(
                 `mode $mode will look for victory conditions`,
                 ({ mode }) => {
-                    const missionObjectiveCompleteCheck = jest
+                    const missionObjectiveCompleteCheck = vi
                         .spyOn(MissionObjectiveHelper, "shouldBeComplete")
                         .mockReturnValue(true)
                     expect(
@@ -213,7 +214,7 @@ describe("Mission Cutscene Service", () => {
         })
 
         it("will check for defeat conditions once the squaddie finishes moving", () => {
-            const missionObjectiveCompleteCheck = jest
+            const missionObjectiveCompleteCheck = vi
                 .spyOn(MissionObjectiveHelper, "shouldBeComplete")
                 .mockReturnValue(true)
             expect(
@@ -286,7 +287,7 @@ describe("Mission Cutscene Service", () => {
             victoryAndDefeatState.battleOrchestratorState.battleState.battleCompletionStatus =
                 BattleCompletionStatus.IN_PROGRESS
 
-            const missionObjectiveCompleteCheck = jest
+            const missionObjectiveCompleteCheck = vi
                 .spyOn(MissionObjectiveHelper, "shouldBeComplete")
                 .mockReturnValue(true)
             expect(
@@ -493,7 +494,7 @@ describe("Mission Cutscene Service", () => {
                     MessageBoardMessageType.SQUADDIE_IS_INJURED
                 )
 
-                const finderSpy = jest.spyOn(
+                const finderSpy = vi.spyOn(
                     MissionCutsceneService,
                     "FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
                 )

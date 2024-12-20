@@ -42,6 +42,15 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Orchestration Utils", () => {
     let knightSquaddieTemplate: SquaddieTemplate
@@ -445,7 +454,7 @@ describe("Orchestration Utils", () => {
     })
 
     describe("generateMessagesIfThePlayerCanActWithANewSquaddie", () => {
-        let messageBoardSpy: jest.SpyInstance
+        let messageBoardSpy: MockInstance
         let repository: ObjectRepository
         let gameEngineState: GameEngineState
 
@@ -552,7 +561,7 @@ describe("Orchestration Utils", () => {
                     }),
                 }),
             })
-            messageBoardSpy = jest.spyOn(
+            messageBoardSpy = vi.spyOn(
                 gameEngineState.messageBoard,
                 "sendMessage"
             )
@@ -678,10 +687,10 @@ describe("Orchestration Utils", () => {
 
     describe("highlightSquaddieRange", () => {
         let gameEngineState: GameEngineState
-        let addGraphicsLayerSpy: jest.SpyInstance
+        let addGraphicsLayerSpy: MockInstance
 
         beforeEach(() => {
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -716,7 +725,7 @@ describe("Orchestration Utils", () => {
                 coordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -758,7 +767,7 @@ describe("Orchestration Utils", () => {
                 coordinate: { q: 0, r: 3 },
             })
             gameEngineState.battleOrchestratorState.battleState.missionMap = map
-            addGraphicsLayerSpy = jest.spyOn(
+            addGraphicsLayerSpy = vi.spyOn(
                 TerrainTileMapService,
                 "addGraphicsLayer"
             )
@@ -781,7 +790,7 @@ describe("Orchestration Utils", () => {
         let gameEngineState: GameEngineState
         let thiefBattleSquaddie: BattleSquaddie
         let missionMap: MissionMap
-        let messageSpy: jest.SpyInstance
+        let messageSpy: MockInstance
         beforeEach(() => {
             missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
@@ -817,7 +826,7 @@ describe("Orchestration Utils", () => {
                 campaign: CampaignService.default(),
             })
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
         })
         afterEach(() => {
             messageSpy.mockRestore()

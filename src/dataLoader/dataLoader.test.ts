@@ -1,8 +1,9 @@
 import { LoadFileIntoFormat } from "./dataLoader"
-import clearAllMocks = jest.clearAllMocks
+import { describe, expect, it, vi } from "vitest"
+import clearAllMocks = vi.clearAllMocks
 
 const mockFetch = <T>(mockData: T) => {
-    global.fetch = jest.fn().mockImplementation(() =>
+    global.fetch = vi.fn().mockImplementation(() =>
         Promise.resolve({
             json: () => Promise.resolve(mockData),
         })
@@ -10,7 +11,7 @@ const mockFetch = <T>(mockData: T) => {
 }
 
 const mockFetchError = (error: string) => {
-    global.fetch = jest.fn().mockImplementation(() => Promise.reject(error))
+    global.fetch = vi.fn().mockImplementation(() => Promise.reject(error))
 }
 
 const mockFetchCleanUp = () => {

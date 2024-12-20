@@ -6,6 +6,7 @@ import {
 } from "../../../missionMap/mapSearchDataLayer"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { NextNodeIsNotInTheOpenList } from "./nextNodeIsNotInTheOpenList"
+import { describe, expect, it } from "vitest"
 
 describe("AddPathConditionNotInMapLayer", () => {
     it("knows when a path has not been enqueued yet", () => {

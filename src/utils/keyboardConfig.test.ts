@@ -1,4 +1,5 @@
 import { KeyButtonName, KeyWasPressed } from "./keyboardConfig"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Keyboard Config", () => {
     let nextSquaddieKeyCodes: number[]

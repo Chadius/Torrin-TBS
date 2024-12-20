@@ -20,6 +20,7 @@ import {
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
 import { DamageExplanation } from "../history/battleAction/battleActionSquaddieChange"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {

@@ -20,6 +20,7 @@ import {
 } from "../../gameEngine/gameEngine"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () => {
     let missionMap: MissionMap

@@ -1,3 +1,5 @@
+import { describe, it } from "vitest"
+
 describe("playerSquaddieActionHUD", () => {
     it("Will position itself near the mouse", () => {})
     it("Will render a row of buttons, 1 for move + 1 for each action", () => {})

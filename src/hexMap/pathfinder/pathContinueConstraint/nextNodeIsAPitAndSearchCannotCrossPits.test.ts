@@ -3,6 +3,7 @@ import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { NextNodeIsAPitAndSearchCannotCrossPits } from "./nextNodeIsAPitAndSearchCannotCrossPits"
+import { describe, expect, it } from "vitest"
 
 describe("addPathConditionPathLeadsToPit", () => {
     it("returns true if the path is not on a Pit", () => {

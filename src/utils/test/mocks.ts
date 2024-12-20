@@ -2,42 +2,45 @@ import p5 from "p5"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
+import { Mocked, vi } from "vitest"
 
-jest.mock("p5", () => () => {
+vi.mock("p5", () => {
     return {
-        background: jest.fn(),
-        colorMode: jest.fn(),
-        createImage: jest.fn().mockReturnValue({
-            loadPixels: jest.fn(),
-            width: 1,
-            height: 1,
-        }),
-        fill: jest.fn(),
-        image: jest.fn(),
-        line: jest.fn(),
-        loadImage: jest.fn(),
-        noStroke: jest.fn(),
-        noTint: jest.fn(),
-        pop: jest.fn(),
-        push: jest.fn(),
-        rect: jest.fn(),
-        stroke: jest.fn(),
-        strokeWeight: jest.fn(),
-        text: jest.fn(),
-        textAlign: jest.fn(),
-        textSize: jest.fn(),
-        tint: jest.fn(),
-        translate: jest.fn(),
-        beginShape: jest.fn(),
-        endShape: jest.fn(),
-        vertex: jest.fn(),
-        windowWidth: jest.fn().mockReturnValue(16 * 12),
-        windowHeight: jest.fn().mockReturnValue(9 * 12),
+        default: vi.fn(() => ({
+            background: vi.fn(),
+            colorMode: vi.fn(),
+            createImage: vi.fn().mockReturnValue({
+                loadPixels: vi.fn(),
+                width: 1,
+                height: 1,
+            }),
+            fill: vi.fn(),
+            image: vi.fn(),
+            line: vi.fn(),
+            loadImage: vi.fn(),
+            noStroke: vi.fn(),
+            noTint: vi.fn(),
+            pop: vi.fn(),
+            push: vi.fn(),
+            rect: vi.fn(),
+            stroke: vi.fn(),
+            strokeWeight: vi.fn(),
+            text: vi.fn(),
+            textAlign: vi.fn(),
+            textSize: vi.fn(),
+            tint: vi.fn(),
+            translate: vi.fn(),
+            beginShape: vi.fn(),
+            endShape: vi.fn(),
+            vertex: vi.fn(),
+            windowWidth: vi.fn().mockReturnValue(16 * 12),
+            windowHeight: vi.fn().mockReturnValue(9 * 12),
+        })),
     }
 })
 
 export const mockedP5 = () => {
-    return new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>
+    return new p5(undefined, undefined)
 }
 
 export const mockResourceHandler = (graphics: GraphicsBuffer) => {
@@ -45,14 +48,12 @@ export const mockResourceHandler = (graphics: GraphicsBuffer) => {
         ResourceHandler
     ))({
         imageLoader: new StubImmediateLoader(graphics),
-    }) as jest.Mocked<ResourceHandler>
+    }) as Mocked<ResourceHandler>
 
-    handler.loadResources = jest.fn()
-    handler.getResource = jest
-        .fn()
-        .mockReturnValue(graphics.createImage(32, 32))
-    handler.isResourceLoaded = jest.fn().mockReturnValue(true)
-    handler.areAllResourcesLoaded = jest.fn().mockReturnValue(true)
+    handler.loadResources = vi.fn()
+    handler.getResource = vi.fn().mockReturnValue(graphics.createImage(32, 32))
+    handler.isResourceLoaded = vi.fn().mockReturnValue(true)
+    handler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
     return handler
 }
 
@@ -236,5 +237,5 @@ export class MockedP5GraphicsRenderer
 }
 
 export const mockConsoleWarn = () => {
-    return jest.spyOn(console, "warn").mockImplementation()
+    return vi.spyOn(console, "warn").mockImplementation(() => {})
 }

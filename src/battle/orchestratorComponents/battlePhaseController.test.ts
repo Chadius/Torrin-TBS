@@ -11,6 +11,7 @@ import {
 } from "./battlePhaseController"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     SquaddieTemplate,
@@ -29,6 +30,7 @@ import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("BattlePhaseController", () => {
     let squaddieRepo: ObjectRepository
@@ -119,10 +121,10 @@ describe("BattlePhaseController", () => {
 
         diffTime = 100
 
-        resourceHandler = new (<new (options: any) => ResourceHandler>(
-            ResourceHandler
-        ))({}) as jest.Mocked<ResourceHandler>
-        resourceHandler.getResource = jest
+        resourceHandler = mocks.mockResourceHandler(
+            new MockedP5GraphicsBuffer()
+        )
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -148,7 +150,7 @@ describe("BattlePhaseController", () => {
         })
 
         battlePhaseController = new BattlePhaseController()
-        battlePhaseController.draw = jest.fn()
+        battlePhaseController.draw = vi.fn()
     })
 
     it("does nothing and finishes immediately if team has not finished their turn", () => {
@@ -198,7 +200,7 @@ describe("BattlePhaseController", () => {
         })
         battlePhaseController = new BattlePhaseController()
         const startTime = 0
-        jest.spyOn(Date, "now").mockImplementation(() => startTime)
+        vi.spyOn(Date, "now").mockImplementation(() => startTime)
 
         gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
@@ -228,7 +230,7 @@ describe("BattlePhaseController", () => {
             graphicsContext: mockedP5GraphicsContext,
             resourceHandler,
         })
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME + diffTime
         )
         expect(battlePhaseController.hasCompleted(gameEngineState)).toBeTruthy()
@@ -261,7 +263,7 @@ describe("BattlePhaseController", () => {
         })
         battlePhaseController = new BattlePhaseController()
         const startTime = 0
-        jest.spyOn(Date, "now").mockImplementation(() => startTime)
+        vi.spyOn(Date, "now").mockImplementation(() => startTime)
 
         battlePhaseController.update({
             gameEngineState,
@@ -276,10 +278,7 @@ describe("BattlePhaseController", () => {
     })
 
     it("sends a message when the phase changes", () => {
-        const messageSpy = jest.spyOn(
-            gameEngineState.messageBoard,
-            "sendMessage"
-        )
+        const messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
         gameEngineState.battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: BattlePhase.PLAYER,
@@ -343,7 +342,7 @@ describe("BattlePhaseController", () => {
             )
             BattleSquaddieService.endTurn(battleSquaddie0)
 
-            jest.spyOn(Date, "now").mockImplementation(() => startTime)
+            vi.spyOn(Date, "now").mockImplementation(() => startTime)
             battlePhaseController.update({
                 gameEngineState,
                 graphicsContext: mockedP5GraphicsContext,
@@ -359,7 +358,7 @@ describe("BattlePhaseController", () => {
         })
 
         it("starts the animation and completes if team has finished their turns", () => {
-            jest.spyOn(Date, "now").mockImplementation(
+            vi.spyOn(Date, "now").mockImplementation(
                 () => startTime + BANNER_ANIMATION_TIME + diffTime
             )
             battlePhaseController.update({
@@ -399,10 +398,10 @@ describe("BattlePhaseController", () => {
             }),
         })
         battlePhaseController = new BattlePhaseController()
-        battlePhaseController.draw = jest.fn()
+        battlePhaseController.draw = vi.fn()
 
         const startTime = 0
-        jest.spyOn(Date, "now").mockImplementation(() => startTime)
+        vi.spyOn(Date, "now").mockImplementation(() => startTime)
 
         battlePhaseController.update({
             gameEngineState,
@@ -414,7 +413,7 @@ describe("BattlePhaseController", () => {
             startTime
         )
 
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME * 0.5
         )
         battlePhaseController.update({
@@ -424,7 +423,7 @@ describe("BattlePhaseController", () => {
         })
         expect(battlePhaseController.draw).toBeCalledTimes(1)
 
-        jest.spyOn(Date, "now").mockImplementation(
+        vi.spyOn(Date, "now").mockImplementation(
             () => startTime + BANNER_ANIMATION_TIME * 0.75
         )
         battlePhaseController.update({

@@ -24,6 +24,7 @@ import { ActionEffectTemplateService } from "../action/template/actionEffectTemp
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate

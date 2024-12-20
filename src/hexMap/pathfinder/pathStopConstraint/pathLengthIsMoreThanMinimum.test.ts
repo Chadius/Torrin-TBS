@@ -1,6 +1,7 @@
 import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { PathLengthIsMoreThanMinimum } from "./pathLengthIsMoreThanMinimum"
+import { describe, expect, it } from "vitest"
 
 describe("PathCanStopConditionMinimumDistance", () => {
     it("knows when a path is less than the minimum distance", () => {

@@ -3,6 +3,15 @@ import { RectArea, RectAreaService } from "./rectArea"
 import { ResourceHandler } from "../resource/resourceHandler"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("ImageUI", () => {
     describe("scale to match aspect ratio", () => {
@@ -34,11 +43,9 @@ describe("ImageUI", () => {
         beforeEach(() => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-            resourceHandler.loadResource = jest
-                .fn()
-                .mockImplementation(() => {})
-            resourceHandler.getResource = jest
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
+            resourceHandler.getResource = vi
                 .fn()
                 .mockReturnValue({ width: 200, height: 100 })
         })
@@ -133,19 +140,17 @@ describe("ImageUI", () => {
     describe("area changes when the loading completes", () => {
         let resourceHandler: ResourceHandler
         let mockP5GraphicsContext: MockedP5GraphicsBuffer
-        let imageSpy: jest.SpyInstance
+        let imageSpy: MockInstance
 
         beforeEach(() => {
             mockP5GraphicsContext = new MockedP5GraphicsBuffer()
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
-            resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true)
-            resourceHandler.loadResource = jest
-                .fn()
-                .mockImplementation(() => {})
-            resourceHandler.getResource = jest
+            resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(true)
+            resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
+            resourceHandler.getResource = vi
                 .fn()
                 .mockReturnValue({ width: 200, height: 100 })
-            imageSpy = jest
+            imageSpy = vi
                 .spyOn(mockP5GraphicsContext, "image")
                 .mockReturnValue()
         })
@@ -296,9 +301,9 @@ describe("ImageUI", () => {
                 expect(RectAreaService.height(imageUI.drawArea)).toEqual(1000)
             })
             it("if no callback is provided, uses initial area size as a default and prints a warning", () => {
-                const consoleWarnSpy = jest
+                const consoleWarnSpy = vi
                     .spyOn(console, "warn")
-                    .mockImplementation()
+                    .mockImplementation(() => {})
                 const imageUI: ImageUI = new ImageUI({
                     imageLoadingBehavior: {
                         resourceKey: "resourceKey",

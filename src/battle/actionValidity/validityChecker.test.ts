@@ -10,6 +10,7 @@ import { ActionPointCheck } from "./actionPointCheck"
 import { BuffSelfCheck } from "./buffSelfCheck"
 import { PerRoundCheck } from "./perRoundCheck"
 import { GameEngineStateService } from "../../gameEngine/gameEngine"
+import { describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("validity checker", () => {
     const setupSingleSquaddie = () => {
@@ -47,7 +48,7 @@ describe("validity checker", () => {
         {
             checkerName: "actionPointCheck",
             setupSpy: () => {
-                const spy = jest.spyOn(ActionPointCheck, "canAfford")
+                const spy = vi.spyOn(ActionPointCheck, "canAfford")
                 spy.mockReturnValue({
                     isValid: false,
                     reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
@@ -60,7 +61,7 @@ describe("validity checker", () => {
         {
             checkerName: "buffSelfCheck",
             setupSpy: () => {
-                const spy = jest.spyOn(BuffSelfCheck, "willBuffUser")
+                const spy = vi.spyOn(BuffSelfCheck, "willBuffUser")
                 spy.mockReturnValue({
                     isValid: false,
                     reason: ActionPerformFailureReason.BUFF_HAS_NO_EFFECT,
@@ -73,7 +74,7 @@ describe("validity checker", () => {
         {
             checkerName: "perRoundCheck",
             setupSpy: () => {
-                const spy = jest.spyOn(
+                const spy = vi.spyOn(
                     PerRoundCheck,
                     "withinLimitedUsesThisRound"
                 )
@@ -94,7 +95,7 @@ describe("validity checker", () => {
             const { actionTemplateId, battleSquaddieId, objectRepository } =
                 setupSingleSquaddie()
 
-            const spy: jest.SpyInstance = setupSpy()
+            const spy: MockInstance = setupSpy()
 
             const actionStatus = ValidityCheckService.calculateActionValidity({
                 objectRepository,
@@ -115,14 +116,14 @@ describe("validity checker", () => {
         const { actionTemplateId, battleSquaddieId, objectRepository } =
             setupSingleSquaddie()
 
-        const actionPointCheckSpy = jest.spyOn(ActionPointCheck, "canAfford")
+        const actionPointCheckSpy = vi.spyOn(ActionPointCheck, "canAfford")
         actionPointCheckSpy.mockReturnValue({
             isValid: false,
             reason: ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING,
             message: "Need 1 action point",
         })
 
-        const willBuffUserSpy = jest.spyOn(BuffSelfCheck, "willBuffUser")
+        const willBuffUserSpy = vi.spyOn(BuffSelfCheck, "willBuffUser")
         willBuffUserSpy.mockReturnValue({
             isValid: false,
             reason: ActionPerformFailureReason.BUFF_HAS_NO_EFFECT,

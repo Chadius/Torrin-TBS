@@ -26,11 +26,12 @@ import { SplashScreen } from "../../cutscene/splashScreen"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { MissionMapService } from "../../missionMap/missionMap"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Mission Loader", () => {
     let resourceHandler: ResourceHandler
     let missionData: MissionFileFormat
-    let loadFileIntoFormatSpy: jest.SpyInstance
+    let loadFileIntoFormatSpy: MockInstance
     let missionLoaderContext: MissionLoaderContext
     let objectRepository: ObjectRepository
     let enemyDemonSlitherTemplate: SquaddieTemplate
@@ -43,9 +44,9 @@ describe("Mission Loader", () => {
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
         )
-        resourceHandler.loadResources = jest.fn()
-        resourceHandler.loadResource = jest.fn()
-        resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true)
+        resourceHandler.loadResources = vi.fn()
+        resourceHandler.loadResource = vi.fn()
+        resourceHandler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
         ;({
             loadFileIntoFormatSpy,
             playerArmy,
@@ -588,7 +589,7 @@ describe("Mission Loader", () => {
 
     it("can reduce the pending resources", () => {
         missionLoaderContext.resourcesPendingLoading = ["A", "B", "C"]
-        resourceHandler.isResourceLoaded = jest
+        resourceHandler.isResourceLoaded = vi
             .fn()
             .mockImplementation((_: string) => {
                 return false
@@ -603,7 +604,7 @@ describe("Mission Loader", () => {
             "C",
         ])
 
-        resourceHandler.isResourceLoaded = jest
+        resourceHandler.isResourceLoaded = vi
             .fn()
             .mockImplementation((resourceKey: string) => {
                 return resourceKey === "A"
@@ -614,7 +615,7 @@ describe("Mission Loader", () => {
         })
         expect(missionLoaderContext.resourcesPendingLoading).toEqual(["B", "C"])
 
-        resourceHandler.isResourceLoaded = jest
+        resourceHandler.isResourceLoaded = vi
             .fn()
             .mockImplementation((_: string) => {
                 return true
@@ -628,7 +629,7 @@ describe("Mission Loader", () => {
 
     describe("initializes resources once loading is finished and resources are found", () => {
         beforeEach(async () => {
-            resourceHandler.getResource = jest
+            resourceHandler.getResource = vi
                 .fn()
                 .mockReturnValue({ width: 1, height: 1 })
 
@@ -639,9 +640,7 @@ describe("Mission Loader", () => {
                 objectRepository: objectRepository,
             })
 
-            jest.spyOn(resourceHandler, "isResourceLoaded").mockReturnValue(
-                true
-            )
+            vi.spyOn(resourceHandler, "isResourceLoaded").mockReturnValue(true)
             resourceHandler.loadResources(
                 missionLoaderContext.resourcesPendingLoading
             )

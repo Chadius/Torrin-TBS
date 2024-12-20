@@ -1,4 +1,5 @@
 import { UIControlSettings } from "./uiControlSettings"
+import { describe, expect, it } from "vitest"
 
 describe("UI Control Settings", () => {
     it("can override UI Control Setting values with another UI Control Settings", () => {

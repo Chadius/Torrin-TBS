@@ -1,6 +1,7 @@
 import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { NewPathLengthIsLessThanMaximum } from "./newPathLengthIsLessThanMaximum"
+import { describe, expect, it } from "vitest"
 
 const createSearchPathFixture = () => {
     const condition = new NewPathLengthIsLessThanMaximum()

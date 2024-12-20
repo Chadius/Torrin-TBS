@@ -1,5 +1,6 @@
 import { NumberGeneratorStrategy } from "./strategy"
 import { StreamNumberGenerator } from "./stream"
+import { describe, expect, it } from "vitest"
 
 describe("stream number generator", () => {
     it("will always produce the given numbers", () => {

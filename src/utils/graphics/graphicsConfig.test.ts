@@ -1,4 +1,5 @@
 import { GraphicsConfig, ScreenDimensions } from "./graphicsConfig"
+import { describe, expect, it } from "vitest"
 
 describe("graphics config", () => {
     describe("isCoordinateOnScreen", () => {

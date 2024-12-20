@@ -1,4 +1,5 @@
 import { GetMouseButton, MouseButton } from "./mouseConfig"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Mouse Config", () => {
     let mouseButtonAcceptMouseButtonName: string

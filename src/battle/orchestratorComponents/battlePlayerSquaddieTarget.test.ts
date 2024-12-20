@@ -42,6 +42,15 @@ import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -59,9 +68,9 @@ describe("BattleSquaddieTarget", () => {
     let bandageWoundsAction: ActionTemplate
     let bandageWoundsActionId: string = "bandage wounds"
     let gameEngineState: GameEngineState
-    let mockResourceHandler: jest.Mocked<ResourceHandler>
+    let mockResourceHandler: ResourceHandler
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
-    let messageSpy: jest.SpyInstance
+    let messageSpy: MockInstance
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
@@ -180,7 +189,7 @@ describe("BattleSquaddieTarget", () => {
         })
 
         mockResourceHandler = mocks.mockResourceHandler(mockedP5GraphicsContext)
-        mockResourceHandler.getResource = jest
+        mockResourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -218,7 +227,7 @@ describe("BattleSquaddieTarget", () => {
                 screenSelectionCoordinates: { x: 0, y: 0 },
             })
 
-        messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+        messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     })
 
     afterEach(() => {
@@ -517,8 +526,9 @@ describe("BattleSquaddieTarget", () => {
         )
     })
 
+    // TODO Legit failure
     it("sends a Peek message when the mouse moves over a squaddie", () => {
-        let messageSpy: jest.SpyInstance = jest.spyOn(
+        let messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,
             "sendMessage"
         )

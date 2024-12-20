@@ -2,6 +2,7 @@ import { PlayerArmy, PlayerArmyHelper } from "./playerArmy"
 import { SquaddieTemplateService } from "./squaddieTemplate"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import { describe, expect, it, vi } from "vitest"
 
 describe("Player Army", () => {
     describe("sanitization", () => {
@@ -31,7 +32,7 @@ describe("Player Army", () => {
                     }),
                 ],
             }
-            const squaddieTemplateSanitizer = jest.spyOn(
+            const squaddieTemplateSanitizer = vi.spyOn(
                 SquaddieTemplateService,
                 "sanitize"
             )

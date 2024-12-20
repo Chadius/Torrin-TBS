@@ -1,4 +1,5 @@
 import { Dialogue, DialogueService } from "./dialogue"
+import { describe, expect, it } from "vitest"
 
 describe("dialogue", () => {
     it("can create new dialogue data objects", () => {

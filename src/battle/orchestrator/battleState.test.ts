@@ -49,6 +49,15 @@ import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddi
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("Battle State", () => {
     it("overrides team strategy for non-player teams", () => {
@@ -331,11 +340,11 @@ describe("Battle State", () => {
         let enemyTeam0: BattleSquaddieTeam
         let battleState: BattleState
         let objectRepository: ObjectRepository
-        let getImageUISpy: jest.SpyInstance
+        let getImageUISpy: MockInstance
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
-            getImageUISpy = jest
+            getImageUISpy = vi
                 .spyOn(ObjectRepositoryService, "getImageUIByBattleSquaddieId")
                 .mockReturnValue(undefined)
             const playerTemplate: SquaddieTemplate =
@@ -467,9 +476,9 @@ describe("Battle State", () => {
         let moveAction: BattleAction
         let objectRepository: ObjectRepository
         let battleSquaddie: BattleSquaddie
-        let messageSpy: jest.SpyInstance
-        let drawReachSpy: jest.SpyInstance
-        let tintSquaddieSpy: jest.SpyInstance
+        let messageSpy: MockInstance
+        let drawReachSpy: MockInstance
+        let tintSquaddieSpy: MockInstance
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
@@ -524,15 +533,15 @@ describe("Battle State", () => {
                 MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION
             )
 
-            messageSpy = jest.spyOn(gameEngineState.messageBoard, "sendMessage")
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-            drawReachSpy = jest
+            drawReachSpy = vi
                 .spyOn(
                     DrawSquaddieUtilities,
                     "highlightPlayableSquaddieReachIfTheyCanAct"
                 )
                 .mockReturnValue()
-            tintSquaddieSpy = jest
+            tintSquaddieSpy = vi
                 .spyOn(
                     DrawSquaddieUtilities,
                     "tintSquaddieMapIconIfTheyCannotAct"
@@ -590,9 +599,9 @@ describe("Battle State", () => {
         })
 
         it("tries to update the inBattleAttributes for the summary window", () => {
-            const updateTileUsingSquaddieSpy: jest.SpyInstance = jest
+            const updateTileUsingSquaddieSpy: MockInstance = vi
                 .spyOn(SquaddieStatusTileService, "updateTileUsingSquaddie")
-                .mockImplementation()
+                .mockImplementation(() => {})
 
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
                 SummaryHUDStateService.new({})
@@ -615,7 +624,7 @@ describe("Battle State", () => {
             })
 
             const graphicsContext = new MockedP5GraphicsBuffer()
-            graphicsContext.textWidth = jest.fn().mockReturnValue(10)
+            graphicsContext.textWidth = vi.fn().mockReturnValue(10)
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.BATTLE_ACTION_FINISHES_ANIMATION,

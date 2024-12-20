@@ -5,6 +5,7 @@ import {
     MissionCutsceneCollectionHelper,
 } from "./missionCutsceneCollection"
 import { DialogueService } from "../../cutscene/dialogue/dialogue"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("MissionCutsceneCollection", () => {
     let dinnerDate: Cutscene

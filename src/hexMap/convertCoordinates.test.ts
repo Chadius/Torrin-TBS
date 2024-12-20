@@ -1,6 +1,7 @@
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { HEX_TILE_RADIUS, HEX_TILE_WIDTH } from "../graphicsConstants"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
+import { describe, expect, it } from "vitest"
 
 describe("convertCoordinates", () => {
     it("converts world coordinates to map coordinates", () => {

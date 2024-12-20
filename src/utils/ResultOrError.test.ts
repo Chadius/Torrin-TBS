@@ -7,6 +7,7 @@ import {
     ResultOrError,
     unwrapResultOrError,
 } from "./ResultOrError"
+import { describe, expect, it } from "vitest"
 
 describe("ResultOrError", () => {
     const returnResult = (): ResultOrError<string, Error> => {

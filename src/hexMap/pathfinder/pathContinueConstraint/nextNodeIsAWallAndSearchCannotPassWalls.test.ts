@@ -3,6 +3,7 @@ import { SearchPathService } from "../searchPath"
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { NextNodeIsAWallAndSearchCannotPassWalls } from "./nextNodeIsAWallAndSearchCannotPassWalls"
+import { describe, expect, it } from "vitest"
 
 describe("addPathConditionPathLeadsToWall", () => {
     it("returns true if the path is not on a wall", () => {

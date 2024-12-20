@@ -1,5 +1,6 @@
 import { HexGridTileHelper } from "./hexGrid"
 import { HexGridMovementCost } from "./hexGridMovementCost"
+import { describe, expect, it } from "vitest"
 
 describe("HexGrid", () => {
     it("throws an error if non integer coordinates are used for HexGrid", () => {

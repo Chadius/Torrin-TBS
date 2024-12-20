@@ -12,6 +12,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
 import { TeamStrategyService } from "./teamStrategyCalculator"
 import { SquaddieTurnService } from "../../squaddie/turn"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("team strategy calculator", () => {
     describe("getCurrentlyActingSquaddieWhoCanAct", () => {

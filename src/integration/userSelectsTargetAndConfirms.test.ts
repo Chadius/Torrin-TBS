@@ -64,6 +64,7 @@ import { ArmyAttributesService } from "../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../action/actionResourceCost"
 import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmSpec"
 import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
+import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -146,11 +147,11 @@ describe("User Selects Target and Confirms", () => {
 
         graphicsContext = new MockedP5GraphicsBuffer()
         resourceHandler = mocks.mockResourceHandler(graphicsContext)
-        resourceHandler.areAllResourcesLoaded = jest
+        resourceHandler.areAllResourcesLoaded = vi
             .fn()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
 
@@ -523,34 +524,34 @@ describe("User Selects Target and Confirms", () => {
 
     describe("Animator chooses correct mode", () => {
         let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie
-        let squaddieTargetsOtherSquaddiesAnimatorUpdateSpy: jest.SpyInstance
-        let squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy: jest.SpyInstance
-        let squaddieSkipsAnimationAnimatorUpdateSpy: jest.SpyInstance
-        let squaddieSkipsAnimationAnimatorHasCompletedSpy: jest.SpyInstance
+        let squaddieTargetsOtherSquaddiesAnimatorUpdateSpy: MockInstance
+        let squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy: MockInstance
+        let squaddieSkipsAnimationAnimatorUpdateSpy: MockInstance
+        let squaddieSkipsAnimationAnimatorHasCompletedSpy: MockInstance
 
         beforeEach(() => {
             squaddieUsesActionOnSquaddie =
                 new BattleSquaddieUsesActionOnSquaddie()
-            squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest
+            squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                     "update"
                 )
-                .mockImplementation()
-            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest
+                .mockImplementation(() => {})
+            squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator,
                     "hasCompleted"
                 )
                 .mockReturnValue(false)
 
-            squaddieSkipsAnimationAnimatorUpdateSpy = jest
+            squaddieSkipsAnimationAnimatorUpdateSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator,
                     "update"
                 )
-                .mockImplementation()
-            squaddieSkipsAnimationAnimatorHasCompletedSpy = jest
+                .mockImplementation(() => {})
+            squaddieSkipsAnimationAnimatorHasCompletedSpy = vi
                 .spyOn(
                     squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator,
                     "hasCompleted"

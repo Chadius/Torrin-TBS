@@ -2,6 +2,7 @@ import { SquaddieId, SquaddieIdService } from "./id"
 import { SquaddieResourceService } from "./resource"
 import { SquaddieAffiliation } from "./squaddieAffiliation"
 import { TraitStatusStorageService } from "../trait/traitStatusStorage"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Squaddie Id", () => {
     it("sanitizes to fill in missing values", () => {
@@ -98,7 +99,7 @@ describe("Squaddie Id", () => {
     })
 
     it("will sanitize traits", () => {
-        const sanitizeSpy = jest.spyOn(TraitStatusStorageService, "sanitize")
+        const sanitizeSpy = vi.spyOn(TraitStatusStorageService, "sanitize")
         SquaddieIdService.new({
             name: "squaddieTemplate",
             templateId: "squaddieTemplate",

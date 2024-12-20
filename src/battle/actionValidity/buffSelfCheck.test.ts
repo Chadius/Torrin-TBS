@@ -19,6 +19,7 @@ import {
 } from "../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
+import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Buff Self Checker", () => {
     let raiseShield: ActionTemplate

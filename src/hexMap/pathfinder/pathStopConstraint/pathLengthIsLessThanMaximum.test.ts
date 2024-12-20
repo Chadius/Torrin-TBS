@@ -1,6 +1,7 @@
 import { SearchParametersService } from "../searchParameters"
 import { SearchPathService } from "../searchPath"
 import { PathLengthIsLessThanMaximum } from "./pathLengthIsLessThanMaximum"
+import { describe, expect, it } from "vitest"
 
 describe("AddPathConditionPathIsLessThanTotalMovement", () => {
     it("knows if the current path is shorter than the total movement", () => {

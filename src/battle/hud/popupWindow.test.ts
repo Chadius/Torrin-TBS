@@ -9,11 +9,20 @@ import {
 } from "./popupWindow"
 import { BattleCamera } from "../battleCamera"
 import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("PopUp", () => {
     let popup: PopupWindow
     let graphicsContext: MockedP5GraphicsBuffer
-    let drawRectSpy: jest.SpyInstance
+    let drawRectSpy: MockInstance
 
     beforeEach(() => {
         popup = PopupWindowService.new({
@@ -33,7 +42,7 @@ describe("PopUp", () => {
 
         graphicsContext = new MockedP5GraphicsBuffer()
 
-        drawRectSpy = jest.spyOn(graphicsContext, "rect")
+        drawRectSpy = vi.spyOn(graphicsContext, "rect")
     })
 
     afterEach(() => {
@@ -143,7 +152,7 @@ describe("PopUp", () => {
     describe("set popup to Inactive after timer expires", () => {
         let popup: PopupWindow
         let graphicsContext: MockedP5GraphicsBuffer
-        let dateSpy: jest.SpyInstance
+        let dateSpy: MockInstance
 
         beforeEach(() => {
             popup = PopupWindowService.new({
@@ -163,7 +172,7 @@ describe("PopUp", () => {
             })
             PopupWindowService.changeStatus(popup, PopupWindowStatus.ACTIVE)
             graphicsContext = new MockedP5GraphicsBuffer()
-            dateSpy = jest.spyOn(Date, "now").mockReturnValue(0)
+            dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
         })
 
         afterEach(() => {

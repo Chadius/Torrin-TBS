@@ -35,6 +35,15 @@ import { PopupWindow } from "./popupWindow"
 import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    MockInstance,
+    vi,
+} from "vitest"
 
 describe("playerCommandHUD", () => {
     let graphicsBuffer: MockedP5GraphicsBuffer
@@ -43,14 +52,14 @@ describe("playerCommandHUD", () => {
     let playerCommandState: PlayerCommandState
     let gameEngineState: GameEngineState
     let resourceHandler: ResourceHandler
-    let validityCheckerSpy: jest.SpyInstance
+    let validityCheckerSpy: MockInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
         graphicsBuffer = new MockedP5GraphicsBuffer()
-        graphicsBuffer.textWidth = jest.fn().mockReturnValue(1)
+        graphicsBuffer.textWidth = vi.fn().mockReturnValue(1)
         resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
-        resourceHandler.getResource = jest
+        resourceHandler.getResource = vi
             .fn()
             .mockReturnValue({ width: 32, height: 32 })
         gameEngineState = GameEngineStateService.new({
@@ -117,7 +126,7 @@ describe("playerCommandHUD", () => {
             actionTemplateIds: [],
         })
 
-        validityCheckerSpy = jest
+        validityCheckerSpy = vi
             .spyOn(ValidityCheckService, "calculateActionValidity")
             .mockReturnValue({
                 [actionTemplate0.id]: {
@@ -508,7 +517,7 @@ describe("playerCommandHUD", () => {
 
         describe("disabled buttons", () => {
             beforeEach(() => {
-                validityCheckerSpy = jest
+                validityCheckerSpy = vi
                     .spyOn(ValidityCheckService, "calculateActionValidity")
                     .mockReturnValue({
                         actionTemplate0: {
@@ -553,7 +562,7 @@ describe("playerCommandHUD", () => {
         })
 
         it("will send a message to generate a pop up message during the next draw phase", () => {
-            validityCheckerSpy = jest
+            validityCheckerSpy = vi
                 .spyOn(ValidityCheckService, "calculateActionValidity")
                 .mockReturnValue({
                     actionTemplate0: {
@@ -566,7 +575,7 @@ describe("playerCommandHUD", () => {
                     },
                 })
 
-            const messageSpy: jest.SpyInstance = jest
+            const messageSpy: MockInstance = vi
                 .spyOn(gameEngineState.messageBoard, "sendMessage")
                 .mockReturnValue()
 
@@ -577,7 +586,7 @@ describe("playerCommandHUD", () => {
             })
             expect(playerCommandState.newInvalidPopup).not.toBeUndefined()
 
-            let textHandlingSpy = jest
+            let textHandlingSpy = vi
                 .spyOn(TextHandlingService, "calculateLengthOfLineOfText")
                 .mockReturnValue(5)
             PlayerCommandStateService.createQueuedPopupIfNeeded({
@@ -607,7 +616,7 @@ describe("playerCommandHUD", () => {
             textHandlingSpy.mockRestore()
         })
         it("will not send a message to generate a pop up if the action lacks a warning message", () => {
-            validityCheckerSpy = jest
+            validityCheckerSpy = vi
                 .spyOn(ValidityCheckService, "calculateActionValidity")
                 .mockReturnValue({
                     actionTemplate0: {
@@ -620,7 +629,7 @@ describe("playerCommandHUD", () => {
                     },
                 })
 
-            const messageSpy: jest.SpyInstance = jest
+            const messageSpy: MockInstance = vi
                 .spyOn(gameEngineState.messageBoard, "sendMessage")
                 .mockReturnValue()
 
