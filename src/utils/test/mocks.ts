@@ -2,7 +2,7 @@ import p5 from "p5"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
-import { Mocked, vi } from "vitest"
+import { Mocked, vi, MockInstance } from "vitest"
 
 vi.mock("p5", () => {
     return {
@@ -238,4 +238,31 @@ export class MockedP5GraphicsRenderer
 
 export const mockConsoleWarn = () => {
     return vi.spyOn(console, "warn").mockImplementation(() => {})
+}
+
+export const MockedGraphicsBufferService = {
+    addSpies: (mockP5GraphicsContext: GraphicsBuffer) => {
+        let graphicsBufferSpies: { [key: string]: MockInstance } = {}
+        graphicsBufferSpies["text"] = vi
+            .spyOn(mockP5GraphicsContext, "text")
+            .mockReturnValue()
+        graphicsBufferSpies["image"] = vi
+            .spyOn(mockP5GraphicsContext, "image")
+            .mockReturnValue()
+        graphicsBufferSpies["rect"] = vi
+            .spyOn(mockP5GraphicsContext, "rect")
+            .mockReturnValue()
+        graphicsBufferSpies["fill"] = vi
+            .spyOn(mockP5GraphicsContext, "fill")
+            .mockReturnValue()
+        graphicsBufferSpies["textWidth"] = vi
+            .spyOn(mockP5GraphicsContext, "textWidth")
+            .mockReturnValue(10)
+        return graphicsBufferSpies
+    },
+    resetSpies: (graphicsBufferSpies: { [key: string]: MockInstance }) => {
+        Object.values(graphicsBufferSpies ?? {}).forEach((spy) => {
+            spy.mockRestore()
+        })
+    },
 }

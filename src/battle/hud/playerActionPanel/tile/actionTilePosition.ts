@@ -14,6 +14,8 @@ export enum ActionTilePosition {
     TARGET_NAME = "TARGET_NAME",
     ACTOR_STATUS = "ACTOR_STATUS",
     TARGET_STATUS = "TARGET_STATUS",
+    SELECTED_ACTION = "SELECTED_ACTION",
+    ACTION_PREVIEW = "ACTION_PREVIEW",
 }
 
 export const ActionTilePositionService = {
@@ -70,6 +72,14 @@ const getBoundingBoxBasedOnActionPanelPosition = (
         [ActionTilePosition.PEEK_PLAYABLE_STATUS]: {
             startColumn: 1,
             endColumn: 2,
+        },
+        [ActionTilePosition.SELECTED_ACTION]: {
+            startColumn: 3,
+            endColumn: 3,
+        },
+        [ActionTilePosition.ACTION_PREVIEW]: {
+            startColumn: 4,
+            endColumn: 5,
         },
         [ActionTilePosition.TARGET_STATUS]: {
             startColumn: 9,

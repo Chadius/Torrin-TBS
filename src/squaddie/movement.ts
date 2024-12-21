@@ -5,7 +5,6 @@ import {
 } from "../trait/traitStatusStorage"
 import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
 
-// TODO Next add it to action templates
 export interface SquaddieMovement {
     movementPerAction: number
     passThroughWalls: boolean

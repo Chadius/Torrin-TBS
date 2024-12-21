@@ -885,6 +885,12 @@ describe("Battle HUD", () => {
             it("highlights the squaddie movement range", () => {
                 expect(addGraphicsLayerSpy).toBeCalled()
             })
+            it("will remove the action selected tile from the HUD", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile
+                ).toBeUndefined()
+            })
         })
         describe("Cancel targeting on the second action", () => {
             beforeEach(() => {
@@ -1244,6 +1250,13 @@ describe("Battle HUD", () => {
                             .battleActionDecisionStep
                     ).actionTemplateId
                 ).toEqual(longswordAction.id)
+            })
+
+            it("will add a new tile to the HUD", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile.actionName
+                ).toBe(longswordAction.name)
             })
 
             it("will submit an event saying the action is ready", () => {

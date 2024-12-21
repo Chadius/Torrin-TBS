@@ -26,6 +26,10 @@ import {
     SquaddieStatusTile,
     SquaddieStatusTileService,
 } from "./playerActionPanel/tile/squaddieStatusTile"
+import {
+    ActionSelectedTile,
+    ActionSelectedTileService,
+} from "./playerActionPanel/tile/actionSelectedTile"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -53,6 +57,7 @@ export interface SummaryHUDState {
     squaddieStatusTiles: {
         [q in ActionTilePosition]?: SquaddieStatusTile
     }
+    actionSelectedTile: ActionSelectedTile
     squaddieToPeekAt?: {
         battleSquaddieId: string
         actionPanelPositions: {
@@ -72,6 +77,7 @@ export const SummaryHUDStateService = {
         playerCommandState: PlayerCommandStateService.new(),
         showPlayerCommand: false,
         screenSelectionCoordinates,
+        actionSelectedTile: undefined,
         squaddieNameTiles: {
             [ActionTilePosition.ACTOR_NAME]: undefined,
             [ActionTilePosition.PEEK_PLAYABLE_NAME]: undefined,
@@ -178,6 +184,12 @@ export const SummaryHUDStateService = {
             graphicsBuffer,
             gameEngineState,
         })
+        drawSelectedActionTile({
+            summaryHUDState,
+            graphicsBuffer,
+            resourceHandler,
+            gameEngineState,
+        })
 
         if (summaryHUDState.showPlayerCommand) {
             PlayerCommandStateService.draw({
@@ -241,6 +253,37 @@ export const SummaryHUDStateService = {
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep
             ).battleSquaddieId,
+        })
+    },
+    createActionTiles: ({
+        summaryHUDState,
+        objectRepository,
+        gameEngineState,
+    }: {
+        summaryHUDState: SummaryHUDState
+        objectRepository: ObjectRepository
+        gameEngineState: GameEngineState
+    }) => {
+        const selectedAction = BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+        if (!selectedAction) return
+
+        const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+            objectRepository,
+            selectedAction.actionTemplateId
+        )
+        if (!actionTemplate) return
+
+        summaryHUDState.actionSelectedTile = ActionSelectedTileService.new({
+            objectRepository,
+            battleSquaddieId: BattleActionDecisionStepService.getActor(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep
+            ).battleSquaddieId,
+            actionTemplateId: actionTemplate.id,
+            horizontalPosition: ActionTilePosition.SELECTED_ACTION,
         })
     },
     peekAtSquaddie: ({
@@ -445,6 +488,37 @@ const drawTargetTiles = ({
         ],
         graphicsContext: graphicsBuffer,
         resourceHandler: gameEngineState.resourceHandler,
+    })
+}
+
+const drawSelectedActionTile = ({
+    graphicsBuffer,
+    gameEngineState,
+    summaryHUDState,
+    resourceHandler,
+}: {
+    graphicsBuffer: GraphicsBuffer
+    gameEngineState: GameEngineState
+    summaryHUDState: SummaryHUDState
+    resourceHandler: ResourceHandler
+}) => {
+    if (
+        !BattleActionDecisionStepService.getAction(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ) {
+        summaryHUDState.actionSelectedTile = undefined
+        return
+    }
+
+    if (!summaryHUDState.actionSelectedTile) return
+
+    ActionSelectedTileService.draw({
+        tile: summaryHUDState.actionSelectedTile,
+        resourceHandler,
+        graphicsContext: graphicsBuffer,
+        objectRepository: gameEngineState.repository,
     })
 }
 

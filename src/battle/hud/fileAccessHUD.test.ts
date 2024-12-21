@@ -420,7 +420,6 @@ describe("File Access HUD", () => {
                     ButtonStatus.READY
                 )
             })
-            // TODO Legit error?
             it("generates a message indicating the Load failed for a period of time", () => {
                 const initialMessage: string =
                     FileAccessHUDService.updateStatusMessage(

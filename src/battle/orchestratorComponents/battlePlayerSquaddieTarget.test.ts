@@ -526,7 +526,6 @@ describe("BattleSquaddieTarget", () => {
         )
     })
 
-    // TODO Legit failure
     it("sends a Peek message when the mouse moves over a squaddie", () => {
         let messageSpy: MockInstance = vi.spyOn(
             gameEngineState.messageBoard,

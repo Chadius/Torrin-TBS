@@ -951,7 +951,7 @@ describe("summaryHUD", () => {
         })
     })
 
-    describe("playerCommandHUD selects a squaddie action", () => {
+    describe("player selects an action to see action tile", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
             summaryHUDState = SummaryHUDStateService.new({
@@ -981,15 +981,16 @@ describe("summaryHUD", () => {
                 objectRepository,
                 resourceHandler,
             })
+        })
+
+        it("will delegate mouseMoved events to playerCommandHUD when it is active", () => {
             SummaryHUDStateService.draw({
                 summaryHUDState,
                 gameEngineState,
                 graphicsBuffer,
                 resourceHandler,
             })
-        })
 
-        it("will delegate mouseMoved events to playerCommandHUD when it is active", () => {
             const playerCommandSpy = vi.spyOn(
                 PlayerCommandStateService,
                 "mouseMoved"
@@ -1018,6 +1019,13 @@ describe("summaryHUD", () => {
         })
 
         it("will return which button was clicked on the PlayerCommandHUD", () => {
+            SummaryHUDStateService.draw({
+                summaryHUDState,
+                gameEngineState,
+                graphicsBuffer,
+                resourceHandler,
+            })
+
             const playerCommandSpy: MockInstance = vi.spyOn(
                 PlayerCommandStateService,
                 "mouseClicked"
@@ -1041,6 +1049,33 @@ describe("summaryHUD", () => {
                 PlayerCommandSelection.PLAYER_COMMAND_SELECTION_ACTION
             )
             playerCommandSpy.mockRestore()
+        })
+
+        it("will create an action tile when an action is selected", () => {
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: "actionTemplate0",
+            })
+
+            SummaryHUDStateService.createActorTiles({
+                summaryHUDState,
+                gameEngineState,
+                objectRepository,
+                resourceHandler,
+            })
+
+            SummaryHUDStateService.createActionTiles({
+                summaryHUDState,
+                gameEngineState,
+                objectRepository,
+            })
+
+            expect(summaryHUDState.actionSelectedTile).not.toBeUndefined()
+            expect(summaryHUDState.actionSelectedTile.actionName).toEqual(
+                "NeedsTarget"
+            )
         })
     })
 })

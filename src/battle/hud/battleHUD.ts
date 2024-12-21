@@ -379,6 +379,14 @@ export const BattleHUDService = {
             actionTemplateId: actionTemplate.id,
         })
 
+        SummaryHUDStateService.createActionTiles({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            gameEngineState,
+            objectRepository: gameEngineState.repository,
+        })
+
         gameEngineState.messageBoard.sendMessage({
             type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
             gameEngineState,

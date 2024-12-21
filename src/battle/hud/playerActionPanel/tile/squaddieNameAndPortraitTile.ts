@@ -27,6 +27,16 @@ import {
     ImageUIService,
 } from "../../../../ui/ImageUI"
 
+const layoutConstants = {
+    portraitNameText: {
+        fontSizeRange: {
+            preferred: 32,
+            minimum: 10,
+        },
+        linesOfTextRange: { minimum: 2 },
+    },
+}
+
 export interface SquaddieNameAndPortraitTile {
     squaddieNameTextBox?: TextBox
     portraitImage?: ImageUI
@@ -116,11 +126,8 @@ const setPortraitNameTextBox = (
         width:
             RectAreaService.width(overallBoundingBox) - WINDOW_SPACING.SPACING2,
         graphicsContext,
-        fontSizeRange: {
-            preferred: 32,
-            minimum: 10,
-        },
-        linesOfTextRange: { minimum: 2 },
+        fontSizeRange: layoutConstants.portraitNameText.fontSizeRange,
+        linesOfTextRange: layoutConstants.portraitNameText.linesOfTextRange,
     })
 
     tile.squaddieNameTextBox = TextBoxService.new({
