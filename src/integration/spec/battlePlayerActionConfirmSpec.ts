@@ -33,7 +33,7 @@ export const BattlePlayerActionConfirmSpec = {
         const confirmSelectionClick: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT * 0.5,
+            mouseY: ScreenDimensions.SCREEN_HEIGHT * 0.9,
             mouseButton: MouseButton.ACCEPT,
         }
 

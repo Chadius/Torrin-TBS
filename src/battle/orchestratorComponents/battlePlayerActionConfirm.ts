@@ -21,7 +21,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { TargetingResultsService } from "../targeting/targetingService"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { LabelService } from "../../ui/label"
+import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { ActionResultTextService } from "../animation/actionResultTextService"
@@ -81,6 +81,8 @@ const layout = {
 export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     private cancelAbility: boolean
     private hasConfirmedAction: boolean
+    private confirmButton: Label
+    private cancelButton: Label
 
     constructor() {
         this.resetObject()
@@ -183,9 +185,9 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }) {
         if (
             didUserCancelActionConfirmation({
-                gameEngineState,
                 mouseEvent,
                 keyboardEvent,
+                cancelButtonArea: this.cancelButton.rectangle.area,
             })
         ) {
             TargetingResultsService.highlightTargetRange(gameEngineState)
@@ -198,10 +200,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         }
 
         if (
-            !this.didUserConfirmActionConfirmation({
-                gameEngineState,
+            !didUserConfirmActionConfirmation({
                 mouseEvent,
                 keyboardEvent,
+                confirmButtonArea: this.confirmButton.rectangle.area,
             })
         ) {
             return
@@ -214,40 +216,11 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         this.hasConfirmedAction = true
     }
 
-    private didUserConfirmActionConfirmation({
-        gameEngineState,
-        mouseEvent,
-        keyboardEvent,
-    }: {
-        gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
-        keyboardEvent?: OrchestratorComponentKeyEvent
-    }) {
-        if (
-            isValidValue(mouseEvent) &&
-            mouseEvent.mouseButton !== MouseButton.ACCEPT
-        ) {
-            return false
-        }
-        if (
-            isValidValue(keyboardEvent) &&
-            KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) !== true
-        ) {
-            return false
-        }
-        return true
-    }
-
     private resetObject() {
         this.hasConfirmedAction = false
         this.cancelAbility = false
-    }
 
-    private drawConfirmWindow(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        this.drawButton({
+        this.confirmButton = this.createButton({
             ...layout.okButton,
             area: RectAreaService.new({
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
@@ -258,10 +231,10 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 height: layout.okButton.height,
             }),
             buttonText: layout.okButton.text,
-            graphicsContext: graphicsContext,
             textSize: layout.okButton.fontSize,
         })
-        this.drawButton({
+
+        this.cancelButton = this.createButton({
             ...layout.cancelButton,
             area: RectAreaService.new({
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
@@ -273,9 +246,16 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 height: layout.cancelButton.height,
             }),
             buttonText: layout.cancelButton.text,
-            graphicsContext: graphicsContext,
             textSize: layout.cancelButton.fontSize,
         })
+    }
+
+    private drawConfirmWindow(
+        gameEngineState: GameEngineState,
+        graphicsContext: GraphicsBuffer
+    ) {
+        LabelService.draw(this.confirmButton, graphicsContext)
+        LabelService.draw(this.cancelButton, graphicsContext)
 
         const battleSquaddieId = BattleActionDecisionStepService.getActor(
             gameEngineState.battleOrchestratorState.battleState
@@ -326,7 +306,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
 
         const messageToShow = intentMessages.join("\n")
 
-        this.drawButton({
+        const buttonBackground = this.createButton({
             ...layout.middleButton,
             area: RectAreaService.new({
                 left: ScreenDimensions.SCREEN_WIDTH / 12,
@@ -335,15 +315,15 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2),
             }),
             buttonText: messageToShow,
-            graphicsContext: graphicsContext,
             textSize: MESSAGE_TEXT_SIZE,
         })
+
+        LabelService.draw(buttonBackground, graphicsContext)
     }
 
-    private drawButton({
+    private createButton({
         area,
         buttonText,
-        graphicsContext,
         textSize,
         fillColor,
         strokeColor,
@@ -353,15 +333,14 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }: {
         area: RectArea
         buttonText: string
-        graphicsContext: GraphicsBuffer
         textSize: number
         fillColor: number[]
         strokeColor: number[]
         strokeWeight: number
         fontColor: number[]
         textBoxMargin: number[]
-    }) {
-        const buttonBackground = LabelService.new({
+    }): Label {
+        return LabelService.new({
             area,
             fillColor,
             strokeColor,
@@ -374,8 +353,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             fontColor,
             textBoxMargin,
         })
-
-        LabelService.draw(buttonBackground, graphicsContext)
     }
 }
 
@@ -413,34 +390,56 @@ const getActionEffectTemplate = ({
 }
 
 const didUserCancelActionConfirmation = ({
-    gameEngineState,
     mouseEvent,
     keyboardEvent,
+    cancelButtonArea,
 }: {
-    gameEngineState: GameEngineState
     mouseEvent?: OrchestratorComponentMouseEventClicked
     keyboardEvent?: OrchestratorComponentKeyEvent
+    cancelButtonArea: RectArea
 }): boolean => {
-    const cancelButtonArea = RectAreaService.new({
-        screenWidth: ScreenDimensions.SCREEN_WIDTH,
-        startColumn: layout.cancelButton.startColumn,
-        endColumn: layout.cancelButton.endColumn,
-        margin: [0, WINDOW_SPACING.SPACING2],
-        top: ScreenDimensions.SCREEN_HEIGHT - layout.cancelButton.height,
-        height: layout.cancelButton.height,
-    })
-    if (isValidValue(mouseEvent)) {
-        return (
-            mouseEvent.mouseButton === MouseButton.CANCEL ||
+    switch (true) {
+        case isValidValue(mouseEvent) &&
+            mouseEvent.mouseButton === MouseButton.CANCEL:
+            return true
+        case isValidValue(mouseEvent) &&
+            mouseEvent.mouseButton === MouseButton.ACCEPT &&
             RectAreaService.isInside(
                 cancelButtonArea,
                 mouseEvent.mouseX,
                 mouseEvent.mouseY
-            )
-        )
+            ):
+            return true
+        case isValidValue(keyboardEvent) &&
+            KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode):
+            return true
+        default:
+            return false
     }
-    if (isValidValue(keyboardEvent)) {
-        return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
+}
+
+const didUserConfirmActionConfirmation = ({
+    mouseEvent,
+    keyboardEvent,
+    confirmButtonArea,
+}: {
+    mouseEvent?: OrchestratorComponentMouseEventClicked
+    keyboardEvent?: OrchestratorComponentKeyEvent
+    confirmButtonArea: RectArea
+}) => {
+    switch (true) {
+        case isValidValue(mouseEvent) &&
+            mouseEvent.mouseButton === MouseButton.ACCEPT &&
+            RectAreaService.isInside(
+                confirmButtonArea,
+                mouseEvent.mouseX,
+                mouseEvent.mouseY
+            ):
+            return true
+        case isValidValue(keyboardEvent) &&
+            KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) === true:
+            return true
+        default:
+            return false
     }
-    return false
 }

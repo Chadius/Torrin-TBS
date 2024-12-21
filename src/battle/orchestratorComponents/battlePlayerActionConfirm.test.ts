@@ -215,8 +215,8 @@ describe("BattleActionConfirm", () => {
     const clickOnConfirm = () => {
         const confirmSelectionClick: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+            mouseX: (ScreenDimensions.SCREEN_WIDTH * 6.5) / 12,
+            mouseY: (ScreenDimensions.SCREEN_HEIGHT * 4) / 5,
             mouseButton: MouseButton.ACCEPT,
         }
 
