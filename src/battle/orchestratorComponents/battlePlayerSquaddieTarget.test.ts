@@ -309,11 +309,7 @@ describe("BattleSquaddieTarget", () => {
     describe("canceling after selecting action but before selecting target", () => {
         const tests = [
             {
-                mouseX: 0,
-                mouseY: ScreenDimensions.SCREEN_HEIGHT,
-            },
-            {
-                mouseX: ScreenDimensions.SCREEN_WIDTH,
+                mouseX: (ScreenDimensions.SCREEN_WIDTH * 6.5) / 12,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
             },
         ]

@@ -35,6 +35,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { RollModifierType } from "../calculator/actionCalculator/rollResult"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
 
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
 const MESSAGE_TEXT_SIZE = 24
@@ -62,19 +63,6 @@ const layout = {
         fontColor: [0, 0, 16],
         textBoxMargin: [0, 0, 0, 0],
         margin: [0, WINDOW_SPACING.SPACING1],
-    },
-    cancelButton: {
-        startColumn: 6,
-        endColumn: 6,
-        text: "Cancel",
-        fontSize: 16,
-        height: (ScreenDimensions.SCREEN_WIDTH / 12) * (GOLDEN_RATIO - 1),
-        fillColor: [0, 0, 64],
-        strokeColor: [0, 0, 0],
-        strokeWeight: 0,
-        fontColor: [0, 0, 16],
-        textBoxMargin: [0, 0, 0, 0],
-        margin: 0,
     },
 }
 
@@ -234,20 +222,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             textSize: layout.okButton.fontSize,
         })
 
-        this.cancelButton = this.createButton({
-            ...layout.cancelButton,
-            area: RectAreaService.new({
-                screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                startColumn: layout.cancelButton.startColumn,
-                endColumn: layout.cancelButton.endColumn,
-                margin: layout.cancelButton.margin,
-                top:
-                    ScreenDimensions.SCREEN_HEIGHT - layout.cancelButton.height,
-                height: layout.cancelButton.height,
-            }),
-            buttonText: layout.cancelButton.text,
-            textSize: layout.cancelButton.fontSize,
-        })
+        this.cancelButton = PlayerCancelButtonService.new()
     }
 
     private drawConfirmWindow(

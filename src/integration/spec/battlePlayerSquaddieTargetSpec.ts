@@ -15,7 +15,7 @@ export const BattlePlayerActionTargetSpec = {
     }) => {
         targeting.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
+            mouseX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
             mouseButton: MouseButton.ACCEPT,
         })

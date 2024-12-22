@@ -1,7 +1,5 @@
-import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
@@ -15,13 +13,12 @@ import {
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleOrchestratorState } from "../orchestrator/battleOrchestratorState"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { TargetingResultsService } from "../targeting/targetingService"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
+import { RectAreaService } from "../../ui/rectArea"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { OrchestratorUtilities } from "./orchestratorUtils"
-import { LabelService } from "../../ui/label"
+import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
@@ -30,18 +27,59 @@ import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
 import { BattleHUDStateService } from "../hud/battleHUDState"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
+import {
+    GOLDEN_RATIO,
+    HORIZONTAL_ALIGN,
+    VERTICAL_ALIGN,
+    WINDOW_SPACING,
+} from "../../ui/constants"
 
-export const TARGET_CANCEL_BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.9
-const MESSAGE_TEXT_SIZE = 24
+const layout = {
+    targetExplanationLabel: {
+        text: "Click on the target",
+        fontSize: 24,
+        centerX: (ScreenDimensions.SCREEN_WIDTH * 13) / 24,
+        width: (ScreenDimensions.SCREEN_WIDTH * 2) / 12,
+        height: ScreenDimensions.SCREEN_WIDTH / 12,
+        top:
+            ScreenDimensions.SCREEN_HEIGHT -
+            (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO,
+        fillColor: [0, 0, 128],
+        strokeColor: [0, 0, 0],
+        strokeWeight: 2,
+        fontColor: [0, 0, 16],
+        textBoxMargin: [0, 0, 0, 0],
+        margin: [0, WINDOW_SPACING.SPACING1],
+    },
+}
+
+const createExplanationLabel = () => {
+    return LabelService.new({
+        ...layout.targetExplanationLabel,
+        area: RectAreaService.new({
+            centerX: layout.targetExplanationLabel.centerX,
+            width: layout.targetExplanationLabel.width,
+            margin: layout.targetExplanationLabel.margin,
+            top: layout.targetExplanationLabel.top,
+            height: layout.targetExplanationLabel.height,
+        }),
+        textSize: layout.targetExplanationLabel.fontSize,
+        horizAlign: HORIZONTAL_ALIGN.CENTER,
+        vertAlign: VERTICAL_ALIGN.CENTER,
+    })
+}
 
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     hasSelectedValidTarget: boolean
-    private cancelAbility: boolean
-    private highlightedTargetRange: HexCoordinate[]
+    cancelAbility: boolean
+    highlightedTargetRange: HexCoordinate[]
+    cancelButton: Label
+    explanationLabel: Label
 
     constructor() {
         this.resetObject()
@@ -64,7 +102,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         if (
             mouseEvent.eventType === OrchestratorComponentMouseEventType.MOVED
         ) {
-            this.seeIfSquaddiePeekedOnASquaddie({ gameEngineState, mouseEvent })
+            sendMessageIfUserPeeksOnASquaddie({ gameEngineState, mouseEvent })
             return
         }
 
@@ -117,10 +155,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         if (!this.hasSelectedValidTarget) {
-            this.drawCancelAbilityButton(
-                gameEngineState.battleOrchestratorState,
-                graphicsContext
-            )
+            LabelService.draw(this.explanationLabel, graphicsContext)
+            LabelService.draw(this.cancelButton, graphicsContext)
         }
     }
 
@@ -151,7 +187,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.resetObject()
     }
 
-    private waitingForValidTarget = ({
+    private waitingForValidTarget({
         gameEngineState,
         mouseEvent,
         keyboardEvent,
@@ -159,15 +195,15 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState
         mouseEvent?: OrchestratorComponentMouseEventClicked
         keyboardEvent?: OrchestratorComponentKeyEvent
-    }) => {
+    }) {
         if (
-            this.didUserCancelTargetLocation({
-                gameEngineState,
+            didUserCancelTargetLocation({
+                targetComponent: this,
                 mouseEvent,
                 keyboardEvent,
             })
         ) {
-            this.cancelTargetSelection(gameEngineState)
+            cancelTargetSelection(this, gameEngineState)
 
             if (
                 gameEngineState.battleOrchestratorState.battleHUDState
@@ -212,66 +248,18 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         })
     }
 
-    private didUserCancelTargetLocation = ({
-        gameEngineState,
-        mouseEvent,
-        keyboardEvent,
-    }: {
-        gameEngineState: GameEngineState
-        mouseEvent?: OrchestratorComponentMouseEventClicked
-        keyboardEvent?: OrchestratorComponentKeyEvent
-    }): boolean => {
-        if (isValidValue(mouseEvent)) {
-            return (
-                mouseEvent.mouseButton === MouseButton.CANCEL ||
-                mouseEvent.mouseY > TARGET_CANCEL_BUTTON_TOP
-            )
-        }
-        if (isValidValue(keyboardEvent)) {
-            return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
-        }
-        return false
-    }
-
-    private cancelTargetSelection = (
-        gameEngineState: GameEngineState
-    ): void => {
-        this.cancelAbility = true
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
-            gameEngineState,
-        })
-    }
-
     private resetObject() {
         this.highlightedTargetRange = []
         this.cancelAbility = false
         this.hasSelectedValidTarget = false
+        this.cancelButton = PlayerCancelButtonService.new()
+        this.explanationLabel = createExplanationLabel()
     }
 
     private highlightTargetRange(gameEngineState: GameEngineState) {
         const actionRange =
             TargetingResultsService.highlightTargetRange(gameEngineState)
         this.highlightedTargetRange = [...actionRange]
-    }
-
-    private drawCancelAbilityButton(
-        state: BattleOrchestratorState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        const cancelAbilityButtonText =
-            "CONFIRM: Click on the target.     CANCEL: Click here."
-        this.drawButton(
-            RectAreaService.new({
-                left: 0,
-                top: TARGET_CANCEL_BUTTON_TOP,
-                width: ScreenDimensions.SCREEN_WIDTH,
-                height:
-                    ScreenDimensions.SCREEN_HEIGHT - TARGET_CANCEL_BUTTON_TOP,
-            }),
-            cancelAbilityButtonText,
-            graphicsContext
-        )
     }
 
     private tryToSelectValidTarget({
@@ -349,10 +337,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     actorBattleSquaddieId: actorBattleSquaddie.battleSquaddieId,
                     targetBattleSquaddieId:
                         targetBattleSquaddie.battleSquaddieId,
-                    actionTraits: (
-                        actionTemplate
-                            .actionEffectTemplates[0] as ActionEffectTemplate
-                    ).traits,
+                    actionTraits:
+                        actionTemplate.actionEffectTemplates[0].traits,
                     targetAffiliation:
                         targetSquaddieTemplate.squaddieId.affiliation,
                 }
@@ -377,63 +363,76 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             targetLocation: clickedLocation,
         })
     }
+}
 
-    private drawButton(
-        area: RectArea,
-        buttonText: string,
-        graphicsContext: GraphicsBuffer
-    ) {
-        const buttonBackground = LabelService.new({
-            area,
-            fillColor: [0, 0, 60],
-            strokeColor: [0, 0, 0],
-            strokeWeight: 4,
-
-            text: buttonText,
-            textSize: MESSAGE_TEXT_SIZE,
-            horizAlign: HORIZONTAL_ALIGN.CENTER,
-            vertAlign: VERTICAL_ALIGN.CENTER,
-            fontColor: [0, 0, 16],
-            textBoxMargin: [0, 0, 0, 0],
+const sendMessageIfUserPeeksOnASquaddie = ({
+    mouseEvent,
+    gameEngineState,
+}: {
+    mouseEvent: OrchestratorComponentMouseEventMoved
+    gameEngineState: GameEngineState
+}) => {
+    const { q, r } =
+        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            screenX: mouseEvent.mouseX,
+            screenY: mouseEvent.mouseY,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
-        LabelService.draw(buttonBackground, graphicsContext)
+    const { battleSquaddieId } = MissionMapService.getBattleSquaddieAtLocation(
+        gameEngineState.battleOrchestratorState.battleState.missionMap,
+        { q, r }
+    )
+
+    if (!isValidValue(battleSquaddieId)) {
+        return
     }
 
-    private seeIfSquaddiePeekedOnASquaddie = ({
-        mouseEvent,
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
         gameEngineState,
-    }: {
-        mouseEvent: OrchestratorComponentMouseEventMoved
-        gameEngineState: GameEngineState
-    }) => {
-        const { q, r } =
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
-                screenX: mouseEvent.mouseX,
-                screenY: mouseEvent.mouseY,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            })
-
-        const { battleSquaddieId } =
-            MissionMapService.getBattleSquaddieAtLocation(
-                gameEngineState.battleOrchestratorState.battleState.missionMap,
-                { q, r }
-            )
-
-        if (!isValidValue(battleSquaddieId)) {
-            return
-        }
-
-        gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
-            gameEngineState,
-            battleSquaddieSelectedId: battleSquaddieId,
-            selectionMethod: {
-                mouse: {
-                    x: mouseEvent.mouseX,
-                    y: mouseEvent.mouseY,
-                },
+        battleSquaddieSelectedId: battleSquaddieId,
+        selectionMethod: {
+            mouse: {
+                x: mouseEvent.mouseX,
+                y: mouseEvent.mouseY,
             },
-        })
+        },
+    })
+}
+
+const didUserCancelTargetLocation = ({
+    mouseEvent,
+    keyboardEvent,
+    targetComponent,
+}: {
+    targetComponent: BattlePlayerSquaddieTarget
+    mouseEvent?: OrchestratorComponentMouseEventClicked
+    keyboardEvent?: OrchestratorComponentKeyEvent
+}): boolean => {
+    if (isValidValue(mouseEvent)) {
+        return (
+            mouseEvent.mouseButton === MouseButton.CANCEL ||
+            RectAreaService.isInside(
+                targetComponent.cancelButton.rectangle.area,
+                mouseEvent.mouseX,
+                mouseEvent.mouseY
+            )
+        )
     }
+    if (isValidValue(keyboardEvent)) {
+        return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
+    }
+    return false
+}
+
+const cancelTargetSelection = (
+    targetComponent: BattlePlayerSquaddieTarget,
+    gameEngineState: GameEngineState
+): void => {
+    targetComponent.cancelAbility = true
+    gameEngineState.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
+        gameEngineState,
+    })
 }
