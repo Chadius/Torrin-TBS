@@ -25,7 +25,7 @@
     "actionDecisions": ["TARGET_SQUADDIE"]
   },
   {
-    "name": "Bite",
+    "name": "Arrow",
     "id": "demon_locust_arrow",
     "targetConstraints": {
       "minimumRange": 2,
