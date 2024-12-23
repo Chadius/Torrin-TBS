@@ -3,6 +3,7 @@ import {
     GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
+    WINDOW_SPACING,
 } from "../../../ui/constants"
 import { Label, LabelService } from "../../../ui/label"
 import { RectAreaService } from "../../../ui/rectArea"
@@ -18,7 +19,7 @@ const layout = {
     strokeWeight: 0,
     fontColor: [0, 0, 16],
     textBoxMargin: [0, 0, 0, 0],
-    margin: 0,
+    margin: [0, WINDOW_SPACING.SPACING1],
 }
 
 export const PlayerCancelButtonService = {

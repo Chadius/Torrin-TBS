@@ -2,7 +2,6 @@ import {
     GOLDEN_RATIO,
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
-    WINDOW_SPACING,
 } from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -35,20 +34,22 @@ import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
 
 const layout = {
     okButton: {
-        startColumn: 6,
-        endColumn: 6,
+        left: (ScreenDimensions.SCREEN_WIDTH * 6) / 12,
+        right: (ScreenDimensions.SCREEN_WIDTH * 7) / 12,
         text: "OK",
         fontSize: 24,
-        height: ScreenDimensions.SCREEN_WIDTH / 12,
+        bottom:
+            ScreenDimensions.SCREEN_HEIGHT -
+            (ScreenDimensions.SCREEN_WIDTH / 12) * (GOLDEN_RATIO - 1),
         top:
             ScreenDimensions.SCREEN_HEIGHT -
-            (ScreenDimensions.SCREEN_WIDTH / 12) * GOLDEN_RATIO,
+            (ScreenDimensions.SCREEN_WIDTH / 12) * (2 * GOLDEN_RATIO - 1),
         fillColor: [0, 0, 128],
         strokeColor: [0, 0, 0],
         strokeWeight: 2,
         fontColor: [0, 0, 16],
         textBoxMargin: [0, 0, 0, 0],
-        margin: [0, WINDOW_SPACING.SPACING1],
+        margin: 0,
     },
 }
 
@@ -198,12 +199,11 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         this.confirmButton = this.createButton({
             ...layout.okButton,
             area: RectAreaService.new({
-                screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                startColumn: layout.okButton.startColumn,
-                endColumn: layout.okButton.endColumn,
+                left: layout.okButton.left,
+                right: layout.okButton.right,
                 margin: layout.okButton.margin,
                 top: layout.okButton.top,
-                height: layout.okButton.height,
+                bottom: layout.okButton.bottom,
             }),
             buttonText: layout.okButton.text,
             textSize: layout.okButton.fontSize,
