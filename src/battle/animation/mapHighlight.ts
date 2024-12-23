@@ -191,6 +191,7 @@ export const MapHighlightService = {
             missionMap,
             campaignResources,
             squaddieIsNormallyControllableByPlayer,
+            actionPointsRemaining,
         })
         if (attackRange && attackRange.tiles.length > 0) {
             return [...movementRange, attackRange]
@@ -276,6 +277,7 @@ const addAttackRangeOntoMovementRange = ({
     missionMap,
     campaignResources,
     squaddieIsNormallyControllableByPlayer,
+    actionPointsRemaining,
 }: {
     objectRepository: ObjectRepository
     battleSquaddieId: string
@@ -283,12 +285,14 @@ const addAttackRangeOntoMovementRange = ({
     missionMap: MissionMap
     campaignResources: CampaignResources
     squaddieIsNormallyControllableByPlayer: boolean
+    actionPointsRemaining: number
 }): HighlightTileDescription => {
     const attackLocations = BattleSquaddieSelectorService.getAttackLocations({
         objectRepository,
         battleSquaddieId,
         reachableLocationSearch,
         missionMap,
+        actionPointsRemaining,
     })
 
     const pulseActionColor: PulseBlendColor =

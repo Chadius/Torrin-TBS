@@ -132,24 +132,20 @@ export const BattleSquaddieSelectorService = {
         battleSquaddieId,
         reachableLocationSearch,
         missionMap,
+        actionPointsRemaining,
     }: {
         objectRepository: ObjectRepository
         battleSquaddieId: string
         reachableLocationSearch: SearchResult
         missionMap: MissionMap
+        actionPointsRemaining: number
     }): HexCoordinate[] => {
-        const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
+        const { squaddieTemplate } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
                 battleSquaddieId
             )
         )
-
-        const { actionPointsRemaining } =
-            SquaddieService.getNumberOfActionPoints({
-                battleSquaddie,
-                squaddieTemplate,
-            })
 
         const allLocationsSquaddieCanMoveTo: HexCoordinate[] =
             SearchResultsService.getStoppableLocations(reachableLocationSearch)
