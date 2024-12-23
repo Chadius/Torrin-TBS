@@ -30,6 +30,10 @@ import {
     ActionSelectedTile,
     ActionSelectedTileService,
 } from "./playerActionPanel/tile/actionSelectedTile"
+import {
+    ActionPreviewTile,
+    ActionPreviewTileService,
+} from "./playerActionPanel/tile/actionPreviewTile"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -58,6 +62,7 @@ export interface SummaryHUDState {
         [q in ActionTilePosition]?: SquaddieStatusTile
     }
     actionSelectedTile: ActionSelectedTile
+    actionPreviewTile: ActionPreviewTile
     squaddieToPeekAt?: {
         battleSquaddieId: string
         actionPanelPositions: {
@@ -78,6 +83,7 @@ export const SummaryHUDStateService = {
         showPlayerCommand: false,
         screenSelectionCoordinates,
         actionSelectedTile: undefined,
+        actionPreviewTile: undefined,
         squaddieNameTiles: {
             [ActionTilePosition.ACTOR_NAME]: undefined,
             [ActionTilePosition.PEEK_PLAYABLE_NAME]: undefined,
@@ -190,6 +196,11 @@ export const SummaryHUDStateService = {
             resourceHandler,
             gameEngineState,
         })
+        drawActionPreviewTile({
+            summaryHUDState,
+            graphicsBuffer,
+            gameEngineState,
+        })
 
         if (summaryHUDState.showPlayerCommand) {
             PlayerCommandStateService.draw({
@@ -284,6 +295,20 @@ export const SummaryHUDStateService = {
             ).battleSquaddieId,
             actionTemplateId: actionTemplate.id,
             horizontalPosition: ActionTilePosition.SELECTED_ACTION,
+        })
+    },
+    createActionPreviewTile: ({
+        summaryHUDState,
+        objectRepository,
+        gameEngineState,
+    }: {
+        summaryHUDState: SummaryHUDState
+        objectRepository: ObjectRepository
+        gameEngineState: GameEngineState
+    }) => {
+        summaryHUDState.actionPreviewTile = ActionPreviewTileService.new({
+            gameEngineState,
+            objectRepository,
         })
     },
     peekAtSquaddie: ({
@@ -519,6 +544,33 @@ const drawSelectedActionTile = ({
         resourceHandler,
         graphicsContext: graphicsBuffer,
         objectRepository: gameEngineState.repository,
+    })
+}
+
+const drawActionPreviewTile = ({
+    graphicsBuffer,
+    gameEngineState,
+    summaryHUDState,
+}: {
+    graphicsBuffer: GraphicsBuffer
+    gameEngineState: GameEngineState
+    summaryHUDState: SummaryHUDState
+}) => {
+    if (
+        !BattleActionDecisionStepService.isTargetConsidered(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+    ) {
+        summaryHUDState.actionPreviewTile = undefined
+        return
+    }
+
+    if (!summaryHUDState.actionPreviewTile) return
+
+    ActionPreviewTileService.draw({
+        tile: summaryHUDState.actionPreviewTile,
+        graphicsContext: graphicsBuffer,
     })
 }
 

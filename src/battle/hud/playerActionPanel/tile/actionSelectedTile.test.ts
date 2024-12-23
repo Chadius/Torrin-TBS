@@ -18,21 +18,21 @@ import {
 } from "./actionSelectedTile"
 import { ActionTilePosition } from "./actionTilePosition"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
+import * as mocks from "../../../../utils/test/mocks"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
 } from "../../../../utils/test/mocks"
 import {
+    afterEach,
     beforeEach,
     describe,
     expect,
     it,
-    afterEach,
     MockInstance,
     vi,
 } from "vitest"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
-import * as mocks from "../../../../utils/test/mocks"
 
 describe("Action Selected Tile", () => {
     let objectRepository: ObjectRepository

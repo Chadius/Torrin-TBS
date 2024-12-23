@@ -2,7 +2,7 @@ import p5 from "p5"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { StubImmediateLoader } from "../../resource/resourceHandlerTestUtils"
 import { GraphicsBuffer, GraphicsRenderer } from "../graphics/graphicsRenderer"
-import { Mocked, vi, MockInstance } from "vitest"
+import { Mocked, MockInstance, vi } from "vitest"
 
 vi.mock("p5", () => {
     return {

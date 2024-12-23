@@ -399,6 +399,14 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
 
+        SummaryHUDStateService.createActionPreviewTile({
+            summaryHUDState:
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState,
+            gameEngineState,
+            objectRepository: gameEngineState.repository,
+        })
+
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState

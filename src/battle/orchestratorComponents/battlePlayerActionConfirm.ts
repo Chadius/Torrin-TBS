@@ -24,30 +24,16 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
-import { ActionResultTextService } from "../animation/actionResultTextService"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
 import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { CalculatorAttack } from "../calculator/actionCalculator/attack"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { RollModifierType } from "../calculator/actionCalculator/rollResult"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
 
-const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2
-const MESSAGE_TEXT_SIZE = 24
-
 const layout = {
-    middleButton: {
-        fillColor: [0, 0, 60],
-        strokeColor: [0, 0, 0],
-        strokeWeight: 4,
-        fontColor: [0, 0, 16],
-        textBoxMargin: [0, 0, 0, 0],
-    },
     okButton: {
         startColumn: 6,
         endColumn: 6,
@@ -133,7 +119,8 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         if (this.hasCompleted(gameEngineState)) {
             return
         }
-        this.drawConfirmWindow(gameEngineState, graphicsContext)
+        LabelService.draw(this.confirmButton, graphicsContext)
+        LabelService.draw(this.cancelButton, graphicsContext)
     }
 
     recommendStateChanges(
@@ -223,77 +210,6 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
         })
 
         this.cancelButton = PlayerCancelButtonService.new()
-    }
-
-    private drawConfirmWindow(
-        gameEngineState: GameEngineState,
-        graphicsContext: GraphicsBuffer
-    ) {
-        LabelService.draw(this.confirmButton, graphicsContext)
-        LabelService.draw(this.cancelButton, graphicsContext)
-
-        const battleSquaddieId = BattleActionDecisionStepService.getActor(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ).battleSquaddieId
-        const { squaddieTemplate } = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(
-                gameEngineState.repository,
-                battleSquaddieId
-            )
-        )
-
-        let rollModifiers: { [r in RollModifierType]?: number } = {
-            [RollModifierType.TIER]: squaddieTemplate.attributes.tier,
-        }
-
-        let multipleAttackPenalty =
-            CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
-                gameEngineState
-            )
-        if (multipleAttackPenalty !== 0) {
-            rollModifiers[RollModifierType.MULTIPLE_ATTACK_PENALTY] =
-                multipleAttackPenalty
-        }
-
-        const { found, actionTemplate, actionEffectSquaddieTemplate } =
-            getActionEffectTemplate({
-                gameEngineState: gameEngineState,
-            })
-        if (!found) {
-            return
-        }
-        const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-            currentActionEffectTemplate: actionEffectSquaddieTemplate,
-            actionTemplate,
-            actingBattleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            squaddieRepository: gameEngineState.repository,
-            actingSquaddieModifiers: [],
-            rollModifiers,
-        })
-
-        intentMessages.push(
-            ...["", "CONFIRM: Left Mouse Button", "CANCEL: Right Mouse Button"]
-        )
-
-        const messageToShow = intentMessages.join("\n")
-
-        const buttonBackground = this.createButton({
-            ...layout.middleButton,
-            area: RectAreaService.new({
-                left: ScreenDimensions.SCREEN_WIDTH / 12,
-                top: ScreenDimensions.SCREEN_HEIGHT / 2,
-                width: BUTTON_MIDDLE_DIVIDER,
-                height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2),
-            }),
-            buttonText: messageToShow,
-            textSize: MESSAGE_TEXT_SIZE,
-        })
-
-        LabelService.draw(buttonBackground, graphicsContext)
     }
 
     private createButton({

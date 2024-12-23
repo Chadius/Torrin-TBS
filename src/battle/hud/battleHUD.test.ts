@@ -1332,6 +1332,13 @@ describe("Battle HUD", () => {
                     .battleSquaddieId
             ).toEqual("player_soldier_1")
         })
+
+        it("will add an action preview tile to the HUD", () => {
+            expect(
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.actionPreviewTile
+            ).not.toBeUndefined()
+        })
     })
     describe("Player confirms their action", () => {
         let gameEngineState: GameEngineState
