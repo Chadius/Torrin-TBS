@@ -8,7 +8,7 @@ import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
-import { LocationTraveled } from "../locationTraveled"
+import { CoordinateTraveled } from "../coordinateTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export class NextNodeIsOnTheMap implements PathContinueConstraint {
@@ -33,8 +33,8 @@ export class NextNodeIsOnTheMap implements PathContinueConstraint {
             return undefined
         }
 
-        const headLocation: LocationTraveled =
-            SearchPathService.getMostRecentLocation(newPath)
+        const headLocation: CoordinateTraveled =
+            SearchPathService.getMostRecentCoordinate(newPath)
         return !MapSearchDataLayerService.outOfBounds({
             mapLayer: this.terrainMapLayer,
             q: headLocation.hexCoordinate.q,

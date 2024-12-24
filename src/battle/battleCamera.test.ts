@@ -58,7 +58,7 @@ describe("BattleCamera", () => {
         camera.constrainCamera()
 
         const bottomOfLastRow: number =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                 3,
                 0
             ).worldY
@@ -78,15 +78,9 @@ describe("BattleCamera", () => {
         camera.constrainCamera()
 
         const topLeftTile =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                0,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(0, 0)
         const bottomRightTile =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                3,
-                3
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(3, 3)
 
         expect(camera.getCoordinates().cameraX).toBe(
             (topLeftTile.worldX + bottomRightTile.worldX) / 2
@@ -96,10 +90,7 @@ describe("BattleCamera", () => {
 
     it("can be constrained so it cannot scroll too far to the left", () => {
         const worldLocationOfBoundary =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                2,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(2, 0)
         const camera: BattleCamera = new BattleCamera(
             -ScreenDimensions.SCREEN_WIDTH * 2,
             worldLocationOfBoundary.worldY
@@ -117,10 +108,7 @@ describe("BattleCamera", () => {
 
     it("can be constrained so it cannot scroll too far to the right", () => {
         const worldLocationOfBoundary =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                2,
-                2
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(2, 2)
         const camera: BattleCamera = new BattleCamera(
             ScreenDimensions.SCREEN_WIDTH * 2,
             worldLocationOfBoundary.worldY

@@ -76,7 +76,7 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows all of the tiles are on screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     1,
                     1
                 )
@@ -85,86 +85,86 @@ describe("Terrain Tile Graphics", () => {
                 centerOfMap.worldY
             )
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 0 },
+                    coordinate: { q: 0, r: 0 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 1 },
+                    coordinate: { q: 0, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 2 },
+                    coordinate: { q: 0, r: 2 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 1, r: 0 },
+                    coordinate: { q: 1, r: 0 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 1, r: 1 },
+                    coordinate: { q: 1, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 1, r: 2 },
+                    coordinate: { q: 1, r: 2 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 2, r: 0 },
+                    coordinate: { q: 2, r: 0 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 2, r: 1 },
+                    coordinate: { q: 2, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 2, r: 2 },
+                    coordinate: { q: 2, r: 2 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 2, r: -1 },
+                    coordinate: { q: 2, r: -1 },
                     camera,
                 })
             ).toBeTruthy()
 
-            const onScreenLocations =
-                TerrainTileGraphicsService.getAllOnscreenLocations({
+            const onScreenTerrainTiles =
+                TerrainTileGraphicsService.getAllOnscreenTerrainTiles({
                     terrainTileMap: map,
                     camera,
                 })
-            expect(onScreenLocations).toHaveLength(10)
+            expect(onScreenTerrainTiles).toHaveLength(10)
             expect(
-                onScreenLocations.map((location) => ({
-                    q: location.q,
-                    r: location.r,
+                onScreenTerrainTiles.map((tile) => ({
+                    q: tile.q,
+                    r: tile.r,
                 }))
             ).toEqual(
                 expect.arrayContaining([
@@ -184,7 +184,7 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the top of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     1,
                     1
                 )
@@ -195,16 +195,16 @@ describe("Terrain Tile Graphics", () => {
                     HEX_TILE_WIDTH / 2
             )
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 1 },
+                    coordinate: { q: 0, r: 1 },
                     camera,
                 })
             ).toBeFalsy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 1, r: 1 },
+                    coordinate: { q: 1, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
@@ -212,7 +212,7 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the bottom of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     1,
                     1
                 )
@@ -223,16 +223,16 @@ describe("Terrain Tile Graphics", () => {
                     HEX_TILE_WIDTH / 2
             )
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 1, r: 1 },
+                    coordinate: { q: 1, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 2, r: 1 },
+                    coordinate: { q: 2, r: 1 },
                     camera,
                 })
             ).toBeFalsy()
@@ -240,7 +240,7 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the left of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,
                     1
                 )
@@ -249,16 +249,16 @@ describe("Terrain Tile Graphics", () => {
                 centerOfMap.worldY
             )
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 0 },
+                    coordinate: { q: 0, r: 0 },
                     camera,
                 })
             ).toBeFalsy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 1 },
+                    coordinate: { q: 0, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
@@ -266,7 +266,7 @@ describe("Terrain Tile Graphics", () => {
 
         it("knows when tiles have scrolled off the right of the screen", () => {
             const centerOfMap =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,
                     1
                 )
@@ -277,16 +277,16 @@ describe("Terrain Tile Graphics", () => {
                 centerOfMap.worldY
             )
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 1 },
+                    coordinate: { q: 0, r: 1 },
                     camera,
                 })
             ).toBeTruthy()
             expect(
-                TerrainTileGraphicsService.isLocationOnScreen({
+                TerrainTileGraphicsService.isCoordinateOnScreen({
                     terrainTileMap: map,
-                    location: { q: 0, r: 2 },
+                    coordinate: { q: 0, r: 2 },
                     camera,
                 })
             ).toBeFalsy()

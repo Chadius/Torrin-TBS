@@ -92,7 +92,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             const nextMode: BattleOrchestratorMode =
@@ -134,7 +134,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             const nextMode: BattleOrchestratorMode =
@@ -157,7 +157,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             const nextMode: BattleOrchestratorMode =
@@ -186,8 +186,8 @@ describe("ActionComponentCalculator", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 2 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 2 },
                         },
                     },
                 })
@@ -314,7 +314,7 @@ describe("ActionComponentCalculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: builderStateWithActor,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             expect(

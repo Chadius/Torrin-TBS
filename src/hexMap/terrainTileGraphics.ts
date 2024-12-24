@@ -8,31 +8,31 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
 
 export const TerrainTileGraphicsService = {
-    isLocationOnScreen: ({
+    isCoordinateOnScreen: ({
         terrainTileMap,
-        location,
+        coordinate,
         camera,
     }: {
         terrainTileMap: TerrainTileMap
-        location: HexCoordinate
+        coordinate: HexCoordinate
         camera: BattleCamera
     }): boolean =>
-        isLocationOnScreen({
+        isCoordinateOnScreen({
             terrainTileMap,
-            location,
+            coordinate: coordinate,
             camera,
         }),
-    getAllOnscreenLocations: ({
+    getAllOnscreenTerrainTiles: ({
         terrainTileMap,
         camera,
     }: {
         terrainTileMap: TerrainTileMap
         camera: BattleCamera
     }): HexGridTile[] =>
-        terrainTileMap.tiles.filter((tile) =>
-            isLocationOnScreen({
+        terrainTileMap.coordinates.filter((tile) =>
+            isCoordinateOnScreen({
                 terrainTileMap,
-                location: tile,
+                coordinate: tile,
                 camera,
             })
         ),
@@ -52,7 +52,7 @@ export const TerrainTileGraphicsService = {
         cameraY: number
     }) {
         const { q, r } =
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: mouseX,
                 screenY: mouseY,
                 cameraX,
@@ -67,21 +67,21 @@ export const TerrainTileGraphicsService = {
     },
 }
 
-const isLocationOnScreen = ({
+const isCoordinateOnScreen = ({
     terrainTileMap,
-    location,
+    coordinate,
     camera,
 }: {
     terrainTileMap: TerrainTileMap
-    location: HexCoordinate
+    coordinate: HexCoordinate
     camera: BattleCamera
 }): boolean => {
-    const hexGridTile = TerrainTileMapService.getTileAtLocation(
+    const hexGridTile = TerrainTileMapService.getTileAtCoordinate(
         terrainTileMap,
-        location
+        coordinate
     )
     const tileScreenCoordinates =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             ...hexGridTile,
             ...camera.getCoordinates(),
         })

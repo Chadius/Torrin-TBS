@@ -110,11 +110,11 @@ describe("Battle HUD", () => {
 
     const createGameEngineState = ({
         battlePhaseState,
-        battleSquaddieLocation,
+        battleSquaddieCoordinate,
         missionMap,
     }: {
         battlePhaseState?: BattlePhaseState
-        battleSquaddieLocation?: HexCoordinate
+        battleSquaddieCoordinate?: HexCoordinate
         missionMap?: MissionMap
     }): {
         gameEngineState: GameEngineState
@@ -177,7 +177,7 @@ describe("Battle HUD", () => {
             missionMap: missionMap,
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_0",
-            coordinate: battleSquaddieLocation ?? { q: 0, r: 0 },
+            coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
         })
 
         const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
@@ -506,7 +506,7 @@ describe("Battle HUD", () => {
                     },
                 },
                 {
-                    name: "directly selecting the squaddie location",
+                    name: "directly selecting the squaddie coordinate",
                     selectionMethod: {
                         mapCoordinate: { q: 0, r: 0 },
                     },
@@ -638,7 +638,7 @@ describe("Battle HUD", () => {
                     },
                 },
                 {
-                    name: "directly selecting the squaddie location",
+                    name: "directly selecting the squaddie coordinate",
                     selectionMethod: {
                         mapCoordinate: { q: 0, r: 0 },
                     },
@@ -821,7 +821,7 @@ describe("Battle HUD", () => {
                 playerSoldierBattleSquaddie: battleSquaddie,
                 longswordAction,
             } = createGameEngineState({
-                battleSquaddieLocation: { q: 1, r: 1 },
+                battleSquaddieCoordinate: { q: 1, r: 1 },
             }))
 
             addGraphicsLayerSpy = vi.spyOn(
@@ -906,7 +906,7 @@ describe("Battle HUD", () => {
                 })
                 BattleActionDecisionStepService.setConfirmedTarget({
                     actionDecisionStep: actionStep,
-                    targetLocation: { q: 0, r: 1 },
+                    targetCoordinate: { q: 0, r: 1 },
                 })
 
                 BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -920,8 +920,8 @@ describe("Battle HUD", () => {
                         action: { isMovement: true },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 0, r: 0 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 0 },
                             },
                         },
                     })
@@ -962,7 +962,7 @@ describe("Battle HUD", () => {
                 playerSoldierBattleSquaddie: battleSquaddie,
                 longswordAction,
             } = createGameEngineState({
-                battleSquaddieLocation: { q: 1, r: 1 },
+                battleSquaddieCoordinate: { q: 1, r: 1 },
             }))
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
@@ -979,7 +979,7 @@ describe("Battle HUD", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             BattleActionDecisionStepService.addAction({
@@ -992,7 +992,7 @@ describe("Battle HUD", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             addGraphicsLayerSpy = vi.spyOn(
@@ -1103,7 +1103,7 @@ describe("Battle HUD", () => {
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).targetLocation
+                    ).targetCoordinate
                 ).toEqual({
                     q: 0,
                     r: 0,
@@ -1171,7 +1171,7 @@ describe("Battle HUD", () => {
                     actionTemplateId: longswordAction.id,
                     battleSquaddieId:
                         playerSoldierBattleSquaddie.battleSquaddieId,
-                    mapStartingLocation: { q: 0, r: 0 },
+                    mapStartingCoordinate: { q: 0, r: 0 },
                     mouseLocation: { x: 0, y: 0 },
                 })
             })
@@ -1237,7 +1237,7 @@ describe("Battle HUD", () => {
                 ).toBeTruthy()
             })
 
-            it("will set the actions this round to the squaddie and its location", () => {
+            it("will set the actions this round to the squaddie and its coordinate", () => {
                 expect(
                     BattleActionDecisionStepService.getActor(
                         gameEngineState.battleOrchestratorState.battleState
@@ -1289,16 +1289,16 @@ describe("Battle HUD", () => {
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+                MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
             )
             gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
                 gameEngineState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
         })
 
-        it("sets the target location", () => {
+        it("sets the target coordinate", () => {
             expect(
                 BattleActionDecisionStepService.isTargetConsidered(
                     gameEngineState.battleOrchestratorState.battleState
@@ -1311,7 +1311,7 @@ describe("Battle HUD", () => {
                         .battleActionDecisionStep
                 )
             ).toEqual({
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 confirmed: false,
             })
         })
@@ -1384,7 +1384,7 @@ describe("Battle HUD", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                targetLocation: { q: 1, r: 2 },
+                targetCoordinate: { q: 1, r: 2 },
             })
 
             BattleActionDecisionStepService.addAction({
@@ -1893,7 +1893,7 @@ describe("Battle HUD", () => {
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
                 battleHUDListener,
-                MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+                MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
             )
 
             gameEngineState.messageBoard.sendMessage({
@@ -1921,10 +1921,10 @@ describe("Battle HUD", () => {
 
             const sendMessageToMove = () => {
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     gameEngineState,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    targetLocation: { q: -100, r: 9001 },
+                    targetCoordinate: { q: -100, r: 9001 },
                 })
             }
 
@@ -1982,10 +1982,10 @@ describe("Battle HUD", () => {
                     .mockReturnValue(true)
 
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     gameEngineState,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    targetLocation: { q: 0, r: 2 },
+                    targetCoordinate: { q: 0, r: 2 },
                 })
             })
 
@@ -2034,7 +2034,7 @@ describe("Battle HUD", () => {
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).targetLocation
+                    ).targetCoordinate
                 ).toEqual({
                     q: 0,
                     r: 2,
@@ -2056,8 +2056,8 @@ describe("Battle HUD", () => {
                         action: { isMovement: true },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 0, r: 2 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 2 },
                             },
                         },
                     })
@@ -2078,8 +2078,8 @@ describe("Battle HUD", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 2 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 2 },
                         },
                     },
                 })
@@ -2092,7 +2092,7 @@ describe("Battle HUD", () => {
                 ).toEqual(squaddieBattleAction)
             })
 
-            it("updates the squaddie location", () => {
+            it("updates the squaddie coordinate", () => {
                 const mapDatum = MissionMapService.getByBattleSquaddieId(
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
@@ -2131,8 +2131,8 @@ describe("Battle HUD", () => {
                         action: { isMovement: true },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 0, r: 1 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 1 },
                             },
                         },
                     })
@@ -2143,10 +2143,10 @@ describe("Battle HUD", () => {
                 )
 
                 gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     gameEngineState,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    targetLocation: { q: 0, r: 2 },
+                    targetCoordinate: { q: 0, r: 2 },
                 })
             })
 
@@ -2179,14 +2179,14 @@ describe("Battle HUD", () => {
                     BattleActionDecisionStepService.getTarget(
                         gameEngineState.battleOrchestratorState.battleState
                             .battleActionDecisionStep
-                    ).targetLocation
+                    ).targetCoordinate
                 ).toEqual({
                     q: 0,
                     r: 2,
                 })
             })
 
-            it("will update squaddie location to destination and spend action points", () => {
+            it("will update squaddie coordinate to destination and spend action points", () => {
                 expect(
                     MissionMapService.getByBattleSquaddieId(
                         gameEngineState.battleOrchestratorState.battleState
@@ -2224,8 +2224,8 @@ describe("Battle HUD", () => {
                         action: { isMovement: true },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 0, r: 2 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 2 },
                             },
                         },
                     })
@@ -2330,7 +2330,7 @@ describe("Battle HUD", () => {
                 })
                 BattleActionDecisionStepService.setConfirmedTarget({
                     actionDecisionStep: movementStep,
-                    targetLocation: { q: 0, r: 2 },
+                    targetCoordinate: { q: 0, r: 2 },
                 })
 
                 BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -2344,8 +2344,8 @@ describe("Battle HUD", () => {
                         action: { isMovement: true },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 0, r: 0 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 0, r: 0 },
                             },
                         },
                     })
@@ -2435,7 +2435,7 @@ describe("Battle HUD", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
                 gameEngineState,
-                location: { q: 1, r: 0 },
+                coordinate: { q: 1, r: 0 },
             })
         })
         it("closes the HUD", () => {

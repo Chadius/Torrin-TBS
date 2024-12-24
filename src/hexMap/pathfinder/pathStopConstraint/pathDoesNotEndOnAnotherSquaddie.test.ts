@@ -16,7 +16,7 @@ import { InBattleAttributesService } from "../../../battle/stats/inBattleAttribu
 import { describe, expect, it } from "vitest"
 
 describe("PathCanStopConditionNotOnASquaddie", () => {
-    it("returns false if there is a squaddie at the location", () => {
+    it("returns false if there is a squaddie at the coordinate", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -90,7 +90,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             })
         ).toBe(false)
     })
-    it("returns true because the squaddie can stop at its own location", () => {
+    it("returns true because the squaddie can stop at its own coordinate", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -305,7 +305,7 @@ describe("PathCanStopConditionNotOnASquaddie", () => {
             })
         ).toBe(true)
     })
-    it("returns true if there is no squaddie at the location", () => {
+    it("returns true if there is no squaddie at the coordinate", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],

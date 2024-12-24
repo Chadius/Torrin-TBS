@@ -32,7 +32,7 @@ export const BattlePlayerActionTargetSpec = {
         r: number
     }) => {
         let { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q,
                 r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),

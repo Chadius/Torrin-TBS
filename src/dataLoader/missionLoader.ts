@@ -17,7 +17,7 @@ import { Cutscene } from "../cutscene/cutscene"
 
 export interface MapPlacement {
     battleSquaddieId: string
-    location: HexCoordinate
+    coordinate: HexCoordinate
     squaddieTemplateId: string
 }
 

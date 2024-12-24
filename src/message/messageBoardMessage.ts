@@ -2,7 +2,7 @@ import { GameEngineState } from "../gameEngine/gameEngine"
 import { BattleAction } from "../battle/history/battleAction/battleAction"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
-import { MouseClick, ScreenCoordinate } from "../utils/mouseConfig"
+import { MouseClick, ScreenLocation } from "../utils/mouseConfig"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { PopupWindow } from "../battle/hud/popupWindow"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -21,12 +21,12 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
     | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
-    | MessageBoardMessagePlayerSelectsTargetLocation
+    | MessageBoardMessagePlayerSelectsTargetCoordinate
     | MessageBoardMessagePlayerConfirmsAction
     | MessageBoardMessageSquaddiePhaseStarts
     | MessageBoardMessageSquaddiePhaseEnds
     | MessageBoardMessageSelectAndLockNextSquaddie
-    | MessageBoardMessageMoveSquaddieToLocation
+    | MessageBoardMessageMoveSquaddieToCoordinate
     | MessageBoardMessagePlayerCancelsSquaddieSelection
     | MessageBoardMessagePlayerSelectsEmptyTile
     | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
@@ -48,12 +48,12 @@ export enum MessageBoardMessageType {
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
     PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET",
-    PLAYER_SELECTS_TARGET_LOCATION = "PLAYER_SELECTS_TARGET_LOCATION",
+    PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
     SQUADDIE_PHASE_ENDS = "SQUADDIE_PHASE_ENDS",
     SELECT_AND_LOCK_NEXT_SQUADDIE = "SELECT_AND_LOCK_NEXT_SQUADDIE",
-    MOVE_SQUADDIE_TO_LOCATION = "MOVE_SQUADDIE_TO_LOCATION",
+    MOVE_SQUADDIE_TO_COORDINATE = "MOVE_SQUADDIE_TO_COORDINATE",
     PLAYER_CANCELS_SQUADDIE_SELECTION = "PLAYER_CANCELS_SQUADDIE_SELECTION",
     PLAYER_SELECTS_EMPTY_TILE = "PLAYER_SELECTS_EMPTY_TILE",
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
@@ -105,7 +105,7 @@ export interface MessageBoardMessagePlayerEndsTurn {
 }
 
 export type SquaddieSelectionMethod = {
-    mouse?: MouseClick | ScreenCoordinate
+    mouse?: MouseClick | ScreenLocation
     mapCoordinate?: HexCoordinate
 }
 
@@ -135,8 +135,8 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     gameEngineState: GameEngineState
     actionTemplateId: string
     battleSquaddieId: string
-    mapStartingLocation: HexCoordinate
-    mouseLocation: ScreenCoordinate
+    mapStartingCoordinate: HexCoordinate
+    mouseLocation: ScreenLocation
 }
 
 export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
@@ -144,12 +144,12 @@ export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
     gameEngineState: GameEngineState
     actionTemplateId: string
     battleSquaddieId: string
-    mapStartingLocation: HexCoordinate
+    mapStartingCoordinate: HexCoordinate
 }
 
-export interface MessageBoardMessagePlayerSelectsTargetLocation {
-    type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
-    targetLocation: HexCoordinate
+export interface MessageBoardMessagePlayerSelectsTargetCoordinate {
+    type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
+    targetCoordinate: HexCoordinate
     gameEngineState: GameEngineState
 }
 
@@ -175,10 +175,10 @@ export interface MessageBoardMessageSelectAndLockNextSquaddie {
     gameEngineState: GameEngineState
 }
 
-export interface MessageBoardMessageMoveSquaddieToLocation {
-    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+export interface MessageBoardMessageMoveSquaddieToCoordinate {
+    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
     battleSquaddieId: string
-    targetLocation: HexCoordinate
+    targetCoordinate: HexCoordinate
     gameEngineState: GameEngineState
 }
 
@@ -190,7 +190,7 @@ export interface MessageBoardMessagePlayerCancelsSquaddieSelection {
 export interface MessageBoardMessagePlayerSelectsEmptyTile {
     type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE
     gameEngineState: GameEngineState
-    location: HexCoordinate
+    coordinate: HexCoordinate
 }
 
 export interface MessageBoardMessagePlayerConfirmsDecisionStepActor {

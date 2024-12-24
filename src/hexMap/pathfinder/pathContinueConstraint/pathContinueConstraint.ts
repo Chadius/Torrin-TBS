@@ -21,11 +21,11 @@ export const AreValidParametersForAddPathCondition = ({
         return false
     }
 
-    if (!isValidValue(SearchPathService.getMostRecentLocation(newPath))) {
+    if (!isValidValue(SearchPathService.getMostRecentCoordinate(newPath))) {
         return false
     }
 
     return isValidValue(
-        SearchPathService.getMostRecentLocation(newPath).hexCoordinate
+        SearchPathService.getMostRecentCoordinate(newPath).hexCoordinate
     )
 }

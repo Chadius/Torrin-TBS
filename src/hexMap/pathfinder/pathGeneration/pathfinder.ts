@@ -1,7 +1,7 @@
 import { SearchParameters } from "../searchParameters"
 import { TerrainTileMap, TerrainTileMapService } from "../../terrainTileMap"
 import {
-    SearchPathByLocation,
+    SearchPathByCoordinate,
     SearchResult,
     SearchResultsService,
 } from "../searchResults/searchResult"
@@ -38,10 +38,10 @@ export interface PathfinderWorkingState {
         queued: MapSearchDataLayer
         stopped: MapSearchDataLayer
     }
-    shortestPathByLocation: SearchPathByLocation
+    shortestPathByCoordinate: SearchPathByCoordinate
     addPathConditions: PathContinueConstraint[]
     pathCanStopConditions: PathStopConstraint[]
-    stopLocationsReached: HexCoordinate[]
+    stopCoordinatesReached: HexCoordinate[]
 }
 
 export const PathfinderWorkingStateHelper = {
@@ -75,7 +75,7 @@ export const PathfinderWorkingStateHelper = {
                     initialValue: false,
                 }),
             },
-            shortestPathByLocation: {},
+            shortestPathByCoordinate: {},
             addPathConditions: [
                 new NextNodeIsOnTheMap({
                     terrainMapLayer: MapSearchDataLayerService.new({
@@ -100,7 +100,7 @@ export const PathfinderWorkingStateHelper = {
                     objectRepository: objectRepository,
                 }),
             ],
-            stopLocationsReached: [],
+            stopCoordinatesReached: [],
         }
 
         workingState.addPathConditions.push(
@@ -125,7 +125,7 @@ export const PathfinderWorkingStateHelper = {
             TerrainTileMapService.getDimensions(terrainTileMap).numberOfRows;
             q++
         ) {
-            workingState.shortestPathByLocation[q] = {}
+            workingState.shortestPathByCoordinate[q] = {}
             for (
                 let r = 0;
                 r <
@@ -133,7 +133,7 @@ export const PathfinderWorkingStateHelper = {
                     .widthOfWidestRow;
                 r++
             ) {
-                workingState.shortestPathByLocation[q][r] = undefined
+                workingState.shortestPathByCoordinate[q][r] = undefined
             }
         }
 
@@ -155,7 +155,7 @@ export const PathfinderService = {
             !isValidValue(searchParameters.pathGenerators.startCoordinates) ||
             searchParameters.pathGenerators.startCoordinates.length < 1
         ) {
-            throw new Error("no start location specified")
+            throw new Error("no start coordinate specified")
         }
 
         const workingState = PathfinderWorkingStateHelper.new({
@@ -164,7 +164,7 @@ export const PathfinderService = {
             missionMap,
             objectRepository: objectRepository,
         })
-        populateStartingLocations({ searchParameters, workingState })
+        populateStartingCoordinate({ searchParameters, workingState })
         generateValidPaths({
             searchParameters,
             workingState,
@@ -174,7 +174,7 @@ export const PathfinderService = {
     },
 }
 
-const populateStartingLocations = ({
+const populateStartingCoordinate = ({
     searchParameters,
     workingState,
 }: {
@@ -182,11 +182,11 @@ const populateStartingLocations = ({
     workingState: PathfinderWorkingState
 }) => {
     searchParameters.pathGenerators.startCoordinates.forEach(
-        (startLocation) => {
-            MapSearchDataLayerService.setValueOfLocation({
+        (startCoordinate) => {
+            MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: workingState.mapLayers.queued,
-                q: startLocation.q,
-                r: startLocation.r,
+                q: startCoordinate.q,
+                r: startCoordinate.r,
                 value: true,
             })
             const startingPath = SearchPathService.newSearchPath()
@@ -195,8 +195,8 @@ const populateStartingLocations = ({
                 startingPath,
                 {
                     hexCoordinate: {
-                        q: startLocation.q,
-                        r: startLocation.r,
+                        q: startCoordinate.q,
+                        r: startCoordinate.r,
                     },
                     cumulativeMovementCost: 0,
                 },
@@ -217,15 +217,15 @@ const generateValidPaths = ({
     workingState: PathfinderWorkingState
 }) => {
     const anyStopConditionWasReached = () => {
-        const allStopLocationsFoundStopSearching: boolean =
+        const allstopCoordinatesFoundStopSearching: boolean =
             searchParameters.goal.stopCoordinates &&
             searchParameters.goal.stopCoordinates.length > 0 &&
-            workingState.stopLocationsReached.length >=
+            workingState.stopCoordinatesReached.length >=
                 searchParameters.goal.stopCoordinates.length
 
         return (
             workingState.searchPathQueue.isEmpty() ||
-            allStopLocationsFoundStopSearching
+            allstopCoordinatesFoundStopSearching
         )
     }
 
@@ -241,17 +241,17 @@ const generateValidPaths = ({
         searchParameters: SearchParameters
     }) => {
         const current: HexCoordinate = {
-            q: SearchPathService.getMostRecentLocation(currentSearchPath)
+            q: SearchPathService.getMostRecentCoordinate(currentSearchPath)
                 .hexCoordinate.q,
-            r: SearchPathService.getMostRecentLocation(currentSearchPath)
+            r: SearchPathService.getMostRecentCoordinate(currentSearchPath)
                 .hexCoordinate.r,
         }
 
-        function makeNewCandidatePath(nextLocation: HexCoordinate) {
+        function makeNewCandidatePath(nextCoordinate: HexCoordinate) {
             const terrainType =
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     terrainTileMap,
-                    nextLocation
+                    nextCoordinate
                 )
             let movementCostForThisTile = searchParameters
                 .pathContinueConstraints.ignoreTerrainCost
@@ -298,7 +298,7 @@ const generateValidPaths = ({
             SearchPathService.add(
                 candidatePath,
                 {
-                    hexCoordinate: { ...nextLocation },
+                    hexCoordinate: { ...nextCoordinate },
                     cumulativeMovementCost:
                         currentSearchPath.totalMovementCost +
                         movementCostForThisTile,
@@ -311,9 +311,9 @@ const generateValidPaths = ({
 
         workingState.shapeGenerator
             .createNeighboringHexCoordinates(current)
-            .forEach((nextLocation) => {
+            .forEach((nextCoordinate) => {
                 const candidatePath: SearchPath =
-                    makeNewCandidatePath(nextLocation)
+                    makeNewCandidatePath(nextCoordinate)
                 if (
                     workingState.addPathConditions.every(
                         (condition) =>
@@ -324,17 +324,17 @@ const generateValidPaths = ({
                     )
                 ) {
                     workingState.searchPathQueue.enqueue(candidatePath)
-                    MapSearchDataLayerService.setValueOfLocation({
+                    MapSearchDataLayerService.setValueOfCoordinate({
                         mapLayer: workingState.mapLayers.queued,
-                        q: nextLocation.q,
-                        r: nextLocation.r,
+                        q: nextCoordinate.q,
+                        r: nextCoordinate.r,
                         value: true,
                     })
                 }
             })
     }
 
-    const canStopAtLocation = ({
+    const canStopAtCoordinate = ({
         currentSearchPath,
     }: {
         currentSearchPath: SearchPath
@@ -350,38 +350,38 @@ const generateValidPaths = ({
     while (!anyStopConditionWasReached()) {
         const currentSearchPath: SearchPath =
             workingState.searchPathQueue.dequeue()
-        const currentLocation: HexCoordinate =
-            SearchPathService.getMostRecentLocation(
+        const currentCoordinate: HexCoordinate =
+            SearchPathService.getMostRecentCoordinate(
                 currentSearchPath
             ).hexCoordinate
-        MapSearchDataLayerService.setValueOfLocation({
+        MapSearchDataLayerService.setValueOfCoordinate({
             mapLayer: workingState.mapLayers.visited,
-            q: currentLocation.q,
-            r: currentLocation.r,
+            q: currentCoordinate.q,
+            r: currentCoordinate.r,
             value: true,
         })
 
-        if (canStopAtLocation({ currentSearchPath })) {
-            MapSearchDataLayerService.setValueOfLocation({
+        if (canStopAtCoordinate({ currentSearchPath })) {
+            MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: workingState.mapLayers.stopped,
-                q: currentLocation.q,
-                r: currentLocation.r,
+                q: currentCoordinate.q,
+                r: currentCoordinate.r,
                 value: true,
             })
-            workingState.shortestPathByLocation[currentLocation.q][
-                currentLocation.r
+            workingState.shortestPathByCoordinate[currentCoordinate.q][
+                currentCoordinate.r
             ] = currentSearchPath
             if (
                 searchParameters.goal.stopCoordinates.some(
                     (coordinate) =>
-                        coordinate.q === currentLocation.q &&
-                        coordinate.r === currentLocation.r
+                        coordinate.q === currentCoordinate.q &&
+                        coordinate.r === currentCoordinate.r
                 )
             ) {
-                workingState.stopLocationsReached ||= []
-                workingState.stopLocationsReached.push({
-                    q: currentLocation.q,
-                    r: currentLocation.r,
+                workingState.stopCoordinatesReached ||= []
+                workingState.stopCoordinatesReached.push({
+                    q: currentCoordinate.q,
+                    r: currentCoordinate.r,
                 })
             }
         }
@@ -401,7 +401,7 @@ const exportToSearchResult = ({
     workingState: PathfinderWorkingState
 }): SearchResult => {
     return SearchResultsService.new({
-        shortestPathByLocation: workingState.shortestPathByLocation,
-        stopLocationsReached: workingState.stopLocationsReached,
+        shortestPathByCoordinate: workingState.shortestPathByCoordinate,
+        stopCoordinatesReached: workingState.stopCoordinatesReached,
     })
 }

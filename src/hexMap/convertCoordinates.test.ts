@@ -6,25 +6,22 @@ import { describe, expect, it } from "vitest"
 describe("convertCoordinates", () => {
     it("converts world coordinates to map coordinates", () => {
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToMapCoordinates(
-                0,
-                0
-            )
+            ConvertCoordinateService.convertWorldLocationToMapCoordinates(0, 0)
         ).toEqual({ q: 0, r: 0 })
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToMapCoordinates(
+            ConvertCoordinateService.convertWorldLocationToMapCoordinates(
                 HEX_TILE_WIDTH,
                 0
             )
         ).toEqual({ q: 0, r: 1 })
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToMapCoordinates(
+            ConvertCoordinateService.convertWorldLocationToMapCoordinates(
                 HEX_TILE_WIDTH / 2 + 1,
                 (3 * HEX_TILE_RADIUS) / 2 + 1
             )
         ).toEqual({ q: 1, r: 0 })
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToMapCoordinates(
+            ConvertCoordinateService.convertWorldLocationToMapCoordinates(
                 HEX_TILE_WIDTH * -1,
                 -3 * HEX_TILE_RADIUS + 1
             )
@@ -33,31 +30,19 @@ describe("convertCoordinates", () => {
 
     it("converts map coordinates to world coordinates", () => {
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                0,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(0, 0)
         ).toEqual({ worldX: 0, worldY: 0 })
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                0,
-                1
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(0, 1)
         ).toEqual({ worldX: HEX_TILE_WIDTH, worldY: 0 })
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                1,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(1, 0)
         ).toEqual({
             worldX: HEX_TILE_WIDTH / 2,
             worldY: (3 * HEX_TILE_RADIUS) / 2,
         })
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                -2,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(-2, 0)
         ).toEqual({
             worldX: HEX_TILE_WIDTH * -1,
             worldY: -3 * HEX_TILE_RADIUS,
@@ -66,68 +51,58 @@ describe("convertCoordinates", () => {
 
     it("converts world coordinates to screen coordinates", () => {
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates(
-                {
-                    worldX: 0,
-                    worldY: 0,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertWorldLocationToScreenLocation({
+                worldX: 0,
+                worldY: 0,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({
             screenX: ScreenDimensions.SCREEN_WIDTH / 2,
             screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
         })
 
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates(
-                {
-                    worldX: 1,
-                    worldY: 0,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertWorldLocationToScreenLocation({
+                worldX: 1,
+                worldY: 0,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({
             screenX: 1 + ScreenDimensions.SCREEN_WIDTH / 2,
             screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
         })
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates(
-                {
-                    worldX: 0,
-                    worldY: 1,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertWorldLocationToScreenLocation({
+                worldX: 0,
+                worldY: 1,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({
             screenX: ScreenDimensions.SCREEN_WIDTH / 2,
             screenY: 1 + ScreenDimensions.SCREEN_HEIGHT / 2,
         })
 
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates(
-                {
-                    worldX: 0,
-                    worldY: 0,
-                    cameraX: 0,
-                    cameraY: 1,
-                }
-            )
+            ConvertCoordinateService.convertWorldLocationToScreenLocation({
+                worldX: 0,
+                worldY: 0,
+                cameraX: 0,
+                cameraY: 1,
+            })
         ).toEqual({
             screenX: ScreenDimensions.SCREEN_WIDTH / 2,
             screenY: -1 + ScreenDimensions.SCREEN_HEIGHT / 2,
         })
         expect(
-            ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates(
-                {
-                    worldX: 0,
-                    worldY: 1,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertWorldLocationToScreenLocation({
+                worldX: 0,
+                worldY: 1,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({
             screenX: ScreenDimensions.SCREEN_WIDTH / 2,
             screenY: 1 + ScreenDimensions.SCREEN_HEIGHT / 2,
@@ -136,62 +111,52 @@ describe("convertCoordinates", () => {
 
     it("converts screen coordinates to world coordinates", () => {
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({ worldX: 0, worldY: 0 })
 
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: ScreenDimensions.SCREEN_WIDTH / 2 + 1,
-                    screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2 + 1,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({ worldX: 1, worldY: 0 })
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraX: 1,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 1,
+                cameraY: 0,
+            })
         ).toEqual({ worldX: 1, worldY: 0 })
 
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    screenY: ScreenDimensions.SCREEN_HEIGHT / 2 + 1,
-                    cameraX: 0,
-                    cameraY: 0,
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2 + 1,
+                cameraX: 0,
+                cameraY: 0,
+            })
         ).toEqual({ worldX: 0, worldY: 1 })
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraX: 0,
-                    cameraY: 1,
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX: ScreenDimensions.SCREEN_WIDTH / 2,
+                screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraX: 0,
+                cameraY: 1,
+            })
         ).toEqual({ worldX: 0, worldY: 1 })
     })
 
     it("converts map coordinates to screen coordinates", () => {
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 cameraX: 0,
@@ -203,7 +168,7 @@ describe("convertCoordinates", () => {
         })
 
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 1,
                 cameraX: 0,
@@ -215,7 +180,7 @@ describe("convertCoordinates", () => {
         })
 
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 1,
                 r: 0,
                 cameraX: 0,
@@ -228,7 +193,7 @@ describe("convertCoordinates", () => {
         })
 
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 cameraX: 1,
@@ -239,7 +204,7 @@ describe("convertCoordinates", () => {
             screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
         })
         expect(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 cameraX: 0,
@@ -253,7 +218,7 @@ describe("convertCoordinates", () => {
 
     it("converts screen coordinates to map coordinates", () => {
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: ScreenDimensions.SCREEN_WIDTH / 2,
                 screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraX: 0,
@@ -262,7 +227,7 @@ describe("convertCoordinates", () => {
         ).toEqual({ q: 0, r: 0 })
 
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH,
                 screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraX: 0,
@@ -270,7 +235,7 @@ describe("convertCoordinates", () => {
             })
         ).toEqual({ q: 0, r: 1 })
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH / 2,
                 screenY:
                     ScreenDimensions.SCREEN_HEIGHT / 2 +
@@ -281,7 +246,7 @@ describe("convertCoordinates", () => {
         ).toEqual({ q: 1, r: 0 })
 
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: ScreenDimensions.SCREEN_WIDTH / 2,
                 screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraX: HEX_TILE_WIDTH * -1,
@@ -289,7 +254,7 @@ describe("convertCoordinates", () => {
             })
         ).toEqual({ q: 0, r: -1 })
         expect(
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: ScreenDimensions.SCREEN_WIDTH / 2,
                 screenY: ScreenDimensions.SCREEN_HEIGHT / 2,
                 cameraX: HEX_TILE_WIDTH / 2,

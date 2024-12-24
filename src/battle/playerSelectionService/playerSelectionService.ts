@@ -1,4 +1,4 @@
-import { MouseClick, ScreenCoordinate } from "../../utils/mouseConfig"
+import { MouseClick, ScreenLocation } from "../../utils/mouseConfig"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import {
@@ -45,7 +45,7 @@ export enum PlayerIntent {
     START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE = "START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE",
     START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE = "START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE",
     PEEK_AT_SQUADDIE = "PEEK_AT_SQUADDIE",
-    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION",
+    SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE",
     SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE = "SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE",
     SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN = "SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN",
     SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION = "SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION",
@@ -57,7 +57,7 @@ export enum PlayerIntent {
 export interface PlayerSelectionContextCalculationArgs {
     gameEngineState: GameEngineState
     mouseClick?: MouseClick
-    mouseMovement?: ScreenCoordinate
+    mouseMovement?: ScreenLocation
     keyPress?: {
         keyButtonName: KeyButtonName
     }
@@ -76,7 +76,7 @@ export const PlayerSelectionContextCalculationArgsService = {
     }: {
         gameEngineState: GameEngineState
         mouseClick?: MouseClick
-        mouseMovement?: ScreenCoordinate
+        mouseMovement?: ScreenLocation
         keyPress?: {
             keyButtonName: KeyButtonName
         }
@@ -159,7 +159,7 @@ export const PlayerSelectionService = {
         const mouseClickLocationIsOnMap: boolean =
             !!mouseClick &&
             !!clickedLocation &&
-            TerrainTileMapService.isLocationOnMap(
+            TerrainTileMapService.isCoordinateOnMap(
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap,
                 clickedLocation
@@ -266,7 +266,7 @@ export const PlayerSelectionService = {
                 mouseClickLocationIsOnMap:
                 return PlayerSelectionContextService.new({
                     playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
+                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
                     battleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
                 })
@@ -311,13 +311,11 @@ export const PlayerSelectionService = {
     }): PlayerSelectionChanges => {
         let messageSent: MessageBoardMessage
         const { q, r } = context.mouseClick
-            ? ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates(
-                  {
-                      screenX: context.mouseClick.x,
-                      screenY: context.mouseClick.y,
-                      ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                  }
-              )
+            ? ConvertCoordinateService.convertScreenLocationToMapCoordinates({
+                  screenX: context.mouseClick.x,
+                  screenY: context.mouseClick.y,
+                  ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+              })
             : { q: 0, r: 0 }
         let endTurnBattleAction: BattleAction
         const { squaddieTemplate: targetSquaddieTemplate } =
@@ -362,11 +360,11 @@ export const PlayerSelectionService = {
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
-            case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION:
+            case PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE:
                 messageSent = {
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     battleSquaddieId: context.battleSquaddieId,
-                    targetLocation: { q, r },
+                    targetCoordinate: { q, r },
                     gameEngineState,
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
@@ -382,7 +380,7 @@ export const PlayerSelectionService = {
                 messageSent = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
                     gameEngineState,
-                    location: { q, r },
+                    coordinate: { q, r },
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })
@@ -545,15 +543,16 @@ const getBattleSquaddieIdAtLocation = ({
     screenCoordinate,
     gameEngineState,
 }: {
-    screenCoordinate?: ScreenCoordinate
+    screenCoordinate?: ScreenLocation
     gameEngineState: GameEngineState
 }) => {
     const { q, r } = getClickedOnLocation({ screenCoordinate, gameEngineState })
 
-    const { battleSquaddieId } = MissionMapService.getBattleSquaddieAtLocation(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        { q, r }
-    )
+    const { battleSquaddieId } =
+        MissionMapService.getBattleSquaddieAtCoordinate(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            { q, r }
+        )
     return battleSquaddieId
 }
 
@@ -561,7 +560,7 @@ const getClickedOnLocation = ({
     screenCoordinate,
     gameEngineState,
 }: {
-    screenCoordinate: ScreenCoordinate
+    screenCoordinate: ScreenLocation
     gameEngineState: GameEngineState
 }): HexCoordinate => {
     if (!screenCoordinate) {
@@ -569,7 +568,7 @@ const getClickedOnLocation = ({
     }
 
     const { q, r } =
-        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+        ConvertCoordinateService.convertScreenLocationToMapCoordinates({
             screenX: screenCoordinate.x,
             screenY: screenCoordinate.y,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -601,7 +600,7 @@ const playerSelectsAnAction = ({
         gameEngineState,
         actionTemplateId: context.actionTemplateId,
         battleSquaddieId: context.battleSquaddieId,
-        mapStartingLocation: mapCoordinate,
+        mapStartingCoordinate: mapCoordinate,
         mouseLocation: {
             x: context.mouseClick.x,
             y: context.mouseClick.y,
@@ -624,13 +623,13 @@ const isDifferentSquaddieInRange = (
     }
 
     const { battleSquaddieId: targetBattleSquaddieId } =
-        MissionMapService.getBattleSquaddieAtLocation(
+        MissionMapService.getBattleSquaddieAtCoordinate(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             clickedLocation
         )
 
     return (
-        BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
+        BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom({
             actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
             targetBattleSquaddieId,
             gameEngineState,
@@ -651,14 +650,14 @@ const getBestActionAndLocationToActFrom = ({
     moveToThisLocation: HexCoordinate
 } => {
     const { battleSquaddieId: targetBattleSquaddieId } =
-        MissionMapService.getBattleSquaddieAtLocation(
+        MissionMapService.getBattleSquaddieAtCoordinate(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             targetSquaddieLocation
         )
 
     if (!targetBattleSquaddieId) return undefined
 
-    return BattleSquaddieSelectorService.getBestActionAndLocationToActFrom({
+    return BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom({
         actorBattleSquaddieId,
         targetBattleSquaddieId,
         gameEngineState,
@@ -675,9 +674,9 @@ const squaddieSelectedMoveSquaddieToSquaddie = ({
     gameEngineState: GameEngineState
 }): PlayerSelectionChanges => {
     const messageSent: MessageBoardMessage = {
-        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
         battleSquaddieId: context.battleSquaddieId,
-        targetLocation: getBestActionAndLocationToActFrom({
+        targetCoordinate: getBestActionAndLocationToActFrom({
             actorBattleSquaddieId: context.battleSquaddieId,
             targetSquaddieLocation,
             gameEngineState,

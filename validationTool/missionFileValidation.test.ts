@@ -49,18 +49,18 @@ describe("Mission File validation", () => {
         }).toThrow("missing id")
         expect(consoleErrorSpy).toBeCalled()
     })
-    it("fails validation because the squaddie is placed in an invalid location", () => {
+    it("fails validation because the squaddie is placed in an invalid coordinate", () => {
         const enemyDeployment = NpcTeamMissionDeploymentService.new()
         enemyDeployment.templateIds = ["enemyTemplateId"]
         enemyDeployment.mapPlacements = [
             {
                 battleSquaddieId: "enemy 0",
-                location: { q: -1, r: 9001 },
+                coordinate: { q: -1, r: 9001 },
                 squaddieTemplateId: "enemyTemplateId",
             },
             {
                 battleSquaddieId: "do not throw errors",
-                location: undefined,
+                coordinate: undefined,
                 squaddieTemplateId: "enemyTemplateId",
             },
         ]
@@ -85,16 +85,16 @@ describe("Mission File validation", () => {
             MissionFileValidationService.validateMissionFileFormat(mission)
         }).toThrow("found squaddies that were placed with invalid coordinates.")
         expect(consoleErrorSpy).toBeCalledWith(
-            `[MapValidationService] "enemy 0" is at location (q: -1, r: 9001) which is not on the map`
+            `[MapValidationService] "enemy 0" is at coordinate (q: -1, r: 9001) which is not on the map`
         )
     })
-    it("fails validation because two squaddies are deployed to the same location", () => {
+    it("fails validation because two squaddies are deployed to the same coordinate", () => {
         const noAffiliationDeployment = NpcTeamMissionDeploymentService.new()
         noAffiliationDeployment.templateIds = ["noneTemplateId"]
         noAffiliationDeployment.mapPlacements = [
             {
                 battleSquaddieId: "none 0",
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
                 squaddieTemplateId: "noneTemplateId",
             },
         ]
@@ -104,7 +104,7 @@ describe("Mission File validation", () => {
         allyDeployment.mapPlacements = [
             {
                 battleSquaddieId: "ally 0",
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
                 squaddieTemplateId: "allyTemplateId",
             },
         ]
@@ -127,10 +127,10 @@ describe("Mission File validation", () => {
 
         expect(() => {
             MissionFileValidationService.validateMissionFileFormat(mission)
-        }).toThrow("multiple squaddies at the same location.")
+        }).toThrow("multiple squaddies at the same coordinate.")
         expect(consoleErrorSpy).toBeCalledWith(
             expect.stringContaining(
-                `[MapValidationService] location (q: 0, r: 1) has multiple squaddies`
+                `[MapValidationService] coordinate (q: 0, r: 1) has multiple squaddies`
             )
         )
     })
@@ -224,7 +224,7 @@ describe("Mission File validation", () => {
         enemyDeployment.mapPlacements = [
             {
                 battleSquaddieId: "squaddie",
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
                 squaddieTemplateId: "squaddieTemplateId",
             },
         ]
@@ -251,7 +251,7 @@ describe("Mission File validation", () => {
         allyDeployment.mapPlacements = [
             {
                 battleSquaddieId: "squaddie",
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
                 squaddieTemplateId: "squaddieTemplateId",
             },
         ]

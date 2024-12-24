@@ -147,7 +147,7 @@ describe("move towards closest squaddie in range", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -226,7 +226,7 @@ describe("move towards closest squaddie in range", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(
@@ -240,8 +240,8 @@ describe("move towards closest squaddie in range", () => {
                 action: { isMovement: true },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 0, r: 0 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 0, r: 0 },
                     },
                 },
             })
@@ -384,7 +384,7 @@ describe("move towards closest squaddie in range", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -456,7 +456,7 @@ describe("move towards closest squaddie in range", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 1, r: 1 },
+            targetCoordinate: { q: 1, r: 1 },
         })
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({

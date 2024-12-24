@@ -105,7 +105,7 @@ describe("Action Builder", () => {
         it("can consider the target for an action", () => {
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             expect(
@@ -130,7 +130,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 confirmed: false,
             })
 
@@ -143,7 +143,7 @@ describe("Action Builder", () => {
         it("can remove the considered target for an action", () => {
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             BattleActionDecisionStepService.removeTarget({
                 actionDecisionStep: actionBuilderState,
@@ -178,7 +178,7 @@ describe("Action Builder", () => {
         it("can confirm an already considered target without declaring the target", () => {
             BattleActionDecisionStepService.setConsideredTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
                 actionDecisionStep: actionBuilderState,
@@ -198,7 +198,7 @@ describe("Action Builder", () => {
         it("can set the target for an action", () => {
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             expect(
@@ -218,7 +218,7 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 confirmed: true,
             })
 
@@ -231,7 +231,7 @@ describe("Action Builder", () => {
         it("Knows the action is complete if an actor, action and target is complete", () => {
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             expect(
                 BattleActionDecisionStepService.isActionRecordComplete(
@@ -270,7 +270,7 @@ describe("Action Builder", () => {
         it("can set the target for movement", () => {
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             expect(
                 BattleActionDecisionStepService.getAction(actionBuilderState)
@@ -280,14 +280,14 @@ describe("Action Builder", () => {
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
             ).toEqual({
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 confirmed: true,
             })
         })
         it("Knows the action is complete if an actor, action, and target is complete", () => {
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionBuilderState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             expect(
                 BattleActionDecisionStepService.isActionRecordComplete(
@@ -341,7 +341,7 @@ describe("Action Builder", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionBuilderState,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         expect(

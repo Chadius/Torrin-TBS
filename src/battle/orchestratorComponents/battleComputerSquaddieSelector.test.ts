@@ -206,7 +206,7 @@ describe("BattleComputerSquaddieSelector", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 1, r: 1 },
+            targetCoordinate: { q: 1, r: 1 },
         })
 
         return [movementStep]
@@ -242,7 +242,7 @@ describe("BattleComputerSquaddieSelector", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: movementStep,
-                targetLocation: { q: 0, r: 0 },
+                targetCoordinate: { q: 0, r: 0 },
             })
 
             strategySpy = vi
@@ -250,7 +250,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 .mockReturnValue([movementStep])
 
             const { worldX, worldY } =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,
                     0
                 )
@@ -531,7 +531,7 @@ describe("BattleComputerSquaddieSelector", () => {
             })
 
             const { worldX, worldY } =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,
                     0
                 )
@@ -633,7 +633,7 @@ describe("BattleComputerSquaddieSelector", () => {
                 })
                 BattleActionDecisionStepService.setConfirmedTarget({
                     actionDecisionStep: actionStep,
-                    targetLocation: { q: 0, r: 1 },
+                    targetCoordinate: { q: 0, r: 1 },
                 })
                 demonBiteDecisionSteps = [actionStep]
 
@@ -701,7 +701,7 @@ describe("BattleComputerSquaddieSelector", () => {
                     addGraphicsLayerSpy.mock.calls[0][1]
                 expect(addGraphicsLayerSpyLayer.highlights).toHaveLength(1)
                 expect(
-                    addGraphicsLayerSpyLayer.highlights[0].location
+                    addGraphicsLayerSpyLayer.highlights[0].coordinate
                 ).toStrictEqual({ q: 0, r: 1 })
             })
 

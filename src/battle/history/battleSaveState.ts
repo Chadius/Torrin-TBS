@@ -6,7 +6,7 @@ import {
 } from "../missionStatistics/missionStatistics"
 import { InBattleAttributes } from "../stats/inBattleAttributes"
 import { SquaddieTurn } from "../../squaddie/turn"
-import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import {
     SAVE_CONTENT_TYPE,
     SAVE_FILENAME,
@@ -49,7 +49,7 @@ export interface BattleSaveState {
     inBattleAttributesBySquaddieBattleId: {
         [squaddieBattleId: string]: InBattleAttributesAndTurn
     }
-    squaddieMapPlacements: MissionMapSquaddieLocation[]
+    squaddieMapPlacements: MissionMapSquaddieCoordinate[]
     teams: BattleSquaddieTeam[]
     teamStrategiesById: { [key: string]: TeamStrategy[] }
     missionCompletionStatus: MissionCompletionStatus
@@ -104,19 +104,19 @@ export const BattleSaveStateService = {
         }
 
         battleSaveState.squaddieMapPlacements.forEach(
-            (locationData: MissionMapSquaddieLocation) =>
-                MissionMapService.updateBattleSquaddieLocation(
+            (coordinateData: MissionMapSquaddieCoordinate) =>
+                MissionMapService.updateBattleSquaddieCoordinate(
                     battleOrchestratorState.battleState.missionMap,
-                    locationData.battleSquaddieId,
+                    coordinateData.battleSquaddieId,
                     undefined
                 )
         )
         battleSaveState.squaddieMapPlacements.forEach(
-            (locationData: MissionMapSquaddieLocation) =>
-                MissionMapService.updateBattleSquaddieLocation(
+            (coordinateData: MissionMapSquaddieCoordinate) =>
+                MissionMapService.updateBattleSquaddieCoordinate(
                     battleOrchestratorState.battleState.missionMap,
-                    locationData.battleSquaddieId,
-                    locationData.mapCoordinate
+                    coordinateData.battleSquaddieId,
+                    coordinateData.mapCoordinate
                 )
         )
 

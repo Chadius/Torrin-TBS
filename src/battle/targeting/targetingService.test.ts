@@ -75,7 +75,7 @@ describe("Targeting Service", () => {
         }))
     })
 
-    it("will indicate which locations to highlight", () => {
+    it("will indicate which coordinates to highlight", () => {
         let battleMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
@@ -100,8 +100,8 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.locationsInRange).toHaveLength(6)
-        expect(results.locationsInRange).toEqual(
+        expect(results.coordinatesInRange).toHaveLength(6)
+        expect(results.coordinatesInRange).toEqual(
             expect.arrayContaining(CreateNewNeighboringCoordinates(1, 1))
         )
     })
@@ -161,17 +161,17 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.locationsInRange).toHaveLength(4)
-        expect(results.locationsInRange).toContainEqual(
+        expect(results.coordinatesInRange).toHaveLength(4)
+        expect(results.coordinatesInRange).toContainEqual(
             NewHexCoordinateFromNumberPair([0, 0])
         )
-        expect(results.locationsInRange).toContainEqual(
+        expect(results.coordinatesInRange).toContainEqual(
             NewHexCoordinateFromNumberPair([0, 3])
         )
-        expect(results.locationsInRange).toContainEqual(
+        expect(results.coordinatesInRange).toContainEqual(
             NewHexCoordinateFromNumberPair([1, 3])
         )
-        expect(results.locationsInRange).toContainEqual(
+        expect(results.coordinatesInRange).toContainEqual(
             NewHexCoordinateFromNumberPair([2, 2])
         )
     })
@@ -179,13 +179,13 @@ describe("Targeting Service", () => {
     const makeSquaddieOfGivenAffiliationAndAddOnMap = ({
         battleSquaddieId,
         squaddieAffiliation,
-        location,
+        coordinate,
         repository,
         battleMap,
     }: {
         battleSquaddieId: string
         squaddieAffiliation: SquaddieAffiliation
-        location: HexCoordinate
+        coordinate: HexCoordinate
         repository: ObjectRepository
         battleMap: MissionMap
     }) => {
@@ -203,7 +203,7 @@ describe("Targeting Service", () => {
             missionMap: battleMap,
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            coordinate: location,
+            coordinate: coordinate,
         })
     }
 
@@ -226,7 +226,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 1, r: 0 },
+            coordinate: { q: 1, r: 0 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -234,7 +234,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 2, r: 1 },
+            coordinate: { q: 2, r: 1 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -242,7 +242,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 0, r: 3 },
+            coordinate: { q: 0, r: 3 },
         })
 
         const results: TargetingResults =
@@ -280,7 +280,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 1, r: 0 },
+            coordinate: { q: 1, r: 0 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -288,7 +288,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 1, r: 2 },
+            coordinate: { q: 1, r: 2 },
         })
 
         makeSquaddieOfGivenAffiliationAndAddOnMap({
@@ -296,7 +296,7 @@ describe("Targeting Service", () => {
             squaddieAffiliation: SquaddieAffiliation.ENEMY,
             repository: objectRepository,
             battleMap: battleMap,
-            location: { q: 0, r: 3 },
+            coordinate: { q: 0, r: 3 },
         })
 
         const healingAction: ActionTemplate = ActionTemplateService.new({
@@ -381,8 +381,8 @@ describe("Targeting Service", () => {
                 squaddieRepository: objectRepository,
             })
 
-        expect(results.locationsInRange).toHaveLength(3)
-        expect(results.locationsInRange).toStrictEqual([
+        expect(results.coordinatesInRange).toHaveLength(3)
+        expect(results.coordinatesInRange).toStrictEqual([
             { q: 0, r: 1 },
             { q: 0, r: 2 },
             { q: 0, r: 3 },
@@ -463,7 +463,7 @@ describe("Targeting Service", () => {
                 )
             ).toEqual([
                 {
-                    tiles: actionRange,
+                    coordinates: actionRange,
                     pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },

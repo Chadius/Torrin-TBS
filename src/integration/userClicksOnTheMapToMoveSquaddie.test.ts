@@ -151,7 +151,7 @@ describe("user clicks on the map to move", () => {
         )
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
-            MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION
+            MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE
         )
 
         MissionMapService.addSquaddie({
@@ -175,9 +175,9 @@ describe("user clicks on the map to move", () => {
         )
     })
 
-    describe("Invalid locations", () => {
+    describe("Invalid coordinates", () => {
         it("When user clicks off map", () => {
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 -10,
@@ -192,7 +192,7 @@ describe("user clicks on the map to move", () => {
         })
 
         it("When user clicks out of range", () => {
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 0,
@@ -209,7 +209,7 @@ describe("user clicks on the map to move", () => {
         })
 
         it("When user clicks in range but on invalid terrain", () => {
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 1,
@@ -241,7 +241,7 @@ describe("user clicks on the map to move", () => {
                     r: 2,
                 },
             })
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 2,
@@ -301,7 +301,7 @@ describe("user clicks on the map to move", () => {
                 [playerBattleSquaddie2.battleSquaddieId]
             )
 
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 0,
@@ -334,7 +334,7 @@ describe("user clicks on the map to move", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: movementStep,
-                targetLocation: { q: 0, r: 3 },
+                targetCoordinate: { q: 0, r: 3 },
             })
 
             expect(
@@ -351,15 +351,15 @@ describe("user clicks on the map to move", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 3 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 3 },
                         },
                     },
                 })
             )
         })
 
-        it("Squaddie spends the action points moving and moves to the new location", () => {
+        it("Squaddie spends the action points moving and moves to the new coordinate", () => {
             expect(
                 playerBattleSquaddie.squaddieTurn.remainingActionPoints
             ).toEqual(0)
@@ -390,7 +390,7 @@ describe("user clicks on the map to move", () => {
         let moveSquaddieAlongPathSpy: MockInstance
 
         beforeEach(() => {
-            selectorClicksOnMapLocation(
+            selectorClicksOnMapCoordinate(
                 selector,
                 gameEngineState,
                 0,
@@ -464,7 +464,7 @@ const selectorAndHUDClickOnSquaddie = (
     graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: 0,
             r: 0,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -486,7 +486,7 @@ const selectorAndHUDClickOnSquaddie = (
     })
 }
 
-const selectorClicksOnMapLocation = (
+const selectorClicksOnMapCoordinate = (
     selector: BattlePlayerSquaddieSelector,
     gameEngineState: GameEngineState,
     q: number,
@@ -494,7 +494,7 @@ const selectorClicksOnMapLocation = (
     graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q,
             r,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),

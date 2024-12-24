@@ -46,7 +46,7 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { LocationTraveled } from "../../hexMap/pathfinder/locationTraveled"
+import { CoordinateTraveled } from "../../hexMap/pathfinder/coordinateTraveled"
 import { BattleSquaddieSelectorService } from "./battleSquaddieSelectorUtils"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
@@ -220,13 +220,13 @@ export class BattleComputerSquaddieSelector
     private highlightTargetRange(
         gameEngineState: GameEngineState,
         action: ActionTemplate,
-        targetLocation: HexCoordinate,
+        targetCoordinate: HexCoordinate,
         battleSquaddieId: string
     ) {
         const searchResult: SearchResult = PathfinderService.search({
             searchParameters: SearchParametersService.new({
                 pathGenerators: {
-                    startCoordinates: [targetLocation],
+                    startCoordinates: [targetCoordinate],
                 },
                 pathSizeConstraints: {
                     maximumDistanceMoved: 0,
@@ -253,13 +253,13 @@ export class BattleComputerSquaddieSelector
             objectRepository: gameEngineState.repository,
         })
         const tilesTargeted: HexCoordinate[] =
-            SearchResultsService.getStoppableLocations(searchResult)
+            SearchResultsService.getStoppableCoordinates(searchResult)
 
         const actionRangeOnMap = MapGraphicsLayerService.new({
             id: battleSquaddieId,
             highlightedTileDescriptions: [
                 {
-                    tiles: tilesTargeted,
+                    coordinates: tilesTargeted,
                     pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
@@ -372,7 +372,7 @@ export class BattleComputerSquaddieSelector
         const {
             screenX: squaddieScreenLocationX,
             screenY: squaddieScreenLocationY,
-        } = ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        } = ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: datum.mapCoordinate.q,
             r: datum.mapCoordinate.r,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -381,7 +381,7 @@ export class BattleComputerSquaddieSelector
         const {
             worldX: squaddieWorldLocationX,
             worldY: squaddieWorldLocationY,
-        } = ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+        } = ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
             datum.mapCoordinate.q,
             datum.mapCoordinate.r
         )
@@ -478,7 +478,7 @@ export class BattleComputerSquaddieSelector
         this.highlightTargetRange(
             gameEngineState,
             action,
-            firstActionTemplateDecisionStep.target.targetLocation,
+            firstActionTemplateDecisionStep.target.targetCoordinate,
             battleSquaddie.battleSquaddieId
         )
     }
@@ -494,11 +494,11 @@ export class BattleComputerSquaddieSelector
                     battleActionDecisionStep.action.movement
             )
             .forEach((battleActionDecisionStep) =>
-                MissionMapService.updateBattleSquaddieLocation(
+                MissionMapService.updateBattleSquaddieCoordinate(
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                     battleSquaddie.battleSquaddieId,
-                    battleActionDecisionStep.target.targetLocation
+                    battleActionDecisionStep.target.targetCoordinate
                 )
             )
     }
@@ -551,10 +551,10 @@ export class BattleComputerSquaddieSelector
                                 action: { isMovement: true },
                                 effect: {
                                     movement: {
-                                        startLocation,
-                                        endLocation:
+                                        startCoordinate: startLocation,
+                                        endCoordinate:
                                             battleActionDecisionStep.target
-                                                .targetLocation,
+                                                .targetCoordinate,
                                     },
                                 },
                             })
@@ -566,8 +566,9 @@ export class BattleComputerSquaddieSelector
                         ActionCalculator.calculateResults({
                             gameEngineState: gameEngineState,
                             actingBattleSquaddie: actorBattleSquaddie,
-                            validTargetLocation:
-                                battleActionDecisionStep.target.targetLocation,
+                            validTargetCoordinate:
+                                battleActionDecisionStep.target
+                                    .targetCoordinate,
                             battleActionDecisionStep,
                         }).forEach((result) => {
                             battleActions.push(
@@ -642,13 +643,13 @@ export class BattleComputerSquaddieSelector
                         squaddieTemplate,
                         battleSquaddie,
                         clickedHexCoordinate:
-                            movementStep.target.targetLocation,
+                            movementStep.target.targetCoordinate,
                     }
                 )
-                let locationsByMoveActions: {
-                    [movementActions: number]: LocationTraveled[]
+                let coordinatesByMoveActions: {
+                    [movementActions: number]: CoordinateTraveled[]
                 } =
-                    SquaddieService.searchPathLocationsByNumberOfMovementActions(
+                    SquaddieService.searchPathCoordinatesByNumberOfMovementActions(
                         {
                             searchPath:
                                 gameEngineState.battleOrchestratorState
@@ -659,7 +660,7 @@ export class BattleComputerSquaddieSelector
                     )
                 numberOfActionPointsSpentMoving =
                     Math.max(
-                        ...Object.keys(locationsByMoveActions).map((str) =>
+                        ...Object.keys(coordinatesByMoveActions).map((str) =>
                             Number(str)
                         )
                     ) || 1
@@ -682,7 +683,7 @@ const drawSquaddieAtInitialPositionAsCameraPans = (
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
     )
     const battleSquaddieId: string = battleAction.actor.actorBattleSquaddieId
-    const startLocation = battleAction.effect.movement.startLocation
+    const startLocation = battleAction.effect.movement.startCoordinate
     const { battleSquaddie } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,

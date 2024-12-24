@@ -19,7 +19,7 @@ import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../actionDecision/battleActionDecisionStep"
-import { LocationTraveled } from "../../../hexMap/pathfinder/locationTraveled"
+import { CoordinateTraveled } from "../../../hexMap/pathfinder/coordinateTraveled"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { MissionMapService } from "../../../missionMap/missionMap"
 
@@ -96,7 +96,7 @@ export const MovementCalculatorService = {
         })
 
         const closestRoute: SearchPath =
-            SearchResultsService.getShortestPathToLocation(
+            SearchResultsService.getShortestPathToCoordinate(
                 searchResults,
                 destination.q,
                 destination.r
@@ -138,13 +138,13 @@ export const MovementCalculatorService = {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
-            targetLocation: destination,
+            targetCoordinate: destination,
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
-            targetLocation: destination,
+            targetCoordinate: destination,
         })
     },
     spendActionPointsMoving: ({
@@ -187,8 +187,8 @@ export const MovementCalculatorService = {
                 action: { isMovement: true },
                 effect: {
                     movement: {
-                        startLocation,
-                        endLocation: destination,
+                        startCoordinate: startLocation,
+                        endCoordinate: destination,
                     },
                 },
             })
@@ -205,9 +205,9 @@ const spendActionPointsMoving = ({
     battleSquaddie: BattleSquaddie
     destination: HexCoordinate
 }) => {
-    const locationsByMoveActions: {
-        [movementActions: number]: LocationTraveled[]
-    } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
+    const coordinatesByMoveActions: {
+        [movementActions: number]: CoordinateTraveled[]
+    } = SquaddieService.searchPathCoordinatesByNumberOfMovementActions({
         searchPath:
             gameEngineState.battleOrchestratorState.battleState
                 .squaddieMovePath,
@@ -216,7 +216,7 @@ const spendActionPointsMoving = ({
     })
     const numberOfActionPointsSpentMoving: number =
         Math.max(
-            ...Object.keys(locationsByMoveActions).map((str) => Number(str))
+            ...Object.keys(coordinatesByMoveActions).map((str) => Number(str))
         ) || 1
 
     const movementStep: BattleActionDecisionStep =
@@ -231,7 +231,7 @@ const spendActionPointsMoving = ({
     })
     BattleActionDecisionStepService.setConfirmedTarget({
         actionDecisionStep: movementStep,
-        targetLocation: destination,
+        targetCoordinate: destination,
     })
 
     SquaddieTurnService.spendActionPoints(

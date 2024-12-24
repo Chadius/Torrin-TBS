@@ -7,7 +7,7 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { MapHighlightService } from "../animation/mapHighlight"
 import { isValidValue } from "../../utils/validityCheck"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -51,7 +51,7 @@ export const OrchestratorUtilities = {
     }): {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
-        squaddieMapLocation: HexCoordinate
+        squaddieMapCoordinate: HexCoordinate
     } => {
         return getSquaddieAtScreenLocation({
             mouseX,
@@ -123,8 +123,8 @@ export const OrchestratorUtilities = {
                     battleSquaddieId
                 )
                 const squaddieIsOnTheMap: boolean =
-                    MissionMapSquaddieLocationService.isValid(datum) &&
-                    TerrainTileMapService.isLocationOnMap(
+                    MissionMapSquaddieCoordinateService.isValid(datum) &&
+                    TerrainTileMapService.isCoordinateOnMap(
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap.terrainTileMap,
                         datum.mapCoordinate
@@ -276,12 +276,12 @@ const getSquaddieAtScreenLocation = (param: {
 }): {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
-    squaddieMapLocation: HexCoordinate
+    squaddieMapCoordinate: HexCoordinate
 } => {
     const { mouseX, squaddieRepository, mouseY, camera, map } = param
 
     const clickedCoordinate =
-        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+        ConvertCoordinateService.convertScreenLocationToMapCoordinates({
             screenX: mouseX,
             screenY: mouseY,
             ...camera.getCoordinates(),
@@ -301,22 +301,22 @@ const getSquaddieAtMapCoordinate = (param: {
 }): {
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
-    squaddieMapLocation: HexCoordinate
+    squaddieMapCoordinate: HexCoordinate
 } => {
     const { mapCoordinate, squaddieRepository, map } = param
 
     const squaddieAndLocationIdentifier =
-        MissionMapService.getBattleSquaddieAtLocation(map, mapCoordinate)
+        MissionMapService.getBattleSquaddieAtCoordinate(map, mapCoordinate)
 
     if (
-        !MissionMapSquaddieLocationService.isValid(
+        !MissionMapSquaddieCoordinateService.isValid(
             squaddieAndLocationIdentifier
         )
     ) {
         return {
             squaddieTemplate: undefined,
             battleSquaddie: undefined,
-            squaddieMapLocation: undefined,
+            squaddieMapCoordinate: undefined,
         }
     }
 
@@ -330,7 +330,7 @@ const getSquaddieAtMapCoordinate = (param: {
     return {
         squaddieTemplate,
         battleSquaddie,
-        squaddieMapLocation: squaddieAndLocationIdentifier.mapCoordinate,
+        squaddieMapCoordinate: squaddieAndLocationIdentifier.mapCoordinate,
     }
 }
 
@@ -352,12 +352,12 @@ const highlightSquaddieRange = (
     )
 
     const squaddieReachHighlightedOnMap =
-        MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+        MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
             repository: gameEngineState.repository,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startLocation: startLocation,
+            startCoordinate: startLocation,
             campaignResources: gameEngineState.campaign.resources,
             squaddieTurnOverride:
                 squaddieTemplate.squaddieId.affiliation ===

@@ -6,7 +6,7 @@ import {
 } from "./missionCondition"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { ObjectRepositoryService } from "../objectRepository"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { MissionMapService } from "../../missionMap/missionMap"
@@ -42,7 +42,7 @@ export class MissionConditionDefeatAffiliation
 
         const livingSquaddie = MissionMapService.getAllSquaddieData(
             state.battleOrchestratorState.battleState.missionMap
-        ).find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
+        ).find((livingSquaddieDatum: MissionMapSquaddieCoordinate) => {
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     state.repository,

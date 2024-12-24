@@ -80,7 +80,7 @@ const drawHexShape = (
     cameraY: number
 ) => {
     let { screenX, screenY } =
-        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertWorldLocationToScreenLocation({
             worldX,
             worldY,
             cameraX,
@@ -135,7 +135,7 @@ export const HexDrawingUtils = {
         resourceHandler: ResourceHandler
     }) => {
         const onScreenTiles: HexGridTile[] =
-            TerrainTileGraphicsService.getAllOnscreenLocations({
+            TerrainTileGraphicsService.getAllOnscreenTerrainTiles({
                 terrainTileMap: map,
                 camera,
             })
@@ -147,20 +147,20 @@ export const HexDrawingUtils = {
             .filter((highlight) =>
                 onScreenTiles.find(
                     (onScreenTile) =>
-                        onScreenTile.q === highlight.location.q &&
-                        onScreenTile.r === highlight.location.r
+                        onScreenTile.q === highlight.coordinate.q &&
+                        onScreenTile.r === highlight.coordinate.r
                 )
             )
             .forEach((highlight) => {
                 const terrainType = onScreenTiles.find(
                     (onScreenTile) =>
-                        onScreenTile.q === highlight.location.q &&
-                        onScreenTile.r === highlight.location.r
+                        onScreenTile.q === highlight.coordinate.q &&
+                        onScreenTile.r === highlight.coordinate.r
                 ).terrainType
 
                 drawHexTileTerrainAndHighlight({
                     graphics,
-                    location: highlight.location,
+                    coordinate: highlight.coordinate,
                     terrainType,
                     camera,
                     resourceHandler,
@@ -200,7 +200,7 @@ const drawHexTileTerrain = ({
     )
     drawHexTile({
         graphics,
-        location: { q: tile.q, r: tile.r },
+        coordinate: { q: tile.q, r: tile.r },
         camera,
         image: terrainImage,
     })
@@ -209,7 +209,7 @@ const drawHexTileTerrain = ({
 const drawHexTileTerrainAndHighlight = ({
     graphics,
     terrainType,
-    location,
+    coordinate,
     camera,
     resourceHandler,
     pulseBlendColor,
@@ -217,7 +217,7 @@ const drawHexTileTerrainAndHighlight = ({
 }: {
     graphics: GraphicsBuffer
     terrainType: HexGridMovementCost
-    location: HexCoordinate
+    coordinate: HexCoordinate
     camera: BattleCamera
     resourceHandler: ResourceHandler
     pulseBlendColor: PulseBlendColor
@@ -230,7 +230,12 @@ const drawHexTileTerrainAndHighlight = ({
     graphics.push()
     const blendColor: BlendColor = pulseBlendColorToBlendColor(pulseBlendColor)
     graphics.tint(blendColor[0], blendColor[1], blendColor[2], blendColor[3])
-    drawHexTile({ graphics, location, camera, image: terrainImage })
+    drawHexTile({
+        graphics,
+        coordinate: coordinate,
+        camera,
+        image: terrainImage,
+    })
     graphics.noTint()
     graphics.pop()
 
@@ -245,25 +250,30 @@ const drawHexTileTerrainAndHighlight = ({
         resourceHandler,
         overlayImageResourceKey
     )
-    drawHexTile({ graphics, location, camera, image: overlayImage })
+    drawHexTile({
+        graphics,
+        coordinate: coordinate,
+        camera,
+        image: overlayImage,
+    })
 }
 
 const drawHexTile = ({
     graphics,
-    location,
+    coordinate,
     camera,
     image,
 }: {
     graphics: GraphicsBuffer
-    location: HexCoordinate
+    coordinate: HexCoordinate
     camera: BattleCamera
     image: p5.Image
 }) => {
     const { cameraX, cameraY } = camera.getCoordinates()
     let { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
-            q: location.q,
-            r: location.r,
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+            q: coordinate.q,
+            r: coordinate.r,
             cameraX,
             cameraY,
         })

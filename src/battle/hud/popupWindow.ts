@@ -57,13 +57,11 @@ export const PopupWindowService = {
         coordinateSystem: CoordinateSystem
     }): PopupWindow => {
         const worldCoordinates =
-            ConvertCoordinateService.convertScreenCoordinatesToWorldCoordinates(
-                {
-                    screenX,
-                    screenY,
-                    ...camera.getCoordinates(),
-                }
-            )
+            ConvertCoordinateService.convertScreenLocationToWorldLocation({
+                screenX,
+                screenY,
+                ...camera.getCoordinates(),
+            })
         const coordinates =
             coordinateSystem === CoordinateSystem.SCREEN
                 ? { x: screenX, y: screenY }
@@ -156,7 +154,7 @@ const conformYCoordinateToScreen = (top: number, popup: PopupWindow) => {
 
 const movePopupOnScreen = (popup: PopupWindow, camera: BattleCamera) => {
     const screenCoordinates =
-        ConvertCoordinateService.convertWorldCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertWorldLocationToScreenLocation({
             worldX: popup.worldLocation.x,
             worldY: popup.worldLocation.y,
             ...camera.getCoordinates(),

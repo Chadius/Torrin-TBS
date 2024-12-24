@@ -18,7 +18,7 @@ describe("Reachable Squaddies Results", () => {
 
         const soldierDistanceResults =
             results.getCoordinatesCloseToSquaddieByDistance("soldier_0")
-        expect(soldierDistanceResults.squaddieMapLocation).toStrictEqual({
+        expect(soldierDistanceResults.squaddieMapCoordinate).toStrictEqual({
             q: 0,
             r: 0,
         })

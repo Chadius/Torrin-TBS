@@ -65,8 +65,8 @@ describe("BattleAction", () => {
                 action: { isMovement: true },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 0, r: 0 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 0, r: 0 },
                     },
                 },
             })
@@ -172,8 +172,8 @@ describe("BattleAction", () => {
             endTurn: true,
             squaddie: [],
             movement: {
-                startLocation: { q: 0, r: 1 },
-                endLocation: { q: 2, r: 3 },
+                startCoordinate: { q: 0, r: 1 },
+                endCoordinate: { q: 2, r: 3 },
             },
         }
         const animation: BattleActionAnimation = {

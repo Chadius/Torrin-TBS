@@ -465,14 +465,14 @@ const drawTargetTiles = ({
         return
     }
 
-    const targetLocation = BattleActionDecisionStepService.getTarget(
+    const targetCoordinate = BattleActionDecisionStepService.getTarget(
         gameEngineState.battleOrchestratorState.battleState
             .battleActionDecisionStep
-    ).targetLocation
+    ).targetCoordinate
 
-    const battleSquaddieId = MissionMapService.getBattleSquaddieAtLocation(
+    const battleSquaddieId = MissionMapService.getBattleSquaddieAtCoordinate(
         gameEngineState.battleOrchestratorState.battleState.missionMap,
-        targetLocation
+        targetCoordinate
     ).battleSquaddieId
 
     if (

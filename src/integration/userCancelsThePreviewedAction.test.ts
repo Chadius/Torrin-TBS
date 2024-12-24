@@ -463,7 +463,7 @@ describe("User cancels the previewed action", () => {
         })
 
         let { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 1,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -544,7 +544,7 @@ const getGameEngineState = ({
     )
     gameEngineState.messageBoard.addListener(
         battleHUDListener,
-        MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+        MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
     )
     gameEngineState.messageBoard.addListener(
         battleHUDListener,

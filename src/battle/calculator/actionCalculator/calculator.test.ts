@@ -217,14 +217,14 @@ describe("calculator", () => {
 
     const dealBodyDamage = ({
         actingBattleSquaddie,
-        validTargetLocation,
+        validTargetCoordinate,
         missionStatistics,
         currentlySelectedAction,
         numberGenerator,
     }: {
         currentlySelectedAction: ActionTemplate
         actingBattleSquaddie?: BattleSquaddie
-        validTargetLocation?: HexCoordinate
+        validTargetCoordinate?: HexCoordinate
         missionStatistics?: MissionStatistics
         numberGenerator?: NumberGeneratorStrategy
     }) => {
@@ -248,14 +248,14 @@ describe("calculator", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: validTargetLocation,
+            targetCoordinate: validTargetCoordinate,
         })
 
         return ActionCalculator.calculateResults({
             gameEngineState,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingBattleSquaddie ?? player1BattleSquaddie,
-            validTargetLocation: validTargetLocation ?? { q: 0, r: 1 },
+            validTargetCoordinate: validTargetCoordinate ?? { q: 0, r: 1 },
         })
     }
 
@@ -337,7 +337,7 @@ describe("calculator", () => {
             dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 actingBattleSquaddie: enemy1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 0 },
+                validTargetCoordinate: { q: 0, r: 0 },
                 missionStatistics,
             })
 
@@ -363,7 +363,7 @@ describe("calculator", () => {
             dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 actingBattleSquaddie: enemy1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 0 },
+                validTargetCoordinate: { q: 0, r: 0 },
                 missionStatistics,
             })
 
@@ -439,7 +439,7 @@ describe("calculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 2 },
+                targetCoordinate: { q: 0, r: 2 },
             })
 
             const results = ActionCalculator.calculateResults({
@@ -458,7 +458,7 @@ describe("calculator", () => {
                 }),
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 2 },
+                validTargetCoordinate: { q: 0, r: 2 },
             })
 
             const ally1Changes = results[0].squaddieChanges.find(
@@ -497,7 +497,7 @@ describe("calculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 0 },
+                targetCoordinate: { q: 0, r: 0 },
             })
 
             ActionCalculator.calculateResults({
@@ -517,7 +517,7 @@ describe("calculator", () => {
                 }),
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 0 },
+                validTargetCoordinate: { q: 0, r: 0 },
             })
 
             expect(missionStatistics.healingReceivedByPlayerTeam).toBe(2)
@@ -581,7 +581,7 @@ describe("calculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 0 },
+                targetCoordinate: { q: 0, r: 0 },
             })
 
             const results = ActionCalculator.calculateResults({
@@ -600,7 +600,7 @@ describe("calculator", () => {
                 }),
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 0 },
+                validTargetCoordinate: { q: 0, r: 0 },
             })
 
             const player1Changes = results[0].squaddieChanges.find(
@@ -763,7 +763,7 @@ describe("calculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: action0Step,
-                targetLocation: { q: 0, r: 0 },
+                targetCoordinate: { q: 0, r: 0 },
             })
 
             const battleActionRecorder = BattleActionRecorderService.new()
@@ -806,7 +806,7 @@ describe("calculator", () => {
                 }),
                 battleActionDecisionStep: action0Step,
                 actingBattleSquaddie: player1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 1 },
+                validTargetCoordinate: { q: 0, r: 1 },
             })
 
             const enemy1Changes = results[0].squaddieChanges.find(
@@ -1039,7 +1039,7 @@ describe("calculator", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             expect(
@@ -1052,7 +1052,7 @@ describe("calculator", () => {
                 gameEngineState,
                 battleActionDecisionStep: actionStep,
                 actingBattleSquaddie: player1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 1 },
+                validTargetCoordinate: { q: 0, r: 1 },
             })
 
             const enemy1Changes = results[0].squaddieChanges.find(
@@ -1110,7 +1110,7 @@ describe("calculator", () => {
                 currentlySelectedAction:
                     actionNeedsAnAttackRollToDealBodyDamage,
                 actingBattleSquaddie: enemy1BattleSquaddie,
-                validTargetLocation: { q: 0, r: 0 },
+                validTargetCoordinate: { q: 0, r: 0 },
                 numberGenerator,
                 missionStatistics,
             })

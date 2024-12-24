@@ -1,6 +1,6 @@
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { HighlightTileDescription } from "../../hexMap/terrainTileMap"
+import { HighlightCoordinateDescription } from "../../hexMap/terrainTileMap"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
@@ -18,7 +18,7 @@ import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleS
 import { PulseBlendColor } from "../../hexMap/colorUtils"
 
 export const MapHighlightService = {
-    convertSearchPathToHighlightLocations: ({
+    convertSearchPathToHighlightCoordinates: ({
         searchPath,
         repository,
         battleSquaddieId,
@@ -30,15 +30,15 @@ export const MapHighlightService = {
         battleSquaddieId: string
         campaignResources: CampaignResources
         squaddieIsNormallyControllableByPlayer: boolean
-    }): HighlightTileDescription[] => {
-        const locationsByNumberOfMovementActions =
-            SquaddieService.searchPathLocationsByNumberOfMovementActions({
+    }): HighlightCoordinateDescription[] => {
+        const coordinatesByNumberOfMovementActions =
+            SquaddieService.searchPathCoordinatesByNumberOfMovementActions({
                 repository,
                 battleSquaddieId,
                 searchPath,
             })
-        return Object.entries(locationsByNumberOfMovementActions).map(
-            ([numberOfMoveActionsStr, locations]) => {
+        return Object.entries(coordinatesByNumberOfMovementActions).map(
+            ([numberOfMoveActionsStr, coordinateTraveledList]) => {
                 const numberOfMoveActions: number = Number(
                     numberOfMoveActionsStr
                 )
@@ -79,7 +79,7 @@ export const MapHighlightService = {
                         break
                 }
                 return {
-                    tiles: locations.map((loc) => {
+                    coordinates: coordinateTraveledList.map((loc) => {
                         return {
                             q: loc.hexCoordinate.q,
                             r: loc.hexCoordinate.r,
@@ -93,21 +93,21 @@ export const MapHighlightService = {
             }
         )
     },
-    highlightAllLocationsWithinSquaddieRange: ({
-        startLocation,
+    highlightAllCoordinatesWithinSquaddieRange: ({
+        startCoordinate,
         missionMap,
         repository,
         battleSquaddieId,
         campaignResources,
         squaddieTurnOverride,
     }: {
-        startLocation: { q: number; r: number }
+        startCoordinate: HexCoordinate
         missionMap: MissionMap
         repository: ObjectRepository
         battleSquaddieId: string
         campaignResources: CampaignResources
         squaddieTurnOverride?: SquaddieTurn
-    }): HighlightTileDescription[] => {
+    }): HighlightCoordinateDescription[] => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 repository,
@@ -125,89 +125,91 @@ export const MapHighlightService = {
             actionPointsRemaining = squaddieTurnOverride.remainingActionPoints
         }
 
-        const reachableLocationSearch: SearchResult = PathfinderService.search({
-            searchParameters: SearchParametersService.new({
-                pathGenerators: {
-                    startCoordinates: [startLocation],
-                },
-                pathSizeConstraints: {
-                    numberOfActions: actionPointsRemaining,
-                    movementPerAction:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.movementPerAction,
-                },
-                pathContinueConstraints: {
-                    ignoreTerrainCost:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.ignoreTerrainCost,
-                    canPassOverPits:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.crossOverPits,
-                    canPassThroughWalls:
-                        SquaddieService.getSquaddieMovementAttributes({
-                            battleSquaddie,
-                            squaddieTemplate,
-                        }).net.passThroughWalls,
-                    squaddieAffiliation: {
-                        searchingSquaddieAffiliation:
-                            squaddieTemplate.squaddieId.affiliation,
-                        canCrossThroughUnfriendlySquaddies:
+        const reachableCoordinateSearch: SearchResult =
+            PathfinderService.search({
+                searchParameters: SearchParametersService.new({
+                    pathGenerators: {
+                        startCoordinates: [startCoordinate],
+                    },
+                    pathSizeConstraints: {
+                        numberOfActions: actionPointsRemaining,
+                        movementPerAction:
                             SquaddieService.getSquaddieMovementAttributes({
                                 battleSquaddie,
                                 squaddieTemplate,
-                            }).net.passThroughSquaddies,
+                            }).net.movementPerAction,
                     },
-                },
-                pathStopConstraints: {
-                    canStopOnSquaddies: false,
-                },
-                goal: {},
-            }),
-            missionMap,
-            objectRepository: repository,
-        })
+                    pathContinueConstraints: {
+                        ignoreTerrainCost:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie,
+                                squaddieTemplate,
+                            }).net.ignoreTerrainCost,
+                        canPassOverPits:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie,
+                                squaddieTemplate,
+                            }).net.crossOverPits,
+                        canPassThroughWalls:
+                            SquaddieService.getSquaddieMovementAttributes({
+                                battleSquaddie,
+                                squaddieTemplate,
+                            }).net.passThroughWalls,
+                        squaddieAffiliation: {
+                            searchingSquaddieAffiliation:
+                                squaddieTemplate.squaddieId.affiliation,
+                            canCrossThroughUnfriendlySquaddies:
+                                SquaddieService.getSquaddieMovementAttributes({
+                                    battleSquaddie,
+                                    squaddieTemplate,
+                                }).net.passThroughSquaddies,
+                        },
+                    },
+                    pathStopConstraints: {
+                        canStopOnSquaddies: false,
+                    },
+                    goal: {},
+                }),
+                missionMap,
+                objectRepository: repository,
+            })
         const { squaddieIsNormallyControllableByPlayer } =
             SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate,
                 battleSquaddie,
             })
 
-        const movementRange = highlightAllLocationsWithinSquaddieMovementRange({
-            startLocation,
-            reachableLocationSearch,
-            campaignResources,
-            squaddieIsNormallyControllableByPlayer,
-        })
+        const movementRange =
+            highlightAllCoordinatesWithinSquaddieMovementRange({
+                startCoordinate,
+                reachableCoordinatesSearch: reachableCoordinateSearch,
+                campaignResources,
+                squaddieIsNormallyControllableByPlayer,
+            })
         const attackRange = addAttackRangeOntoMovementRange({
             objectRepository: repository,
             battleSquaddieId,
-            reachableLocationSearch,
+            reachableCoordinateSearch: reachableCoordinateSearch,
             missionMap,
             campaignResources,
             squaddieIsNormallyControllableByPlayer,
             actionPointsRemaining,
         })
-        if (attackRange && attackRange.tiles.length > 0) {
+        if (attackRange && attackRange.coordinates.length > 0) {
             return [...movementRange, attackRange]
         }
         return [...movementRange]
     },
 }
 
-const highlightAllLocationsWithinSquaddieMovementRange = ({
-    startLocation,
-    reachableLocationSearch,
+const highlightAllCoordinatesWithinSquaddieMovementRange = ({
+    startCoordinate,
+    reachableCoordinatesSearch,
     campaignResources,
     squaddieIsNormallyControllableByPlayer,
 }: {
-    startLocation: HexCoordinate
-    reachableLocationSearch: SearchResult
+    startCoordinate: HexCoordinate
+    reachableCoordinatesSearch: SearchResult
     campaignResources: CampaignResources
     squaddieIsNormallyControllableByPlayer: boolean
 }) => {
@@ -216,14 +218,14 @@ const highlightAllLocationsWithinSquaddieMovementRange = ({
             ? HIGHLIGHT_PULSE_COLOR.BLUE
             : HIGHLIGHT_PULSE_COLOR.PALE_BLUE
 
-    const highlightedLocations: HighlightTileDescription[] = [
+    const highlightedCoordinates: HighlightCoordinateDescription[] = [
         {
-            tiles: [{ ...startLocation }],
+            coordinates: [{ ...startCoordinate }],
             pulseColor: pulseMovementColor,
             overlayImageResourceName: "",
         },
         {
-            tiles: [],
+            coordinates: [],
             pulseColor: pulseMovementColor,
             overlayImageResourceName: squaddieIsNormallyControllableByPlayer
                 ? campaignResources.missionMapMovementIconResourceKeys
@@ -232,7 +234,7 @@ const highlightAllLocationsWithinSquaddieMovementRange = ({
                       .MOVE_1_ACTION_UNCONTROLLABLE_SQUADDIE,
         },
         {
-            tiles: [],
+            coordinates: [],
             pulseColor: pulseMovementColor,
             overlayImageResourceName: squaddieIsNormallyControllableByPlayer
                 ? campaignResources.missionMapMovementIconResourceKeys
@@ -241,7 +243,7 @@ const highlightAllLocationsWithinSquaddieMovementRange = ({
                       .MOVE_2_ACTIONS_UNCONTROLLABLE_SQUADDIE,
         },
         {
-            tiles: [],
+            coordinates: [],
             pulseColor: pulseMovementColor,
             overlayImageResourceName: squaddieIsNormallyControllableByPlayer
                 ? campaignResources.missionMapMovementIconResourceKeys
@@ -251,29 +253,29 @@ const highlightAllLocationsWithinSquaddieMovementRange = ({
         },
     ]
     Object.entries(
-        SearchResultsService.getLocationsByNumberOfMoveActions(
-            reachableLocationSearch
+        SearchResultsService.getCoordinatesByNumberOfMoveActions(
+            reachableCoordinatesSearch
         )
-    ).forEach(([moveActionsStr, locations]) => {
+    ).forEach(([moveActionsStr, coordinates]) => {
         const moveActions = Number(moveActionsStr)
-        let highlightedLocationIndex: number = Math.min(moveActions, 3)
-        const locationsBesidesStart = locations.filter(
-            (l) => l.q !== startLocation.q || l.r !== startLocation.r
+        let highlightedCoordinateIndex: number = Math.min(moveActions, 3)
+        const coordinateBesidesStart = coordinates.filter(
+            (l) => l.q !== startCoordinate.q || l.r !== startCoordinate.r
         )
-        highlightedLocations[highlightedLocationIndex].tiles.push(
-            ...locationsBesidesStart
+        highlightedCoordinates[highlightedCoordinateIndex].coordinates.push(
+            ...coordinateBesidesStart
         )
     })
 
-    return highlightedLocations.filter(
-        (description) => description.tiles.length > 0
+    return highlightedCoordinates.filter(
+        (description) => description.coordinates.length > 0
     )
 }
 
 const addAttackRangeOntoMovementRange = ({
     objectRepository,
     battleSquaddieId,
-    reachableLocationSearch,
+    reachableCoordinateSearch,
     missionMap,
     campaignResources,
     squaddieIsNormallyControllableByPlayer,
@@ -281,19 +283,20 @@ const addAttackRangeOntoMovementRange = ({
 }: {
     objectRepository: ObjectRepository
     battleSquaddieId: string
-    reachableLocationSearch: SearchResult
+    reachableCoordinateSearch: SearchResult
     missionMap: MissionMap
     campaignResources: CampaignResources
     squaddieIsNormallyControllableByPlayer: boolean
     actionPointsRemaining: number
-}): HighlightTileDescription => {
-    const attackLocations = BattleSquaddieSelectorService.getAttackLocations({
-        objectRepository,
-        battleSquaddieId,
-        reachableLocationSearch,
-        missionMap,
-        actionPointsRemaining,
-    })
+}): HighlightCoordinateDescription => {
+    const attackCoordinates =
+        BattleSquaddieSelectorService.getAttackCoordinates({
+            objectRepository,
+            battleSquaddieId,
+            reachableCoordinateSearch,
+            missionMap,
+            actionPointsRemaining,
+        })
 
     const pulseActionColor: PulseBlendColor =
         squaddieIsNormallyControllableByPlayer
@@ -301,7 +304,7 @@ const addAttackRangeOntoMovementRange = ({
             : HIGHLIGHT_PULSE_COLOR.PURPLE
 
     return {
-        tiles: attackLocations,
+        coordinates: attackCoordinates,
         pulseColor: pulseActionColor,
         overlayImageResourceName:
             campaignResources.missionMapAttackIconResourceKeys.ATTACK_1_ACTION,

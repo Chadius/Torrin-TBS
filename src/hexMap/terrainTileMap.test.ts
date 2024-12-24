@@ -41,79 +41,79 @@ describe("Terrain Tile Map", () => {
             )
         })
     })
-    it("can note which tiles are at which locations", () => {
+    it("can note which tiles are at which coordinates", () => {
         const hexGrid = TerrainTileMapService.new({
             movementCost: ["x - x x ", " 1 - 2 x ", "  x 2 x x "],
         })
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 1,
                 r: 1,
             })
         ).toBe(HexGridMovementCost.pit)
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 1,
                 r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 1,
                 r: 3,
             })
         ).toBe(HexGridMovementCost.wall)
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 1,
                 r: 0,
             })
         ).toBe(HexGridMovementCost.singleMovement)
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 1,
                 r: 2,
             })
         ).toBe(HexGridMovementCost.doubleMovement)
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 0,
                 r: 1,
             })
         ).toBe(HexGridMovementCost.pit)
 
         expect(
-            TerrainTileMapService.getTileTerrainTypeAtLocation(hexGrid, {
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(hexGrid, {
                 q: 4,
                 r: 4,
             })
         ).toBeUndefined()
 
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 1 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 1, r: 1 })
         ).toBeTruthy()
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 2 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 1, r: 2 })
         ).toBeTruthy()
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 3 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 1, r: 3 })
         ).toBeTruthy()
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 1, r: 0 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 1, r: 0 })
         ).toBeTruthy()
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 2, r: 1 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 2, r: 1 })
         ).toBeTruthy()
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 0, r: 1 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 0, r: 1 })
         ).toBeTruthy()
 
         expect(
-            TerrainTileMapService.isLocationOnMap(hexGrid, { q: 4, r: 4 })
+            TerrainTileMapService.isCoordinateOnMap(hexGrid, { q: 4, r: 4 })
         ).toBeFalsy()
 
         expect(
-            TerrainTileMapService.isLocationOnMap(undefined, { q: 0, r: 0 })
+            TerrainTileMapService.isCoordinateOnMap(undefined, { q: 0, r: 0 })
         ).toBeFalsy()
     })
     describe("can create maps using text strings", () => {
@@ -123,7 +123,7 @@ describe("Terrain Tile Map", () => {
             })
 
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     {
                         q: 0,
@@ -132,7 +132,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     {
                         q: 0,
@@ -141,19 +141,19 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     { q: 0, r: 2 }
                 )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     { q: 0, r: 3 }
                 )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     {
                         q: 0,
@@ -162,7 +162,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     {
                         q: 0,
@@ -171,19 +171,19 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     { q: 0, r: 6 }
                 )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     { q: 0, r: 7 }
                 )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromSingleLine,
                     { q: 0, r: 8 }
                 )
@@ -196,7 +196,7 @@ describe("Terrain Tile Map", () => {
             })
 
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 0,
@@ -205,7 +205,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 0,
@@ -214,7 +214,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 0,
@@ -223,7 +223,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.singleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 1,
@@ -232,7 +232,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 1,
@@ -241,7 +241,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 1,
@@ -250,7 +250,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.doubleMovement)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 2,
@@ -259,7 +259,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 2,
@@ -268,7 +268,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 2,
@@ -277,7 +277,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.pit)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 3,
@@ -286,7 +286,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 3,
@@ -295,7 +295,7 @@ describe("Terrain Tile Map", () => {
                 )
             ).toEqual(HexGridMovementCost.wall)
             expect(
-                TerrainTileMapService.getTileTerrainTypeAtLocation(
+                TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                     mapFromMultipleLines,
                     {
                         q: 3,
@@ -344,7 +344,7 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 1 },
                             { q: 1, r: 2 },
                         ],
@@ -357,7 +357,7 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
@@ -383,7 +383,7 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
@@ -491,7 +491,7 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 2 },
                             { q: 1, r: 1 },
                         ],
@@ -499,7 +499,7 @@ describe("Terrain Tile Map", () => {
                     },
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [{ q: 0, r: 0 }],
+                        coordinates: [{ q: 0, r: 0 }],
                     },
                 ],
                 type: MapGraphicsLayerType.UNKNOWN,
@@ -511,12 +511,12 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [{ q: 0, r: 2 }],
+                        coordinates: [{ q: 0, r: 2 }],
                         overlayImageResourceName: "mid layer",
                     },
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [{ q: 1, r: 2 }],
+                        coordinates: [{ q: 1, r: 2 }],
                         overlayImageResourceName: "mid layer 2",
                     },
                 ],
@@ -529,7 +529,7 @@ describe("Terrain Tile Map", () => {
                 highlightedTileDescriptions: [
                     {
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
-                        tiles: [{ q: 0, r: 2 }],
+                        coordinates: [{ q: 0, r: 2 }],
                         overlayImageResourceName: "top layer",
                     },
                 ],
@@ -542,21 +542,21 @@ describe("Terrain Tile Map", () => {
             expect(computedHighlightedTiles).toEqual(
                 expect.arrayContaining([
                     {
-                        location: { q: 0, r: 0 },
+                        coordinate: { q: 0, r: 0 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                     },
                     {
-                        location: { q: 0, r: 2 },
+                        coordinate: { q: 0, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "top layer",
                     },
                     {
-                        location: { q: 1, r: 1 },
+                        coordinate: { q: 1, r: 1 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "lowest layer",
                     },
                     {
-                        location: { q: 1, r: 2 },
+                        coordinate: { q: 1, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "mid layer 2",
                     },
@@ -570,7 +570,7 @@ describe("Terrain Tile Map", () => {
                     highlightedTileDescriptions: [
                         {
                             pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                            tiles: [{ q: 0, r: 0 }],
+                            coordinates: [{ q: 0, r: 0 }],
                         },
                     ],
                     type: MapGraphicsLayerType.UNKNOWN,
@@ -582,7 +582,7 @@ describe("Terrain Tile Map", () => {
                     highlightedTileDescriptions: [
                         {
                             pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                            tiles: [{ q: 0, r: 0 }],
+                            coordinates: [{ q: 0, r: 0 }],
                         },
                     ],
                     type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
@@ -594,7 +594,7 @@ describe("Terrain Tile Map", () => {
                     highlightedTileDescriptions: [
                         {
                             pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                            tiles: [{ q: 0, r: 0 }],
+                            coordinates: [{ q: 0, r: 0 }],
                         },
                     ],
                     type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
@@ -606,7 +606,7 @@ describe("Terrain Tile Map", () => {
                     highlightedTileDescriptions: [
                         {
                             pulseColor: HIGHLIGHT_PULSE_COLOR.PURPLE,
-                            tiles: [{ q: 0, r: 0 }],
+                            coordinates: [{ q: 0, r: 0 }],
                         },
                     ],
                     type: MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE,

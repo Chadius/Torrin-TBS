@@ -34,7 +34,7 @@ export class HexCoordinatesByDistance {
         this.coordinatesByDistance[distance].push(coordinate)
     }
 
-    getDistanceFromLocation(mapCoordinate: HexCoordinate): number {
+    getDistanceFromCoordinate(mapCoordinate: HexCoordinate): number {
         const distanceStr = Object.keys(this.coordinatesByDistance).find(
             (distanceStr: string) =>
                 this.coordinatesByDistance[parseInt(distanceStr)].some(
@@ -51,14 +51,14 @@ export class HexCoordinatesByDistance {
 }
 
 export class ReachableSquaddieDescription {
-    squaddieMapLocation: HexCoordinate
+    squaddieMapCoordinate: HexCoordinate
     closestCoordinatesByDistance: HexCoordinatesByDistance
 
     constructor(options: {
-        squaddieMapLocation?: HexCoordinate
+        squaddieMapCoordinate?: HexCoordinate
         closestCoordinatesByDistance: HexCoordinatesByDistance
     }) {
-        this.squaddieMapLocation = options.squaddieMapLocation
+        this.squaddieMapCoordinate = options.squaddieMapCoordinate
         this.closestCoordinatesByDistance = options.closestCoordinatesByDistance
     }
 
@@ -84,7 +84,7 @@ export class ReachableSquaddieDescription {
     }
 
     getDistanceFromLocation(mapCoordinate: HexCoordinate): number {
-        return this.closestCoordinatesByDistance.getDistanceFromLocation(
+        return this.closestCoordinatesByDistance.getDistanceFromCoordinate(
             mapCoordinate
         )
     }
@@ -144,7 +144,7 @@ export class ReachableSquaddiesResults {
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId]) {
             this.coordinatesCloseToSquaddieByDistance[squaddieId] =
                 new ReachableSquaddieDescription({
-                    squaddieMapLocation: mapCoordinate,
+                    squaddieMapCoordinate: mapCoordinate,
                     closestCoordinatesByDistance:
                         new HexCoordinatesByDistance(),
                 })
@@ -152,65 +152,6 @@ export class ReachableSquaddiesResults {
 
         this.coordinatesCloseToSquaddieByDistance[
             squaddieId
-        ].squaddieMapLocation = mapCoordinate
-    }
-
-    getClosestSquaddies(): {
-        [squaddieId: string]: HexCoordinate
-    } {
-        const squaddieInfo: {
-            [squaddieId: string]: HexCoordinate
-        } = {}
-
-        Object.entries(this.coordinatesCloseToSquaddieByDistance).forEach(
-            ([squaddieId, description]) => {
-                squaddieInfo[squaddieId] = description.squaddieMapLocation
-            }
-        )
-        return squaddieInfo
-    }
-
-    getClosestSquaddieAndClosestDistance(squaddieIds: string[]): {
-        battleSquaddieId: string
-        distance: number
-    } {
-        let foundSquaddieId = ""
-        let minimumDistanceToSquaddie = 0
-        squaddieIds.forEach((squaddieId) => {
-            const distanceToSquaddieDescription =
-                this.getCoordinatesCloseToSquaddieByDistance(squaddieId)
-            const minimumDistance =
-                distanceToSquaddieDescription.getClosestAdjacentDistanceToSquaddieWithinRange(
-                    1
-                )
-
-            if (
-                foundSquaddieId === "" ||
-                minimumDistance === undefined ||
-                minimumDistance < minimumDistanceToSquaddie
-            ) {
-                foundSquaddieId = squaddieId
-                minimumDistanceToSquaddie = minimumDistance ?? 0
-            }
-        })
-        if (foundSquaddieId) {
-            return {
-                battleSquaddieId: foundSquaddieId,
-                distance: minimumDistanceToSquaddie,
-            }
-        }
-        return {
-            battleSquaddieId: undefined,
-            distance: undefined,
-        }
-    }
-
-    getCurrentDistanceFromSquaddie(
-        targetSquaddieId: string,
-        mapCoordinate: HexCoordinate
-    ): number {
-        const allCoordinatesFromSquaddie =
-            this.getCoordinatesCloseToSquaddieByDistance(targetSquaddieId)
-        return allCoordinatesFromSquaddie.getDistanceFromLocation(mapCoordinate)
+        ].squaddieMapCoordinate = mapCoordinate
     }
 }

@@ -330,7 +330,7 @@ const initializeSquaddieResources = ({
 
             if (datum.mapCoordinate !== undefined) {
                 const { screenX, screenY } =
-                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
                             q: datum.mapCoordinate.q,
                             r: datum.mapCoordinate.r,
@@ -496,7 +496,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
 
     deployments.forEach((deployment) =>
         deployment.mapPlacements.forEach((mapPlacement) => {
-            let { location, battleSquaddieId, squaddieTemplateId } =
+            let { coordinate, battleSquaddieId, squaddieTemplateId } =
                 mapPlacement
             ObjectRepositoryService.addBattleSquaddie(
                 repository,
@@ -510,7 +510,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId,
                 battleSquaddieId,
-                coordinate: location,
+                coordinate: coordinate,
             })
         })
     )
@@ -573,7 +573,7 @@ const deployRequiredPlayerSquaddies = (
                 missionMap: missionLoaderContext.missionMap,
                 squaddieTemplateId: requiredDeployment.squaddieTemplateId,
                 battleSquaddieId: requiredDeployment.battleSquaddieId,
-                coordinate: requiredDeployment.location,
+                coordinate: requiredDeployment.coordinate,
             })
         }
     )

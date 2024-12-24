@@ -87,12 +87,12 @@ export const TestMissionData = () => {
                     {
                         squaddieTemplateId: "player_sir_camil",
                         battleSquaddieId: "player_sir_camil",
-                        location: { q: 1, r: 1 },
+                        coordinate: { q: 1, r: 1 },
                     },
                     {
                         squaddieTemplateId: "player_young_torrin",
                         battleSquaddieId: "player_young_torrin",
-                        location: { q: 1, r: 0 },
+                        coordinate: { q: 1, r: 0 },
                     },
                 ],
             },
@@ -107,17 +107,17 @@ export const TestMissionData = () => {
                     {
                         squaddieTemplateId: "enemy_demon_slither",
                         battleSquaddieId: "enemy_demon_slither_0",
-                        location: { q: 1, r: 5 },
+                        coordinate: { q: 1, r: 5 },
                     },
                     {
                         squaddieTemplateId: "enemy_demon_slither",
                         battleSquaddieId: "enemy_demon_slither_1",
-                        location: { q: 1, r: 9 },
+                        coordinate: { q: 1, r: 9 },
                     },
                     {
                         squaddieTemplateId: "enemyDemonSlitherTemplate2_id",
                         battleSquaddieId: "enemy_demon_slither_2",
-                        location: { q: 1, r: 12 },
+                        coordinate: { q: 1, r: 12 },
                     },
                 ],
                 teams: [
@@ -190,7 +190,7 @@ export const TestMissionData = () => {
                     {
                         squaddieTemplateId: "ally_guard",
                         battleSquaddieId: "ally_guard_0",
-                        location: { q: 0, r: 10 },
+                        coordinate: { q: 0, r: 10 },
                     },
                 ],
                 teams: [
@@ -224,7 +224,7 @@ export const TestMissionData = () => {
                     {
                         squaddieTemplateId: "no_affiliation_living_flame",
                         battleSquaddieId: "no_affiliation_living_flame_0",
-                        location: { q: 0, r: 11 },
+                        coordinate: { q: 0, r: 11 },
                     },
                 ],
                 teams: [

@@ -248,7 +248,7 @@ describe("PlayerHUDController", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
 
             const recommendedChanges =
@@ -294,7 +294,7 @@ describe("PlayerHUDController", () => {
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,
-                targetLocation: { q: 0, r: 2 },
+                targetCoordinate: { q: 0, r: 2 },
             })
 
             const battleAction: BattleAction = BattleActionService.new({

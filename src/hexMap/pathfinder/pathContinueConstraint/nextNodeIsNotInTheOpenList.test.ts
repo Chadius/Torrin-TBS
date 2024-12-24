@@ -46,7 +46,7 @@ describe("AddPathConditionNotInMapLayer", () => {
             }),
             initialValue: false,
         })
-        mapLayer.valueByLocation[1][0] = true
+        mapLayer.valueByCoordinate[1][0] = true
 
         const condition = new NextNodeIsNotInTheOpenList({
             enqueuedMapLayer: mapLayer,

@@ -166,7 +166,7 @@ describe("next node has a squaddie", () => {
             }
         )
     })
-    it("returns true if there is no squaddie at the location", () => {
+    it("returns true if there is no squaddie at the coordinate", () => {
         const { missionMap, pathAtHead } = setupPath()
 
         const repository: ObjectRepository = ObjectRepositoryService.new()

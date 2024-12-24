@@ -16,7 +16,7 @@ import { ObjectRepositoryService } from "../../objectRepository"
 import { DegreeOfSuccess } from "./degreeOfSuccess"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { MissionMapService } from "../../../missionMap/missionMap"
-import { MissionMapSquaddieLocationService } from "../../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     BattleActionSquaddieChange,
@@ -50,18 +50,18 @@ export const ActionCalculator = {
     calculateResults: ({
         gameEngineState,
         actingBattleSquaddie,
-        validTargetLocation,
+        validTargetCoordinate,
         battleActionDecisionStep,
     }: {
         gameEngineState: GameEngineState
         actingBattleSquaddie: BattleSquaddie
-        validTargetLocation: HexCoordinate
+        validTargetCoordinate: HexCoordinate
         battleActionDecisionStep: BattleActionDecisionStep
     }): SquaddieSquaddieResults[] => {
         return calculateResults({
             gameEngineState: gameEngineState,
             actingBattleSquaddie,
-            validTargetLocation,
+            validTargetCoordinate,
             battleActionDecisionStep,
         })
     },
@@ -70,12 +70,12 @@ export const ActionCalculator = {
 const calculateResults = ({
     gameEngineState,
     actingBattleSquaddie,
-    validTargetLocation,
+    validTargetCoordinate,
     battleActionDecisionStep,
 }: {
     gameEngineState: GameEngineState
     actingBattleSquaddie: BattleSquaddie
-    validTargetLocation: HexCoordinate
+    validTargetCoordinate: HexCoordinate
     battleActionDecisionStep: BattleActionDecisionStep
 }): SquaddieSquaddieResults[] => {
     if (battleActionDecisionStep.action.actionTemplateId === undefined) {
@@ -91,9 +91,9 @@ const calculateResults = ({
     return ActionTemplateService.getActionEffectTemplates(actionTemplate).map(
         (actionEffectTemplate) => {
             const targetedBattleSquaddieIds =
-                getBattleSquaddieIdsAtGivenLocations({
+                getBattleSquaddieIdsAtGivenCoordinates({
                     gameEngineState,
-                    locations: [validTargetLocation],
+                    coordinates: [validTargetCoordinate],
                 })
 
             const actionContext = getActorContext({
@@ -355,21 +355,21 @@ const maybeUpdateMissionStatistics = ({
     }
 }
 
-const getBattleSquaddieIdsAtGivenLocations = ({
+const getBattleSquaddieIdsAtGivenCoordinates = ({
     gameEngineState,
-    locations,
+    coordinates,
 }: {
-    locations: { q: number; r: number }[]
+    coordinates: { q: number; r: number }[]
     gameEngineState: GameEngineState
 }): string[] => {
-    return locations
-        .map((location) =>
-            MissionMapService.getBattleSquaddieAtLocation(
+    return coordinates
+        .map((coordinate) =>
+            MissionMapService.getBattleSquaddieAtCoordinate(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
-                location
+                coordinate
             )
         )
-        .filter(MissionMapSquaddieLocationService.isValid)
+        .filter(MissionMapSquaddieCoordinateService.isValid)
         .map(
             (battleSquaddieLocation) => battleSquaddieLocation.battleSquaddieId
         )

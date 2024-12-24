@@ -27,7 +27,7 @@ export class NewPathLengthIsLessThanMaximum implements PathContinueConstraint {
         }
 
         return (
-            newPath.locationsTraveled.length <=
+            newPath.coordinatesTraveled.length <=
             searchParameters.pathSizeConstraints.maximumDistanceMoved + 1
         )
     }

@@ -1,9 +1,9 @@
 import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import {
-    MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationService,
-} from "./squaddieLocation"
+    MissionMapSquaddieCoordinate,
+    MissionMapSquaddieCoordinateService,
+} from "./squaddieCoordinate"
 import {
     SquaddieDeployment,
     SquaddieDeploymentService,
@@ -15,7 +15,7 @@ import { isValidValue } from "../utils/validityCheck"
 export interface MissionMap {
     playerDeployment: SquaddieDeployment
     terrainTileMap: TerrainTileMap
-    squaddieInfo: MissionMapSquaddieLocation[]
+    squaddieInfo: MissionMapSquaddieCoordinate[]
     squaddiesHidden: string[]
 }
 
@@ -48,7 +48,7 @@ export const MissionMapService = {
     }): Error | undefined => {
         if (
             coordinate !== undefined &&
-            !TerrainTileMapService.isLocationOnMap(
+            !TerrainTileMapService.isCoordinateOnMap(
                 missionMap.terrainTileMap,
                 coordinate
             )
@@ -58,7 +58,7 @@ export const MissionMapService = {
             )
         }
 
-        const battleSquaddieWithId: MissionMapSquaddieLocation =
+        const battleSquaddieWithId: MissionMapSquaddieCoordinate =
             missionMap.squaddieInfo.find(
                 (datum) => datum.battleSquaddieId === battleSquaddieId
             )
@@ -66,16 +66,16 @@ export const MissionMapService = {
             return new Error(`${battleSquaddieId} already added`)
         }
 
-        const squaddieAlreadyOccupyingLocation: MissionMapSquaddieLocation =
-            getSquaddieAtLocation(missionMap, coordinate)
+        const squaddieAlreadyOccupyingCoordinate: MissionMapSquaddieCoordinate =
+            getSquaddieAtCoordinate(missionMap, coordinate)
         if (
-            MissionMapSquaddieLocationService.isValid(
-                squaddieAlreadyOccupyingLocation
+            MissionMapSquaddieCoordinateService.isValid(
+                squaddieAlreadyOccupyingCoordinate
             ) &&
             !!coordinate
         ) {
             return new Error(
-                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}), already occupied by ${squaddieAlreadyOccupyingLocation.battleSquaddieId}`
+                `cannot add ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}), already occupied by ${squaddieAlreadyOccupyingCoordinate.battleSquaddieId}`
             )
         }
 
@@ -89,7 +89,7 @@ export const MissionMapService = {
     getByBattleSquaddieId: (
         missionMap: MissionMap,
         battleSquaddieId: string
-    ): MissionMapSquaddieLocation => {
+    ): MissionMapSquaddieCoordinate => {
         if (!isValidValue(missionMap)) {
             return {
                 mapCoordinate: undefined,
@@ -97,24 +97,24 @@ export const MissionMapService = {
                 battleSquaddieId: undefined,
             }
         }
-        const foundDatum: MissionMapSquaddieLocation =
+        const foundDatum: MissionMapSquaddieCoordinate =
             missionMap.squaddieInfo.find(
                 (datum) => datum.battleSquaddieId === battleSquaddieId
             )
         return foundDatum
-            ? MissionMapSquaddieLocationService.clone(foundDatum)
+            ? MissionMapSquaddieCoordinateService.clone(foundDatum)
             : {
                   battleSquaddieId: undefined,
                   squaddieTemplateId: undefined,
                   mapCoordinate: undefined,
               }
     },
-    updateBattleSquaddieLocation: (
+    updateBattleSquaddieCoordinate: (
         missionMap: MissionMap,
         battleSquaddieId: string,
-        location: HexCoordinate
+        coordinate: HexCoordinate
     ): Error | undefined => {
-        const foundDatum: MissionMapSquaddieLocation =
+        const foundDatum: MissionMapSquaddieCoordinate =
             missionMap.squaddieInfo.find(
                 (datum) => datum.battleSquaddieId === battleSquaddieId
             )
@@ -125,49 +125,49 @@ export const MissionMapService = {
         }
 
         if (
-            location &&
-            !TerrainTileMapService.isLocationOnMap(
+            coordinate &&
+            !TerrainTileMapService.isCoordinateOnMap(
                 missionMap.terrainTileMap,
-                location
+                coordinate
             )
         ) {
             return new Error(
-                `cannot update position for ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`
+                `cannot update position for ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}) is not on map`
             )
         }
 
-        if (location) {
-            const squaddieAtTheLocation = getSquaddieAtLocation(
+        if (coordinate) {
+            const squaddieAtTheCoordinate = getSquaddieAtCoordinate(
                 missionMap,
-                location
+                coordinate
             )
             if (
-                MissionMapSquaddieLocationService.isValid(
-                    squaddieAtTheLocation
+                MissionMapSquaddieCoordinateService.isValid(
+                    squaddieAtTheCoordinate
                 ) &&
-                squaddieAtTheLocation.battleSquaddieId !== battleSquaddieId
+                squaddieAtTheCoordinate.battleSquaddieId !== battleSquaddieId
             ) {
                 return new Error(
-                    `cannot update position for ${battleSquaddieId} to (${location.q}, ${location.r}) already occupied by ${squaddieAtTheLocation.battleSquaddieId}`
+                    `cannot update position for ${battleSquaddieId} to (${coordinate.q}, ${coordinate.r}) already occupied by ${squaddieAtTheCoordinate.battleSquaddieId}`
                 )
             }
         }
 
-        foundDatum.mapCoordinate = location
+        foundDatum.mapCoordinate = coordinate
     },
-    getBattleSquaddieAtLocation: (
+    getBattleSquaddieAtCoordinate: (
         missionMap: MissionMap,
-        location: HexCoordinate
-    ): MissionMapSquaddieLocation => {
-        return getSquaddieAtLocation(missionMap, location)
+        coordinate: HexCoordinate
+    ): MissionMapSquaddieCoordinate => {
+        return getSquaddieAtCoordinate(missionMap, coordinate)
     },
-    getSquaddiesThatHaveNoLocation: (missionMap: MissionMap) =>
+    getSquaddiesThatHaveNoCoordinate: (missionMap: MissionMap) =>
         missionMap.squaddieInfo
             .filter((datum) => datum.mapCoordinate === undefined)
-            .map((datum) => MissionMapSquaddieLocationService.clone(datum)),
+            .map((datum) => MissionMapSquaddieCoordinateService.clone(datum)),
     getAllSquaddieData: (missionMap: MissionMap) =>
         missionMap.squaddieInfo.map((datum) =>
-            MissionMapSquaddieLocationService.clone(datum)
+            MissionMapSquaddieCoordinateService.clone(datum)
         ),
     isSquaddieHiddenFromDrawing: (
         missionMap: MissionMap,
@@ -193,19 +193,20 @@ export const MissionMapService = {
     },
 }
 
-const getSquaddieAtLocation = (
+const getSquaddieAtCoordinate = (
     missionMap: MissionMap,
-    location: HexCoordinate
-): MissionMapSquaddieLocation => {
-    const foundDatum: MissionMapSquaddieLocation = missionMap.squaddieInfo.find(
-        (datum) =>
-            location &&
-            datum.mapCoordinate &&
-            datum.mapCoordinate.q === location.q &&
-            datum.mapCoordinate.r === location.r
-    )
+    coordinate: HexCoordinate
+): MissionMapSquaddieCoordinate => {
+    const foundDatum: MissionMapSquaddieCoordinate =
+        missionMap.squaddieInfo.find(
+            (datum) =>
+                coordinate &&
+                datum.mapCoordinate &&
+                datum.mapCoordinate.q === coordinate.q &&
+                datum.mapCoordinate.r === coordinate.r
+        )
     return foundDatum
-        ? MissionMapSquaddieLocationService.clone(foundDatum)
+        ? MissionMapSquaddieCoordinateService.clone(foundDatum)
         : {
               battleSquaddieId: undefined,
               squaddieTemplateId: undefined,

@@ -8,7 +8,7 @@ import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
 } from "../../../missionMap/mapSearchDataLayer"
-import { LocationTraveled } from "../locationTraveled"
+import { CoordinateTraveled } from "../coordinateTraveled"
 import { isValidValue } from "../../../utils/validityCheck"
 
 export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
@@ -37,8 +37,8 @@ export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
             return undefined
         }
 
-        const headLocation: LocationTraveled =
-            SearchPathService.getMostRecentLocation(newPath)
+        const headLocation: CoordinateTraveled =
+            SearchPathService.getMostRecentCoordinate(newPath)
         if (
             MapSearchDataLayerService.outOfBounds({
                 mapLayer: this.enqueuedMapLayer,
@@ -49,9 +49,9 @@ export class NextNodeIsNotInTheOpenList implements PathContinueConstraint {
             return undefined
         }
         return (
-            this.enqueuedMapLayer.valueByLocation[headLocation.hexCoordinate.q][
-                headLocation.hexCoordinate.r
-            ] !== true
+            this.enqueuedMapLayer.valueByCoordinate[
+                headLocation.hexCoordinate.q
+            ][headLocation.hexCoordinate.r] !== true
         )
     }
 }

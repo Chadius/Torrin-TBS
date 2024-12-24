@@ -310,7 +310,7 @@ describe("Mission Loader", () => {
                         expect(squaddieTemplateId).toEqual(
                             placement.squaddieTemplateId
                         )
-                        expect(mapCoordinate).toEqual(placement.location)
+                        expect(mapCoordinate).toEqual(placement.coordinate)
                     })
                 )
             })
@@ -525,19 +525,19 @@ describe("Mission Loader", () => {
         it("loads the required player deployments onto the map", () => {
             missionData.player.deployment.required.forEach(
                 (requiredDeployment) => {
-                    const locationDescriptor =
+                    const coordinateDescriptor =
                         MissionMapService.getByBattleSquaddieId(
                             missionLoaderContext.missionMap,
                             requiredDeployment.battleSquaddieId
                         )
-                    expect(locationDescriptor.battleSquaddieId).toEqual(
+                    expect(coordinateDescriptor.battleSquaddieId).toEqual(
                         requiredDeployment.battleSquaddieId
                     )
-                    expect(locationDescriptor.squaddieTemplateId).toEqual(
+                    expect(coordinateDescriptor.squaddieTemplateId).toEqual(
                         requiredDeployment.squaddieTemplateId
                     )
-                    expect(locationDescriptor.mapCoordinate).toEqual(
-                        requiredDeployment.location
+                    expect(coordinateDescriptor.mapCoordinate).toEqual(
+                        requiredDeployment.coordinate
                     )
                 }
             )

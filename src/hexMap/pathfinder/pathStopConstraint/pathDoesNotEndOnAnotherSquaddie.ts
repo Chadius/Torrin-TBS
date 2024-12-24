@@ -32,7 +32,7 @@ export class PathDoesNotEndOnAnotherSquaddie implements PathStopConstraint {
             return undefined
         }
 
-        if (newPath.locationsTraveled.length <= 1) {
+        if (newPath.coordinatesTraveled.length <= 1) {
             return true
         }
 

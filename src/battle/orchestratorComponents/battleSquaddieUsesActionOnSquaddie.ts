@@ -208,7 +208,7 @@ export class BattleSquaddieUsesActionOnSquaddie
                         .missionMap,
                     result.battleSquaddieId
                 )
-                MissionMapService.updateBattleSquaddieLocation(
+                MissionMapService.updateBattleSquaddieCoordinate(
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                     result.battleSquaddieId,

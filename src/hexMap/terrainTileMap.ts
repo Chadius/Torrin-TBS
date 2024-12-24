@@ -12,14 +12,14 @@ import {
     MapGraphicsLayerType,
 } from "./mapGraphicsLayer"
 
-export type HighlightTileDescription = {
-    tiles: HexCoordinate[]
+export type HighlightCoordinateDescription = {
+    coordinates: HexCoordinate[]
     pulseColor: PulseBlendColor
     overlayImageResourceName?: string
 }
 
 export interface TerrainTileMap {
-    tiles: HexGridTile[]
+    coordinates: HexGridTile[]
     outlineTileCoordinates: HexCoordinate | undefined
     highlightLayers: MapGraphicsLayer[]
 }
@@ -28,11 +28,11 @@ export const TerrainTileMapService = {
     new: ({ movementCost }: { movementCost: string[] }): TerrainTileMap => {
         return newTerrainTileMap({ movementCost })
     },
-    getTileTerrainTypeAtLocation: (
+    getTileTerrainTypeAtCoordinate: (
         terrainTileMap: TerrainTileMap,
-        location: HexCoordinate
+        coordinate: HexCoordinate
     ): HexGridMovementCost => {
-        const tile = getTileAtLocation(terrainTileMap, location)
+        const tile = getTileAtCoordinate(terrainTileMap, coordinate)
         if (tile === undefined) {
             return undefined
         }
@@ -47,7 +47,11 @@ export const TerrainTileMapService = {
         q: number
         r: number
     }) {
-        if (terrainTileMap.tiles.some((tile) => tile.q == q && tile.r == r)) {
+        if (
+            terrainTileMap.coordinates.some(
+                (tile) => tile.q == q && tile.r == r
+            )
+        ) {
             terrainTileMap.outlineTileCoordinates = { q, r }
         } else {
             terrainTileMap.outlineTileCoordinates = undefined
@@ -56,12 +60,12 @@ export const TerrainTileMapService = {
     stopOutlineTiles: (terrainTileMap: TerrainTileMap): void => {
         terrainTileMap.outlineTileCoordinates = undefined
     },
-    isLocationOnMap: (
+    isCoordinateOnMap: (
         terrainTileMap: TerrainTileMap,
         hexCoordinate: HexCoordinate
     ): boolean =>
         hexCoordinate &&
-        getTileAtLocation(terrainTileMap, hexCoordinate) !== undefined,
+        getTileAtCoordinate(terrainTileMap, hexCoordinate) !== undefined,
     getDimensions: (
         terrainTileMap: TerrainTileMap
     ): {
@@ -103,18 +107,18 @@ export const TerrainTileMapService = {
     computeHighlightedTiles: (
         terrainTileMap: TerrainTileMap
     ): MapGraphicsLayerHighlight[] => {
-        const highlightsByLocationKey: {
-            [locationKey: string]: MapGraphicsLayerHighlight
+        const highlightsByCoordinateKey: {
+            [coordinateKey: string]: MapGraphicsLayerHighlight
         } = {}
 
         terrainTileMap.highlightLayers.forEach((layer) =>
             layer.highlights.forEach((highlight) => {
-                const key: string = `${highlight.location.q},${highlight.location.r}`
-                highlightsByLocationKey[key] = highlight
+                const key: string = `${highlight.coordinate.q},${highlight.coordinate.r}`
+                highlightsByCoordinateKey[key] = highlight
             })
         )
 
-        return Object.values(highlightsByLocationKey)
+        return Object.values(highlightsByCoordinateKey)
     },
     removeGraphicsLayerByType: (
         terrainTileMap: TerrainTileMap,
@@ -167,10 +171,10 @@ export const TerrainTileMapService = {
     getMaximumDistance: (terrainTileMap: TerrainTileMap) =>
         TerrainTileMapService.getDimensions(terrainTileMap).widthOfWidestRow +
         TerrainTileMapService.getDimensions(terrainTileMap).numberOfRows,
-    getTileAtLocation: (
+    getTileAtCoordinate: (
         terrainTileMap: TerrainTileMap,
         hexCoordinate: HexCoordinate
-    ) => getTileAtLocation(terrainTileMap, hexCoordinate),
+    ) => getTileAtCoordinate(terrainTileMap, hexCoordinate),
 }
 
 const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
@@ -205,11 +209,11 @@ const convertMovementCostToTiles = (movementCost: string[]): HexGridTile[] => {
     return newTiles
 }
 
-const getTileAtLocation = (
+const getTileAtCoordinate = (
     terrainTileMap: TerrainTileMap,
     hexCoordinate: HexCoordinate
 ): HexGridTile | undefined =>
-    terrainTileMap?.tiles.find(
+    terrainTileMap?.coordinates.find(
         (tile) => tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
     )
 
@@ -236,7 +240,7 @@ const newTerrainTileMap = ({
         return 0
     })
     return {
-        tiles,
+        coordinates: tiles,
         outlineTileCoordinates: undefined,
         highlightLayers: [],
     }
@@ -249,13 +253,13 @@ const getDimensions = (
     numberOfRows: number
 } => {
     let rowIndecies: { [row in number]: boolean } = {}
-    terrainTileMap.tiles.forEach((tile) => {
+    terrainTileMap.coordinates.forEach((tile) => {
         rowIndecies[tile.q] = true
     })
     let numberOfRows: number = Object.keys(rowIndecies).length
 
     let widthOfWidestRow: number = 0
-    terrainTileMap.tiles.forEach((tile) => {
+    terrainTileMap.coordinates.forEach((tile) => {
         if (tile.r + 1 > widthOfWidestRow) {
             widthOfWidestRow = tile.r + 1
         }

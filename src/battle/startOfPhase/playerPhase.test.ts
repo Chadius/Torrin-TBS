@@ -177,7 +177,7 @@ describe("player phase listener", () => {
                 playerTeam.battleSquaddieIds[0]
             )
             const playerSquaddieLocation =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     datum.mapCoordinate.q,
                     datum.mapCoordinate.r
                 )
@@ -193,7 +193,7 @@ describe("player phase listener", () => {
 
         it("does not pan the camera to the first player when it is the player phase and the player is near the center of the screen", () => {
             const { worldX, worldY } =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     0,
                     0
                 )
@@ -209,7 +209,7 @@ describe("player phase listener", () => {
                 playerTeam.battleSquaddieIds[0]
             )
             const playerSquaddieLocation =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     datum.mapCoordinate.q,
                     datum.mapCoordinate.r
                 )

@@ -61,7 +61,7 @@
         {
           "squaddieTemplateId": "player_sir_camil",
           "battleSquaddieId": "player_sir_camil",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 1
           }
@@ -69,7 +69,7 @@
         {
           "squaddieTemplateId": "player_young_torrin",
           "battleSquaddieId": "player_young_torrin",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 0
           }
@@ -87,7 +87,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_0",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 5
           }
@@ -95,7 +95,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_1",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 7
           }
@@ -103,7 +103,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_3",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 14
           }
@@ -111,7 +111,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_3",
-          "location": {
+          "coordinate": {
             "q": 5,
             "r": 15
           }
@@ -119,7 +119,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_4",
-          "location": {
+          "coordinate": {
             "q": 7,
             "r": 13
           }
@@ -127,7 +127,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_0",
-          "location": {
+          "coordinate": {
             "q": 10,
             "r": 14
           }
@@ -135,7 +135,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_6",
-          "location": {
+          "coordinate": {
             "q": 13,
             "r": 7
           }
@@ -143,7 +143,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_7",
-          "location": {
+          "coordinate": {
             "q": 13,
             "r": 11
           }
@@ -151,7 +151,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_1",
-          "location": {
+          "coordinate": {
             "q": 14,
             "r": 4
           }
@@ -159,7 +159,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_2",
-          "location": {
+          "coordinate": {
             "q": 14,
             "r": 13
           }

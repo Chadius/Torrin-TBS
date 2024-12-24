@@ -4,9 +4,9 @@ import { TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { MissionMapService } from "./missionMap"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import {
-    MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationService,
-} from "./squaddieLocation"
+    MissionMapSquaddieCoordinate,
+    MissionMapSquaddieCoordinateService,
+} from "./squaddieCoordinate"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Mission Map", () => {
@@ -29,7 +29,7 @@ describe("Mission Map", () => {
         }
     })
 
-    it("can add a squaddie and report its location", () => {
+    it("can add a squaddie and report its coordinate", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -59,7 +59,7 @@ describe("Mission Map", () => {
         expect(squaddieMapCoordinate.r).toBe(2)
     })
 
-    it("can add a squaddie without a location", () => {
+    it("can add a squaddie without a coordinate", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -94,7 +94,7 @@ describe("Mission Map", () => {
         expect(mapCoordinate).toBeUndefined()
     })
 
-    it("cannot add a squaddie to a location that is already occupied", () => {
+    it("cannot add a squaddie to a coordinate that is already occupied", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -159,7 +159,7 @@ describe("Mission Map", () => {
         expect(error).toBeUndefined()
     })
 
-    it("will raise an error if the squaddie is added to an off map location", () => {
+    it("will raise an error if the squaddie is added to an off map coordinate", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -175,7 +175,7 @@ describe("Mission Map", () => {
         expect((error as Error).message.includes("is not on map")).toBeTruthy()
     })
 
-    it("can see what is at a given location", () => {
+    it("can see what is at a given coordinate", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -191,7 +191,7 @@ describe("Mission Map", () => {
             mapCoordinate: squaddieMapCoordinate,
             squaddieTemplateId,
             battleSquaddieId,
-        } = MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+        } = MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
             q: 0,
             r: 2,
         })
@@ -201,7 +201,7 @@ describe("Mission Map", () => {
         expect(squaddieMapCoordinate.q).toBe(0)
         expect(squaddieMapCoordinate.r).toBe(2)
 
-        const noDatumFound = MissionMapService.getBattleSquaddieAtLocation(
+        const noDatumFound = MissionMapService.getBattleSquaddieAtCoordinate(
             missionMap,
             {
                 q: 0,
@@ -209,7 +209,7 @@ describe("Mission Map", () => {
             }
         )
         expect(
-            MissionMapSquaddieLocationService.isValid(noDatumFound)
+            MissionMapSquaddieCoordinateService.isValid(noDatumFound)
         ).toBeFalsy()
     })
 
@@ -224,7 +224,7 @@ describe("Mission Map", () => {
             squaddieTemplateId: torrinSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
-        MissionMapService.updateBattleSquaddieLocation(
+        MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_0",
             {
@@ -234,7 +234,7 @@ describe("Mission Map", () => {
         )
 
         expect(
-            MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+            MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                 q: 0,
                 r: 0,
             })
@@ -244,8 +244,8 @@ describe("Mission Map", () => {
             mapCoordinate: { q: 0, r: 0 },
         })
         expect(
-            MissionMapSquaddieLocationService.isValid(
-                MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+            MissionMapSquaddieCoordinateService.isValid(
+                MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                     q: 0,
                     r: 1,
                 })
@@ -267,13 +267,13 @@ describe("Mission Map", () => {
                 r: 1,
             },
         })
-        MissionMapService.updateBattleSquaddieLocation(
+        MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_0",
             { q: 0, r: 0 }
         )
         expect(
-            MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+            MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                 q: 0,
                 r: 0,
             })
@@ -283,8 +283,8 @@ describe("Mission Map", () => {
             mapCoordinate: { q: 0, r: 0 },
         })
         expect(
-            MissionMapSquaddieLocationService.isValid(
-                MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+            MissionMapSquaddieCoordinateService.isValid(
+                MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                     q: 0,
                     r: 1,
                 })
@@ -303,14 +303,14 @@ describe("Mission Map", () => {
             squaddieTemplateId: torrinSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
-        MissionMapService.updateBattleSquaddieLocation(
+        MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_0",
             undefined
         )
 
         expect(
-            MissionMapService.getSquaddiesThatHaveNoLocation(missionMap)
+            MissionMapService.getSquaddiesThatHaveNoCoordinate(missionMap)
         ).toStrictEqual([
             {
                 battleSquaddieId: "dynamic_squaddie_0",
@@ -319,8 +319,8 @@ describe("Mission Map", () => {
             },
         ])
         expect(
-            MissionMapSquaddieLocationService.isValid(
-                MissionMapService.getBattleSquaddieAtLocation(missionMap, {
+            MissionMapSquaddieCoordinateService.isValid(
+                MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
                     q: 0,
                     r: 1,
                 })
@@ -334,7 +334,7 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieLocation(
+        error = MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "does not exist",
             undefined
@@ -344,7 +344,7 @@ describe("Mission Map", () => {
         expect((error as Error).message.includes(`does not exist`)).toBeTruthy()
     })
 
-    it("should raise an error if moving a squaddie to a location not on the map", () => {
+    it("should raise an error if moving a squaddie to a coordinate not on the map", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -357,7 +357,7 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieLocation(
+        error = MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_0",
             {
@@ -391,7 +391,7 @@ describe("Mission Map", () => {
         expect(e).toBeUndefined()
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieLocation(
+        error = MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_1",
             {
@@ -406,7 +406,7 @@ describe("Mission Map", () => {
         ).toBeTruthy()
     })
 
-    it("should not raise an error if squaddie position is updated to its original location", () => {
+    it("should not raise an error if squaddie position is updated to its original coordinate", () => {
         const missionMap = MissionMapService.new({
             terrainTileMap: map,
         })
@@ -419,7 +419,7 @@ describe("Mission Map", () => {
         })
 
         let error: Error
-        error = MissionMapService.updateBattleSquaddieLocation(
+        error = MissionMapService.updateBattleSquaddieCoordinate(
             missionMap,
             "dynamic_squaddie_0",
             {
@@ -454,7 +454,7 @@ describe("Mission Map", () => {
             coordinate: { q: 0, r: 0 },
         })
 
-        const actualSquaddieData: MissionMapSquaddieLocation[] =
+        const actualSquaddieData: MissionMapSquaddieCoordinate[] =
             MissionMapService.getAllSquaddieData(missionMap)
 
         expect(actualSquaddieData).toHaveLength(3)
@@ -508,15 +508,15 @@ describe("Mission Map", () => {
         ).toBeFalsy()
     })
 
-    it("can create mission map locations using data", () => {
-        const location: MissionMapSquaddieLocation = {
+    it("can create mission map coordinates using data", () => {
+        const coordinate: MissionMapSquaddieCoordinate = {
             battleSquaddieId: "battle",
             squaddieTemplateId: "template",
             mapCoordinate: { q: 3, r: 8 },
         }
 
-        expect(location.battleSquaddieId).toBe("battle")
-        expect(location.squaddieTemplateId).toBe("template")
-        expect(location.mapCoordinate).toStrictEqual({ q: 3, r: 8 })
+        expect(coordinate.battleSquaddieId).toBe("battle")
+        expect(coordinate.squaddieTemplateId).toBe("template")
+        expect(coordinate.mapCoordinate).toStrictEqual({ q: 3, r: 8 })
     })
 })

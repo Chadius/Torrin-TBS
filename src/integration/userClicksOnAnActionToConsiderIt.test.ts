@@ -336,7 +336,7 @@ describe("user clicks on an action to consider it", () => {
             addGraphicsLayerSpy.mock.calls[0][1]
         expect(
             addGraphicsLayerSpyLayer.highlights.map(
-                (highlight) => highlight.location
+                (highlight) => highlight.coordinate
             )
         ).toEqual([{ q: 0, r: 1 }])
     })
@@ -403,7 +403,7 @@ const selectorClicksOnSquaddie = (
     graphicsContext: GraphicsBuffer
 ) => {
     let { screenX: mouseX, screenY: mouseY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: 0,
             r: 0,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),

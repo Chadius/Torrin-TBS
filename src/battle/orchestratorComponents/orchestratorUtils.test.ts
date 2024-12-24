@@ -90,13 +90,13 @@ describe("Orchestration Utils", () => {
 
     it("can return the squaddie and information at a given location on the screen", () => {
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 2,
                 ...camera.getCoordinates(),
             })
 
-        const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
+        const { squaddieTemplate, battleSquaddie, squaddieMapCoordinate } =
             OrchestratorUtilities.getSquaddieAtScreenLocation({
                 mouseX,
                 mouseY,
@@ -107,11 +107,11 @@ describe("Orchestration Utils", () => {
 
         expect(squaddieTemplate).toStrictEqual(knightSquaddieTemplate)
         expect(battleSquaddie).toStrictEqual(knightBattleSquaddie)
-        expect(squaddieMapLocation).toStrictEqual({ q: 0, r: 2 })
+        expect(squaddieMapCoordinate).toStrictEqual({ q: 0, r: 2 })
     })
 
-    it("can return the squaddie and information at a given map location", () => {
-        const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
+    it("can return the squaddie and information at a given map coordinate", () => {
+        const { squaddieTemplate, battleSquaddie, squaddieMapCoordinate } =
             OrchestratorUtilities.getSquaddieAtMapCoordinate({
                 mapCoordinate: { q: 0, r: 2 },
                 map,
@@ -120,18 +120,18 @@ describe("Orchestration Utils", () => {
 
         expect(squaddieTemplate).toStrictEqual(knightSquaddieTemplate)
         expect(battleSquaddie).toStrictEqual(knightBattleSquaddie)
-        expect(squaddieMapLocation).toStrictEqual({ q: 0, r: 2 })
+        expect(squaddieMapCoordinate).toStrictEqual({ q: 0, r: 2 })
     })
 
-    it("returns undefined information if there is no squaddie at the location", () => {
+    it("returns undefined information if there is no squaddie at the screen location", () => {
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 ...camera.getCoordinates(),
             })
 
-        const { squaddieTemplate, battleSquaddie, squaddieMapLocation } =
+        const { squaddieTemplate, battleSquaddie, squaddieMapCoordinate } =
             OrchestratorUtilities.getSquaddieAtScreenLocation({
                 mouseX,
                 mouseY,
@@ -142,7 +142,7 @@ describe("Orchestration Utils", () => {
 
         expect(squaddieTemplate).toBeUndefined()
         expect(battleSquaddie).toBeUndefined()
-        expect(squaddieMapLocation).toBeUndefined()
+        expect(squaddieMapCoordinate).toBeUndefined()
     })
 
     it("throws an error if squaddie repository does not have squaddie", () => {
@@ -153,7 +153,7 @@ describe("Orchestration Utils", () => {
             coordinate: { q: 0, r: 0 },
         })
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 ...camera.getCoordinates(),
@@ -275,8 +275,8 @@ describe("Orchestration Utils", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 0 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 0 },
                         },
                     },
                 })
@@ -357,8 +357,8 @@ describe("Orchestration Utils", () => {
                 action: { isMovement: true },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 0, r: 0 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 0, r: 0 },
                     },
                 },
             })
@@ -622,8 +622,8 @@ describe("Orchestration Utils", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 0 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 0 },
                         },
                     },
                 })
@@ -649,7 +649,7 @@ describe("Orchestration Utils", () => {
                     )
                 ).battleSquaddie.squaddieTurn
             )
-            MissionMapService.updateBattleSquaddieLocation(
+            MissionMapService.updateBattleSquaddieCoordinate(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 playerSquaddieIds[1],
                 undefined
@@ -849,8 +849,8 @@ describe("Orchestration Utils", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 0 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 0 },
                         },
                     },
                 })
@@ -960,8 +960,8 @@ describe("Orchestration Utils", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 0 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 0 },
                         },
                     },
                 })

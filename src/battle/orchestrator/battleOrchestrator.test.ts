@@ -571,8 +571,8 @@ describe("Battle Orchestrator", () => {
                 action: { isMovement: true },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 0, r: 0 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 0, r: 0 },
                     },
                 },
             })

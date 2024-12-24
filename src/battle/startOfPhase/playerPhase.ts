@@ -5,7 +5,7 @@ import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattlePhaseService } from "../orchestratorComponents/battlePhaseTracker"
 import { BattleSquaddieTeam } from "../battleSquaddieTeam"
 import { SquaddieService } from "../../squaddie/squaddieService"
-import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 import { GraphicsConfig } from "../../utils/graphics/graphicsConfig"
 import { BANNER_ANIMATION_TIME } from "../orchestratorComponents/battlePhaseController"
@@ -49,15 +49,13 @@ export const PlayerPhaseService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             squaddieToPanToBattleId
         )
-        if (MissionMapSquaddieLocationService.isValid(mapDatum)) {
+        if (MissionMapSquaddieCoordinateService.isValid(mapDatum)) {
             const squaddieScreenLocation =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: mapDatum.mapCoordinate.q,
-                        r: mapDatum.mapCoordinate.r,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: mapDatum.mapCoordinate.q,
+                    r: mapDatum.mapCoordinate.r,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
             if (
                 GraphicsConfig.isCoordinateWithinMiddleThirdOfScreen(
                     squaddieScreenLocation.screenX,
@@ -68,7 +66,7 @@ export const PlayerPhaseService = {
             }
 
             const squaddieWorldLocation =
-                ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+                ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                     mapDatum.mapCoordinate.q,
                     mapDatum.mapCoordinate.r
                 )

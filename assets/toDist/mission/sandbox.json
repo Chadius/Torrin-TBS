@@ -48,7 +48,7 @@
         {
           "squaddieTemplateId": "player_young_torrin",
           "battleSquaddieId": "player_young_torrin",
-          "location": {
+          "coordinate": {
             "q": 0,
             "r": 1
           }
@@ -56,7 +56,7 @@
         {
           "squaddieTemplateId": "player_sir_camil",
           "battleSquaddieId": "player_sir_camil",
-          "location": {
+          "coordinate": {
             "q": 0,
             "r": 0
           }
@@ -74,7 +74,7 @@
         {
           "squaddieTemplateId": "enemy_demon_slither",
           "battleSquaddieId": "enemy_demon_slither_0",
-          "location": {
+          "coordinate": {
             "q": 0,
             "r": 2
           }
@@ -82,7 +82,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_1",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 2
           }
@@ -90,7 +90,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_2",
-          "location": {
+          "coordinate": {
             "q": 0,
             "r": 4
           }
@@ -98,7 +98,7 @@
         {
           "squaddieTemplateId": "enemy_demon_locust",
           "battleSquaddieId": "enemy_demon_locust_3",
-          "location": {
+          "coordinate": {
             "q": 1,
             "r": 4
           }

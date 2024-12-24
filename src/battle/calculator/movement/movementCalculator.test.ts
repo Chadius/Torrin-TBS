@@ -92,8 +92,8 @@ describe("movement calculator", () => {
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
-                        stopLocationsReached: [],
-                        shortestPathByLocation: {},
+                        stopCoordinatesReached: [],
+                        shortestPathByCoordinate: {},
                     })
                 )
 
@@ -132,8 +132,8 @@ describe("movement calculator", () => {
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
-                        stopLocationsReached: [],
-                        shortestPathByLocation: {
+                        stopCoordinatesReached: [],
+                        shortestPathByCoordinate: {
                             0: {
                                 1: validPathToDestination,
                             },
@@ -178,8 +178,8 @@ describe("movement calculator", () => {
                 .spyOn(PathfinderService, "search")
                 .mockReturnValue(
                     SearchResultsService.new({
-                        stopLocationsReached: [],
-                        shortestPathByLocation: {},
+                        stopCoordinatesReached: [],
+                        shortestPathByCoordinate: {},
                     })
                 )
 
@@ -237,7 +237,7 @@ describe("movement calculator", () => {
             ).toBeTruthy()
             expect(
                 BattleActionDecisionStepService.getTarget(actionBuilderState)
-                    .targetLocation
+                    .targetCoordinate
             ).toEqual({ q: 0, r: 1 })
         })
         it("only highlights the moving path", () => {
@@ -248,12 +248,12 @@ describe("movement calculator", () => {
                 )
             expect(highlights).toHaveLength(2)
             expect(highlights).toContainEqual({
-                location: { q: 0, r: 0 },
+                coordinate: { q: 0, r: 0 },
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName: "",
             })
             expect(highlights).toContainEqual({
-                location: { q: 0, r: 1 },
+                coordinate: { q: 0, r: 1 },
                 pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                 overlayImageResourceName:
                     gameEngineState.campaign.resources
@@ -279,11 +279,11 @@ describe("movement calculator", () => {
             battleSquaddie.battleSquaddieId
         )
         expect(movementAction.action.isMovement).toBeTruthy()
-        expect(movementAction.effect.movement.startLocation).toEqual({
+        expect(movementAction.effect.movement.startCoordinate).toEqual({
             q: 0,
             r: 0,
         })
-        expect(movementAction.effect.movement.endLocation).toEqual({
+        expect(movementAction.effect.movement.endCoordinate).toEqual({
             q: 0,
             r: 1,
         })
@@ -306,17 +306,17 @@ describe("movement calculator", () => {
                 {
                     battleSquaddieId: "player0",
                     affiliation: SquaddieAffiliation.PLAYER,
-                    location: { q: 0, r: 0 },
+                    coordinate: { q: 0, r: 0 },
                 },
                 {
                     battleSquaddieId: "player1",
                     affiliation: SquaddieAffiliation.PLAYER,
-                    location: { q: 0, r: 1 },
+                    coordinate: { q: 0, r: 1 },
                 },
                 {
                     battleSquaddieId: "enemy0",
                     affiliation: SquaddieAffiliation.ENEMY,
-                    location: { q: 0, r: 3 },
+                    coordinate: { q: 0, r: 3 },
                 },
             ].forEach((info) => {
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -339,7 +339,7 @@ describe("movement calculator", () => {
                     missionMap,
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: battleSquaddie.squaddieTemplateId,
-                    coordinate: info.location,
+                    coordinate: info.coordinate,
                 })
             })
             ;({ battleSquaddie: player0 } = getResultOrThrowError(
@@ -385,10 +385,10 @@ describe("movement calculator", () => {
             const squaddieMovePath =
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
-            const locationsTraveled =
-                SearchPathService.getLocations(squaddieMovePath)
-            expect(locationsTraveled).toHaveLength(3)
-            expect(locationsTraveled.map((l) => l.hexCoordinate)).toEqual([
+            const coordinatesTraveled =
+                SearchPathService.getCoordinates(squaddieMovePath)
+            expect(coordinatesTraveled).toHaveLength(3)
+            expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
                 { q: 0, r: 0 },
                 { q: 0, r: 1 },
                 { q: 0, r: 2 },
@@ -406,10 +406,10 @@ describe("movement calculator", () => {
             const squaddieMovePath =
                 gameEngineState.battleOrchestratorState.battleState
                     .squaddieMovePath
-            const locationsTraveled =
-                SearchPathService.getLocations(squaddieMovePath)
-            expect(locationsTraveled).toHaveLength(5)
-            expect(locationsTraveled.map((l) => l.hexCoordinate)).toEqual([
+            const coordinatesTraveled =
+                SearchPathService.getCoordinates(squaddieMovePath)
+            expect(coordinatesTraveled).toHaveLength(5)
+            expect(coordinatesTraveled.map((l) => l.hexCoordinate)).toEqual([
                 { q: 0, r: 1 },
                 { q: 0, r: 2 },
                 { q: 1, r: 2 },

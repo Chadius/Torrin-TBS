@@ -4,13 +4,13 @@ import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { describe, expect, it } from "vitest"
 
 describe("Search Results", () => {
-    it("Can organize locations by the number of move actions", () => {
+    it("Can organize coordinates by the number of move actions", () => {
         const results = SearchResultsService.new({
-            shortestPathByLocation: {
+            shortestPathByCoordinate: {
                 0: {
                     0: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -20,7 +20,7 @@ describe("Search Results", () => {
                     },
                     1: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 1,
@@ -34,7 +34,7 @@ describe("Search Results", () => {
                     },
                     2: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -52,7 +52,7 @@ describe("Search Results", () => {
                     },
                     3: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -76,10 +76,10 @@ describe("Search Results", () => {
             },
         })
 
-        const locationsByNumberOfMoveActions =
-            SearchResultsService.getLocationsByNumberOfMoveActions(results)
+        const coordinatesByNumberOfMoveActions =
+            SearchResultsService.getCoordinatesByNumberOfMoveActions(results)
 
-        expect(locationsByNumberOfMoveActions).toEqual({
+        expect(coordinatesByNumberOfMoveActions).toEqual({
             1: [
                 { q: 0, r: 0 },
                 { q: 0, r: 1 },
@@ -91,11 +91,11 @@ describe("Search Results", () => {
 
     it("get closest routes to destination", () => {
         const results = SearchResultsService.new({
-            shortestPathByLocation: {
+            shortestPathByCoordinate: {
                 0: {
                     0: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -105,7 +105,7 @@ describe("Search Results", () => {
                     },
                     1: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 1,
@@ -119,7 +119,7 @@ describe("Search Results", () => {
                     },
                     2: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -137,7 +137,7 @@ describe("Search Results", () => {
                     },
                     3: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -161,7 +161,7 @@ describe("Search Results", () => {
                 1: {
                     0: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -171,7 +171,7 @@ describe("Search Results", () => {
                     },
                     2: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -189,7 +189,7 @@ describe("Search Results", () => {
                     },
                     3: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -214,7 +214,7 @@ describe("Search Results", () => {
         })
 
         const radius0: HexCoordinate[] =
-            SearchResultsService.getClosestRoutesToLocationByDistance(
+            SearchResultsService.getClosestRoutesToCoordinateByDistance(
                 results,
                 {
                     q: 0,
@@ -225,8 +225,8 @@ describe("Search Results", () => {
         expect(radius0).toHaveLength(1)
         expect(radius0).toEqual(expect.arrayContaining([{ q: 0, r: 2 }]))
 
-        const locationWithNoRoute: HexCoordinate[] =
-            SearchResultsService.getClosestRoutesToLocationByDistance(
+        const coordinateWithNoRoute: HexCoordinate[] =
+            SearchResultsService.getClosestRoutesToCoordinateByDistance(
                 results,
                 {
                     q: 1,
@@ -234,10 +234,10 @@ describe("Search Results", () => {
                 },
                 0
             )
-        expect(locationWithNoRoute).toHaveLength(0)
+        expect(coordinateWithNoRoute).toHaveLength(0)
 
         const radius1: HexCoordinate[] =
-            SearchResultsService.getClosestRoutesToLocationByDistance(
+            SearchResultsService.getClosestRoutesToCoordinateByDistance(
                 results,
                 {
                     q: 0,
@@ -255,7 +255,7 @@ describe("Search Results", () => {
         )
 
         const radius2: HexCoordinate[] =
-            SearchResultsService.getClosestRoutesToLocationByDistance(
+            SearchResultsService.getClosestRoutesToCoordinateByDistance(
                 results,
                 {
                     q: 0,
@@ -273,13 +273,13 @@ describe("Search Results", () => {
         )
     })
 
-    it("can report all stoppable locations", () => {
+    it("can report all stoppable coordinates", () => {
         const results = SearchResultsService.new({
-            shortestPathByLocation: {
+            shortestPathByCoordinate: {
                 0: {
                     0: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -289,7 +289,7 @@ describe("Search Results", () => {
                     },
                     1: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 1,
@@ -304,7 +304,7 @@ describe("Search Results", () => {
                     2: undefined,
                     3: {
                         ...SearchPathService.newSearchPath(),
-                        locationsTraveled: [
+                        coordinatesTraveled: [
                             {
                                 hexCoordinate: { q: 0, r: 0 },
                                 cumulativeMovementCost: 0,
@@ -328,12 +328,12 @@ describe("Search Results", () => {
             },
         })
 
-        const stoppableLocations =
-            SearchResultsService.getStoppableLocations(results)
+        const stoppableCoordinates =
+            SearchResultsService.getStoppableCoordinates(results)
 
-        expect(stoppableLocations).toHaveLength(3)
-        expect(stoppableLocations).toContainEqual({ q: 0, r: 0 })
-        expect(stoppableLocations).toContainEqual({ q: 0, r: 1 })
-        expect(stoppableLocations).toContainEqual({ q: 0, r: 3 })
+        expect(stoppableCoordinates).toHaveLength(3)
+        expect(stoppableCoordinates).toContainEqual({ q: 0, r: 0 })
+        expect(stoppableCoordinates).toContainEqual({ q: 0, r: 1 })
+        expect(stoppableCoordinates).toContainEqual({ q: 0, r: 3 })
     })
 })

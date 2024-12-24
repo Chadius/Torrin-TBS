@@ -11,9 +11,9 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { TargetingShapeGeneratorService } from "./targetingShapeGenerator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
-    MissionMapSquaddieLocation,
-    MissionMapSquaddieLocationService,
-} from "../../missionMap/squaddieLocation"
+    MissionMapSquaddieCoordinate,
+    MissionMapSquaddieCoordinateService,
+} from "../../missionMap/squaddieCoordinate"
 import {
     SearchResult,
     SearchResultsService,
@@ -39,14 +39,14 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 
 export class TargetingResults {
     constructor() {
-        this._locationsInRange = []
+        this._coordinatesInRange = []
         this._battleSquaddieIdsInRange = []
     }
 
-    private _locationsInRange: HexCoordinate[]
+    private _coordinatesInRange: HexCoordinate[]
 
-    get locationsInRange(): HexCoordinate[] {
-        return this._locationsInRange
+    get coordinatesInRange(): HexCoordinate[] {
+        return this._coordinatesInRange
     }
 
     private _battleSquaddieIdsInRange: string[]
@@ -56,7 +56,10 @@ export class TargetingResults {
     }
 
     addLocationsInRange(hexCoordinates: HexCoordinate[]) {
-        this._locationsInRange = [...this._locationsInRange, ...hexCoordinates]
+        this._coordinatesInRange = [
+            ...this._coordinatesInRange,
+            ...hexCoordinates,
+        ]
     }
 
     addBattleSquaddieIdsInRange(battleIds: string[]) {
@@ -190,7 +193,7 @@ const findValidTargets = ({
 
     const results = new TargetingResults()
     results.addLocationsInRange(
-        SearchResultsService.getStoppableLocations(allLocationsInRange)
+        SearchResultsService.getStoppableCoordinates(allLocationsInRange)
     )
 
     addValidTargetsToResult({
@@ -204,7 +207,7 @@ const findValidTargets = ({
         actingSquaddieTemplate,
         actingBattleSquaddie,
         tilesInRange:
-            SearchResultsService.getStoppableLocations(allLocationsInRange),
+            SearchResultsService.getStoppableCoordinates(allLocationsInRange),
         map,
         objectRepository: squaddieRepository,
     })
@@ -231,9 +234,9 @@ const addValidTargetsToResult = ({
 }) => {
     const validBattleSquaddieIds: string[] = tilesInRange
         .map((tile) => {
-            const mapData: MissionMapSquaddieLocation =
-                MissionMapService.getBattleSquaddieAtLocation(map, tile)
-            if (!MissionMapSquaddieLocationService.isValid(mapData)) {
+            const mapData: MissionMapSquaddieCoordinate =
+                MissionMapService.getBattleSquaddieAtCoordinate(map, tile)
+            if (!MissionMapSquaddieCoordinateService.isValid(mapData)) {
                 return undefined
             }
             const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
@@ -370,7 +373,7 @@ const highlightTargetRange = (
         actingBattleSquaddie: battleSquaddie,
         squaddieRepository: gameEngineState.repository,
     })
-    const actionRange: HexCoordinate[] = targetingResults.locationsInRange
+    const actionRange: HexCoordinate[] = targetingResults.coordinatesInRange
 
     TerrainTileMapService.removeAllGraphicsLayers(
         gameEngineState.battleOrchestratorState.battleState.missionMap
@@ -381,7 +384,7 @@ const highlightTargetRange = (
         id: battleSquaddieId,
         highlightedTileDescriptions: [
             {
-                tiles: actionRange,
+                coordinates: actionRange,
                 pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                 overlayImageResourceName: "map icon attack 1 action",
             },

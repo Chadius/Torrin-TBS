@@ -1,20 +1,22 @@
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 
-export interface MissionMapSquaddieLocation {
+export interface MissionMapSquaddieCoordinate {
     battleSquaddieId: string
     squaddieTemplateId: string
     mapCoordinate: HexCoordinate
 }
 
-export const MissionMapSquaddieLocationService = {
-    clone: (datum: MissionMapSquaddieLocation): MissionMapSquaddieLocation => {
+export const MissionMapSquaddieCoordinateService = {
+    clone: (
+        datum: MissionMapSquaddieCoordinate
+    ): MissionMapSquaddieCoordinate => {
         return {
             squaddieTemplateId: datum.squaddieTemplateId,
             battleSquaddieId: datum.battleSquaddieId,
             mapCoordinate: datum.mapCoordinate,
         }
     },
-    isValid: (data: MissionMapSquaddieLocation): boolean => {
+    isValid: (data: MissionMapSquaddieCoordinate): boolean => {
         return (
             data.battleSquaddieId !== undefined &&
             data.squaddieTemplateId !== undefined

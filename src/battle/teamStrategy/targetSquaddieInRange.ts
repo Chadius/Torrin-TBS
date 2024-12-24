@@ -233,7 +233,7 @@ const createBattleActionDecisionSteps = (
     })
     BattleActionDecisionStepService.setConfirmedTarget({
         actionDecisionStep: actionStep,
-        targetLocation: mapCoordinate,
+        targetCoordinate: mapCoordinate,
     })
 
     return [actionStep]

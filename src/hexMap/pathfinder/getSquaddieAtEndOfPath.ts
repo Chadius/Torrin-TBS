@@ -21,15 +21,13 @@ export const getSquaddieAtEndOfPath = ({
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 } => {
-    const head = SearchPathService.getMostRecentLocation(searchPath)
+    const head = SearchPathService.getMostRecentCoordinate(searchPath)
 
-    const { battleSquaddieId } = MissionMapService.getBattleSquaddieAtLocation(
-        missionMap,
-        {
+    const { battleSquaddieId } =
+        MissionMapService.getBattleSquaddieAtCoordinate(missionMap, {
             q: head.hexCoordinate.q,
             r: head.hexCoordinate.r,
-        }
-    )
+        })
     if (battleSquaddieId === undefined) {
         return {
             battleSquaddie: undefined,

@@ -34,11 +34,12 @@ export class NextNodeIsAWallAndSearchCannotPassWalls
         }
 
         const coordinate: HexCoordinate =
-            SearchPathService.getMostRecentLocation(newPath).hexCoordinate
-        const terrainType = TerrainTileMapService.getTileTerrainTypeAtLocation(
-            this.missionMap.terrainTileMap,
-            coordinate
-        )
+            SearchPathService.getMostRecentCoordinate(newPath).hexCoordinate
+        const terrainType =
+            TerrainTileMapService.getTileTerrainTypeAtCoordinate(
+                this.missionMap.terrainTileMap,
+                coordinate
+            )
         return terrainType !== HexGridMovementCost.wall
     }
 }

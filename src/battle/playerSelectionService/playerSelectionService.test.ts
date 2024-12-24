@@ -110,13 +110,11 @@ describe("Player Selection Service", () => {
             )
 
             const { screenX, screenY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 1,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: 0,
+                    r: 1,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
 
             expect(actualContext.mouseClick).toEqual(
                 MouseClickService.new({
@@ -148,7 +146,7 @@ describe("Player Selection Service", () => {
                 expectedMessage = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
                     gameEngineState,
-                    location: {
+                    coordinate: {
                         q: 0,
                         r: 1,
                     },
@@ -278,7 +276,7 @@ describe("Player Selection Service", () => {
 
             it("knows where the player clicked", () => {
                 const { screenX, screenY } =
-                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
                             q: 0,
                             r: 1,
@@ -307,7 +305,7 @@ describe("Player Selection Service", () => {
                         })
 
                     const { screenX, screenY } =
-                        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                             {
                                 q: 0,
                                 r: 1,
@@ -364,7 +362,7 @@ describe("Player Selection Service", () => {
 
             it("knows where the player clicked", () => {
                 const { screenX, screenY } =
-                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
                             q: 0,
                             r: 0,
@@ -392,7 +390,7 @@ describe("Player Selection Service", () => {
                             gameEngineState,
                         })
                     const { screenX, screenY } =
-                        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                             {
                                 q: 0,
                                 r: 0,
@@ -487,13 +485,11 @@ describe("Player Selection Service", () => {
                 PlayerIntent.PEEK_AT_SQUADDIE
             )
             const { screenX, screenY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 0,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: 0,
+                    r: 0,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
 
             expect(actualContext.mouseMovement).toEqual({
                 x: screenX,
@@ -512,13 +508,11 @@ describe("Player Selection Service", () => {
                 })
 
             const { screenX, screenY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 0,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: 0,
+                    r: 0,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
 
             const expectedMessage = {
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
@@ -670,7 +664,7 @@ describe("Player Selection Service", () => {
             gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
-                enemyMapLocation: { q: 0, r: 2 },
+                enemyMapCoordinate: { q: 0, r: 2 },
             })
 
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -685,13 +679,11 @@ describe("Player Selection Service", () => {
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
             ;({ screenX: x, screenY: y } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 1,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                ))
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: 0,
+                    r: 1,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                }))
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -709,7 +701,7 @@ describe("Player Selection Service", () => {
 
             it("knows the player intends to move the squaddie", () => {
                 expect(actualContext.playerIntent).toEqual(
-                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION
+                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE
                 )
             })
 
@@ -734,9 +726,9 @@ describe("Player Selection Service", () => {
                     x,
                     y,
                     gameEngineState,
-                    targetLocation: { q: 0, r: 1 },
+                    targetCoordinate: { q: 0, r: 1 },
                     playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_LOCATION,
+                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
                 })
 
             expect(
@@ -747,7 +739,7 @@ describe("Player Selection Service", () => {
     })
 
     const setActorSetMessageSpyAndGetOnScreenCoordinate = (
-        enemyMapLocation: HexCoordinate
+        enemyMapCoordinate: HexCoordinate
     ): { screenX: number; screenY: number } => {
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -761,30 +753,30 @@ describe("Player Selection Service", () => {
 
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-        return ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-            {
-                ...enemyMapLocation,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            }
-        )
+        return ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+            ...enemyMapCoordinate,
+            ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+        })
     }
 
     describe("Try to move a player squaddie by clicking on another squaddie", () => {
         let x: number
         let y: number
-        let enemyMapLocation: HexCoordinate
+        let enemyMapCoordinate: HexCoordinate
 
         beforeEach(() => {
             objectRepository = ObjectRepositoryService.new()
             missionMap = createMap()
-            enemyMapLocation = { q: 0, r: 3 }
+            enemyMapCoordinate = { q: 0, r: 3 }
             gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
-                enemyMapLocation,
+                enemyMapCoordinate,
             })
             ;({ screenX: x, screenY: y } =
-                setActorSetMessageSpyAndGetOnScreenCoordinate(enemyMapLocation))
+                setActorSetMessageSpyAndGetOnScreenCoordinate(
+                    enemyMapCoordinate
+                ))
         })
         afterEach(() => {
             messageSpy.mockRestore()
@@ -795,7 +787,7 @@ describe("Player Selection Service", () => {
             beforeEach(() => {
                 actualContext = clickOnMapCoordinate({
                     gameEngineState,
-                    ...enemyMapLocation,
+                    ...enemyMapCoordinate,
                 })
             })
 
@@ -839,9 +831,9 @@ describe("Player Selection Service", () => {
                 })
 
             const expectedMessage: MessageBoardMessage = {
-                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                 battleSquaddieId: "PLAYER",
-                targetLocation: { q: 0, r: 2 },
+                targetCoordinate: { q: 0, r: 2 },
                 gameEngineState,
             }
 
@@ -913,7 +905,7 @@ describe("Player Selection Service", () => {
                     },
                 })
                 ;({ screenX: x, screenY: y } =
-                    ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
+                    ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
                             q: 0,
                             r: endOfFirstRow,
@@ -999,7 +991,7 @@ describe("Player Selection Service", () => {
     })
 
     it("sends a message indicating the squaddie wants to use the ranged attack", () => {
-        const enemyMapLocation: HexCoordinate = { q: 0, r: 3 }
+        const enemyMapCoordinate: HexCoordinate = { q: 0, r: 3 }
         let x: number
         let y: number
         objectRepository = ObjectRepositoryService.new()
@@ -1011,7 +1003,7 @@ describe("Player Selection Service", () => {
         gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
             objectRepository,
             missionMap,
-            enemyMapLocation,
+            enemyMapCoordinate,
             playerBattleSquaddie: createSquaddie({
                 objectRepository,
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
@@ -1019,13 +1011,13 @@ describe("Player Selection Service", () => {
             }).battleSquaddie,
         })
         ;({ screenX: x, screenY: y } =
-            setActorSetMessageSpyAndGetOnScreenCoordinate(enemyMapLocation))
+            setActorSetMessageSpyAndGetOnScreenCoordinate(enemyMapCoordinate))
         const { actualChanges, expectedMessage } =
             clickOnScreenAndCalculateChangesAndMessage({
                 x,
                 y,
                 gameEngineState,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 playerIntent:
                     PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
             })
@@ -1045,7 +1037,7 @@ describe("Player Selection Service", () => {
             gameEngineState = createGameEngineStateWith1PlayerAnd1Enemy({
                 objectRepository,
                 missionMap,
-                enemyMapLocation: { q: 0, r: 2 },
+                enemyMapCoordinate: { q: 0, r: 2 },
             })
 
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -1176,8 +1168,8 @@ describe("Player Selection Service", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 1 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 1 },
                         },
                     },
                 })
@@ -1249,9 +1241,9 @@ describe("Player Selection Service", () => {
                     })
 
                 const expectedMessage: MessageBoardMessage = {
-                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
                     battleSquaddieId: "PLAYER",
-                    targetLocation: { q: 0, r: 1 },
+                    targetCoordinate: { q: 0, r: 1 },
                     gameEngineState,
                 }
 
@@ -1391,8 +1383,8 @@ describe("Player Selection Service", () => {
                     action: { isMovement: true },
                     effect: {
                         movement: {
-                            startLocation: { q: 0, r: 0 },
-                            endLocation: { q: 0, r: 1 },
+                            startCoordinate: { q: 0, r: 0 },
+                            endCoordinate: { q: 0, r: 1 },
                         },
                     },
                 })
@@ -1505,7 +1497,7 @@ describe("Player Selection Service", () => {
                     gameEngineState,
                     actionTemplateId: meleeActionId,
                     battleSquaddieId: "PLAYER",
-                    mapStartingLocation: { q: 0, r: 0 },
+                    mapStartingCoordinate: { q: 0, r: 0 },
                     mouseLocation: { x: 0, y: 0 },
                 }
             })
@@ -1759,7 +1751,7 @@ const clickOnMapCoordinate = ({
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q,
             r,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -1785,7 +1777,7 @@ const hoverOverMapCoordinate = ({
     gameEngineState: GameEngineState
 }): PlayerSelectionContext => {
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q,
             r,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -1818,12 +1810,12 @@ const pressButton = ({
 const createGameEngineStateWith1PlayerAnd1Enemy = ({
     objectRepository,
     missionMap,
-    enemyMapLocation,
+    enemyMapCoordinate,
     playerBattleSquaddie,
 }: {
     objectRepository: ObjectRepository
     missionMap: MissionMap
-    enemyMapLocation?: HexCoordinate
+    enemyMapCoordinate?: HexCoordinate
     playerBattleSquaddie?: BattleSquaddie
 }) => {
     if (playerBattleSquaddie === undefined) {
@@ -1862,7 +1854,7 @@ const createGameEngineStateWith1PlayerAnd1Enemy = ({
         missionMap,
         battleSquaddieId: enemyBattleSquaddie.battleSquaddieId,
         squaddieTemplateId: enemyBattleSquaddie.squaddieTemplateId,
-        coordinate: enemyMapLocation ?? {
+        coordinate: enemyMapCoordinate ?? {
             q: 0,
             r: 1,
         },
@@ -1890,13 +1882,13 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
     x,
     y,
     gameEngineState,
-    targetLocation,
+    targetCoordinate,
     playerIntent,
 }: {
     x: number
     y: number
     gameEngineState: GameEngineState
-    targetLocation: HexCoordinate
+    targetCoordinate: HexCoordinate
     playerIntent: PlayerIntent
 }) => {
     const actualContext = PlayerSelectionContextService.new({
@@ -1916,9 +1908,9 @@ const clickOnScreenAndCalculateChangesAndMessage = ({
         })
 
     const expectedMessage: MessageBoardMessage = {
-        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION,
+        type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
         battleSquaddieId: "PLAYER",
-        targetLocation,
+        targetCoordinate: targetCoordinate,
         gameEngineState,
     }
     return { actualChanges, expectedMessage }

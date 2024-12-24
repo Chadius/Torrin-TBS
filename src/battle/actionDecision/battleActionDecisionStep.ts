@@ -18,7 +18,7 @@ export interface BattleActionDecisionStepAction {
 }
 
 export interface BattleActionDecisionStepTarget {
-    targetLocation?: HexCoordinate
+    targetCoordinate?: HexCoordinate
     confirmed: boolean
 }
 
@@ -27,14 +27,14 @@ const isTargetConsidered = (actionBuilderState: BattleActionDecisionStep) =>
 
 const setConsideredTarget = (
     actionBuilderState: BattleActionDecisionStep,
-    targetLocation: HexCoordinate
+    targetCoordinate: HexCoordinate
 ) => {
     if (!isValidValue(actionBuilderState)) {
         return
     }
 
     actionBuilderState.target = {
-        targetLocation,
+        targetCoordinate: targetCoordinate,
         confirmed: false,
     }
 }
@@ -58,13 +58,13 @@ const isActionSet = (actionBuilderState: BattleActionDecisionStep) =>
 
 const setConfirmedTarget = (
     actionBuilderState: BattleActionDecisionStep,
-    targetLocation: HexCoordinate
+    targetCoordinate: HexCoordinate
 ) => {
     if (!isValidValue(actionBuilderState)) {
         return
     }
 
-    setConsideredTarget(actionBuilderState, targetLocation)
+    setConsideredTarget(actionBuilderState, targetCoordinate)
     actionBuilderState.target.confirmed = true
 }
 
@@ -157,12 +157,12 @@ export const BattleActionDecisionStepService = {
     },
     setConsideredTarget: ({
         actionDecisionStep,
-        targetLocation,
+        targetCoordinate,
     }: {
-        targetLocation: HexCoordinate
+        targetCoordinate: HexCoordinate
         actionDecisionStep: BattleActionDecisionStep
     }) => {
-        setConsideredTarget(actionDecisionStep, targetLocation)
+        setConsideredTarget(actionDecisionStep, targetCoordinate)
     },
     getTarget: (
         actionDecisionStep: BattleActionDecisionStep
@@ -171,12 +171,12 @@ export const BattleActionDecisionStepService = {
     },
     setConfirmedTarget: ({
         actionDecisionStep,
-        targetLocation,
+        targetCoordinate,
     }: {
-        targetLocation: HexCoordinate
+        targetCoordinate: HexCoordinate
         actionDecisionStep: BattleActionDecisionStep
     }) => {
-        setConfirmedTarget(actionDecisionStep, targetLocation)
+        setConfirmedTarget(actionDecisionStep, targetCoordinate)
     },
     getAction: (
         actionDecisionStep: BattleActionDecisionStep

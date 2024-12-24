@@ -77,7 +77,7 @@ const consoleErrorValidationFailures = ({
     if (invalidOffMapNpcPlacements.length > 0) {
         invalidOffMapNpcPlacements.forEach((placement) => {
             console.error(
-                `[MapValidationService] "${placement.battleSquaddieId}" is at location (q: ${placement.location.q}, r: ${placement.location.r}) which is not on the map`
+                `[MapValidationService] "${placement.battleSquaddieId}" is at coordinate (q: ${placement.coordinate.q}, r: ${placement.coordinate.r}) which is not on the map`
             )
         })
     }
@@ -85,7 +85,7 @@ const consoleErrorValidationFailures = ({
     if (npcPlacementsInTheSameLocation.length > 0) {
         npcPlacementsInTheSameLocation.forEach((collision) => {
             console.error(
-                `[MapValidationService] location (q: ${collision.coordinate.q}, r: ${collision.coordinate.r}) has multiple squaddies:${formatQuoteAndCommaSeparateStrings(collision.battleSquaddieIds)}`
+                `[MapValidationService] coordinate (q: ${collision.coordinate.q}, r: ${collision.coordinate.r}) has multiple squaddies:${formatQuoteAndCommaSeparateStrings(collision.battleSquaddieIds)}`
             )
         })
     }
@@ -134,7 +134,7 @@ const throwErrorForAnyValidationFailure = ({
 
     if (npcPlacementsInTheSameLocation.length > 0) {
         throw new Error(
-            "[MapValidationService] multiple squaddies at the same location."
+            "[MapValidationService] multiple squaddies at the same coordinate."
         )
     }
 
@@ -170,10 +170,10 @@ const findInvalidOffMapNpcPlacements = (
     ].forEach((mapPlacements) => {
         mapPlacements.forEach((mapPlacement) => {
             if (
-                mapPlacement.location &&
-                !TerrainTileMapService.isLocationOnMap(
+                mapPlacement.coordinate &&
+                !TerrainTileMapService.isCoordinateOnMap(
                     terrainMap,
-                    mapPlacement.location
+                    mapPlacement.coordinate
                 )
             ) {
                 allInvalidPlacements.push(mapPlacement)
@@ -203,13 +203,13 @@ const findNpcPlacementsInTheSameCoordinate = (
         mapPlacements.forEach((mapPlacement) => {
             let existingCoordinate = squaddiesByLocation.find(
                 (c) =>
-                    mapPlacement.location != undefined &&
-                    c.coordinate.q === mapPlacement.location.q &&
-                    c.coordinate.r === mapPlacement.location.r
+                    mapPlacement.coordinate != undefined &&
+                    c.coordinate.q === mapPlacement.coordinate.q &&
+                    c.coordinate.r === mapPlacement.coordinate.r
             )
             if (!existingCoordinate) {
                 existingCoordinate = {
-                    coordinate: mapPlacement.location,
+                    coordinate: mapPlacement.coordinate,
                     battleSquaddieIds: [],
                 }
                 squaddiesByLocation.push(existingCoordinate)

@@ -3,7 +3,7 @@ import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
     MessageBoardMessage,
-    MessageBoardMessageMoveSquaddieToLocation,
+    MessageBoardMessageMoveSquaddieToCoordinate,
     MessageBoardMessagePlayerCancelsSquaddieSelection,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
     MessageBoardMessagePlayerCancelsTargetSelection,
@@ -13,7 +13,7 @@ import {
     MessageBoardMessagePlayerSelectsActionThatRequiresATarget,
     MessageBoardMessagePlayerSelectsAndLocksSquaddie,
     MessageBoardMessagePlayerSelectsEmptyTile,
-    MessageBoardMessagePlayerSelectsTargetLocation,
+    MessageBoardMessagePlayerSelectsTargetCoordinate,
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
     SquaddieSelectionMethod,
@@ -52,7 +52,7 @@ import {
 } from "../../hexMap/mapGraphicsLayer"
 import { MapHighlightService } from "../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionMapSquaddieLocationService } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
 import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
@@ -126,7 +126,7 @@ export const BattleHUDService = {
             ).battleSquaddieId,
             highlightedTileDescriptions: [
                 {
-                    tiles: actionRange,
+                    coordinates: actionRange,
                     pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "map icon attack 1 action",
                 },
@@ -299,13 +299,13 @@ export const BattleHUDService = {
             )
         )
         const squaddieReachHighlightedOnMap =
-            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+            MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                 repository: gameEngineState.repository,
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
                 battleSquaddieId: battleSquaddieId,
-                startLocation: startLocation,
+                startCoordinate: startLocation,
                 campaignResources: gameEngineState.campaign.resources,
                 squaddieTurnOverride:
                     squaddieTemplate.squaddieId.affiliation ===
@@ -393,9 +393,9 @@ export const BattleHUDService = {
             recommendedMode: BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
         })
     },
-    playerSelectsTargetLocation: (
+    playerSelectsTargetCoordinate: (
         battleHUD: BattleHUD,
-        message: MessageBoardMessagePlayerSelectsTargetLocation
+        message: MessageBoardMessagePlayerSelectsTargetCoordinate
     ) => {
         const gameEngineState = message.gameEngineState
 
@@ -411,7 +411,7 @@ export const BattleHUDService = {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
-            targetLocation: message.targetLocation,
+            targetCoordinate: message.targetCoordinate,
         })
 
         TerrainTileMapService.removeAllGraphicsLayers(
@@ -456,10 +456,10 @@ export const BattleHUDService = {
             actionTemplate.resourceCost.actionPoints
         )
 
-        const targetLocation = BattleActionDecisionStepService.getTarget(
+        const targetCoordinate = BattleActionDecisionStepService.getTarget(
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep
-        ).targetLocation
+        ).targetCoordinate
 
         const actionStep: BattleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -473,14 +473,14 @@ export const BattleHUDService = {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation,
+            targetCoordinate: targetCoordinate,
         })
 
         let results: SquaddieSquaddieResults[] =
             ActionCalculator.calculateResults({
                 gameEngineState: gameEngineState,
                 actingBattleSquaddie,
-                validTargetLocation: targetLocation,
+                validTargetCoordinate: targetCoordinate,
                 battleActionDecisionStep: actionStep,
             })
 
@@ -566,7 +566,7 @@ export const BattleHUDService = {
         })
     },
     tryToMoveSquaddieToLocation: (
-        message: MessageBoardMessageMoveSquaddieToLocation
+        message: MessageBoardMessageMoveSquaddieToCoordinate
     ) => {
         const gameEngineState = message.gameEngineState
         const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
@@ -575,7 +575,7 @@ export const BattleHUDService = {
                 message.battleSquaddieId
             )
         )
-        const destination = message.targetLocation
+        const destination = message.targetCoordinate
         const isMovementPossible = MovementCalculatorService.isMovementPossible(
             {
                 gameEngineState,
@@ -587,13 +587,11 @@ export const BattleHUDService = {
 
         if (!isMovementPossible) {
             const { screenX, screenY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: message.targetLocation.q,
-                        r: message.targetLocation.r,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: message.targetCoordinate.q,
+                    r: message.targetCoordinate.r,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
 
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
@@ -626,7 +624,7 @@ export const BattleHUDService = {
             battleSquaddie,
             destination,
         })
-        MissionMapService.updateBattleSquaddieLocation(
+        MissionMapService.updateBattleSquaddieCoordinate(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddie.battleSquaddieId,
             destination
@@ -734,8 +732,8 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
-            case MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION:
-                BattleHUDService.playerSelectsTargetLocation(
+            case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
+                BattleHUDService.playerSelectsTargetCoordinate(
                     message.gameEngineState.battleOrchestratorState.battleHUD,
                     message
                 )
@@ -749,7 +747,7 @@ export class BattleHUDListener implements MessageBoardListener {
             case MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE:
                 BattleHUDService.selectAndLockNextSquaddie(message)
                 break
-            case MessageBoardMessageType.MOVE_SQUADDIE_TO_LOCATION:
+            case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
                 BattleHUDService.tryToMoveSquaddieToLocation(message)
                 break
             case MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION:
@@ -811,7 +809,7 @@ const processEndTurnAction = (
         actionDecisionStep:
             gameEngineState.battleOrchestratorState.battleState
                 .battleActionDecisionStep,
-        targetLocation: mapCoordinate,
+        targetCoordinate: mapCoordinate,
     })
 
     MapGraphicsLayerSquaddieTypes.forEach((t) =>
@@ -876,9 +874,9 @@ const panCameraToSquaddie = (
         gameEngineState.battleOrchestratorState.battleState.missionMap,
         nextBattleSquaddieId
     )
-    if (MissionMapSquaddieLocationService.isValid(selectedMapCoordinates)) {
+    if (MissionMapSquaddieCoordinateService.isValid(selectedMapCoordinates)) {
         const selectedWorldCoordinates =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                 selectedMapCoordinates.mapCoordinate.q,
                 selectedMapCoordinates.mapCoordinate.r
             )
@@ -949,12 +947,12 @@ const playerControlledSquaddieNeedsNextAction = (
             battleSquaddie.battleSquaddieId
         )
     const squaddieReachHighlightedOnMap =
-        MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+        MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
             repository: gameEngineState.repository,
             missionMap:
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
-            startLocation: startLocation,
+            startCoordinate: startLocation,
             campaignResources: gameEngineState.campaign.resources,
         })
     const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -984,7 +982,7 @@ const getScreenSelectionCoordinates = (
     }
 
     const { screenX: x, screenY: y } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: selectionMethod.mapCoordinate.q,
             r: selectionMethod.mapCoordinate.r,
             ...BattleCameraService.getCoordinates(camera),

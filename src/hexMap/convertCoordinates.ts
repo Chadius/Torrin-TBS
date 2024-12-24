@@ -3,7 +3,7 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 
 export const ConvertCoordinateService = {
-    convertMapCoordinatesToScreenCoordinates: ({
+    convertMapCoordinatesToScreenLocation: ({
         q,
         r,
         cameraX,
@@ -14,7 +14,7 @@ export const ConvertCoordinateService = {
         cameraX: number
         cameraY: number
     }): { screenX: number; screenY: number } => {
-        const { screenX, screenY } = convertMapCoordinatesToScreenCoordinates(
+        const { screenX, screenY } = convertMapCoordinatesToScreenLocation(
             q,
             r,
             cameraX,
@@ -25,7 +25,7 @@ export const ConvertCoordinateService = {
             screenY,
         }
     },
-    convertScreenCoordinatesToMapCoordinates: ({
+    convertScreenLocationToMapCoordinates: ({
         screenX,
         screenY,
         cameraX,
@@ -36,7 +36,7 @@ export const ConvertCoordinateService = {
         cameraX: number
         cameraY: number
     }): HexCoordinate => {
-        const { q, r } = convertScreenCoordinatesToMapCoordinates(
+        const { q, r } = convertScreenLocationToMapCoordinates(
             screenX,
             screenY,
             cameraX,
@@ -47,7 +47,7 @@ export const ConvertCoordinateService = {
             r,
         }
     },
-    convertMapCoordinatesToWorldCoordinates: (
+    convertMapCoordinatesToWorldLocation: (
         q: number,
         r: number
     ): { worldX: number; worldY: number } => {
@@ -57,7 +57,7 @@ export const ConvertCoordinateService = {
             worldY: (3 * q * HEX_TILE_RADIUS) / 2,
         }
     },
-    convertScreenCoordinatesToWorldCoordinates: ({
+    convertScreenLocationToWorldLocation: ({
         screenX,
         screenY,
         cameraX,
@@ -68,19 +68,19 @@ export const ConvertCoordinateService = {
         cameraX: number
         cameraY: number
     }): { worldX: number; worldY: number } =>
-        convertScreenCoordinatesToWorldCoordinates(
+        convertScreenLocationToWorldLocation(
             screenX,
             screenY,
             cameraX,
             cameraY
         ),
-    convertWorldCoordinatesToMapCoordinates: (
+    convertWorldLocationToMapCoordinates: (
         worldX: number,
         worldY: number,
         round: boolean = true
     ): { q: number; r: number } =>
-        convertWorldCoordinatesToMapCoordinates(worldX, worldY, round),
-    convertWorldCoordinatesToScreenCoordinates: ({
+        convertWorldLocationToMapCoordinates(worldX, worldY, round),
+    convertWorldLocationToScreenLocation: ({
         worldX,
         worldY,
         cameraX,
@@ -91,7 +91,7 @@ export const ConvertCoordinateService = {
         cameraX: number
         cameraY: number
     }): { screenX: number; screenY: number } =>
-        convertWorldCoordinatesToScreenCoordinates({
+        convertWorldLocationToScreenLocation({
             worldX,
             worldY,
             cameraX,
@@ -99,7 +99,7 @@ export const ConvertCoordinateService = {
         }),
 }
 
-const convertWorldCoordinatesToMapCoordinates = (
+const convertWorldLocationToMapCoordinates = (
     worldX: number,
     worldY: number,
     round: boolean = true
@@ -113,7 +113,7 @@ const convertWorldCoordinatesToMapCoordinates = (
     return { q, r }
 }
 
-const convertWorldCoordinatesToScreenCoordinates = ({
+const convertWorldLocationToScreenLocation = ({
     worldX,
     worldY,
     cameraX,
@@ -131,7 +131,7 @@ const convertWorldCoordinatesToScreenCoordinates = ({
     return { screenX, screenY }
 }
 
-const convertScreenCoordinatesToWorldCoordinates = (
+const convertScreenLocationToWorldLocation = (
     screenX: number,
     screenY: number,
     cameraX: number,
@@ -143,32 +143,32 @@ const convertScreenCoordinatesToWorldCoordinates = (
     return { worldX, worldY }
 }
 
-const convertMapCoordinatesToScreenCoordinates = (
+const convertMapCoordinatesToScreenLocation = (
     q: number,
     r: number,
     cameraX: number,
     cameraY: number
 ): { screenX: number; screenY: number } => {
     const worldCoordinates =
-        ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(q, r)
-    return convertWorldCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToWorldLocation(q, r)
+    return convertWorldLocationToScreenLocation({
         ...worldCoordinates,
         cameraX,
         cameraY,
     })
 }
 
-const convertScreenCoordinatesToMapCoordinates = (
+const convertScreenLocationToMapCoordinates = (
     screenX: number,
     screenY: number,
     cameraX: number,
     cameraY: number
 ): { q: number; r: number } => {
-    const { worldX, worldY } = convertScreenCoordinatesToWorldCoordinates(
+    const { worldX, worldY } = convertScreenLocationToWorldLocation(
         screenX,
         screenY,
         cameraX,
         cameraY
     )
-    return convertWorldCoordinatesToMapCoordinates(worldX, worldY)
+    return convertWorldLocationToMapCoordinates(worldX, worldY)
 }

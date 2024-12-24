@@ -12,7 +12,7 @@ import { ObjectRepositoryService } from "../../../battle/objectRepository"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Pathfinder", () => {
-    describe("generate shortest paths for every location in a given map", () => {
+    describe("generate shortest paths for every coordinate in a given map", () => {
         let missionMap: MissionMap
         let searchParameters: SearchParameters
         let searchResults: SearchResult
@@ -38,7 +38,7 @@ describe("Pathfinder", () => {
             })
         })
 
-        it("marks all locations as reachable that are not walls or pits", () => {
+        it("marks all coordinates as reachable that are not walls or pits", () => {
             ;[0, 1, 2, 3, 4].forEach((r) => {
                 ;[0, 1].forEach((q) => {
                     const reachable: boolean =
@@ -46,13 +46,13 @@ describe("Pathfinder", () => {
                             HexGridMovementCost.pit,
                             HexGridMovementCost.wall,
                         ].includes(
-                            TerrainTileMapService.getTileTerrainTypeAtLocation(
+                            TerrainTileMapService.getTileTerrainTypeAtCoordinate(
                                 missionMap.terrainTileMap,
                                 { q, r }
                             )
                         ) !== true
                     expect(
-                        SearchResultsService.isLocationReachable(
+                        SearchResultsService.isCoordinateReachable(
                             searchResults,
                             q,
                             r
@@ -62,32 +62,32 @@ describe("Pathfinder", () => {
             })
         })
 
-        it("path to the starting location costs no movement", () => {
+        it("path to the starting coordinate costs no movement", () => {
             const path2_0: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     0,
                     2
                 )
             expect(SearchPathService.getTotalMovementCost(path2_0)).toEqual(0)
-            expect(SearchPathService.getLocations(path2_0)).toHaveLength(1)
+            expect(SearchPathService.getCoordinates(path2_0)).toHaveLength(1)
             expect(SearchPathService.getTotalDistance(path2_0)).toEqual(0)
         })
 
-        it("path to further locations costs movement", () => {
+        it("path to further coordinates costs movement", () => {
             const path1_4: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     1,
                     4
                 )
             expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(4)
-            expect(SearchPathService.getLocations(path1_4)).toHaveLength(4)
+            expect(SearchPathService.getCoordinates(path1_4)).toHaveLength(4)
             expect(SearchPathService.getTotalDistance(path1_4)).toEqual(3)
         })
     })
 
-    it("throws an error when no start location is given", () => {
+    it("throws an error when no start coordinate is given", () => {
         const shouldThrowError = () => {
             PathfinderService.search({
                 searchParameters: SearchParametersService.new({
@@ -100,7 +100,7 @@ describe("Pathfinder", () => {
 
         expect(() => {
             shouldThrowError()
-        }).toThrow("no start location")
+        }).toThrow("no start coordinate")
     })
 
     describe("distance limits and terrain movement costs", () => {
@@ -129,29 +129,29 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 4)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 4)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 5)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 5)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 6)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 6)
             ).toBeTruthy()
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 7)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 7)
             ).toBeFalsy()
         })
         it("can factor terrain movement costs", () => {
@@ -179,19 +179,19 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 4)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 4)
             ).toBeFalsy()
         })
         it("can ignores terrain movement costs if ignoreTerrainCosts is true", () => {
@@ -222,19 +222,19 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 4)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 4)
             ).toBeTruthy()
         })
     })
@@ -261,16 +261,16 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeFalsy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeFalsy()
         })
         it("cannot pass over pit tiles", () => {
@@ -297,16 +297,16 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeFalsy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeFalsy()
         })
         it("can pass over pit tiles if search parameters is set but still cannot stop on them", () => {
@@ -333,16 +333,16 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeFalsy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeTruthy()
         })
         it("can pass over wall tiles if search parameters is set but still cannot stop on them", () => {
@@ -369,16 +369,16 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBeTruthy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBeFalsy()
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBeTruthy()
         })
     })
@@ -408,77 +408,77 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     0
                 )
             ).toBe(0)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     1
                 )
             ).toBe(1)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     2
                 )
             ).toBe(2)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     3
                 )
             ).toBe(3)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     4
                 )
             ).toBe(3)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     5
                 )
             ).toBe(4)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     6
                 )
             ).toBe(4)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     7
                 )
             ).toBe(5)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     8
                 )
             ).toBe(5)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     9
                 )
             ).toBe(6)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     10
@@ -510,42 +510,42 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     0
                 )
             ).toBe(0)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     1
                 )
             ).toBe(1)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     2
                 )
             ).toBe(2)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     3
                 )
             ).toBe(3)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     4
                 )
             ).toBe(3)
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     5
@@ -573,7 +573,7 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.numberOfActionsToReachLocation(
+                SearchResultsService.numberOfActionsToReachCoordinate(
                     searchResults,
                     0,
                     0
@@ -587,7 +587,7 @@ describe("Pathfinder", () => {
                 r++
             ) {
                 expect(
-                    SearchResultsService.numberOfActionsToReachLocation(
+                    SearchResultsService.numberOfActionsToReachCoordinate(
                         searchResults,
                         0,
                         r
@@ -622,19 +622,19 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 4)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 4)
             ).toBe(false)
         })
         it("will not include any paths less than the minimum distance", () => {
@@ -661,30 +661,30 @@ describe("Pathfinder", () => {
             })
 
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 0)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 0)
             ).toBe(false)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 1)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 1)
             ).toBe(false)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 2)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 2)
             ).toBe(false)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 3)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 3)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 4)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 4)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 6)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 6)
             ).toBe(true)
             expect(
-                SearchResultsService.isLocationReachable(searchResults, 0, 7)
+                SearchResultsService.isCoordinateReachable(searchResults, 0, 7)
             ).toBe(true)
         })
     })
 
-    describe("multiple start locations", () => {
+    describe("multiple start coordinates", () => {
         let missionMap: MissionMap
         let searchParameters: SearchParameters
         let searchResults: SearchResult
@@ -713,37 +713,37 @@ describe("Pathfinder", () => {
             })
         })
 
-        it("path to the starting location costs no movement", () => {
+        it("path to the starting coordinate costs no movement", () => {
             const path0_0: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     0,
                     0
                 )
             expect(SearchPathService.getTotalMovementCost(path0_0)).toEqual(0)
-            expect(SearchPathService.getLocations(path0_0)).toHaveLength(1)
+            expect(SearchPathService.getCoordinates(path0_0)).toHaveLength(1)
             expect(SearchPathService.getTotalDistance(path0_0)).toEqual(0)
 
             const path1_4: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     1,
                     4
                 )
             expect(SearchPathService.getTotalMovementCost(path1_4)).toEqual(0)
-            expect(SearchPathService.getLocations(path1_4)).toHaveLength(1)
+            expect(SearchPathService.getCoordinates(path1_4)).toHaveLength(1)
             expect(SearchPathService.getTotalDistance(path1_4)).toEqual(0)
         })
 
-        it("path to further locations refers to starting location with least movement cost", () => {
+        it("path to further coordinates refers to starting coordinate with least movement cost", () => {
             const path0_2: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     0,
                     2
                 )
 
-            const route0_2 = SearchPathService.getLocations(path0_2)
+            const route0_2 = SearchPathService.getCoordinates(path0_2)
             expect(route0_2).toHaveLength(3)
             expect(route0_2[0].hexCoordinate).toEqual({ q: 0, r: 0 })
             expect(route0_2[1].hexCoordinate).toEqual({ q: 0, r: 1 })
@@ -753,13 +753,13 @@ describe("Pathfinder", () => {
             expect(SearchPathService.getTotalDistance(path0_2)).toEqual(2)
 
             const path1_3: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     1,
                     3
                 )
 
-            const route1_3 = SearchPathService.getLocations(path1_3)
+            const route1_3 = SearchPathService.getCoordinates(path1_3)
             expect(route1_3).toHaveLength(2)
             expect(route1_3[0].hexCoordinate).toEqual({ q: 1, r: 4 })
             expect(route1_3[1].hexCoordinate).toEqual({ q: 1, r: 3 })
@@ -792,21 +792,21 @@ describe("Pathfinder", () => {
                 objectRepository: ObjectRepositoryService.new(),
             })
 
-            expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy()
-            expect(searchResults.shortestPathByLocation[0][1]).toBeFalsy()
-            expect(searchResults.shortestPathByLocation[0][2]).toBeFalsy()
-            expect(searchResults.shortestPathByLocation[0][3]).toBeTruthy()
-            expect(searchResults.shortestPathByLocation[0][4]).toBeTruthy()
+            expect(searchResults.shortestPathByCoordinate[0][0]).toBeTruthy()
+            expect(searchResults.shortestPathByCoordinate[0][1]).toBeFalsy()
+            expect(searchResults.shortestPathByCoordinate[0][2]).toBeFalsy()
+            expect(searchResults.shortestPathByCoordinate[0][3]).toBeTruthy()
+            expect(searchResults.shortestPathByCoordinate[0][4]).toBeTruthy()
 
-            expect(searchResults.shortestPathByLocation[1][0]).toBeTruthy()
-            expect(searchResults.shortestPathByLocation[1][1]).toBeFalsy()
-            expect(searchResults.shortestPathByLocation[1][2]).toBeFalsy()
-            expect(searchResults.shortestPathByLocation[1][3]).toBeTruthy()
-            expect(searchResults.shortestPathByLocation[1][4]).toBeFalsy()
+            expect(searchResults.shortestPathByCoordinate[1][0]).toBeTruthy()
+            expect(searchResults.shortestPathByCoordinate[1][1]).toBeFalsy()
+            expect(searchResults.shortestPathByCoordinate[1][2]).toBeFalsy()
+            expect(searchResults.shortestPathByCoordinate[1][3]).toBeTruthy()
+            expect(searchResults.shortestPathByCoordinate[1][4]).toBeFalsy()
         })
     })
 
-    describe("stop locations", () => {
+    describe("stop coordinates", () => {
         let missionMap: MissionMap
 
         beforeEach(() => {
@@ -817,7 +817,7 @@ describe("Pathfinder", () => {
             })
         })
 
-        it("will acknowledge that the search ended when it reached all stop locations", () => {
+        it("will acknowledge that the search ended when it reached all stop coordinates", () => {
             const searchParameters = SearchParametersService.new({
                 pathGenerators: {
                     startCoordinates: [{ q: 0, r: 0 }],
@@ -837,12 +837,12 @@ describe("Pathfinder", () => {
                 objectRepository: ObjectRepositoryService.new(),
             })
 
-            expect(searchResults.stopLocationsReached).toHaveLength(2)
-            expect(searchResults.stopLocationsReached).toContainEqual({
+            expect(searchResults.stopCoordinatesReached).toHaveLength(2)
+            expect(searchResults.stopCoordinatesReached).toContainEqual({
                 q: 0,
                 r: 0,
             })
-            expect(searchResults.stopLocationsReached).toContainEqual({
+            expect(searchResults.stopCoordinatesReached).toContainEqual({
                 q: 1,
                 r: 3,
             })

@@ -301,12 +301,9 @@ export class BattleCamera {
         const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10
 
         const worldLocationOfStartOfFirstRow =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
-                0,
-                0
-            )
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(0, 0)
         const worldLocationOfEndOfLastRow =
-            ConvertCoordinateService.convertMapCoordinatesToWorldCoordinates(
+            ConvertCoordinateService.convertMapCoordinatesToWorldLocation(
                 this.mapDimensionBoundaries.numberOfRows,
                 this.mapDimensionBoundaries.widthOfWidestRow
             )

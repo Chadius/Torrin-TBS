@@ -76,7 +76,7 @@ describe("getSquaddiePositionAlongPath", () => {
             camera
         )
         expect(startLocation).toStrictEqual(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[0].q,
                 r: movementPath[0].r,
                 ...camera.getCoordinates(),
@@ -91,7 +91,7 @@ describe("getSquaddiePositionAlongPath", () => {
             camera
         )
         expect(startLocation).toStrictEqual(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[0].q,
                 r: movementPath[0].r,
                 ...camera.getCoordinates(),
@@ -106,7 +106,7 @@ describe("getSquaddiePositionAlongPath", () => {
             camera
         )
         expect(startLocation).toStrictEqual(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[0].q,
                 r: movementPath[0].r,
                 ...camera.getCoordinates(),
@@ -122,7 +122,7 @@ describe("getSquaddiePositionAlongPath", () => {
             camera
         )
         expect(startLocation).toStrictEqual(
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[movementPath.length - 1].q,
                 r: movementPath[movementPath.length - 1].r,
                 ...camera.getCoordinates(),
@@ -138,13 +138,13 @@ describe("getSquaddiePositionAlongPath", () => {
             camera
         )
         const tile1Coords =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[1].q,
                 r: movementPath[1].r,
                 ...camera.getCoordinates(),
             })
         const tile2Coords =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: movementPath[2].q,
                 r: movementPath[2].r,
                 ...camera.getCoordinates(),

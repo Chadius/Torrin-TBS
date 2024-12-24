@@ -221,7 +221,7 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (
     }
     const destination = BattleActionRecorderService.peekAtAnimationQueue(
         gameEngineState.battleOrchestratorState.battleState.battleActionRecorder
-    ).effect.movement.endLocation
+    ).effect.movement.endCoordinate
 
     DrawSquaddieUtilities.updateSquaddieIconLocation({
         repository: gameEngineState.repository,

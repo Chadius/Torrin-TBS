@@ -101,11 +101,11 @@ export const DrawSquaddieUtilities = {
             battleSquaddieId
         )
         const squaddieReachHighlightedOnMap =
-            MapHighlightService.highlightAllLocationsWithinSquaddieRange({
+            MapHighlightService.highlightAllCoordinatesWithinSquaddieRange({
                 repository: repository,
                 missionMap,
                 battleSquaddieId,
-                startLocation: mapCoordinate,
+                startCoordinate: mapCoordinate,
                 campaignResources: campaign.resources,
             })
         const actionRangeOnMap = MapGraphicsLayerService.new({
@@ -269,7 +269,7 @@ const drawSquaddieMapIconAtMapCoordinate = (
     resourceHandler: ResourceHandler
 ) => {
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: mapCoordinate.q,
             r: mapCoordinate.r,
             ...camera.getCoordinates(),
@@ -346,7 +346,7 @@ const drawMapIconActionPointsBar = (
         return
     }
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: mapCoordinate.q,
             r: mapCoordinate.r,
             ...camera.getCoordinates(),
@@ -411,7 +411,7 @@ const drawMapIconHitPointBar = (
         HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation]
 
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: mapCoordinate.q,
             r: mapCoordinate.r,
             ...camera.getCoordinates(),
@@ -470,7 +470,7 @@ const updateSquaddieIconLocation = (
     camera: BattleCamera
 ) => {
     const { screenX, screenY } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
             q: destination.q,
             r: destination.r,
             ...camera.getCoordinates(),
@@ -491,7 +491,7 @@ const hasMovementAnimationFinished = (
         return true
     }
 
-    if (SearchPathService.getLocations(squaddieMovePath).length <= 1) {
+    if (SearchPathService.getCoordinates(squaddieMovePath).length <= 1) {
         return true
     }
 
@@ -512,7 +512,7 @@ export const moveSquaddieAlongPath = (
 ) => {
     const timePassed = Date.now() - timeMovementStarted
     const { screenX, screenY } = getSquaddiePositionAlongPath(
-        SearchPathService.getLocations(squaddieMovePath).map(
+        SearchPathService.getCoordinates(squaddieMovePath).map(
             (tile) => tile.hexCoordinate
         ),
         timePassed,

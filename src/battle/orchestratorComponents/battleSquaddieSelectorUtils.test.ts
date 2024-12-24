@@ -132,7 +132,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 0 },
+                        stopCoordinate: { q: 0, r: 0 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 0,
@@ -150,7 +150,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 1 },
+                        stopCoordinate: { q: 0, r: 1 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 1,
@@ -168,7 +168,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 7 },
+                        stopCoordinate: { q: 0, r: 7 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 1,
@@ -186,7 +186,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 8 },
+                        stopCoordinate: { q: 0, r: 8 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 1,
@@ -203,7 +203,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 6 },
+                        stopCoordinate: { q: 0, r: 6 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 1,
@@ -221,7 +221,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 3 },
+                        stopCoordinate: { q: 0, r: 3 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 1,
@@ -253,7 +253,7 @@ describe("battleSquaddieSelectorUtils", () => {
                         gameEngineState,
                         battleSquaddie: playerBattleSquaddie,
                         squaddieTemplate: playerSquaddieTemplate,
-                        stopLocation: { q: 0, r: 3 },
+                        stopCoordinate: { q: 0, r: 3 },
                         distanceRangeFromDestination: {
                             minimum: 0,
                             maximum: 2,
@@ -296,7 +296,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -326,7 +326,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -350,7 +350,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -380,7 +380,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -438,7 +438,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId:
@@ -465,7 +465,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -505,7 +505,7 @@ describe("battleSquaddieSelectorUtils", () => {
             })
 
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -542,7 +542,7 @@ describe("battleSquaddieSelectorUtils", () => {
             gameEngineState.battleOrchestratorState.battleState.missionMap =
                 missionMapBlockedByAPit
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -586,7 +586,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 coordinate: { q: 0, r: 0 },
             })
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -618,7 +618,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 coordinate: { q: 0, r: 0 },
             })
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -693,7 +693,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 coordinate: { q: 0, r: 4 },
             })
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,
@@ -731,7 +731,7 @@ describe("battleSquaddieSelectorUtils", () => {
                 coordinate: { q: 0, r: 7 },
             })
             const actionInfo =
-                BattleSquaddieSelectorService.getBestActionAndLocationToActFrom(
+                BattleSquaddieSelectorService.getBestActionAndCoordinateToActFrom(
                     {
                         gameEngineState,
                         actorBattleSquaddieId: playerActor.battleSquaddieId,

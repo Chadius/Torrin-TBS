@@ -26,7 +26,7 @@ describe("Map Graphics Layer", () => {
                 id: "wow",
                 highlightedTileDescriptions: [
                     {
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 0 },
                             { q: 0, r: 1 },
                         ],
@@ -40,23 +40,23 @@ describe("Map Graphics Layer", () => {
             MapGraphicsLayerService.addHighlightedTileDescription(
                 mapGraphicsLayer,
                 {
-                    tiles: [{ q: 0, r: 2 }],
+                    coordinates: [{ q: 0, r: 2 }],
                     pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                     overlayImageResourceName: "1 move attack",
                 }
             )
         })
         it("can get highlighted tile descriptions", () => {
-            const locationsByResourceName =
+            const coordinatesByResourceName =
                 MapGraphicsLayerService.getHighlightedTileDescriptions(
                     mapGraphicsLayer
                 )
 
-            expect(locationsByResourceName).toHaveLength(2)
-            expect(locationsByResourceName).toEqual(
+            expect(coordinatesByResourceName).toHaveLength(2)
+            expect(coordinatesByResourceName).toEqual(
                 expect.arrayContaining([
                     {
-                        tiles: [
+                        coordinates: [
                             { q: 0, r: 0 },
                             { q: 0, r: 1 },
                         ],
@@ -64,42 +64,42 @@ describe("Map Graphics Layer", () => {
                         overlayImageResourceName: "1 move icon",
                     },
                     {
-                        tiles: [{ q: 0, r: 2 }],
+                        coordinates: [{ q: 0, r: 2 }],
                         pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         overlayImageResourceName: "1 move attack",
                     },
                 ])
             )
         })
-        it("can get a list of tile locations with their associated graphics", () => {
-            const locations =
+        it("can get a list of tiles with their coordinates and image and pulse color", () => {
+            const tiles =
                 MapGraphicsLayerService.getHighlights(mapGraphicsLayer)
-            expect(locations).toHaveLength(3)
-            expect(locations).toEqual(
+            expect(tiles).toHaveLength(3)
+            expect(tiles).toEqual(
                 expect.arrayContaining([
                     {
-                        location: { q: 0, r: 0 },
+                        coordinate: { q: 0, r: 0 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                     {
-                        location: { q: 0, r: 1 },
+                        coordinate: { q: 0, r: 1 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },
                     {
-                        location: { q: 0, r: 2 },
+                        coordinate: { q: 0, r: 2 },
                         pulseColor: HIGHLIGHT_PULSE_COLOR.RED,
                         overlayImageResourceName: "1 move attack",
                     },
                 ])
             )
         })
-        it("gets the locations highlighted", () => {
-            const locations =
-                MapGraphicsLayerService.getLocations(mapGraphicsLayer)
-            expect(locations).toHaveLength(3)
-            expect(locations).toEqual(
+        it("gets the coordinates highlighted", () => {
+            const coordinates =
+                MapGraphicsLayerService.getCoordinates(mapGraphicsLayer)
+            expect(coordinates).toHaveLength(3)
+            expect(coordinates).toEqual(
                 expect.arrayContaining([
                     { q: 0, r: 0 },
                     { q: 0, r: 1 },
@@ -107,40 +107,40 @@ describe("Map Graphics Layer", () => {
                 ])
             )
         })
-        it("knows if a location is highlighted", () => {
+        it("knows if a coordinate is highlighted", () => {
             expect(
-                MapGraphicsLayerService.hasLocation(mapGraphicsLayer, {
+                MapGraphicsLayerService.hasCoordinate(mapGraphicsLayer, {
                     q: 0,
                     r: 0,
                 })
             ).toBeTruthy()
             expect(
-                MapGraphicsLayerService.hasLocation(mapGraphicsLayer, {
+                MapGraphicsLayerService.hasCoordinate(mapGraphicsLayer, {
                     q: 0,
                     r: 1,
                 })
             ).toBeTruthy()
             expect(
-                MapGraphicsLayerService.hasLocation(mapGraphicsLayer, {
+                MapGraphicsLayerService.hasCoordinate(mapGraphicsLayer, {
                     q: 0,
                     r: 2,
                 })
             ).toBeTruthy()
             expect(
-                MapGraphicsLayerService.hasLocation(mapGraphicsLayer, {
+                MapGraphicsLayerService.hasCoordinate(mapGraphicsLayer, {
                     q: 1,
                     r: 0,
                 })
             ).toBeFalsy()
             expect(
-                MapGraphicsLayerService.hasLocation(mapGraphicsLayer, {
+                MapGraphicsLayerService.hasCoordinate(mapGraphicsLayer, {
                     q: 2,
                     r: 0,
                 })
             ).toBeFalsy()
         })
-        it("can return all of its highlighted tiles, excluding some locations", () => {
-            const locationsByResourceName =
+        it("can return all of its highlighted tiles, excluding some coordinates", () => {
+            const coordinatesByResourceName =
                 MapGraphicsLayerService.getHighlightedTileDescriptions(
                     mapGraphicsLayer,
                     [
@@ -149,11 +149,11 @@ describe("Map Graphics Layer", () => {
                     ]
                 )
 
-            expect(locationsByResourceName).toHaveLength(1)
-            expect(locationsByResourceName).toEqual(
+            expect(coordinatesByResourceName).toHaveLength(1)
+            expect(coordinatesByResourceName).toEqual(
                 expect.arrayContaining([
                     {
-                        tiles: [{ q: 0, r: 0 }],
+                        coordinates: [{ q: 0, r: 0 }],
                         pulseColor: HIGHLIGHT_PULSE_COLOR.BLUE,
                         overlayImageResourceName: "1 move icon",
                     },

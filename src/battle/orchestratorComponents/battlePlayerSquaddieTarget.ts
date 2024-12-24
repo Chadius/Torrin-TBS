@@ -197,7 +197,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         keyboardEvent?: OrchestratorComponentKeyEvent
     }) {
         if (
-            didUserCancelTargetLocation({
+            didUserCancelTargetCoordinate({
                 targetComponent: this,
                 mouseEvent,
                 keyboardEvent,
@@ -274,7 +274,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         gameEngineState: GameEngineState
     }) {
         const clickedLocation =
-            ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+            ConvertCoordinateService.convertScreenLocationToMapCoordinates({
                 screenX: mouseX,
                 screenY: mouseY,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -358,9 +358,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         })
         this.hasSelectedValidTarget = true
         gameEngineState.messageBoard.sendMessage({
-            type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+            type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
             gameEngineState,
-            targetLocation: clickedLocation,
+            targetCoordinate: clickedLocation,
         })
     }
 }
@@ -373,16 +373,17 @@ const sendMessageIfUserPeeksOnASquaddie = ({
     gameEngineState: GameEngineState
 }) => {
     const { q, r } =
-        ConvertCoordinateService.convertScreenCoordinatesToMapCoordinates({
+        ConvertCoordinateService.convertScreenLocationToMapCoordinates({
             screenX: mouseEvent.mouseX,
             screenY: mouseEvent.mouseY,
             ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
         })
 
-    const { battleSquaddieId } = MissionMapService.getBattleSquaddieAtLocation(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        { q, r }
-    )
+    const { battleSquaddieId } =
+        MissionMapService.getBattleSquaddieAtCoordinate(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            { q, r }
+        )
 
     if (!isValidValue(battleSquaddieId)) {
         return
@@ -401,7 +402,7 @@ const sendMessageIfUserPeeksOnASquaddie = ({
     })
 }
 
-const didUserCancelTargetLocation = ({
+const didUserCancelTargetCoordinate = ({
     mouseEvent,
     keyboardEvent,
     targetComponent,

@@ -220,7 +220,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
         expect(actualInstruction).toStrictEqual([actionStep])
     })
@@ -259,7 +259,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 2 },
+            targetCoordinate: { q: 0, r: 2 },
         })
         expect(actualInstruction).toStrictEqual([actionStep])
     })
@@ -343,7 +343,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
         expect(actualInstruction).toStrictEqual([actionStep])
     })
@@ -409,7 +409,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 0, r: 0 },
+            targetCoordinate: { q: 0, r: 0 },
         })
 
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
@@ -431,7 +431,7 @@ describe("target a squaddie within reach of actions", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 2 },
+            targetCoordinate: { q: 0, r: 2 },
         })
         expect(actualInstruction).toStrictEqual([actionStep])
     })

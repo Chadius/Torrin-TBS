@@ -1,9 +1,9 @@
-import { LocationTraveled } from "./locationTraveled"
+import { CoordinateTraveled } from "./coordinateTraveled"
 import { assertsInteger } from "../../utils/mathAssert"
 import { HexCoordinate } from "../hexCoordinate/hexCoordinate"
 
 export interface SearchPath {
-    locationsTraveled: LocationTraveled[]
+    coordinatesTraveled: CoordinateTraveled[]
     totalMovementCost: number
     currentNumberOfMoveActions: number
     destination?: HexCoordinate
@@ -15,7 +15,7 @@ export const SearchPathService = {
     },
     clone: (original: SearchPath): SearchPath => {
         const newPath: SearchPath = {
-            locationsTraveled: [...original.locationsTraveled],
+            coordinatesTraveled: [...original.coordinatesTraveled],
             totalMovementCost: original.totalMovementCost,
             currentNumberOfMoveActions: original.currentNumberOfMoveActions,
             destination: original.destination,
@@ -25,7 +25,7 @@ export const SearchPathService = {
     },
     newSearchPath: (): SearchPath => {
         return {
-            locationsTraveled: [],
+            coordinatesTraveled: [],
             totalMovementCost: 0,
             currentNumberOfMoveActions: 0,
             destination: undefined,
@@ -33,29 +33,31 @@ export const SearchPathService = {
     },
     add: (
         path: SearchPath,
-        locationTraveled: LocationTraveled,
-        costToMoveToNewLocation: number
+        coordinateTraveled: CoordinateTraveled,
+        costToMoveToNewCoordinate: number
     ): void => {
-        path.locationsTraveled.push(locationTraveled)
+        path.coordinatesTraveled.push(coordinateTraveled)
 
-        path.totalMovementCost += costToMoveToNewLocation
+        path.totalMovementCost += costToMoveToNewCoordinate
 
         path.destination = {
-            q: locationTraveled.hexCoordinate.q,
-            r: locationTraveled.hexCoordinate.r,
+            q: coordinateTraveled.hexCoordinate.q,
+            r: coordinateTraveled.hexCoordinate.r,
         }
     },
-    getMostRecentLocation: (path: SearchPath): LocationTraveled => {
-        if (path.locationsTraveled.length > 0) {
-            return path.locationsTraveled[path.locationsTraveled.length - 1]
+    getMostRecentCoordinate: (path: SearchPath): CoordinateTraveled => {
+        if (path.coordinatesTraveled.length > 0) {
+            return path.coordinatesTraveled[path.coordinatesTraveled.length - 1]
         }
         return undefined
     },
-    getLocations: (path: SearchPath): LocationTraveled[] => {
-        return [...path.locationsTraveled]
+    getCoordinates: (path: SearchPath): CoordinateTraveled[] => {
+        return [...path.coordinatesTraveled]
     },
     getTotalDistance: (path: SearchPath): number => {
-        return path.locationsTraveled ? path.locationsTraveled.length - 1 : 0
+        return path.coordinatesTraveled
+            ? path.coordinatesTraveled.length - 1
+            : 0
     },
     startNewMovementAction: (
         path: SearchPath,
@@ -83,8 +85,8 @@ export const SearchPathService = {
         pathB: SearchPath
         ancestor: HexCoordinate
     }): boolean => {
-        const pathAAncestorIndex: number = pathA.locationsTraveled.findIndex(
-            (tile: LocationTraveled) =>
+        const pathAAncestorIndex: number = pathA.coordinatesTraveled.findIndex(
+            (tile: CoordinateTraveled) =>
                 tile.hexCoordinate.q === ancestor.q &&
                 tile.hexCoordinate.r === ancestor.r
         )
@@ -92,8 +94,8 @@ export const SearchPathService = {
             return false
         }
 
-        const pathBAncestorIndex: number = pathB.locationsTraveled.findIndex(
-            (tile: LocationTraveled) =>
+        const pathBAncestorIndex: number = pathB.coordinatesTraveled.findIndex(
+            (tile: CoordinateTraveled) =>
                 tile.hexCoordinate.q === ancestor.q &&
                 tile.hexCoordinate.r === ancestor.r
         )

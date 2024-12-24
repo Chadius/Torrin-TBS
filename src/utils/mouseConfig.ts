@@ -17,12 +17,12 @@ export const GetMouseButton = (physicalMouseButton: string): MouseButton => {
     return MouseButton.NONE
 }
 
-export interface ScreenCoordinate {
+export interface ScreenLocation {
     x: number
     y: number
 }
 
-export interface MouseClick extends ScreenCoordinate {
+export interface MouseClick extends ScreenLocation {
     button: MouseButton
 }
 

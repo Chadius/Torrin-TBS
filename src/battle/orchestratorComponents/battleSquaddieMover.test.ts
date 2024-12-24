@@ -126,7 +126,11 @@ describe("BattleSquaddieMover", () => {
         })
 
         const movePath: SearchPath =
-            SearchResultsService.getShortestPathToLocation(searchResults, 1, 1)
+            SearchResultsService.getShortestPathToCoordinate(
+                searchResults,
+                1,
+                1
+            )
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
@@ -153,8 +157,8 @@ describe("BattleSquaddieMover", () => {
                 },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 1, r: 1 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 1, r: 1 },
                     },
                 },
             })
@@ -218,7 +222,11 @@ describe("BattleSquaddieMover", () => {
         })
 
         const movePath: SearchPath =
-            SearchResultsService.getShortestPathToLocation(searchResults, 1, 1)
+            SearchResultsService.getShortestPathToCoordinate(
+                searchResults,
+                1,
+                1
+            )
 
         const gameEngineState: GameEngineState = GameEngineStateService.new({
             repository: objectRepository,
@@ -245,8 +253,8 @@ describe("BattleSquaddieMover", () => {
                 },
                 effect: {
                     movement: {
-                        startLocation: { q: 0, r: 0 },
-                        endLocation: { q: 1, r: 1 },
+                        startCoordinate: { q: 0, r: 0 },
+                        endCoordinate: { q: 1, r: 1 },
                     },
                 },
             })
@@ -317,7 +325,7 @@ describe("BattleSquaddieMover", () => {
             })
 
             const movePath: SearchPath =
-                SearchResultsService.getShortestPathToLocation(
+                SearchResultsService.getShortestPathToCoordinate(
                     searchResults,
                     1,
                     1
@@ -376,8 +384,8 @@ describe("BattleSquaddieMover", () => {
                         },
                         effect: {
                             movement: {
-                                startLocation: { q: 0, r: 0 },
-                                endLocation: { q: 1, r: 1 },
+                                startCoordinate: { q: 0, r: 0 },
+                                endCoordinate: { q: 1, r: 1 },
                             },
                         },
                     })

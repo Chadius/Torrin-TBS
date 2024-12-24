@@ -5,7 +5,7 @@ export interface SquaddieDeployment {
     required: {
         squaddieTemplateId: string
         battleSquaddieId: string
-        location: HexCoordinate
+        coordinate: HexCoordinate
     }[]
     optional: HexCoordinate[]
     affiliation: SquaddieAffiliation

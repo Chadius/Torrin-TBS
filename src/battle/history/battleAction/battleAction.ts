@@ -31,8 +31,8 @@ export interface BattleActionAction {
 
 export interface BattleActionEffect {
     movement?: {
-        startLocation: HexCoordinate
-        endLocation: HexCoordinate
+        startCoordinate: HexCoordinate
+        endCoordinate: HexCoordinate
     }
     squaddie?: BattleActionSquaddieChange[]
     endTurn?: boolean

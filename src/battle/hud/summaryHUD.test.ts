@@ -648,7 +648,7 @@ describe("summaryHUD", () => {
             })
 
             BattleActionDecisionStepService.setConsideredTarget({
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
                 actionDecisionStep:
                     gameEngineState.battleOrchestratorState.battleState
                         .battleActionDecisionStep,

@@ -32,8 +32,8 @@ describe("BattleActionQueue", () => {
             action: { isMovement: true },
             effect: {
                 movement: {
-                    startLocation: { q: 0, r: 0 },
-                    endLocation: { q: 1, r: 1 },
+                    startCoordinate: { q: 0, r: 0 },
+                    endCoordinate: { q: 1, r: 1 },
                 },
             },
         })
@@ -82,8 +82,8 @@ describe("BattleActionQueue", () => {
             action: { actionTemplateId: "charge" },
             effect: {
                 movement: {
-                    startLocation: { q: 0, r: 2 },
-                    endLocation: { q: 2, r: 4 },
+                    startCoordinate: { q: 0, r: 2 },
+                    endCoordinate: { q: 2, r: 4 },
                 },
             },
         })

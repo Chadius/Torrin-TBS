@@ -26,7 +26,7 @@ describe("action decision", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         endTurnStep = BattleActionDecisionStepService.new()

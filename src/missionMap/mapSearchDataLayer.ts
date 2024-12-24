@@ -4,7 +4,7 @@ import { TerrainTileMap, TerrainTileMapService } from "../hexMap/terrainTileMap"
 export interface MapSearchDataLayer {
     numberOfRows: number
     widthOfWidestRow: number
-    valueByLocation: {
+    valueByCoordinate: {
         [q: number]: {
             [r: number]: boolean | number
         }
@@ -37,24 +37,24 @@ export const MapSearchDataLayerService = {
             widthOfWidestRow:
                 TerrainTileMapService.getDimensions(terrainTileMap)
                     .widthOfWidestRow,
-            valueByLocation: {},
+            valueByCoordinate: {},
         }
 
         for (let q = 0; q < newMapLayer.numberOfRows; q++) {
-            newMapLayer.valueByLocation[q] = {}
+            newMapLayer.valueByCoordinate[q] = {}
             for (let r = 0; r < newMapLayer.widthOfWidestRow; r++) {
                 if (
                     initialValue === undefined ||
                     ["boolean", "number"].includes(typeof initialValue)
                 ) {
-                    newMapLayer.valueByLocation[q][r] = initialValue as
+                    newMapLayer.valueByCoordinate[q][r] = initialValue as
                         | number
                         | boolean
                         | undefined
                 } else {
                     const initialValueFunction =
                         initialValue as MapCoordinateValueGenerator
-                    newMapLayer.valueByLocation[q][r] = initialValueFunction(
+                    newMapLayer.valueByCoordinate[q][r] = initialValueFunction(
                         q,
                         r
                     )
@@ -64,7 +64,7 @@ export const MapSearchDataLayerService = {
 
         return newMapLayer
     },
-    setValueOfLocation: ({
+    setValueOfCoordinate: ({
         mapLayer,
         q,
         r,
@@ -81,7 +81,7 @@ export const MapSearchDataLayerService = {
             )
         }
 
-        mapLayer.valueByLocation[q][r] = value
+        mapLayer.valueByCoordinate[q][r] = value
     },
     outOfBounds: ({
         mapLayer,

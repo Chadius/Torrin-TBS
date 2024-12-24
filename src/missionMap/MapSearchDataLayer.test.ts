@@ -24,7 +24,7 @@ describe("MapSearchDataLayer", () => {
         expect(mapLayerFilledWithFalse.numberOfRows).toBe(2)
         ;[0, 1, 2, 3, 4].forEach((r) => {
             ;[0, 1].forEach((q) => {
-                expect(mapLayerFilledWithFalse.valueByLocation[q][r]).toBe(
+                expect(mapLayerFilledWithFalse.valueByCoordinate[q][r]).toBe(
                     false
                 )
             })
@@ -53,7 +53,7 @@ describe("MapSearchDataLayer", () => {
         ;[0, 1, 2, 3, 4].forEach((r) => {
             ;[0, 1].forEach((q) => {
                 expect(
-                    mapLayerFilledWithSumOfCoordinates.valueByLocation[q][r]
+                    mapLayerFilledWithSumOfCoordinates.valueByCoordinate[q][r]
                 ).toBe(q + r)
             })
         })
@@ -76,9 +76,9 @@ describe("MapSearchDataLayer", () => {
         expect(mapLayerFilledWithUndefined.numberOfRows).toBe(2)
         ;[0, 1, 2, 3, 4].forEach((r) => {
             ;[0, 1].forEach((q) => {
-                expect(mapLayerFilledWithUndefined.valueByLocation[q][r]).toBe(
-                    undefined
-                )
+                expect(
+                    mapLayerFilledWithUndefined.valueByCoordinate[q][r]
+                ).toBe(undefined)
             })
         })
     })
@@ -94,16 +94,16 @@ describe("MapSearchDataLayer", () => {
                 map: missionMap,
                 initialValue: false,
             })
-        MapSearchDataLayerService.setValueOfLocation({
+        MapSearchDataLayerService.setValueOfCoordinate({
             mapLayer: mapLayerFilledWithFalse,
             q: 1,
             r: 2,
             value: true,
         })
-        expect(mapLayerFilledWithFalse.valueByLocation[1][2]).toBe(true)
+        expect(mapLayerFilledWithFalse.valueByCoordinate[1][2]).toBe(true)
     })
 
-    it("throws an error if setting a location that is out of bounds", () => {
+    it("throws an error if setting a coordinate that is out of bounds", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],
@@ -116,7 +116,7 @@ describe("MapSearchDataLayer", () => {
             })
 
         const shouldThrowError = () => {
-            MapSearchDataLayerService.setValueOfLocation({
+            MapSearchDataLayerService.setValueOfCoordinate({
                 mapLayer: mapLayerFilledWithFalse,
                 q: 9001,
                 r: -3,
@@ -129,7 +129,7 @@ describe("MapSearchDataLayer", () => {
         }).toThrow("out of bounds")
     })
 
-    it("knows when a location is out of bounds", () => {
+    it("knows when a coordinate is out of bounds", () => {
         const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 2 1 2 ", " 1 x - 2 1 "],

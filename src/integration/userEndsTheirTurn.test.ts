@@ -224,7 +224,7 @@ describe("User ends their turn", () => {
 
     it("EndTurn adds a BattleAction to end the turn", () => {
         let { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: 0,
                 r: 0,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -308,13 +308,11 @@ describe("User ends their turn", () => {
                 "removeAllGraphicsLayers"
             )
             let { screenX: mouseX, screenY: mouseY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates(
-                    {
-                        q: 0,
-                        r: 0,
-                        ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                    }
-                )
+                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
+                    q: 0,
+                    r: 0,
+                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
+                })
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,

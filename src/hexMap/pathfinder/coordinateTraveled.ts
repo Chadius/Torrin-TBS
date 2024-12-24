@@ -1,6 +1,6 @@
 import { HexCoordinate } from "../hexCoordinate/hexCoordinate"
 
-export interface LocationTraveled {
+export interface CoordinateTraveled {
     hexCoordinate: HexCoordinate
     cumulativeMovementCost: number
 }

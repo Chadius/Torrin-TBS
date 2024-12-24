@@ -25,7 +25,7 @@ export class PathLengthIsMoreThanMinimum implements PathStopConstraint {
         }
 
         return (
-            newPath.locationsTraveled.length >=
+            newPath.coordinatesTraveled.length >=
             searchParameters.pathSizeConstraints.minimumDistanceMoved + 1
         )
     }

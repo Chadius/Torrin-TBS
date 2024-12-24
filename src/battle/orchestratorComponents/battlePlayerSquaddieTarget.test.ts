@@ -240,7 +240,7 @@ describe("BattleSquaddieTarget", () => {
             thiefDynamic.battleSquaddieId
         )
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: mapCoordinate.q,
                 r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -261,7 +261,7 @@ describe("BattleSquaddieTarget", () => {
             citizenDynamic.battleSquaddieId
         )
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: mapCoordinate.q,
                 r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
@@ -291,7 +291,7 @@ describe("BattleSquaddieTarget", () => {
                 battleMap.terrainTileMap
             ).map(
                 (highlightedTileDescription) =>
-                    highlightedTileDescription.location
+                    highlightedTileDescription.coordinate
             )
         expect(highlightedTileLocations).toHaveLength(6)
         expect(highlightedTileLocations).toEqual(
@@ -343,7 +343,7 @@ describe("BattleSquaddieTarget", () => {
 
     it("should ignore if the user does not click off of the map", () => {
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q:
                     TerrainTileMapService.getDimensions(
                         battleMap.terrainTileMap
@@ -376,7 +376,7 @@ describe("BattleSquaddieTarget", () => {
     })
 
     it("should ignore if the target is out of range", () => {
-        MissionMapService.updateBattleSquaddieLocation(
+        MissionMapService.updateBattleSquaddieCoordinate(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             thiefDynamic.battleSquaddieId,
             { q: 0, r: 0 }
@@ -412,16 +412,16 @@ describe("BattleSquaddieTarget", () => {
             clickOnThief()
         })
 
-        it("sends a message with the clicked target location", () => {
+        it("sends a message with the clicked target coordinate", () => {
             const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
                 gameEngineState.battleOrchestratorState.battleState.missionMap,
                 thiefDynamic.battleSquaddieId
             )
 
             expect(messageSpy).toHaveBeenCalledWith({
-                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION,
+                type: MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
                 gameEngineState,
-                targetLocation: mapCoordinate,
+                targetCoordinate: mapCoordinate,
             })
         })
 
@@ -534,7 +534,7 @@ describe("BattleSquaddieTarget", () => {
         )
 
         const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenCoordinates({
+            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: mapCoordinate.q,
                 r: mapCoordinate.r,
                 ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),

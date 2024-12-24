@@ -15,7 +15,7 @@ import {
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { MissionMapSquaddieLocation } from "../../missionMap/squaddieLocation"
+import { MissionMapSquaddieCoordinate } from "../../missionMap/squaddieCoordinate"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { BattleSquaddie } from "../battleSquaddie"
 import { isValidValue } from "../../utils/validityCheck"
@@ -132,7 +132,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: movementStep,
-            targetLocation: shortestRoute.destination,
+            targetCoordinate: shortestRoute.destination,
         })
 
         return [movementStep]
@@ -160,7 +160,7 @@ const getClosestSquaddieAndLocationToFollow = ({
 }): {
     battleSquaddieId: string
     distance: number
-    location: HexCoordinate
+    coordinate: HexCoordinate
     shortestRoute: SearchPath
 } => {
     const desiredBattleSquaddies = selectDesiredBattleSquaddies(
@@ -199,11 +199,11 @@ const getClosestSquaddieAndLocationToFollow = ({
             battleSquaddie: BattleSquaddie
         },
         distanceFromActor: number,
-        candidateLocation: HexCoordinate
+        candidateCoordinate: HexCoordinate
     ): {
         battleSquaddieId: string
         distance: number
-        location: HexCoordinate
+        coordinate: HexCoordinate
         shortestRoute: SearchPath
     }[] => {
         const routesThatEndCloseToCandidate: SearchResult =
@@ -249,12 +249,12 @@ const getClosestSquaddieAndLocationToFollow = ({
                 objectRepository: objectRepository,
             })
 
-        return routesThatEndCloseToCandidate.stopLocationsReached
-            .map((locationFromCandidate) => {
-                const path = SearchResultsService.getShortestPathToLocation(
+        return routesThatEndCloseToCandidate.stopCoordinatesReached
+            .map((coordinateFromCandidate) => {
+                const path = SearchResultsService.getShortestPathToCoordinate(
                     routesThatEndCloseToCandidate,
-                    locationFromCandidate.q,
-                    locationFromCandidate.r
+                    coordinateFromCandidate.q,
+                    coordinateFromCandidate.r
                 )
                 if (
                     numberOfActions === undefined ||
@@ -263,7 +263,7 @@ const getClosestSquaddieAndLocationToFollow = ({
                     return {
                         battleSquaddieId: candidateToChase.battleSquaddieId,
                         distance: distanceFromActor,
-                        location: candidateLocation,
+                        coordinate: candidateCoordinate,
                         shortestRoute: path,
                     }
                 }
@@ -278,7 +278,7 @@ const getClosestSquaddieAndLocationToFollow = ({
         distanceFromActor++
     ) {
         const closestReachableLocationsFromTheActor: HexCoordinate[] =
-            SearchResultsService.getClosestRoutesToLocationByDistance(
+            SearchResultsService.getClosestRoutesToCoordinateByDistance(
                 routesToAllSquaddies,
                 actorLocation,
                 distanceFromActor
@@ -296,7 +296,9 @@ const getClosestSquaddieAndLocationToFollow = ({
             closestSquaddies[
                 Math.floor(Math.random() * closestSquaddies.length)
             ]
-        const { mapCoordinate: candidateLocation }: MissionMapSquaddieLocation =
+        const {
+            mapCoordinate: candidateLocation,
+        }: MissionMapSquaddieCoordinate =
             MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 candidateToChase.battleSquaddieId
@@ -308,7 +310,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             distanceFromCandidate++
         ) {
             const closestReachableLocationsFromTheCandidate: HexCoordinate[] =
-                SearchResultsService.getClosestRoutesToLocationByDistance(
+                SearchResultsService.getClosestRoutesToCoordinateByDistance(
                     routesToAllSquaddies,
                     candidateLocation,
                     distanceFromCandidate
@@ -376,18 +378,18 @@ const getClosestSquaddiesToActor = (
     closestReachableLocations: HexCoordinate[]
 ) =>
     desiredBattleSquaddies.filter((battleSquaddieIter) => {
-        const { mapCoordinate: location } =
+        const { mapCoordinate: coordinate } =
             MissionMapService.getByBattleSquaddieId(
                 missionMap,
                 battleSquaddieIter.battleSquaddieId
             )
-        if (location === undefined) {
+        if (coordinate === undefined) {
             return false
         }
         return closestReachableLocations.some(
             (closestReachableLocation) =>
-                closestReachableLocation.q === location.q &&
-                closestReachableLocation.r === location.r
+                closestReachableLocation.q === coordinate.q &&
+                closestReachableLocation.r === coordinate.r
         )
     })
 

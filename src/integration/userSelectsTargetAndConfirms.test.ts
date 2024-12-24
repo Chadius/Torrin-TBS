@@ -220,7 +220,7 @@ describe("User Selects Target and Confirms", () => {
 
         BattleActionDecisionStepService.setConsideredTarget({
             actionDecisionStep: playerBattleActionBuilderState,
-            targetLocation: { q: 0, r: 2 },
+            targetCoordinate: { q: 0, r: 2 },
         })
 
         gameEngineState = getGameEngineState({
@@ -681,7 +681,7 @@ const getGameEngineState = ({
     )
     gameEngineState.messageBoard.addListener(
         battleHUDListener,
-        MessageBoardMessageType.PLAYER_SELECTS_TARGET_LOCATION
+        MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE
     )
 
     gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
@@ -746,7 +746,7 @@ const clickOnEnemy = ({
 
     BattleActionDecisionStepService.setConsideredTarget({
         actionDecisionStep: playerBattleActionBuilderState,
-        targetLocation: { q: 0, r: 2 },
+        targetCoordinate: { q: 0, r: 2 },
     })
 
     const gameEngineState = getGameEngineState({

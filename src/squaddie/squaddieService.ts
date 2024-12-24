@@ -6,7 +6,7 @@ import {
     InBattleAttributesService,
 } from "../battle/stats/inBattleAttributes"
 import { SearchPath } from "../hexMap/pathfinder/searchPath"
-import { LocationTraveled } from "../hexMap/pathfinder/locationTraveled"
+import { CoordinateTraveled } from "../hexMap/pathfinder/coordinateTraveled"
 import { getResultOrThrowError } from "../utils/ResultOrError"
 import {
     ObjectRepository,
@@ -72,7 +72,7 @@ export const SquaddieService = {
     }): SquaddieActionPointsExplanation => {
         return getNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
     },
-    searchPathLocationsByNumberOfMovementActions: ({
+    searchPathCoordinatesByNumberOfMovementActions: ({
         searchPath,
         battleSquaddieId,
         repository,
@@ -80,9 +80,9 @@ export const SquaddieService = {
         searchPath: SearchPath
         battleSquaddieId: string
         repository: ObjectRepository
-    }): { [movementActions: number]: LocationTraveled[] } => {
-        const locationsByMoveAction: {
-            [movementActions: number]: LocationTraveled[]
+    }): { [movementActions: number]: CoordinateTraveled[] } => {
+        const coordinatesByMoveAction: {
+            [movementActions: number]: CoordinateTraveled[]
         } = {}
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -90,20 +90,20 @@ export const SquaddieService = {
                 battleSquaddieId
             )
         )
-        searchPath.locationsTraveled.forEach((locationDescription) => {
+        searchPath.coordinatesTraveled.forEach((coordinateDescription) => {
             let numberOfMovementActions: number = Math.ceil(
-                locationDescription.cumulativeMovementCost /
+                coordinateDescription.cumulativeMovementCost /
                     SquaddieService.getSquaddieMovementAttributes({
                         battleSquaddie,
                         squaddieTemplate,
                     }).net.movementPerAction
             )
-            locationsByMoveAction[numberOfMovementActions] ||= []
-            locationsByMoveAction[numberOfMovementActions].push(
-                locationDescription
+            coordinatesByMoveAction[numberOfMovementActions] ||= []
+            coordinatesByMoveAction[numberOfMovementActions].push(
+                coordinateDescription
             )
         })
-        return locationsByMoveAction
+        return coordinatesByMoveAction
     },
     getHitPoints: ({
         squaddieTemplate,

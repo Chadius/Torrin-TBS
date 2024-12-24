@@ -179,14 +179,14 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         const results = ActionCalculator.calculateResults({
             gameEngineState,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
-            validTargetLocation: { q: 0, r: 1 },
+            validTargetCoordinate: { q: 0, r: 1 },
         })
 
         expect(
@@ -251,14 +251,14 @@ describe("Armor Attribute affects Armor Attacks", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetLocation: { q: 0, r: 1 },
+            targetCoordinate: { q: 0, r: 1 },
         })
 
         const results = ActionCalculator.calculateResults({
             gameEngineState,
             battleActionDecisionStep: actionStep,
             actingBattleSquaddie: actingSquaddie,
-            validTargetLocation: { q: 0, r: 1 },
+            validTargetCoordinate: { q: 0, r: 1 },
         })
 
         expect(

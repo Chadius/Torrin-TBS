@@ -143,7 +143,7 @@ describe("Action Preview Tile", () => {
             })
             BattleActionDecisionStepService.setConfirmedTarget({
                 actionDecisionStep: actionStep,
-                targetLocation: { q: 0, r: 1 },
+                targetCoordinate: { q: 0, r: 1 },
             })
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 actionStep

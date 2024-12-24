@@ -208,7 +208,7 @@ describe("BattleActionConfirm", () => {
             actionDecisionStep:
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep,
-            targetLocation: mapCoordinate,
+            targetCoordinate: mapCoordinate,
         })
     }
 
