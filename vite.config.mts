@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
             ) || JSON.stringify("[88, 17]"),
         "process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT":
             JSON.stringify(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT) ||
-            JSON.stringify("[13]"),
+            JSON.stringify("[13,32]"),
         "process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL":
             JSON.stringify(process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL) ||
             JSON.stringify("[8,46,27]"),

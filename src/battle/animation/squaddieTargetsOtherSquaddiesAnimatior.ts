@@ -1,4 +1,6 @@
 import {
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
@@ -98,6 +100,19 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         if (
             mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED
         ) {
+            this._userRequestedAnimationSkip = true
+            if (this.startedShowingResults === false) {
+                this.updateHitPointMeters(gameEngineState)
+                this.startedShowingResults = true
+            }
+        }
+    }
+
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        event: OrchestratorComponentKeyEvent
+    ): void {
+        if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
             this._userRequestedAnimationSkip = true
             if (this.startedShowingResults === false) {
                 this.updateHitPointMeters(gameEngineState)

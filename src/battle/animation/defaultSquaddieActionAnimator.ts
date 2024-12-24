@@ -1,4 +1,7 @@
-import { OrchestratorComponentMouseEvent } from "../orchestrator/battleOrchestratorComponent"
+import {
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentMouseEvent,
+} from "../orchestrator/battleOrchestratorComponent"
 import { SquaddieActionAnimator } from "./squaddieActionAnimator"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { GameEngineState } from "../../gameEngine/gameEngine"
@@ -14,6 +17,13 @@ export class DefaultSquaddieActionAnimator implements SquaddieActionAnimator {
     mouseEventHappened(
         state: GameEngineState,
         mouseEvent: OrchestratorComponentMouseEvent
+    ): void {
+        // Required by inheritance
+    }
+
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        keyEvent: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance
     }

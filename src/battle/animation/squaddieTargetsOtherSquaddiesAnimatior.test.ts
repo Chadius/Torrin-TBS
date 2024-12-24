@@ -6,6 +6,8 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import {
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
@@ -173,59 +175,100 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
         expect(animator.targetSprites[0].battleSquaddieId).toBe(thiefDynamicId)
     })
 
-    it("will skip displaying the results if the user clicks", () => {
-        mockActionTimerPhase(
-            animator.actionAnimationTimer,
-            ActionAnimationPhase.INITIALIZED
-        )
-        const gameEngineState: GameEngineState = GameEngineStateService.new({
-            repository: objectRepository,
-            resourceHandler: mockResourceHandler,
-            battleOrchestratorState: BattleOrchestratorStateService.new({
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    campaignId: "test campaign",
-                }),
-            }),
-        })
-        BattleActionRecorderService.addReadyToAnimateBattleAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionRecorder,
-            knightHitsThiefWithLongswordInstructionBattleAction
-        )
+    describe("will skip displaying the results", () => {
+        const tests = [
+            {
+                name: "when mouse clicks ACCEPT",
+                action: (gameEngineState: GameEngineState) => {
+                    const mouseEvent: OrchestratorComponentMouseEvent = {
+                        eventType: OrchestratorComponentMouseEventType.CLICKED,
+                        mouseX: 0,
+                        mouseY: 0,
+                        mouseButton: MouseButton.ACCEPT,
+                    }
 
-        animator.reset(gameEngineState)
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        mockActionTimerPhase(
-            animator.actionAnimationTimer,
-            ActionAnimationPhase.DURING_ACTION
-        )
+                    animator.mouseEventHappened(gameEngineState, mouseEvent)
+                },
+            },
+            {
+                name: "when mouse clicks CANCEL",
+                action: (gameEngineState: GameEngineState) => {
+                    const mouseEvent: OrchestratorComponentMouseEvent = {
+                        eventType: OrchestratorComponentMouseEventType.CLICKED,
+                        mouseX: 0,
+                        mouseY: 0,
+                        mouseButton: MouseButton.CANCEL,
+                    }
 
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
-        })
-        expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
+                    animator.mouseEventHappened(gameEngineState, mouseEvent)
+                },
+            },
+            {
+                name: "when keyboard presses ACCEPT",
+                action: (gameEngineState: GameEngineState) => {
+                    const keyboardEvent: OrchestratorComponentKeyEvent = {
+                        eventType: OrchestratorComponentKeyEventType.PRESSED,
+                        keyCode: JSON.parse(
+                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT
+                        )[0],
+                    }
 
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0,
-            mouseButton: MouseButton.ACCEPT,
-        }
+                    animator.keyEventHappened(gameEngineState, keyboardEvent)
+                },
+            },
+        ]
 
-        animator.mouseEventHappened(gameEngineState, mouseEvent)
-        animator.update({
-            gameEngineState,
-            graphicsContext: mockedP5GraphicsContext,
-            resourceHandler: gameEngineState.resourceHandler,
+        it.each(tests)(`$name `, ({ action }) => {
+            mockActionTimerPhase(
+                animator.actionAnimationTimer,
+                ActionAnimationPhase.INITIALIZED
+            )
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    repository: objectRepository,
+                    resourceHandler: mockResourceHandler,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                            }),
+                        }
+                    ),
+                }
+            )
+            BattleActionRecorderService.addReadyToAnimateBattleAction(
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionRecorder,
+                knightHitsThiefWithLongswordInstructionBattleAction
+            )
+
+            animator.reset(gameEngineState)
+            animator.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+            mockActionTimerPhase(
+                animator.actionAnimationTimer,
+                ActionAnimationPhase.DURING_ACTION
+            )
+
+            animator.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+            expect(animator.hasCompleted(gameEngineState)).toBeFalsy()
+
+            action(gameEngineState)
+            animator.update({
+                gameEngineState,
+                graphicsContext: mockedP5GraphicsContext,
+                resourceHandler: gameEngineState.resourceHandler,
+            })
+            expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
         })
-        expect(animator.hasCompleted(gameEngineState)).toBeTruthy()
     })
 
     it("is complete at the end of the animation time", () => {

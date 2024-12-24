@@ -1,4 +1,6 @@
 import {
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
@@ -41,6 +43,15 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         if (
             mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED
         ) {
+            this.userCanceledAction = true
+        }
+    }
+
+    keyEventHappened(
+        gameEngineState: GameEngineState,
+        keyEvent: OrchestratorComponentKeyEvent
+    ): void {
+        if (keyEvent.eventType === OrchestratorComponentKeyEventType.PRESSED) {
             this.userCanceledAction = true
         }
     }
