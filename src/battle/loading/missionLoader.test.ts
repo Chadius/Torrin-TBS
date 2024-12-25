@@ -72,6 +72,7 @@ describe("Mission Loader", () => {
         beforeEach(async () => {
             await MissionLoader.loadMissionFromFile({
                 missionLoaderContext: missionLoaderContext,
+                campaignId: "coolCampaign",
                 missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,
@@ -439,6 +440,7 @@ describe("Mission Loader", () => {
         beforeEach(async () => {
             await MissionLoader.loadMissionFromFile({
                 missionLoaderContext: missionLoaderContext,
+                campaignId: "coolCampaign",
                 missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,
@@ -635,6 +637,7 @@ describe("Mission Loader", () => {
 
             await MissionLoader.loadMissionFromFile({
                 missionLoaderContext: missionLoaderContext,
+                campaignId: "coolCampaign",
                 missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,

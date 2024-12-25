@@ -280,6 +280,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
     ) {
         await MissionLoader.loadMissionFromFile({
             missionLoaderContext: this.missionLoaderContext,
+            campaignId: campaign.id,
             missionId: CampaignService.getNextMissionId(campaign),
             resourceHandler: state.resourceHandler,
             objectRepository: objectRepository,

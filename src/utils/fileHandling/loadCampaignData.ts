@@ -43,7 +43,10 @@ export const LoadCampaignData = {
                     | CampaignFileFormat
                     | ActionTemplate[]
                 > => {
-                    if (filename === "assets/mission/0000.json") {
+                    if (
+                        filename ===
+                        `assets/campaign/${campaignFileData.id}/missions/0000.json`
+                    ) {
                         return missionData
                     }
 

@@ -104,17 +104,21 @@ export const MissionLoader = {
     loadMissionFromFile: async ({
         missionLoaderContext,
         missionId,
+        campaignId,
         resourceHandler,
         objectRepository,
     }: {
         missionLoaderContext: MissionLoaderContext
         missionId: string
+        campaignId: string
         resourceHandler: ResourceHandler
         objectRepository: ObjectRepository
     }) => {
         missionLoaderContext.completionProgress.started = true
-        const missionData: MissionFileFormat =
-            await LoadMissionFromFile(missionId)
+        const missionData: MissionFileFormat = await LoadMissionFromFile(
+            campaignId,
+            missionId
+        )
 
         missionLoaderContext.id = missionData.id
 

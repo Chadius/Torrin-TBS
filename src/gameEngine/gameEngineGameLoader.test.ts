@@ -149,7 +149,7 @@ describe("GameEngineGameLoader", () => {
         it("asks the loader to load the mission", async () => {
             await loader.update(gameEngineState)
             expect(loadFileIntoFormatSpy).toBeCalledWith(
-                "assets/mission/0000.json"
+                "assets/campaign/coolCampaign/missions/0000.json"
             )
         })
 

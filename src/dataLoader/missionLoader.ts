@@ -186,12 +186,13 @@ const sanitizeCutscenes = (data: MissionFileFormat) => {
 }
 
 export const LoadMissionFromFile = async (
+    campaignId: string,
     missionId: string
 ): Promise<MissionFileFormat> => {
     try {
         const missionData: MissionFileFormat =
             await LoadFileIntoFormat<MissionFileFormat>(
-                `assets/mission/${missionId}.json`
+                `assets/campaign/${campaignId}/missions/${missionId}.json`
             )
         return sanitize(missionData)
     } catch (e) {
