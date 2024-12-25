@@ -206,7 +206,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 bottom: layout.okButton.bottom,
             }),
             buttonText: layout.okButton.text,
-            textSize: layout.okButton.fontSize,
+            fontSize: layout.okButton.fontSize,
         })
 
         this.cancelButton = PlayerCancelButtonService.new()
@@ -215,7 +215,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     private createButton({
         area,
         buttonText,
-        textSize,
+        fontSize,
         fillColor,
         strokeColor,
         strokeWeight,
@@ -224,7 +224,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }: {
         area: RectArea
         buttonText: string
-        textSize: number
+        fontSize: number
         fillColor: number[]
         strokeColor: number[]
         strokeWeight: number
@@ -238,7 +238,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
             strokeWeight,
 
             text: buttonText,
-            textSize: textSize,
+            fontSize: fontSize,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
             fontColor,

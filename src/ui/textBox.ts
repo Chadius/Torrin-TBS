@@ -6,7 +6,7 @@ import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export type TextBoxArguments = {
     text: string
-    textSize: number
+    fontSize: number
     fontColor: number[]
     area: RectArea
     horizAlign?: p5.HORIZ_ALIGN
@@ -16,7 +16,7 @@ export type TextBoxArguments = {
 }
 
 export interface TextBox {
-    textSize: number
+    fontSize: number
     fontColor: number[]
     area: RectArea
     horizAlign: p5.HORIZ_ALIGN
@@ -28,7 +28,7 @@ export interface TextBox {
 
 export const TextBoxService = {
     new: ({
-        textSize,
+        fontSize,
         fontColor,
         area,
         horizAlign,
@@ -38,7 +38,7 @@ export const TextBoxService = {
         text,
     }: TextBoxArguments): TextBox => {
         return {
-            textSize: textSize,
+            fontSize: fontSize,
             fontColor: fontColor,
             area: area,
             horizAlign: horizAlign || HORIZONTAL_ALIGN.LEFT,
@@ -54,7 +54,7 @@ export const TextBoxService = {
         }
 
         graphics.push()
-        graphics.textSize(textBox.textSize)
+        graphics.textSize(textBox.fontSize)
         graphics.fill(
             textBox.fontColor[0],
             textBox.fontColor[1],

@@ -18,7 +18,7 @@ describe("Pop up text", () => {
         vi.spyOn(Date, "now").mockImplementation(() => 0)
         const textBox: TextBox = TextBoxService.new({
             text: "A text box",
-            textSize: 18,
+            fontSize: 18,
             fontColor: [0, 0, 0],
             area: RectAreaService.new({
                 left: 0,
@@ -41,7 +41,7 @@ describe("Pop up text", () => {
     it("will draw the text if there is no duration", () => {
         const textBox: TextBox = TextBoxService.new({
             text: "A text box",
-            textSize: 18,
+            fontSize: 18,
             fontColor: [0, 0, 0],
             area: RectAreaService.new({
                 left: 0,

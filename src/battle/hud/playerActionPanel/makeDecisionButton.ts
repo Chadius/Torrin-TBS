@@ -39,10 +39,10 @@ const DECISION_BUTTON_LAYOUT_COLORS = {
         fillAlpha: 192,
     },
     templateNameTextTopMargin: 4,
-    templateNameTextSize: 12,
+    templateNameFontSize: 12,
     templateNameFontColor: [0, 0, 192],
     infoTextTopMargin: 2,
-    infoTextSize: 10,
+    infoFontSize: 10,
     infoFontColor: [0, 0, 192 - 64],
 }
 
@@ -156,11 +156,11 @@ export class MakeDecisionButton {
                     DECISION_BUTTON_LAYOUT_COLORS.templateNameTextTopMargin,
                 width: RectAreaService.width(this.buttonIcon.drawArea) * 2,
                 height:
-                    DECISION_BUTTON_LAYOUT_COLORS.templateNameTextSize * 1.5,
+                    DECISION_BUTTON_LAYOUT_COLORS.templateNameFontSize * 1.5,
             }),
             fontColor: DECISION_BUTTON_LAYOUT_COLORS.templateNameFontColor,
             text: actionDescription,
-            textSize: DECISION_BUTTON_LAYOUT_COLORS.templateNameTextSize,
+            fontSize: DECISION_BUTTON_LAYOUT_COLORS.templateNameFontSize,
         })
         TextBoxService.draw(buttonTextBox, graphicsContext)
 
@@ -175,7 +175,7 @@ export class MakeDecisionButton {
                 infoTextTop
             )
             infoTextTop +=
-                DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
+                DECISION_BUTTON_LAYOUT_COLORS.infoFontSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
         }
 
@@ -186,14 +186,14 @@ export class MakeDecisionButton {
                 infoTextTop
             )
             infoTextTop +=
-                DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
+                DECISION_BUTTON_LAYOUT_COLORS.infoFontSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
         }
 
         if (this.shouldDrawActionRange(actionTemplate)) {
             this.drawActionRange(graphicsContext, actionTemplate, infoTextTop)
             infoTextTop +=
-                DECISION_BUTTON_LAYOUT_COLORS.infoTextSize +
+                DECISION_BUTTON_LAYOUT_COLORS.infoFontSize +
                 DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin
         }
 
@@ -284,12 +284,12 @@ export class MakeDecisionButton {
                 top: top,
                 width: RectAreaService.width(this.buttonIcon.drawArea) * 2,
                 height:
-                    DECISION_BUTTON_LAYOUT_COLORS.infoTextSize * numberOfLines +
+                    DECISION_BUTTON_LAYOUT_COLORS.infoFontSize * numberOfLines +
                     DECISION_BUTTON_LAYOUT_COLORS.infoTextTopMargin,
             }),
             fontColor: DECISION_BUTTON_LAYOUT_COLORS.infoFontColor,
             text,
-            textSize: DECISION_BUTTON_LAYOUT_COLORS.infoTextSize,
+            fontSize: DECISION_BUTTON_LAYOUT_COLORS.infoFontSize,
         })
         TextBoxService.draw(buttonTextBox, graphicsContext)
     }

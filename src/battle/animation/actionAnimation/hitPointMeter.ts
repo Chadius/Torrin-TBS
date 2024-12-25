@@ -115,7 +115,7 @@ export class HitPointMeter {
     private createCurrentHitPointTextBox(currentHitPoints: number) {
         this.currentHitPointsTextBox = TextBoxService.new({
             text: currentHitPoints.toString(),
-            textSize: HIT_POINT_TEXT_SIZE,
+            fontSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
             area: RectAreaService.new({
                 left: this.left,
@@ -129,7 +129,7 @@ export class HitPointMeter {
     private createMaxHitPointTextBox() {
         this.maxHitPointsTextBox = TextBoxService.new({
             text: `/${this.maxHitPoints}`,
-            textSize: HIT_POINT_TEXT_SIZE,
+            fontSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
             area: RectAreaService.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH / 2,

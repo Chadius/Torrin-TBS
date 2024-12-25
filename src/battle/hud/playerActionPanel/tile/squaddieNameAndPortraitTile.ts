@@ -132,7 +132,7 @@ const setPortraitNameTextBox = (
 
     tile.squaddieNameTextBox = TextBoxService.new({
         text: textInfo.text,
-        textSize: textInfo.textSize,
+        fontSize: textInfo.fontSize,
         fontColor: textColor,
         area: RectAreaService.new({
             left:

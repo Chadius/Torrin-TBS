@@ -414,7 +414,7 @@ const updateCoordinates = ({
     graphicsContext.textSize(layoutConstants.coordinates.fontSize)
     tile.coordinates.textBox = TextBoxService.new({
         text: coordinateText,
-        textSize: layoutConstants.coordinates.fontSize,
+        fontSize: layoutConstants.coordinates.fontSize,
         fontColor: [squaddieAffiliationHue, 7, 112],
         area: RectAreaService.new({
             left:
@@ -571,7 +571,7 @@ const updateNumericalAttributeModifiers = ({
 
             const textBox = TextBoxService.new({
                 text,
-                textSize: layoutConstants.attributeModifiers.fontSize,
+                fontSize: layoutConstants.attributeModifiers.fontSize,
                 fontColor: [squaddieAffiliationHue, 7, 80],
                 area: RectAreaService.new({
                     left:
@@ -735,7 +735,7 @@ const createTextBoxOnLeftSideOfRow = ({
     graphicsContext.textSize(fontSize)
     const textBox = TextBoxService.new({
         text,
-        textSize: fontSize,
+        fontSize: fontSize,
         fontColor,
         area: RectAreaService.new({
             left:

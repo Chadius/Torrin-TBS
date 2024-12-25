@@ -124,7 +124,7 @@ const createInfoTextBox = (
         )
     return TextBoxService.new({
         ...layoutConstants.info,
-        textSize: layoutConstants.info.fontSize,
+        fontSize: layoutConstants.info.fontSize,
         area: RectAreaService.new({
             left: RectAreaService.left(boundingBox),
             top: RectAreaService.top(boundingBox),

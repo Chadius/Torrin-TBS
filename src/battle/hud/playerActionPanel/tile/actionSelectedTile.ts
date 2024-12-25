@@ -255,7 +255,7 @@ const createActionNameTextBox = (
 
     tile.actionNameTextBox = TextBoxService.new({
         text: textInfo.text,
-        textSize: textInfo.textSize,
+        fontSize: textInfo.fontSize,
         fontColor: textColor,
         area: RectAreaService.new({
             left:
@@ -267,7 +267,7 @@ const createActionNameTextBox = (
             width:
                 RectAreaService.width(overallBoundingBox) -
                 WINDOW_SPACING.SPACING2,
-            height: textInfo.textSize * textInfo.text.split("\n").length,
+            height: textInfo.fontSize * textInfo.text.split("\n").length,
         }),
     })
 }
@@ -427,11 +427,11 @@ const createActionDescriptionTextBoxAndAdd = ({
                     WINDOW_SPACING.SPACING1,
                 top,
                 width: textInfo.width,
-                height: textInfo.text.split("\n").length * textInfo.textSize,
+                height: textInfo.text.split("\n").length * textInfo.fontSize,
             }),
             fontColor: layoutConstants.actionDescription.fontColor,
             text: textInfo.text,
-            textSize: textInfo.textSize,
+            fontSize: textInfo.fontSize,
         })
     )
 }

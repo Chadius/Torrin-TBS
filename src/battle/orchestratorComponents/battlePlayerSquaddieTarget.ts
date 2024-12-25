@@ -68,7 +68,7 @@ const createExplanationLabel = () => {
             top: layout.targetExplanationLabel.top,
             height: layout.targetExplanationLabel.height,
         }),
-        textSize: layout.targetExplanationLabel.fontSize,
+        fontSize: layout.targetExplanationLabel.fontSize,
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
     })

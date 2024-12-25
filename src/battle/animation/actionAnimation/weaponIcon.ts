@@ -90,7 +90,7 @@ export class WeaponIcon {
                 width: WINDOW_SPACING.SPACING1 * 15,
             }),
             text: labelText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             vertAlign: VERTICAL_ALIGN.CENTER,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             fillColor: labelBackgroundColor,

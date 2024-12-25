@@ -34,7 +34,7 @@ export const PlayerCancelButtonService = {
                 top: ScreenDimensions.SCREEN_HEIGHT - layout.height,
                 height: layout.height,
             }),
-            textSize: layout.fontSize,
+            fontSize: layout.fontSize,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })

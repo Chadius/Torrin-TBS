@@ -66,12 +66,12 @@ export class DialogueTextBox {
         if (component === DialogueComponent.DIALOGUE_BOX) {
             rectStyle = DIALOGUE_TEXT_BOX_STYLE_CONSTANTS[this.position]
             dialogueBoxHeight =
-                (textToDraw.length + 1) * fontStyle.textSize +
+                (textToDraw.length + 1) * fontStyle.fontSize +
                 rectStyle.textBoxMargin[0] +
                 rectStyle.textBoxMargin[2]
         } else if (component === DialogueComponent.SPEAKER_NAME) {
             rectStyle = DIALOGUE_SPEAKER_NAME_BOX_STYLE_CONSTANTS[this.position]
-            dialogueBoxHeight = fontStyle.textSize * 1.5
+            dialogueBoxHeight = fontStyle.fontSize * 1.5
         }
 
         let dialogueTextLabelLeft: number =
@@ -93,7 +93,7 @@ export class DialogueTextBox {
             }),
             fillColor: rectStyle.fillColor,
             text: textToDraw.join("\n"),
-            textSize: fontStyle.textSize,
+            fontSize: fontStyle.fontSize,
             fontColor: fontStyle.fontColor,
             horizAlign: fontStyle.horizAlign,
             vertAlign: fontStyle.vertAlign,
@@ -124,7 +124,7 @@ const constrainTextAndGetBoundingBox = ({
             TextHandlingService.approximateLengthOfLineOfText({
                 text: t,
                 strokeWeight: fontStyle.strokeWeight,
-                textSize: fontStyle.textSize,
+                fontSize: fontStyle.fontSize,
             })
         )
     )

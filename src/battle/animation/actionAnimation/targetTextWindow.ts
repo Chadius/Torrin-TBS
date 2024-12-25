@@ -131,7 +131,7 @@ export class TargetTextWindow {
                 ],
             }),
             text: this.targetBeforeActionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         })

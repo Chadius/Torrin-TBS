@@ -66,7 +66,7 @@ export interface GraphicsBuffer {
 
     textAlign(horizontalAlignment: string, verticalAlignment: string): void
 
-    textSize(size: number): void
+    textSize(fontSize: number): void
 
     textWidth(text: string): number
 

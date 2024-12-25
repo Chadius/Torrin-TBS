@@ -26,7 +26,7 @@ describe("Player Decision HUD", () => {
                 height: 100,
             }),
             text: "It's SQUADDIE_NAME turn",
-            textSize: 10,
+            fontSize: 10,
             fontColor: [0, 0, 100],
             fillColor: [0, 0, 10],
             textBoxMargin: 8,
@@ -99,7 +99,7 @@ describe("Player Decision HUD", () => {
                 label: LabelService.new({
                     fontColor: [],
                     textBoxMargin: undefined,
-                    textSize: 10,
+                    fontSize: 10,
                     text: "Need 2 action points",
                     area: RectAreaService.new({
                         left: 0,

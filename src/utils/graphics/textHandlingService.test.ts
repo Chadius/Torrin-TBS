@@ -30,7 +30,7 @@ describe("Text Handling Service", () => {
         expect(
             TextHandlingService.calculateLengthOfLineOfText({
                 text: "Wow! 3 Apples!",
-                textSize: 10,
+                fontSize: 10,
                 strokeWeight: 3,
                 graphicsContext: mockGraphicsContext,
             })
@@ -60,7 +60,7 @@ describe("Text Handling Service", () => {
             expect(
                 TextHandlingService.approximateLengthOfLineOfText({
                     text: inputString,
-                    textSize: 10,
+                    fontSize: 10,
                     strokeWeight: 1,
                 })
             ).toBeCloseTo(approximateLength)
@@ -96,7 +96,7 @@ describe("Text Handling Service", () => {
                 })
             ).toEqual({
                 text: "Hi",
-                textSize: 12,
+                fontSize: 12,
                 width: 24,
             })
         })
@@ -121,21 +121,21 @@ describe("Text Handling Service", () => {
                 })
             ).toEqual({
                 text: "111 222\n33",
-                textSize: 10,
+                fontSize: 10,
                 width: 700,
             })
         })
         it("Will reduce the font size if it does not fit on a single line", () => {
-            let textSize = 20
+            let fontSize = 20
             textSizeSpy = vi
                 .spyOn(mockGraphicsContext, "textSize")
                 .mockImplementation((size: number) => {
-                    textSize = size
+                    fontSize = size
                 })
             textWidthSpy = vi
                 .spyOn(mockGraphicsContext, "textWidth")
                 .mockImplementation((text: string) => {
-                    return text.length * textSize
+                    return text.length * fontSize
                 })
             expect(
                 TextHandlingService.fitTextWithinSpace({
@@ -152,7 +152,7 @@ describe("Text Handling Service", () => {
                 })
             ).toEqual({
                 text: "12345",
-                textSize: 10,
+                fontSize: 10,
                 width: 50,
             })
         })

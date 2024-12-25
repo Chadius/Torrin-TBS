@@ -310,7 +310,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.LOAD_BUTTON.READY_RECTANGLE.fillColor,
             strokeColor:
@@ -325,7 +325,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.LOAD_BUTTON.ACTIVE_RECTANGLE.fillColor,
             strokeColor:
@@ -340,7 +340,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.LOAD_BUTTON.DISABLED_RECTANGLE.fillColor,
             strokeColor:
@@ -355,7 +355,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.LOAD_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.LOAD_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.LOAD_BUTTON.HOVER_RECTANGLE.fillColor,
             strokeColor:
@@ -388,7 +388,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.SAVE_BUTTON.READY_RECTANGLE.fillColor,
             strokeColor:
@@ -403,7 +403,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.SAVE_BUTTON.ACTIVE_RECTANGLE.fillColor,
             strokeColor:
@@ -418,7 +418,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.SAVE_BUTTON.DISABLED_RECTANGLE.fillColor,
             strokeColor:
@@ -433,7 +433,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             text: FileAccessHUDDesign.SAVE_BUTTON.TEXT,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,
-            textSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
+            fontSize: FileAccessHUDDesign.SAVE_BUTTON.TEXT_SIZE,
             fillColor:
                 FileAccessHUDDesign.SAVE_BUTTON.HOVER_RECTANGLE.fillColor,
             strokeColor:
@@ -469,7 +469,7 @@ const createMessageLabel = (fileAccessHUD: FileAccessHUD) => {
         text: fileAccessHUD.message,
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
-        textSize: FileAccessHUDDesign.MESSAGE_LABEL.TEXT_SIZE,
+        fontSize: FileAccessHUDDesign.MESSAGE_LABEL.TEXT_SIZE,
         fontColor: FileAccessHUDDesign.MESSAGE_LABEL.FONT_COLOR,
     })
 }

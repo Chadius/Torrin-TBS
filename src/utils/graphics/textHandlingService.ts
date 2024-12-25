@@ -2,24 +2,24 @@ import { GraphicsBuffer } from "./graphicsRenderer"
 
 interface TextFit {
     text: string
-    textSize: number
+    fontSize: number
     width: number
 }
 
 export const TextHandlingService = {
     calculateLengthOfLineOfText: ({
         text,
-        textSize,
+        fontSize,
         strokeWeight,
         graphicsContext,
     }: {
         text: string
-        textSize: number
+        fontSize: number
         strokeWeight: number
         graphicsContext: GraphicsBuffer
     }): number => {
         graphicsContext.push()
-        graphicsContext.textSize(textSize)
+        graphicsContext.textSize(fontSize)
         graphicsContext.strokeWeight(strokeWeight)
         const width = graphicsContext.textWidth(text) * 1.2
         graphicsContext.pop()
@@ -27,11 +27,11 @@ export const TextHandlingService = {
     },
     approximateLengthOfLineOfText: ({
         text,
-        textSize,
+        fontSize,
         strokeWeight,
     }: {
         text: string
-        textSize: number
+        fontSize: number
         strokeWeight: number
     }): number => {
         const widthRatio = {
@@ -45,12 +45,12 @@ export const TextHandlingService = {
                 letter.toUpperCase() === letter &&
                 letter !== letter.toLowerCase()
             ) {
-                return current + textSize * widthRatio.uppercase
+                return current + fontSize * widthRatio.uppercase
             }
             if (!isNaN(parseInt(letter))) {
-                return current + textSize * widthRatio.number
+                return current + fontSize * widthRatio.number
             }
-            return current + textSize * widthRatio.default
+            return current + fontSize * widthRatio.default
         }, 0)
     },
     fitTextWithinSpace: ({
@@ -70,7 +70,7 @@ export const TextHandlingService = {
     }): TextFit => {
         let inProgressTextFit: TextFit = {
             text,
-            textSize: fontSizeRange ? fontSizeRange.preferred : 10,
+            fontSize: fontSizeRange ? fontSizeRange.preferred : 10,
             width: graphicsContext.textWidth(text),
         }
 
@@ -184,7 +184,7 @@ const doesTextFitViolateFontSizeConstraint = ({
     }
 
     graphicsContext.push()
-    graphicsContext.textSize(inProgressTextFit.textSize)
+    graphicsContext.textSize(inProgressTextFit.fontSize)
     const widestWidth = getWidthOfText(inProgressTextFit, graphicsContext)
     graphicsContext.pop()
     return widestWidth > width
@@ -201,19 +201,19 @@ const updateTextFitViolateFontSizeConstraint = ({
     width: number
     graphicsContext: GraphicsBuffer
 }): TextFit => {
-    let currentTextSize = fontSizeRange.preferred
+    let currentFontSize = fontSizeRange.preferred
     graphicsContext.push()
-    while (currentTextSize > fontSizeRange.minimum) {
-        graphicsContext.textSize(currentTextSize)
+    while (currentFontSize > fontSizeRange.minimum) {
+        graphicsContext.textSize(currentFontSize)
         const widestWidth = getWidthOfText(inProgressTextFit, graphicsContext)
         if (widestWidth <= width) {
             break
         }
-        currentTextSize = (currentTextSize + fontSizeRange.minimum) / 2
+        currentFontSize = (currentFontSize + fontSizeRange.minimum) / 2
     }
     graphicsContext.pop()
 
-    inProgressTextFit.textSize = currentTextSize
+    inProgressTextFit.fontSize = currentFontSize
     return inProgressTextFit
 }
 

@@ -53,7 +53,7 @@ export class DialogueAnswerButton {
             }),
             fillColor: dialogueBoxBackgroundColor,
             text: this.answerText,
-            textSize: 24,
+            fontSize: 24,
             fontColor: dialogueBoxTextColor,
             horizAlign: HORIZONTAL_ALIGN.CENTER,
             vertAlign: VERTICAL_ALIGN.CENTER,

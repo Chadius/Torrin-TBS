@@ -129,7 +129,7 @@ const TitleScreenDesign = {
     version: {
         startColumn: 0,
         endColumn: 1,
-        textSize: 8,
+        fontSize: 8,
         top: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING4,
         bottom: ScreenDimensions.SCREEN_HEIGHT - WINDOW_SPACING.SPACING1,
         fontColor: [0, 0, 128],
@@ -447,7 +447,7 @@ export class TitleScreen implements GameEngineComponent {
                     height: WINDOW_SPACING.SPACING4,
                 }),
                 text: "Torrin's Trial",
-                textSize: WINDOW_SPACING.SPACING2,
+                fontSize: WINDOW_SPACING.SPACING2,
                 fontColor: colors.backgroundText,
             })
         }
@@ -471,7 +471,7 @@ export class TitleScreen implements GameEngineComponent {
                     margin: WINDOW_SPACING.SPACING1,
                 }),
                 text: TitleScreenDesign.gameDescription.text,
-                textSize: WINDOW_SPACING.SPACING4,
+                fontSize: WINDOW_SPACING.SPACING4,
                 fontColor: colors.descriptionText,
             })
         }
@@ -496,7 +496,7 @@ export class TitleScreen implements GameEngineComponent {
                         WINDOW_SPACING.SPACING4,
                 }),
                 text: "by Chad Serrant",
-                textSize: WINDOW_SPACING.SPACING2,
+                fontSize: WINDOW_SPACING.SPACING2,
                 fontColor: colors.backgroundText,
             })
         }
@@ -516,7 +516,7 @@ export class TitleScreen implements GameEngineComponent {
                     margin: WINDOW_SPACING.SPACING1,
                 }),
                 text: `Version ${this.version}`,
-                textSize: TitleScreenDesign.version.textSize,
+                fontSize: TitleScreenDesign.version.fontSize,
                 fontColor: TitleScreenDesign.version.fontColor,
             })
         }
@@ -539,14 +539,14 @@ export class TitleScreen implements GameEngineComponent {
             this.startNewGameButton &&
             this.startNewGameButton.getStatus() === ButtonStatus.ACTIVE
         let changePlayButtonLabel: boolean = false
-        let buttonTextSize = WINDOW_SPACING.SPACING4
+        let buttonFontSize = WINDOW_SPACING.SPACING4
         if (windowIsTooSmall) {
-            buttonTextSize = buttonWidth / 35
+            buttonFontSize = buttonWidth / 35
             this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.width}x${graphicsContext.height}`
 
             const buttonTextMinimumSize = 18
-            if (buttonTextSize < buttonTextMinimumSize) {
-                buttonTextSize = buttonTextMinimumSize
+            if (buttonFontSize < buttonTextMinimumSize) {
+                buttonFontSize = buttonTextMinimumSize
                 this.startNewGameButtonLabel =
                     TitleScreenDesign.startGameButton.smallWindowWarning
             }
@@ -575,7 +575,7 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(
                         TitleScreenDesign.startGameButton.buttonArea
                     ),
-                    textSize: buttonTextSize,
+                    fontSize: buttonFontSize,
                     fontColor: colors.playButtonText,
                     textBoxMargin: WINDOW_SPACING.SPACING1,
                     horizAlign: HORIZONTAL_ALIGN.CENTER,
@@ -588,7 +588,7 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(
                         TitleScreenDesign.startGameButton.buttonArea
                     ),
-                    textSize: buttonTextSize,
+                    fontSize: buttonFontSize,
                     fontColor: colors.playButtonText,
                     textBoxMargin: WINDOW_SPACING.SPACING1,
                     horizAlign: playButtonHorizontalAlignment,
@@ -624,7 +624,7 @@ export class TitleScreen implements GameEngineComponent {
         if (changePlayButtonLabel) {
             this.continueGameButtonLabel = newButtonLabel
         }
-        let buttonTextSize = WINDOW_SPACING.SPACING2
+        let buttonFontSize = WINDOW_SPACING.SPACING2
 
         const playButtonHorizontalAlignment = HORIZONTAL_ALIGN.CENTER
 
@@ -636,7 +636,7 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(
                         TitleScreenDesign.continueGameButton.buttonArea
                     ),
-                    textSize: buttonTextSize,
+                    fontSize: buttonFontSize,
                     fontColor: colors.playButtonText,
                     textBoxMargin: WINDOW_SPACING.SPACING1,
                     horizAlign: HORIZONTAL_ALIGN.CENTER,
@@ -649,7 +649,7 @@ export class TitleScreen implements GameEngineComponent {
                     area: RectAreaService.new(
                         TitleScreenDesign.continueGameButton.buttonArea
                     ),
-                    textSize: buttonTextSize,
+                    fontSize: buttonFontSize,
                     fontColor: colors.playButtonText,
                     textBoxMargin: WINDOW_SPACING.SPACING1,
                     horizAlign: playButtonHorizontalAlignment,
@@ -910,7 +910,7 @@ export class TitleScreen implements GameEngineComponent {
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: TitleScreenDesign.sirCamil.descriptionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })
@@ -971,7 +971,7 @@ export class TitleScreen implements GameEngineComponent {
                     WINDOW_SPACING.SPACING2,
             }),
             text: TitleScreenDesign.torrin.descriptionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })
@@ -1037,7 +1037,7 @@ export class TitleScreen implements GameEngineComponent {
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: TitleScreenDesign.demonSlither.descriptionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })
@@ -1115,7 +1115,7 @@ export class TitleScreen implements GameEngineComponent {
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             }),
             text: TitleScreenDesign.demonLocust.descriptionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })

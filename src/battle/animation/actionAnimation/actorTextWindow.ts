@@ -124,7 +124,7 @@ export class ActorTextWindow {
                 ],
             }),
             text: this.actorUsesActionDescriptionText,
-            textSize: WINDOW_SPACING.SPACING2,
+            fontSize: WINDOW_SPACING.SPACING2,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         })

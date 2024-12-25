@@ -178,8 +178,8 @@ export class MockedP5GraphicsBuffer implements GraphicsBuffer {
         )
     }
 
-    textSize(size: number): void {
-        this.mockedP5.textSize(size)
+    textSize(fontSize: number): void {
+        this.mockedP5.textSize(fontSize)
     }
 
     textWidth(text: string): number {

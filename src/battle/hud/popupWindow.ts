@@ -71,13 +71,13 @@ export const PopupWindowService = {
             text,
             strokeWeight:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
-            textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+            fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
         })
 
         return PopupWindowService.new({
             coordinateSystem,
             label: LabelService.new({
-                textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+                fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
                 fontColor:
                     DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontColor,
                 textBoxMargin: WARNING_POPUP_TEXT_CONSTANTS.label.textBoxMargin,
@@ -207,7 +207,7 @@ const newPopupWindow = ({
                 bottom: 100,
             }),
             fontColor: [0, 0, 100],
-            textSize: 10,
+            fontSize: 10,
             text: "",
             textBoxMargin: 0,
         })

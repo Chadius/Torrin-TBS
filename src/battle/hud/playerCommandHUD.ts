@@ -58,8 +58,8 @@ const DECISION_BUTTON_LAYOUT = {
     width: 72,
     height: 72,
     verticalSpaceBetweenRows: 48,
-    endTurnButtonTextSize: 16,
-    moveButtonTextSize: 12,
+    endTurnButtonFontSize: 16,
+    moveButtonFontSize: 12,
 }
 const DECISION_BUTTON_LAYOUT_COLORS = {
     strokeSaturation: 85,
@@ -69,7 +69,7 @@ const DECISION_BUTTON_LAYOUT_COLORS = {
     fillBrightness: 50,
     fillAlpha: 127,
     templateNameTextTopMargin: 4,
-    templateNameTextSize: 12,
+    templateNameFontSize: 12,
     templateNameFontColor: [0, 0, 192],
     infoTextTopMargin: 2,
     infoFontColor: [0, 0, 192 - 64],
@@ -529,7 +529,7 @@ const updateMoveButtonText = (playerCommandState: PlayerCommandState) => {
         text,
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
-        textSize: DECISION_BUTTON_LAYOUT.moveButtonTextSize,
+        fontSize: DECISION_BUTTON_LAYOUT.moveButtonFontSize,
         fontColor: [0, 0, 0],
         area: playerCommandState.moveButton.buttonArea,
         fillColor: [
@@ -681,7 +681,7 @@ const createButtonsForSecondRow = ({
     playerCommandState.endTurnButtonLabel = LabelService.new({
         textBoxMargin: 0,
         text: "End Turn",
-        textSize: DECISION_BUTTON_LAYOUT.endTurnButtonTextSize,
+        fontSize: DECISION_BUTTON_LAYOUT.endTurnButtonFontSize,
         fontColor: [0, 0, 0],
         horizAlign: HORIZONTAL_ALIGN.CENTER,
         vertAlign: VERTICAL_ALIGN.CENTER,
@@ -805,7 +805,7 @@ const createQueuedPopupIfNeeded = (
     const windowWidth: number = TextHandlingService.calculateLengthOfLineOfText(
         {
             text: playerCommandState.newInvalidPopup.message,
-            textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+            fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
             strokeWeight:
                 DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.strokeWeight,
             graphicsContext: graphicsBuffer,
@@ -817,7 +817,7 @@ const createQueuedPopupIfNeeded = (
         popupWindow: PopupWindowService.new({
             coordinateSystem: CoordinateSystem.SCREEN,
             label: LabelService.new({
-                textSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.textSize,
+                fontSize: DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontSize,
                 fontColor:
                     DIALOGUE_FONT_STYLE_CONSTANTS.WARNING_POPUP.fontColor,
                 textBoxMargin: WARNING_POPUP_TEXT_CONSTANTS.label.textBoxMargin,

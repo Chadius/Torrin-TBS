@@ -114,7 +114,7 @@ export enum DialogueFontStyle {
 
 export interface StyleFontConstants {
     fontColor: number[]
-    textSize: number
+    fontSize: number
     horizAlign?: HORIZONTAL_ALIGN
     vertAlign?: VERTICAL_ALIGN
     strokeWeight: number
@@ -145,7 +145,7 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
 } = {
     [DialogueFontStyle.BLACK]: {
         fontColor: [0, 0, 0],
-        textSize: WINDOW_SPACING.SPACING4,
+        fontSize: WINDOW_SPACING.SPACING4,
         strokeWeight: 4,
         widthRatio: {
             uppercase: 0.8,
@@ -155,7 +155,7 @@ export const DIALOGUE_FONT_STYLE_CONSTANTS: {
     },
     [DialogueFontStyle.WARNING_POPUP]: {
         fontColor: [245, 20, 90],
-        textSize: 16,
+        fontSize: 16,
         strokeWeight: 4,
         widthRatio: {
             uppercase: 0.8,
