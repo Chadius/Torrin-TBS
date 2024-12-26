@@ -24,7 +24,10 @@
   },
   "attributes": {
     "maxHitPoints": 3,
-    "armorClass": 6,
+    "armor": {
+      "proficiencyLevel": "NOVICE",
+      "base": 1
+    },
     "movement": {
       "movementPerAction": 2,
       "passThroughWalls": false,

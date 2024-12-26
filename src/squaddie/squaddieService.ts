@@ -17,6 +17,7 @@ import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
 import { AttributeType } from "./attributeModifier"
+import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
@@ -314,11 +315,23 @@ const getArmorClass = ({
     squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 }): SquaddieArmorExplanation => {
+    const baseArmor = 6
+
+    const tierProficiencyBonus =
+        squaddieTemplate.attributes.armor.proficiencyLevel !==
+        ProficiencyLevel.UNTRAINED
+            ? squaddieTemplate.attributes.tier
+            : 0
+
     return {
-        initial: squaddieTemplate.attributes.armorClass,
+        initial: baseArmor + squaddieTemplate.attributes.armor.base,
         net:
-            squaddieTemplate.attributes.armorClass +
-            squaddieTemplate.attributes.tier,
+            baseArmor +
+            BonusByProficiencyLevel[
+                squaddieTemplate.attributes.armor.proficiencyLevel
+            ] +
+            squaddieTemplate.attributes.armor.base +
+            tierProficiencyBonus,
     }
 }
 

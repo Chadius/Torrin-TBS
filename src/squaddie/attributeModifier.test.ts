@@ -409,20 +409,24 @@ describe("AttributeModifier", () => {
     })
 
     describe("knows how to make attribute descriptions", () => {
-        const readableDescription: { [t in AttributeType]: string } = {
-            [AttributeType.ARMOR]: "Armor -1 (Circumstance)",
+        const readableDescription: { [t: string]: string } = {
+            [`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]:
+                "Armor -1 (Circumstance)",
             [AttributeType.ABSORB]: "Absorb +2 (Item)",
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
             [AttributeType.IGNORE_TERRAIN_COST]:
                 "Ignore terrain cost (Circumstance)",
             [AttributeType.ELUSIVE]: "Elusive (Status)",
+            [`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]:
+                "Armor +4 (Proficiency)",
         }
 
         test.each`
             attributeType             | amount | source                          | readableDescription
-            ${AttributeType.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.ARMOR]}
+            ${AttributeType.ARMOR}    | ${-1}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.CIRCUMSTANCE}`]}
             ${AttributeType.ABSORB}   | ${2}   | ${AttributeSource.ITEM}         | ${readableDescription[AttributeType.ABSORB]}
             ${AttributeType.MOVEMENT} | ${0}   | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.MOVEMENT]}
+            ${AttributeType.ARMOR}    | ${4}   | ${AttributeSource.PROFICIENCY}  | ${readableDescription[`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]}
         `(
             "$attributeType $amount $source description is: $readableDescription",
             ({ attributeType, amount, source, readableDescription }) => {
@@ -443,7 +447,7 @@ describe("AttributeModifier", () => {
             ${AttributeType.IGNORE_TERRAIN_COST} | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.IGNORE_TERRAIN_COST]}
             ${AttributeType.ELUSIVE}             | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.ELUSIVE]}
         `(
-            "$attributeType $amount $source description is: $readableDescription",
+            "$attributeType $source description is: $readableDescription",
             ({ attributeType, source, readableDescription }) => {
                 expect(
                     AttributeModifierService.readableDescription(

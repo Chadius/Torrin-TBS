@@ -5,7 +5,7 @@ import {
 } from "../battle/objectRepository"
 import { BattleSquaddie, BattleSquaddieService } from "../battle/battleSquaddie"
 import { DamageType, HealingType, SquaddieService } from "./squaddieService"
-import { ArmyAttributesService, DefaultArmyAttributes } from "./armyAttributes"
+import { ArmyAttributesService, ProficiencyLevel } from "./armyAttributes"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -45,13 +45,14 @@ describe("Squaddie Service", () => {
             battleId: "player",
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: squaddieRepository,
-            attributes: {
-                ...DefaultArmyAttributes(),
-                ...{
-                    armorClass: 3,
-                    maxHitPoints: 5,
+            attributes: ArmyAttributesService.new({
+                armorClass: 9001,
+                armor: {
+                    proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                    base: 3,
                 },
-            },
+                maxHitPoints: 5,
+            }),
         }))
         ;({ squaddieTemplate: enemyStatic, battleSquaddie: enemyDynamic } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -87,25 +88,81 @@ describe("Squaddie Service", () => {
     })
 
     describe("Current Armor Class", () => {
-        it("Returns the normal armor class", () => {
+        it("Returns the net armor class as armor base bonus +6", () => {
             let { net } = SquaddieService.getArmorClass({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })
 
-            expect(net).toBe(3)
+            expect(net).toBe(9)
         })
 
-        it("Adds the tier to the normal armor class", () => {
+        it("Adds the tier to the net armor class if the squaddie is trained", () => {
             playerSquaddieTemplate.attributes.tier = 1
+            playerSquaddieTemplate.attributes.armor.proficiencyLevel =
+                ProficiencyLevel.NOVICE
 
             let { net, initial } = SquaddieService.getArmorClass({
                 squaddieTemplate: playerSquaddieTemplate,
                 battleSquaddie: playerBattleSquaddie,
             })
 
-            expect(initial).toBe(3)
-            expect(net).toBe(4)
+            expect(initial).toBe(9)
+            expect(net).toBe(11)
+        })
+
+        it("Does not add the tier to the net armor class if the squaddie is untrained", () => {
+            playerSquaddieTemplate.attributes.tier = 9001
+            playerSquaddieTemplate.attributes.armor.proficiencyLevel =
+                ProficiencyLevel.UNTRAINED
+
+            let { net, initial } = SquaddieService.getArmorClass({
+                squaddieTemplate: playerSquaddieTemplate,
+                battleSquaddie: playerBattleSquaddie,
+            })
+
+            expect(initial).toBe(9)
+            expect(net).toBe(9)
+        })
+
+        describe("Add the armor proficiency", () => {
+            const tests = [
+                {
+                    proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                    proficiencyBonus: 0,
+                },
+                {
+                    proficiencyLevel: ProficiencyLevel.NOVICE,
+                    proficiencyBonus: 1,
+                },
+                {
+                    proficiencyLevel: ProficiencyLevel.EXPERT,
+                    proficiencyBonus: 2,
+                },
+                {
+                    proficiencyLevel: ProficiencyLevel.MASTER,
+                    proficiencyBonus: 3,
+                },
+                {
+                    proficiencyLevel: ProficiencyLevel.LEGENDARY,
+                    proficiencyBonus: 4,
+                },
+            ]
+            it.each(tests)(
+                `$proficiencyLevel: $proficiencyBonus`,
+                ({ proficiencyLevel, proficiencyBonus }) => {
+                    playerSquaddieTemplate.attributes.armor.proficiencyLevel =
+                        proficiencyLevel
+
+                    let { net, initial } = SquaddieService.getArmorClass({
+                        squaddieTemplate: playerSquaddieTemplate,
+                        battleSquaddie: playerBattleSquaddie,
+                    })
+
+                    expect(initial).toBe(9)
+                    expect(net).toBe(9 + proficiencyBonus)
+                }
+            )
         })
     })
 

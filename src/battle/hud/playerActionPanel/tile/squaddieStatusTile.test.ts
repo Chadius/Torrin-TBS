@@ -37,6 +37,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { ProficiencyLevel } from "../../../../squaddie/armyAttributes"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -324,6 +325,10 @@ describe("Squaddie Status Tile", () => {
         })
         it("should draw the armor class for the squaddie", () => {
             battleSquaddie.inBattleAttributes.armyAttributes.armorClass = 5
+            battleSquaddie.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.NOVICE,
+                base: -2,
+            }
             battleSquaddie.inBattleAttributes.armyAttributes.tier = 1
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,

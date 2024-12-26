@@ -23,7 +23,10 @@
   },
   "attributes": {
     "maxHitPoints": 5,
-    "armorClass": 8,
+    "armor": {
+      "proficiencyLevel": "EXPERT",
+      "base": 2
+    },
     "movement": {
       "movementPerAction": 2,
       "passThroughWalls": false,

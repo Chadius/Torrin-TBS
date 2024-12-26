@@ -12,6 +12,7 @@ export enum AttributeSource {
     CIRCUMSTANCE = "CIRCUMSTANCE",
     ITEM = "ITEM",
     STATUS = "STATUS",
+    PROFICIENCY = "PROFICIENCY",
 }
 
 export type AttributeTypeAndAmount = {
@@ -249,6 +250,7 @@ export const AttributeModifierService = {
         } = {
             [AttributeSource.CIRCUMSTANCE]: "Circumstance",
             [AttributeSource.ITEM]: "Item",
+            [AttributeSource.PROFICIENCY]: "Proficiency",
             [AttributeSource.STATUS]: "Status",
         }
 

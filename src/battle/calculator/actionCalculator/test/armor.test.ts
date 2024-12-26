@@ -121,6 +121,8 @@ describe("Armor Attribute affects Armor Attacks", () => {
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
         })
+        targetTemplate.attributes.armor.base -= 6
+
         targetSquaddie = BattleSquaddieService.new({
             squaddieTemplate: targetTemplate,
             battleSquaddieId: "targetSquaddie",

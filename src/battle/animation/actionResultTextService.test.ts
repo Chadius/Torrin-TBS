@@ -38,6 +38,7 @@ import {
 } from "../calculator/actionCalculator/rollResult"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
+import { SquaddieService } from "../../squaddie/squaddieService"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -776,12 +777,12 @@ describe("Action Result Text Writer", () => {
                         .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
-            expect(outputString).toContain(
-                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
-            )
-            expect(outputString).toContain(
-                `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`
-            )
+            const thiefNetArmorClass = SquaddieService.getArmorClass({
+                squaddieTemplate: thiefStatic,
+                battleSquaddie: thiefDynamic,
+            }).net
+
+            expect(outputString).toContain(`Armor ${thiefNetArmorClass + 9001}`)
             expect(outputString).toContain(`+9001 Armor`)
         })
         it("Does not shows Armor bonuses against non attacks", () => {
@@ -793,12 +794,15 @@ describe("Action Result Text Writer", () => {
                         .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
+            const thiefInitialArmorClass = SquaddieService.getArmorClass({
+                squaddieTemplate: thiefStatic,
+                battleSquaddie: thiefDynamic,
+            }).initial
+
             expect(outputString).not.toContain(
-                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + 9001}`
+                `Armor ${thiefInitialArmorClass + 9001}`
             )
-            expect(outputString).not.toContain(
-                `${thiefDynamic.inBattleAttributes.armyAttributes.armorClass}`
-            )
+            expect(outputString).not.toContain(`${thiefInitialArmorClass}`)
             expect(outputString).not.toContain(`+9001 Armor`)
         })
     })
@@ -816,9 +820,12 @@ describe("Action Result Text Writer", () => {
                         .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
-            expect(outputString).toContain(
-                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + thiefStatic.attributes.tier}`
-            )
+            const thiefNetArmorClass = SquaddieService.getArmorClass({
+                squaddieTemplate: thiefStatic,
+                battleSquaddie: thiefDynamic,
+            }).net
+
+            expect(outputString).toContain(`Armor ${thiefNetArmorClass}`)
             expect(outputString).toContain(`+1 Tier`)
         })
         it("Does not shows Armor bonuses against non attacks", () => {
@@ -830,9 +837,12 @@ describe("Action Result Text Writer", () => {
                         .actionEffectTemplates[0] as ActionEffectTemplate,
                 })
 
-            expect(outputString).not.toContain(
-                `Armor ${thiefDynamic.inBattleAttributes.armyAttributes.armorClass + thiefStatic.attributes.tier}`
-            )
+            const thiefNetArmorClass = SquaddieService.getArmorClass({
+                squaddieTemplate: thiefStatic,
+                battleSquaddie: thiefDynamic,
+            }).net
+
+            expect(outputString).not.toContain(`Armor ${thiefNetArmorClass}`)
             expect(outputString).not.toContain(`+1 Tier`)
         })
     })

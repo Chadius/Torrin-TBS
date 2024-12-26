@@ -19,7 +19,10 @@
   },
   "attributes": {
     "maxHitPoints": 3,
-    "armorClass": 5,
+    "armor": {
+      "proficiencyLevel": "UNTRAINED",
+      "base": -1
+    },
     "movement": {
       "movementPerAction": 2
     },

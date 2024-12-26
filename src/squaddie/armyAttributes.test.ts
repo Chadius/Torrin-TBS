@@ -1,4 +1,8 @@
-import { ArmyAttributes, ArmyAttributesService } from "./armyAttributes"
+import {
+    ArmyAttributes,
+    ArmyAttributesService,
+    ProficiencyLevel,
+} from "./armyAttributes"
 import { describe, expect, it } from "vitest"
 
 describe("sanitize", () => {
@@ -6,6 +10,7 @@ describe("sanitize", () => {
         const attributesWithMissingFields: ArmyAttributes = {
             maxHitPoints: NaN,
             armorClass: null,
+            armor: null,
             movement: undefined,
             tier: undefined,
         }
@@ -18,6 +23,9 @@ describe("sanitize", () => {
         expect(attributesWithMissingFields.armorClass).toEqual(
             defaultAttributes.armorClass
         )
+        expect(attributesWithMissingFields.armor).toEqual(
+            defaultAttributes.armor
+        )
         expect(attributesWithMissingFields.movement).toEqual(
             defaultAttributes.movement
         )
@@ -27,6 +35,7 @@ describe("sanitize", () => {
         const attributesWithNoHitPoints: ArmyAttributes = {
             maxHitPoints: 0,
             armorClass: null,
+            armor: null,
             movement: undefined,
             tier: undefined,
         }
@@ -45,6 +54,25 @@ describe("sanitize", () => {
         expect(attributes.armorClass).toEqual(
             ArmyAttributesService.default().armorClass
         )
+        expect(attributes.armor).toEqual(ArmyAttributesService.default().armor)
         expect(attributes.tier).toEqual(ArmyAttributesService.default().tier)
+    })
+    it("will create attributes with the given arguments", () => {
+        const attributes: ArmyAttributes = ArmyAttributesService.new({
+            maxHitPoints: 10,
+            armorClass: 3,
+            tier: 2,
+            armor: {
+                proficiencyLevel: ProficiencyLevel.NOVICE,
+                base: 3,
+            },
+        })
+        expect(attributes.maxHitPoints).toEqual(10)
+        expect(attributes.armorClass).toEqual(3)
+        expect(attributes.armor.proficiencyLevel).toEqual(
+            ProficiencyLevel.NOVICE
+        )
+        expect(attributes.armor.base).toEqual(3)
+        expect(attributes.tier).toEqual(2)
     })
 })

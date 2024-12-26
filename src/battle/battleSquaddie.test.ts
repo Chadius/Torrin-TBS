@@ -9,7 +9,10 @@ import {
     SquaddieTemplateService,
 } from "../campaign/squaddieTemplate"
 import { SquaddieMovementService } from "../squaddie/movement"
-import { ArmyAttributesService } from "../squaddie/armyAttributes"
+import {
+    ArmyAttributesService,
+    ProficiencyLevel,
+} from "../squaddie/armyAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("BattleSquaddie", () => {
@@ -64,6 +67,10 @@ describe("BattleSquaddie", () => {
                 attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     armorClass: 2,
+                    armor: {
+                        proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                        base: 2,
+                    },
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
@@ -86,9 +93,6 @@ describe("BattleSquaddie", () => {
         })
 
         it("will create in battle attributes based on the army attributes given", () => {
-            expect(soldierTemplate.attributes.maxHitPoints).toBe(5)
-            expect(soldierTemplate.attributes.armorClass).toBe(2)
-
             battleSoldier = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
@@ -108,9 +112,6 @@ describe("BattleSquaddie", () => {
         })
 
         it("will create in battle attributes based on the static squaddie army attributes upon creation", () => {
-            expect(soldierTemplate.attributes.maxHitPoints).toBe(5)
-            expect(soldierTemplate.attributes.armorClass).toBe(2)
-
             battleSoldier = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplate: soldierTemplate,

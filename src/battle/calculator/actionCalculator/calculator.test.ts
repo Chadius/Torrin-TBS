@@ -51,6 +51,10 @@ import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { RollModifierType } from "./rollResult"
 import { CalculatorAttack } from "./attack"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    ArmyAttributesService,
+    ProficiencyLevel,
+} from "../../../squaddie/armyAttributes"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -135,14 +139,18 @@ describe("calculator", () => {
                     actionAlwaysHitsAndDealsBodyDamage.id,
                     actionNeedsAnAttackRollToDealBodyDamage.id,
                 ],
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 1,
+                    armor: {
+                        proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                        base: -5,
+                    },
                     tier: 0,
-                },
+                }),
             }))
         ;({ battleSquaddie: enemy1BattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -155,14 +163,18 @@ describe("calculator", () => {
                     actionAlwaysHitsAndDealsBodyDamage.id,
                     actionNeedsAnAttackRollToDealBodyDamage.id,
                 ],
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 7,
+                    armor: {
+                        proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                        base: 1,
+                    },
                     tier: 0,
-                },
+                }),
             }))
         ;({ battleSquaddie: ally1BattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -171,14 +183,18 @@ describe("calculator", () => {
                 templateId: ally1StaticId,
                 name: "ally",
                 objectRepository: objectRepository,
-                attributes: {
+                attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
                     armorClass: 0,
+                    armor: {
+                        proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                        base: -6,
+                    },
                     tier: 0,
-                },
+                }),
                 actionTemplateIds: [],
             }))
     })
@@ -659,6 +675,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 1,
+            }
 
             const expectedRolls: number[] = [1, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -688,6 +708,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 1,
+            }
 
             const expectedRolls: number[] = [1, 2]
             const numberGenerator: StreamNumberGenerator =
@@ -717,6 +741,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 1,
+            }
 
             const expectedRolls: number[] = [1, 2]
             const numberGenerator: StreamNumberGenerator =
@@ -746,6 +774,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 1,
+            }
 
             const expectedRolls: number[] = [1, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -832,6 +864,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.NOVICE,
+                base: 0,
+            }
 
             const { battleSquaddie: playerTier1BattleSquaddie } =
                 SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -844,14 +880,18 @@ describe("calculator", () => {
                         actionAlwaysHitsAndDealsBodyDamage.id,
                         actionNeedsAnAttackRollToDealBodyDamage.id,
                     ],
-                    attributes: {
+                    attributes: ArmyAttributesService.new({
                         maxHitPoints: 5,
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
                         armorClass: 1,
+                        armor: {
+                            proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                            base: -5,
+                        },
                         tier: 1,
-                    },
+                    }),
                 })
 
             const expectedRolls: number[] = [1, 5]
@@ -887,6 +927,10 @@ describe("calculator", () => {
             )
             enemySquaddieTemplate.attributes.tier = 1
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.NOVICE,
+                base: 0,
+            }
             enemyBattle.inBattleAttributes.armyAttributes.tier = 1
 
             const expectedRolls: number[] = [1, 6]
@@ -934,6 +978,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: -4,
+            }
 
             const expectedRolls: number[] = [2, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -963,6 +1011,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 3,
+            }
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -992,6 +1044,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 4,
+            }
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1074,6 +1130,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 1
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: -5,
+            }
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1096,6 +1156,10 @@ describe("calculator", () => {
 
         it("will increment the number of critical hits taken by the player squaddies in the mission statistics", () => {
             player1BattleSquaddie.inBattleAttributes.armyAttributes.armorClass = 1
+            player1BattleSquaddie.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: -5,
+            }
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1126,6 +1190,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: -4,
+            }
 
             const expectedRolls: number[] = [6, 6]
             const numberGenerator: StreamNumberGenerator =
@@ -1163,6 +1231,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 4,
+            }
 
             const expectedRolls: number[] = [2, 2]
             const numberGenerator: StreamNumberGenerator =
@@ -1192,6 +1264,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 9001,
+            }
 
             const expectedRolls: number[] = [1, 1]
             const numberGenerator: StreamNumberGenerator =
@@ -1221,6 +1297,10 @@ describe("calculator", () => {
                 )
             )
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
+            enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                base: 4,
+            }
 
             const expectedRolls: number[] = [2, 2]
             const numberGenerator: StreamNumberGenerator =
