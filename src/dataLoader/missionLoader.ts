@@ -5,7 +5,7 @@ import {
 import { LoadFileIntoFormat } from "./dataLoader"
 import { HexCoordinate } from "../hexMap/hexCoordinate/hexCoordinate"
 import { TeamStrategy } from "../battle/teamStrategy/teamStrategy"
-import { PlayerArmy, PlayerArmyHelper } from "../campaign/playerArmy"
+import { PlayerArmy, PlayerArmyService } from "../campaign/playerArmy"
 import {
     SquaddieDeployment,
     SquaddieDeploymentService,
@@ -14,6 +14,10 @@ import { getValidValueOrDefault, isValidValue } from "../utils/validityCheck"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
 import { CutsceneTrigger } from "../cutscene/cutsceneTrigger"
 import { Cutscene } from "../cutscene/cutscene"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../campaign/squaddieTemplate"
 
 export interface MapPlacement {
     battleSquaddieId: string
@@ -207,10 +211,30 @@ export const LoadPlayerArmyFromFile = async (): Promise<PlayerArmy> => {
         const army: PlayerArmy = await LoadFileIntoFormat<PlayerArmy>(
             `assets/playerArmy/playerArmy.json`
         )
-        return PlayerArmyHelper.sanitize(army)
+        return PlayerArmyService.sanitize(army)
     } catch (e) {
         console.error("Error while loading player army from file")
         console.error(e)
         return undefined
     }
+}
+
+export const MissionLoaderService = {
+    loadBaseSquaddieTemplateBySquaddieTemplateId: async (
+        squaddieTemplateId: string
+    ): Promise<SquaddieTemplate> => {
+        try {
+            const template: SquaddieTemplate =
+                await LoadFileIntoFormat<SquaddieTemplate>(
+                    `assets/playerArmy/${squaddieTemplateId}/base-squaddie-template.json`
+                )
+            return SquaddieTemplateService.sanitize(template)
+        } catch (e) {
+            console.error(
+                `console.error([MissionLoaderService.loadBaseSquaddieTemplateBySquaddieTemplateId] Error while loading ${squaddieTemplateId} from file`
+            )
+            console.error(e)
+            return undefined
+        }
+    },
 }

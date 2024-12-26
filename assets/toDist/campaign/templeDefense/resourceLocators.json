@@ -6,12 +6,12 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/map-icon-young-torrin.png",
+    "path": "assets/playerArmy/young_torrin/map-icon-young-torrin.png",
     "key": "map icon young torrin"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/map-icon-sir-camil.png",
+    "path": "assets/playerArmy/sir_camil/map-icon-sir-camil.png",
     "key": "map icon sir camil"
   },
   {
@@ -96,12 +96,12 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/cutscene-portrait-young-torrin.png",
+    "path": "assets/playerArmy/young_torrin/cutscene-portrait-young-torrin.png",
     "key": "young torrin cutscene portrait"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/cutscene-portrait-sir-camil.png",
+    "path": "assets/playerArmy/sir_camil/cutscene-portrait-sir-camil.png",
     "key": "sir camil cutscene portrait"
   },
   {
@@ -171,72 +171,72 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-attack.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-attack.png",
     "key": "combat-sir-camil-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-damaged.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-damaged.png",
     "key": "combat-sir-camil-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-dead.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-dead.png",
     "key": "combat-sir-camil-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-neutral.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-neutral.png",
     "key": "combat-sir-camil-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-targeted.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-targeted.png",
     "key": "combat-sir-camil-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-assisting.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-assisting.png",
     "key": "combat-sir-camil-assisting"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/sirCamil/combat-sir-camil-thankful.png",
+    "path": "assets/playerArmy/sir_camil/combat-sir-camil-thankful.png",
     "key": "combat-sir-camil-thankful"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-attack.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-attack.png",
     "key": "combat-young-torrin-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-damaged.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-damaged.png",
     "key": "combat-young-torrin-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-dead.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-dead.png",
     "key": "combat-young-torrin-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-neutral.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-neutral.png",
     "key": "combat-young-torrin-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-targeted.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-targeted.png",
     "key": "combat-young-torrin-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-assisting.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-assisting.png",
     "key": "combat-young-torrin-assisting"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/youngTorrin/combat-young-torrin-thankful.png",
+    "path": "assets/playerArmy/young_torrin/combat-young-torrin-thankful.png",
     "key": "combat-young-torrin-thankful"
   },
   {

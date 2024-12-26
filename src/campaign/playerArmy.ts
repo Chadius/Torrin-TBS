@@ -1,20 +1,27 @@
-import { SquaddieTemplate, SquaddieTemplateService } from "./squaddieTemplate"
 import { isValidValue } from "../utils/validityCheck"
+import { SquaddieBuild, SquaddieBuildService } from "./squaddieBuild"
 
 export interface PlayerArmy {
-    squaddieTemplates: SquaddieTemplate[]
+    squaddieBuilds: SquaddieBuild[]
 }
 
-export const PlayerArmyHelper = {
+export const PlayerArmyService = {
+    new: ({
+        squaddieBuilds,
+    }: {
+        squaddieBuilds: SquaddieBuild[]
+    }): PlayerArmy => ({
+        squaddieBuilds,
+    }),
     sanitize: (data: PlayerArmy): PlayerArmy => {
         return sanitize(data)
     },
 }
 
 const sanitize = (data: PlayerArmy): PlayerArmy => {
-    data.squaddieTemplates = isValidValue(data.squaddieTemplates)
-        ? data.squaddieTemplates
+    data.squaddieBuilds = isValidValue(data.squaddieBuilds)
+        ? data.squaddieBuilds
         : []
-    data.squaddieTemplates.forEach(SquaddieTemplateService.sanitize)
+    data.squaddieBuilds.forEach(SquaddieBuildService.sanitize)
     return data
 }

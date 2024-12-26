@@ -4,6 +4,7 @@ import {
     LoadMissionFromFile,
     LoadPlayerArmyFromFile,
     MissionFileFormat,
+    MissionLoaderService,
     NpcTeamMissionDeployment,
 } from "../../dataLoader/missionLoader"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
@@ -233,17 +234,26 @@ export const MissionLoader = {
         objectRepository: ObjectRepository
     }) => {
         const playerArmyData: PlayerArmy = await LoadPlayerArmyFromFile()
-        playerArmyData.squaddieTemplates.forEach((template) => {
-            SquaddieTemplateService.sanitize(template)
+        const baseSquaddieTemplates: SquaddieTemplate[] = []
+        for (const build of playerArmyData.squaddieBuilds) {
+            baseSquaddieTemplates.push(
+                await MissionLoaderService.loadBaseSquaddieTemplateBySquaddieTemplateId(
+                    build.squaddieTemplateId
+                )
+            )
+        }
+
+        baseSquaddieTemplates.forEach((squaddieTemplate) => {
+            SquaddieTemplateService.sanitize(squaddieTemplate)
             missionLoaderContext.squaddieData.templates[
-                template.squaddieId.templateId
-            ] = template
+                squaddieTemplate.squaddieId.templateId
+            ] = squaddieTemplate
         })
 
-        playerArmyData.squaddieTemplates.forEach((template) => {
-            const resources = template.squaddieId.resources
+        baseSquaddieTemplates.forEach((squaddieTemplate) => {
+            const resources = squaddieTemplate.squaddieId.resources
             loadSquaddieTemplateResources({
-                template,
+                template: squaddieTemplate,
                 missionLoaderContext,
                 resources,
                 resourceHandler,
@@ -251,20 +261,20 @@ export const MissionLoader = {
             })
         })
 
-        playerArmyData.squaddieTemplates.forEach((template) => {
+        baseSquaddieTemplates.forEach((squaddieTemplate) => {
             const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
-                battleSquaddieId: template.squaddieId.templateId,
+                battleSquaddieId: squaddieTemplate.squaddieId.templateId,
                 inBattleAttributes: InBattleAttributesService.new({
-                    armyAttributes: template.attributes,
+                    armyAttributes: squaddieTemplate.attributes,
                 }),
-                squaddieTemplate: template,
+                squaddieTemplate,
             })
 
-            ObjectRepositoryService.addSquaddie(
-                objectRepository,
-                template,
-                battleSquaddie
-            )
+            ObjectRepositoryService.addSquaddie({
+                repo: objectRepository,
+                squaddieTemplate,
+                battleSquaddie: battleSquaddie,
+            })
         })
     },
 }
@@ -342,8 +352,10 @@ const initializeSquaddieResources = ({
                         }
                     )
 
-                repository.imageUIByBattleSquaddieId[battleSquaddieId] =
-                    new ImageUI({
+                ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                    repository,
+                    battleSquaddieId,
+                    imageUI: new ImageUI({
                         imageLoadingBehavior: {
                             resourceKey:
                                 squaddieTemplate.squaddieId.resources
@@ -359,7 +371,8 @@ const initializeSquaddieResources = ({
                             horizAlign: HORIZONTAL_ALIGN.CENTER,
                             vertAlign: VERTICAL_ALIGN.CENTER,
                         }),
-                    })
+                    }),
+                })
             }
         }
     )

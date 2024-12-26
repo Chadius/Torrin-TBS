@@ -1,8 +1,19 @@
 {
+  "squaddieBuilds": [
+    {
+      "squaddieTemplateId": "young_torrin"
+    },
+    {
+      "squaddieTemplateId": "sir_camil"
+    },
+    {
+      "squaddieTemplateId": "petra"
+    }
+  ],
   "squaddieTemplates": [
     {
       "squaddieId": {
-        "templateId": "player_young_torrin",
+        "templateId": "young_torrin",
         "name": "Torrin",
         "resources": {
           "mapIconResourceKey": "map icon young torrin",
@@ -42,7 +53,7 @@
     },
     {
       "squaddieId": {
-        "templateId": "player_sir_camil",
+        "templateId": "sir_camil",
         "name": "Sir Camil",
         "resources": {
           "mapIconResourceKey": "map icon sir camil",
@@ -80,7 +91,7 @@
     },
     {
       "squaddieId": {
-        "templateId": "player_petra",
+        "templateId": "petra",
         "name": "Petra",
         "resources": {
           "mapIconResourceKey": "map icon petra",

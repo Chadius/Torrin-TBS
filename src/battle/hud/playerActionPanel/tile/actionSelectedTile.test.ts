@@ -59,11 +59,11 @@ describe("Action Selected Tile", () => {
             squaddieTemplateId: "JoeTheSoldier",
         })
 
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            squaddieTemplate,
-            battleSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: squaddieTemplate,
+            battleSquaddie: battleSquaddie,
+        })
 
         actionTemplate = ActionTemplateService.new({
             id: "actionTemplate",

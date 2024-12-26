@@ -855,9 +855,9 @@ describe("GameEngineGameLoader", () => {
             await loader.update(gameEngineState)
             const missionMapCallsCount = 1
             const playerArmyCallsCount = 1
-            const playerArmyActionTemplatesCallsCount = 1
             const npcActionTemplatesCallsCount = 1
             const templateCallsCount =
+                Object.keys(missionData.player.deployment).length +
                 missionData.npcDeployments.enemy.templateIds.length +
                 missionData.npcDeployments.ally.templateIds.length +
                 missionData.npcDeployments.noAffiliation.templateIds.length
@@ -866,7 +866,6 @@ describe("GameEngineGameLoader", () => {
                     missionMapCallsCount +
                     templateCallsCount +
                     playerArmyCallsCount +
-                    playerArmyActionTemplatesCallsCount +
                     npcActionTemplatesCallsCount
             )
             expect(

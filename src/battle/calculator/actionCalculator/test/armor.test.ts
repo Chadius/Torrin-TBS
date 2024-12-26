@@ -99,11 +99,11 @@ describe("Armor Attribute affects Armor Attacks", () => {
             squaddieTemplate: actingTemplate,
             battleSquaddieId: "actingSquaddie",
         })
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            actingTemplate,
-            actingSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: actingTemplate,
+            battleSquaddie: actingSquaddie,
+        })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: actingTemplate.squaddieId.templateId,
@@ -125,11 +125,11 @@ describe("Armor Attribute affects Armor Attacks", () => {
             squaddieTemplate: targetTemplate,
             battleSquaddieId: "targetSquaddie",
         })
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            targetTemplate,
-            targetSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: targetTemplate,
+            battleSquaddie: targetSquaddie,
+        })
         MissionMapService.addSquaddie({
             missionMap,
             squaddieTemplateId: targetTemplate.squaddieId.templateId,

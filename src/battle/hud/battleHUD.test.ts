@@ -764,20 +764,20 @@ describe("Battle HUD", () => {
             )
         })
         it("highlights ranges for normally uncontrollable squaddies", () => {
-            ObjectRepositoryService.addSquaddie(
-                gameEngineState.repository,
-                SquaddieTemplateService.new({
+            ObjectRepositoryService.addSquaddie({
+                repo: gameEngineState.repository,
+                squaddieTemplate: SquaddieTemplateService.new({
                     squaddieId: SquaddieIdService.new({
                         templateId: "enemy",
                         name: "enemy",
                         affiliation: SquaddieAffiliation.ENEMY,
                     }),
                 }),
-                BattleSquaddieService.new({
+                battleSquaddie: BattleSquaddieService.new({
                     battleSquaddieId: "enemy",
                     squaddieTemplateId: "enemy",
-                })
-            )
+                }),
+            })
 
             MissionMapService.addSquaddie({
                 missionMap:

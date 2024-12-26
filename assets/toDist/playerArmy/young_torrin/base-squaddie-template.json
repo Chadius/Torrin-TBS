@@ -1,0 +1,40 @@
+{
+  "squaddieId": {
+    "templateId": "young_torrin",
+    "name": "Torrin",
+    "resources": {
+      "mapIconResourceKey": "map icon young torrin",
+      "actionSpritesByEmotion": {
+        "NEUTRAL": "combat-young-torrin-neutral",
+        "ATTACK": "combat-young-torrin-attack",
+        "TARGETED": "combat-young-torrin-targeted",
+        "DAMAGED": "combat-young-torrin-damaged",
+        "DEAD": "combat-young-torrin-dead",
+        "ASSISTING": "combat-young-torrin-assisting",
+        "THANKFUL": "combat-young-torrin-thankful"
+      }
+    },
+    "traits": {
+      "booleanTraits": {
+        "HUMANOID": true,
+        "MONSU": true
+      }
+    },
+    "affiliation": "PLAYER"
+  },
+  "attributes": {
+    "maxHitPoints": 3,
+    "armorClass": 6,
+    "movement": {
+      "movementPerAction": 2,
+      "passThroughWalls": false,
+      "crossOverPits": false
+    },
+    "tier": 1
+  },
+  "actionTemplateIds": [
+    "torrin_water_cannon",
+    "young_torrin_healing_touch",
+    "young_torrin_torrent_surge"
+  ]
+}

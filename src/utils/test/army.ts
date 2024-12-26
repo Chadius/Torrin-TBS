@@ -1,4 +1,4 @@
-import { PlayerArmy } from "../../campaign/playerArmy"
+import { PlayerArmy, PlayerArmyService } from "../../campaign/playerArmy"
 import { SquaddieEmotion } from "../../battle/animation/actionAnimation/actionAnimationConstants"
 import {
     Trait,
@@ -12,93 +12,26 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
-import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
+import {
+    SquaddieTemplate,
+    SquaddieTemplateService,
+} from "../../campaign/squaddieTemplate"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
+import { SquaddieBuildService } from "../../campaign/squaddieBuild"
 
-export const TestArmyPlayerData = () => {
-    const playerArmy: PlayerArmy = {
-        squaddieTemplates: [
-            SquaddieTemplateService.new({
-                squaddieId: {
-                    templateId: "player_young_torrin",
-                    name: "Torrin",
-                    resources: {
-                        mapIconResourceKey: "map icon young torrin",
-                        actionSpritesByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]:
-                                "combat-young-torrin-neutral",
-                            [SquaddieEmotion.ATTACK]:
-                                "combat-young-torrin-attack",
-                            [SquaddieEmotion.TARGETED]:
-                                "combat-young-torrin-targeted",
-                            [SquaddieEmotion.DAMAGED]:
-                                "combat-young-torrin-damaged",
-                            [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
-                            [SquaddieEmotion.ASSISTING]:
-                                "combat-young-torrin-assisting",
-                            [SquaddieEmotion.THANKFUL]:
-                                "combat-young-torrin-thankful",
-                        },
-                    },
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.HUMANOID]: true,
-                        [Trait.MONSU]: true,
-                    }),
-                    affiliation: SquaddieAffiliation.PLAYER,
-                },
-                attributes: ArmyAttributesService.new({
-                    maxHitPoints: 3,
-                    armorClass: 6,
-                    movement: SquaddieMovementService.new({
-                        movementPerAction: 2,
-                        traits: TraitStatusStorageService.newUsingTraitValues(),
-                    }),
-                }),
-                actionTemplateIds: [
-                    "torrin_water_cannon",
-                    "young_torrin_healing_touch",
-                ],
+export const TestPlayerArmyData = () => {
+    const playerArmy: PlayerArmy = PlayerArmyService.new({
+        squaddieBuilds: [
+            SquaddieBuildService.new({
+                squaddieTemplateId: "young_torrin",
             }),
-            SquaddieTemplateService.new({
-                attributes: ArmyAttributesService.new({
-                    maxHitPoints: 5,
-                    armorClass: 8,
-                    movement: SquaddieMovementService.new({
-                        movementPerAction: 2,
-                        traits: TraitStatusStorageService.newUsingTraitValues(),
-                    }),
-                }),
-                squaddieId: {
-                    templateId: "player_sir_camil",
-                    name: "Sir Camil",
-                    resources: {
-                        mapIconResourceKey: "map icon sir camil",
-                        actionSpritesByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]:
-                                "combat-sir-camil-neutral",
-                            [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
-                            [SquaddieEmotion.TARGETED]:
-                                "combat-sir-camil-targeted",
-                            [SquaddieEmotion.DAMAGED]:
-                                "combat-sir-camil-damaged",
-                            [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
-                            [SquaddieEmotion.ASSISTING]:
-                                "combat-sir-camil-assisting",
-                            [SquaddieEmotion.THANKFUL]:
-                                "combat-sir-camil-thankful",
-                        },
-                    },
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.HUMANOID]: true,
-                    }),
-                    affiliation: SquaddieAffiliation.PLAYER,
-                },
-                actionTemplateIds: ["sir_camil_longsword"],
+            SquaddieBuildService.new({
+                squaddieTemplateId: "sir_camil",
             }),
         ],
-    }
+    })
     const playerActionTemplates: ActionTemplate[] = [
         ActionTemplateService.new({
             id: "torrin_water_cannon",
@@ -173,9 +106,84 @@ export const TestArmyPlayerData = () => {
             buttonIconResourceKey: "decision-button-sword",
         }),
     ]
+    const baseSquaddieTemplatesById: { [k: string]: SquaddieTemplate } = {
+        young_torrin: SquaddieTemplateService.new({
+            squaddieId: {
+                templateId: "young_torrin",
+                name: "Torrin",
+                resources: {
+                    mapIconResourceKey: "map icon young torrin",
+                    actionSpritesByEmotion: {
+                        [SquaddieEmotion.NEUTRAL]:
+                            "combat-young-torrin-neutral",
+                        [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
+                        [SquaddieEmotion.TARGETED]:
+                            "combat-young-torrin-targeted",
+                        [SquaddieEmotion.DAMAGED]:
+                            "combat-young-torrin-damaged",
+                        [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
+                        [SquaddieEmotion.ASSISTING]:
+                            "combat-young-torrin-assisting",
+                        [SquaddieEmotion.THANKFUL]:
+                            "combat-young-torrin-thankful",
+                    },
+                },
+                traits: TraitStatusStorageService.newUsingTraitValues({
+                    [Trait.HUMANOID]: true,
+                    [Trait.MONSU]: true,
+                }),
+                affiliation: SquaddieAffiliation.PLAYER,
+            },
+            attributes: ArmyAttributesService.new({
+                maxHitPoints: 3,
+                armorClass: 6,
+                movement: SquaddieMovementService.new({
+                    movementPerAction: 2,
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
+                }),
+            }),
+            actionTemplateIds: [
+                "torrin_water_cannon",
+                "young_torrin_healing_touch",
+            ],
+        }),
+        sir_camil: SquaddieTemplateService.new({
+            attributes: ArmyAttributesService.new({
+                maxHitPoints: 5,
+                armorClass: 8,
+                movement: SquaddieMovementService.new({
+                    movementPerAction: 2,
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
+                }),
+            }),
+            squaddieId: {
+                templateId: "sir_camil",
+                name: "Sir Camil",
+                resources: {
+                    mapIconResourceKey: "map icon sir camil",
+                    actionSpritesByEmotion: {
+                        [SquaddieEmotion.NEUTRAL]: "combat-sir-camil-neutral",
+                        [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
+                        [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
+                        [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
+                        [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
+                        [SquaddieEmotion.ASSISTING]:
+                            "combat-sir-camil-assisting",
+                        [SquaddieEmotion.THANKFUL]: "combat-sir-camil-thankful",
+                    },
+                },
+                traits: TraitStatusStorageService.newUsingTraitValues({
+                    [Trait.HUMANOID]: true,
+                }),
+                affiliation: SquaddieAffiliation.PLAYER,
+            },
+            actionTemplateIds: ["sir_camil_longsword"],
+        }),
+    }
 
     return {
         playerArmy,
         playerActionTemplates,
+        baseSquaddieTemplatesById,
     }
 }

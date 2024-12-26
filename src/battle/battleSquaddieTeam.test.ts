@@ -48,7 +48,7 @@ describe("Battle Squaddie Team", () => {
         }
         playerSquaddieTemplateBase = SquaddieTemplateService.new({
             squaddieId: {
-                templateId: "player_young_torrin",
+                templateId: "young_torrin",
                 name: "Torrin",
                 resources: {
                     mapIconResourceKey: "",
@@ -66,8 +66,8 @@ describe("Battle Squaddie Team", () => {
         )
 
         playerBattleSquaddie0 = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "player_young_torrin_0",
-            squaddieTemplateId: "player_young_torrin",
+            battleSquaddieId: "young_torrin_0",
+            squaddieTemplateId: "young_torrin",
             squaddieTurn: { remainingActionPoints: 3 },
         })
 
@@ -77,8 +77,8 @@ describe("Battle Squaddie Team", () => {
         )
 
         playerBattleSquaddie1 = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "player_young_torrin_1",
-            squaddieTemplateId: "player_young_torrin",
+            battleSquaddieId: "young_torrin_1",
+            squaddieTemplateId: "young_torrin",
             squaddieTurn: { remainingActionPoints: 3 },
         })
         ObjectRepositoryService.addBattleSquaddie(
@@ -86,8 +86,8 @@ describe("Battle Squaddie Team", () => {
             playerBattleSquaddie1
         )
         BattleSquaddieTeamService.addBattleSquaddieIds(twoPlayerTeam, [
-            "player_young_torrin_0",
-            "player_young_torrin_1",
+            "young_torrin_0",
+            "young_torrin_1",
         ])
 
         twoEnemyTeam = {
@@ -204,7 +204,7 @@ describe("Battle Squaddie Team", () => {
                 twoPlayerTeam,
                 squaddieRepository
             )
-        ).toStrictEqual(["player_young_torrin_0", "player_young_torrin_1"])
+        ).toStrictEqual(["young_torrin_0", "young_torrin_1"])
         BattleSquaddieService.endTurn(playerBattleSquaddie0)
 
         expect(
@@ -212,7 +212,7 @@ describe("Battle Squaddie Team", () => {
                 twoPlayerTeam,
                 squaddieRepository
             )
-        ).toStrictEqual(["player_young_torrin_1"])
+        ).toStrictEqual(["young_torrin_1"])
     })
     it("can get a squaddie who can act this round but is not controlled by the player", () => {
         expect(

@@ -45,7 +45,7 @@ describe("Object Repository", () => {
                 }),
             }),
             squaddieId: {
-                templateId: "player_young_torrin",
+                templateId: "young_torrin",
                 name: "Torrin",
                 resources: {
                     mapIconResourceKey: "",
@@ -56,8 +56,8 @@ describe("Object Repository", () => {
             },
         })
         battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "player_young_torrin_0",
-            squaddieTemplateId: "player_young_torrin",
+            battleSquaddieId: "young_torrin_0",
+            squaddieTemplateId: "young_torrin",
             squaddieTurn: { remainingActionPoints: 3 },
         })
 
@@ -76,7 +76,7 @@ describe("Object Repository", () => {
         expect(
             ObjectRepositoryService.hasSquaddieByBattleId(
                 objectRepository,
-                "player_young_torrin_0"
+                "young_torrin_0"
             )
         ).toBeTruthy()
         expect(
@@ -89,7 +89,7 @@ describe("Object Repository", () => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
-                "player_young_torrin_0"
+                "young_torrin_0"
             )
         )
 
@@ -111,7 +111,7 @@ describe("Object Repository", () => {
         expect(() => {
             shouldThrowError()
         }).toThrow(
-            "cannot addSquaddieTemplate 'player_young_torrin', is already added"
+            "cannot addSquaddieTemplate 'young_torrin', is already added"
         )
     })
 
@@ -156,7 +156,7 @@ describe("Object Repository", () => {
         expect(() => {
             shouldThrowError()
         }).toThrow(
-            "cannot addBattleSquaddie 'player_young_torrin_0', again, it already exists"
+            "cannot addBattleSquaddie 'young_torrin_0', again, it already exists"
         )
     })
 
@@ -183,14 +183,14 @@ describe("Object Repository", () => {
     it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
         const resultOrError = ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            "player_young_torrin_0"
+            "young_torrin_0"
         )
 
         expect(isError(resultOrError)).toBeTruthy()
 
         const expectedError = unwrapResultOrError(resultOrError)
         expect((expectedError as Error).message).toBe(
-            "cannot getBattleSquaddieByID for 'player_young_torrin_0', does not exist"
+            "cannot getBattleSquaddieByID for 'young_torrin_0', does not exist"
         )
     })
 
@@ -229,7 +229,7 @@ describe("Object Repository", () => {
             ObjectRepositoryService.getBattleSquaddieIterator(objectRepository)
         expect(entities).toStrictEqual([
             {
-                battleSquaddieId: "player_young_torrin_0",
+                battleSquaddieId: "young_torrin_0",
                 battleSquaddie: battleSquaddieBase,
             },
         ])
@@ -261,7 +261,7 @@ describe("Object Repository", () => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
-                "player_young_torrin_0"
+                "young_torrin_0"
             )
         )
 

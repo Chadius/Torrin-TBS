@@ -1,0 +1,38 @@
+{
+  "squaddieId": {
+    "templateId": "sir_camil",
+    "name": "Sir Camil",
+    "resources": {
+      "mapIconResourceKey": "map icon sir camil",
+      "actionSpritesByEmotion": {
+        "NEUTRAL": "combat-sir-camil-neutral",
+        "ATTACK": "combat-sir-camil-attack",
+        "TARGETED": "combat-sir-camil-targeted",
+        "DAMAGED": "combat-sir-camil-damaged",
+        "DEAD": "combat-sir-camil-dead",
+        "ASSISTING": "combat-sir-camil-assisting",
+        "THANKFUL": "combat-sir-camil-thankful"
+      }
+    },
+    "traits": {
+      "booleanTraits": {
+        "HUMANOID": true
+      }
+    },
+    "affiliation": "PLAYER"
+  },
+  "attributes": {
+    "maxHitPoints": 5,
+    "armorClass": 8,
+    "movement": {
+      "movementPerAction": 2,
+      "passThroughWalls": false,
+      "crossOverPits": false
+    },
+    "tier": 1
+  },
+  "actionTemplateIds": [
+    "sir_camil_longsword",
+    "sir_camil_raise_shield"
+  ]
+}

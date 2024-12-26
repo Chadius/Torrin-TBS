@@ -457,16 +457,15 @@ describe("Mission Loader", () => {
         })
 
         it("gets player squaddie templates", () => {
-            expect(
-                missionLoaderContext.squaddieData.templates[
-                    playerArmy.squaddieTemplates[0].squaddieId.templateId
-                ]
-            ).toEqual(playerArmy.squaddieTemplates[0])
-            expect(
-                missionLoaderContext.squaddieData.templates[
-                    playerArmy.squaddieTemplates[1].squaddieId.templateId
-                ]
-            ).toEqual(playerArmy.squaddieTemplates[1])
+            const missionLoaderContextSquaddieTemplateIds: string[] =
+                Object.keys(missionLoaderContext.squaddieData.templates)
+            const playerArmySquaddieTemplateIds: string[] =
+                playerArmy.squaddieBuilds.map(
+                    (build) => build.squaddieTemplateId
+                )
+            expect(missionLoaderContextSquaddieTemplateIds).toEqual(
+                expect.arrayContaining(playerArmySquaddieTemplateIds)
+            )
         })
 
         it("adds resource keys to the list of resources to load", () => {
@@ -474,48 +473,36 @@ describe("Mission Loader", () => {
                 missionLoaderContext.resourcesPendingLoading.length
             ).toBeGreaterThan(initialPendingResourceListLength)
 
-            const player0ResourceKeys = SquaddieTemplateService.getResourceKeys(
-                playerArmy.squaddieTemplates[0],
-                objectRepository
-            )
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(player0ResourceKeys)
-            )
-            expect(resourceHandler.loadResources).toBeCalledWith(
-                player0ResourceKeys
-            )
-
-            const player1ResourceKeys = SquaddieTemplateService.getResourceKeys(
-                playerArmy.squaddieTemplates[1],
-                objectRepository
-            )
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(player1ResourceKeys)
-            )
-            expect(resourceHandler.loadResources).toBeCalledWith(
-                player1ResourceKeys
-            )
+            const missionLoaderContextSquaddieTemplates: SquaddieTemplate[] =
+                Object.values(missionLoaderContext.squaddieData.templates)
+            missionLoaderContextSquaddieTemplates.forEach((template) => {
+                const playerResourceKeys =
+                    SquaddieTemplateService.getResourceKeys(
+                        template,
+                        objectRepository
+                    )
+                expect(missionLoaderContext.resourcesPendingLoading).toEqual(
+                    expect.arrayContaining(playerResourceKeys)
+                )
+                expect(resourceHandler.loadResources).toBeCalledWith(
+                    playerResourceKeys
+                )
+            })
         })
 
         it("adds player squaddies to the repository", () => {
-            expect(
-                ObjectRepositoryService.getSquaddieTemplateIterator(
-                    objectRepository
-                ).some(
-                    (template) =>
-                        template.squaddieTemplateId ===
-                        playerArmy.squaddieTemplates[0].squaddieId.templateId
-                )
-            ).toBeTruthy()
-            expect(
-                ObjectRepositoryService.getSquaddieTemplateIterator(
-                    objectRepository
-                ).some(
-                    (template) =>
-                        template.squaddieTemplateId ===
-                        playerArmy.squaddieTemplates[1].squaddieId.templateId
-                )
-            ).toBeTruthy()
+            const missionLoaderContextSquaddieTemplateIds: string[] =
+                Object.keys(missionLoaderContext.squaddieData.templates)
+
+            missionLoaderContextSquaddieTemplateIds.forEach((templateId) =>
+                expect(
+                    ObjectRepositoryService.getSquaddieTemplateIterator(
+                        objectRepository
+                    ).some(
+                        (template) => template.squaddieTemplateId === templateId
+                    )
+                ).toBeTruthy()
+            )
         })
 
         it("adds player deployment positions to the map", () => {

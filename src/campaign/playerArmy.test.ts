@@ -1,45 +1,25 @@
-import { PlayerArmy, PlayerArmyHelper } from "./playerArmy"
-import { SquaddieTemplateService } from "./squaddieTemplate"
-import { SquaddieIdService } from "../squaddie/id"
-import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
+import { PlayerArmy, PlayerArmyService } from "./playerArmy"
 import { describe, expect, it, vi } from "vitest"
+import { SquaddieBuildService } from "./squaddieBuild"
 
 describe("Player Army", () => {
     describe("sanitization", () => {
-        it("creates empty player templates if it is missing", () => {
-            const army: PlayerArmy = {
-                squaddieTemplates: undefined,
-            }
-            PlayerArmyHelper.sanitize(army)
-            expect(army.squaddieTemplates).toHaveLength(0)
-        })
-        it("sanitizes each squaddie template", () => {
-            const armyOfTwo: PlayerArmy = {
-                squaddieTemplates: [
-                    SquaddieTemplateService.new({
-                        squaddieId: SquaddieIdService.new({
-                            templateId: "squaddie 1",
-                            name: "Number 1",
-                            affiliation: SquaddieAffiliation.PLAYER,
-                        }),
+        it("sanitizes each squaddie build", () => {
+            const armyOfTwo: PlayerArmy = PlayerArmyService.new({
+                squaddieBuilds: [
+                    SquaddieBuildService.new({
+                        squaddieTemplateId: "squaddie 1",
                     }),
-                    SquaddieTemplateService.new({
-                        squaddieId: SquaddieIdService.new({
-                            templateId: "squaddie 2",
-                            name: "Number 2",
-                            affiliation: SquaddieAffiliation.PLAYER,
-                        }),
+                    SquaddieBuildService.new({
+                        squaddieTemplateId: "squaddie 2",
                     }),
                 ],
-            }
-            const squaddieTemplateSanitizer = vi.spyOn(
-                SquaddieTemplateService,
-                "sanitize"
-            )
+            })
+            const sanitizer = vi.spyOn(SquaddieBuildService, "sanitize")
 
-            PlayerArmyHelper.sanitize(armyOfTwo)
+            PlayerArmyService.sanitize(armyOfTwo)
 
-            expect(squaddieTemplateSanitizer).toBeCalledTimes(2)
+            expect(sanitizer).toBeCalledTimes(2)
         })
     })
 })

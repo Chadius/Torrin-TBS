@@ -132,11 +132,11 @@ const createNewSquaddieAndAddToRepository: (params: {
             battleSquaddie
         )
     } else {
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            squaddieTemplate,
-            battleSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: squaddieTemplate,
+            battleSquaddie: battleSquaddie,
+        })
     }
 
     return {

@@ -22,9 +22,9 @@ describe("validity checker", () => {
                 name: "actionTemplate",
             })
         )
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            SquaddieTemplateService.new({
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     templateId: "squaddieTemplate",
                     name: "squaddieTemplate",
@@ -32,11 +32,11 @@ describe("validity checker", () => {
                 }),
                 actionTemplateIds: ["actionTemplate"],
             }),
-            BattleSquaddieService.new({
+            battleSquaddie: BattleSquaddieService.new({
                 squaddieTemplateId: "squaddieTemplate",
                 battleSquaddieId: "battleSquaddieId",
-            })
-        )
+            }),
+        })
         return {
             objectRepository,
             battleSquaddieId: "battleSquaddieId",

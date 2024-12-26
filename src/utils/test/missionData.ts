@@ -85,13 +85,13 @@ export const TestMissionData = () => {
                 optional: [],
                 required: [
                     {
-                        squaddieTemplateId: "player_sir_camil",
-                        battleSquaddieId: "player_sir_camil",
+                        squaddieTemplateId: "sir_camil",
+                        battleSquaddieId: "sir_camil",
                         coordinate: { q: 1, r: 1 },
                     },
                     {
-                        squaddieTemplateId: "player_young_torrin",
-                        battleSquaddieId: "player_young_torrin",
+                        squaddieTemplateId: "young_torrin",
+                        battleSquaddieId: "young_torrin",
                         coordinate: { q: 1, r: 0 },
                     },
                 ],

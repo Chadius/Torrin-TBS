@@ -1,7 +1,7 @@
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { TestMissionData } from "../test/missionData"
-import { TestArmyPlayerData } from "../test/army"
+import { TestPlayerArmyData } from "../test/army"
 import { TestCampaignData } from "../test/campaignData"
 import * as DataLoader from "../../dataLoader/dataLoader"
 import { MissionFileFormat } from "../../dataLoader/missionLoader"
@@ -20,6 +20,7 @@ export const LoadCampaignData = {
         let playerActionTemplates: ActionTemplate[]
         let playerArmy: PlayerArmy
         let campaignFileData: CampaignFileFormat
+        let baseSquaddieTemplatesById: { [id: string]: SquaddieTemplate }
         ;({
             missionData,
             enemyDemonSlitherTemplate,
@@ -28,7 +29,8 @@ export const LoadCampaignData = {
             noAffiliationLivingFlameTemplate,
             npcActionTemplates,
         } = TestMissionData())
-        ;({ playerArmy, playerActionTemplates } = TestArmyPlayerData())
+        ;({ playerArmy, playerActionTemplates, baseSquaddieTemplatesById } =
+            TestPlayerArmyData())
         ;({ campaignFile: campaignFileData } = TestCampaignData())
 
         let loadFileIntoFormatSpy = vi
@@ -48,6 +50,20 @@ export const LoadCampaignData = {
                         `assets/campaign/${campaignFileData.id}/missions/0000.json`
                     ) {
                         return missionData
+                    }
+
+                    if (
+                        filename ===
+                        "assets/playerArmy/young_torrin/base-squaddie-template.json"
+                    ) {
+                        return baseSquaddieTemplatesById["young_torrin"]
+                    }
+
+                    if (
+                        filename ===
+                        "assets/playerArmy/sir_camil/base-squaddie-template.json"
+                    ) {
+                        return baseSquaddieTemplatesById["sir_camil"]
                     }
 
                     if (
@@ -111,6 +127,7 @@ export const LoadCampaignData = {
             allyGuardTemplate,
             noAffiliationLivingFlameTemplate,
             npcActionTemplates,
+            baseSquaddieTemplatesById,
         }
     },
 }

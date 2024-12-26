@@ -60,11 +60,11 @@ describe("Squaddie Name and Portrait Tile", () => {
             squaddieTemplateId: "JoeTheSoldier",
         })
 
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            squaddieTemplate,
-            battleSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: squaddieTemplate,
+            battleSquaddie: battleSquaddie,
+        })
 
         const tile: SquaddieNameAndPortraitTile =
             SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
@@ -94,11 +94,11 @@ describe("Squaddie Name and Portrait Tile", () => {
             squaddieTemplateId: "GenericEnemy",
         })
 
-        ObjectRepositoryService.addSquaddie(
-            objectRepository,
-            squaddieTemplate,
-            battleSquaddie
-        )
+        ObjectRepositoryService.addSquaddie({
+            repo: objectRepository,
+            squaddieTemplate: squaddieTemplate,
+            battleSquaddie: battleSquaddie,
+        })
 
         const enemyTeam: BattleSquaddieTeam = BattleSquaddieTeamService.new({
             id: "the bad guys",
@@ -362,11 +362,11 @@ const createSquaddieOfGivenAffiliation = ({
         squaddieTemplateId: "JoeTheSoldier",
     })
 
-    ObjectRepositoryService.addSquaddie(
-        objectRepository,
-        squaddieTemplate,
-        battleSquaddie
-    )
+    ObjectRepositoryService.addSquaddie({
+        repo: objectRepository,
+        squaddieTemplate: squaddieTemplate,
+        battleSquaddie: battleSquaddie,
+    })
 
     tile = SquaddieNameAndPortraitTileService.newFromBattleSquaddieId({
         objectRepository,

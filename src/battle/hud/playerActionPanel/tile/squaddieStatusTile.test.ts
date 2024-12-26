@@ -756,11 +756,11 @@ const createSquaddieOfGivenAffiliation = ({
         squaddieTemplateId: "JoeTheSoldier",
     })
 
-    ObjectRepositoryService.addSquaddie(
-        objectRepository,
-        squaddieTemplate,
-        battleSquaddie
-    )
+    ObjectRepositoryService.addSquaddie({
+        repo: objectRepository,
+        squaddieTemplate: squaddieTemplate,
+        battleSquaddie: battleSquaddie,
+    })
 
     const tile = SquaddieStatusTileService.new({
         objectRepository,

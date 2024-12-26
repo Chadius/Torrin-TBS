@@ -15,7 +15,7 @@
         "dev": "npm run copy-assets && BROWSER='firefox' CAMPAIGN_ID='sandbox' npx vite dev",
         "build": "npm run copy-assets && npx vite build",
         "preview": "npm run copy-assets && BROWSER='firefox' CAMPAIGN_ID='sandbox' npx vite preview",
-        "copy-assets": "mkdir -p public/assets && rsync --recursive assets/toDist/* public/assets",
+        "copy-assets": "rm -rf public/assets && mkdir -p public/assets && rsync --recursive assets/toDist/* public/assets",
         "test": "vitest run",
         "test-watch": "vitest"
     },

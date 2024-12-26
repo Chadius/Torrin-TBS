@@ -54,11 +54,15 @@ export const ObjectRepositoryService = {
     ) => {
         addBattleSquaddie(repo, battleSquaddie)
     },
-    addSquaddie: (
-        repo: ObjectRepository,
-        squaddieTemplate: SquaddieTemplate,
+    addSquaddie: ({
+        repo,
+        squaddieTemplate,
+        battleSquaddie,
+    }: {
+        repo: ObjectRepository
+        squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
-    ) => {
+    }) => {
         addSquaddieTemplate(repo, squaddieTemplate)
         addBattleSquaddie(repo, battleSquaddie)
     },

@@ -59,16 +59,16 @@
       "optional": [],
       "required": [
         {
-          "squaddieTemplateId": "player_sir_camil",
-          "battleSquaddieId": "player_sir_camil",
+          "squaddieTemplateId": "sir_camil",
+          "battleSquaddieId": "sir_camil",
           "coordinate": {
             "q": 1,
             "r": 1
           }
         },
         {
-          "squaddieTemplateId": "player_young_torrin",
-          "battleSquaddieId": "player_young_torrin",
+          "squaddieTemplateId": "young_torrin",
+          "battleSquaddieId": "young_torrin",
           "coordinate": {
             "q": 1,
             "r": 0
@@ -364,13 +364,13 @@
         "triggeringEvent": "SQUADDIE_IS_INJURED",
         "systemReactedToTrigger": false,
         "cutsceneId": "torrin_is_injured",
-        "battleSquaddieIdsToCheckForInjury": ["player_young_torrin"]
+        "battleSquaddieIdsToCheckForInjury": ["young_torrin"]
       },
       {
         "triggeringEvent": "SQUADDIE_IS_INJURED",
         "systemReactedToTrigger": false,
         "cutsceneId": "sir_camil_is_injured",
-        "battleSquaddieIdsToCheckForInjury": ["player_sir_camil"]
+        "battleSquaddieIdsToCheckForInjury": ["sir_camil"]
       }
     ],
     "cutsceneById": {
