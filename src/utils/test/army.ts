@@ -136,7 +136,6 @@ export const TestPlayerArmyData = () => {
             },
             attributes: ArmyAttributesService.new({
                 maxHitPoints: 3,
-                armorClass: 6,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues(),
@@ -150,7 +149,6 @@ export const TestPlayerArmyData = () => {
         sir_camil: SquaddieTemplateService.new({
             attributes: ArmyAttributesService.new({
                 maxHitPoints: 5,
-                armorClass: 8,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: TraitStatusStorageService.newUsingTraitValues(),

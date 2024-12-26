@@ -178,7 +178,6 @@ describe("BattleSquaddieTarget", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
             }))
         MissionMapService.addSquaddie({

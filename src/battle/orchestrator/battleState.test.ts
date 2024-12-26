@@ -490,7 +490,6 @@ describe("Battle State", () => {
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
-                        armorClass: 0,
                     }),
                     battleId: "battleSquaddieId",
                     name: "actor",
@@ -729,7 +728,6 @@ describe("Battle State", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
                 battleId: "battleSquaddieId",
                 name: "actor",

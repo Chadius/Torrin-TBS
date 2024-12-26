@@ -64,7 +64,6 @@ describe("Target Sprite", () => {
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
-                armorClass: 0,
             }),
             battleId: battleSquaddieId,
             name: "Target",

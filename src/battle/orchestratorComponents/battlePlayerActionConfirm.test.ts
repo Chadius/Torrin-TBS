@@ -140,7 +140,6 @@ describe("BattleActionConfirm", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                     tier: 0,
                 }),
             }))

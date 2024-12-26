@@ -617,7 +617,6 @@ export const TestMissionData = () => {
             },
             attributes: ArmyAttributesService.new({
                 maxHitPoints: 3,
-                armorClass: 5,
                 movement: {
                     movementPerAction: 2,
                     passThroughWalls: false,
@@ -658,7 +657,6 @@ export const TestMissionData = () => {
         },
         attributes: ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 5,
             movement: {
                 movementPerAction: 2,
                 passThroughWalls: false,
@@ -691,7 +689,6 @@ export const TestMissionData = () => {
             },
             attributes: ArmyAttributesService.new({
                 maxHitPoints: 3,
-                armorClass: 5,
                 movement: {
                     movementPerAction: 2,
                     passThroughWalls: false,

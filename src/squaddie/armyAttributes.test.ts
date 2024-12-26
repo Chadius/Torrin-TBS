@@ -9,7 +9,6 @@ describe("sanitize", () => {
     it("can be sanitized to fill in missing fields", () => {
         const attributesWithMissingFields: ArmyAttributes = {
             maxHitPoints: NaN,
-            armorClass: null,
             armor: null,
             movement: undefined,
             tier: undefined,
@@ -19,9 +18,6 @@ describe("sanitize", () => {
 
         expect(attributesWithMissingFields.maxHitPoints).toEqual(
             defaultAttributes.maxHitPoints
-        )
-        expect(attributesWithMissingFields.armorClass).toEqual(
-            defaultAttributes.armorClass
         )
         expect(attributesWithMissingFields.armor).toEqual(
             defaultAttributes.armor
@@ -34,7 +30,6 @@ describe("sanitize", () => {
     it("will sanitize and give default maximum hit points if maxHitPoints is non positive", () => {
         const attributesWithNoHitPoints: ArmyAttributes = {
             maxHitPoints: 0,
-            armorClass: null,
             armor: null,
             movement: undefined,
             tier: undefined,
@@ -51,16 +46,12 @@ describe("sanitize", () => {
         expect(attributes.maxHitPoints).toEqual(
             ArmyAttributesService.default().maxHitPoints
         )
-        expect(attributes.armorClass).toEqual(
-            ArmyAttributesService.default().armorClass
-        )
         expect(attributes.armor).toEqual(ArmyAttributesService.default().armor)
         expect(attributes.tier).toEqual(ArmyAttributesService.default().tier)
     })
     it("will create attributes with the given arguments", () => {
         const attributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 10,
-            armorClass: 3,
             tier: 2,
             armor: {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
@@ -68,7 +59,6 @@ describe("sanitize", () => {
             },
         })
         expect(attributes.maxHitPoints).toEqual(10)
-        expect(attributes.armorClass).toEqual(3)
         expect(attributes.armor.proficiencyLevel).toEqual(
             ProficiencyLevel.NOVICE
         )

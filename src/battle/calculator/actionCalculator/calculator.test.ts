@@ -144,7 +144,6 @@ describe("calculator", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 1,
                     armor: {
                         proficiencyLevel: ProficiencyLevel.UNTRAINED,
                         base: -5,
@@ -168,7 +167,6 @@ describe("calculator", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 7,
                     armor: {
                         proficiencyLevel: ProficiencyLevel.UNTRAINED,
                         base: 1,
@@ -188,7 +186,6 @@ describe("calculator", () => {
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                     armor: {
                         proficiencyLevel: ProficiencyLevel.UNTRAINED,
                         base: -6,
@@ -674,7 +671,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -707,7 +703,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -740,7 +735,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -773,7 +767,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 1,
@@ -863,7 +856,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
                 base: 0,
@@ -885,7 +877,6 @@ describe("calculator", () => {
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
-                        armorClass: 1,
                         armor: {
                             proficiencyLevel: ProficiencyLevel.UNTRAINED,
                             base: -5,
@@ -926,7 +917,6 @@ describe("calculator", () => {
                 )
             )
             enemySquaddieTemplate.attributes.tier = 1
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
                 base: 0,
@@ -977,7 +967,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -4,
@@ -1010,7 +999,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 3,
@@ -1043,7 +1031,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,
@@ -1129,7 +1116,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 1
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -5,
@@ -1155,7 +1141,6 @@ describe("calculator", () => {
         })
 
         it("will increment the number of critical hits taken by the player squaddies in the mission statistics", () => {
-            player1BattleSquaddie.inBattleAttributes.armyAttributes.armorClass = 1
             player1BattleSquaddie.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -5,
@@ -1189,7 +1174,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: -4,
@@ -1230,7 +1214,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,
@@ -1263,7 +1246,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 9001,
@@ -1296,7 +1278,6 @@ describe("calculator", () => {
                     enemy1DynamicId
                 )
             )
-            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10
             enemyBattle.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 base: 4,

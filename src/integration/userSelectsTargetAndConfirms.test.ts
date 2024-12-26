@@ -329,7 +329,6 @@ describe("User Selects Target and Confirms", () => {
                         healingReceived: 0,
                         attributesAfter: InBattleAttributesService.new({
                             armyAttributes: ArmyAttributesService.new({
-                                armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
                                     crossOverPits: false,
@@ -343,7 +342,6 @@ describe("User Selects Target and Confirms", () => {
                         }),
                         attributesBefore: InBattleAttributesService.new({
                             armyAttributes: ArmyAttributesService.new({
-                                armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
                                     crossOverPits: false,
@@ -409,7 +407,6 @@ describe("User Selects Target and Confirms", () => {
                         healingReceived: 0,
                         attributesAfter: InBattleAttributesService.new({
                             armyAttributes: ArmyAttributesService.new({
-                                armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
                                     crossOverPits: false,
@@ -423,7 +420,6 @@ describe("User Selects Target and Confirms", () => {
                         }),
                         attributesBefore: InBattleAttributesService.new({
                             armyAttributes: ArmyAttributesService.new({
-                                armorClass: 0,
                                 maxHitPoints: 5,
                                 movement: {
                                     crossOverPits: false,

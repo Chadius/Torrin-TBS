@@ -19,7 +19,6 @@ export const BonusByProficiencyLevel: { [l in ProficiencyLevel]: number } = {
 
 export interface ArmyAttributes {
     maxHitPoints: number
-    armorClass: number
     armor: {
         proficiencyLevel: ProficiencyLevel
         base: number
@@ -31,13 +30,11 @@ export interface ArmyAttributes {
 export const ArmyAttributesService = {
     new: ({
         maxHitPoints,
-        armorClass,
         movement,
         tier,
         armor,
     }: {
         maxHitPoints?: number
-        armorClass?: number
         movement?: SquaddieMovement
         tier?: number
         armor?: {
@@ -49,7 +46,6 @@ export const ArmyAttributesService = {
             ...DefaultArmyAttributes(),
             movement,
             maxHitPoints,
-            armorClass,
             armor,
             tier,
         }
@@ -66,7 +62,6 @@ export const ArmyAttributesService = {
 export const DefaultArmyAttributes = (): ArmyAttributes => {
     return {
         movement: SquaddieMovementService.new({ movementPerAction: 2 }),
-        armorClass: 0,
         armor: {
             proficiencyLevel: ProficiencyLevel.UNTRAINED,
             base: 0,
@@ -86,9 +81,6 @@ const sanitize = (data: ArmyAttributes): ArmyAttributes => {
 
     if (!isValidValue(data.maxHitPoints) || data.maxHitPoints <= 0) {
         data.maxHitPoints = defaultAttributes.maxHitPoints
-    }
-    if (!isValidValue(data.armorClass)) {
-        data.armorClass = defaultAttributes.armorClass
     }
 
     data.armor = getValidValueOrDefault(data.armor, defaultAttributes.armor)

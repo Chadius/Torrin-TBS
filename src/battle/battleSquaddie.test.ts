@@ -66,7 +66,6 @@ describe("BattleSquaddie", () => {
                 },
                 attributes: ArmyAttributesService.new({
                     maxHitPoints: 5,
-                    armorClass: 2,
                     armor: {
                         proficiencyLevel: ProficiencyLevel.UNTRAINED,
                         base: 2,
@@ -135,7 +134,6 @@ describe("BattleSquaddie", () => {
                         movement: SquaddieMovementService.new({
                             movementPerAction: 2,
                         }),
-                        armorClass: 0,
                     }),
                 }),
             })

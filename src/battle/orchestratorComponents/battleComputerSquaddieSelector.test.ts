@@ -150,7 +150,6 @@ describe("BattleComputerSquaddieSelector", () => {
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
-                armorClass: 0,
             }),
         }))
 

@@ -46,7 +46,6 @@ describe("Squaddie Service", () => {
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: squaddieRepository,
             attributes: ArmyAttributesService.new({
-                armorClass: 9001,
                 armor: {
                     proficiencyLevel: ProficiencyLevel.UNTRAINED,
                     base: 3,

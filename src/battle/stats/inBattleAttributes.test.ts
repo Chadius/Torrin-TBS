@@ -26,7 +26,6 @@ describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
@@ -42,7 +41,6 @@ describe("inBattleAttributes", () => {
     it("takes damage", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
@@ -67,7 +65,6 @@ describe("inBattleAttributes", () => {
     it("cannot take more than maximum hit points of damage", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
@@ -88,7 +85,6 @@ describe("inBattleAttributes", () => {
     it("receive healing up to maximum", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
@@ -114,7 +110,6 @@ describe("inBattleAttributes", () => {
     it("can clone without the clone affecting the original", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
-            armorClass: 3,
             movement: SquaddieMovementService.new({
                 movementPerAction: 2,
             }),
@@ -164,7 +159,6 @@ describe("inBattleAttributes", () => {
         beforeEach(() => {
             attributes = InBattleAttributesService.new({
                 armyAttributes: ArmyAttributesService.new({
-                    armorClass: 3,
                     maxHitPoints: 5,
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,

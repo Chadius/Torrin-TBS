@@ -57,7 +57,6 @@ describe("BattleSquaddieUsesActionOnMap", () => {
                         [Trait.PASS_THROUGH_WALLS]: true,
                     }),
                 }),
-                armorClass: 0,
                 maxHitPoints: 0,
             }),
             actionTemplateIds: [],

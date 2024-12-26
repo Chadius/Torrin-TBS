@@ -34,7 +34,6 @@ describe("Object Repository", () => {
         squaddieTemplateBase = SquaddieTemplateService.new({
             attributes: ArmyAttributesService.new({
                 maxHitPoints: 1,
-                armorClass: 0,
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                     traits: {

@@ -65,7 +65,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
                 actionTemplateIds: [],
             }))
@@ -81,7 +80,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
                 actionTemplateIds: [],
             }))
@@ -102,7 +100,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
                 actionTemplateIds: [],
             }))
@@ -123,7 +120,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                     movement: SquaddieMovementService.new({
                         movementPerAction: 2,
                     }),
-                    armorClass: 0,
                 }),
                 actionTemplateIds: [],
             }))
@@ -146,7 +142,6 @@ describe("Mission Condition: Defeat All Squaddies of a given Affiliation", () =>
                 movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 }),
-                armorClass: 0,
             }),
             actionTemplateIds: [],
         }))

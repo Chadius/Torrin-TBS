@@ -324,7 +324,6 @@ describe("Squaddie Status Tile", () => {
             }))
         })
         it("should draw the armor class for the squaddie", () => {
-            battleSquaddie.inBattleAttributes.armyAttributes.armorClass = 5
             battleSquaddie.inBattleAttributes.armyAttributes.armor = {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
                 base: -2,

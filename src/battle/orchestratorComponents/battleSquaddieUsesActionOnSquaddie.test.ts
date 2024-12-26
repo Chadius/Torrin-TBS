@@ -101,7 +101,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                     }),
                 }),
                 maxHitPoints: 1,
-                armorClass: 0,
             }),
             actionTemplateIds: [],
         }))
@@ -120,7 +119,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                         }),
                     }),
                     maxHitPoints: 3,
-                    armorClass: 0,
                 }),
                 actionTemplateIds: [],
             }))
