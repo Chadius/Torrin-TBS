@@ -28,9 +28,9 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { SquaddieSquaddieResultsService } from "../history/squaddieSquaddieResults"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { ActionEffectChange } from "../history/calculatedResult"
 
 export class SquaddieTargetsOtherSquaddiesAnimator
     implements SquaddieActionAnimator
@@ -227,14 +227,10 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             gameEngineState.repository,
             actionToShow.action.actionTemplateId
         )
-        const results = SquaddieSquaddieResultsService.new({
-            actingBattleSquaddieId: actionToShow.actor.actorBattleSquaddieId,
-            actionContext: actionToShow.actor.actorContext,
-            targetedBattleSquaddieIds: actionToShow.effect.squaddie.map(
-                (s) => s.battleSquaddieId
-            ),
+        const results: ActionEffectChange = {
+            actorContext: actionToShow.actor.actorContext,
             squaddieChanges: actionToShow.effect.squaddie,
-        })
+        }
 
         this.actorTextWindow.start({
             actorTemplate: actorTemplate,

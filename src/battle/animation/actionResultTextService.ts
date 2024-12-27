@@ -1,4 +1,3 @@
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
@@ -27,8 +26,9 @@ import {
     AttributeType,
     AttributeTypeAndAmount,
 } from "../../squaddie/attributeModifier"
-import { BattleActionActionContext } from "../history/battleAction/battleActionActionContext"
+import { BattleActionActorContext } from "../history/battleAction/battleActionActorContext"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { ActionEffectChange } from "../history/calculatedResult"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({
@@ -37,11 +37,11 @@ export const ActionResultTextService = {
         actionTemplateName,
         battleActionSquaddieChanges,
         actingBattleSquaddieId,
-        actingContext,
+        actorContext,
     }: {
         currentActionEffectTemplate: ActionEffectTemplate
         battleActionSquaddieChanges: BattleActionSquaddieChange[]
-        actingContext: BattleActionActionContext
+        actorContext: BattleActionActorContext
         squaddieRepository: ObjectRepository
         actionTemplateName: string
         actingBattleSquaddieId: string
@@ -51,7 +51,7 @@ export const ActionResultTextService = {
             currentActionEffectTemplate,
             battleActionSquaddieChanges,
             squaddieRepository,
-            actingContext,
+            actorContext,
             actingBattleSquaddieId,
         })
     },
@@ -156,7 +156,7 @@ export const ActionResultTextService = {
         timer?: ActionTimer
         actorTemplate: SquaddieTemplate
         actionTemplateName: string
-        results: SquaddieSquaddieResults
+        results: ActionEffectChange
     }): string => {
         let actorUsesActionDescriptionText =
             ActionResultTextService.getSquaddieUsesActionString({
@@ -174,14 +174,14 @@ export const ActionResultTextService = {
                 ActionAnimationPhase.SHOWING_RESULTS,
                 ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
             ].includes(timer.currentPhase) &&
-            results.actingContext.actorRoll.occurred
+            results.actorContext?.actorRoll.occurred
         ) {
             actorUsesActionDescriptionText += `\n\n`
-            actorUsesActionDescriptionText += `   rolls(${results.actingContext.actorRoll.rolls[0]}, ${results.actingContext.actorRoll.rolls[1]})`
+            actorUsesActionDescriptionText += `   rolls(${results.actorContext.actorRoll.rolls[0]}, ${results.actorContext.actorRoll.rolls[1]})`
 
             const attackPenaltyDescriptions =
                 ActionResultText.getAttackPenaltyDescriptions(
-                    results.actingContext.actorAttributeModifiers
+                    results.actorContext.actorAttributeModifiers
                 )
             if (attackPenaltyDescriptions.length > 0) {
                 actorUsesActionDescriptionText +=
@@ -189,22 +189,22 @@ export const ActionResultTextService = {
             }
             const attackRollModifierDescriptions =
                 ActionResultText.getRollModifierDescriptions(
-                    results.actingContext.actorRoll.rollModifiers
+                    results.actorContext.actorRoll.rollModifiers
                 )
             if (attackRollModifierDescriptions.length > 0) {
                 actorUsesActionDescriptionText +=
                     "\n" + attackRollModifierDescriptions.join("\n")
             }
 
-            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actingContext)}`
+            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(results.actorContext)}`
 
             if (
-                RollResultService.isMaximumRoll(results.actingContext.actorRoll)
+                RollResultService.isMaximumRoll(results.actorContext.actorRoll)
             ) {
                 actorUsesActionDescriptionText += `\n\nMax!`
             }
             if (
-                RollResultService.isMinimumRoll(results.actingContext.actorRoll)
+                RollResultService.isMinimumRoll(results.actorContext.actorRoll)
             ) {
                 actorUsesActionDescriptionText += `\n\nbotch...`
             }
@@ -342,11 +342,11 @@ const outputResultForTextOnly = ({
     actionTemplateName,
     battleActionSquaddieChanges,
     actingBattleSquaddieId,
-    actingContext,
+    actorContext,
 }: {
     currentActionEffectTemplate: ActionEffectTemplate
     battleActionSquaddieChanges: BattleActionSquaddieChange[]
-    actingContext: BattleActionActionContext
+    actorContext: BattleActionActorContext
     squaddieRepository: ObjectRepository
     actionTemplateName: string
     actingBattleSquaddieId: string
@@ -367,10 +367,10 @@ const outputResultForTextOnly = ({
         })
     output.push(actorUsesActionDescriptionText)
 
-    if (actingContext?.actorRoll.occurred) {
+    if (actorContext?.actorRoll.occurred) {
         output.push(
             ActionResultTextService.getRollsDescriptionString({
-                rolls: actingContext.actorRoll.rolls,
+                rolls: actorContext.actorRoll.rolls,
                 addSpacing: true,
             })
         )
@@ -387,17 +387,17 @@ const outputResultForTextOnly = ({
         ) {
             output.push(
                 ...ActionResultText.getAttackPenaltyDescriptions(
-                    actingContext.actorAttributeModifiers
+                    actorContext.actorAttributeModifiers
                 )
             )
             output.push(
                 ...ActionResultText.getRollModifierDescriptions(
-                    actingContext.actorRoll.rollModifiers
+                    actorContext.actorRoll.rollModifiers
                 )
             )
             output.push(
                 ...ActionResultText.getActingSquaddieRollTotalIfNeeded(
-                    actingContext
+                    actorContext
                 )
             )
         }

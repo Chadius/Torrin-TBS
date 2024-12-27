@@ -16,7 +16,7 @@ import {
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
 import { ObjectRepositoryService } from "../../objectRepository"
-import { BattleActionActionContextService } from "./battleActionActionContext"
+import { BattleActionActorContextService } from "./battleActionActorContext"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import { describe, expect, it } from "vitest"
 
@@ -156,7 +156,7 @@ describe("BattleAction", () => {
     it("can be cloned to a separate object", () => {
         const actor: BattleActionActor = {
             actorBattleSquaddieId: "original",
-            actorContext: BattleActionActionContextService.new({
+            actorContext: BattleActionActorContextService.new({
                 actingSquaddieRoll: RollResultService.new({
                     occurred: true,
                     rolls: [5, 6],

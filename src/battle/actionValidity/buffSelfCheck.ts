@@ -17,7 +17,7 @@ import {
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { CalculatorMiscellaneous } from "../calculator/actionCalculator/miscellaneous"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
-import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
+import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { CalculatedEffect } from "../calculator/actionCalculator/calculator"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { ActionCheckResult } from "./validityChecker"
@@ -136,11 +136,11 @@ const estimatedHealingOnTarget = ({
         ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
     const calculatedEffects: CalculatedEffect[] =
-        actionEffectSquaddieTemplates.map((actionEffectSquaddieTemplate) => {
+        actionEffectSquaddieTemplates.map((actionEffectTemplate) => {
             return CalculatorMiscellaneous.calculateEffectBasedOnDegreeOfSuccess(
                 {
-                    actionEffectSquaddieTemplate,
-                    actionContext: BattleActionActionContextService.new({
+                    actionEffectTemplate,
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieModifiers: [],
                         targetSquaddieModifiers: {},
                     }),
@@ -169,11 +169,11 @@ const willAddModifiersToTarget = ({
         ActionTemplateService.getActionEffectTemplates(actionTemplate)
 
     const calculatedEffects: CalculatedEffect[] =
-        actionEffectSquaddieTemplates.map((actionEffectSquaddieTemplate) => {
+        actionEffectSquaddieTemplates.map((actionEffectTemplate) => {
             return CalculatorMiscellaneous.calculateEffectBasedOnDegreeOfSuccess(
                 {
-                    actionEffectSquaddieTemplate,
-                    actionContext: BattleActionActionContextService.new({
+                    actionEffectTemplate,
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieModifiers: [],
                         targetSquaddieModifiers: {},
                     }),

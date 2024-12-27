@@ -16,7 +16,7 @@ import {
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
 import { CalculateAgainstArmor } from "./calculateAgainstArmor"
-import { CalculatedEffect } from "./calculator"
+import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
 import { isValidValue } from "../../../utils/validityCheck"
 import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -26,30 +26,50 @@ import {
     DamageExplanationService,
 } from "../../history/battleAction/battleActionSquaddieChange"
 import {
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "../../history/battleAction/battleActionActionContext"
+    BattleActionActorContext,
+    BattleActionActorContextService,
+} from "../../history/battleAction/battleActionActorContext"
 import { BattleActionsDuringTurnService } from "../../history/battleAction/battleActionsDuringTurn"
 import { BattleActionService } from "../../history/battleAction/battleAction"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({
-        actionEffectSquaddieTemplate,
-        actionContext,
-        actingBattleSquaddie,
+        actionEffectTemplate,
+        actorContext,
+        actorBattleSquaddie,
         targetBattleSquaddie,
         targetSquaddieTemplate,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectTemplate
+        actionEffectTemplate: ActionEffectTemplate
         targetBattleSquaddie: BattleSquaddie
         targetSquaddieTemplate: SquaddieTemplate
-        actionContext: BattleActionActionContext
-        actingBattleSquaddie: BattleSquaddie
+        actorContext: BattleActionActorContext
+        actorBattleSquaddie: BattleSquaddie
     }): DegreeOfSuccess =>
         getDegreeOfSuccess({
-            actionEffectSquaddieTemplate,
-            actionContext,
-            actingBattleSquaddie,
+            actionEffectTemplate,
+            actorContext,
+            actorBattleSquaddie,
+            targetBattleSquaddie,
+            targetSquaddieTemplate,
+        }),
+    getAllPossibleDegreesOfSuccess: ({
+        actionEffectTemplate,
+        actorContext,
+        actorBattleSquaddie,
+        targetBattleSquaddie,
+        targetSquaddieTemplate,
+    }: {
+        actionEffectTemplate: ActionEffectTemplate
+        targetBattleSquaddie: BattleSquaddie
+        targetSquaddieTemplate: SquaddieTemplate
+        actorContext: BattleActionActorContext
+        actorBattleSquaddie: BattleSquaddie
+    }): DegreeOfSuccessExplanation =>
+        getAllPossibleDegreesOfSuccess({
+            actionEffectTemplate,
+            actorContext,
+            actorBattleSquaddie,
             targetBattleSquaddie,
             targetSquaddieTemplate,
         }),
@@ -58,34 +78,34 @@ export const CalculatorAttack = {
     ): AttributeTypeAndAmount[] =>
         getActingSquaddieModifiersForAttack(gameEngineState),
     calculateEffectBasedOnDegreeOfSuccess: ({
-        actionEffectSquaddieTemplate,
-        actionContext,
+        actionEffectTemplate,
+        actorContext,
         degreeOfSuccess,
         targetSquaddieTemplate,
         targetBattleSquaddie,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectTemplate
-        actionContext: BattleActionActionContext
+        actionEffectTemplate: ActionEffectTemplate
+        actorContext: BattleActionActorContext
         degreeOfSuccess: DegreeOfSuccess
         targetSquaddieTemplate: SquaddieTemplate
         targetBattleSquaddie: BattleSquaddie
     }): CalculatedEffect =>
         calculateEffectBasedOnDegreeOfSuccess({
-            actionEffectSquaddieTemplate,
-            actionContext,
+            actionEffectTemplate,
+            actorContext,
             degreeOfSuccess,
             targetSquaddieTemplate,
             targetBattleSquaddie,
         }),
     getTargetSquaddieModifiers: ({
-        actionEffectSquaddieTemplate,
+        actionEffectTemplate,
         targetBattleSquaddie,
     }: {
-        actionEffectSquaddieTemplate: ActionEffectTemplate
+        actionEffectTemplate: ActionEffectTemplate
         targetBattleSquaddie: BattleSquaddie
     }): AttributeTypeAndAmount[] =>
         getTargetSquaddieModifiers({
-            actionEffectSquaddieTemplate,
+            actionEffectTemplate,
             targetBattleSquaddie,
         }),
     getActorContext: ({
@@ -96,7 +116,7 @@ export const CalculatorAttack = {
         actionEffectTemplate: ActionEffectTemplate
         gameEngineState: GameEngineState
         actorBattleSquaddie: BattleSquaddie
-    }): BattleActionActionContext => {
+    }): BattleActionActorContext => {
         let actingSquaddieModifiers =
             CalculatorAttack.getActingSquaddieModifiersForAttack(
                 gameEngineState
@@ -108,7 +128,7 @@ export const CalculatorAttack = {
             actorBattleSquaddie,
         })
 
-        return BattleActionActionContextService.new({
+        return BattleActionActorContextService.new({
             actingSquaddieModifiers,
             actingSquaddieRoll,
             targetSquaddieModifiers: {},
@@ -194,21 +214,21 @@ const doesActionNeedAnAttackRoll = (action: ActionEffectTemplate): boolean =>
     ) !== true
 
 const isActionAgainstArmor = (
-    actionEffectSquaddieTemplate: ActionEffectTemplate
+    actionEffectTemplate: ActionEffectTemplate
 ): boolean =>
     TraitStatusStorageService.getStatus(
-        actionEffectSquaddieTemplate.traits,
+        actionEffectTemplate.traits,
         Trait.VERSUS_ARMOR
     ) === true
 
 const getTargetSquaddieModifiers = ({
-    actionEffectSquaddieTemplate,
+    actionEffectTemplate,
     targetBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectTemplate
+    actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
 }): AttributeTypeAndAmount[] => {
-    if (isActionAgainstArmor(actionEffectSquaddieTemplate)) {
+    if (isActionAgainstArmor(actionEffectTemplate)) {
         return CalculateAgainstArmor.getTargetSquaddieModifierTotal(
             targetBattleSquaddie
         )
@@ -253,21 +273,21 @@ const calculateDegreeOfSuccessBasedOnRollTotalVersusTarget = (
 const compareAttackRollToGetDegreeOfSuccess = ({
     actor,
     actingSquaddieRoll,
-    actionEffectSquaddieTemplate,
+    actionEffectTemplate,
     targetBattleSquaddie,
     targetSquaddieTemplate,
     actingSquaddieModifierTotal,
 }: {
     actor: BattleSquaddie
     actingSquaddieRoll: RollResult
-    actionEffectSquaddieTemplate: ActionEffectTemplate
+    actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
     targetSquaddieTemplate: SquaddieTemplate
     actingSquaddieModifierTotal: number
 }): DegreeOfSuccess => {
     if (
         TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
+            actionEffectTemplate.traits,
             Trait.ALWAYS_SUCCEEDS
         )
     ) {
@@ -290,22 +310,23 @@ const compareAttackRollToGetDegreeOfSuccess = ({
         degreeOfSuccess
     )
     degreeOfSuccess = capCriticalSuccessIfResultCannotCriticallySucceed(
-        actionEffectSquaddieTemplate,
+        actionEffectTemplate,
         degreeOfSuccess
     )
     degreeOfSuccess = capCriticalFailureIfResultCannotCriticallyFail(
-        actionEffectSquaddieTemplate,
+        actionEffectTemplate,
         degreeOfSuccess
     )
+
     return degreeOfSuccess
 }
 
 const capCriticalSuccessIfResultCannotCriticallySucceed = (
-    actionEffectSquaddieTemplate: ActionEffectTemplate,
+    actionEffectTemplate: ActionEffectTemplate,
     degreeOfSuccess: DegreeOfSuccess
 ) => {
     const canCriticallySucceed: boolean = !TraitStatusStorageService.getStatus(
-        actionEffectSquaddieTemplate.traits,
+        actionEffectTemplate.traits,
         Trait.CANNOT_CRITICALLY_SUCCEED
     )
     if (
@@ -318,11 +339,11 @@ const capCriticalSuccessIfResultCannotCriticallySucceed = (
 }
 
 const capCriticalFailureIfResultCannotCriticallyFail = (
-    actionEffectSquaddieTemplate: ActionEffectTemplate,
+    actionEffectTemplate: ActionEffectTemplate,
     degreeOfSuccess: DegreeOfSuccess
 ) => {
     const canCriticallyFail: boolean = !TraitStatusStorageService.getStatus(
-        actionEffectSquaddieTemplate.traits,
+        actionEffectTemplate.traits,
         Trait.CANNOT_CRITICALLY_FAIL
     )
     if (
@@ -335,20 +356,20 @@ const capCriticalFailureIfResultCannotCriticallyFail = (
 }
 
 const getDegreeOfSuccess = ({
-    actionEffectSquaddieTemplate,
+    actionEffectTemplate,
     targetBattleSquaddie,
     targetSquaddieTemplate,
-    actionContext,
-    actingBattleSquaddie,
+    actorContext,
+    actorBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectTemplate
+    actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
     targetSquaddieTemplate: SquaddieTemplate
-    actingBattleSquaddie: BattleSquaddie
-    actionContext: BattleActionActionContext
+    actorBattleSquaddie: BattleSquaddie
+    actorContext: BattleActionActorContext
 }): DegreeOfSuccess => {
     let actingSquaddieModifierTotal: number =
-        actionContext.actorAttributeModifiers.reduce(
+        actorContext.actorAttributeModifiers.reduce(
             (previousValue: number, currentValue: AttributeTypeAndAmount) => {
                 return previousValue + currentValue.amount
             },
@@ -356,7 +377,7 @@ const getDegreeOfSuccess = ({
         )
 
     let targetSquaddieModifierTotal: number =
-        actionContext.targetAttributeModifiers[
+        actorContext.targetAttributeModifiers[
             targetBattleSquaddie.battleSquaddieId
         ].reduce(
             (previousValue: number, currentValue: AttributeTypeAndAmount) => {
@@ -366,35 +387,92 @@ const getDegreeOfSuccess = ({
         )
 
     return compareAttackRollToGetDegreeOfSuccess({
-        actionEffectSquaddieTemplate,
-        actor: actingBattleSquaddie,
+        actionEffectTemplate,
+        actor: actorBattleSquaddie,
         targetBattleSquaddie: targetBattleSquaddie,
         targetSquaddieTemplate: targetSquaddieTemplate,
-        actingSquaddieRoll: actionContext.actorRoll,
+        actingSquaddieRoll: actorContext.actorRoll,
         actingSquaddieModifierTotal:
             actingSquaddieModifierTotal - targetSquaddieModifierTotal,
     })
 }
 
+const getAllPossibleDegreesOfSuccess = ({
+    actionEffectTemplate,
+    targetBattleSquaddie,
+    targetSquaddieTemplate,
+    actorContext,
+    actorBattleSquaddie,
+}: {
+    actionEffectTemplate: ActionEffectTemplate
+    targetBattleSquaddie: BattleSquaddie
+    targetSquaddieTemplate: SquaddieTemplate
+    actorBattleSquaddie: BattleSquaddie
+    actorContext: BattleActionActorContext
+}): DegreeOfSuccessExplanation => {
+    let actorSquaddieModifierTotal: number =
+        actorContext.actorAttributeModifiers.reduce(
+            (previousValue: number, currentValue: AttributeTypeAndAmount) => {
+                return previousValue + currentValue.amount
+            },
+            0
+        )
+
+    const rollModifierTotal = actorContext?.actorRoll?.rollModifiers
+        ? Object.values(actorContext.actorRoll.rollModifiers).reduce(
+              (sum, currentValue) => sum + currentValue,
+              0
+          )
+        : 0
+
+    actorContext.targetAttributeModifiers[
+        targetBattleSquaddie.battleSquaddieId
+    ] = getTargetSquaddieModifiers({
+        actionEffectTemplate,
+        targetBattleSquaddie,
+    })
+
+    let targetSquaddieModifierTotal: number =
+        actorContext.targetAttributeModifiers[
+            targetBattleSquaddie.battleSquaddieId
+        ].reduce(
+            (previousValue: number, currentValue: AttributeTypeAndAmount) => {
+                return previousValue + currentValue.amount
+            },
+            0
+        )
+
+    let targetArmorClass = SquaddieService.getArmorClass({
+        battleSquaddie: targetBattleSquaddie,
+        squaddieTemplate: targetSquaddieTemplate,
+    }).net
+
+    return calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal(
+        actorSquaddieModifierTotal +
+            rollModifierTotal -
+            (targetSquaddieModifierTotal + targetArmorClass)
+    )
+}
+
 const calculateEffectBasedOnDegreeOfSuccess = ({
-    actionEffectSquaddieTemplate,
-    actionContext,
+    actionEffectTemplate,
+    actorContext,
     degreeOfSuccess,
     targetSquaddieTemplate,
     targetBattleSquaddie,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectTemplate
-    actionContext: BattleActionActionContext
+    actionEffectTemplate: ActionEffectTemplate
+    actorContext: BattleActionActorContext
     degreeOfSuccess: DegreeOfSuccess
     targetSquaddieTemplate: SquaddieTemplate
     targetBattleSquaddie: BattleSquaddie
 }): CalculatedEffect => {
     let damageExplanation: DamageExplanation = DamageExplanationService.new({})
 
-    Object.keys(actionEffectSquaddieTemplate.damageDescriptions).forEach(
+    Object.keys(actionEffectTemplate.damageDescriptions).forEach(
         (damageType: DamageType) => {
             let rawDamageFromAction =
-                actionEffectSquaddieTemplate.damageDescriptions[damageType]
+                actionEffectTemplate.damageDescriptions[damageType]
             if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
                 rawDamageFromAction *= 2
             }
@@ -417,7 +495,7 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 
     let attributeModifiersToAddToTarget: AttributeModifier[] =
         calculateAttributeModifiers({
-            actionEffectSquaddieTemplate,
+            actionEffectTemplate,
         })
 
     return {
@@ -429,13 +507,195 @@ const calculateEffectBasedOnDegreeOfSuccess = ({
 }
 
 const calculateAttributeModifiers = ({
-    actionEffectSquaddieTemplate,
+    actionEffectTemplate,
 }: {
-    actionEffectSquaddieTemplate: ActionEffectTemplate
+    actionEffectTemplate: ActionEffectTemplate
 }): AttributeModifier[] => {
-    if (!isValidValue(actionEffectSquaddieTemplate.attributeModifiers)) {
+    if (!isValidValue(actionEffectTemplate.attributeModifiers)) {
         return []
     }
 
-    return [...actionEffectSquaddieTemplate.attributeModifiers]
+    return [...actionEffectTemplate.attributeModifiers]
+}
+
+const calculateChanceOfDegreeOfSuccessBasedOnActingSquaddieModifierTotal = (
+    actingSquaddieModifierTotal: number
+): DegreeOfSuccessExplanation => {
+    const chanceOutOf36: {
+        [actorBonusOverDefender: number]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: number
+            [DegreeOfSuccess.SUCCESS]: number
+            [DegreeOfSuccess.FAILURE]: number
+            [DegreeOfSuccess.CRITICAL_FAILURE]: number
+        }
+    } = {
+        [4]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 0,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [3]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
+            [DegreeOfSuccess.SUCCESS]: 0,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [2]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 33,
+            [DegreeOfSuccess.SUCCESS]: 2,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [1]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 30,
+            [DegreeOfSuccess.SUCCESS]: 5,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [0]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 26,
+            [DegreeOfSuccess.SUCCESS]: 9,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [-1]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 21,
+            [DegreeOfSuccess.SUCCESS]: 14,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [-2]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 15,
+            [DegreeOfSuccess.SUCCESS]: 20,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+        },
+        [-3]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 10,
+            [DegreeOfSuccess.SUCCESS]: 25,
+            [DegreeOfSuccess.FAILURE]: 0,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-4]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 6,
+            [DegreeOfSuccess.SUCCESS]: 27,
+            [DegreeOfSuccess.FAILURE]: 2,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-5]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 3,
+            [DegreeOfSuccess.SUCCESS]: 27,
+            [DegreeOfSuccess.FAILURE]: 5,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-6]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 25,
+            [DegreeOfSuccess.FAILURE]: 9,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-7]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 20,
+            [DegreeOfSuccess.FAILURE]: 14,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-8]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 14,
+            [DegreeOfSuccess.FAILURE]: 20,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-9]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 9,
+            [DegreeOfSuccess.FAILURE]: 25,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 1,
+        },
+        [-10]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 5,
+            [DegreeOfSuccess.FAILURE]: 27,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 3,
+        },
+        [-11]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 2,
+            [DegreeOfSuccess.FAILURE]: 27,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 6,
+        },
+        [-12]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 1,
+            [DegreeOfSuccess.SUCCESS]: 0,
+            [DegreeOfSuccess.FAILURE]: 25,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 10,
+        },
+        [-13]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 20,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 15,
+        },
+        [-14]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 14,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 21,
+        },
+        [-15]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 9,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 26,
+        },
+        [-16]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 5,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 30,
+        },
+        [-17]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 2,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 33,
+        },
+        [-18]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 1,
+            [DegreeOfSuccess.FAILURE]: 0,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
+        },
+        [-19]: {
+            [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+            [DegreeOfSuccess.SUCCESS]: 0,
+            [DegreeOfSuccess.FAILURE]: 1,
+            [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
+        },
+    }
+
+    switch (true) {
+        case actingSquaddieModifierTotal > 4:
+            return {
+                [DegreeOfSuccess.CRITICAL_SUCCESS]: 35,
+                [DegreeOfSuccess.SUCCESS]: 1,
+                [DegreeOfSuccess.FAILURE]: 0,
+                [DegreeOfSuccess.CRITICAL_FAILURE]: 0,
+                [DegreeOfSuccess.NONE]: 0,
+            }
+        case actingSquaddieModifierTotal < -19:
+            return {
+                [DegreeOfSuccess.CRITICAL_SUCCESS]: 0,
+                [DegreeOfSuccess.SUCCESS]: 0,
+                [DegreeOfSuccess.FAILURE]: 1,
+                [DegreeOfSuccess.CRITICAL_FAILURE]: 35,
+                [DegreeOfSuccess.NONE]: 0,
+            }
+        default:
+            return {
+                ...chanceOutOf36[actingSquaddieModifierTotal],
+                [DegreeOfSuccess.NONE]: 0,
+            }
+    }
 }

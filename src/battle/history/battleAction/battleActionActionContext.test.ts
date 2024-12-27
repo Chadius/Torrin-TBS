@@ -4,9 +4,9 @@ import {
 } from "../../../squaddie/attributeModifier"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "./battleActionActionContext"
+    BattleActionActorContext,
+    BattleActionActorContextService,
+} from "./battleActionActorContext"
 import { describe, expect, it } from "vitest"
 
 describe("Battle Action Action Context", () => {
@@ -40,14 +40,14 @@ describe("Battle Action Action Context", () => {
             ],
         }
 
-        const original = BattleActionActionContextService.new({
+        const original = BattleActionActorContextService.new({
             actingSquaddieModifiers,
             actingSquaddieRoll,
             targetSquaddieModifiers,
         })
 
-        const clone: BattleActionActionContext =
-            BattleActionActionContextService.clone(original)
+        const clone: BattleActionActorContext =
+            BattleActionActorContextService.clone(original)
 
         expect(clone).toEqual(original)
 

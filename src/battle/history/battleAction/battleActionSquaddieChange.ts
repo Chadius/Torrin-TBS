@@ -34,6 +34,7 @@ export interface BattleActionSquaddieChange {
     damage: DamageExplanation
     healingReceived: number
     actorDegreeOfSuccess: DegreeOfSuccess
+    chanceOfDegreeOfSuccess?: number
 }
 
 export const BattleActionSquaddieChangeService = {
@@ -44,6 +45,7 @@ export const BattleActionSquaddieChangeService = {
         damageExplanation,
         healingReceived,
         actorDegreeOfSuccess,
+        chanceOfDegreeOfSuccess,
     }: {
         battleSquaddieId: string
         attributesBefore?: InBattleAttributes
@@ -51,6 +53,7 @@ export const BattleActionSquaddieChangeService = {
         damageExplanation?: DamageExplanation
         healingReceived?: number
         actorDegreeOfSuccess?: DegreeOfSuccess
+        chanceOfDegreeOfSuccess?: number
     }): BattleActionSquaddieChange =>
         newBattleActionSquaddieChange({
             battleSquaddieId,
@@ -59,6 +62,7 @@ export const BattleActionSquaddieChangeService = {
             damageExplanation,
             healingReceived,
             actorDegreeOfSuccess,
+            chanceOfDegreeOfSuccess,
         }),
     isSquaddieHindered: (result: BattleActionSquaddieChange): boolean => {
         return result.damage.net > 0
@@ -78,6 +82,7 @@ export const BattleActionSquaddieChangeService = {
             damageExplanation: original.damage,
             healingReceived: original.healingReceived,
             actorDegreeOfSuccess: original.actorDegreeOfSuccess,
+            chanceOfDegreeOfSuccess: original.chanceOfDegreeOfSuccess,
         }),
 }
 
@@ -88,6 +93,7 @@ const newBattleActionSquaddieChange = ({
     damageExplanation,
     healingReceived,
     actorDegreeOfSuccess,
+    chanceOfDegreeOfSuccess,
 }: {
     battleSquaddieId: string
     attributesBefore?: InBattleAttributes
@@ -95,6 +101,7 @@ const newBattleActionSquaddieChange = ({
     damageExplanation?: DamageExplanation
     healingReceived?: number
     actorDegreeOfSuccess?: DegreeOfSuccess
+    chanceOfDegreeOfSuccess?: number
 }): BattleActionSquaddieChange => ({
     battleSquaddieId,
     attributesBefore: isValidValue(attributesBefore)
@@ -106,4 +113,5 @@ const newBattleActionSquaddieChange = ({
     damage: damageExplanation ?? DamageExplanationService.new({}),
     healingReceived: healingReceived ?? 0,
     actorDegreeOfSuccess: actorDegreeOfSuccess ?? DegreeOfSuccess.NONE,
+    chanceOfDegreeOfSuccess,
 })

@@ -4,7 +4,7 @@ import {
     BattleActionQueue,
     BattleActionQueueService,
 } from "./battleActionQueue"
-import { BattleActionActionContextService } from "./battleActionActionContext"
+import { BattleActionActorContextService } from "./battleActionActorContext"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
@@ -21,7 +21,7 @@ describe("BattleActionQueue", () => {
         moveAction = BattleActionService.new({
             actor: {
                 actorBattleSquaddieId: "battleSquaddieId",
-                actorContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieModifiers: [],
                     actingSquaddieRoll: RollResultService.new({
                         rolls: [2, 6],

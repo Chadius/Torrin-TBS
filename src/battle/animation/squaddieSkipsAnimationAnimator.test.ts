@@ -144,7 +144,7 @@ describe("SquaddieSkipsAnimationAnimator", () => {
             actionTemplateName: monkKoanAction.name,
             actingBattleSquaddieId:
                 monkMeditatesBattleAction.actor.actorBattleSquaddieId,
-            actingContext: monkMeditatesBattleAction.actor.actorContext,
+            actorContext: monkMeditatesBattleAction.actor.actorContext,
             battleActionSquaddieChanges:
                 monkMeditatesBattleAction.effect.squaddie,
         })

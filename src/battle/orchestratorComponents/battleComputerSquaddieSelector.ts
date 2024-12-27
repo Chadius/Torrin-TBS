@@ -563,21 +563,18 @@ export class BattleComputerSquaddieSelector
                     case isValidValue(
                         battleActionDecisionStep.action.actionTemplateId
                     ):
-                        ActionCalculator.calculateResults({
+                        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                            battleActionDecisionStep
+                        ActionCalculator.calculateAndApplyResults({
                             gameEngineState: gameEngineState,
-                            actingBattleSquaddie: actorBattleSquaddie,
-                            validTargetCoordinate:
-                                battleActionDecisionStep.target
-                                    .targetCoordinate,
-                            battleActionDecisionStep,
-                        }).forEach((result) => {
+                        }).changesPerEffect.forEach((result) => {
                             battleActions.push(
                                 BattleActionService.new({
                                     actor: {
                                         actorBattleSquaddieId:
                                             battleActionDecisionStep.actor
                                                 .battleSquaddieId,
-                                        actorContext: result.actingContext,
+                                        actorContext: result.actorContext,
                                     },
                                     action: {
                                         actionTemplateId:

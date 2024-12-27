@@ -14,15 +14,18 @@ import { getResultOrThrowError } from "../../../../utils/ResultOrError"
 import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
 import { RollModifierType } from "../../../calculator/actionCalculator/rollResult"
 import { CalculatorAttack } from "../../../calculator/actionCalculator/attack"
-import { ActionResultTextService } from "../../../animation/actionResultTextService"
 import { RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { SquaddieTemplate } from "../../../../campaign/squaddieTemplate"
+import { ActionCalculator } from "../../../calculator/actionCalculator/calculator"
+import { CalculatedResult } from "../../../history/calculatedResult"
+import { DegreeOfSuccess } from "../../../calculator/actionCalculator/degreeOfSuccess"
 
 export interface ActionPreviewTile {
     horizontalPosition: ActionTilePosition
     squaddieAffiliation: SquaddieAffiliation
     infoTextBox?: TextBox
+    forecast: CalculatedResult
 }
 
 const layoutConstants = {
@@ -51,12 +54,22 @@ export const ActionPreviewTileService = {
                 battleSquaddieId
             )
         )
-        const infoTextBox = createInfoTextBox(squaddieTemplate, gameEngineState)
+
+        const forecast = ActionCalculator.forecastResults({
+            gameEngineState,
+        })
+
+        const infoTextBox = createInfoTextBox({
+            squaddieTemplate: squaddieTemplate,
+            gameEngineState: gameEngineState,
+            forecast: forecast,
+        })
 
         return {
             horizontalPosition: ActionTilePosition.ACTION_PREVIEW,
             squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
             infoTextBox,
+            forecast,
         }
     },
     draw: ({
@@ -76,14 +89,20 @@ export const ActionPreviewTileService = {
     },
 }
 
-const createInfoTextBox = (
-    squaddieTemplate: SquaddieTemplate,
+const createInfoTextBox = ({
+    squaddieTemplate,
+    gameEngineState,
+    forecast,
+}: {
+    squaddieTemplate: SquaddieTemplate
     gameEngineState: GameEngineState
-) => {
+    forecast: CalculatedResult
+}) => {
+    let messageToShow: string = ""
+
     let rollModifiers: { [r in RollModifierType]?: number } = {
         [RollModifierType.TIER]: squaddieTemplate.attributes.tier,
     }
-
     let multipleAttackPenalty =
         CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
             gameEngineState
@@ -93,29 +112,21 @@ const createInfoTextBox = (
             multipleAttackPenalty
     }
 
-    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-        gameEngineState.repository,
-        BattleActionDecisionStepService.getAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ).actionTemplateId
-    )
+    const targetForecast = forecast.changesPerEffect[0]
 
-    let messageToShow: string = "using action description"
-    if (actionTemplate) {
-        const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-            currentActionEffectTemplate:
-                actionTemplate.actionEffectTemplates[0],
-            actionTemplate,
-            actingBattleSquaddieId: BattleActionDecisionStepService.getActor(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            ).battleSquaddieId,
-            squaddieRepository: gameEngineState.repository,
-            actingSquaddieModifiers: [],
-            rollModifiers,
-        })
-        messageToShow = intentMessages.join("\n")
+    const criticalSuccess = targetForecast.squaddieChanges.find(
+        (change) =>
+            change.actorDegreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS
+    )
+    if (criticalSuccess) {
+        messageToShow += `${((criticalSuccess.chanceOfDegreeOfSuccess * 100) / 36).toFixed()}% crit`
+    }
+
+    const success = targetForecast.squaddieChanges.find(
+        (change) => change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+    )
+    if (success) {
+        messageToShow += `\n${((success.chanceOfDegreeOfSuccess * 100) / 36).toFixed()}% hit`
     }
 
     const boundingBox =

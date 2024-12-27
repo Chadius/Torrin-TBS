@@ -42,7 +42,6 @@ import {
     BattleActionService,
 } from "../history/battleAction/battleAction"
 import { SquaddieTurnService } from "../../squaddie/turn"
-import { SquaddieSquaddieResults } from "../history/squaddieSquaddieResults"
 import { ActionCalculator } from "../calculator/actionCalculator/calculator"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -62,6 +61,7 @@ import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { PopupWindowService } from "./popupWindow"
 import { BattleCamera, BattleCameraService } from "../battleCamera"
 import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
+import { CalculatedResult } from "../history/calculatedResult"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -399,19 +399,19 @@ export const BattleHUDService = {
     ) => {
         const gameEngineState = message.gameEngineState
 
+        BattleActionDecisionStepService.setConsideredTarget({
+            actionDecisionStep:
+                gameEngineState.battleOrchestratorState.battleState
+                    .battleActionDecisionStep,
+            targetCoordinate: message.targetCoordinate,
+        })
+
         SummaryHUDStateService.createActionPreviewTile({
             summaryHUDState:
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState,
             gameEngineState,
             objectRepository: gameEngineState.repository,
-        })
-
-        BattleActionDecisionStepService.setConsideredTarget({
-            actionDecisionStep:
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep,
-            targetCoordinate: message.targetCoordinate,
         })
 
         TerrainTileMapService.removeAllGraphicsLayers(
@@ -475,13 +475,11 @@ export const BattleHUDService = {
             actionDecisionStep: actionStep,
             targetCoordinate: targetCoordinate,
         })
-
-        let results: SquaddieSquaddieResults[] =
-            ActionCalculator.calculateResults({
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            actionStep
+        let results: CalculatedResult =
+            ActionCalculator.calculateAndApplyResults({
                 gameEngineState: gameEngineState,
-                actingBattleSquaddie,
-                validTargetCoordinate: targetCoordinate,
-                battleActionDecisionStep: actionStep,
             })
 
         BattleActionDecisionStepService.confirmAlreadyConsideredTarget({
@@ -490,19 +488,20 @@ export const BattleHUDService = {
                     .battleActionDecisionStep,
         })
 
-        const squaddieBattleActions: BattleAction[] = results.map((result) => {
-            return BattleActionService.new({
-                actor: {
-                    actorBattleSquaddieId:
-                        actingBattleSquaddie.battleSquaddieId,
-                    actorContext: result.actingContext,
-                },
-                action: { actionTemplateId: actionTemplate.id },
-                effect: {
-                    squaddie: result.squaddieChanges,
-                },
+        const squaddieBattleActions: BattleAction[] =
+            results.changesPerEffect.map((result) => {
+                return BattleActionService.new({
+                    actor: {
+                        actorBattleSquaddieId:
+                            actingBattleSquaddie.battleSquaddieId,
+                        actorContext: result.actorContext,
+                    },
+                    action: { actionTemplateId: actionTemplate.id },
+                    effect: {
+                        squaddie: result.squaddieChanges,
+                    },
+                })
             })
-        })
 
         squaddieBattleActions.forEach((squaddieBattleAction) => {
             BattleActionRecorderService.addReadyToAnimateBattleAction(

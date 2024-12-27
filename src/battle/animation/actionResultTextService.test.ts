@@ -30,7 +30,7 @@ import {
     AttributeType,
 } from "../../squaddie/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
+import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
     RollModifierType,
@@ -189,7 +189,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingChanges,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
@@ -234,7 +234,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: healingChanges,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],
@@ -302,7 +302,7 @@ describe("Action Result Text Writer", () => {
                     battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                    actingContext: BattleActionActionContextService.new({
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
@@ -353,7 +353,7 @@ describe("Action Result Text Writer", () => {
                     battleActionSquaddieChanges: armorBonusChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                    actingContext: BattleActionActionContextService.new({
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
@@ -431,7 +431,7 @@ describe("Action Result Text Writer", () => {
                     battleActionSquaddieChanges: movementChanges,
                     squaddieRepository,
                     actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                    actingContext: BattleActionActionContextService.new({
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
@@ -527,7 +527,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
@@ -572,7 +572,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 2],
@@ -609,7 +609,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [6, 6],
@@ -645,7 +645,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 1],
@@ -689,7 +689,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [2, 6],
@@ -738,7 +738,7 @@ describe("Action Result Text Writer", () => {
                 battleActionSquaddieChanges: damagingResult,
                 squaddieRepository,
                 actingBattleSquaddieId: knightDynamic.battleSquaddieId,
-                actingContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],

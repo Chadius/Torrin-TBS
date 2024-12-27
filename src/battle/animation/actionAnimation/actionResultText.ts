@@ -3,7 +3,7 @@ import {
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 import { AttributeTypeAndAmount } from "../../../squaddie/attributeModifier"
-import { BattleActionActionContext } from "../../history/battleAction/battleActionActionContext"
+import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
 
 export const ActionResultText = {
     getAttackPenaltyDescriptions: (
@@ -17,9 +17,9 @@ export const ActionResultText = {
         return getRollModifierDescriptions(rollModifiers)
     },
     getActingSquaddieRollTotalIfNeeded: (
-        actingContext: BattleActionActionContext
+        actorContext: BattleActionActorContext
     ): string[] => {
-        return getActingSquaddieRollTotalIfNeeded(actingContext)
+        return getActingSquaddieRollTotalIfNeeded(actorContext)
     },
 }
 
@@ -49,12 +49,12 @@ const getRollModifierDescriptions = (rollModifiers: {
         })
 
 const getActingSquaddieRollTotalIfNeeded = (
-    actingContext: BattleActionActionContext
+    actorContext: BattleActionActorContext
 ): string[] => {
     let totalAttackRoll = RollResultService.totalAttackRoll(
-        actingContext.actorRoll
+        actorContext.actorRoll
     )
-    let totalModifier = actingContext.actorAttributeModifiers.reduce(
+    let totalModifier = actorContext.actorAttributeModifiers.reduce(
         (currentSum, currentValue) => currentSum + currentValue.amount,
         0
     )

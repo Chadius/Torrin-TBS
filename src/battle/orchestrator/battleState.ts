@@ -202,6 +202,7 @@ interface BattleStateConstructorParameters {
     searchPath?: SearchPath
     battleCompletionStatus?: BattleCompletionStatus
     battleActionRecorder?: BattleActionRecorder
+    battleActionDecisionStep?: BattleActionDecisionStep
 }
 
 const newBattleState = ({
@@ -220,6 +221,7 @@ const newBattleState = ({
     teams,
     teamStrategiesById,
     battleActionRecorder,
+    battleActionDecisionStep,
 }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes =
         MissionObjectivesAndCutscenesHelper.new({
@@ -247,7 +249,7 @@ const newBattleState = ({
             missionStatistics || MissionStatisticsService.new({}),
         battleCompletionStatus:
             battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
-        battleActionDecisionStep: undefined,
+        battleActionDecisionStep,
     }
 }
 

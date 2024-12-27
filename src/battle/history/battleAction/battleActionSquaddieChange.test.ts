@@ -94,6 +94,7 @@ describe("BattleActionSquaddieChange", () => {
                 }),
             ],
         })
+        const chanceOfDegreeOfSuccess = 10
         const original = BattleActionSquaddieChangeService.new({
             battleSquaddieId,
             actorDegreeOfSuccess,
@@ -101,6 +102,7 @@ describe("BattleActionSquaddieChange", () => {
             healingReceived,
             attributesBefore,
             attributesAfter,
+            chanceOfDegreeOfSuccess,
         })
 
         const clone: BattleActionSquaddieChange =
@@ -110,6 +112,7 @@ describe("BattleActionSquaddieChange", () => {
 
         original.battleSquaddieId = undefined
         original.actorDegreeOfSuccess = undefined
+        original.chanceOfDegreeOfSuccess = undefined
         original.damage = undefined
         original.healingReceived = undefined
         original.attributesBefore = undefined
@@ -117,6 +120,7 @@ describe("BattleActionSquaddieChange", () => {
 
         expect(clone.battleSquaddieId).toEqual(battleSquaddieId)
         expect(clone.actorDegreeOfSuccess).toEqual(actorDegreeOfSuccess)
+        expect(clone.chanceOfDegreeOfSuccess).toEqual(chanceOfDegreeOfSuccess)
         expect(clone.damage).toEqual(damageExplanation)
         expect(clone.healingReceived).toEqual(healingReceived)
         expect(clone.attributesBefore).toEqual(attributesBefore)

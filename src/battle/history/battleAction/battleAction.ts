@@ -12,7 +12,7 @@ import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
 } from "../../../action/template/actionEffectTemplate"
-import { BattleActionActionContext } from "./battleActionActionContext"
+import { BattleActionActorContext } from "./battleActionActorContext"
 
 export const MULTIPLE_ATTACK_PENALTY = -3
 export const MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX = 2
@@ -20,7 +20,7 @@ export type ActionPointCost = number | "End Turn"
 
 export interface BattleActionActor {
     actorBattleSquaddieId: string
-    actorContext?: BattleActionActionContext
+    actorContext?: BattleActionActorContext
 }
 
 export interface BattleActionAction {

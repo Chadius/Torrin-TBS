@@ -129,7 +129,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                     .actionEffectTemplates[0] as ActionEffectTemplate,
                 actingBattleSquaddieId:
                     actionToShow.actor.actorBattleSquaddieId,
-                actingContext: actionToShow.actor.actorContext,
+                actorContext: actionToShow.actor.actorContext,
                 battleActionSquaddieChanges: actionToShow.effect.squaddie,
             })
 

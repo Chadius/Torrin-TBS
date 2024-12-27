@@ -10,9 +10,9 @@ import { Label, LabelService } from "../../../ui/label"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import { ActionTimer } from "./actionTimer"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
-import { SquaddieSquaddieResults } from "../../history/squaddieSquaddieResults"
 import { ActionResultTextService } from "../actionResultTextService"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { ActionEffectChange } from "../../history/calculatedResult"
 
 export const ACTOR_TEXT_WINDOW = {
     top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
@@ -20,7 +20,7 @@ export const ACTOR_TEXT_WINDOW = {
 }
 
 export class ActorTextWindow {
-    results: SquaddieSquaddieResults
+    results: ActionEffectChange
     actorTemplate: SquaddieTemplate
     actorBattle: BattleSquaddie
     actionTemplateName: string
@@ -61,7 +61,7 @@ export class ActorTextWindow {
         actorTemplate: SquaddieTemplate
         actorBattle: BattleSquaddie
         actionTemplateName: string
-        results: SquaddieSquaddieResults
+        results: ActionEffectChange
     }) {
         this.reset()
 

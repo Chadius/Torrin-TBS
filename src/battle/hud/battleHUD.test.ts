@@ -83,7 +83,7 @@ import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { BattleActionActionContextService } from "../history/battleAction/battleActionActionContext"
+import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
 import { PopupWindow } from "./popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
@@ -1450,7 +1450,7 @@ describe("Battle HUD", () => {
                     actor: {
                         actorBattleSquaddieId:
                             playerSoldierBattleSquaddie.battleSquaddieId,
-                        actorContext: BattleActionActionContextService.new({
+                        actorContext: BattleActionActorContextService.new({
                             actingSquaddieModifiers: [],
                             actingSquaddieRoll: RollResultService.new({
                                 occurred: false,
@@ -1562,7 +1562,7 @@ describe("Battle HUD", () => {
                     actor: {
                         actorBattleSquaddieId:
                             playerSoldierBattleSquaddie.battleSquaddieId,
-                        actorContext: BattleActionActionContextService.new({
+                        actorContext: BattleActionActorContextService.new({
                             actingSquaddieModifiers: [],
                             actingSquaddieRoll: RollResultService.new({
                                 occurred: false,
@@ -1617,7 +1617,7 @@ describe("Battle HUD", () => {
                     actor: {
                         actorBattleSquaddieId:
                             playerSoldierBattleSquaddie.battleSquaddieId,
-                        actorContext: BattleActionActionContextService.new({
+                        actorContext: BattleActionActorContextService.new({
                             actingSquaddieModifiers: [],
                             actingSquaddieRoll: RollResultService.new({
                                 occurred: false,

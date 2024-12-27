@@ -1,6 +1,5 @@
 import { LoadFileIntoFormat } from "./dataLoader"
 import { describe, expect, it, vi } from "vitest"
-import clearAllMocks = vi.clearAllMocks
 
 const mockFetch = <T>(mockData: T) => {
     global.fetch = vi.fn().mockImplementation(() =>
@@ -15,7 +14,7 @@ const mockFetchError = (error: string) => {
 }
 
 const mockFetchCleanUp = () => {
-    clearAllMocks()
+    vi.clearAllMocks()
     delete global.fetch
 }
 

@@ -38,9 +38,9 @@ import {
 } from "../history/battleAction/battleActionSquaddieChange"
 
 import {
-    BattleActionActionContext,
-    BattleActionActionContextService,
-} from "../history/battleAction/battleActionActionContext"
+    BattleActionActorContext,
+    BattleActionActorContextService,
+} from "../history/battleAction/battleActionActorContext"
 import { CutsceneQueueService } from "./cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
@@ -401,7 +401,7 @@ describe("Mission Cutscene Service", () => {
         })
     })
 
-    describe("CutsceneTriggers based on SquaddieSquaddieResults", () => {
+    describe("CutsceneTriggers based on SquaddieSquaddieResult", () => {
         let listener: CutsceneMessageListener
         let cutsceneCollection: MissionCutsceneCollection
 
@@ -410,7 +410,7 @@ describe("Mission Cutscene Service", () => {
         })
 
         describe("Squaddie Is Injured Cutscene Trigger (via BattleAction)", () => {
-            let targetWasInjuredContext: BattleActionActionContext
+            let targetWasInjuredContext: BattleActionActorContext
             let gameEngineStateWithInjuryCutscene: GameEngineState
             let injuredCutsceneTrigger: SquaddieIsInjuredTrigger
             const injuredCutsceneId = "injured"
@@ -433,7 +433,7 @@ describe("Mission Cutscene Service", () => {
                     ],
                 }
 
-                targetWasInjuredContext = BattleActionActionContextService.new({
+                targetWasInjuredContext = BattleActionActorContextService.new({
                     actingSquaddieModifiers: undefined,
                     actingSquaddieRoll: undefined,
                 })

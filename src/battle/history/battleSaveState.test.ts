@@ -55,7 +55,7 @@ import {
     BattleActionRecorder,
     BattleActionRecorderService,
 } from "./battleAction/battleActionRecorder"
-import { BattleActionActionContextService } from "./battleAction/battleActionActionContext"
+import { BattleActionActorContextService } from "./battleAction/battleActionActorContext"
 import { RollResultService } from "../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it } from "vitest"
 
@@ -81,7 +81,7 @@ describe("BattleSaveState", () => {
         firstBattleAction = BattleActionService.new({
             actor: {
                 actorBattleSquaddieId: "actor 1",
-                actorContext: BattleActionActionContextService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [3, 5],

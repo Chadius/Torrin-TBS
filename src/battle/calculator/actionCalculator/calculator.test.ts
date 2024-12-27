@@ -55,6 +55,7 @@ import {
     ArmyAttributesService,
     ProficiencyLevel,
 } from "../../../squaddie/armyAttributes"
+import { CalculatedResult } from "../../history/calculatedResult"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository
@@ -253,7 +254,9 @@ describe("calculator", () => {
             BattleActionDecisionStepService.new()
         BattleActionDecisionStepService.setActor({
             actionDecisionStep: actionStep,
-            battleSquaddieId: battleSquaddieId,
+            battleSquaddieId: actingBattleSquaddie
+                ? actingBattleSquaddie.battleSquaddieId
+                : battleSquaddieId,
         })
         BattleActionDecisionStepService.addAction({
             actionDecisionStep: actionStep,
@@ -261,14 +264,59 @@ describe("calculator", () => {
         })
         BattleActionDecisionStepService.setConfirmedTarget({
             actionDecisionStep: actionStep,
-            targetCoordinate: validTargetCoordinate,
+            targetCoordinate: validTargetCoordinate ?? { q: 0, r: 1 },
+        })
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            actionStep
+        return ActionCalculator.calculateAndApplyResults({
+            gameEngineState,
+        })
+    }
+
+    const forecastBodyDamage = ({
+        actingBattleSquaddie,
+        targetCoordinates,
+        missionStatistics,
+        currentlySelectedAction,
+        numberGenerator,
+    }: {
+        currentlySelectedAction: ActionTemplate
+        actingBattleSquaddie?: BattleSquaddie
+        targetCoordinates?: HexCoordinate[]
+        missionStatistics?: MissionStatistics
+        numberGenerator?: NumberGeneratorStrategy
+    }) => {
+        const battleSquaddieId = getActingBattleSquaddieIdForDealBodyDamage({
+            actingBattleSquaddie,
         })
 
-        return ActionCalculator.calculateResults({
+        const gameEngineState = getGameEngineStateForDealBodyDamage({
+            numberGenerator,
+            missionStatistics,
+        })
+        const actionStep: BattleActionDecisionStep =
+            BattleActionDecisionStepService.new()
+        BattleActionDecisionStepService.setActor({
+            actionDecisionStep: actionStep,
+            battleSquaddieId: battleSquaddieId,
+        })
+        BattleActionDecisionStepService.addAction({
+            actionDecisionStep: actionStep,
+            actionTemplateId: currentlySelectedAction.id,
+        })
+        if (!targetCoordinates || targetCoordinates?.length === 0) {
+            targetCoordinates = [{ q: 0, r: 1 }]
+        }
+
+        BattleActionDecisionStepService.setConfirmedTarget({
+            actionDecisionStep: actionStep,
+            targetCoordinate: targetCoordinates[0],
+        })
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            actionStep
+
+        return ActionCalculator.forecastResults({
             gameEngineState,
-            battleActionDecisionStep: actionStep,
-            actingBattleSquaddie: actingBattleSquaddie ?? player1BattleSquaddie,
-            validTargetCoordinate: validTargetCoordinate ?? { q: 0, r: 1 },
         })
     }
 
@@ -290,15 +338,16 @@ describe("calculator", () => {
         })
 
         it("will deal full damage to unarmored foes", () => {
-            const results = dealBodyDamage({
+            const results: CalculatedResult = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
 
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.damage.net).toBe(2)
             expect(enemy1Changes.attributesBefore.currentHitPoints).toEqual(5)
             expect(enemy1Changes.attributesAfter.currentHitPoints).toEqual(
@@ -310,7 +359,137 @@ describe("calculator", () => {
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
             })
-            expect(results[0].actingContext.actorRoll.occurred).toBeFalsy()
+            expect(
+                results.changesPerEffect[0].actorContext.actorRoll.occurred
+            ).toBeFalsy()
+        })
+
+        it("if the action always succeeds, will only forecast success", () => {
+            const results = forecastBodyDamage({
+                currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
+            })
+            expect(
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+                ).chanceOfDegreeOfSuccess
+            ).toBe(36)
+            expect(
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_SUCCESS
+                )
+            ).toBeUndefined()
+            expect(
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_FAILURE
+                )
+            ).toBeUndefined()
+            expect(
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
+                )
+            ).toBeUndefined()
+        })
+
+        it("if the action cannot critically fail, add forecasted chances to failure chance", () => {
+            const allDegreesPossible = forecastBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+            })
+            expect(
+                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_FAILURE
+                ).chanceOfDegreeOfSuccess
+            ).toBeGreaterThan(0)
+
+            TraitStatusStorageService.setStatus(
+                actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0]
+                    .traits,
+                Trait.CANNOT_CRITICALLY_FAIL,
+                true
+            )
+            const cannotCriticallyFail = forecastBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+            })
+            expect(
+                cannotCriticallyFail.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_FAILURE
+                )
+            ).toBeUndefined()
+            expect(
+                cannotCriticallyFail.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
+                ).chanceOfDegreeOfSuccess
+            ).toEqual(
+                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE
+                ).chanceOfDegreeOfSuccess +
+                    allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.CRITICAL_FAILURE
+                    ).chanceOfDegreeOfSuccess
+            )
+        })
+
+        it("if the action cannot critically succeed, add forecasted chances to success chance", () => {
+            const allDegreesPossible = forecastBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+            })
+            expect(
+                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_SUCCESS
+                ).chanceOfDegreeOfSuccess
+            ).toBeGreaterThan(0)
+
+            TraitStatusStorageService.setStatus(
+                actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0]
+                    .traits,
+                Trait.CANNOT_CRITICALLY_SUCCEED,
+                true
+            )
+            const cannotCriticallySucceed = forecastBodyDamage({
+                currentlySelectedAction:
+                    actionNeedsAnAttackRollToDealBodyDamage,
+            })
+            expect(
+                cannotCriticallySucceed.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess ===
+                        DegreeOfSuccess.CRITICAL_SUCCESS
+                )
+            ).toBeUndefined()
+            expect(
+                cannotCriticallySucceed.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+                ).chanceOfDegreeOfSuccess
+            ).toEqual(
+                allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS
+                ).chanceOfDegreeOfSuccess +
+                    allDegreesPossible.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.CRITICAL_SUCCESS
+                    ).chanceOfDegreeOfSuccess
+            )
         })
 
         it("will require a roll for attacks that require rolls", () => {
@@ -323,8 +502,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            expect(results[0].actingContext.actorRoll.occurred).toBeTruthy()
-            expect(results[0].actingContext.actorRoll.rolls).toEqual([1, 6])
+            expect(
+                results.changesPerEffect[0].actorContext.actorRoll.occurred
+            ).toBeTruthy()
+            expect(
+                results.changesPerEffect[0].actorContext.actorRoll.rolls
+            ).toEqual([1, 6])
         })
 
         it("will record the damage dealt by the player to mission statistics", () => {
@@ -382,6 +565,35 @@ describe("calculator", () => {
 
             expect(missionStatistics.damageTakenByPlayerTeam).toBe(1)
             expect(missionStatistics.damageAbsorbedByPlayerTeam).toBe(1)
+        })
+
+        describe("Get forecast", () => {
+            let forecast: CalculatedResult
+            beforeEach(() => {
+                forecast = forecastBodyDamage({
+                    currentlySelectedAction:
+                        actionNeedsAnAttackRollToDealBodyDamage,
+                })
+            })
+
+            it("does not change the target hit points", () => {
+                expect(
+                    enemy1BattleSquaddie.inBattleAttributes.currentHitPoints
+                ).toEqual(
+                    enemy1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints
+                )
+            })
+
+            it("returns the chance for different degrees of success", () => {
+                expect(
+                    forecast.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.SUCCESS
+                    )
+                ).not.toBeUndefined()
+            })
         })
     })
 
@@ -455,7 +667,7 @@ describe("calculator", () => {
                 targetCoordinate: { q: 0, r: 2 },
             })
 
-            const results = ActionCalculator.calculateResults({
+            const results = ActionCalculator.calculateAndApplyResults({
                 gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
@@ -464,21 +676,20 @@ describe("calculator", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
+                                battleActionDecisionStep: actionStep,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                battleActionDecisionStep: actionStep,
-                actingBattleSquaddie: player1BattleSquaddie,
-                validTargetCoordinate: { q: 0, r: 2 },
             })
 
-            const ally1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    ally1BattleSquaddie.battleSquaddieId
-            )
+            const ally1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        ally1BattleSquaddie.battleSquaddieId
+                )
             expect(ally1Changes.healingReceived).toBe(2)
             expect(ally1Changes.attributesBefore.currentHitPoints).toEqual(1)
             expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
@@ -513,7 +724,7 @@ describe("calculator", () => {
                 targetCoordinate: { q: 0, r: 0 },
             })
 
-            ActionCalculator.calculateResults({
+            ActionCalculator.calculateAndApplyResults({
                 gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
@@ -523,14 +734,12 @@ describe("calculator", () => {
                                 campaignId: "test campaign",
                                 missionMap,
                                 missionStatistics,
+                                battleActionDecisionStep: actionStep,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                battleActionDecisionStep: actionStep,
-                actingBattleSquaddie: player1BattleSquaddie,
-                validTargetCoordinate: { q: 0, r: 0 },
             })
 
             expect(missionStatistics.healingReceivedByPlayerTeam).toBe(2)
@@ -596,8 +805,7 @@ describe("calculator", () => {
                 actionDecisionStep: actionStep,
                 targetCoordinate: { q: 0, r: 0 },
             })
-
-            const results = ActionCalculator.calculateResults({
+            const results = ActionCalculator.calculateAndApplyResults({
                 gameEngineState: GameEngineStateService.new({
                     resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.new(
@@ -606,21 +814,20 @@ describe("calculator", () => {
                                 missionId: "test mission",
                                 campaignId: "test campaign",
                                 missionMap,
+                                battleActionDecisionStep: actionStep,
                             }),
                         }
                     ),
                     repository: objectRepository,
                 }),
-                battleActionDecisionStep: actionStep,
-                actingBattleSquaddie: player1BattleSquaddie,
-                validTargetCoordinate: { q: 0, r: 0 },
             })
 
-            const player1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    player1BattleSquaddie.battleSquaddieId
-            )
+            const player1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        player1BattleSquaddie.battleSquaddieId
+                )
 
             const beforeChanges =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
@@ -685,11 +892,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
@@ -717,11 +925,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
@@ -749,104 +958,210 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
             expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
         })
 
-        it("knows when multiple attack penalties should apply", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    enemy1DynamicId
+        describe("knows when multiple attack penalties should apply", () => {
+            let previousActionStep: BattleActionDecisionStep
+            let currentActionStep: BattleActionDecisionStep
+
+            beforeEach(() => {
+                const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        enemy1DynamicId
+                    )
                 )
-            )
-            enemyBattle.inBattleAttributes.armyAttributes.armor = {
-                proficiencyLevel: ProficiencyLevel.UNTRAINED,
-                base: 1,
-            }
+                enemyBattle.inBattleAttributes.armyAttributes.armor = {
+                    proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                    base: 1,
+                }
 
-            const expectedRolls: number[] = [1, 6]
-            const numberGenerator: StreamNumberGenerator =
-                new StreamNumberGenerator({ results: expectedRolls })
-
-            const action0Step: BattleActionDecisionStep =
-                BattleActionDecisionStepService.new()
-            BattleActionDecisionStepService.setActor({
-                actionDecisionStep: action0Step,
-                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
-            })
-            BattleActionDecisionStepService.addAction({
-                actionDecisionStep: action0Step,
-                actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
-            })
-            BattleActionDecisionStepService.setConfirmedTarget({
-                actionDecisionStep: action0Step,
-                targetCoordinate: { q: 0, r: 0 },
-            })
-
-            const battleActionRecorder = BattleActionRecorderService.new()
-            BattleActionRecorderService.addReadyToAnimateBattleAction(
-                battleActionRecorder,
-                BattleActionService.new({
-                    actor: {
-                        actorBattleSquaddieId:
-                            player1BattleSquaddie.battleSquaddieId,
-                    },
-                    action: {
-                        actionTemplateId:
-                            actionNeedsAnAttackRollToDealBodyDamage.id,
-                    },
-                    effect: { squaddie: [] },
+                previousActionStep = BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: previousActionStep,
+                    battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
                 })
-            )
-            BattleActionRecorderService.battleActionFinishedAnimating(
-                battleActionRecorder
-            )
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: previousActionStep,
+                    actionTemplateId:
+                        actionNeedsAnAttackRollToDealBodyDamage.id,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: previousActionStep,
+                    targetCoordinate: { q: 0, r: 0 },
+                })
 
-            const results = ActionCalculator.calculateResults({
-                gameEngineState: GameEngineStateService.new({
-                    repository: objectRepository,
-                    resourceHandler: undefined,
-                    battleOrchestratorState: BattleOrchestratorStateService.new(
-                        {
-                            numberGenerator,
-                            battleState: BattleStateService.newBattleState({
-                                missionId: "test mission",
-                                campaignId: "test campaign",
-                                missionMap,
-                                battleActionRecorder,
-                                missionStatistics: MissionStatisticsService.new(
-                                    {}
-                                ),
-                            }),
-                        }
-                    ),
-                }),
-                battleActionDecisionStep: action0Step,
-                actingBattleSquaddie: player1BattleSquaddie,
-                validTargetCoordinate: { q: 0, r: 1 },
+                currentActionStep = BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: currentActionStep,
+                    battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: currentActionStep,
+                    actionTemplateId:
+                        actionNeedsAnAttackRollToDealBodyDamage.id,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: currentActionStep,
+                    targetCoordinate: { q: 0, r: 1 },
+                })
             })
 
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
-                DegreeOfSuccess.FAILURE
-            )
-            expect(
-                results[0].actingContext.actorRoll.rollModifiers[
-                    RollModifierType.MULTIPLE_ATTACK_PENALTY
-                ]
-            ).toEqual(-3)
+            it("attack misses because of the penalty", () => {
+                const expectedRolls: number[] = [1, 6]
+                const numberGenerator: StreamNumberGenerator =
+                    new StreamNumberGenerator({ results: expectedRolls })
+                const battleActionRecorder = BattleActionRecorderService.new()
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
+                    battleActionRecorder,
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                player1BattleSquaddie.battleSquaddieId,
+                        },
+                        action: {
+                            actionTemplateId:
+                                actionNeedsAnAttackRollToDealBodyDamage.id,
+                        },
+                        effect: { squaddie: [] },
+                    })
+                )
+                BattleActionRecorderService.battleActionFinishedAnimating(
+                    battleActionRecorder
+                )
+
+                const results = ActionCalculator.calculateAndApplyResults({
+                    gameEngineState: GameEngineStateService.new({
+                        repository: objectRepository,
+                        resourceHandler: undefined,
+                        battleOrchestratorState:
+                            BattleOrchestratorStateService.new({
+                                numberGenerator,
+                                battleState: BattleStateService.newBattleState({
+                                    missionId: "test mission",
+                                    campaignId: "test campaign",
+                                    missionMap,
+                                    battleActionRecorder,
+                                    missionStatistics:
+                                        MissionStatisticsService.new({}),
+                                    battleActionDecisionStep: currentActionStep,
+                                }),
+                            }),
+                    }),
+                })
+
+                const enemy1Changes =
+                    results.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            enemy1BattleSquaddie.battleSquaddieId
+                    )
+                expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                    DegreeOfSuccess.FAILURE
+                )
+                expect(
+                    results.changesPerEffect[0].actorContext.actorRoll
+                        .rollModifiers[RollModifierType.MULTIPLE_ATTACK_PENALTY]
+                ).toEqual(-3)
+            })
+            it("reduces the forecasted chance to succeed because of the penalty", () => {
+                const forecastForFirstAttack = ActionCalculator.forecastResults(
+                    {
+                        gameEngineState: GameEngineStateService.new({
+                            repository: objectRepository,
+                            resourceHandler: undefined,
+                            battleOrchestratorState:
+                                BattleOrchestratorStateService.new({
+                                    battleState:
+                                        BattleStateService.newBattleState({
+                                            missionId: "test mission",
+                                            campaignId: "test campaign",
+                                            missionMap,
+                                            missionStatistics:
+                                                MissionStatisticsService.new(
+                                                    {}
+                                                ),
+                                            battleActionDecisionStep:
+                                                currentActionStep,
+                                        }),
+                                }),
+                        }),
+                    }
+                )
+
+                const battleActionRecorder = BattleActionRecorderService.new()
+                BattleActionRecorderService.addReadyToAnimateBattleAction(
+                    battleActionRecorder,
+                    BattleActionService.new({
+                        actor: {
+                            actorBattleSquaddieId:
+                                player1BattleSquaddie.battleSquaddieId,
+                        },
+                        action: {
+                            actionTemplateId:
+                                actionNeedsAnAttackRollToDealBodyDamage.id,
+                        },
+                        effect: { squaddie: [] },
+                    })
+                )
+                BattleActionRecorderService.battleActionFinishedAnimating(
+                    battleActionRecorder
+                )
+
+                const forecastForSecondAttack =
+                    ActionCalculator.forecastResults({
+                        gameEngineState: GameEngineStateService.new({
+                            repository: objectRepository,
+                            resourceHandler: undefined,
+                            battleOrchestratorState:
+                                BattleOrchestratorStateService.new({
+                                    battleState:
+                                        BattleStateService.newBattleState({
+                                            missionId: "test mission",
+                                            campaignId: "test campaign",
+                                            missionMap,
+                                            battleActionRecorder,
+                                            missionStatistics:
+                                                MissionStatisticsService.new(
+                                                    {}
+                                                ),
+                                            battleActionDecisionStep:
+                                                currentActionStep,
+                                        }),
+                                }),
+                        }),
+                    })
+                expect(
+                    forecastForSecondAttack.changesPerEffect[0].actorContext
+                        .actorRoll.rollModifiers[
+                        RollModifierType.MULTIPLE_ATTACK_PENALTY
+                    ]
+                ).toBe(-3)
+
+                expect(
+                    forecastForFirstAttack.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.SUCCESS
+                    ).chanceOfDegreeOfSuccess
+                ).toBeGreaterThan(
+                    forecastForSecondAttack.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.SUCCESS
+                    ).chanceOfDegreeOfSuccess
+                )
+            })
         })
 
         it("will apply the tier bonus to the attacker roll to increase change of hitting", () => {
@@ -895,11 +1210,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
@@ -932,11 +1248,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
@@ -981,11 +1298,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
@@ -1013,11 +1331,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_SUCCESS
             )
@@ -1090,19 +1409,18 @@ describe("calculator", () => {
                     gameEngineState
                 )
             ).toBe(-3)
-
-            const results = ActionCalculator.calculateResults({
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                actionStep
+            const results = ActionCalculator.calculateAndApplyResults({
                 gameEngineState,
-                battleActionDecisionStep: actionStep,
-                actingBattleSquaddie: player1BattleSquaddie,
-                validTargetCoordinate: { q: 0, r: 1 },
             })
 
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
@@ -1196,11 +1514,12 @@ describe("calculator", () => {
                 numberGenerator,
             })
 
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.SUCCESS
             )
@@ -1228,11 +1547,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
@@ -1260,11 +1580,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.CRITICAL_FAILURE
             )
@@ -1300,11 +1621,12 @@ describe("calculator", () => {
                     actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,
             })
-            const enemy1Changes = results[0].squaddieChanges.find(
-                (change) =>
-                    change.battleSquaddieId ===
-                    enemy1BattleSquaddie.battleSquaddieId
-            )
+            const enemy1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        enemy1BattleSquaddie.battleSquaddieId
+                )
             expect(enemy1Changes.actorDegreeOfSuccess).toBe(
                 DegreeOfSuccess.FAILURE
             )
@@ -1368,10 +1690,10 @@ describe("calculator", () => {
                 currentlySelectedAction: actionHasTwoEffectTemplates,
             })
 
-            expect(results).toHaveLength(2)
+            expect(results.changesPerEffect).toHaveLength(2)
 
             const enemyChangesForFirstTemplate =
-                results[0].squaddieChanges.find(
+                results.changesPerEffect[0].squaddieChanges.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId
@@ -1384,7 +1706,7 @@ describe("calculator", () => {
                 enemyChangesForFirstTemplate.attributesAfter.currentHitPoints
             ).toEqual(5 - 1)
             const enemyChangesForSecondTemplate =
-                results[1].squaddieChanges.find(
+                results.changesPerEffect[1].squaddieChanges.find(
                     (change) =>
                         change.battleSquaddieId ===
                         enemy1BattleSquaddie.battleSquaddieId

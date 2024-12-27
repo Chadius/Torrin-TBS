@@ -183,22 +183,20 @@ describe("Armor Attribute affects Armor Attacks", () => {
             actionDecisionStep: actionStep,
             targetCoordinate: { q: 0, r: 1 },
         })
-
-        const results = ActionCalculator.calculateResults({
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            actionStep
+        const results = ActionCalculator.calculateAndApplyResults({
             gameEngineState,
-            battleActionDecisionStep: actionStep,
-            actingBattleSquaddie: actingSquaddie,
-            validTargetCoordinate: { q: 0, r: 1 },
         })
 
         expect(
-            results[0].actingContext.targetAttributeModifiers[
+            results.changesPerEffect[0].actorContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
             ].find((t) => t.type === AttributeType.ARMOR).amount
         ).toEqual(8)
-        expect(results[0].squaddieChanges[0].actorDegreeOfSuccess).toEqual(
-            DegreeOfSuccess.FAILURE
-        )
+        expect(
+            results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess
+        ).toEqual(DegreeOfSuccess.FAILURE)
     })
 
     it("attacks that do not aim at armor ignore target armor", () => {
@@ -256,20 +254,19 @@ describe("Armor Attribute affects Armor Attacks", () => {
             targetCoordinate: { q: 0, r: 1 },
         })
 
-        const results = ActionCalculator.calculateResults({
+        gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+            actionStep
+        const results = ActionCalculator.calculateAndApplyResults({
             gameEngineState,
-            battleActionDecisionStep: actionStep,
-            actingBattleSquaddie: actingSquaddie,
-            validTargetCoordinate: { q: 0, r: 1 },
         })
 
         expect(
-            results[0].actingContext.targetAttributeModifiers[
+            results.changesPerEffect[0].actorContext.targetAttributeModifiers[
                 targetSquaddie.battleSquaddieId
             ].find((t) => t.type === AttributeType.ARMOR)
         ).toBeUndefined()
-        expect(results[0].squaddieChanges[0].actorDegreeOfSuccess).toEqual(
-            DegreeOfSuccess.CRITICAL_SUCCESS
-        )
+        expect(
+            results.changesPerEffect[0].squaddieChanges[0].actorDegreeOfSuccess
+        ).toEqual(DegreeOfSuccess.CRITICAL_SUCCESS)
     })
 })

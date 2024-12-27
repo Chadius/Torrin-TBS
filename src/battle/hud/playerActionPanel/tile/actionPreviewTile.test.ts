@@ -61,6 +61,7 @@ describe("Action Preview Tile", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.TARGET_FOE]: true,
+                        [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
@@ -167,6 +168,31 @@ describe("Action Preview Tile", () => {
                 graphicsContext: graphicsBuffer,
             })
             expect(graphicsBufferSpies["rect"]).toBeCalled()
+        })
+
+        it("will text the chance to hit", () => {
+            ActionPreviewTileService.draw({
+                tile: tile,
+                graphicsContext: graphicsBuffer,
+            })
+
+            expect(
+                graphicsBufferSpies["text"].mock.calls.some((args) =>
+                    args[0].includes("69% hit")
+                )
+            ).toBeTruthy()
+        })
+
+        it("will text the chance to crit", () => {
+            ActionPreviewTileService.draw({
+                tile: tile,
+                graphicsContext: graphicsBuffer,
+            })
+            expect(
+                graphicsBufferSpies["text"].mock.calls.some((args) =>
+                    args[0].includes("3% crit")
+                )
+            ).toBeTruthy()
         })
     })
 })

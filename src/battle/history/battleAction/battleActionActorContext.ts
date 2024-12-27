@@ -4,7 +4,7 @@ import {
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 
-export interface BattleActionActionContext {
+export interface BattleActionActorContext {
     actorAttributeModifiers: AttributeTypeAndAmount[]
     actorRoll: RollResult
     targetAttributeModifiers: {
@@ -12,7 +12,7 @@ export interface BattleActionActionContext {
     }
 }
 
-export const BattleActionActionContextService = {
+export const BattleActionActorContextService = {
     new: ({
         actingSquaddieModifiers,
         actingSquaddieRoll,
@@ -23,13 +23,13 @@ export const BattleActionActionContextService = {
         targetSquaddieModifiers?: {
             [squaddieId: string]: AttributeTypeAndAmount[]
         }
-    }): BattleActionActionContext =>
+    }): BattleActionActorContext =>
         newBattleActionActionContext({
             actingSquaddieModifiers,
             actingSquaddieRoll,
             targetSquaddieModifiers,
         }),
-    clone: (original: BattleActionActionContext): BattleActionActionContext =>
+    clone: (original: BattleActionActorContext): BattleActionActorContext =>
         newBattleActionActionContext({
             actingSquaddieModifiers: original.actorAttributeModifiers,
             actingSquaddieRoll: original.actorRoll,
@@ -47,7 +47,7 @@ const newBattleActionActionContext = ({
     targetSquaddieModifiers?: {
         [squaddieId: string]: AttributeTypeAndAmount[]
     }
-}): BattleActionActionContext => ({
+}): BattleActionActorContext => ({
     actorAttributeModifiers: actingSquaddieModifiers ?? [],
     targetAttributeModifiers: targetSquaddieModifiers ?? {},
     actorRoll:

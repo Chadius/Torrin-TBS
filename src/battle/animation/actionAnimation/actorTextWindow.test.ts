@@ -18,14 +18,14 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { SquaddieSquaddieResultsService } from "../../history/squaddieSquaddieResults"
-import { BattleActionActionContextService } from "../../history/battleAction/battleActionActionContext"
+import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import {
     RollModifierType,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { ActionEffectChangesService } from "../../history/calculatedResult"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -88,17 +88,15 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actingBattleSquaddieId: "",
-                targetedBattleSquaddieIds: [],
-                actionContext: BattleActionActionContextService.new({
+            results: ActionEffectChangesService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 5],
                     }),
                     actingSquaddieModifiers: [],
                 }),
+                squaddieChanges: [],
             }),
         })
 
@@ -121,17 +119,15 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actingBattleSquaddieId: "",
-                targetedBattleSquaddieIds: [],
-                actionContext: BattleActionActionContextService.new({
+            results: ActionEffectChangesService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: false,
                         rolls: [],
                     }),
                     actingSquaddieModifiers: [],
                 }),
+                squaddieChanges: [],
             }),
         })
 
@@ -152,17 +148,15 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actingBattleSquaddieId: "",
-                targetedBattleSquaddieIds: [],
-                actionContext: BattleActionActionContextService.new({
+            results: ActionEffectChangesService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [6, 6],
                     }),
                     actingSquaddieModifiers: [],
                 }),
+                squaddieChanges: [],
             }),
         })
 
@@ -185,17 +179,15 @@ describe("ActorTextWindow", () => {
             actorTemplate: actorTemplate,
             actorBattle: undefined,
             actionTemplateName: attackThatUsesAttackRoll.name,
-            results: SquaddieSquaddieResultsService.new({
-                squaddieChanges: [],
-                actingBattleSquaddieId: "",
-                targetedBattleSquaddieIds: [],
-                actionContext: BattleActionActionContextService.new({
+            results: ActionEffectChangesService.new({
+                actorContext: BattleActionActorContextService.new({
                     actingSquaddieRoll: RollResultService.new({
                         occurred: true,
                         rolls: [1, 1],
                     }),
                     actingSquaddieModifiers: [],
                 }),
+                squaddieChanges: [],
             }),
         })
 
@@ -219,11 +211,8 @@ describe("ActorTextWindow", () => {
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
-                results: SquaddieSquaddieResultsService.new({
-                    squaddieChanges: [],
-                    actingBattleSquaddieId: "",
-                    targetedBattleSquaddieIds: [],
-                    actionContext: BattleActionActionContextService.new({
+                results: ActionEffectChangesService.new({
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieRoll: RollResultService.new({
                             occurred: false,
                             rolls: [],
@@ -233,6 +222,7 @@ describe("ActorTextWindow", () => {
                         }),
                         actingSquaddieModifiers: [],
                     }),
+                    squaddieChanges: [],
                 }),
             })
 
@@ -255,11 +245,8 @@ describe("ActorTextWindow", () => {
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
                 actionTemplateName: attackThatUsesAttackRoll.name,
-                results: SquaddieSquaddieResultsService.new({
-                    squaddieChanges: [],
-                    actingBattleSquaddieId: "",
-                    targetedBattleSquaddieIds: [],
-                    actionContext: BattleActionActionContextService.new({
+                results: ActionEffectChangesService.new({
+                    actorContext: BattleActionActorContextService.new({
                         actingSquaddieRoll: RollResultService.new({
                             occurred: true,
                             rolls: [1, 5],
@@ -269,6 +256,7 @@ describe("ActorTextWindow", () => {
                         }),
                         actingSquaddieModifiers: [],
                     }),
+                    squaddieChanges: [],
                 }),
             })
 
