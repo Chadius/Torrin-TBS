@@ -1,18 +1,19 @@
 import { BehaviorTreeTask } from "../task"
 import { Blackboard } from "../../blackboard/blackboard"
 
-export class AlwaysTrueCondition implements BehaviorTreeTask {
+export class AlwaysFalseCondition implements BehaviorTreeTask {
     blackboard: Blackboard
+    children: BehaviorTreeTask[]
 
     constructor(blackboard: Blackboard) {
         this.blackboard = blackboard
     }
 
     run(): boolean {
-        return true
+        return false
     }
 
     clone(): BehaviorTreeTask {
-        return new AlwaysTrueCondition(this.blackboard)
+        return new AlwaysFalseCondition(this.blackboard)
     }
 }
