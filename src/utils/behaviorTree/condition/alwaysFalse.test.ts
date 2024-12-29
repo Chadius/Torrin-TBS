@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { Blackboard, BlackboardService } from "../../blackboard/blackboard"
 import { AlwaysFalseCondition } from "./alwaysFalse"
 

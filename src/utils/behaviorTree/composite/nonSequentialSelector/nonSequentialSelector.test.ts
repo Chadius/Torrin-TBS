@@ -30,7 +30,7 @@ describe("Non Sequential Selector composite", () => {
     })
 
     it("returns as soon as one child returns true", () => {
-        const trueTask: AlwaysFalseCondition = new AlwaysTrueCondition(
+        const trueTask: AlwaysTrueCondition = new AlwaysTrueCondition(
             blackboard
         )
         const trueTaskSpy = vi.spyOn(trueTask, "run")
