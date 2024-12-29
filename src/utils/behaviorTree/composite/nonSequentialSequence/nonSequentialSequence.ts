@@ -1,7 +1,7 @@
 import { BehaviorTreeTask } from "../../task"
 import { Blackboard } from "../../../blackboard/blackboard"
 
-export class SequenceComposite implements BehaviorTreeTask {
+export class NonSequentialSequenceComposite implements BehaviorTreeTask {
     blackboard: Blackboard
     children?: BehaviorTreeTask[]
 
@@ -19,6 +19,9 @@ export class SequenceComposite implements BehaviorTreeTask {
 
     clone(): BehaviorTreeTask {
         const clonedChildren = this.children.map((child) => child.clone())
-        return new SequenceComposite(this.blackboard, clonedChildren)
+        return new NonSequentialSequenceComposite(
+            this.blackboard,
+            clonedChildren
+        )
     }
 }

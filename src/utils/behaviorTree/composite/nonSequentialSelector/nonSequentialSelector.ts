@@ -1,7 +1,7 @@
 import { BehaviorTreeTask } from "../../task"
 import { Blackboard } from "../../../blackboard/blackboard"
 
-export class SequenceComposite implements BehaviorTreeTask {
+export class NonSequentialSelectorComposite implements BehaviorTreeTask {
     blackboard: Blackboard
     children?: BehaviorTreeTask[]
 
@@ -14,11 +14,19 @@ export class SequenceComposite implements BehaviorTreeTask {
         if (!this.children) {
             return false
         }
-        return this.children.every((child: BehaviorTreeTask) => child.run())
+
+        const randomIndexOrder: number[] = Array.from(
+            new Array(this.children.length),
+            (x, i) => i
+        ).sort(() => Math.random() - 0.5)
+        return randomIndexOrder.some((i) => this.children[i].run())
     }
 
     clone(): BehaviorTreeTask {
         const clonedChildren = this.children.map((child) => child.clone())
-        return new SequenceComposite(this.blackboard, clonedChildren)
+        return new NonSequentialSelectorComposite(
+            this.blackboard,
+            clonedChildren
+        )
     }
 }

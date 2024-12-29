@@ -5,7 +5,6 @@ import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 import { SequenceComposite } from "./sequence"
 import { IncrementBlackboard } from "../../testUtil/testIncrementBlackboard"
-import { SelectorComposite } from "../selector/selector"
 
 describe("Sequence composite", () => {
     let blackboard: Blackboard
@@ -41,20 +40,6 @@ describe("Sequence composite", () => {
         ])
         expect(sequence.run()).toBe(false)
         expect(BlackboardService.get(blackboard, "increment")).toEqual(3)
-    })
-
-    it("can be cloned", () => {
-        const children: BehaviorTreeTask[] = [
-            new AlwaysFalseCondition(blackboard),
-            new AlwaysFalseCondition(blackboard),
-            new AlwaysTrueCondition(blackboard),
-        ]
-
-        const original = new SequenceComposite(blackboard, children)
-
-        const clone: SequenceComposite = original.clone()
-        expect(clone.blackboard).toEqual(original.blackboard)
-        expect(clone.children).toEqual(original.children)
     })
 
     it("can clone recursively", () => {

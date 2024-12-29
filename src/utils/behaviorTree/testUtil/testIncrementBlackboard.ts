@@ -3,7 +3,6 @@ import { Blackboard, BlackboardService } from "../../blackboard/blackboard"
 
 export class IncrementBlackboard implements BehaviorTreeTask {
     blackboard: Blackboard
-    children: BehaviorTreeTask[]
 
     constructor(blackboard: Blackboard) {
         this.blackboard = blackboard

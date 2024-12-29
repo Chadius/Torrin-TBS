@@ -3,7 +3,7 @@ import { Blackboard } from "../../../blackboard/blackboard"
 
 export class SelectorComposite implements BehaviorTreeTask {
     blackboard: Blackboard
-    children: BehaviorTreeTask[]
+    children?: BehaviorTreeTask[]
 
     constructor(blackboard: Blackboard, children: BehaviorTreeTask[]) {
         this.blackboard = blackboard
