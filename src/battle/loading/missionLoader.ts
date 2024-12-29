@@ -44,6 +44,7 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 export interface MissionLoaderCompletionProgress {
     started: boolean
@@ -337,43 +338,45 @@ const initializeSquaddieResources = ({
             let image: p5.Image = resourceHandler.getResource(
                 squaddieTemplate.squaddieId.resources.mapIconResourceKey
             )
+
             const datum = MissionMapService.getByBattleSquaddieId(
                 missionLoaderContext.missionMap,
                 battleSquaddie.battleSquaddieId
             )
 
+            let screenX = ScreenDimensions.SCREEN_WIDTH
+            let screenY = ScreenDimensions.SCREEN_HEIGHT
             if (datum.mapCoordinate !== undefined) {
-                const { screenX, screenY } =
+                ;({ screenX, screenY } =
                     ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
                         {
                             q: datum.mapCoordinate.q,
                             r: datum.mapCoordinate.r,
                             ...missionLoaderContext.mapSettings.camera.getCoordinates(),
                         }
-                    )
-
-                ObjectRepositoryService.addImageUIByBattleSquaddieId({
-                    repository,
-                    battleSquaddieId,
-                    imageUI: new ImageUI({
-                        imageLoadingBehavior: {
-                            resourceKey:
-                                squaddieTemplate.squaddieId.resources
-                                    .mapIconResourceKey,
-                            loadingBehavior:
-                                ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
-                        },
-                        area: RectAreaService.new({
-                            left: screenX,
-                            top: screenY,
-                            width: image.width,
-                            height: image.height,
-                            horizAlign: HORIZONTAL_ALIGN.CENTER,
-                            vertAlign: VERTICAL_ALIGN.CENTER,
-                        }),
-                    }),
-                })
+                    ))
             }
+            ObjectRepositoryService.addImageUIByBattleSquaddieId({
+                repository,
+                battleSquaddieId,
+                imageUI: new ImageUI({
+                    imageLoadingBehavior: {
+                        resourceKey:
+                            squaddieTemplate.squaddieId.resources
+                                .mapIconResourceKey,
+                        loadingBehavior:
+                            ImageUILoadingBehavior.KEEP_AREA_RESIZE_IMAGE,
+                    },
+                    area: RectAreaService.new({
+                        left: screenX,
+                        top: screenY,
+                        width: image.width,
+                        height: image.height,
+                        horizAlign: HORIZONTAL_ALIGN.CENTER,
+                        vertAlign: VERTICAL_ALIGN.CENTER,
+                    }),
+                }),
+            })
         }
     )
 }

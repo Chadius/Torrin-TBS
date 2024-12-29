@@ -106,7 +106,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 undefined
         ) {
             return
-        } else {
+        } else if (this.finishedLoading) {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderContext: this.missionLoaderContext,
                 resourceHandler: state.resourceHandler,
