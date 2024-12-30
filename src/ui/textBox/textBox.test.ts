@@ -1,6 +1,6 @@
 import { TextBox, TextBoxService } from "./textBox"
-import { RectAreaService } from "./rectArea"
-import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import { RectAreaService } from "../rectArea"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("Pop up text", () => {

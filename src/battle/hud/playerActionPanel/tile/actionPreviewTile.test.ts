@@ -44,7 +44,19 @@ import {
     expect,
     it,
     MockInstance,
+    vi,
 } from "vitest"
+import { ActionCalculator } from "../../../calculator/actionCalculator/calculator"
+import { DegreeOfSuccess } from "../../../calculator/actionCalculator/degreeOfSuccess"
+import {
+    ActionEffectChangesService,
+    CalculatedResultService,
+} from "../../../history/calculatedResult"
+import { BattleActionActorContextService } from "../../../history/battleAction/battleActionActorContext"
+import {
+    BattleActionSquaddieChangeService,
+    DamageExplanationService,
+} from "../../../history/battleAction/battleActionSquaddieChange"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository
@@ -85,7 +97,7 @@ describe("Action Preview Tile", () => {
         })
 
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            name: "enemy",
+            name: "enemy name",
             templateId: "enemy_0",
             battleId: "enemy_0",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -116,7 +128,7 @@ describe("Action Preview Tile", () => {
             MissionMapService.addSquaddie({
                 missionMap,
                 battleSquaddieId: "enemy_0",
-                squaddieTemplateId: "enemy_0",
+                squaddieTemplateId: "enemy name",
                 coordinate: { q: 0, r: 1 },
             })
 
@@ -170,29 +182,269 @@ describe("Action Preview Tile", () => {
             expect(graphicsBufferSpies["rect"]).toBeCalled()
         })
 
-        it("will text the chance to hit", () => {
+        it("will text the name of the target", () => {
             ActionPreviewTileService.draw({
                 tile: tile,
                 graphicsContext: graphicsBuffer,
             })
 
-            expect(
-                graphicsBufferSpies["text"].mock.calls.some((args) =>
-                    args[0].includes("69% hit")
-                )
-            ).toBeTruthy()
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                "enemy name"
+            )
         })
 
-        it("will text the chance to crit", () => {
+        describe("chance of degrees of success", () => {
+            it("will text the chance to crit", () => {
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "3% crit"
+                )
+            })
+            it("will text the chance to hit", () => {
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "69% hit"
+                )
+            })
+            it("will text the chance to miss if there is an effect", () => {
+                const forecastSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.FAILURE,
+                                            damageExplanation:
+                                                DamageExplanationService.new({
+                                                    raw: 1,
+                                                    absorbed: 0,
+                                                    net: 1,
+                                                }),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "100% miss"
+                )
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
+            it("will text the chance to critically miss if there is an effect", () => {
+                const forecastSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.CRITICAL_FAILURE,
+                                            damageExplanation:
+                                                DamageExplanationService.new({
+                                                    raw: 1,
+                                                    absorbed: 0,
+                                                    net: 1,
+                                                }),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "100% botch"
+                )
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
+        })
+
+        it("will not text a forecast if it has no effect", () => {
+            const forecastSpy = vi
+                .spyOn(ActionCalculator, "forecastResults")
+                .mockReturnValue(
+                    CalculatedResultService.new({
+                        actorBattleSquaddieId: "player_0",
+                        changesPerEffect: [
+                            ActionEffectChangesService.new({
+                                actorContext:
+                                    BattleActionActorContextService.new({}),
+                                squaddieChanges: [
+                                    BattleActionSquaddieChangeService.new({
+                                        battleSquaddieId: "enemy_0",
+                                        actorDegreeOfSuccess:
+                                            DegreeOfSuccess.FAILURE,
+                                        damageExplanation:
+                                            DamageExplanationService.new({
+                                                raw: 0,
+                                                absorbed: 0,
+                                                net: 0,
+                                            }),
+                                        chanceOfDegreeOfSuccess: 36,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+                )
+
+            tile = ActionPreviewTileService.new({
+                gameEngineState,
+                objectRepository,
+            })
+
             ActionPreviewTileService.draw({
                 tile: tile,
                 graphicsContext: graphicsBuffer,
             })
-            expect(
-                graphicsBufferSpies["text"].mock.calls.some((args) =>
-                    args[0].includes("3% crit")
+
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).not.includes(
+                "100% miss"
+            )
+            expect(forecastSpy).toBeCalled()
+            forecastSpy.mockRestore()
+        })
+
+        describe("draw damage", () => {
+            it("will text damage dealt", () => {
+                const forecastSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            damageExplanation:
+                                                DamageExplanationService.new({
+                                                    raw: 0,
+                                                    absorbed: 0,
+                                                    net: 1,
+                                                }),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "1 damage"
                 )
-            ).toBeTruthy()
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
+            it("will text NO DAMAGE if the attack hits but deals 0 damage", () => {
+                const forecastSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.CRITICAL_SUCCESS,
+                                            damageExplanation:
+                                                DamageExplanationService.new({
+                                                    raw: 0,
+                                                    absorbed: 0,
+                                                    net: 0,
+                                                }),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "NO DAMAGE"
+                )
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
         })
     })
 })
+
+const getAllDrawnText = (textSpy: MockInstance) =>
+    textSpy.mock.calls.map((args) => args[0])

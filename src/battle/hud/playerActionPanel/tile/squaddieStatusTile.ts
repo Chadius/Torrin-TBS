@@ -14,7 +14,7 @@ import {
     InBattleAttributes,
     InBattleAttributesService,
 } from "../../../stats/inBattleAttributes"
-import { TextBox, TextBoxService } from "../../../../ui/textBox"
+import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"

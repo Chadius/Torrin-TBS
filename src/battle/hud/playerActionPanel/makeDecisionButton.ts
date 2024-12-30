@@ -2,7 +2,7 @@ import { RectArea, RectAreaService } from "../../../ui/rectArea"
 import { RectangleHelper } from "../../../ui/rectangle"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../graphicsConstants"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
-import { TextBox, TextBoxService } from "../../../ui/textBox"
+import { TextBox, TextBoxService } from "../../../ui/textBox/textBox"
 import { ButtonStatus } from "../../../ui/button"
 import {
     ActionTemplate,

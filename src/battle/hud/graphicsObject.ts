@@ -1,4 +1,4 @@
-import { TextBox } from "../../ui/textBox"
+import { TextBox } from "../../ui/textBox/textBox"
 
 export enum BattleHUDGraphicsObjectTextBoxTypes {
     ACTION_POINTS = "ACTION_POINTS",

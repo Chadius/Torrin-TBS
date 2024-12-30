@@ -15,7 +15,7 @@ import {
 } from "../ui/constants"
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { TextBox, TextBoxService } from "../ui/textBox"
+import { TextBox, TextBoxService } from "../ui/textBox/textBox"
 import { KeyButtonName, KeyWasPressed } from "../utils/keyboardConfig"
 import { Rectangle, RectangleHelper } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"

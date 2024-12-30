@@ -1,8 +1,8 @@
-import { RectArea } from "./rectArea"
+import { RectArea } from "../rectArea"
 import * as p5 from "p5"
-import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "./constants"
-import { isValidValue } from "../utils/validityCheck"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import { HORIZONTAL_ALIGN, VERTICAL_ALIGN } from "../constants"
+import { isValidValue } from "../../utils/validityCheck"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 
 export type TextBoxArguments = {
     text: string

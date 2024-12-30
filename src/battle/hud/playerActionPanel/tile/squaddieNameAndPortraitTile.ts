@@ -11,7 +11,7 @@ import {
 } from "../../../../utils/validityCheck"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
-import { TextBox, TextBoxService } from "../../../../ui/textBox"
+import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"

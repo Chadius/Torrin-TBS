@@ -1,4 +1,4 @@
-import { TextBox, TextBoxService } from "../../../ui/textBox"
+import { TextBox, TextBoxService } from "../../../ui/textBox/textBox"
 import { RectAreaService } from "../../../ui/rectArea"
 import { Rectangle, RectangleHelper } from "../../../ui/rectangle"
 import { ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME } from "./actionAnimationConstants"

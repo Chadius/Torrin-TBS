@@ -35,7 +35,7 @@ import { ActionTemplate } from "../../../action/template/actionTemplate"
 import {
     ActionEffectChange,
     CalculatedResult,
-    CalculatedResult2Service,
+    CalculatedResultService,
 } from "../../history/calculatedResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
 
@@ -552,7 +552,7 @@ const calculateResults = ({
             []
         )
 
-    return CalculatedResult2Service.new({
+    return CalculatedResultService.new({
         actorBattleSquaddieId: actorBattleSquaddieId,
         changesPerEffect,
     })

@@ -1,5 +1,5 @@
 import { RectAreaService } from "./rectArea"
-import { TextBox, TextBoxArguments, TextBoxService } from "./textBox"
+import { TextBox, TextBoxArguments, TextBoxService } from "./textBox/textBox"
 import { Rectangle, RectangleArguments, RectangleHelper } from "./rectangle"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 

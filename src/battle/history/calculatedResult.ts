@@ -25,7 +25,7 @@ export interface CalculatedResult {
     changesPerEffect: ActionEffectChange[]
 }
 
-export const CalculatedResult2Service = {
+export const CalculatedResultService = {
     new: ({
         actorBattleSquaddieId,
         changesPerEffect,
