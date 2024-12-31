@@ -8,10 +8,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import {
-    ActionEffectTemplate,
-    ActionEffectTemplateService,
-} from "../../../action/template/actionEffectTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import { BattleActionActorContext } from "./battleActionActorContext"
 
 export const MULTIPLE_ATTACK_PENALTY = -3

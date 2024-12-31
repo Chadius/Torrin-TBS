@@ -10,10 +10,7 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
-import {
-    ActionEffectTemplate,
-    ActionEffectTemplateService,
-} from "../../action/template/actionEffectTemplate"
+import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,

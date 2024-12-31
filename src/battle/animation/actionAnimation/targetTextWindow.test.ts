@@ -19,10 +19,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import {
-    ActionEffectTemplate,
-    ActionEffectTemplateService,
-} from "../../../action/template/actionEffectTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,

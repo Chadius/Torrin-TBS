@@ -63,12 +63,20 @@ import {
     AttributeType,
 } from "../../../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
+import {
+    RollModifierType,
+    RollResultService,
+} from "../../../calculator/actionCalculator/rollResult"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository
     let actionTemplateNeedsToHit: ActionTemplate
     let gameEngineState: GameEngineState
     let tile: ActionPreviewTile
+    let graphicsBufferSpies: { [key: string]: MockInstance }
+    let graphicsBuffer: GraphicsBuffer
+    let missionMap: MissionMap
+    let forecastSpy: MockInstance
 
     beforeEach(() => {
         objectRepository = ObjectRepositoryService.new()
@@ -110,13 +118,18 @@ describe("Action Preview Tile", () => {
             objectRepository,
             actionTemplateIds: ["actionTemplateNeedsToHit"],
         })
+
+        graphicsBuffer = new MockedP5GraphicsBuffer()
+        graphicsBufferSpies =
+            MockedGraphicsBufferService.addSpies(graphicsBuffer)
+    })
+
+    afterEach(() => {
+        MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
+        if (forecastSpy) forecastSpy.mockRestore()
     })
 
     describe("drawing", () => {
-        let graphicsBuffer: GraphicsBuffer
-        let graphicsBufferSpies: { [key: string]: MockInstance }
-        let missionMap: MissionMap
-
         beforeEach(() => {
             missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapService.new({
@@ -171,13 +184,6 @@ describe("Action Preview Tile", () => {
                 gameEngineState,
                 objectRepository,
             })
-            graphicsBuffer = new MockedP5GraphicsBuffer()
-            graphicsBufferSpies =
-                MockedGraphicsBufferService.addSpies(graphicsBuffer)
-        })
-
-        afterEach(() => {
-            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
         it("will draw the background", () => {
@@ -1004,6 +1010,92 @@ describe("Action Preview Tile", () => {
                 )
 
                 expect(attributeActionSpy).toBeCalled()
+            })
+        })
+
+        describe("action context", () => {
+            beforeEach(() => {
+                forecastSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({
+                                            actingSquaddieRoll:
+                                                RollResultService.new({
+                                                    rollModifiers: {
+                                                        [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
+                                                            -3,
+                                                        [RollModifierType.TIER]: 2,
+                                                    },
+                                                }),
+                                            targetSquaddieModifiers: {
+                                                enemy_0: [
+                                                    {
+                                                        type: AttributeType.ABSORB,
+                                                        amount: 1,
+                                                    },
+                                                ],
+                                                enemy_1: [
+                                                    {
+                                                        type: AttributeType.ABSORB,
+                                                        amount: 9001,
+                                                    },
+                                                ],
+                                            },
+                                        }),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            damageExplanation:
+                                                DamageExplanationService.new({
+                                                    raw: 0,
+                                                    absorbed: 0,
+                                                    net: 1,
+                                                }),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+            })
+
+            it("will text roll modifiers", () => {
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "-3 MAP"
+                )
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "+2 Tier"
+                )
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
+
+            it("will text target modifiers for the targeted squaddie", () => {
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "+1 Absorb"
+                )
+                expect(
+                    getAllDrawnText(graphicsBufferSpies["text"])
+                ).not.includes("+9001 Absorb")
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
             })
         })
     })

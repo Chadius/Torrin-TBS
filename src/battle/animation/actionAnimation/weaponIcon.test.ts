@@ -10,10 +10,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import {
-    ActionEffectTemplate,
-    ActionEffectTemplateService,
-} from "../../../action/template/actionEffectTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("weapon icon", () => {

@@ -12,8 +12,10 @@ import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 import { TextBox, TextBoxService } from "../../../../ui/textBox/textBox"
 import { getResultOrThrowError } from "../../../../utils/ResultOrError"
 import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
-import { RollModifierType } from "../../../calculator/actionCalculator/rollResult"
-import { CalculatorAttack } from "../../../calculator/actionCalculator/attack"
+import {
+    RollModifierType,
+    RollModifierTypeService,
+} from "../../../calculator/actionCalculator/rollResult"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import {
     GOLDEN_RATIO,
@@ -90,20 +92,45 @@ interface ActionPreviewTileLayout {
     }
     effectsOfDegreesOfSuccess: {
         width: number
-        fontSize: number
+        fontSizeRange: {
+            preferred: number
+            minimum: number
+        }
+        linesOfTextRange: { minimum: number }
         fontColor: number[]
         margin: number[]
         horizAlign: HORIZONTAL_ALIGN
+    }
+    modifiers: {
+        topOffset: number
+        fontSizeRange: {
+            preferred: number
+            minimum: number
+        }
+        linesOfTextRange: { minimum: number }
+        fontColor: number[]
+        height: number
+        leftColumn: {
+            width: number
+            margin: number[]
+            limit: number
+            horizAlign: HORIZONTAL_ALIGN
+        }
+        rightColumn: {
+            width: number
+            margin: number[]
+            limit: number
+        }
     }
 }
 
 interface ActionPreviewTileContext {
     horizontalPosition: ActionTilePosition.ACTION_PREVIEW
     squaddieAffiliation: SquaddieAffiliation
-    rollModifiers: { [r in RollModifierType]?: number }
     forecast: CalculatedResult
     squaddieNamesByBattleSquaddieId: { [battleSquaddieId: string]: string }
     actionTemplate: ActionTemplate
+    focusedBattleSquaddieId: string
 }
 
 interface ActionPreviewTileUIObjects {
@@ -118,6 +145,10 @@ interface ActionPreviewTileUIObjects {
         textBox: TextBox
     }[]
     targetNameTextBox: TextBox
+    modifiers: {
+        leftSide: TextBox[]
+        rightSide: TextBox[]
+    }
 }
 
 export const ActionPreviewTileService = {
@@ -147,6 +178,22 @@ export const ActionPreviewTileService = {
         const blackboard: Blackboard = BlackboardService.new()
         const layout: ActionPreviewTileLayout = {
             topRowOffset: 38,
+            targetName: {
+                height: 34,
+                width: longWidth,
+                fontColor: [0, 0, 192 - 96],
+                margin: [
+                    WINDOW_SPACING.SPACING1,
+                    0,
+                    WINDOW_SPACING.SPACING1,
+                    WINDOW_SPACING.SPACING2,
+                ],
+                fontSizeRange: {
+                    preferred: 18,
+                    minimum: 8,
+                },
+                linesOfTextRange: { minimum: 1 },
+            },
             degreesOfSuccess: {
                 height: 18,
                 rowOrder: [
@@ -189,7 +236,6 @@ export const ActionPreviewTileService = {
                 margin: [0, 0, 0, WINDOW_SPACING.SPACING1],
             },
             effectsOfDegreesOfSuccess: {
-                fontSize: 16,
                 width: longWidth,
                 fontColor: [0, 0, 192 - 128],
                 margin: [
@@ -199,22 +245,42 @@ export const ActionPreviewTileService = {
                     WINDOW_SPACING.SPACING1,
                 ],
                 horizAlign: HORIZONTAL_ALIGN.RIGHT,
-            },
-            targetName: {
-                height: 34,
-                width: longWidth,
-                fontColor: [0, 0, 192 - 96],
-                margin: [
-                    WINDOW_SPACING.SPACING1,
-                    0,
-                    WINDOW_SPACING.SPACING1,
-                    WINDOW_SPACING.SPACING2,
-                ],
                 fontSizeRange: {
-                    preferred: 18,
+                    preferred: 16,
                     minimum: 8,
                 },
                 linesOfTextRange: { minimum: 1 },
+            },
+            modifiers: {
+                topOffset: WINDOW_SPACING.SPACING1,
+                fontSizeRange: {
+                    preferred: 12,
+                    minimum: 8,
+                },
+                linesOfTextRange: { minimum: 1 },
+                height: 14,
+                fontColor: [0, 0, 192 - 112],
+                leftColumn: {
+                    width: shortWidth,
+                    margin: [
+                        0,
+                        WINDOW_SPACING.SPACING1,
+                        WINDOW_SPACING.SPACING1 / 2,
+                        0,
+                    ],
+                    limit: 4,
+                    horizAlign: HORIZONTAL_ALIGN.RIGHT,
+                },
+                rightColumn: {
+                    width: shortWidth,
+                    margin: [
+                        0,
+                        0,
+                        WINDOW_SPACING.SPACING1 / 2,
+                        WINDOW_SPACING.SPACING1,
+                    ],
+                    limit: 4,
+                },
             },
         }
         const context = createActionPreviewTileContext({
@@ -241,6 +307,7 @@ export const ActionPreviewTileService = {
             chancesOfDegreesOfSuccessTextBoxes: undefined,
             effectsOfDegreesOfSuccessTextBoxes: undefined,
             targetNameTextBox: undefined,
+            modifiers: undefined,
         }
         BlackboardService.add<ActionPreviewTileUIObjects>(
             blackboard,
@@ -323,6 +390,21 @@ const createDrawingBehaviorTree = (blackboard: Blackboard) => {
             ),
         ]
     )
+    const createModifiersTextBoxesTree = new SequenceComposite(blackboard, [
+        new InverterDecorator(
+            blackboard,
+            new DoesUIObjectExistCondition(blackboard, "modifiersTextBoxes")
+        ),
+        new UntilFailDecorator(
+            blackboard,
+            new CreateLeftModifiersTextBoxAction(blackboard)
+        ),
+        new UntilFailDecorator(
+            blackboard,
+            new CreateRightModifiersTextBoxAction(blackboard)
+        ),
+    ])
+
     const drawTextBoxTree = new SequenceComposite(blackboard, [
         new DoesUIObjectExistCondition(blackboard, "graphicsContext"),
         new DrawTextBoxesAction(
@@ -340,6 +422,8 @@ const createDrawingBehaviorTree = (blackboard: Blackboard) => {
                     ...uiObjects.effectsOfDegreesOfSuccessTextBoxes.map(
                         (a) => a.textBox
                     ),
+                    ...uiObjects.modifiers.leftSide,
+                    ...uiObjects.modifiers.rightSide,
                     uiObjects.targetNameTextBox,
                 ].filter((x) => x)
             },
@@ -360,6 +444,7 @@ const createDrawingBehaviorTree = (blackboard: Blackboard) => {
             createTargetNameTextBoxTree,
             createChancesOfDegreesOfSuccessTextBoxesTree,
             createEffectsOfDegreesOfSuccessTextBoxesTree,
+            createModifiersTextBoxesTree,
             drawTextBoxTree,
         ]
     )
@@ -375,21 +460,10 @@ const createActionPreviewTileContext = ({
     gameEngineState: GameEngineState
     forecast: CalculatedResult
 }) => {
-    let rollModifiers: { [r in RollModifierType]?: number } = {
-        [RollModifierType.TIER]: squaddieTemplate.attributes.tier,
-    }
-    let multipleAttackPenalty =
-        CalculatorAttack.calculateMultipleAttackPenaltyForActionsThisTurn(
-            gameEngineState
-        )
-    if (multipleAttackPenalty !== 0) {
-        rollModifiers[RollModifierType.MULTIPLE_ATTACK_PENALTY] =
-            multipleAttackPenalty
-    }
-
     const squaddieNamesByBattleSquaddieId: {
         [battleSquaddieId: string]: string
     } = {}
+    let focusedBattleSquaddieId: string = undefined
     forecast.changesPerEffect.forEach((effect) => {
         effect.squaddieChanges.forEach((squaddieChange) => {
             const { squaddieTemplate } = getResultOrThrowError(
@@ -400,6 +474,7 @@ const createActionPreviewTileContext = ({
             )
             squaddieNamesByBattleSquaddieId[squaddieChange.battleSquaddieId] =
                 squaddieTemplate.squaddieId.name
+            focusedBattleSquaddieId ||= squaddieChange.battleSquaddieId
         })
     })
 
@@ -415,10 +490,10 @@ const createActionPreviewTileContext = ({
     const context: ActionPreviewTileContext = {
         horizontalPosition: ActionTilePosition.ACTION_PREVIEW,
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
-        rollModifiers,
         forecast,
         squaddieNamesByBattleSquaddieId,
         actionTemplate,
+        focusedBattleSquaddieId,
     }
     return context
 }
@@ -676,7 +751,7 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
 
         if (!degreeOfSuccessToDraw) return false
 
-        let messageToShow = ""
+        let messageToShow: string
         if (
             ActionEffectTemplateService.doesItTargetFoes(
                 context.actionTemplate.actionEffectTemplates[0]
@@ -700,11 +775,21 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
             boundingBox,
         })
 
+        const textInfo = TextHandlingService.fitTextWithinSpace({
+            text: messageToShow,
+            width: effectsOfDegreesOfSuccessLayoutConstants.width,
+            graphicsContext: uiObjects.graphicsContext,
+            fontSizeRange:
+                effectsOfDegreesOfSuccessLayoutConstants.fontSizeRange,
+            linesOfTextRange:
+                effectsOfDegreesOfSuccessLayoutConstants.linesOfTextRange,
+        })
+
         uiObjects.effectsOfDegreesOfSuccessTextBoxes.push({
             degreeOfSuccess: degreeOfSuccessToDraw.degreeOfSuccess,
             textBox: TextBoxService.new({
                 fontColor: effectsOfDegreesOfSuccessLayoutConstants.fontColor,
-                fontSize: effectsOfDegreesOfSuccessLayoutConstants.fontSize,
+                fontSize: textInfo.fontSize,
                 area: RectAreaService.new({
                     right: RectAreaService.right(boundingBox),
                     top,
@@ -712,7 +797,7 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
                     height: degreesOfSuccessLayoutConstants.height,
                     margin: effectsOfDegreesOfSuccessLayoutConstants.margin,
                 }),
-                text: messageToShow,
+                text: textInfo.text,
                 horizAlign: effectsOfDegreesOfSuccessLayoutConstants.horizAlign,
             }),
         })
@@ -903,3 +988,265 @@ const generateMessageForAttributeModifiers = (
     }
     return messageToShow
 }
+
+class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
+    blackboard: Blackboard
+
+    constructor(blackboard: Blackboard) {
+        this.blackboard = blackboard
+    }
+
+    run(): boolean {
+        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
+            this.blackboard,
+            "uiObjects"
+        )
+
+        let context: ActionPreviewTileContext = BlackboardService.get(
+            this.blackboard,
+            "context"
+        )
+
+        const modifiersLayoutConstants =
+            BlackboardService.get<ActionPreviewTileLayout>(
+                this.blackboard,
+                "layout"
+            ).modifiers
+
+        const leftSideRollModifiers =
+            context.forecast.changesPerEffect[0].actorContext.actorRoll
+                .rollModifiers || {}
+        const leftSideActorAttributeModifiers =
+            context.forecast.changesPerEffect[0].actorContext
+                .actorAttributeModifiers || []
+        const leftSideModifiers: {
+            name: string
+            amount: number | undefined
+        }[] = [
+            ...Object.entries(leftSideRollModifiers)
+                .filter(([_, amount]) => amount !== 0)
+                .map(([keyStr, amount]) => ({
+                    name: RollModifierTypeService.readableName({
+                        type: keyStr as RollModifierType,
+                        abbreviate: true,
+                    }),
+                    amount,
+                })),
+            ...leftSideActorAttributeModifiers
+                .filter(({ amount }) => amount != 0)
+                .map(formatAttributeTypeAndAmount),
+        ].sort(sortModifierDisplayDescending)
+
+        uiObjects.modifiers ||= {
+            leftSide: [],
+            rightSide: [],
+        }
+        if (
+            uiObjects.modifiers.leftSide.length >=
+            modifiersLayoutConstants.leftColumn.limit
+        )
+            return false
+
+        if (uiObjects.modifiers.leftSide.length >= leftSideModifiers.length)
+            return false
+
+        const modifierToShow =
+            leftSideModifiers[uiObjects.modifiers.leftSide.length]
+        let amountToShow: string = formatAmount(modifierToShow.amount)
+        const messageToShow = `${amountToShow}${modifierToShow.name}`
+
+        const boundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                ActionTilePosition.ACTION_PREVIEW
+            )
+
+        const bottom = calculateBottomOfModifierList(
+            uiObjects.modifiers.leftSide,
+            boundingBox
+        )
+
+        const textInfo = TextHandlingService.fitTextWithinSpace({
+            text: messageToShow,
+            width: modifiersLayoutConstants.leftColumn.width,
+            graphicsContext: uiObjects.graphicsContext,
+            fontSizeRange: modifiersLayoutConstants.fontSizeRange,
+            linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,
+        })
+
+        uiObjects.modifiers.leftSide.push(
+            TextBoxService.new({
+                fontColor: modifiersLayoutConstants.fontColor,
+                fontSize: textInfo.fontSize,
+                area: RectAreaService.new({
+                    right: RectAreaService.centerX(boundingBox),
+                    bottom,
+                    width: modifiersLayoutConstants.leftColumn.width,
+                    height: modifiersLayoutConstants.height,
+                    margin: modifiersLayoutConstants.leftColumn.margin,
+                }),
+                text: textInfo.text,
+                horizAlign: modifiersLayoutConstants.leftColumn.horizAlign,
+            })
+        )
+
+        BlackboardService.add<ActionPreviewTileUIObjects>(
+            this.blackboard,
+            "uiObjects",
+            uiObjects
+        )
+
+        return true
+    }
+
+    clone(): BehaviorTreeTask {
+        return new CreateLeftModifiersTextBoxAction(this.blackboard)
+    }
+}
+
+class CreateRightModifiersTextBoxAction implements BehaviorTreeTask {
+    blackboard: Blackboard
+
+    constructor(blackboard: Blackboard) {
+        this.blackboard = blackboard
+    }
+
+    run(): boolean {
+        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
+            this.blackboard,
+            "uiObjects"
+        )
+
+        let context: ActionPreviewTileContext = BlackboardService.get(
+            this.blackboard,
+            "context"
+        )
+
+        const modifiersLayoutConstants =
+            BlackboardService.get<ActionPreviewTileLayout>(
+                this.blackboard,
+                "layout"
+            ).modifiers
+
+        const rightSideTargetAttributeModifiers =
+            context.forecast.changesPerEffect[0].actorContext
+                .targetAttributeModifiers[context.focusedBattleSquaddieId] || []
+        const rightSideModifiers: {
+            name: string
+            amount: number | undefined
+        }[] = rightSideTargetAttributeModifiers
+            .filter(({ amount }) => amount != 0)
+            .map(formatAttributeTypeAndAmount)
+            .sort(sortModifierDisplayDescending)
+
+        uiObjects.modifiers ||= {
+            leftSide: [],
+            rightSide: [],
+        }
+        if (
+            uiObjects.modifiers.rightSide.length >=
+            modifiersLayoutConstants.rightColumn.limit
+        )
+            return false
+
+        if (uiObjects.modifiers.rightSide.length >= rightSideModifiers.length)
+            return false
+
+        const modifierToShow =
+            rightSideModifiers[uiObjects.modifiers.rightSide.length]
+        let amountToShow: string = formatAmount(modifierToShow.amount)
+        const messageToShow = `${amountToShow}${modifierToShow.name}`
+
+        const boundingBox =
+            ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
+                ActionTilePosition.ACTION_PREVIEW
+            )
+
+        const bottom = calculateBottomOfModifierList(
+            uiObjects.modifiers.rightSide,
+            boundingBox
+        )
+
+        const textInfo = TextHandlingService.fitTextWithinSpace({
+            text: messageToShow,
+            width: modifiersLayoutConstants.rightColumn.width,
+            graphicsContext: uiObjects.graphicsContext,
+            fontSizeRange: modifiersLayoutConstants.fontSizeRange,
+            linesOfTextRange: modifiersLayoutConstants.linesOfTextRange,
+        })
+
+        uiObjects.modifiers.rightSide.push(
+            TextBoxService.new({
+                fontColor: modifiersLayoutConstants.fontColor,
+                fontSize: textInfo.fontSize,
+                area: RectAreaService.new({
+                    left: RectAreaService.centerX(boundingBox),
+                    bottom,
+                    width: modifiersLayoutConstants.rightColumn.width,
+                    height: modifiersLayoutConstants.height,
+                    margin: modifiersLayoutConstants.rightColumn.margin,
+                }),
+                text: textInfo.text,
+            })
+        )
+
+        BlackboardService.add<ActionPreviewTileUIObjects>(
+            this.blackboard,
+            "uiObjects",
+            uiObjects
+        )
+
+        return true
+    }
+
+    clone(): BehaviorTreeTask {
+        return new CreateRightModifiersTextBoxAction(this.blackboard)
+    }
+}
+
+const sortModifierDisplayDescending = (
+    a: { name: string; amount: number | undefined },
+    b: { name: string; amount: number | undefined }
+) => {
+    switch (true) {
+        case a === undefined:
+            return 1
+        case b === undefined:
+            return -1
+        default:
+            return a < b ? -1 : 1
+    }
+}
+
+const formatAttributeTypeAndAmount = ({
+    amount,
+    type,
+}: AttributeTypeAndAmount): {
+    name: string
+    amount: number | undefined
+} => ({
+    name: AttributeModifierService.readableNameForAttributeType(type),
+    amount: AttributeModifierService.isAttributeTypeABinaryEffect(type)
+        ? undefined
+        : amount,
+})
+
+const formatAmount = (amount: number | undefined) => {
+    switch (true) {
+        case amount == undefined:
+            return ""
+        case amount > 0:
+            return `+${amount} `
+        default:
+            return `${amount} `
+    }
+}
+
+const calculateBottomOfModifierList = (
+    modifierTextBoxes: TextBox[],
+    boundingBox: RectArea
+) =>
+    modifierTextBoxes.length > 0
+        ? RectAreaService.top(
+              modifierTextBoxes[modifierTextBoxes.length - 1].area
+          )
+        : RectAreaService.bottom(boundingBox)

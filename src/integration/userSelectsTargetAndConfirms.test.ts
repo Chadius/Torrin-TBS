@@ -20,10 +20,7 @@ import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import {
-    ActionEffectTemplate,
-    ActionEffectTemplateService,
-} from "../action/template/actionEffectTemplate"
+import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"

@@ -16,7 +16,6 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { ResourceHandler } from "../../resource/resourceHandler"
 

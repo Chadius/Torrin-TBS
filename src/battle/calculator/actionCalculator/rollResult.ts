@@ -5,6 +5,24 @@ export enum RollModifierType {
     TIER = "TIER",
 }
 
+export const RollModifierTypeService = {
+    readableName: ({
+        type,
+        abbreviate,
+    }: {
+        type: RollModifierType
+        abbreviate?: boolean
+    }): string => {
+        if (abbreviate) {
+            if (type === RollModifierType.MULTIPLE_ATTACK_PENALTY) return "MAP"
+        }
+
+        const capitalizeFirstLetter = (input: string) =>
+            type.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
+        return `${capitalizeFirstLetter(type).replaceAll("_", " ")}`
+    },
+}
+
 export interface RollResult {
     occurred: boolean
     rolls: number[]
