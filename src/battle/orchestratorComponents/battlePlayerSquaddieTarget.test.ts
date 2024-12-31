@@ -51,6 +51,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 
 describe("BattleSquaddieTarget", () => {
     let objectRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -233,11 +234,7 @@ describe("BattleSquaddieTarget", () => {
         messageSpy.mockRestore()
     })
 
-    const clickOnThief = () => {
-        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-            gameEngineState.battleOrchestratorState.battleState.missionMap,
-            thiefDynamic.battleSquaddieId
-        )
+    const clickOnSquaddie = (mapCoordinate: HexCoordinate) => {
         const { screenX: mouseX, screenY: mouseY } =
             ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
                 q: mapCoordinate.q,
@@ -254,26 +251,28 @@ describe("BattleSquaddieTarget", () => {
         targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
     }
 
+    const clickOnThief = () => {
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            thiefDynamic.battleSquaddieId
+        )
+        clickOnSquaddie(mapCoordinate)
+    }
+
+    const clickOnSelf = () => {
+        const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+            knightBattleSquaddie.battleSquaddieId
+        )
+        clickOnSquaddie(mapCoordinate)
+    }
+
     const clickOnCitizen = () => {
         const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
             gameEngineState.battleOrchestratorState.battleState.missionMap,
             citizenDynamic.battleSquaddieId
         )
-        const { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: mapCoordinate.q,
-                r: mapCoordinate.r,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            })
-
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
-        }
-
-        targetComponent.mouseEventHappened(gameEngineState, mouseEvent)
+        clickOnSquaddie(mapCoordinate)
     }
 
     it("should highlight the map with the ability range", () => {
@@ -448,6 +447,11 @@ describe("BattleSquaddieTarget", () => {
                 name: "heal ally tries to heal a foe",
                 actionTraits: [Trait.HEALING, Trait.TARGET_ALLY],
                 invalidTargetClicker: clickOnThief,
+            },
+            {
+                name: "heal ally tries to heal self",
+                actionTraits: [Trait.HEALING, Trait.TARGET_ALLY],
+                invalidTargetClicker: clickOnSelf,
             },
         ]
         it.each(tests)(

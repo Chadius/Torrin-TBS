@@ -58,22 +58,6 @@ const layout = {
     },
 }
 
-const createExplanationLabel = () => {
-    return LabelService.new({
-        ...layout.targetExplanationLabel,
-        area: RectAreaService.new({
-            centerX: layout.targetExplanationLabel.centerX,
-            width: layout.targetExplanationLabel.width,
-            margin: layout.targetExplanationLabel.margin,
-            top: layout.targetExplanationLabel.top,
-            height: layout.targetExplanationLabel.height,
-        }),
-        fontSize: layout.targetExplanationLabel.fontSize,
-        horizAlign: HORIZONTAL_ALIGN.CENTER,
-        vertAlign: VERTICAL_ALIGN.CENTER,
-    })
-}
-
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     hasSelectedValidTarget: boolean
     cancelAbility: boolean
@@ -435,5 +419,21 @@ const cancelTargetSelection = (
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION,
         gameEngineState,
+    })
+}
+
+const createExplanationLabel = () => {
+    return LabelService.new({
+        ...layout.targetExplanationLabel,
+        area: RectAreaService.new({
+            centerX: layout.targetExplanationLabel.centerX,
+            width: layout.targetExplanationLabel.width,
+            margin: layout.targetExplanationLabel.margin,
+            top: layout.targetExplanationLabel.top,
+            height: layout.targetExplanationLabel.height,
+        }),
+        fontSize: layout.targetExplanationLabel.fontSize,
+        horizAlign: HORIZONTAL_ALIGN.CENTER,
+        vertAlign: VERTICAL_ALIGN.CENTER,
     })
 }

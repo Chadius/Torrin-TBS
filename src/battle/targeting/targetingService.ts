@@ -299,6 +299,7 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
 
     if (
         TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_ALLY) &&
+        targetBattleSquaddieId !== actorBattleSquaddieId &&
         squaddiesAreFriends
     ) {
         return true

@@ -556,14 +556,14 @@ describe("Targeting Service", () => {
             )
         })
 
-        describe("can target allies if the action TARGET_ALLY", () => {
+        describe("can target allies but not self if the action TARGET_ALLY", () => {
             const tests: AffiliationTest[] = [
                 {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
                     traits: [Trait.TARGET_ALLY],
-                    expectedToTarget: true,
+                    expectedToTarget: false,
                 },
                 {
                     name: "player1 player2",
