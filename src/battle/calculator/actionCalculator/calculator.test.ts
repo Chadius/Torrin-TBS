@@ -695,6 +695,58 @@ describe("calculator", () => {
             expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
         })
 
+        it("will forecast a NONE degree of success", () => {
+            InBattleAttributesService.takeDamage({
+                inBattleAttributes: ally1BattleSquaddie.inBattleAttributes,
+                damageToTake:
+                    ally1BattleSquaddie.inBattleAttributes.armyAttributes
+                        .maxHitPoints - 1,
+                damageType: DamageType.UNKNOWN,
+            })
+
+            const actionStep: BattleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep: actionStep,
+                battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep: actionStep,
+                actionTemplateId: healsLostHitPoints.id,
+            })
+            BattleActionDecisionStepService.setConfirmedTarget({
+                actionDecisionStep: actionStep,
+                targetCoordinate: { q: 0, r: 2 },
+            })
+
+            const results = ActionCalculator.forecastResults({
+                gameEngineState: GameEngineStateService.new({
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                missionMap,
+                                battleActionDecisionStep: actionStep,
+                            }),
+                        }
+                    ),
+                    repository: objectRepository,
+                }),
+            })
+
+            const ally1Changes =
+                results.changesPerEffect[0].squaddieChanges.find(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        ally1BattleSquaddie.battleSquaddieId
+                )
+            expect(ally1Changes.healingReceived).toBe(2)
+            expect(ally1Changes.attributesBefore.currentHitPoints).toEqual(1)
+            expect(ally1Changes.attributesAfter.currentHitPoints).toEqual(3)
+        })
+
         it("will record the healing received by a player to mission statistics", () => {
             const missionStatistics: MissionStatistics =
                 MissionStatisticsService.new({})
@@ -1502,10 +1554,8 @@ describe("calculator", () => {
                 new StreamNumberGenerator({ results: expectedRolls })
 
             TraitStatusStorageService.setStatus(
-                (
-                    actionAlwaysHitsAndDealsBodyDamage
-                        .actionEffectTemplates[0] as ActionEffectTemplate
-                ).traits,
+                actionAlwaysHitsAndDealsBodyDamage.actionEffectTemplates[0]
+                    .traits,
                 Trait.CANNOT_CRITICALLY_SUCCEED,
                 true
             )
@@ -1609,10 +1659,8 @@ describe("calculator", () => {
                 new StreamNumberGenerator({ results: expectedRolls })
 
             TraitStatusStorageService.setStatus(
-                (
-                    actionNeedsAnAttackRollToDealBodyDamage
-                        .actionEffectTemplates[0] as ActionEffectTemplate
-                ).traits,
+                actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0]
+                    .traits,
                 Trait.CANNOT_CRITICALLY_FAIL,
                 true
             )

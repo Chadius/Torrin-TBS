@@ -361,8 +361,8 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/ui/attribute/ignore-terrain-cost.png",
-    "key": "attribute-icon-ignore-terrain-cost"
+    "path": "assets/ui/attribute/hustle.png",
+    "key": "attribute-icon-hustle"
   },
   {
     "type": "IMAGE",

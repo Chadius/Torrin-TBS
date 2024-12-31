@@ -257,7 +257,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator
         )
         this.setupAnimationForTargetSprites(
             gameEngineState,
-            actionTemplate.actionEffectTemplates[0] as ActionEffectTemplate,
+            actionTemplate.actionEffectTemplates[0],
             resultPerTarget
         )
         this.setupAnimationForTargetHitPointMeters(gameEngineState)
@@ -327,8 +327,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
                     )
                 )
 
-                const actionEffectSquaddieTemplate = actionTemplate
-                    .actionEffectTemplates[0] as ActionEffectTemplate
+                const actionEffectSquaddieTemplate =
+                    actionTemplate.actionEffectTemplates[0]
 
                 const targetTextWindow = new TargetTextWindow()
                 targetTextWindow.start({
@@ -422,8 +422,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator
             actionToShow.action.actionTemplateId
         )
 
-        const actionEffectSquaddieTemplate = actionTemplate
-            .actionEffectTemplates[0] as ActionEffectTemplate
+        const actionEffectSquaddieTemplate =
+            actionTemplate.actionEffectTemplates[0]
 
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,

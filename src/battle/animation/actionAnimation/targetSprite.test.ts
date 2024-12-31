@@ -203,8 +203,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -220,8 +220,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.TARGETED)
@@ -237,8 +237,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.DAMAGED)
@@ -262,8 +262,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookLethalDamage,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.DEAD)
@@ -279,8 +279,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultMissed,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -296,8 +296,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultDealsNoDamage,
-            actionEffectSquaddieTemplateService: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -314,8 +314,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultHealsSquaddie,
-            actionEffectSquaddieTemplateService: helpfulAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                helpfulAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -331,8 +331,8 @@ describe("Target Sprite", () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultHealsSquaddie,
-            actionEffectSquaddieTemplateService: helpfulAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplateService:
+                helpfulAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.THANKFUL)
@@ -365,18 +365,15 @@ describe("Target Sprite", () => {
             mapping = {
                 "deals nonlethal damage": {
                     result: resultTookDamage,
-                    action: hinderingAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                    action: hinderingAction.actionEffectTemplates[0],
                 },
                 "deals lethal damage": {
                     result: resultTookLethalDamage,
-                    action: hinderingAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                    action: hinderingAction.actionEffectTemplates[0],
                 },
                 "heals damage": {
                     result: resultHealsSquaddie,
-                    action: helpfulAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                    action: helpfulAction.actionEffectTemplates[0],
                 },
             }
         })

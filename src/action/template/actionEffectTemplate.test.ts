@@ -42,8 +42,11 @@ describe("ActionEffectTemplate", () => {
         expect(
             ActionEffectTemplateService.doesItTargetFoes(harmfulAttack)
         ).toBeTruthy()
+        expect(
+            ActionEffectTemplateService.doesItTargetSelf(harmfulAttack)
+        ).toBeFalsy()
     })
-    it("uses the traits to determine if it is Helpful", () => {
+    it("uses the traits to determine if it targets friends", () => {
         const helpfulAttack = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
@@ -52,6 +55,26 @@ describe("ActionEffectTemplate", () => {
         })
         expect(
             ActionEffectTemplateService.doesItTargetFriends(helpfulAttack)
+        ).toBeTruthy()
+        expect(
+            ActionEffectTemplateService.doesItTargetSelf(helpfulAttack)
+        ).toBeFalsy()
+        expect(
+            ActionEffectTemplateService.doesItTargetFoes(helpfulAttack)
+        ).toBeFalsy()
+    })
+    it("uses the traits to determine if it targets the user", () => {
+        const helpfulAttack = ActionEffectTemplateService.new({
+            traits: TraitStatusStorageService.newUsingTraitValues({
+                [Trait.HEALING]: true,
+                [Trait.TARGET_SELF]: true,
+            }),
+        })
+        expect(
+            ActionEffectTemplateService.doesItTargetFriends(helpfulAttack)
+        ).toBeFalsy()
+        expect(
+            ActionEffectTemplateService.doesItTargetSelf(helpfulAttack)
         ).toBeTruthy()
         expect(
             ActionEffectTemplateService.doesItTargetFoes(helpfulAttack)

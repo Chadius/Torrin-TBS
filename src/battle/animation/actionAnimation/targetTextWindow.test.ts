@@ -97,8 +97,7 @@ describe("TargetTextWindow", () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0],
         })
         expect(textSpy).toBeCalledWith({
             targetTemplate: targetSquaddie,
@@ -115,8 +114,7 @@ describe("TargetTextWindow", () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0],
         })
 
         const timer = new ActionTimer()

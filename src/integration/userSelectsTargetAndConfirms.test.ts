@@ -606,10 +606,9 @@ describe("User Selects Target and Confirms", () => {
             })
 
             it("If the action does not animate we should switch to the non-animating phase", () => {
-                ;(
-                    attackAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate
-                ).traits.booleanTraits[Trait.SKIP_ANIMATION] = true
+                attackAction.actionEffectTemplates[0].traits.booleanTraits[
+                    Trait.SKIP_ANIMATION
+                ] = true
                 clickAndConfirmWithAttackAction(attackAction)
 
                 squaddieUsesActionOnSquaddie.update({

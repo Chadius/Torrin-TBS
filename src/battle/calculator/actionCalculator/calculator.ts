@@ -458,7 +458,7 @@ const forecastCalculatedEffectAndReturnChange = ({
     )
 
     changes.attributesAfter = InBattleAttributesService.clone(
-        targetedBattleSquaddie.inBattleAttributes
+        inBattleAttributesToChange
     )
 
     return BattleActionSquaddieChangeService.new({

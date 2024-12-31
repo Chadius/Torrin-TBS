@@ -255,9 +255,7 @@ export const SquaddieService = {
                     currentMovementAttributes.net.movementPerAction +=
                         attributeModifier.amount
                 }
-                if (
-                    attributeModifier.type === AttributeType.IGNORE_TERRAIN_COST
-                )
+                if (attributeModifier.type === AttributeType.HUSTLE)
                     currentMovementAttributes.net.ignoreTerrainCost = true
                 if (attributeModifier.type === AttributeType.ELUSIVE)
                     currentMovementAttributes.net.passThroughSquaddies = true

@@ -123,7 +123,7 @@ describe("AttributeModifier", () => {
                 shouldBeActive: false,
             },
             {
-                type: AttributeType.IGNORE_TERRAIN_COST,
+                type: AttributeType.HUSTLE,
                 shouldBeActive: false,
             },
             {
@@ -349,17 +349,17 @@ describe("AttributeModifier", () => {
             [AttributeType.ARMOR]: false,
             [AttributeType.ABSORB]: false,
             [AttributeType.MOVEMENT]: false,
-            [AttributeType.IGNORE_TERRAIN_COST]: true,
+            [AttributeType.HUSTLE]: true,
             [AttributeType.ELUSIVE]: true,
         }
 
         test.each`
-            attributeType                        | isBinary
-            ${AttributeType.ARMOR}               | ${binaryStatus[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}              | ${binaryStatus[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT}            | ${binaryStatus[AttributeType.MOVEMENT]}
-            ${AttributeType.IGNORE_TERRAIN_COST} | ${binaryStatus[AttributeType.IGNORE_TERRAIN_COST]}
-            ${AttributeType.ELUSIVE}             | ${binaryStatus[AttributeType.ELUSIVE]}
+            attributeType             | isBinary
+            ${AttributeType.ARMOR}    | ${binaryStatus[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}   | ${binaryStatus[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT} | ${binaryStatus[AttributeType.MOVEMENT]}
+            ${AttributeType.HUSTLE}   | ${binaryStatus[AttributeType.HUSTLE]}
+            ${AttributeType.ELUSIVE}  | ${binaryStatus[AttributeType.ELUSIVE]}
         `(
             "$attributeType is binary: $isBinary",
             ({ attributeType, isBinary }) => {
@@ -381,17 +381,17 @@ describe("AttributeModifier", () => {
             [AttributeType.ARMOR]: "Armor",
             [AttributeType.ABSORB]: "Absorb",
             [AttributeType.MOVEMENT]: "Movement",
-            [AttributeType.IGNORE_TERRAIN_COST]: "Ignore terrain cost",
+            [AttributeType.HUSTLE]: "Hustle",
             [AttributeType.ELUSIVE]: "Elusive",
         }
 
         test.each`
-            attributeType                        | readableName
-            ${AttributeType.ARMOR}               | ${readableName[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}              | ${readableName[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT}            | ${readableName[AttributeType.MOVEMENT]}
-            ${AttributeType.IGNORE_TERRAIN_COST} | ${readableName[AttributeType.IGNORE_TERRAIN_COST]}
-            ${AttributeType.ELUSIVE}             | ${readableName[AttributeType.ELUSIVE]}
+            attributeType             | readableName
+            ${AttributeType.ARMOR}    | ${readableName[AttributeType.ARMOR]}
+            ${AttributeType.ABSORB}   | ${readableName[AttributeType.ABSORB]}
+            ${AttributeType.MOVEMENT} | ${readableName[AttributeType.MOVEMENT]}
+            ${AttributeType.HUSTLE}   | ${readableName[AttributeType.HUSTLE]}
+            ${AttributeType.ELUSIVE}  | ${readableName[AttributeType.ELUSIVE]}
         `(
             "$attributeType readable name is: $readableName",
             ({ attributeType, readableName }) => {
@@ -404,6 +404,11 @@ describe("AttributeModifier", () => {
                         })
                     )
                 ).toEqual(readableName)
+                expect(
+                    AttributeModifierService.readableNameForAttributeType(
+                        attributeType
+                    )
+                ).toEqual(readableName)
             }
         )
     })
@@ -414,8 +419,7 @@ describe("AttributeModifier", () => {
                 "Armor -1 (Circumstance)",
             [AttributeType.ABSORB]: "Absorb +2 (Item)",
             [AttributeType.MOVEMENT]: "Movement NO CHANGE",
-            [AttributeType.IGNORE_TERRAIN_COST]:
-                "Ignore terrain cost (Circumstance)",
+            [AttributeType.HUSTLE]: "Hustle (Circumstance)",
             [AttributeType.ELUSIVE]: "Elusive (Status)",
             [`${AttributeType.ARMOR} ${AttributeSource.PROFICIENCY}`]:
                 "Armor +4 (Proficiency)",
@@ -443,9 +447,9 @@ describe("AttributeModifier", () => {
         )
 
         test.each`
-            attributeType                        | source                          | readableDescription
-            ${AttributeType.IGNORE_TERRAIN_COST} | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.IGNORE_TERRAIN_COST]}
-            ${AttributeType.ELUSIVE}             | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.ELUSIVE]}
+            attributeType            | source                          | readableDescription
+            ${AttributeType.HUSTLE}  | ${AttributeSource.CIRCUMSTANCE} | ${readableDescription[AttributeType.HUSTLE]}
+            ${AttributeType.ELUSIVE} | ${AttributeSource.STATUS}       | ${readableDescription[AttributeType.ELUSIVE]}
         `(
             "$attributeType $source description is: $readableDescription",
             ({ attributeType, source, readableDescription }) => {

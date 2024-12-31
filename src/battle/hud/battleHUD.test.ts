@@ -1720,10 +1720,9 @@ describe("Battle HUD", () => {
                             change.battleSquaddieId ===
                             thiefBattleSquaddie.battleSquaddieId
                     )
-                const longswordActionDamage = (
-                    longswordAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate
-                ).damageDescriptions.BODY
+                const longswordActionDamage =
+                    longswordAction.actionEffectTemplates[0].damageDescriptions
+                        .BODY
                 expect(knightUsesLongswordOnThiefResults.damage.net).toBe(
                     longswordActionDamage
                 )

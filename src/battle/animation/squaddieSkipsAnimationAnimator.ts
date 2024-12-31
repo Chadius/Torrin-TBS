@@ -125,8 +125,8 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: gameEngineState.repository,
                 actionTemplateName: actionTemplate.name,
-                currentActionEffectTemplate: actionTemplate
-                    .actionEffectTemplates[0] as ActionEffectTemplate,
+                currentActionEffectTemplate:
+                    actionTemplate.actionEffectTemplates[0],
                 actingBattleSquaddieId:
                     actionToShow.actor.actorBattleSquaddieId,
                 actorContext: actionToShow.actor.actorContext,

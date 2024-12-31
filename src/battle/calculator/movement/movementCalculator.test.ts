@@ -167,7 +167,7 @@ describe("movement calculator", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    type: AttributeType.HUSTLE,
                     duration: 1,
                     amount: 1,
                     source: AttributeSource.CIRCUMSTANCE,

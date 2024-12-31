@@ -429,7 +429,7 @@ describe("map highlight generator", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    type: AttributeType.HUSTLE,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                 })

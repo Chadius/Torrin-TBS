@@ -24,7 +24,7 @@ describe("movement for squaddies", () => {
             movementPerAction: 3,
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.PASS_THROUGH_WALLS]: true,
-                [Trait.IGNORE_TERRAIN_COST]: true,
+                [Trait.HUSTLE]: true,
                 [Trait.ELUSIVE]: true,
             }),
         })

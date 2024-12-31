@@ -71,8 +71,8 @@ describe("weapon icon", () => {
             height: 20,
         })
         icon.draw({
-            actionEffectSquaddieTemplate: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplate:
+                hinderingAction.actionEffectTemplates[0],
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         })
@@ -96,8 +96,8 @@ describe("weapon icon", () => {
             height: 20,
         })
         icon.draw({
-            actionEffectSquaddieTemplate: helpingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplate:
+                helpingAction.actionEffectTemplates[0],
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         })

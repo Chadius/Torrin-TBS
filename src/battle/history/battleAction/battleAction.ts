@@ -101,7 +101,7 @@ export const BattleActionService = {
             (accumulator, actionEffectTemplate) =>
                 accumulator +
                 ActionEffectTemplateService.getMultipleAttackPenalty(
-                    actionEffectTemplate as ActionEffectTemplate
+                    actionEffectTemplate
                 ),
             0
         )

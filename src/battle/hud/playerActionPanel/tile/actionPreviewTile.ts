@@ -39,7 +39,17 @@ import { DrawTextBoxesAction } from "../../../../ui/textBox/behaviorTreeTask"
 import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
 import { TextHandlingService } from "../../../../utils/graphics/textHandlingService"
 import { UntilFailDecorator } from "../../../../utils/behaviorTree/decorator/untilFail/untilFail"
-import { BattleActionSquaddieChange } from "../../../history/battleAction/battleActionSquaddieChange"
+import {
+    BattleActionSquaddieChange,
+    BattleActionSquaddieChangeService,
+} from "../../../history/battleAction/battleActionSquaddieChange"
+import { ActionTemplate } from "../../../../action/template/actionTemplate"
+import { ActionEffectTemplateService } from "../../../../action/template/actionEffectTemplate"
+import {
+    AttributeModifierService,
+    AttributeTypeAndAmount,
+} from "../../../../squaddie/attributeModifier"
+import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
 
 export interface ActionPreviewTile {
     forecast: CalculatedResult
@@ -69,6 +79,7 @@ interface ActionPreviewTileLayout {
             degreeOfSuccess: DegreeOfSuccess
             suffix: string
             showEvenIfNoEffect: boolean
+            showChanceOfSuccess: boolean
         }[]
     }
     chancesOfDegreesOfSuccess: {
@@ -92,94 +103,23 @@ interface ActionPreviewTileContext {
     rollModifiers: { [r in RollModifierType]?: number }
     forecast: CalculatedResult
     squaddieNamesByBattleSquaddieId: { [battleSquaddieId: string]: string }
+    actionTemplate: ActionTemplate
 }
 
 interface ActionPreviewTileUIObjects {
     graphicsContext: GraphicsBuffer
     infoTextBox: TextBox
-    chancesOfDegreesOfSuccessTextBoxes: TextBox[]
-    effectsOfDegreesOfSuccessTextBoxes: TextBox[]
+    chancesOfDegreesOfSuccessTextBoxes: {
+        degreeOfSuccess: DegreeOfSuccess
+        textBox: TextBox
+    }[]
+    effectsOfDegreesOfSuccessTextBoxes: {
+        degreeOfSuccess: DegreeOfSuccess
+        textBox: TextBox
+    }[]
     targetNameTextBox: TextBox
 }
 
-const createDrawingBehaviorTree = (blackboard: Blackboard) => {
-    const createTargetNameTextBoxTree = new SequenceComposite(blackboard, [
-        new InverterDecorator(
-            blackboard,
-            new DoesUIObjectExistCondition(blackboard, "targetName")
-        ),
-        new CreateTargetNameTextBoxesAction(blackboard),
-    ])
-    const createChancesOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
-        blackboard,
-        [
-            new InverterDecorator(
-                blackboard,
-                new DoesUIObjectExistCondition(
-                    blackboard,
-                    "chancesOfDegreesOfSuccessTextBoxes"
-                )
-            ),
-            new UntilFailDecorator(
-                blackboard,
-                new CreateNextChancesOfDegreesOfSuccessTextBoxAction(blackboard)
-            ),
-        ]
-    )
-    const createEffectsOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
-        blackboard,
-        [
-            new InverterDecorator(
-                blackboard,
-                new DoesUIObjectExistCondition(
-                    blackboard,
-                    "effectsOfDegreesOfSuccessTextBoxes"
-                )
-            ),
-            new UntilFailDecorator(
-                blackboard,
-                new CreateNextEffectsOfDegreesOfSuccessTextBoxAction(blackboard)
-            ),
-        ]
-    )
-    const drawTextBoxTree = new SequenceComposite(blackboard, [
-        new DoesUIObjectExistCondition(blackboard, "graphicsContext"),
-        new DrawTextBoxesAction(
-            blackboard,
-            (blackboard: Blackboard) => {
-                const uiObjects =
-                    BlackboardService.get<ActionPreviewTileUIObjects>(
-                        blackboard,
-                        "uiObjects"
-                    )
-                return [
-                    ...uiObjects.chancesOfDegreesOfSuccessTextBoxes,
-                    ...uiObjects.effectsOfDegreesOfSuccessTextBoxes,
-                    uiObjects.targetNameTextBox,
-                ].filter((x) => x)
-            },
-            (blackboard: Blackboard) => {
-                const uiObjects =
-                    BlackboardService.get<ActionPreviewTileUIObjects>(
-                        blackboard,
-                        "uiObjects"
-                    )
-                return uiObjects.graphicsContext
-            }
-        ),
-    ])
-
-    const drawBehaviorTree: BehaviorTreeTask = new ExecuteAllComposite(
-        blackboard,
-        [
-            createTargetNameTextBoxTree,
-            createChancesOfDegreesOfSuccessTextBoxesTree,
-            createEffectsOfDegreesOfSuccessTextBoxesTree,
-            drawTextBoxTree,
-        ]
-    )
-    return drawBehaviorTree
-}
 export const ActionPreviewTileService = {
     new: ({
         gameEngineState,
@@ -214,21 +154,31 @@ export const ActionPreviewTileService = {
                         degreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
                         suffix: "crit",
                         showEvenIfNoEffect: true,
+                        showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         suffix: "hit",
                         showEvenIfNoEffect: true,
+                        showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.FAILURE,
                         suffix: "miss",
                         showEvenIfNoEffect: false,
+                        showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
                         suffix: "botch",
+                        showEvenIfNoEffect: true,
+                        showChanceOfSuccess: true,
+                    },
+                    {
+                        degreeOfSuccess: DegreeOfSuccess.NONE,
+                        suffix: "",
                         showEvenIfNoEffect: false,
+                        showChanceOfSuccess: false,
                     },
                 ],
             },
@@ -333,6 +283,89 @@ export const ActionPreviewTileService = {
     },
 }
 
+const createDrawingBehaviorTree = (blackboard: Blackboard) => {
+    const createTargetNameTextBoxTree = new SequenceComposite(blackboard, [
+        new InverterDecorator(
+            blackboard,
+            new DoesUIObjectExistCondition(blackboard, "targetName")
+        ),
+        new CreateTargetNameTextBoxesAction(blackboard),
+    ])
+    const createChancesOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
+        blackboard,
+        [
+            new InverterDecorator(
+                blackboard,
+                new DoesUIObjectExistCondition(
+                    blackboard,
+                    "chancesOfDegreesOfSuccessTextBoxes"
+                )
+            ),
+            new UntilFailDecorator(
+                blackboard,
+                new CreateNextChancesOfDegreesOfSuccessTextBoxAction(blackboard)
+            ),
+        ]
+    )
+    const createEffectsOfDegreesOfSuccessTextBoxesTree = new SequenceComposite(
+        blackboard,
+        [
+            new InverterDecorator(
+                blackboard,
+                new DoesUIObjectExistCondition(
+                    blackboard,
+                    "effectsOfDegreesOfSuccessTextBoxes"
+                )
+            ),
+            new UntilFailDecorator(
+                blackboard,
+                new CreateNextEffectsOfDegreesOfSuccessTextBoxAction(blackboard)
+            ),
+        ]
+    )
+    const drawTextBoxTree = new SequenceComposite(blackboard, [
+        new DoesUIObjectExistCondition(blackboard, "graphicsContext"),
+        new DrawTextBoxesAction(
+            blackboard,
+            (blackboard: Blackboard) => {
+                const uiObjects =
+                    BlackboardService.get<ActionPreviewTileUIObjects>(
+                        blackboard,
+                        "uiObjects"
+                    )
+                return [
+                    ...uiObjects.chancesOfDegreesOfSuccessTextBoxes.map(
+                        (a) => a.textBox
+                    ),
+                    ...uiObjects.effectsOfDegreesOfSuccessTextBoxes.map(
+                        (a) => a.textBox
+                    ),
+                    uiObjects.targetNameTextBox,
+                ].filter((x) => x)
+            },
+            (blackboard: Blackboard) => {
+                const uiObjects =
+                    BlackboardService.get<ActionPreviewTileUIObjects>(
+                        blackboard,
+                        "uiObjects"
+                    )
+                return uiObjects.graphicsContext
+            }
+        ),
+    ])
+
+    const drawBehaviorTree: BehaviorTreeTask = new ExecuteAllComposite(
+        blackboard,
+        [
+            createTargetNameTextBoxTree,
+            createChancesOfDegreesOfSuccessTextBoxesTree,
+            createEffectsOfDegreesOfSuccessTextBoxesTree,
+            drawTextBoxTree,
+        ]
+    )
+    return drawBehaviorTree
+}
+
 const createActionPreviewTileContext = ({
     squaddieTemplate,
     gameEngineState,
@@ -370,12 +403,22 @@ const createActionPreviewTileContext = ({
         })
     })
 
+    const actionTemplateId = BattleActionDecisionStepService.getAction(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    ).actionTemplateId
+    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
+        gameEngineState.repository,
+        actionTemplateId
+    )
+
     const context: ActionPreviewTileContext = {
         horizontalPosition: ActionTilePosition.ACTION_PREVIEW,
         squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
         rollModifiers,
         forecast,
         squaddieNamesByBattleSquaddieId,
+        actionTemplate,
     }
     return context
 }
@@ -513,24 +556,27 @@ class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         uiObjects.chancesOfDegreesOfSuccessTextBoxes ||= []
         const { forecastedChange, degreeOfSuccessToDraw } =
             findNextDegreeOfSuccessToDraw(
-                degreesOfSuccessLayoutConstants.rowOrder.filter(
-                    (_, index) =>
-                        index >=
-                        uiObjects.chancesOfDegreesOfSuccessTextBoxes.length
-                ),
-                targetForecast
+                degreesOfSuccessLayoutConstants.rowOrder,
+                uiObjects.chancesOfDegreesOfSuccessTextBoxes,
+                targetForecast,
+                context.actionTemplate
             )
         if (!degreeOfSuccessToDraw) return false
 
-        const messageToShow = `${((forecastedChange.chanceOfDegreeOfSuccess * 100) / 36).toFixed()}% ${degreeOfSuccessToDraw.suffix}`
+        const messageToShow = degreeOfSuccessToDraw.showChanceOfSuccess
+            ? `${((forecastedChange.chanceOfDegreeOfSuccess * 100) / 36).toFixed()}% ${degreeOfSuccessToDraw.suffix}`
+            : ""
+
         const top = calculateTopOfNextDegreesOfSuccessRow({
             blackboard: this.blackboard,
-            allTextBoxes: uiObjects.chancesOfDegreesOfSuccessTextBoxes,
+            degreeOfSuccessUIObjects:
+                uiObjects.chancesOfDegreesOfSuccessTextBoxes,
             boundingBox,
         })
 
-        uiObjects.chancesOfDegreesOfSuccessTextBoxes.push(
-            TextBoxService.new({
+        uiObjects.chancesOfDegreesOfSuccessTextBoxes.push({
+            degreeOfSuccess: degreeOfSuccessToDraw.degreeOfSuccess,
+            textBox: TextBoxService.new({
                 fontColor: chancesOfDegreesOfSuccessLayoutConstants.fontColor,
                 fontSize: chancesOfDegreesOfSuccessLayoutConstants.fontSize,
                 area: RectAreaService.new({
@@ -541,8 +587,8 @@ class CreateNextChancesOfDegreesOfSuccessTextBoxAction
                     margin: chancesOfDegreesOfSuccessLayoutConstants.margin,
                 }),
                 text: messageToShow,
-            })
-        )
+            }),
+        })
 
         BlackboardService.add<ActionPreviewTileUIObjects>(
             this.blackboard,
@@ -562,15 +608,21 @@ class CreateNextChancesOfDegreesOfSuccessTextBoxAction
 
 const calculateTopOfNextDegreesOfSuccessRow = ({
     blackboard,
-    allTextBoxes,
+    degreeOfSuccessUIObjects,
     boundingBox,
 }: {
     blackboard: Blackboard
-    allTextBoxes: TextBox[]
+    degreeOfSuccessUIObjects: {
+        degreeOfSuccess: DegreeOfSuccess
+        textBox: TextBox
+    }[]
     boundingBox: RectArea
 }) =>
-    allTextBoxes.length > 0
-        ? RectAreaService.bottom(allTextBoxes[allTextBoxes.length - 1].area) +
+    degreeOfSuccessUIObjects.length > 0
+        ? RectAreaService.bottom(
+              degreeOfSuccessUIObjects[degreeOfSuccessUIObjects.length - 1]
+                  .textBox.area
+          ) +
           WINDOW_SPACING.SPACING1 / 2
         : BlackboardService.get<ActionPreviewTileLayout>(blackboard, "layout")
               .topRowOffset + RectAreaService.top(boundingBox)
@@ -616,29 +668,41 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
         uiObjects.effectsOfDegreesOfSuccessTextBoxes ||= []
         const { forecastedChange, degreeOfSuccessToDraw } =
             findNextDegreeOfSuccessToDraw(
-                degreesOfSuccessLayoutConstants.rowOrder.filter(
-                    (_, index) =>
-                        index >=
-                        uiObjects.effectsOfDegreesOfSuccessTextBoxes.length
-                ),
-                targetForecast
+                degreesOfSuccessLayoutConstants.rowOrder,
+                uiObjects.effectsOfDegreesOfSuccessTextBoxes,
+                targetForecast,
+                context.actionTemplate
             )
 
         if (!degreeOfSuccessToDraw) return false
 
-        const messageToShow =
-            forecastedChange.damage.net === 0
-                ? "NO DAMAGE"
-                : `${forecastedChange.damage.net} damage`
+        let messageToShow = ""
+        if (
+            ActionEffectTemplateService.doesItTargetFoes(
+                context.actionTemplate.actionEffectTemplates[0]
+            )
+        ) {
+            messageToShow = generateEffectMessageForFoe(
+                forecastedChange,
+                context.actionTemplate
+            )
+        } else {
+            messageToShow = generateEffectMessageForFriendAndSelf(
+                forecastedChange,
+                context.actionTemplate
+            )
+        }
 
         const top = calculateTopOfNextDegreesOfSuccessRow({
             blackboard: this.blackboard,
-            allTextBoxes: uiObjects.effectsOfDegreesOfSuccessTextBoxes,
+            degreeOfSuccessUIObjects:
+                uiObjects.effectsOfDegreesOfSuccessTextBoxes,
             boundingBox,
         })
 
-        uiObjects.effectsOfDegreesOfSuccessTextBoxes.push(
-            TextBoxService.new({
+        uiObjects.effectsOfDegreesOfSuccessTextBoxes.push({
+            degreeOfSuccess: degreeOfSuccessToDraw.degreeOfSuccess,
+            textBox: TextBoxService.new({
                 fontColor: effectsOfDegreesOfSuccessLayoutConstants.fontColor,
                 fontSize: effectsOfDegreesOfSuccessLayoutConstants.fontSize,
                 area: RectAreaService.new({
@@ -650,8 +714,8 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
                 }),
                 text: messageToShow,
                 horizAlign: effectsOfDegreesOfSuccessLayoutConstants.horizAlign,
-            })
-        )
+            }),
+        })
 
         BlackboardService.add<ActionPreviewTileUIObjects>(
             this.blackboard,
@@ -671,7 +735,12 @@ class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
 
 const findNextDegreeOfSuccessToDraw = (
     potentialDegreesOfSuccessToDraw: ActionPreviewTileLayout["degreesOfSuccess"]["rowOrder"],
-    targetForecast: ActionEffectChange
+    alreadyDrawnTextBoxes: {
+        degreeOfSuccess: DegreeOfSuccess
+        textBox: TextBox
+    }[],
+    targetForecast: ActionEffectChange,
+    actionTemplate: ActionTemplate
 ) => {
     let forecastedChange: BattleActionSquaddieChange = undefined
     const degreeOfSuccessToDraw = potentialDegreesOfSuccessToDraw.find(
@@ -686,8 +755,45 @@ const findNextDegreeOfSuccessToDraw = (
                 return false
             }
 
-            const noDamage = forecastedChange.damage.net === 0
-            return !(!degreeOfSuccessInfo.showEvenIfNoEffect && noDamage)
+            if (
+                alreadyDrawnTextBoxes.some(
+                    (info) =>
+                        info.degreeOfSuccess ===
+                        degreeOfSuccessInfo.degreeOfSuccess
+                )
+            )
+                return false
+
+            const targetHasOnlyOneDegreeOfSuccess: boolean =
+                targetForecast.squaddieChanges.filter(
+                    (change) =>
+                        change.battleSquaddieId ===
+                        forecastedChange.battleSquaddieId
+                ).length === 1
+
+            switch (true) {
+                case targetHasOnlyOneDegreeOfSuccess ||
+                    degreeOfSuccessInfo.showEvenIfNoEffect:
+                    return true
+                case ActionEffectTemplateService.doesItTargetFoes(
+                    actionTemplate.actionEffectTemplates[0]
+                ) &&
+                    !BattleActionSquaddieChangeService.isSquaddieHindered(
+                        forecastedChange
+                    ):
+                    return false
+                case (ActionEffectTemplateService.doesItTargetFriends(
+                    actionTemplate.actionEffectTemplates[0]
+                ) ||
+                    ActionEffectTemplateService.doesItTargetSelf(
+                        actionTemplate.actionEffectTemplates[0]
+                    )) &&
+                    !BattleActionSquaddieChangeService.isSquaddieHelped(
+                        forecastedChange
+                    ):
+                    return false
+            }
+            return true
         }
     )
 
@@ -695,4 +801,105 @@ const findNextDegreeOfSuccessToDraw = (
         forecastedChange,
         degreeOfSuccessToDraw,
     }
+}
+
+const generateEffectMessageForFoe = (
+    forecastedChange: BattleActionSquaddieChange,
+    actionTemplate: ActionTemplate
+): string => {
+    const dealsDamage =
+        BattleActionSquaddieChangeService.isSquaddieHindered(forecastedChange)
+    const triesToDealDamage = actionTemplate.actionEffectTemplates.some(
+        (template) =>
+            Object.values(template.damageDescriptions).reduce(
+                (sum, currentValue) => sum + currentValue,
+                0
+            ) > 0
+    )
+
+    const attributeModifierDifferences: AttributeTypeAndAmount[] =
+        InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+            forecastedChange.attributesBefore,
+            forecastedChange.attributesAfter
+        )
+
+    if (
+        (triesToDealDamage && !dealsDamage) ||
+        (!triesToDealDamage && attributeModifierDifferences.length === 0)
+    ) {
+        return "NO DAMAGE"
+    }
+
+    let messageToShow = ""
+    messageToShow = generateMessageForAttributeModifiers(
+        attributeModifierDifferences,
+        messageToShow
+    )
+    if (dealsDamage) {
+        messageToShow += `${forecastedChange.damage.net} damage`
+    }
+    return messageToShow
+}
+
+const generateEffectMessageForFriendAndSelf = (
+    forecastedChange: BattleActionSquaddieChange,
+    actionTemplate: ActionTemplate
+): string => {
+    const healsTarget =
+        BattleActionSquaddieChangeService.isSquaddieHelped(forecastedChange)
+    const triesToHealTarget = actionTemplate.actionEffectTemplates.some(
+        (template) =>
+            template.healingDescriptions.LOST_HIT_POINTS !== undefined &&
+            template.healingDescriptions.LOST_HIT_POINTS > 0
+    )
+
+    const attributeModifierDifferences: AttributeTypeAndAmount[] =
+        InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
+            forecastedChange.attributesBefore,
+            forecastedChange.attributesAfter
+        )
+
+    if (
+        (triesToHealTarget && !healsTarget) ||
+        (!triesToHealTarget && attributeModifierDifferences.length === 0)
+    ) {
+        return "NO CHANGE"
+    }
+
+    let messageToShow = ""
+    messageToShow = generateMessageForAttributeModifiers(
+        attributeModifierDifferences,
+        messageToShow
+    )
+    if (healsTarget) {
+        messageToShow += `${forecastedChange.healingReceived} heal`
+    }
+    return messageToShow
+}
+
+const generateMessageForAttributeModifiers = (
+    attributeModifierDifferences: AttributeTypeAndAmount[],
+    messageToShow: string
+) => {
+    if (attributeModifierDifferences.length > 0) {
+        let attributeMessages = attributeModifierDifferences.map(
+            (typeAndAmount) => {
+                if (
+                    AttributeModifierService.isAttributeTypeABinaryEffect(
+                        typeAndAmount.type
+                    )
+                ) {
+                    return `${AttributeModifierService.readableNameForAttributeType(typeAndAmount.type)}`
+                }
+
+                const printedAmount =
+                    typeAndAmount.amount > 0
+                        ? `+${typeAndAmount.amount}`
+                        : `${typeAndAmount.amount}`
+                return `${printedAmount} ${AttributeModifierService.readableNameForAttributeType(typeAndAmount.type)}`
+            }
+        )
+        messageToShow += attributeMessages.join(", ")
+    }
+    return messageToShow
 }

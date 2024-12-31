@@ -638,7 +638,7 @@ describe("Squaddie Service", () => {
             })
         })
 
-        it("uses IGNORE TERRAIN COST attribute modifier to modify net movement", () => {
+        it("uses HUSTLE attribute modifier to modify net movement", () => {
             const {
                 squaddieTemplate: squaddieTemplateWithIgnoreTerrainCost,
                 battleSquaddie: battleSquaddieWithIgnoreTerrainCost,
@@ -655,7 +655,7 @@ describe("Squaddie Service", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddieWithIgnoreTerrainCost.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    type: AttributeType.HUSTLE,
                     duration: 1,
                     amount: 1,
                     source: AttributeSource.CIRCUMSTANCE,

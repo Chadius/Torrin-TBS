@@ -4,7 +4,7 @@ export enum AttributeType {
     ARMOR = "ARMOR",
     ABSORB = "ABSORB",
     MOVEMENT = "MOVEMENT",
-    IGNORE_TERRAIN_COST = "IGNORE_TERRAIN_COST",
+    HUSTLE = "HUSTLE",
     ELUSIVE = "ELUSIVE",
 }
 
@@ -214,6 +214,8 @@ export const AttributeModifierService = {
     readableName: (attributeModifier: AttributeModifier): string => {
         return readableNameForAttributeModifier(attributeModifier)
     },
+    readableNameForAttributeType: (a: AttributeType): string =>
+        readableNameForAttributeType(a),
     readableDescription: (
         params:
             | AttributeModifier
@@ -297,16 +299,15 @@ const newAttributeModifier = ({
 
 const readableNameForAttributeModifier = (
     attributeModifier: AttributeModifier
-) => {
+) => readableNameForAttributeType(attributeModifier.type)
+
+const readableNameForAttributeType = (type: AttributeType) => {
     const capitalizeFirstLetter = (input: string) =>
-        attributeModifier.type.charAt(0).toUpperCase() +
-        input.slice(1).toLowerCase()
-    return `${capitalizeFirstLetter(attributeModifier.type).replaceAll("_", " ")}`
+        type.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
+    return `${capitalizeFirstLetter(type).replaceAll("_", " ")}`
 }
 const isAttributeModifierABinaryEffect = (a: AttributeModifier) =>
     isAttributeTypeABinaryEffect(a.type)
 const isAttributeTypeABinaryEffect = (type: AttributeType) => {
-    return [AttributeType.IGNORE_TERRAIN_COST, AttributeType.ELUSIVE].includes(
-        type
-    )
+    return [AttributeType.HUSTLE, AttributeType.ELUSIVE].includes(type)
 }

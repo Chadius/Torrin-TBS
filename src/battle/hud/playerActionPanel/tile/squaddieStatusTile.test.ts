@@ -444,9 +444,9 @@ describe("Squaddie Status Tile", () => {
                     expectedIconKey: "attribute-icon-movement",
                 },
                 {
-                    name: "Ignore Terrain Cost",
-                    attributeType: AttributeType.IGNORE_TERRAIN_COST,
-                    expectedIconKey: "attribute-icon-ignore-terrain-cost",
+                    name: "Hustle",
+                    attributeType: AttributeType.HUSTLE,
+                    expectedIconKey: "attribute-icon-hustle",
                 },
                 {
                     name: "Elusive",
@@ -600,8 +600,7 @@ describe("Squaddie Status Tile", () => {
         })
 
         it("will not draw comparison icons for binary attributes", () => {
-            const ignoreTerrainCostAttributeIcon =
-                "attribute-icon-ignore-terrain-cost"
+            const ignoreTerrainCostAttributeIcon = "attribute-icon-hustle"
 
             let fakeAttributeImage = { width: 1, height: 1 }
             let fakeComparisonImage = { width: 2, height: 2 }
@@ -619,7 +618,7 @@ describe("Squaddie Status Tile", () => {
             InBattleAttributesService.addActiveAttributeModifier(
                 battleSquaddie.inBattleAttributes,
                 AttributeModifierService.new({
-                    type: AttributeType.IGNORE_TERRAIN_COST,
+                    type: AttributeType.HUSTLE,
                     source: AttributeSource.CIRCUMSTANCE,
                     amount: 1,
                 })

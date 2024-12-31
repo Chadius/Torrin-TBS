@@ -59,7 +59,7 @@ const createNewSquaddieMovementWithTraits = ({
         )
         ignoreTerrainCost = TraitStatusStorageService.getStatus(
             traits,
-            Trait.IGNORE_TERRAIN_COST
+            Trait.HUSTLE
         )
         passThroughSquaddies = TraitStatusStorageService.getStatus(
             traits,

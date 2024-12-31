@@ -75,7 +75,7 @@ const layoutConstants = {
                 percentLeft: 40,
             },
             {
-                type: AttributeType.IGNORE_TERRAIN_COST,
+                type: AttributeType.HUSTLE,
                 row: 3,
                 percentLeft: 45,
             },

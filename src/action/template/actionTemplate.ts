@@ -161,7 +161,7 @@ export const ActionTemplateService = {
             actionTemplate.actionEffectTemplates
                 .map(
                     (actionEffectTemplate: ActionEffectTemplate) =>
-                        actionEffectTemplate as ActionEffectTemplate
+                        actionEffectTemplate
                 )
                 .filter(
                     (actionEffectSquaddieTemplate: ActionEffectTemplate) =>
@@ -209,7 +209,7 @@ const getActionEffectTemplates = (
     actionTemplate: ActionTemplate
 ): ActionEffectTemplate[] =>
     actionTemplate.actionEffectTemplates.map(
-        (actionEffectTemplate) => actionEffectTemplate as ActionEffectTemplate
+        (actionEffectTemplate) => actionEffectTemplate
     )
 
 const doesActionTemplateHeal = (actionTemplate: ActionTemplate): boolean => {

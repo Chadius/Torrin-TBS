@@ -60,6 +60,13 @@ export const ActionEffectTemplateService = {
             actionEffectSquaddieTemplate.traits,
             Trait.TARGET_ALLY
         ),
+    doesItTargetSelf: (
+        actionEffectSquaddieTemplate: ActionEffectTemplate
+    ): boolean =>
+        TraitStatusStorageService.getStatus(
+            actionEffectSquaddieTemplate.traits,
+            Trait.TARGET_SELF
+        ),
     doesItTargetFoes: (
         actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>

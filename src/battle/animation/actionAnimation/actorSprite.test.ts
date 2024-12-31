@@ -120,8 +120,8 @@ describe("Actor Sprite", () => {
         sprite.draw({
             timer,
             graphicsContext: mockedP5GraphicsContext,
-            actionEffectSquaddieTemplate: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            actionEffectSquaddieTemplate:
+                hinderingAction.actionEffectTemplates[0],
             resourceHandler,
         })
 
@@ -144,8 +144,7 @@ describe("Actor Sprite", () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            action: hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL)
@@ -160,8 +159,7 @@ describe("Actor Sprite", () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: hinderingAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            action: hinderingAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.ATTACK)
@@ -177,8 +175,7 @@ describe("Actor Sprite", () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
-            action: helpfulAction
-                .actionEffectTemplates[0] as ActionEffectTemplate,
+            action: helpfulAction.actionEffectTemplates[0],
         })
 
         expect(emotion).toBe(SquaddieEmotion.ASSISTING)
@@ -203,12 +200,10 @@ describe("Actor Sprite", () => {
         beforeEach(() => {
             mapping = {
                 "deals damage": {
-                    action: hinderingAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                    action: hinderingAction.actionEffectTemplates[0],
                 },
                 "heals damage": {
-                    action: helpfulAction
-                        .actionEffectTemplates[0] as ActionEffectTemplate,
+                    action: helpfulAction.actionEffectTemplates[0],
                 },
             }
         })

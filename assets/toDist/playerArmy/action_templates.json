@@ -73,7 +73,7 @@
         },
         "attributeModifiers": [
           {
-            "type": "IGNORE_TERRAIN_COST",
+            "type": "HUSTLE",
             "source": "CIRCUMSTANCE",
             "amount": 1,
             "duration": 1,

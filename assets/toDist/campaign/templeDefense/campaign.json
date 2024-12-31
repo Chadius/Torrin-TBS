@@ -39,7 +39,7 @@
     "attributeIcons": {
       "ARMOR": "attribute-icon-armor",
       "MOVEMENT": "attribute-icon-movement",
-      "IGNORE_TERRAIN_COST": "attribute-icon-ignore-terrain-cost",
+      "HUSTLE": "attribute-icon-hustle",
       "ELUSIVE": "attribute-icon-elusive"
     },
     "attributeComparisons": {

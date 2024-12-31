@@ -21,7 +21,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../../../trait/traitStatusStorage"
-import { DamageType } from "../../../../squaddie/squaddieService"
+import { DamageType, HealingType } from "../../../../squaddie/squaddieService"
 
 import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
 import {
@@ -57,6 +57,12 @@ import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
 } from "../../../history/battleAction/battleActionSquaddieChange"
+import {
+    AttributeModifierService,
+    AttributeSource,
+    AttributeType,
+} from "../../../../squaddie/attributeModifier"
+import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository
@@ -234,7 +240,7 @@ describe("Action Preview Tile", () => {
                                                     absorbed: 0,
                                                     net: 1,
                                                 }),
-                                            chanceOfDegreeOfSuccess: 36,
+                                            chanceOfDegreeOfSuccess: 18,
                                         }),
                                     ],
                                 }),
@@ -253,7 +259,7 @@ describe("Action Preview Tile", () => {
                 })
 
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "100% miss"
+                    "50% miss"
                 )
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()
@@ -279,7 +285,7 @@ describe("Action Preview Tile", () => {
                                                     absorbed: 0,
                                                     net: 1,
                                                 }),
-                                            chanceOfDegreeOfSuccess: 36,
+                                            chanceOfDegreeOfSuccess: 18,
                                         }),
                                     ],
                                 }),
@@ -298,14 +304,14 @@ describe("Action Preview Tile", () => {
                 })
 
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "100% botch"
+                    "50% botch"
                 )
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()
             })
         })
 
-        it("will not text a forecast if it has no effect", () => {
+        it("will not text a forecast for a miss if it has no effect", () => {
             const forecastSpy = vi
                 .spyOn(ActionCalculator, "forecastResults")
                 .mockReturnValue(
@@ -326,6 +332,66 @@ describe("Action Preview Tile", () => {
                                                 absorbed: 0,
                                                 net: 0,
                                             }),
+                                        chanceOfDegreeOfSuccess: 18,
+                                    }),
+                                    BattleActionSquaddieChangeService.new({
+                                        battleSquaddieId: "enemy_0",
+                                        actorDegreeOfSuccess:
+                                            DegreeOfSuccess.CRITICAL_FAILURE,
+                                        damageExplanation:
+                                            DamageExplanationService.new({
+                                                raw: 0,
+                                                absorbed: 0,
+                                                net: 0,
+                                            }),
+                                        chanceOfDegreeOfSuccess: 18,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+                )
+
+            tile = ActionPreviewTileService.new({
+                gameEngineState,
+                objectRepository,
+            })
+
+            ActionPreviewTileService.draw({
+                tile: tile,
+                graphicsContext: graphicsBuffer,
+            })
+
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).not.includes(
+                "50% miss"
+            )
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                "50% botch"
+            )
+            expect(forecastSpy).toBeCalled()
+            forecastSpy.mockRestore()
+        })
+        it("will text the results if no degree of success is needed", () => {
+            const forecastSpy = vi
+                .spyOn(ActionCalculator, "forecastResults")
+                .mockReturnValue(
+                    CalculatedResultService.new({
+                        actorBattleSquaddieId: "player_0",
+                        changesPerEffect: [
+                            ActionEffectChangesService.new({
+                                actorContext:
+                                    BattleActionActorContextService.new({}),
+                                squaddieChanges: [
+                                    BattleActionSquaddieChangeService.new({
+                                        battleSquaddieId: "enemy_0",
+                                        actorDegreeOfSuccess:
+                                            DegreeOfSuccess.NONE,
+                                        damageExplanation:
+                                            DamageExplanationService.new({
+                                                raw: 0,
+                                                absorbed: 0,
+                                                net: 1,
+                                            }),
                                         chanceOfDegreeOfSuccess: 36,
                                     }),
                                 ],
@@ -345,7 +411,10 @@ describe("Action Preview Tile", () => {
             })
 
             expect(getAllDrawnText(graphicsBufferSpies["text"])).not.includes(
-                "100% miss"
+                "100% "
+            )
+            expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                "1 damage"
             )
             expect(forecastSpy).toBeCalled()
             forecastSpy.mockRestore()
@@ -441,6 +510,500 @@ describe("Action Preview Tile", () => {
                 )
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()
+            })
+        })
+
+        describe("helpful actions", () => {
+            let healingAction: ActionTemplate
+            let healingActionSpy: MockInstance
+
+            beforeEach(() => {
+                healingAction = ActionTemplateService.new({
+                    name: "heal self",
+                    id: "heal_self",
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_SELF]: true,
+                                    [Trait.HEALING]: true,
+                                }
+                            ),
+                            healingDescriptions: {
+                                [HealingType.LOST_HIT_POINTS]: 2,
+                            },
+                        }),
+                    ],
+                })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    healingAction
+                )
+
+                missionMap = MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
+                    }),
+                })
+
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    battleSquaddieId: "player_0",
+                    squaddieTemplateId: "player_0",
+                    coordinate: { q: 0, r: 0 },
+                })
+                gameEngineState = GameEngineStateService.new({
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                campaignId: "test campaign",
+                                missionId: "test mission",
+                                missionMap,
+                            }),
+                        }
+                    ),
+                    repository: objectRepository,
+                    campaign: CampaignService.default(),
+                })
+            })
+
+            afterEach(() => {
+                if (healingActionSpy) healingActionSpy.mockRestore()
+            })
+
+            const useHealingActionOnSelf = () => {
+                const actionStep = BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: actionStep,
+                    battleSquaddieId: "player_0",
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: actionStep,
+                    actionTemplateId: healingAction.id,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: actionStep,
+                    targetCoordinate: { q: 0, r: 0 },
+                })
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    actionStep
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+                graphicsBuffer = new MockedP5GraphicsBuffer()
+                graphicsBufferSpies =
+                    MockedGraphicsBufferService.addSpies(graphicsBuffer)
+            }
+
+            it("will not show NO DAMAGE if the action is helpful but deals no damage", () => {
+                healingActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "player_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            healingReceived: 2,
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useHealingActionOnSelf()
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(
+                    getAllDrawnText(graphicsBufferSpies["text"])
+                ).not.includes("NO DAMAGE")
+
+                expect(healingActionSpy).toHaveBeenCalled()
+            })
+
+            it("will show healing amount", () => {
+                healingActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "player_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            healingReceived: 2,
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useHealingActionOnSelf()
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "2 heal"
+                )
+
+                expect(healingActionSpy).toHaveBeenCalled()
+            })
+
+            it("will show NO CHANGE if there is no healing for a healing action", () => {
+                healingActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "player_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.NONE,
+                                            healingReceived: 0,
+                                            chanceOfDegreeOfSuccess: 36,
+                                            attributesBefore:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                            attributesAfter:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useHealingActionOnSelf()
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "NO CHANGE"
+                )
+
+                expect(healingActionSpy).toHaveBeenCalled()
+            })
+        })
+
+        describe("attribute modifiers", () => {
+            let attributeActionSpy: MockInstance
+            beforeEach(() => {
+                missionMap = MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 "],
+                    }),
+                })
+
+                MissionMapService.addSquaddie({
+                    missionMap,
+                    battleSquaddieId: "player_0",
+                    squaddieTemplateId: "player_0",
+                    coordinate: { q: 0, r: 0 },
+                })
+                gameEngineState = GameEngineStateService.new({
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                campaignId: "test campaign",
+                                missionId: "test mission",
+                                missionMap,
+                            }),
+                        }
+                    ),
+                    repository: objectRepository,
+                    campaign: CampaignService.default(),
+                })
+            })
+
+            afterEach(() => {
+                if (attributeActionSpy) attributeActionSpy.mockRestore()
+            })
+
+            const useActionOnSelf = (actionTemplateId: string) => {
+                const actionStep = BattleActionDecisionStepService.new()
+                BattleActionDecisionStepService.setActor({
+                    actionDecisionStep: actionStep,
+                    battleSquaddieId: "player_0",
+                })
+                BattleActionDecisionStepService.addAction({
+                    actionDecisionStep: actionStep,
+                    actionTemplateId: actionTemplateId,
+                })
+                BattleActionDecisionStepService.setConfirmedTarget({
+                    actionDecisionStep: actionStep,
+                    targetCoordinate: { q: 0, r: 0 },
+                })
+                gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                    actionStep
+
+                tile = ActionPreviewTileService.new({
+                    gameEngineState,
+                    objectRepository,
+                })
+                graphicsBuffer = new MockedP5GraphicsBuffer()
+                graphicsBufferSpies =
+                    MockedGraphicsBufferService.addSpies(graphicsBuffer)
+            }
+
+            it("will text binary attribute effect", () => {
+                let elusiveAction = ActionTemplateService.new({
+                    name: "action",
+                    id: "action",
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_SELF]: true,
+                                }
+                            ),
+                            attributeModifiers: [
+                                AttributeModifierService.new({
+                                    type: AttributeType.ELUSIVE,
+                                    amount: 2,
+                                    duration: 1,
+                                    source: AttributeSource.STATUS,
+                                }),
+                            ],
+                        }),
+                    ],
+                })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    elusiveAction
+                )
+
+                attributeActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "player_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            healingReceived: 0,
+                                            attributesBefore:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                            attributesAfter: {
+                                                ...InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                                attributeModifiers: [
+                                                    AttributeModifierService.new(
+                                                        {
+                                                            type: AttributeType.ELUSIVE,
+                                                            amount: 1,
+                                                            duration: 1,
+                                                            source: AttributeSource.STATUS,
+                                                        }
+                                                    ),
+                                                ],
+                                            },
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useActionOnSelf("action")
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "Elusive"
+                )
+
+                expect(attributeActionSpy).toBeCalled()
+            })
+            it("will text an attribute amount", () => {
+                let elusiveAction = ActionTemplateService.new({
+                    name: "action",
+                    id: "action",
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_SELF]: true,
+                                }
+                            ),
+                            attributeModifiers: [
+                                AttributeModifierService.new({
+                                    type: AttributeType.ABSORB,
+                                    amount: 2,
+                                    duration: 1,
+                                    source: AttributeSource.STATUS,
+                                }),
+                            ],
+                        }),
+                    ],
+                })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    elusiveAction
+                )
+
+                attributeActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "enemy_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            healingReceived: 0,
+                                            attributesBefore:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                            attributesAfter: {
+                                                ...InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                                attributeModifiers: [
+                                                    AttributeModifierService.new(
+                                                        {
+                                                            type: AttributeType.ABSORB,
+                                                            amount: 2,
+                                                            duration: 1,
+                                                            source: AttributeSource.STATUS,
+                                                        }
+                                                    ),
+                                                ],
+                                            },
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useActionOnSelf("action")
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "+2 Absorb"
+                )
+
+                expect(attributeActionSpy).toBeCalled()
+            })
+
+            it("will text NO CHANGE if there is no healing and no attribute effects", () => {
+                let noChangeAction = ActionTemplateService.new({
+                    name: "action",
+                    id: "action",
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.TARGET_SELF]: true,
+                                }
+                            ),
+                            attributeModifiers: [],
+                        }),
+                    ],
+                })
+                ObjectRepositoryService.addActionTemplate(
+                    objectRepository,
+                    noChangeAction
+                )
+
+                attributeActionSpy = vi
+                    .spyOn(ActionCalculator, "forecastResults")
+                    .mockReturnValue(
+                        CalculatedResultService.new({
+                            actorBattleSquaddieId: "player_0",
+                            changesPerEffect: [
+                                ActionEffectChangesService.new({
+                                    actorContext:
+                                        BattleActionActorContextService.new({}),
+                                    squaddieChanges: [
+                                        BattleActionSquaddieChangeService.new({
+                                            battleSquaddieId: "player_0",
+                                            actorDegreeOfSuccess:
+                                                DegreeOfSuccess.SUCCESS,
+                                            healingReceived: 0,
+                                            attributesBefore:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                            attributesAfter:
+                                                InBattleAttributesService.new(
+                                                    {}
+                                                ),
+                                            chanceOfDegreeOfSuccess: 36,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        })
+                    )
+
+                useActionOnSelf("action")
+                ActionPreviewTileService.draw({
+                    tile: tile,
+                    graphicsContext: graphicsBuffer,
+                })
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "NO CHANGE"
+                )
+
+                expect(attributeActionSpy).toBeCalled()
             })
         })
     })
