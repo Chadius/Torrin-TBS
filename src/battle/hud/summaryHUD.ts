@@ -33,7 +33,7 @@ import {
 import {
     ActionPreviewTile,
     ActionPreviewTileService,
-} from "./playerActionPanel/tile/actionPreviewTile"
+} from "./playerActionPanel/tile/actionPreviewTile/actionPreviewTile"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 

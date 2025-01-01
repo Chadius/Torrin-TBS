@@ -1,12 +1,12 @@
 import {
     ObjectRepository,
     ObjectRepositoryService,
-} from "../../../objectRepository"
+} from "../../../../objectRepository"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../../../action/template/actionTemplate"
-import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
+} from "../../../../../action/template/actionTemplate"
+import { SquaddieAffiliation } from "../../../../../squaddie/squaddieAffiliation"
 import {
     ActionPreviewTile,
     ActionPreviewTileService,
@@ -14,29 +14,32 @@ import {
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../../../gameEngine/gameEngine"
-import { SquaddieRepositoryService } from "../../../../utils/test/squaddie"
-import { ActionEffectTemplateService } from "../../../../action/template/actionEffectTemplate"
+} from "../../../../../gameEngine/gameEngine"
+import { SquaddieRepositoryService } from "../../../../../utils/test/squaddie"
+import { ActionEffectTemplateService } from "../../../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../../../trait/traitStatusStorage"
-import { DamageType, HealingType } from "../../../../squaddie/squaddieService"
+} from "../../../../../trait/traitStatusStorage"
+import {
+    DamageType,
+    HealingType,
+} from "../../../../../squaddie/squaddieService"
 
-import { GraphicsBuffer } from "../../../../utils/graphics/graphicsRenderer"
+import { GraphicsBuffer } from "../../../../../utils/graphics/graphicsRenderer"
 import {
     MockedGraphicsBufferService,
     MockedP5GraphicsBuffer,
-} from "../../../../utils/test/mocks"
-import { BattleOrchestratorStateService } from "../../../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../../../orchestrator/battleState"
-import { CampaignService } from "../../../../campaign/campaign"
+} from "../../../../../utils/test/mocks"
+import { BattleOrchestratorStateService } from "../../../../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../../../../orchestrator/battleState"
+import { CampaignService } from "../../../../../campaign/campaign"
 import {
     MissionMap,
     MissionMapService,
-} from "../../../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import { BattleActionDecisionStepService } from "../../../actionDecision/battleActionDecisionStep"
+} from "../../../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../../../hexMap/terrainTileMap"
+import { BattleActionDecisionStepService } from "../../../../actionDecision/battleActionDecisionStep"
 import {
     afterEach,
     beforeEach,
@@ -46,27 +49,27 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { ActionCalculator } from "../../../calculator/actionCalculator/calculator"
-import { DegreeOfSuccess } from "../../../calculator/actionCalculator/degreeOfSuccess"
+import { ActionCalculator } from "../../../../calculator/actionCalculator/calculator"
+import { DegreeOfSuccess } from "../../../../calculator/actionCalculator/degreeOfSuccess"
 import {
     ActionEffectChangesService,
     CalculatedResultService,
-} from "../../../history/calculatedResult"
-import { BattleActionActorContextService } from "../../../history/battleAction/battleActionActorContext"
+} from "../../../../history/calculatedResult"
+import { BattleActionActorContextService } from "../../../../history/battleAction/battleActionActorContext"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../../../history/battleAction/battleActionSquaddieChange"
+} from "../../../../history/battleAction/battleActionSquaddieChange"
 import {
     AttributeModifierService,
     AttributeSource,
     AttributeType,
-} from "../../../../squaddie/attributeModifier"
-import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
+} from "../../../../../squaddie/attributeModifier"
+import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import {
     RollModifierType,
     RollResultService,
-} from "../../../calculator/actionCalculator/rollResult"
+} from "../../../../calculator/actionCalculator/rollResult"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository
