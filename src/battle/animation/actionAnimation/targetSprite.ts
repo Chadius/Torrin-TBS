@@ -161,32 +161,7 @@ export class TargetSprite {
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (!stillAlive) {
-                    return SquaddieEmotion.DEAD
-                }
-
-                if (
-                    !DegreeOfSuccessService.atLeastSuccessful(
-                        result.actorDegreeOfSuccess
-                    )
-                ) {
-                    return SquaddieEmotion.NEUTRAL
-                }
-
-                if (
-                    !BattleActionSquaddieChangeService.isSquaddieHindered(
-                        result
-                    ) &&
-                    !BattleActionSquaddieChangeService.isSquaddieHelped(result)
-                ) {
-                    return SquaddieEmotion.NEUTRAL
-                } else if (
-                    BattleActionSquaddieChangeService.isSquaddieHindered(result)
-                ) {
-                    return SquaddieEmotion.DAMAGED
-                } else {
-                    return SquaddieEmotion.THANKFUL
-                }
+                return getEmotionWhenTargetShouldBeHit(stillAlive, result)
             default:
                 return SquaddieEmotion.NEUTRAL
         }
@@ -440,3 +415,23 @@ export class TargetSprite {
 const getAttackTime = (timeElapsed: number): number =>
     timeElapsed -
     (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME)
+
+const getEmotionWhenTargetShouldBeHit = (
+    stillAlive: boolean,
+    result: BattleActionSquaddieChange
+) => {
+    switch (true) {
+        case !stillAlive:
+            return SquaddieEmotion.DEAD
+        case BattleActionSquaddieChangeService.isSquaddieHelped(result):
+            return SquaddieEmotion.THANKFUL
+        case !DegreeOfSuccessService.atLeastSuccessful(
+            result.actorDegreeOfSuccess
+        ):
+            return SquaddieEmotion.NEUTRAL
+        case !BattleActionSquaddieChangeService.isSquaddieHindered(result):
+            return SquaddieEmotion.NEUTRAL
+        default:
+            return SquaddieEmotion.DAMAGED
+    }
+}

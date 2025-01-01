@@ -117,7 +117,7 @@ describe("Target Sprite", () => {
                 net: 0,
             }),
             healingReceived: 1,
-            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            actorDegreeOfSuccess: DegreeOfSuccess.NONE,
         })
 
         hinderingAction = ActionTemplateService.new({
