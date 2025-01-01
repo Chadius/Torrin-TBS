@@ -1249,4 +1249,4 @@ const calculateBottomOfModifierList = (
         ? RectAreaService.top(
               modifierTextBoxes[modifierTextBoxes.length - 1].area
           )
-        : RectAreaService.bottom(boundingBox)
+        : RectAreaService.bottom(boundingBox) - WINDOW_SPACING.SPACING1
