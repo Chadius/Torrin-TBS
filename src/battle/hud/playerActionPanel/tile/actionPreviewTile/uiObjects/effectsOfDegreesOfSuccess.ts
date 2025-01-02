@@ -228,7 +228,6 @@ const generateMessageForAttributeModifiers = (
     if (attributeModifierDifferences.length > 0) {
         let attributeMessages = attributeModifierDifferences.map(
             (typeAndAmount) => {
-                // TODO Move this into a convenience function
                 if (AttributeTypeService.isBinary(typeAndAmount.type)) {
                     return `${AttributeTypeService.readableName(typeAndAmount.type)}`
                 }
