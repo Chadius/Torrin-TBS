@@ -4,7 +4,7 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
-import { AttributeModifier } from "../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { ActionDecisionType } from "./actionTemplate"
 
 export interface ActionEffectTemplate {

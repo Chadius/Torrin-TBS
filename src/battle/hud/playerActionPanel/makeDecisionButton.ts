@@ -14,15 +14,13 @@ import {
 } from "../../../utils/validityCheck"
 import { ResourceHandler } from "../../../resource/resourceHandler"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import {
-    AttributeModifierService,
-    AttributeType,
-} from "../../../squaddie/attributeModifier"
+import { AttributeModifierService } from "../../../squaddie/attribute/attributeModifier"
 import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
 import { ImageUI, ImageUILoadingBehavior } from "../../../ui/ImageUI"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
     hover: {

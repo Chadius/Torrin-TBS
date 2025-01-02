@@ -25,10 +25,8 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../../action/template/actionTemplate"
-import {
-    AttributeModifierService,
-    AttributeType,
-} from "../../../../squaddie/attributeModifier"
+import { AttributeModifierService } from "../../../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../../../squaddie/attribute/attributeType"
 
 const layoutConstants = {
     actionNameText: {

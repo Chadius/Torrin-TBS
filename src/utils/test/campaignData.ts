@@ -1,5 +1,5 @@
 import { CampaignFileFormat } from "../../campaign/campaignFileFormat"
-import { AttributeType } from "../../squaddie/attributeModifier"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 export const TestCampaignData = () => {
     const testCampaignFile: CampaignFileFormat = {

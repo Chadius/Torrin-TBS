@@ -24,8 +24,7 @@ import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
 import { TargetConstraintsService } from "../../action/targetConstraints"
@@ -36,6 +35,7 @@ import {
 import { ActionResourceCostService } from "../../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieService } from "../../squaddie/squaddieService"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 describe("Action Result Text Writer", () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryService.new()
@@ -782,7 +782,7 @@ describe("Action Result Text Writer", () => {
             expect(outputString).toContain(`Armor ${thiefNetArmorClass + 9001}`)
             expect(outputString).toContain(`+9001 Armor`)
         })
-        it("Does not shows Armor bonuses against non attacks", () => {
+        it("Does not show Armor bonuses against non attacks", () => {
             const outputString: string =
                 ActionResultTextService.getBeforeActionText({
                     targetTemplate: thiefStatic,

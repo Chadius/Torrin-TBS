@@ -38,10 +38,10 @@ import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { beforeEach, describe, expect, it } from "vitest"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 describe("map highlight generator", () => {
     let terrainAllSingleMovement: TerrainTileMap

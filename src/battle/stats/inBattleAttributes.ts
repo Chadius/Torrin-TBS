@@ -6,14 +6,16 @@ import { DamageType } from "../../squaddie/squaddieService"
 import {
     AttributeModifier,
     AttributeModifierService,
-    AttributeType,
-    AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import {
     DamageExplanation,
     DamageExplanationService,
 } from "../history/battleAction/battleActionSquaddieChange"
 import { isValidValue } from "../../utils/validityCheck"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+} from "../../squaddie/attribute/attributeType"
 
 export interface InBattleAttributes {
     armyAttributes: ArmyAttributes

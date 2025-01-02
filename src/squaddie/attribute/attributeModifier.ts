@@ -1,23 +1,15 @@
-import { isValidValue } from "../utils/validityCheck"
-
-export enum AttributeType {
-    ARMOR = "ARMOR",
-    ABSORB = "ABSORB",
-    MOVEMENT = "MOVEMENT",
-    HUSTLE = "HUSTLE",
-    ELUSIVE = "ELUSIVE",
-}
+import { isValidValue } from "../../utils/validityCheck"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+    AttributeTypeService,
+} from "./attributeType"
 
 export enum AttributeSource {
     CIRCUMSTANCE = "CIRCUMSTANCE",
     ITEM = "ITEM",
     STATUS = "STATUS",
     PROFICIENCY = "PROFICIENCY",
-}
-
-export type AttributeTypeAndAmount = {
-    type: AttributeType
-    amount: number
 }
 
 export interface AttributeModifier {
@@ -58,7 +50,7 @@ export const AttributeModifierService = {
             case modifier.duration !== undefined && modifier.duration <= 0:
                 return false
             case modifier.amount <= 0 &&
-                isAttributeModifierABinaryEffect(modifier):
+                AttributeTypeService.isBinary(modifier.type):
                 return false
             case modifier.amount <= 0 &&
                 [AttributeType.ABSORB, AttributeType.MOVEMENT].includes(
@@ -205,17 +197,6 @@ export const AttributeModifierService = {
         attributeModifier.amount -= amount
     },
     clone: (a: AttributeModifier): AttributeModifier => newAttributeModifier(a),
-    effectIsBinaryEffect: (a: AttributeModifier): boolean =>
-        isAttributeModifierABinaryEffect(a),
-    isAttributeTypeABinaryEffect: (a: AttributeType): boolean =>
-        isAttributeTypeABinaryEffect(a),
-    getAttributeIconResourceKeyForAttributeType: (a: AttributeType): string =>
-        `attribute-icon-${a.toLowerCase().replaceAll("_", "-")}`,
-    readableName: (attributeModifier: AttributeModifier): string => {
-        return readableNameForAttributeModifier(attributeModifier)
-    },
-    readableNameForAttributeType: (a: AttributeType): string =>
-        readableNameForAttributeType(a),
     readableDescription: (
         params:
             | AttributeModifier
@@ -233,7 +214,7 @@ export const AttributeModifierService = {
 
         let attributeAmountAsString: string
         switch (true) {
-            case isAttributeModifierABinaryEffect(attributeModifier):
+            case AttributeTypeService.isBinary(attributeModifier.type):
                 attributeAmountAsString = ""
                 break
             case attributeModifier.amount > 0:
@@ -267,8 +248,9 @@ export const AttributeModifierService = {
             attributeSourceAsString = ` (${attributeSourceToStringMapping[attributeModifier.source]})`
         }
 
-        const attributeTypeAsString: string =
-            readableNameForAttributeModifier(attributeModifier)
+        const attributeTypeAsString: string = AttributeTypeService.readableName(
+            attributeModifier.type
+        )
 
         return `${attributeTypeAsString}${attributeAmountAsString}${attributeSourceAsString}`
     },
@@ -296,18 +278,3 @@ const newAttributeModifier = ({
     numberOfUses,
     description,
 })
-
-const readableNameForAttributeModifier = (
-    attributeModifier: AttributeModifier
-) => readableNameForAttributeType(attributeModifier.type)
-
-const readableNameForAttributeType = (type: AttributeType) => {
-    const capitalizeFirstLetter = (input: string) =>
-        type.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
-    return `${capitalizeFirstLetter(type).replaceAll("_", " ")}`
-}
-const isAttributeModifierABinaryEffect = (a: AttributeModifier) =>
-    isAttributeTypeABinaryEffect(a.type)
-const isAttributeTypeABinaryEffect = (type: AttributeType) => {
-    return [AttributeType.HUSTLE, AttributeType.ELUSIVE].includes(type)
-}

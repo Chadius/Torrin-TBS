@@ -2,8 +2,8 @@ import {
     RollModifierType,
     RollResultService,
 } from "../../calculator/actionCalculator/rollResult"
-import { AttributeTypeAndAmount } from "../../../squaddie/attributeModifier"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
 
 export const ActionResultText = {
     getAttackPenaltyDescriptions: (

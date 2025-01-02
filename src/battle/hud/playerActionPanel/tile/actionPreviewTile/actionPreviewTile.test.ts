@@ -63,13 +63,13 @@ import {
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../../../squaddie/attributeModifier"
+} from "../../../../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../../../../stats/inBattleAttributes"
 import {
     RollModifierType,
     RollResultService,
 } from "../../../../calculator/actionCalculator/rollResult"
+import { AttributeType } from "../../../../../squaddie/attribute/attributeType"
 
 describe("Action Preview Tile", () => {
     let objectRepository: ObjectRepository

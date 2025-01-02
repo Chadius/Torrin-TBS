@@ -15,11 +15,11 @@ import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { beforeEach, describe, expect, it } from "vitest"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 describe("Buff Self Checker", () => {
     let raiseShield: ActionTemplate

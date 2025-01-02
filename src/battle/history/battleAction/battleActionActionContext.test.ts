@@ -1,13 +1,13 @@
-import {
-    AttributeType,
-    AttributeTypeAndAmount,
-} from "../../../squaddie/attributeModifier"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
 import {
     BattleActionActorContext,
     BattleActionActorContextService,
 } from "./battleActionActorContext"
 import { describe, expect, it } from "vitest"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+} from "../../../squaddie/attribute/attributeType"
 
 describe("Battle Action Action Context", () => {
     it("can be cloned to a separate object", () => {

@@ -19,11 +19,6 @@ import { RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { isValidValue } from "../../../../utils/validityCheck"
-import {
-    AttributeModifierService,
-    AttributeType,
-    AttributeTypeAndAmount,
-} from "../../../../squaddie/attributeModifier"
 import { BattleSquaddie } from "../../../battleSquaddie"
 import {
     SquaddieActionPointsExplanation,
@@ -38,6 +33,11 @@ import {
 } from "../../../../missionMap/missionMap"
 import { CalculateAgainstArmor } from "../../../calculator/actionCalculator/calculateAgainstArmor"
 import { ImageUI, ImageUILoadingBehavior } from "../../../../ui/ImageUI"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+    AttributeTypeService,
+} from "../../../../squaddie/attribute/attributeType"
 
 const layoutConstants = {
     rowSize: 28,
@@ -456,9 +456,7 @@ const updateAttributeModifiers = ({
     const currentNumericalAttributeModifiersToShow =
         currentAttributeModifiersToShow.filter(
             (attributeTypeAndAmount) =>
-                !AttributeModifierService.isAttributeTypeABinaryEffect(
-                    attributeTypeAndAmount.type
-                ) &&
+                !AttributeTypeService.isBinary(attributeTypeAndAmount.type) &&
                 ![AttributeType.ABSORB].includes(attributeTypeAndAmount.type)
         )
 
@@ -474,9 +472,7 @@ const updateAttributeModifiers = ({
     const currentBinaryAttributeModifiersToShow =
         currentAttributeModifiersToShow.filter(
             (attributeTypeAndAmount) =>
-                AttributeModifierService.isAttributeTypeABinaryEffect(
-                    attributeTypeAndAmount.type
-                ) &&
+                AttributeTypeService.isBinary(attributeTypeAndAmount.type) &&
                 ![AttributeType.ABSORB].includes(attributeTypeAndAmount.type)
         )
 
@@ -532,7 +528,7 @@ const updateNumericalAttributeModifiers = ({
         "attribute-down",
         ...currentNumericalAttributeModifiersToShow.map(
             (attributeTypeAndAmount) =>
-                AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+                AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
                     attributeTypeAndAmount.type
                 )
         ),
@@ -598,7 +594,7 @@ const updateNumericalAttributeModifiers = ({
                 icon: new ImageUI({
                     imageLoadingBehavior: {
                         resourceKey:
-                            AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+                            AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
                                 attributeTypeAndAmount.type
                             ),
                         loadingBehavior:
@@ -636,7 +632,7 @@ const updateBinaryAttributeModifiers = ({
 }) => {
     ;[
         ...currentBinaryAttributeModifiersToShow.map((attributeTypeAndAmount) =>
-            AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+            AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
                 attributeTypeAndAmount.type
             )
         ),
@@ -668,7 +664,7 @@ const updateBinaryAttributeModifiers = ({
             icon: new ImageUI({
                 imageLoadingBehavior: {
                     resourceKey:
-                        AttributeModifierService.getAttributeIconResourceKeyForAttributeType(
+                        AttributeTypeService.getAttributeIconResourceKeyForAttributeType(
                             attributeTypeAndAmount.type
                         ),
                     loadingBehavior:

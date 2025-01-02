@@ -1,5 +1,5 @@
 import { HexGridMovementCost } from "../hexMap/hexGridMovementCost"
-import { AttributeType } from "../squaddie/attributeModifier"
+import { AttributeType } from "../squaddie/attribute/attributeType"
 
 export enum MissionMapMovementIconKey {
     MOVE_1_ACTION_CONTROLLABLE_SQUADDIE = "MOVE_1_ACTION_CONTROLLABLE_SQUADDIE",

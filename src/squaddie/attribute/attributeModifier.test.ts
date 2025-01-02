@@ -2,9 +2,9 @@ import {
     AttributeModifier,
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
 } from "./attributeModifier"
 import { beforeEach, describe, expect, it, test } from "vitest"
+import { AttributeType } from "./attributeType"
 
 describe("AttributeModifier", () => {
     let armorModifierFor1Round: AttributeModifier
@@ -342,75 +342,6 @@ describe("AttributeModifier", () => {
                 ])
             })
         })
-    })
-
-    describe("knows when the attribute is binary", () => {
-        const binaryStatus: { [t in AttributeType]: boolean } = {
-            [AttributeType.ARMOR]: false,
-            [AttributeType.ABSORB]: false,
-            [AttributeType.MOVEMENT]: false,
-            [AttributeType.HUSTLE]: true,
-            [AttributeType.ELUSIVE]: true,
-        }
-
-        test.each`
-            attributeType             | isBinary
-            ${AttributeType.ARMOR}    | ${binaryStatus[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}   | ${binaryStatus[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT} | ${binaryStatus[AttributeType.MOVEMENT]}
-            ${AttributeType.HUSTLE}   | ${binaryStatus[AttributeType.HUSTLE]}
-            ${AttributeType.ELUSIVE}  | ${binaryStatus[AttributeType.ELUSIVE]}
-        `(
-            "$attributeType is binary: $isBinary",
-            ({ attributeType, isBinary }) => {
-                expect(
-                    AttributeModifierService.effectIsBinaryEffect(
-                        AttributeModifierService.new({
-                            type: attributeType,
-                            source: AttributeSource.CIRCUMSTANCE,
-                            amount: 1,
-                        })
-                    )
-                ).toEqual(isBinary)
-            }
-        )
-    })
-
-    describe("knows the attribute readable names", () => {
-        const readableName: { [t in AttributeType]: string } = {
-            [AttributeType.ARMOR]: "Armor",
-            [AttributeType.ABSORB]: "Absorb",
-            [AttributeType.MOVEMENT]: "Movement",
-            [AttributeType.HUSTLE]: "Hustle",
-            [AttributeType.ELUSIVE]: "Elusive",
-        }
-
-        test.each`
-            attributeType             | readableName
-            ${AttributeType.ARMOR}    | ${readableName[AttributeType.ARMOR]}
-            ${AttributeType.ABSORB}   | ${readableName[AttributeType.ABSORB]}
-            ${AttributeType.MOVEMENT} | ${readableName[AttributeType.MOVEMENT]}
-            ${AttributeType.HUSTLE}   | ${readableName[AttributeType.HUSTLE]}
-            ${AttributeType.ELUSIVE}  | ${readableName[AttributeType.ELUSIVE]}
-        `(
-            "$attributeType readable name is: $readableName",
-            ({ attributeType, readableName }) => {
-                expect(
-                    AttributeModifierService.readableName(
-                        AttributeModifierService.new({
-                            type: attributeType,
-                            source: AttributeSource.CIRCUMSTANCE,
-                            amount: 1,
-                        })
-                    )
-                ).toEqual(readableName)
-                expect(
-                    AttributeModifierService.readableNameForAttributeType(
-                        attributeType
-                    )
-                ).toEqual(readableName)
-            }
-        )
     })
 
     describe("knows how to make attribute descriptions", () => {

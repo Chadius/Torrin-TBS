@@ -20,8 +20,7 @@ import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../../squaddie/attributeModifier"
+} from "../../../../squaddie/attribute/attributeModifier"
 import { SquaddieTurnService } from "../../../../squaddie/turn"
 import {
     MissionMap,
@@ -38,6 +37,7 @@ import {
     vi,
 } from "vitest"
 import { ProficiencyLevel } from "../../../../squaddie/armyAttributes"
+import { AttributeType } from "../../../../squaddie/attribute/attributeType"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository

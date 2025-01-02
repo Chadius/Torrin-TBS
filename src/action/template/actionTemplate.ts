@@ -7,7 +7,7 @@ import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
 } from "./actionEffectTemplate"
-import { AttributeModifier } from "../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import {
     TargetConstraints,
     TargetConstraintsService,

@@ -25,8 +25,7 @@ import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../squaddie/attributeModifier"
+} from "../../../squaddie/attribute/attributeModifier"
 import {
     afterEach,
     beforeEach,
@@ -36,6 +35,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 describe("movement calculator", () => {
     let pathfinderSpy: MockInstance

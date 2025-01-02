@@ -8,9 +8,9 @@ import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../squaddie/attributeModifier"
+} from "../../../squaddie/attribute/attributeModifier"
 import { describe, expect, it } from "vitest"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 describe("BattleActionSquaddieChange", () => {
     describe("knows when the result hinders the squaddie", () => {

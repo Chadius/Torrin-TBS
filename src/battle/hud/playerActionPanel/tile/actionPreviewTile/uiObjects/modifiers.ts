@@ -14,16 +14,16 @@ import {
 import { TextHandlingService } from "../../../../../../utils/graphics/textHandlingService"
 import { TextBox, TextBoxService } from "../../../../../../ui/textBox/textBox"
 import { RectArea, RectAreaService } from "../../../../../../ui/rectArea"
-import {
-    AttributeModifierService,
-    AttributeTypeAndAmount,
-} from "../../../../../../squaddie/attributeModifier"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
 import {
     ActionPreviewTileContext,
     ActionPreviewTileLayout,
     ActionPreviewTileUIObjects,
 } from "../actionPreviewTile"
+import {
+    AttributeTypeAndAmount,
+    AttributeTypeService,
+} from "../../../../../../squaddie/attribute/attributeType"
 
 export class CreateLeftModifiersTextBoxAction implements BehaviorTreeTask {
     blackboard: Blackboard
@@ -260,10 +260,8 @@ const formatAttributeTypeAndAmount = ({
     name: string
     amount: number | undefined
 } => ({
-    name: AttributeModifierService.readableNameForAttributeType(type),
-    amount: AttributeModifierService.isAttributeTypeABinaryEffect(type)
-        ? undefined
-        : amount,
+    name: AttributeTypeService.readableName(type),
+    amount: AttributeTypeService.isBinary(type) ? undefined : amount,
 })
 
 const formatAmount = (amount: number | undefined) => {

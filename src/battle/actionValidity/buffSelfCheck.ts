@@ -10,10 +10,7 @@ import {
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import {
-    AttributeModifier,
-    AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { CalculatorMiscellaneous } from "../calculator/actionCalculator/miscellaneous"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
@@ -21,6 +18,7 @@ import { BattleActionActorContextService } from "../history/battleAction/battleA
 import { CalculatedEffect } from "../calculator/actionCalculator/calculator"
 import { ActionPerformFailureReason } from "../../squaddie/turn"
 import { ActionCheckResult } from "./validityChecker"
+import { AttributeTypeAndAmount } from "../../squaddie/attribute/attributeType"
 
 export const BuffSelfCheck = {
     willBuffUser: ({

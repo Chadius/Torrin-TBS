@@ -16,8 +16,8 @@ import { DamageExplanation } from "../battle/history/battleAction/battleActionSq
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
-import { AttributeType } from "./attributeModifier"
 import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
+import { AttributeType } from "./attribute/attributeType"
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number

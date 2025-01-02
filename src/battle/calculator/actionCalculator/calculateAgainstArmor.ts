@@ -1,9 +1,9 @@
 import { BattleSquaddie } from "../../battleSquaddie"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
 import {
     AttributeType,
     AttributeTypeAndAmount,
-} from "../../../squaddie/attributeModifier"
-import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+} from "../../../squaddie/attribute/attributeType"
 
 export const CalculateAgainstArmor = {
     getTargetSquaddieModifierTotal: (

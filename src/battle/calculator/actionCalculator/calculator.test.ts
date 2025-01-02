@@ -36,8 +36,7 @@ import {
     AttributeModifier,
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../squaddie/attributeModifier"
+} from "../../../squaddie/attribute/attributeModifier"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
@@ -53,6 +52,7 @@ import {
     ProficiencyLevel,
 } from "../../../squaddie/armyAttributes"
 import { CalculatedResult } from "../../history/calculatedResult"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 describe("calculator", () => {
     let objectRepository: ObjectRepository

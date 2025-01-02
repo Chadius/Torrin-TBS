@@ -24,8 +24,7 @@ import { SquaddiePhaseListener } from "./squaddiePhaseListener"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -37,6 +36,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 describe("squaddie phase starts", () => {
     let squaddiePhaseListener: SquaddiePhaseListener

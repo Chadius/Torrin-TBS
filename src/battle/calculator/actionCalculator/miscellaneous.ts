@@ -8,16 +8,14 @@ import { CalculatedEffect, DegreeOfSuccessExplanation } from "./calculator"
 import { HealingType, SquaddieService } from "../../../squaddie/squaddieService"
 import { isValidValue } from "../../../utils/validityCheck"
 import { InBattleAttributesService } from "../../stats/inBattleAttributes"
-import {
-    AttributeModifier,
-    AttributeTypeAndAmount,
-} from "../../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../../squaddie/attribute/attributeModifier"
 import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
 import { DamageExplanationService } from "../../history/battleAction/battleActionSquaddieChange"
 import {
     BattleActionActorContext,
     BattleActionActorContextService,
 } from "../../history/battleAction/battleActionActorContext"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
 
 export const CalculatorMiscellaneous = {
     getActorContext: ({

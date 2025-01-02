@@ -35,14 +35,14 @@ import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "../../../../squaddie/attributeModifier"
+} from "../../../../squaddie/attribute/attributeModifier"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
 } from "../../../actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../../../../action/targetConstraints"
 import { beforeEach, describe, expect, it } from "vitest"
+import { AttributeType } from "../../../../squaddie/attribute/attributeType"
 
 describe("Armor Attribute affects Armor Attacks", () => {
     let actingSquaddie: BattleSquaddie

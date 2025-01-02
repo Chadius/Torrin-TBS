@@ -16,11 +16,13 @@ import {
     AttributeModifier,
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-    AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
+} from "../../squaddie/attribute/attributeModifier"
 import { DamageExplanation } from "../history/battleAction/battleActionSquaddieChange"
 import { beforeEach, describe, expect, it } from "vitest"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+} from "../../squaddie/attribute/attributeType"
 
 describe("inBattleAttributes", () => {
     it("starts with the same hit points as maximum", () => {

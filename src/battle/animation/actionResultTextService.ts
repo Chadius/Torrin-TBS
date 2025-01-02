@@ -21,14 +21,14 @@ import {
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { BattleActionSquaddieChange } from "../history/battleAction/battleActionSquaddieChange"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import {
-    AttributeModifierService,
-    AttributeType,
-    AttributeTypeAndAmount,
-} from "../../squaddie/attributeModifier"
+import { AttributeModifierService } from "../../squaddie/attribute/attributeModifier"
 import { BattleActionActorContext } from "../history/battleAction/battleActionActorContext"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { ActionEffectChange } from "../history/calculatedResult"
+import {
+    AttributeType,
+    AttributeTypeAndAmount,
+} from "../../squaddie/attribute/attributeType"
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({

@@ -16,8 +16,7 @@ import { InBattleAttributesService } from "../battle/stats/inBattleAttributes"
 import {
     AttributeModifierService,
     AttributeSource,
-    AttributeType,
-} from "./attributeModifier"
+} from "./attribute/attributeModifier"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
@@ -25,6 +24,7 @@ import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
 import { beforeEach, describe, expect, it } from "vitest"
+import { AttributeType } from "./attribute/attributeType"
 
 describe("Squaddie Service", () => {
     let playerSquaddieTemplate: SquaddieTemplate

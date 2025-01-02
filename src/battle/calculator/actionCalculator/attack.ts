@@ -6,10 +6,7 @@ import {
     RollResult,
     RollResultService,
 } from "./rollResult"
-import {
-    AttributeModifier,
-    AttributeTypeAndAmount,
-} from "../../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../../squaddie/attribute/attributeModifier"
 import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
@@ -31,6 +28,7 @@ import {
 } from "../../history/battleAction/battleActionActorContext"
 import { BattleActionsDuringTurnService } from "../../history/battleAction/battleActionsDuringTurn"
 import { BattleActionService } from "../../history/battleAction/battleAction"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
 
 export const CalculatorAttack = {
     getDegreeOfSuccess: ({

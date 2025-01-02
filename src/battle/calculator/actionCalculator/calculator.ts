@@ -22,10 +22,7 @@ import {
     DamageExplanation,
     DamageExplanationService,
 } from "../../history/battleAction/battleActionSquaddieChange"
-import {
-    AttributeModifier,
-    AttributeTypeAndAmount,
-} from "../../../squaddie/attributeModifier"
+import { AttributeModifier } from "../../../squaddie/attribute/attributeModifier"
 import { CalculatorAttack } from "./attack"
 import { CalculatorMiscellaneous } from "./miscellaneous"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
@@ -38,6 +35,7 @@ import {
     CalculatedResultService,
 } from "../../history/calculatedResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
+import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
 
 export interface CalculatedEffect {
     damage: DamageExplanation

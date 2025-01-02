@@ -22,11 +22,11 @@ import {
     BattleActionSquaddieChangeService,
 } from "../../../../../history/battleAction/battleActionSquaddieChange"
 import { ActionTemplate } from "../../../../../../action/template/actionTemplate"
-import {
-    AttributeModifierService,
-    AttributeTypeAndAmount,
-} from "../../../../../../squaddie/attributeModifier"
 import { InBattleAttributesService } from "../../../../../stats/inBattleAttributes"
+import {
+    AttributeTypeAndAmount,
+    AttributeTypeService,
+} from "../../../../../../squaddie/attribute/attributeType"
 
 export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
@@ -228,19 +228,16 @@ const generateMessageForAttributeModifiers = (
     if (attributeModifierDifferences.length > 0) {
         let attributeMessages = attributeModifierDifferences.map(
             (typeAndAmount) => {
-                if (
-                    AttributeModifierService.isAttributeTypeABinaryEffect(
-                        typeAndAmount.type
-                    )
-                ) {
-                    return `${AttributeModifierService.readableNameForAttributeType(typeAndAmount.type)}`
+                // TODO Move this into a convenience function
+                if (AttributeTypeService.isBinary(typeAndAmount.type)) {
+                    return `${AttributeTypeService.readableName(typeAndAmount.type)}`
                 }
 
                 const printedAmount =
                     typeAndAmount.amount > 0
                         ? `+${typeAndAmount.amount}`
                         : `${typeAndAmount.amount}`
-                return `${printedAmount} ${AttributeModifierService.readableNameForAttributeType(typeAndAmount.type)}`
+                return `${printedAmount} ${AttributeTypeService.readableName(typeAndAmount.type)}`
             }
         )
         messageToShow += attributeMessages.join(", ")
