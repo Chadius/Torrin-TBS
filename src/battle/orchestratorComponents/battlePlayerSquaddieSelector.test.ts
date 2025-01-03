@@ -54,6 +54,7 @@ import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
@@ -170,10 +171,11 @@ describe("BattleSquaddieSelector", () => {
                         ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
-                                    [Trait.VERSUS_ARMOR]: true,
                                     [Trait.ATTACK]: true,
                                 }
                             ),
+                            versusSquaddieResistance:
+                                VersusSquaddieResistance.ARMOR,
                             squaddieAffiliationRelation: {
                                 [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                     true,

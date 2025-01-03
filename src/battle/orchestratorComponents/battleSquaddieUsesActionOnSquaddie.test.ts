@@ -36,7 +36,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    VersusSquaddieResistance,
+} from "../../action/template/actionEffectTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
@@ -137,8 +140,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
                         [DamageType.BODY]: 9001,
                     },
@@ -161,8 +164,8 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
                         [DamageType.BODY]: 1,
                     },

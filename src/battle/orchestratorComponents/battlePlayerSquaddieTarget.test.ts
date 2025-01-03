@@ -34,6 +34,7 @@ import {
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
@@ -98,10 +99,10 @@ describe("BattleSquaddieTarget", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },

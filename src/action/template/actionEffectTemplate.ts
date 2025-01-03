@@ -13,6 +13,14 @@ export enum TargetBySquaddieAffiliationRelation {
     TARGET_ALLY = "TARGET_ALLY",
 }
 
+export enum VersusSquaddieResistance {
+    UNKNOWN = "UNKNOWN",
+    ARMOR = "ARMOR",
+    BODY = "BODY",
+    MIND = "MIND",
+    SOUL = "SOUL",
+}
+
 export interface ActionEffectTemplate {
     damageDescriptions: { [t in DamageType]?: number }
     healingDescriptions: { [t in HealingType]?: number }
@@ -28,6 +36,7 @@ export interface ActionEffectTemplate {
             [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
         }
+        versusSquaddieResistance: VersusSquaddieResistance
     }
 }
 
@@ -40,6 +49,7 @@ export const ActionEffectTemplateService = {
         attributeModifiers,
         actionDecisions,
         squaddieAffiliationRelation,
+        versusSquaddieResistance,
     }: {
         traits?: {
             booleanTraits: { [key in Trait]?: boolean }
@@ -54,6 +64,7 @@ export const ActionEffectTemplateService = {
             [TargetBySquaddieAffiliationRelation.TARGET_ALLY]?: boolean
             [TargetBySquaddieAffiliationRelation.TARGET_FOE]?: boolean
         }
+        versusSquaddieResistance?: VersusSquaddieResistance
     }): ActionEffectTemplate => {
         const data: ActionEffectTemplate = {
             traits: traits,
@@ -65,6 +76,9 @@ export const ActionEffectTemplateService = {
                 ActionDecisionType.TARGET_SQUADDIE,
             ],
             targetConstraints: {
+                versusSquaddieResistance:
+                    versusSquaddieResistance ??
+                    VersusSquaddieResistance.UNKNOWN,
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
                         squaddieAffiliationRelation

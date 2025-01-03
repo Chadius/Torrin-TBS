@@ -11,11 +11,11 @@
       {
         "traits": {
           "booleanTraits": {
-            "ATTACK": true,
-            "VERSUS_ARMOR": true
+            "ATTACK": true
           }
         },
         "targetConstraints": {
+          "versusSquaddieResistance": "ARMOR",
           "squaddieAffiliationRelation": {
             "TARGET_FOE": true
           }
@@ -40,11 +40,11 @@
       {
         "traits": {
           "booleanTraits": {
-            "ATTACK": true,
-            "VERSUS_ARMOR": true
+            "ATTACK": true
           }
         },
         "targetConstraints": {
+          "versusSquaddieResistance": "ARMOR",
           "squaddieAffiliationRelation": {
             "TARGET_FOE": true
           }

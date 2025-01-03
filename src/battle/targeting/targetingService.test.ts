@@ -22,6 +22,7 @@ import {
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
 import {
     GameEngineState,
@@ -55,8 +56,8 @@ describe("Targeting Service", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
@@ -129,8 +130,8 @@ describe("Targeting Service", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
             ],
         })
@@ -356,8 +357,8 @@ describe("Targeting Service", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
             ],
         })

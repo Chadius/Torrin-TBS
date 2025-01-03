@@ -5,6 +5,7 @@ import { ActionTemplateService } from "../../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
 import {
     Trait,
@@ -1644,9 +1645,10 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
+                        versusSquaddieResistance:
+                            VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                 true,
@@ -1674,9 +1676,10 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
+                        versusSquaddieResistance:
+                            VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                 true,

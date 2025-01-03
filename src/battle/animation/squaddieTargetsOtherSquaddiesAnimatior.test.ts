@@ -31,7 +31,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    VersusSquaddieResistance,
+} from "../../action/template/actionEffectTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
@@ -82,8 +85,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },

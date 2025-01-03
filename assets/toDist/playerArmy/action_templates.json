@@ -15,6 +15,7 @@
           }
         },
         "targetConstraints": {
+          "versusSquaddieResistance": "ARMOR",
           "squaddieAffiliationRelation": {
             "TARGET_FOE": true
           }
@@ -161,6 +162,7 @@
           }
         },
         "targetConstraints": {
+          "versusSquaddieResistance": "ARMOR",
           "squaddieAffiliationRelation": {
             "TARGET_SELF": true
           }
@@ -203,8 +205,11 @@
             "ATTACK": true
           }
         },
-        "squaddieAffiliationRelation": {
-          "TARGET_FOE": true
+        "targetConstraints": {
+          "versusSquaddieResistance": "ARMOR",
+          "squaddieAffiliationRelation": {
+            "TARGET_FOE": true
+          }
         },
         "damageDescriptions": {
           "BODY": 2

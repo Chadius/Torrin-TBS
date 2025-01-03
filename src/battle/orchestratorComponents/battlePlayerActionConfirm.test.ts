@@ -27,7 +27,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    VersusSquaddieResistance,
+} from "../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -83,10 +86,10 @@ describe("BattleActionConfirm", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
                     },

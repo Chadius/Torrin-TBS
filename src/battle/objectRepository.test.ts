@@ -19,6 +19,7 @@ import {
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieMovementService } from "../squaddie/movement"
@@ -324,9 +325,8 @@ describe("Object Repository", () => {
                         damageDescriptions: {
                             [DamageType.SOUL]: 2,
                         },
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.VERSUS_ARMOR]: true,
-                        }),
+                        versusSquaddieResistance:
+                            VersusSquaddieResistance.ARMOR,
                         squaddieAffiliationRelation: {
                             [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
                                 true,

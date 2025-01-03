@@ -16,6 +16,7 @@ import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../../../action/template/actionEffectTemplate"
 import { DamageType } from "../../../../squaddie/squaddieService"
 import {
@@ -78,8 +79,8 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.VERSUS_ARMOR]: true,
                     }),
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     squaddieAffiliationRelation: {
                         [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },

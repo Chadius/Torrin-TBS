@@ -7,7 +7,10 @@ import {
     RollResultService,
 } from "./rollResult"
 import { AttributeModifier } from "../../../squaddie/attribute/attributeModifier"
-import { ActionEffectTemplate } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplate,
+    VersusSquaddieResistance,
+} from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -214,10 +217,8 @@ const doesActionNeedAnAttackRoll = (action: ActionEffectTemplate): boolean =>
 const isActionAgainstArmor = (
     actionEffectTemplate: ActionEffectTemplate
 ): boolean =>
-    TraitStatusStorageService.getStatus(
-        actionEffectTemplate.traits,
-        Trait.VERSUS_ARMOR
-    ) === true
+    actionEffectTemplate.targetConstraints.versusSquaddieResistance ===
+    VersusSquaddieResistance.ARMOR
 
 const getTargetSquaddieModifiers = ({
     actionEffectTemplate,

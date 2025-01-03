@@ -11,7 +11,6 @@ export enum Trait {
     DEMON = "DEMON",
     CROSS_OVER_PITS = "CROSS_OVER_PITS",
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
-    VERSUS_ARMOR = "VERSUS_ARMOR",
     SKIP_ANIMATION = "SKIP_ANIMATION",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
@@ -24,7 +23,6 @@ export enum Trait {
 export enum TraitCategory {
     UNKNOWN = "UNKNOWN",
     ACTION = "ACTION",
-    VERSUS = "VERSUS",
     CREATURE = "CREATURE",
     MOVEMENT = "MOVEMENT",
     ANIMATION = "ANIMATION",
@@ -88,10 +86,6 @@ const traitInformation: {
     [Trait.HUSTLE]: {
         description: "All terrain costs 1 movement.",
         categories: [TraitCategory.MOVEMENT],
-    },
-    [Trait.VERSUS_ARMOR]: {
-        description: "These actions succeed based on the target's armor.",
-        categories: [TraitCategory.ACTION, TraitCategory.VERSUS],
     },
     [Trait.SKIP_ANIMATION]: {
         description: "Action does not require animation",

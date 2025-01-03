@@ -16,7 +16,10 @@ import {
 } from "../../battle/orchestrator/missionCutsceneCollection"
 import { TriggeringEvent } from "../../cutscene/cutsceneTrigger"
 import { CutsceneActionPlayerType } from "../../cutscene/cutsceneAction"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    VersusSquaddieResistance,
+} from "../../action/template/actionEffectTemplate"
 import {
     ActionDecisionType,
     ActionTemplate,
@@ -713,9 +716,9 @@ export const TestMissionData = () => {
                     traits: {
                         booleanTraits: {
                             [Trait.ATTACK]: true,
-                            [Trait.VERSUS_ARMOR]: true,
                         },
                     },
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                     damageDescriptions: {
                         [DamageType.BODY]: 1,
                     },
