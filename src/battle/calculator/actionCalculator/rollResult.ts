@@ -1,3 +1,5 @@
+import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
+
 export const DIE_SIZE = 6
 
 export enum RollModifierType {
@@ -16,10 +18,7 @@ export const RollModifierTypeService = {
         if (abbreviate) {
             if (type === RollModifierType.MULTIPLE_ATTACK_PENALTY) return "MAP"
         }
-
-        const capitalizeFirstLetter = (input: string) =>
-            type.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
-        return `${capitalizeFirstLetter(type).replaceAll("_", " ")}`
+        return `${TextHandlingService.titleCase(type).replaceAll("_", " ")}`
     },
 }
 

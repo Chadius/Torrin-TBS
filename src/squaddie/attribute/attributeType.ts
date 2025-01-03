@@ -1,3 +1,5 @@
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+
 export enum AttributeType {
     ARMOR = "ARMOR",
     ABSORB = "ABSORB",
@@ -14,11 +16,8 @@ export type AttributeTypeAndAmount = {
 export const AttributeTypeService = {
     isBinary: (type: AttributeType): boolean =>
         [AttributeType.HUSTLE, AttributeType.ELUSIVE].includes(type),
-    readableName: (type: AttributeType): string => {
-        const capitalizeFirstLetter = (input: string) =>
-            type.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
-        return `${capitalizeFirstLetter(type).replaceAll("_", " ")}`
-    },
+    readableName: (type: AttributeType): string =>
+        `${TextHandlingService.titleCase(type).replaceAll("_", " ")}`,
     getAttributeIconResourceKeyForAttributeType: (a: AttributeType): string =>
         `attribute-icon-${a.toLowerCase().replaceAll("_", "-")}`,
 }

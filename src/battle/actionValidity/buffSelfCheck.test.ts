@@ -9,10 +9,6 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
 import { BuffSelfCheck } from "./buffSelfCheck"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import {

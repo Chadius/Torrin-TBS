@@ -21,10 +21,6 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
 import { MouseButton } from "../../utils/mouseConfig"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { getResultOrThrowError } from "../../utils/ResultOrError"

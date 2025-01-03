@@ -4,6 +4,7 @@ import {
 } from "../../calculator/actionCalculator/rollResult"
 import { BattleActionActorContext } from "../../history/battleAction/battleActionActorContext"
 import { AttributeTypeAndAmount } from "../../../squaddie/attribute/attributeType"
+import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 
 export const ActionResultText = {
     getAttackPenaltyDescriptions: (
@@ -23,19 +24,17 @@ export const ActionResultText = {
     },
 }
 
-const capitalizeFirstLetter = (input: string) =>
-    (input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()).replaceAll(
-        "_",
-        " "
-    )
+const removeDashFromString = (input: string) => input.replaceAll("_", " ")
+
 const getAttackPenaltyDescriptions = (
     actingSquaddieModifiers: AttributeTypeAndAmount[]
 ): string[] =>
     actingSquaddieModifiers
         .filter((attributeModifier) => attributeModifier.amount != 0)
         .map((attributeModifier) => {
-            let padding: string = attributeModifier.amount > 0 ? "+" : ""
-            return `   ${padding}${attributeModifier.amount}: ${capitalizeFirstLetter(attributeModifier.type)}`
+            return `   ${TextHandlingService.padPlusOnPositiveNumber(attributeModifier.amount)}: ${removeDashFromString(
+                TextHandlingService.titleCase(attributeModifier.type)
+            )}`
         })
 
 const getRollModifierDescriptions = (rollModifiers: {
@@ -43,10 +42,12 @@ const getRollModifierDescriptions = (rollModifiers: {
 }): string[] =>
     Object.entries(rollModifiers ?? {})
         .filter(([_, amount]) => amount != 0)
-        .map(([type, amount]) => {
-            let padding: string = amount > 0 ? "+" : ""
-            return `   ${padding}${amount}: ${capitalizeFirstLetter(type)}`
-        })
+        .map(
+            ([type, amount]) =>
+                `   ${TextHandlingService.padPlusOnPositiveNumber(amount)}: ${removeDashFromString(
+                    TextHandlingService.titleCase(type)
+                )}`
+        )
 
 const getActingSquaddieRollTotalIfNeeded = (
     actorContext: BattleActionActorContext

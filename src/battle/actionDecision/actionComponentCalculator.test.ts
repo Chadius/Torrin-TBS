@@ -13,7 +13,6 @@ import {
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
-import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import {

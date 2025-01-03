@@ -17,10 +17,6 @@ import {
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
 import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"

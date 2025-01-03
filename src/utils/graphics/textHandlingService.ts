@@ -118,6 +118,12 @@ export const TextHandlingService = {
         )
         return inProgressTextFit
     },
+    padPlusOnPositiveNumber: (numberToPrint: number): string => {
+        let padding: string = numberToPrint > 0 ? "+" : ""
+        return `${padding}${numberToPrint}`
+    },
+    titleCase: (input: string): string =>
+        input.charAt(0).toUpperCase() + input.slice(1).toLowerCase(),
 }
 
 const updateTextFitToSatisfyMinimumLinesOfTextConstraint = ({

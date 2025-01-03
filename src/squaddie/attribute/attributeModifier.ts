@@ -4,6 +4,7 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeService,
 } from "./attributeType"
+import { TextHandlingService } from "../../utils/graphics/textHandlingService"
 
 export enum AttributeSource {
     CIRCUMSTANCE = "CIRCUMSTANCE",
@@ -217,14 +218,11 @@ export const AttributeModifierService = {
             case AttributeTypeService.isBinary(attributeModifier.type):
                 attributeAmountAsString = ""
                 break
-            case attributeModifier.amount > 0:
-                attributeAmountAsString = ` +${attributeModifier.amount}`
-                break
-            case attributeModifier.amount < 0:
-                attributeAmountAsString = ` ${attributeModifier.amount}`
+            case attributeModifier.amount == 0:
+                attributeAmountAsString = " NO CHANGE"
                 break
             default:
-                attributeAmountAsString = " NO CHANGE"
+                attributeAmountAsString = ` ${TextHandlingService.padPlusOnPositiveNumber(attributeModifier.amount)}`
                 break
         }
 

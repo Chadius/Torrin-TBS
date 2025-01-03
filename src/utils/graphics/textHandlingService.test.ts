@@ -157,4 +157,14 @@ describe("Text Handling Service", () => {
             })
         })
     })
+    it("can pad a + in front of positive numbers", () => {
+        expect(TextHandlingService.padPlusOnPositiveNumber(3)).toEqual("+3")
+        expect(TextHandlingService.padPlusOnPositiveNumber(0)).toEqual("0")
+        expect(TextHandlingService.padPlusOnPositiveNumber(-5)).toEqual("-5")
+    })
+    it("can title case, only capitalizing the first letter of a word", () => {
+        expect(TextHandlingService.titleCase("cat")).toEqual("Cat")
+        expect(TextHandlingService.titleCase("CAT")).toEqual("Cat")
+        expect(TextHandlingService.titleCase("0cat")).toEqual("0cat")
+    })
 })

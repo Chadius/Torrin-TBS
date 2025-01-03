@@ -265,14 +265,8 @@ const formatAttributeTypeAndAmount = ({
 })
 
 const formatAmount = (amount: number | undefined) => {
-    switch (true) {
-        case amount == undefined:
-            return ""
-        case amount > 0:
-            return `+${amount} `
-        default:
-            return `${amount} `
-    }
+    if (amount == undefined) return ""
+    return TextHandlingService.padPlusOnPositiveNumber(amount) + " "
 }
 
 const calculateBottomOfModifierList = (

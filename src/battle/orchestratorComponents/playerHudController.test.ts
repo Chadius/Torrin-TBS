@@ -27,7 +27,6 @@ import {
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
-import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { BattleSquaddieTeamService } from "../battleSquaddieTeam"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"

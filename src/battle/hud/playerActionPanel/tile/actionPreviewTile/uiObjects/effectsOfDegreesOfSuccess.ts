@@ -231,12 +231,7 @@ const generateMessageForAttributeModifiers = (
                 if (AttributeTypeService.isBinary(typeAndAmount.type)) {
                     return `${AttributeTypeService.readableName(typeAndAmount.type)}`
                 }
-
-                const printedAmount =
-                    typeAndAmount.amount > 0
-                        ? `+${typeAndAmount.amount}`
-                        : `${typeAndAmount.amount}`
-                return `${printedAmount} ${AttributeTypeService.readableName(typeAndAmount.type)}`
+                return `${TextHandlingService.padPlusOnPositiveNumber(typeAndAmount.amount)} ${AttributeTypeService.readableName(typeAndAmount.type)}`
             }
         )
         messageToShow += attributeMessages.join(", ")

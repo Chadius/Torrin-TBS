@@ -20,10 +20,6 @@ import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
 } from "../../action/template/actionEffectTemplate"
-import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { ActionResourceCostService } from "../../action/actionResourceCost"
