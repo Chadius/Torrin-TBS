@@ -19,7 +19,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     GameEngineState,
     GameEngineStateService,
@@ -53,8 +56,10 @@ describe("Targeting Service", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -311,10 +316,10 @@ describe("Targeting Service", () => {
                     healingDescriptions: {
                         LOST_HIT_POINTS: 1,
                     },
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        TARGET_ALLY: true,
-                        TARGET_SELF: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                    },
                 }),
             ],
         })
@@ -494,28 +499,33 @@ describe("Targeting Service", () => {
             name: string
             actor: idAndAffiliation
             target: idAndAffiliation
-            traits: Trait[]
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+            }
             expectedToTarget: boolean
         }
 
         const expectShouldTarget = ({
-            traits,
             actor,
             target,
             expectedToTarget,
+            squaddieAffiliationRelation,
         }: {
-            traits: Trait[]
             actor: idAndAffiliation
             target: idAndAffiliation
             expectedToTarget: boolean
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+            }
         }) => {
-            const actionTraits = TraitStatusStorageService.newUsingTraitValues(
-                Object.fromEntries(traits.map((trait) => [trait, true]))
-            )
             expect(
                 TargetingResultsService.shouldTargetDueToAffiliationAndTargetTraits(
                     {
-                        actionTraits: actionTraits,
+                        squaddieAffiliationRelation,
                         actorBattleSquaddieId: actor.id,
                         actorAffiliation: actor.affiliation,
                         targetBattleSquaddieId: target.id,
@@ -531,23 +541,37 @@ describe("Targeting Service", () => {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGET_SELF],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGET_SELF],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+                    },
                     expectedToTarget: false,
                 },
             ]
 
             it.each(tests)(
                 `$name`,
-                ({ actor, target, traits, expectedToTarget }) => {
+                ({
+                    actor,
+                    target,
+                    squaddieAffiliationRelation,
+                    expectedToTarget,
+                }) => {
                     expectShouldTarget({
-                        traits,
+                        squaddieAffiliationRelation,
                         actor,
                         target,
                         expectedToTarget,
@@ -562,30 +586,50 @@ describe("Targeting Service", () => {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGET_ALLY],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+                    },
                     expectedToTarget: false,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGET_ALLY],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+                    },
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 enemy1",
                     actor: player1,
                     target: enemy1,
-                    traits: [Trait.TARGET_ALLY],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+                    },
                     expectedToTarget: false,
                 },
             ]
 
             it.each(tests)(
                 `$name`,
-                ({ actor, target, traits, expectedToTarget }) => {
+                ({
+                    actor,
+                    target,
+                    squaddieAffiliationRelation,
+                    expectedToTarget,
+                }) => {
                     expectShouldTarget({
-                        traits,
+                        squaddieAffiliationRelation,
                         actor,
                         target,
                         expectedToTarget,
@@ -600,37 +644,66 @@ describe("Targeting Service", () => {
                     name: "player1 enemy1",
                     actor: player1,
                     target: enemy1,
-                    traits: [Trait.TARGET_FOE],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     expectedToTarget: true,
                 },
                 {
                     name: "enemy1 player1",
                     actor: enemy1,
                     target: player1,
-                    traits: [Trait.TARGET_FOE],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     expectedToTarget: true,
                 },
                 {
                     name: "player1 player1",
                     actor: player1,
                     target: player1,
-                    traits: [Trait.TARGET_FOE],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     expectedToTarget: false,
                 },
                 {
                     name: "player1 player2",
                     actor: player1,
                     target: player2,
-                    traits: [Trait.TARGET_FOE],
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                            false,
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     expectedToTarget: false,
                 },
             ]
 
             it.each(tests)(
                 `$name`,
-                ({ actor, target, traits, expectedToTarget }) => {
+                ({
+                    actor,
+                    target,
+                    squaddieAffiliationRelation,
+                    expectedToTarget,
+                }) => {
                     expectShouldTarget({
-                        traits,
+                        squaddieAffiliationRelation,
                         actor,
                         target,
                         expectedToTarget,

@@ -19,15 +19,13 @@ import {
     SearchResultsService,
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplate,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
-import {
-    Trait,
-    TraitCategory,
-    TraitStatusStorage,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
+import { Trait } from "../../trait/traitStatusStorage"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -95,7 +93,7 @@ export const TargetingResultsService = {
             actingBattleSquaddie,
             squaddieRepository,
             sourceTiles,
-            actionEffectSquaddieTemplate,
+            actionEffectTemplate: actionEffectSquaddieTemplate,
         })
     },
     highlightTargetRange: (
@@ -107,20 +105,24 @@ export const TargetingResultsService = {
         actorAffiliation,
         actorBattleSquaddieId,
         targetBattleSquaddieId,
-        actionTraits,
+        squaddieAffiliationRelation,
         targetAffiliation,
     }: {
         actorAffiliation: SquaddieAffiliation
         actorBattleSquaddieId: string
         targetBattleSquaddieId: string
         targetAffiliation: SquaddieAffiliation
-        actionTraits: TraitStatusStorage
+        squaddieAffiliationRelation: {
+            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+        }
     }): boolean => {
-        return !!shouldAddDueToAffiliationAndTargetTraits({
+        return !!shouldAddDueToAffiliationRelation({
             actorAffiliation,
             actorBattleSquaddieId,
             targetBattleSquaddieId,
-            actionTraits,
+            squaddieAffiliationRelation,
             targetAffiliation,
         })
     },
@@ -132,11 +134,11 @@ const findValidTargets = ({
     actingBattleSquaddie,
     squaddieRepository,
     sourceTiles,
-    actionEffectSquaddieTemplate,
+    actionEffectTemplate,
     actionTemplate,
 }: {
     map: MissionMap
-    actionEffectSquaddieTemplate?: ActionEffectTemplate
+    actionEffectTemplate?: ActionEffectTemplate
     actionTemplate: ActionTemplate
     actingSquaddieTemplate: SquaddieTemplate
     actingBattleSquaddie: BattleSquaddie
@@ -197,12 +199,8 @@ const findValidTargets = ({
     )
 
     addValidTargetsToResult({
-        traits: actionEffectSquaddieTemplate
-            ? TraitStatusStorageService.filterCategory(
-                  actionEffectSquaddieTemplate.traits,
-                  TraitCategory.ACTION
-              )
-            : undefined,
+        squaddieAffiliationRelation:
+            actionEffectTemplate.targetConstraints.squaddieAffiliationRelation,
         targetingResults: results,
         actingSquaddieTemplate,
         actingBattleSquaddie,
@@ -216,21 +214,25 @@ const findValidTargets = ({
 }
 
 const addValidTargetsToResult = ({
-    traits,
     targetingResults,
     actingSquaddieTemplate,
     actingBattleSquaddie,
     tilesInRange,
     map,
     objectRepository,
+    squaddieAffiliationRelation,
 }: {
-    traits?: TraitStatusStorage
     targetingResults: TargetingResults
     actingSquaddieTemplate: SquaddieTemplate
     actingBattleSquaddie: BattleSquaddie
     tilesInRange: HexCoordinate[]
     map: MissionMap
     objectRepository: ObjectRepository
+    squaddieAffiliationRelation: {
+        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+    }
 }) => {
     const validBattleSquaddieIds: string[] = tilesInRange
         .map((tile) => {
@@ -246,13 +248,9 @@ const addValidTargetsToResult = ({
                 )
             )
 
-            if (traits === undefined) {
-                return battleSquaddie.battleSquaddieId
-            }
-
             if (
-                shouldAddDueToAffiliationAndTargetTraits({
-                    actionTraits: traits,
+                shouldAddDueToAffiliationRelation({
+                    squaddieAffiliationRelation,
                     actorAffiliation:
                         actingSquaddieTemplate.squaddieId.affiliation,
                     actorBattleSquaddieId:
@@ -271,21 +269,27 @@ const addValidTargetsToResult = ({
     targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds)
 }
 
-const shouldAddDueToAffiliationAndTargetTraits = ({
+const shouldAddDueToAffiliationRelation = ({
     actorAffiliation,
     actorBattleSquaddieId,
     targetBattleSquaddieId,
-    actionTraits,
     targetAffiliation,
+    squaddieAffiliationRelation,
 }: {
     actorAffiliation: SquaddieAffiliation
     actorBattleSquaddieId: string
     targetBattleSquaddieId: string
     targetAffiliation: SquaddieAffiliation
-    actionTraits: TraitStatusStorage
+    squaddieAffiliationRelation: {
+        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+    }
 }): boolean => {
     if (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_SELF) &&
+        squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_SELF
+        ] &&
         targetBattleSquaddieId === actorBattleSquaddieId
     ) {
         return true
@@ -298,7 +302,9 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
         })
 
     if (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_ALLY) &&
+        squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_ALLY
+        ] &&
         targetBattleSquaddieId !== actorBattleSquaddieId &&
         squaddiesAreFriends
     ) {
@@ -306,8 +312,9 @@ const shouldAddDueToAffiliationAndTargetTraits = ({
     }
 
     return (
-        TraitStatusStorageService.getStatus(actionTraits, Trait.TARGET_FOE) &&
-        !squaddiesAreFriends
+        squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_FOE
+        ] && !squaddiesAreFriends
     )
 }
 

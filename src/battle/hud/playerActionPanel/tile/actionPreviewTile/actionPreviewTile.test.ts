@@ -16,7 +16,10 @@ import {
     GameEngineStateService,
 } from "../../../../../gameEngine/gameEngine"
 import { SquaddieRepositoryService } from "../../../../../utils/test/squaddie"
-import { ActionEffectTemplateService } from "../../../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -89,11 +92,13 @@ describe("Action Preview Tile", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
                         [DamageType.BODY]: 2,
+                    },
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
                     },
                 }),
             ],
@@ -532,9 +537,12 @@ describe("Action Preview Tile", () => {
                     id: "heal_self",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
-                                    [Trait.TARGET_SELF]: true,
                                     [Trait.HEALING]: true,
                                 }
                             ),
@@ -794,11 +802,10 @@ describe("Action Preview Tile", () => {
                     id: "action",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_SELF]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
                             attributeModifiers: [
                                 AttributeModifierService.new({
                                     type: AttributeType.ELUSIVE,
@@ -875,11 +882,10 @@ describe("Action Preview Tile", () => {
                     id: "action",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_SELF]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
                             attributeModifiers: [
                                 AttributeModifierService.new({
                                     type: AttributeType.ABSORB,
@@ -957,11 +963,10 @@ describe("Action Preview Tile", () => {
                     id: "action",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_SELF]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
                             attributeModifiers: [],
                         }),
                     ],

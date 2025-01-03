@@ -13,7 +13,10 @@ import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { SquaddieMovementService } from "../../../squaddie/movement"
 import { DamageType, HealingType } from "../../../squaddie/squaddieService"
-import { TraitStatusStorageService } from "../../../trait/traitStatusStorage"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -21,6 +24,7 @@ import {
 import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
 import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import { BattleActionSquaddieChangeService } from "../../history/battleAction/battleActionSquaddieChange"
@@ -73,9 +77,11 @@ describe("Actor Sprite", () => {
                         [DamageType.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        ATTACK: true,
-                        TARGET_FOE: true,
+                        [Trait.ATTACK]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -89,9 +95,11 @@ describe("Actor Sprite", () => {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        HEALING: true,
-                        TARGET_ALLY: true,
+                        [Trait.HEALING]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                    },
                 }),
             ],
         })

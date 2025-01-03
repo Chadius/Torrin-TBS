@@ -8,7 +8,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import { DamageType } from "../../squaddie/squaddieService"
 import { TraitStatusStorageService } from "../../trait/traitStatusStorage"
 import { ActionComponentCalculator } from "./actionComponentCalculator"
@@ -29,9 +32,9 @@ describe("ActionComponentCalculator", () => {
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
                     damageDescriptions: { [DamageType.BODY]: 2 },
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        TARGET_FOE: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

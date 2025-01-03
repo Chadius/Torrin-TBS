@@ -12,8 +12,12 @@
         "traits": {
           "booleanTraits": {
             "ATTACK": true,
-            "TARGET_FOE": true,
             "VERSUS_ARMOR": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
+            "TARGET_FOE": true
           }
         },
         "damageDescriptions": {
@@ -37,8 +41,12 @@
         "traits": {
           "booleanTraits": {
             "ATTACK": true,
-            "TARGET_FOE": true,
             "VERSUS_ARMOR": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
+            "TARGET_FOE": true
           }
         },
         "damageDescriptions": {

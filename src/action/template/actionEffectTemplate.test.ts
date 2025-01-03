@@ -6,6 +6,7 @@ import {
 import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
 } from "./actionEffectTemplate"
 import { ActionDecisionType } from "./actionTemplate"
 import { describe, expect, it } from "vitest"
@@ -33,8 +34,10 @@ describe("ActionEffectTemplate", () => {
         const harmfulAttack = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
-                [Trait.TARGET_FOE]: true,
             }),
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+            },
         })
         expect(
             ActionEffectTemplateService.doesItTargetFriends(harmfulAttack)
@@ -50,8 +53,10 @@ describe("ActionEffectTemplate", () => {
         const helpfulAttack = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
-                [Trait.TARGET_ALLY]: true,
             }),
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+            },
         })
         expect(
             ActionEffectTemplateService.doesItTargetFriends(helpfulAttack)
@@ -67,8 +72,10 @@ describe("ActionEffectTemplate", () => {
         const helpfulAttack = ActionEffectTemplateService.new({
             traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
-                [Trait.TARGET_SELF]: true,
             }),
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+            },
         })
         expect(
             ActionEffectTemplateService.doesItTargetFriends(helpfulAttack)

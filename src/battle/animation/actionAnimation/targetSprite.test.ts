@@ -24,6 +24,7 @@ import {
 import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
 } from "../../../action/template/actionEffectTemplate"
 import {
     MockedP5GraphicsBuffer,
@@ -129,9 +130,11 @@ describe("Target Sprite", () => {
                         [DamageType.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        ATTACK: true,
-                        [Trait.TARGET_FOE]: true,
+                        [Trait.ATTACK]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

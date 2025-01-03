@@ -17,7 +17,10 @@ import {
 } from "../action/template/actionTemplate"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../missionMap/missionMap"
-import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
@@ -93,8 +96,10 @@ describe("User cancels the previewed action", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

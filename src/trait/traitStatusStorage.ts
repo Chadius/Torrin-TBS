@@ -13,9 +13,6 @@ export enum Trait {
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
     VERSUS_ARMOR = "VERSUS_ARMOR",
     SKIP_ANIMATION = "SKIP_ANIMATION",
-    TARGET_SELF = "TARGET_SELF",
-    TARGET_FOE = "TARGET_FOE",
-    TARGET_ALLY = "TARGET_ALLY",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
     CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
@@ -99,18 +96,6 @@ const traitInformation: {
     [Trait.SKIP_ANIMATION]: {
         description: "Action does not require animation",
         categories: [TraitCategory.ACTION, TraitCategory.ANIMATION],
-    },
-    [Trait.TARGET_SELF]: {
-        description: "The acting Squaddie can target themself.",
-        categories: [TraitCategory.ACTION],
-    },
-    [Trait.TARGET_FOE]: {
-        description: "The acting Squaddie can target foes with this action.",
-        categories: [TraitCategory.ACTION],
-    },
-    [Trait.TARGET_ALLY]: {
-        description: "The acting Squaddie can target allies with this action.",
-        categories: [TraitCategory.ACTION],
     },
     [Trait.ALWAYS_SUCCEEDS]: {
         description: "This ability always hits the target.",

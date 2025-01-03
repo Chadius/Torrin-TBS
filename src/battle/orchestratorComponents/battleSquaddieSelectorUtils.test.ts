@@ -16,7 +16,10 @@ import {
 } from "../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -47,9 +50,9 @@ describe("battleSquaddieSelectorUtils", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -64,9 +67,9 @@ describe("battleSquaddieSelectorUtils", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -402,9 +405,10 @@ describe("battleSquaddieSelectorUtils", () => {
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_FOE]: true,
-                        }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                true,
+                        },
                     }),
                 ],
             })
@@ -658,9 +662,10 @@ describe("battleSquaddieSelectorUtils", () => {
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_ALLY]: true,
-                        }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                                true,
+                        },
                     }),
                 ],
             })

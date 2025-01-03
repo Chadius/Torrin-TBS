@@ -11,7 +11,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -71,9 +74,11 @@ export const TestPlayerArmyData = () => {
                     traits: {
                         booleanTraits: {
                             ALWAYS_SUCCEEDS: true,
-                            TARGET_ALLY: true,
                             HEALING: true,
                         },
+                    },
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
                     },
                     healingDescriptions: {
                         LOST_HIT_POINTS: 2,

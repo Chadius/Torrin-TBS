@@ -19,7 +19,10 @@ import {
 } from "./attribute/attributeModifier"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
 import { ActionTemplateService } from "../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
 import { SquaddieMovement, SquaddieMovementService } from "./movement"
@@ -443,11 +446,10 @@ describe("Squaddie Service", () => {
                     name: "targetSelf",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_SELF]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
                         }),
                     ],
                 })
@@ -459,11 +461,10 @@ describe("Squaddie Service", () => {
                     name: "targetFoe",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_FOE]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                    true,
+                            },
                         }),
                     ],
                 })
@@ -475,11 +476,10 @@ describe("Squaddie Service", () => {
                     name: "targetAlly",
                     actionEffectTemplates: [
                         ActionEffectTemplateService.new({
-                            traits: TraitStatusStorageService.newUsingTraitValues(
-                                {
-                                    [Trait.TARGET_ALLY]: true,
-                                }
-                            ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                                    true,
+                            },
                         }),
                     ],
                 })

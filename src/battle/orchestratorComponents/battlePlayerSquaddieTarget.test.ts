@@ -31,7 +31,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
@@ -96,10 +99,12 @@ describe("BattleSquaddieTarget", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
-                        [Trait.TARGET_FOE]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                     damageDescriptions: {
                         [DamageType.BODY]: longswordActionDamage,
                     },
@@ -125,8 +130,10 @@ describe("BattleSquaddieTarget", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGET_ALLY]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                    },
                 }),
             ],
         })
@@ -440,17 +447,26 @@ describe("BattleSquaddieTarget", () => {
         const tests = [
             {
                 name: "target foe tries to attack an ally",
-                actionTraits: [Trait.ATTACK, Trait.TARGET_FOE],
+                actionTraits: [Trait.ATTACK],
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                },
                 invalidTargetClicker: clickOnCitizen,
             },
             {
                 name: "heal ally tries to heal a foe",
-                actionTraits: [Trait.HEALING, Trait.TARGET_ALLY],
+                actionTraits: [Trait.HEALING],
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                },
                 invalidTargetClicker: clickOnThief,
             },
             {
                 name: "heal ally tries to heal self",
-                actionTraits: [Trait.HEALING, Trait.TARGET_ALLY],
+                actionTraits: [Trait.HEALING],
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                },
                 invalidTargetClicker: clickOnSelf,
             },
         ]

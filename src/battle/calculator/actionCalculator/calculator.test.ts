@@ -31,7 +31,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
 import {
     AttributeModifier,
     AttributeModifierService,
@@ -824,8 +827,11 @@ describe("calculator", () => {
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.TARGET_SELF]: true,
                         }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
+                        },
                         attributeModifiers: [armorCircumstanceModifier],
                     }),
                 ],

@@ -13,7 +13,10 @@ import {
     MissionMapService,
 } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import { ActionEffectTemplateService } from "../../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../../action/template/actionEffectTemplate"
 import { DamageType } from "../../../../squaddie/squaddieService"
 import {
     Trait,
@@ -75,9 +78,11 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_FOE]: true,
                         [Trait.VERSUS_ARMOR]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -219,8 +224,10 @@ describe("Armor Attribute affects Armor Attacks", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

@@ -17,7 +17,10 @@ import {
     PlayerCommandStateService,
 } from "./playerCommandHUD"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -77,9 +80,9 @@ describe("playerCommandHUD", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -97,9 +100,9 @@ describe("playerCommandHUD", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

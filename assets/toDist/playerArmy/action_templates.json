@@ -11,7 +11,11 @@
       {
         "traits": {
           "booleanTraits": {
-            "ATTACK": true,
+            "ATTACK": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
             "TARGET_FOE": true
           }
         },
@@ -21,7 +25,9 @@
       }
     ],
     "buttonIconResourceKey": "decision-button-bow",
-    "actionDecisions": ["TARGET_SQUADDIE"]
+    "actionDecisions": [
+      "TARGET_SQUADDIE"
+    ]
   },
   {
     "id": "young_torrin_healing_touch",
@@ -39,9 +45,13 @@
         "traits": {
           "booleanTraits": {
             "ALWAYS_SUCCEEDS": true,
-            "TARGET_ALLY": true,
-            "TARGET_SELF": true,
             "HEALING": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
+            "TARGET_ALLY": true,
+            "TARGET_SELF": true
           }
         },
         "healingDescriptions": {
@@ -50,7 +60,9 @@
       }
     ],
     "buttonIconResourceKey": "decision-button-heart",
-    "actionDecisions": ["TARGET_SQUADDIE"]
+    "actionDecisions": [
+      "TARGET_SQUADDIE"
+    ]
   },
   {
     "id": "young_torrin_torrent_surge",
@@ -68,8 +80,12 @@
       {
         "traits": {
           "booleanTraits": {
-            "TARGET_SELF": true,
             "SKIP_ANIMATION": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
+            "TARGET_SELF": true
           }
         },
         "attributeModifiers": [
@@ -91,7 +107,9 @@
       }
     ],
     "buttonIconResourceKey": "decision-button-movement",
-    "actionDecisions": ["TARGET_SQUADDIE"]
+    "actionDecisions": [
+      "TARGET_SQUADDIE"
+    ]
   },
   {
     "id": "sir_camil_longsword",
@@ -105,7 +123,11 @@
       {
         "traits": {
           "booleanTraits": {
-            "ATTACK": true,
+            "ATTACK": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
             "TARGET_FOE": true
           }
         },
@@ -115,7 +137,9 @@
       }
     ],
     "buttonIconResourceKey": "decision-button-sword",
-    "actionDecisions": ["TARGET_SQUADDIE"]
+    "actionDecisions": [
+      "TARGET_SQUADDIE"
+    ]
   },
   {
     "id": "sir_camil_raise_shield",
@@ -133,8 +157,12 @@
       {
         "traits": {
           "booleanTraits": {
-            "TARGET_SELF": true,
             "SKIP_ANIMATION": true
+          }
+        },
+        "targetConstraints": {
+          "squaddieAffiliationRelation": {
+            "TARGET_SELF": true
           }
         },
         "attributeModifiers": [
@@ -156,7 +184,9 @@
       }
     ],
     "buttonIconResourceKey": "decision-button-shield",
-    "actionDecisions": ["TARGET_SQUADDIE"]
+    "actionDecisions": [
+      "TARGET_SQUADDIE"
+    ]
   },
   {
     "id": "petra-shard-stab",
@@ -170,14 +200,18 @@
       {
         "traits": {
           "booleanTraits": {
-            "ATTACK": true,
-            "TARGET_FOE": true
+            "ATTACK": true
           }
+        },
+        "squaddieAffiliationRelation": {
+          "TARGET_FOE": true
         },
         "damageDescriptions": {
           "BODY": 2
         },
-        "actionDecisions": ["TARGET_SQUADDIE"]
+        "actionDecisions": [
+          "TARGET_SQUADDIE"
+        ]
       }
     ],
     "buttonIconResourceKey": "decision-button-sword"

@@ -1,10 +1,9 @@
 import { BattleSquaddie } from "../battleSquaddie"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
 import {
-    Trait,
-    TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
+    ActionEffectTemplate,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -95,22 +94,22 @@ const doesActionTemplateOnlyAffectSelf = (
     const targetsOthers = (
         actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_FOE
-        ) ||
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_ALLY
-        )
+        actionEffectSquaddieTemplate.targetConstraints
+            .squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_FOE
+        ] ||
+        actionEffectSquaddieTemplate.targetConstraints
+            .squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_ALLY
+        ]
 
     const targetsSelf = (
         actionEffectSquaddieTemplate: ActionEffectTemplate
     ): boolean =>
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_SELF
-        )
+        actionEffectSquaddieTemplate.targetConstraints
+            .squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_SELF
+        ]
 
     const onlyTargetsSelf = (
         actionEffectSquaddieTemplate: ActionEffectTemplate

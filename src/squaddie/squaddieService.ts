@@ -13,11 +13,11 @@ import {
     ObjectRepositoryService,
 } from "../battle/objectRepository"
 import { DamageExplanation } from "../battle/history/battleAction/battleActionSquaddieChange"
-import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
 import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
 import { AttributeType } from "./attribute/attributeType"
+import { TargetBySquaddieAffiliationRelation } from "../action/template/actionEffectTemplate"
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
@@ -214,7 +214,8 @@ export const SquaddieService = {
         getActionsBasedOnTargetType({
             squaddieTemplate,
             objectRepository,
-            type: Trait.TARGET_ALLY,
+            targetBySquaddieAffiliationRelation:
+                TargetBySquaddieAffiliationRelation.TARGET_ALLY,
         }),
     getActionsThatTargetFoe: ({
         squaddieTemplate,
@@ -226,7 +227,8 @@ export const SquaddieService = {
         getActionsBasedOnTargetType({
             squaddieTemplate,
             objectRepository,
-            type: Trait.TARGET_FOE,
+            targetBySquaddieAffiliationRelation:
+                TargetBySquaddieAffiliationRelation.TARGET_FOE,
         }),
     getActionsThatTargetSelf: ({
         squaddieTemplate,
@@ -238,7 +240,8 @@ export const SquaddieService = {
         getActionsBasedOnTargetType({
             squaddieTemplate,
             objectRepository,
-            type: Trait.TARGET_SELF,
+            targetBySquaddieAffiliationRelation:
+                TargetBySquaddieAffiliationRelation.TARGET_SELF,
         }),
     getSquaddieMovementAttributes: ({
         squaddieTemplate,
@@ -467,11 +470,14 @@ const canSquaddieActRightNow = ({
 const getActionsBasedOnTargetType = ({
     squaddieTemplate,
     objectRepository,
-    type,
+    targetBySquaddieAffiliationRelation,
 }: {
     squaddieTemplate: SquaddieTemplate
     objectRepository: ObjectRepository
-    type: Trait.TARGET_FOE | Trait.TARGET_ALLY | Trait.TARGET_SELF
+    targetBySquaddieAffiliationRelation:
+        | TargetBySquaddieAffiliationRelation.TARGET_SELF
+        | TargetBySquaddieAffiliationRelation.TARGET_ALLY
+        | TargetBySquaddieAffiliationRelation.TARGET_FOE
 }): string[] => {
     return squaddieTemplate.actionTemplateIds.filter((actionTemplateId) => {
         const actionTemplate = ObjectRepositoryService.getActionTemplateById(
@@ -485,8 +491,11 @@ const getActionsBasedOnTargetType = ({
 
         return ActionTemplateService.getActionEffectTemplates(
             actionTemplate
-        ).some((template) =>
-            TraitStatusStorageService.getStatus(template.traits, type)
+        ).some(
+            (template) =>
+                template.targetConstraints.squaddieAffiliationRelation[
+                    targetBySquaddieAffiliationRelation
+                ]
         )
     })
 }

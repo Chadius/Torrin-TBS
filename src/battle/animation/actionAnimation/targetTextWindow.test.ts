@@ -19,7 +19,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
 import {
     BattleActionSquaddieChange,
     BattleActionSquaddieChangeService,
@@ -49,8 +52,10 @@ describe("TargetTextWindow", () => {
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

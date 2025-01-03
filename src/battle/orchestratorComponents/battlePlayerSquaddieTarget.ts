@@ -321,8 +321,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     actorBattleSquaddieId: actorBattleSquaddie.battleSquaddieId,
                     targetBattleSquaddieId:
                         targetBattleSquaddie.battleSquaddieId,
-                    actionTraits:
-                        actionTemplate.actionEffectTemplates[0].traits,
+                    squaddieAffiliationRelation:
+                        actionTemplate.actionEffectTemplates[0]
+                            .targetConstraints.squaddieAffiliationRelation,
                     targetAffiliation:
                         targetSquaddieTemplate.squaddieId.affiliation,
                 }

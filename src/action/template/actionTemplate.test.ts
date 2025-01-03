@@ -1,5 +1,8 @@
 import { ActionDecisionType, ActionTemplateService } from "./actionTemplate"
-import { ActionEffectTemplateService } from "./actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "./actionEffectTemplate"
 import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import {
     Trait,
@@ -220,11 +223,12 @@ describe("ActionTemplate", () => {
                 name: "healSelf",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_SELF]: true,
-                        }),
                         healingDescriptions: {
                             [HealingType.LOST_HIT_POINTS]: 1,
+                        },
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
                         },
                     }),
                 ],
@@ -240,11 +244,12 @@ describe("ActionTemplate", () => {
                 name: "healOthers",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_FOE]: true,
-                        }),
                         damageDescriptions: {
                             [DamageType.BODY]: 2,
+                        },
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                true,
                         },
                     }),
                 ],
@@ -257,19 +262,19 @@ describe("ActionTemplate", () => {
 
     it("can get all action templates", () => {
         const healSelf = ActionEffectTemplateService.new({
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.TARGET_SELF]: true,
-            }),
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+            },
         })
         const hurtOthers = ActionEffectTemplateService.new({
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.TARGET_FOE]: true,
-            }),
             damageDescriptions: {
                 [DamageType.BODY]: 2,
+            },
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
             },
         })
 

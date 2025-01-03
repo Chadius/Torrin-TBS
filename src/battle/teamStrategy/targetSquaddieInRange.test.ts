@@ -18,7 +18,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
     BattleActionDecisionStep,
@@ -65,8 +68,10 @@ describe("target a squaddie within reach of actions", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

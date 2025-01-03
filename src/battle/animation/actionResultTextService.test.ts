@@ -10,7 +10,10 @@ import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { ActionResultTextService } from "./actionResultTextService"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     ActionTemplate,
     ActionTemplateService,
@@ -70,8 +73,10 @@ describe("Action Result Text Writer", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.VERSUS_ARMOR]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -90,9 +95,11 @@ describe("Action Result Text Writer", () => {
                 ActionEffectTemplateService.new({
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HEALING]: true,
-                        [Trait.TARGET_ALLY]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                    },
                 }),
             ],
         })
@@ -255,9 +262,10 @@ describe("Action Result Text Writer", () => {
                 name: "Raise Shield",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_SELF]: true,
-                        }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
+                        },
                         attributeModifiers: [
                             AttributeModifierService.new({
                                 type: AttributeType.ARMOR,
@@ -374,9 +382,10 @@ describe("Action Result Text Writer", () => {
                 name: "dash",
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_SELF]: true,
-                        }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
+                        },
                         attributeModifiers: [
                             AttributeModifierService.new({
                                 type: AttributeType.MOVEMENT,

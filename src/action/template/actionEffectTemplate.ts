@@ -7,6 +7,12 @@ import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
 import { AttributeModifier } from "../../squaddie/attribute/attributeModifier"
 import { ActionDecisionType } from "./actionTemplate"
 
+export enum TargetBySquaddieAffiliationRelation {
+    TARGET_SELF = "TARGET_SELF",
+    TARGET_FOE = "TARGET_FOE",
+    TARGET_ALLY = "TARGET_ALLY",
+}
+
 export interface ActionEffectTemplate {
     damageDescriptions: { [t in DamageType]?: number }
     healingDescriptions: { [t in HealingType]?: number }
@@ -16,6 +22,13 @@ export interface ActionEffectTemplate {
     buttonIconResourceKey?: string
     attributeModifiers: AttributeModifier[]
     actionDecisions: ActionDecisionType[]
+    targetConstraints: {
+        squaddieAffiliationRelation: {
+            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: boolean
+        }
+    }
 }
 
 export const ActionEffectTemplateService = {
@@ -26,6 +39,7 @@ export const ActionEffectTemplateService = {
         buttonIconResourceKey,
         attributeModifiers,
         actionDecisions,
+        squaddieAffiliationRelation,
     }: {
         traits?: {
             booleanTraits: { [key in Trait]?: boolean }
@@ -35,6 +49,11 @@ export const ActionEffectTemplateService = {
         attributeModifiers?: AttributeModifier[]
         buttonIconResourceKey?: string
         actionDecisions?: ActionDecisionType[]
+        squaddieAffiliationRelation?: {
+            [TargetBySquaddieAffiliationRelation.TARGET_SELF]?: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]?: boolean
+            [TargetBySquaddieAffiliationRelation.TARGET_FOE]?: boolean
+        }
     }): ActionEffectTemplate => {
         const data: ActionEffectTemplate = {
             traits: traits,
@@ -45,6 +64,30 @@ export const ActionEffectTemplateService = {
             actionDecisions: actionDecisions || [
                 ActionDecisionType.TARGET_SQUADDIE,
             ],
+            targetConstraints: {
+                squaddieAffiliationRelation: {
+                    [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                        squaddieAffiliationRelation
+                            ? squaddieAffiliationRelation[
+                                  TargetBySquaddieAffiliationRelation
+                                      .TARGET_SELF
+                              ]
+                            : false,
+                    [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                        squaddieAffiliationRelation
+                            ? squaddieAffiliationRelation[
+                                  TargetBySquaddieAffiliationRelation
+                                      .TARGET_ALLY
+                              ]
+                            : false,
+                    [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                        squaddieAffiliationRelation
+                            ? squaddieAffiliationRelation[
+                                  TargetBySquaddieAffiliationRelation.TARGET_FOE
+                              ]
+                            : false,
+                },
+            },
         }
 
         sanitize(data)
@@ -54,26 +97,19 @@ export const ActionEffectTemplateService = {
         return sanitize(data)
     },
     doesItTargetFriends: (
-        actionEffectSquaddieTemplate: ActionEffectTemplate
+        actionEffectTemplate: ActionEffectTemplate
     ): boolean =>
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_ALLY
-        ),
-    doesItTargetSelf: (
-        actionEffectSquaddieTemplate: ActionEffectTemplate
-    ): boolean =>
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_SELF
-        ),
-    doesItTargetFoes: (
-        actionEffectSquaddieTemplate: ActionEffectTemplate
-    ): boolean =>
-        TraitStatusStorageService.getStatus(
-            actionEffectSquaddieTemplate.traits,
-            Trait.TARGET_FOE
-        ),
+        actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_ALLY
+        ],
+    doesItTargetSelf: (actionEffectTemplate: ActionEffectTemplate): boolean =>
+        actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_SELF
+        ],
+    doesItTargetFoes: (actionEffectTemplate: ActionEffectTemplate): boolean =>
+        actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_FOE
+        ],
     getMultipleAttackPenalty: (template: ActionEffectTemplate): number => {
         if (
             TraitStatusStorageService.getStatus(

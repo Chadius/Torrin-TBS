@@ -51,7 +51,10 @@ import {
     PlayerSelectionChangesService,
 } from "../playerSelectionService/playerSelectionChanges"
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -167,11 +170,14 @@ describe("BattleSquaddieSelector", () => {
                         ActionEffectTemplateService.new({
                             traits: TraitStatusStorageService.newUsingTraitValues(
                                 {
-                                    [Trait.TARGET_FOE]: true,
                                     [Trait.VERSUS_ARMOR]: true,
                                     [Trait.ATTACK]: true,
                                 }
                             ),
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                    true,
+                            },
                             damageDescriptions: {
                                 [DamageType.BODY]: 1,
                             },

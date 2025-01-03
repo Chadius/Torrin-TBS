@@ -12,7 +12,10 @@ import {
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -68,9 +71,9 @@ describe("summaryHUD", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -88,9 +91,9 @@ describe("summaryHUD", () => {
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

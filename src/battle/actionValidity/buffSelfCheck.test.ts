@@ -5,7 +5,10 @@ import {
 } from "../../action/template/actionTemplate"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -30,9 +33,9 @@ describe("Buff Self Checker", () => {
             name: "healSelf",
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_SELF]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
                     healingDescriptions: {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
@@ -44,9 +47,9 @@ describe("Buff Self Checker", () => {
             name: "raiseShield",
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_SELF]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
                     attributeModifiers: [
                         AttributeModifierService.new({
                             type: AttributeType.ARMOR,
@@ -97,9 +100,9 @@ describe("Buff Self Checker", () => {
             name: "attackOthers",
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
-                    traits: TraitStatusStorageService.newUsingTraitValues({
-                        [Trait.TARGET_FOE]: true,
-                    }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })

@@ -10,7 +10,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 
 describe("weapon icon", () => {
@@ -30,9 +33,11 @@ describe("weapon icon", () => {
                         [DamageType.BODY]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        ATTACK: true,
-                        [Trait.TARGET_FOE]: true,
+                        [Trait.ATTACK]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
@@ -46,9 +51,11 @@ describe("weapon icon", () => {
                         [HealingType.LOST_HIT_POINTS]: 1,
                     },
                     traits: TraitStatusStorageService.newUsingTraitValues({
-                        HEALING: true,
-                        [Trait.TARGET_ALLY]: true,
+                        [Trait.HEALING]: true,
                     }),
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+                    },
                 }),
             ],
         })

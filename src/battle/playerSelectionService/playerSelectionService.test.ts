@@ -2,7 +2,10 @@ import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -1641,10 +1644,13 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_FOE]: true,
                             [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                true,
+                        },
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
@@ -1668,10 +1674,13 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_FOE]: true,
                             [Trait.VERSUS_ARMOR]: true,
                             [Trait.ATTACK]: true,
                         }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                true,
+                        },
                         damageDescriptions: {
                             [DamageType.BODY]: 1,
                         },
@@ -1695,10 +1704,14 @@ const createSquaddie = ({
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({
                         traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.TARGET_SELF]: true,
-                            [Trait.TARGET_ALLY]: true,
                             [Trait.HEALING]: true,
                         }),
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
+                            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+                                true,
+                        },
                         healingDescriptions: {
                             [HealingType.LOST_HIT_POINTS]: 1,
                         },

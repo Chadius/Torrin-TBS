@@ -20,7 +20,10 @@ import { MissionMap, MissionMapService } from "../missionMap/missionMap"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
-import { ActionEffectTemplateService } from "../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "../squaddie/id"
 import { SquaddieAffiliation } from "../squaddie/squaddieAffiliation"
@@ -100,9 +103,11 @@ describe("User Selects Target and Confirms", () => {
                     traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
-                        [Trait.TARGET_FOE]: true,
                     }),
                     damageDescriptions: { [DamageType.BODY]: 1 },
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_FOE]: true,
+                    },
                 }),
             ],
         })
