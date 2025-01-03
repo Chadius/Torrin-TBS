@@ -5,7 +5,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 2,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {
@@ -39,7 +39,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {
@@ -71,7 +71,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 0,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "resourceCost": {
       "actionPoints": 0,
@@ -118,7 +118,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {
@@ -152,7 +152,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 0,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {
@@ -196,7 +196,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {

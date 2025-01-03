@@ -3,7 +3,6 @@ import { MissionConditionType } from "../../battle/missionResult/missionConditio
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { Trait } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
-import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import { MissionFileFormat } from "../../dataLoader/missionLoader"
 import {
     SquaddieTemplate,
@@ -25,6 +24,7 @@ import {
     ActionTemplate,
 } from "../../action/template/actionTemplate"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
+import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -709,7 +709,7 @@ export const TestMissionData = () => {
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             },
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -734,7 +734,7 @@ export const TestMissionData = () => {
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             },
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -758,7 +758,7 @@ export const TestMissionData = () => {
             targetConstraints: {
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             },
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

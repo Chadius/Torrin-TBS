@@ -1,13 +1,12 @@
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../hexCoordinate/hexCoordinate"
-import { TargetingShapeGenerator } from "../../battle/targeting/targetingShapeGenerator"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
-import { SnakeShapeGenerator } from "../../battle/targeting/snakeShapeGenerator"
+import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 export interface SearchParameters {
     pathGenerators: {
         startCoordinates: HexCoordinate[]
-        shapeGenerator: TargetingShapeGenerator
+        coordinateGeneratorShape: CoordinateGeneratorShape
     }
     pathContinueConstraints: {
         squaddieAffiliation: {
@@ -42,7 +41,7 @@ export const SearchParametersService = {
     }: {
         pathGenerators?: {
             startCoordinates?: HexCoordinate[]
-            shapeGenerator?: TargetingShapeGenerator
+            coordinateGeneratorShape?: CoordinateGeneratorShape
         }
         pathStopConstraints?: {
             canStopOnSquaddies?: boolean
@@ -72,9 +71,9 @@ export const SearchParametersService = {
                     pathGenerators?.startCoordinates,
                     []
                 ),
-                shapeGenerator: getValidValueOrDefault(
-                    pathGenerators?.shapeGenerator,
-                    new SnakeShapeGenerator()
+                coordinateGeneratorShape: getValidValueOrDefault(
+                    pathGenerators?.coordinateGeneratorShape,
+                    CoordinateGeneratorShape.BLOOM
                 ),
             },
             pathContinueConstraints: {

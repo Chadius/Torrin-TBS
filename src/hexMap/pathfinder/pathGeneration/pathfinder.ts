@@ -8,7 +8,6 @@ import {
 import { HexCoordinate } from "../../hexCoordinate/hexCoordinate"
 import { PriorityQueue } from "../../../utils/priorityQueue"
 import { SearchPath, SearchPathService } from "../searchPath"
-import { TargetingShapeGenerator } from "../../../battle/targeting/targetingShapeGenerator"
 import {
     MapSearchDataLayer,
     MapSearchDataLayerService,
@@ -29,10 +28,14 @@ import { PathStopConstraint } from "../pathStopConstraint/pathStopConstraint"
 import { PathDoesNotEndOnAWallOrPit } from "../pathStopConstraint/pathDoesNotEndOnAWallOrPit"
 import { PathLengthIsMoreThanMinimum } from "../pathStopConstraint/pathLengthIsMoreThanMinimum"
 import { PathDoesNotEndOnAnotherSquaddie } from "../pathStopConstraint/pathDoesNotEndOnAnotherSquaddie"
+import {
+    CoordinateGeneratorService,
+    CoordinateGeneratorShape,
+} from "../../../battle/targeting/coordinateGenerator"
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>
-    shapeGenerator: TargetingShapeGenerator
+    coordinateGeneratorShape: CoordinateGeneratorShape
     mapLayers: {
         visited: MapSearchDataLayer
         queued: MapSearchDataLayer
@@ -60,7 +63,8 @@ export const PathfinderWorkingStateHelper = {
             searchPathQueue: new PriorityQueue<SearchPath>(
                 SearchPathService.compare
             ),
-            shapeGenerator: searchParameters.pathGenerators.shapeGenerator,
+            coordinateGeneratorShape:
+                searchParameters.pathGenerators.coordinateGeneratorShape,
             mapLayers: {
                 visited: MapSearchDataLayerService.new({
                     terrainTileMap,
@@ -309,29 +313,33 @@ const generateValidPaths = ({
             return candidatePath
         }
 
-        workingState.shapeGenerator
-            .createNeighboringHexCoordinates(current)
-            .forEach((nextCoordinate) => {
-                const candidatePath: SearchPath =
-                    makeNewCandidatePath(nextCoordinate)
-                if (
-                    workingState.addPathConditions.every(
-                        (condition) =>
-                            condition.shouldContinue({
-                                newPath: candidatePath,
-                                searchParameters,
-                            }) === true
-                    )
-                ) {
-                    workingState.searchPathQueue.enqueue(candidatePath)
-                    MapSearchDataLayerService.setValueOfCoordinate({
-                        mapLayer: workingState.mapLayers.queued,
-                        q: nextCoordinate.q,
-                        r: nextCoordinate.r,
-                        value: true,
-                    })
-                }
-            })
+        CoordinateGeneratorService.generateCoordinates({
+            origin: current,
+            shape: workingState.coordinateGeneratorShape,
+            shapeData: {
+                distance: 1,
+            },
+        }).forEach((nextCoordinate) => {
+            const candidatePath: SearchPath =
+                makeNewCandidatePath(nextCoordinate)
+            if (
+                workingState.addPathConditions.every(
+                    (condition) =>
+                        condition.shouldContinue({
+                            newPath: candidatePath,
+                            searchParameters,
+                        }) === true
+                )
+            ) {
+                workingState.searchPathQueue.enqueue(candidatePath)
+                MapSearchDataLayerService.setValueOfCoordinate({
+                    mapLayer: workingState.mapLayers.queued,
+                    q: nextCoordinate.q,
+                    r: nextCoordinate.r,
+                    value: true,
+                })
+            }
+        })
     }
 
     const canStopAtCoordinate = ({

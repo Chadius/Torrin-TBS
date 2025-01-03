@@ -5,7 +5,7 @@
     "targetConstraints": {
       "minimumRange": 0,
       "maximumRange": 1,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {
@@ -34,7 +34,7 @@
     "targetConstraints": {
       "minimumRange": 2,
       "maximumRange": 3,
-      "targetingShape": "SNAKE"
+      "targetingShape": "BLOOM"
     },
     "actionEffectTemplates": [
       {

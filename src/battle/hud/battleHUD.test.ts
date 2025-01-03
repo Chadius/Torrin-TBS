@@ -53,7 +53,6 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { TargetingShape } from "../targeting/targetingShapeGenerator"
 import {
     CoordinateSystem,
     HexCoordinate,
@@ -96,6 +95,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -142,7 +142,7 @@ describe("Battle HUD", () => {
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({
@@ -1495,7 +1495,7 @@ describe("Battle HUD", () => {
                 targetConstraints: TargetConstraintsService.new({
                     minimumRange: 1,
                     maximumRange: 1,
-                    targetingShape: TargetingShape.SNAKE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
                 actionEffectTemplates: [
                     ActionEffectTemplateService.new({

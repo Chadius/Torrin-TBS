@@ -8,7 +8,6 @@ import {
     SquaddieAffiliationService,
 } from "../../squaddie/squaddieAffiliation"
 import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { TargetingShapeGeneratorService } from "./targetingShapeGenerator"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
     MissionMapSquaddieCoordinate,
@@ -25,7 +24,6 @@ import {
 } from "../../action/template/actionEffectTemplate"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
-import { Trait } from "../../trait/traitStatusStorage"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -166,9 +164,8 @@ const findValidTargets = ({
         searchParameters: SearchParametersService.new({
             pathGenerators: {
                 startCoordinates,
-                shapeGenerator: TargetingShapeGeneratorService.new(
-                    actionTemplate.targetConstraints.targetingShape
-                ),
+                coordinateGeneratorShape:
+                    actionTemplate.targetConstraints.coordinateGeneratorShape,
             },
             pathStopConstraints: {
                 canStopOnSquaddies: true,

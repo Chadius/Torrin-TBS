@@ -5,7 +5,6 @@ import {
     TraitStatusStorageService,
 } from "../../../trait/traitStatusStorage"
 import { DefaultArmyAttributes } from "../../../squaddie/armyAttributes"
-import { TargetingShape } from "../../targeting/targetingShapeGenerator"
 import {
     SquaddieTemplate,
     SquaddieTemplateService,
@@ -26,6 +25,7 @@ import {
 } from "../../calculator/actionCalculator/rollResult"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ActionEffectChangesService } from "../../history/calculatedResult"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 
 describe("ActorTextWindow", () => {
     let mockedP5GraphicsContext: MockedP5GraphicsBuffer
@@ -54,7 +54,7 @@ describe("ActorTextWindow", () => {
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 1,
                 maximumRange: 1,
-                targetingShape: TargetingShape.SNAKE,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
             }),
             actionEffectTemplates: [
                 ActionEffectTemplateService.new({

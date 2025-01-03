@@ -3,7 +3,6 @@ import { HexCoordinate } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { SearchParametersService } from "../../hexMap/pathfinder/searchParameters"
-import { TargetingShapeGeneratorService } from "../targeting/targetingShapeGenerator"
 import { SearchPath } from "../../hexMap/pathfinder/searchPath"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import {
@@ -475,12 +474,10 @@ const getSquaddieAttackCoordinates = (
                                         SearchParametersService.new({
                                             pathGenerators: {
                                                 startCoordinates: [coordinate],
-                                                shapeGenerator:
-                                                    TargetingShapeGeneratorService.new(
-                                                        actionTemplate
-                                                            .targetConstraints
-                                                            .targetingShape
-                                                    ),
+                                                coordinateGeneratorShape:
+                                                    actionTemplate
+                                                        .targetConstraints
+                                                        .coordinateGeneratorShape,
                                             },
                                             pathStopConstraints: {
                                                 canStopOnSquaddies: true,

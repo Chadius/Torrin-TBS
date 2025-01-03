@@ -1,20 +1,20 @@
-import { TargetingShape } from "../battle/targeting/targetingShapeGenerator"
+import { CoordinateGeneratorShape } from "../battle/targeting/coordinateGenerator"
 
 export interface TargetConstraints {
     minimumRange: number
     maximumRange: number
-    targetingShape: TargetingShape
+    coordinateGeneratorShape: CoordinateGeneratorShape
 }
 
 export const TargetConstraintsService = {
     new: ({
         minimumRange,
         maximumRange,
-        targetingShape,
+        coordinateGeneratorShape,
     }: {
         minimumRange?: number
         maximumRange?: number
-        targetingShape?: TargetingShape
+        coordinateGeneratorShape?: CoordinateGeneratorShape
     }): TargetConstraints => ({
         minimumRange: Math.max(
             Math.min(minimumRange ?? 0, maximumRange ?? 0),
@@ -24,6 +24,7 @@ export const TargetConstraintsService = {
             Math.max(minimumRange ?? 0, maximumRange ?? 0),
             0
         ),
-        targetingShape: targetingShape ?? TargetingShape.SNAKE,
+        coordinateGeneratorShape:
+            coordinateGeneratorShape ?? CoordinateGeneratorShape.BLOOM,
     }),
 }

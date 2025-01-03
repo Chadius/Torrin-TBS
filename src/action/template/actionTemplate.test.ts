@@ -8,9 +8,9 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { TargetingShape } from "../../battle/targeting/targetingShapeGenerator"
 import { TargetConstraintsService } from "../targetConstraints"
 import { describe, expect, it } from "vitest"
+import { CoordinateGeneratorShape } from "../../battle/targeting/coordinateGenerator"
 
 describe("ActionTemplate", () => {
     it("can create a template with defaults and required fields", () => {
@@ -26,8 +26,8 @@ describe("ActionTemplate", () => {
         expect(justMovement.rank).toEqual(0)
         expect(justMovement.targetConstraints.minimumRange).toEqual(0)
         expect(justMovement.targetConstraints.maximumRange).toEqual(0)
-        expect(justMovement.targetConstraints.targetingShape).toEqual(
-            TargetingShape.SNAKE
+        expect(justMovement.targetConstraints.coordinateGeneratorShape).toEqual(
+            CoordinateGeneratorShape.BLOOM
         )
     })
 
@@ -58,14 +58,14 @@ describe("ActionTemplate", () => {
                 targetConstraints: TargetConstraintsService.new({
                     minimumRange: 1,
                     maximumRange: 10,
-                    targetingShape: TargetingShape.SNAKE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 }),
             })
             expect(actionTemplate.targetConstraints.minimumRange).toEqual(1)
             expect(actionTemplate.targetConstraints.maximumRange).toEqual(10)
-            expect(actionTemplate.targetConstraints.targetingShape).toEqual(
-                TargetingShape.SNAKE
-            )
+            expect(
+                actionTemplate.targetConstraints.coordinateGeneratorShape
+            ).toEqual(CoordinateGeneratorShape.BLOOM)
         })
     })
 
@@ -185,7 +185,7 @@ describe("ActionTemplate", () => {
                 targetConstraints: {
                     minimumRange: 1,
                     maximumRange: 3,
-                    targetingShape: TargetingShape.SNAKE,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
                 },
                 actionEffectTemplates: [ActionEffectTemplateService.new({})],
             })
