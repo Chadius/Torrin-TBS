@@ -10,7 +10,7 @@ export type GameEngineChanges = {
 export interface GameEngineComponent {
     update(state: GameEngineState, graphicsContext: GraphicsBuffer): void
 
-    keyPressed(state: GameEngineState, keyCode: number): void
+    keyPressed(gameEngineState: GameEngineState, keyCode: number): void
 
     mouseClicked(
         state: GameEngineState,

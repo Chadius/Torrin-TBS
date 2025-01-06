@@ -22,6 +22,8 @@ import {
 } from "../utils/test/mocks"
 import { RectAreaService } from "../ui/rectArea"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { PlayerInputTestService } from "../utils/test/playerInput"
+import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
 
 describe("Cutscene", () => {
     let splash1: SplashScreen
@@ -121,11 +123,12 @@ describe("Cutscene", () => {
         )
 
         expect(dinnerDate.currentDirection).toEqual(splash1)
-        CutsceneService.keyboardPressed(
-            dinnerDate,
-            JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0],
-            {}
-        )
+        CutsceneService.keyboardPressed({
+            cutscene: dinnerDate,
+            event: PlayerInputTestService.pressAcceptKey(),
+            context: {},
+            playerInputState: PlayerInputStateService.newFromEnvironment(),
+        })
         expect(dinnerDate.currentDirection).toEqual(splash2)
     })
 
@@ -450,11 +453,12 @@ describe("Cutscene", () => {
                 mockResourceHandler(new MockedP5GraphicsBuffer()),
                 {}
             )
-            CutsceneService.keyboardPressed(
-                dinnerDate,
-                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL)[0],
-                {}
-            )
+            CutsceneService.keyboardPressed({
+                cutscene: dinnerDate,
+                event: PlayerInputTestService.pressCancelKey(),
+                context: {},
+                playerInputState: PlayerInputStateService.newFromEnvironment(),
+            })
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy()
         })
 

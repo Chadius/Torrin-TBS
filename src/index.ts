@@ -52,6 +52,11 @@ export const sketch = (p: p5) => {
 
     p.keyPressed = () => {
         gameEngine.keyPressed(p.keyCode)
+        gameEngine.keyIsDown(p.keyCode)
+    }
+
+    p.keyReleased = () => {
+        gameEngine.keyIsUp(p.keyCode)
     }
 
     p.mousePressed = () => {

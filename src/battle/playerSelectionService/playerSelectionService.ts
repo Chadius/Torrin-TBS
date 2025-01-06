@@ -22,7 +22,6 @@ import {
     MessageBoardMessage,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import {
@@ -36,6 +35,7 @@ import {
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
 import { PopupWindowService } from "../hud/popupWindow"
+import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -58,11 +58,9 @@ export interface PlayerSelectionContextCalculationArgs {
     gameEngineState: GameEngineState
     mouseClick?: MouseClick
     mouseMovement?: ScreenLocation
-    keyPress?: {
-        keyButtonName: KeyButtonName
-    }
     actionTemplateId?: string
     endTurnSelected?: boolean
+    playerInputActions: PlayerInputAction[]
 }
 
 export const PlayerSelectionContextCalculationArgsService = {
@@ -70,25 +68,23 @@ export const PlayerSelectionContextCalculationArgsService = {
         gameEngineState,
         mouseClick,
         mouseMovement,
-        keyPress,
         actionTemplateId,
         endTurnSelected,
+        playerInputActions,
     }: {
         gameEngineState: GameEngineState
         mouseClick?: MouseClick
         mouseMovement?: ScreenLocation
-        keyPress?: {
-            keyButtonName: KeyButtonName
-        }
         actionTemplateId?: string
         endTurnSelected?: boolean
+        playerInputActions: PlayerInputAction[]
     }): PlayerSelectionContextCalculationArgs => ({
         gameEngineState,
         mouseClick,
         mouseMovement,
-        keyPress,
         actionTemplateId,
         endTurnSelected,
+        playerInputActions,
     }),
 }
 
@@ -97,9 +93,9 @@ export const PlayerSelectionService = {
         gameEngineState,
         mouseClick,
         mouseMovement,
-        keyPress,
         actionTemplateId,
         endTurnSelected,
+        playerInputActions,
     }: PlayerSelectionContextCalculationArgs): PlayerSelectionContext => {
         const isSquaddieTakingATurn: boolean =
             OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
@@ -153,8 +149,6 @@ export const PlayerSelectionService = {
             gameEngineState,
             mouseMovement,
         })
-
-        const keyPressed = keyPress?.keyButtonName
 
         const mouseClickLocationIsOnMap: boolean =
             !!mouseClick &&
@@ -290,11 +284,11 @@ export const PlayerSelectionService = {
                         PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE,
                     mouseClick,
                 })
-            case keyPressed === KeyButtonName.NEXT_SQUADDIE:
+            case playerInputActions.includes(PlayerInputAction.NEXT):
                 return PlayerSelectionContextService.new({
                     playerIntent:
                         PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                    keyPress: { keyButtonName: KeyButtonName.NEXT_SQUADDIE },
+                    playerInputActions: [PlayerInputAction.NEXT],
                 })
         }
 

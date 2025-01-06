@@ -16,7 +16,6 @@ import {
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TextBox, TextBoxService } from "../ui/textBox/textBox"
-import { KeyButtonName, KeyWasPressed } from "../utils/keyboardConfig"
 import { Rectangle, RectangleHelper } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { LoadSaveStateService } from "../dataLoader/loadSaveState"
@@ -24,6 +23,10 @@ import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "../ui/ImageUI"
+import {
+    PlayerInputAction,
+    PlayerInputStateService,
+} from "../ui/playerInput/playerInputState"
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000
 
@@ -212,8 +215,13 @@ export class TitleScreen implements GameEngineComponent {
         this.draw(state, graphicsContext, state.resourceHandler)
     }
 
-    keyPressed(state: GameEngineState, keyCode: number): void {
-        if (KeyWasPressed(KeyButtonName.ACCEPT, keyCode)) {
+    keyPressed(gameEngineState: GameEngineState, keyCode: number): void {
+        const actions: PlayerInputAction[] =
+            PlayerInputStateService.getActionsForPressedKey(
+                gameEngineState.playerInputState,
+                keyCode
+            )
+        if (actions.includes(PlayerInputAction.ACCEPT)) {
             this.startNewGameButton.onClickHandler(
                 0,
                 0,

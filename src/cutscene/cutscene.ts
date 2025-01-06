@@ -29,9 +29,14 @@ import {
 } from "./splashScreenPlayer"
 import { isValidValue } from "../utils/validityCheck"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
-import { KeyButtonName, KeyWasPressed } from "../utils/keyboardConfig"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
+import {
+    PlayerInputAction,
+    PlayerInputState,
+    PlayerInputStateService,
+} from "../ui/playerInput/playerInputState"
+import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100
 
@@ -168,12 +173,23 @@ export const CutsceneService = {
             cutscene.fastForwardButton.draw(graphicsContext)
         }
     },
-    keyboardPressed(
-        cutscene: Cutscene,
-        keyCode: number,
+    keyboardPressed({
+        cutscene,
+        event,
+        context,
+        playerInputState,
+    }: {
+        cutscene: Cutscene
+        event: OrchestratorComponentKeyEvent
         context: TextSubstitutionContext
-    ): void {
-        if (KeyWasPressed(KeyButtonName.CANCEL, keyCode)) {
+        playerInputState: PlayerInputState
+    }): void {
+        const actions: PlayerInputAction[] =
+            PlayerInputStateService.getActionsForPressedKey(
+                playerInputState,
+                event.keyCode
+            )
+        if (actions.includes(PlayerInputAction.CANCEL)) {
             toggleFastForwardAndUpdateFFButton(
                 cutscene,
                 cutscene.fastForwardButton
@@ -181,7 +197,7 @@ export const CutsceneService = {
             return
         }
 
-        if (!KeyWasPressed(KeyButtonName.ACCEPT, keyCode)) {
+        if (!actions.includes(PlayerInputAction.ACCEPT)) {
             return
         }
 
@@ -193,20 +209,22 @@ export const CutsceneService = {
 
         switch (cutscene.currentDirection.type) {
             case CutsceneActionPlayerType.DIALOGUE:
-                DialoguePlayerService.keyPressed(
-                    cutscene.cutscenePlayerStateById[
+                DialoguePlayerService.keyPressed({
+                    dialoguePlayerState: cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
                     ] as DialoguePlayerState,
-                    keyCode
-                )
+                    event,
+                    playerInputState,
+                })
                 break
             case CutsceneActionPlayerType.SPLASH_SCREEN:
-                SplashScreenPlayerService.keyPressed(
-                    cutscene.cutscenePlayerStateById[
+                SplashScreenPlayerService.keyPressed({
+                    splashScreenPlayerState: cutscene.cutscenePlayerStateById[
                         cutscene.currentDirection.id
                     ] as SplashScreenPlayerState,
-                    keyCode
-                )
+                    event,
+                    playerInputState,
+                })
                 break
         }
 

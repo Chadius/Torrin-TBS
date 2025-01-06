@@ -21,7 +21,6 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { MouseButton } from "../../utils/mouseConfig"
-import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -38,6 +37,11 @@ import {
     VERTICAL_ALIGN,
     WINDOW_SPACING,
 } from "../../ui/constants"
+import {
+    PlayerInputAction,
+    PlayerInputState,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
 
 const layout = {
     targetExplanationLabel: {
@@ -185,6 +189,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 targetComponent: this,
                 mouseEvent,
                 keyboardEvent,
+                playerInputState: gameEngineState.playerInputState,
             })
         ) {
             cancelTargetSelection(this, gameEngineState)
@@ -391,10 +396,12 @@ const didUserCancelTargetCoordinate = ({
     mouseEvent,
     keyboardEvent,
     targetComponent,
+    playerInputState,
 }: {
     targetComponent: BattlePlayerSquaddieTarget
     mouseEvent?: OrchestratorComponentMouseEventClicked
     keyboardEvent?: OrchestratorComponentKeyEvent
+    playerInputState: PlayerInputState
 }): boolean => {
     if (isValidValue(mouseEvent)) {
         return (
@@ -407,7 +414,13 @@ const didUserCancelTargetCoordinate = ({
         )
     }
     if (isValidValue(keyboardEvent)) {
-        return KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode)
+        const actions: PlayerInputAction[] =
+            PlayerInputStateService.getActionsForPressedKey(
+                playerInputState,
+                keyboardEvent.keyCode
+            )
+
+        return actions.includes(PlayerInputAction.CANCEL)
     }
     return false
 }

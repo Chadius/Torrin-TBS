@@ -29,13 +29,22 @@ export type OrchestratorComponentMouseEventMoved = {
 }
 
 export enum OrchestratorComponentKeyEventType {
-    UNKNOWN,
-    PRESSED,
+    UNKNOWN = "UNKNOWN",
+    PRESSED = "PRESSED",
 }
 
 export type OrchestratorComponentKeyEvent = {
     eventType: OrchestratorComponentKeyEventType
     keyCode: number
+}
+
+export const OrchestratorComponentKeyEventService = {
+    createPressedKeyEvent: (
+        keyCode: number
+    ): OrchestratorComponentKeyEvent => ({
+        keyCode,
+        eventType: OrchestratorComponentKeyEventType.PRESSED,
+    }),
 }
 
 export type BattleOrchestratorChanges = {

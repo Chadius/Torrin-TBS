@@ -49,6 +49,10 @@ import { BattleStateListener } from "../battle/orchestrator/battleState"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddiePhaseListener } from "../battle/startOfPhase/squaddiePhaseListener"
 import { PlayerDecisionHUDListener } from "../battle/hud/playerActionPanel/playerDecisionHUD"
+import {
+    PlayerInputState,
+    PlayerInputStateService,
+} from "../ui/playerInput/playerInputState"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -60,6 +64,7 @@ export interface GameEngineState {
     campaignIdThatWasLoaded: string
     fileState: FileState
     messageBoard: MessageBoard
+    playerInputState: PlayerInputState
 }
 
 export const GameEngineStateService = {
@@ -70,6 +75,7 @@ export const GameEngineStateService = {
         previousMode,
         repository,
         campaign,
+        playerInputState,
     }: {
         battleOrchestratorState?: BattleOrchestratorState
         titleScreenState?: TitleScreenState
@@ -77,6 +83,7 @@ export const GameEngineStateService = {
         previousMode?: GameModeEnum
         campaign?: Campaign
         repository?: ObjectRepository
+        playerInputState?: PlayerInputState
     }): GameEngineState => {
         return {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
@@ -94,6 +101,9 @@ export const GameEngineStateService = {
             messageBoard: new MessageBoard({
                 logMessages: process.env.LOG_MESSAGES === "true",
             }),
+            playerInputState:
+                playerInputState ??
+                PlayerInputStateService.newFromEnvironment(),
         }
     },
 }
@@ -203,6 +213,22 @@ export class GameEngine {
 
     keyPressed(keyCode: number) {
         this.component.keyPressed(this.gameEngineState, keyCode)
+    }
+
+    keyIsDown(keyCode: number) {
+        if (!this.gameEngineState) return
+        PlayerInputStateService.keyIsDown(
+            this.gameEngineState.playerInputState,
+            keyCode
+        )
+    }
+
+    keyIsUp(keyCode: number) {
+        if (!this.gameEngineState) return
+        PlayerInputStateService.keyIsUp(
+            this.gameEngineState.playerInputState,
+            keyCode
+        )
     }
 
     mouseClicked(mouseButton: MouseButton, mouseX: number, mouseY: number) {

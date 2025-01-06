@@ -34,10 +34,7 @@ import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrc
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
-import {
-    OrchestratorComponentKeyEventType,
-    OrchestratorComponentMouseEventType,
-} from "../battle/orchestrator/battleOrchestratorComponent"
+import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
@@ -63,6 +60,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { PlayerInputTestService } from "../utils/test/playerInput"
 
 describe("User cancels the previewed action", () => {
     let objectRepository: ObjectRepository
@@ -239,12 +237,10 @@ describe("User cancels the previewed action", () => {
             {
                 name: "keyboard presses CANCEL",
                 action: () => {
-                    targeting.keyEventHappened(gameEngineState, {
-                        eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode: JSON.parse(
-                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL
-                        )[0],
-                    })
+                    targeting.keyEventHappened(
+                        gameEngineState,
+                        PlayerInputTestService.pressCancelKey()
+                    )
                 },
             },
         ]

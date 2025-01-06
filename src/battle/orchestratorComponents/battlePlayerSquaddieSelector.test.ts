@@ -7,10 +7,7 @@ import {
 } from "../battleSquaddieTeam"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import {
-    OrchestratorComponentKeyEventType,
-    OrchestratorComponentMouseEventType,
-} from "../orchestrator/battleOrchestratorComponent"
+import { OrchestratorComponentMouseEventType } from "../orchestrator/battleOrchestratorComponent"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import { BattleCamera } from "../battleCamera"
@@ -61,7 +58,6 @@ import {
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
 import { DamageType } from "../../squaddie/squaddieService"
-import { KeyButtonName } from "../../utils/keyboardConfig"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
@@ -73,6 +69,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { PlayerInputTestService } from "../../utils/test/playerInput"
+import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -291,6 +289,7 @@ describe("BattleSquaddieSelector", () => {
                             x: battleSquaddieScreenPositionX,
                             y: battleSquaddieScreenPositionY,
                         },
+                        playerInputActions: [],
                     }),
                 expectedPlayerSelectionContext:
                     PlayerSelectionContextService.new({
@@ -388,6 +387,7 @@ describe("BattleSquaddieSelector", () => {
                                 y: y,
                                 button: MouseButton.ACCEPT,
                             },
+                            playerInputActions: [],
                         }),
                     expectedPlayerSelectionContext:
                         PlayerSelectionContextService.new({
@@ -511,6 +511,7 @@ describe("BattleSquaddieSelector", () => {
                             y: y,
                             button: MouseButton.ACCEPT,
                         },
+                        playerInputActions: [],
                         endTurnSelected: true,
                     }),
                 expectedPlayerSelectionContext:
@@ -623,6 +624,7 @@ describe("BattleSquaddieSelector", () => {
                             y: y,
                             button: MouseButton.ACCEPT,
                         }),
+                        playerInputActions: [],
                         actionTemplateId: "melee",
                     }),
                 expectedPlayerSelectionContext:
@@ -700,12 +702,10 @@ describe("BattleSquaddieSelector", () => {
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-            selector.keyEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentKeyEventType.PRESSED,
-                keyCode: JSON.parse(
-                    process.env.KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE
-                )[0],
-            })
+            selector.keyEventHappened(
+                gameEngineState,
+                PlayerInputTestService.pressNextKey()
+            )
         })
 
         afterEach(() => {
@@ -717,17 +717,13 @@ describe("BattleSquaddieSelector", () => {
                 expectedPlayerSelectionContextCalculationArgs:
                     PlayerSelectionContextCalculationArgsService.new({
                         gameEngineState,
-                        keyPress: {
-                            keyButtonName: KeyButtonName.NEXT_SQUADDIE,
-                        },
+                        playerInputActions: [PlayerInputAction.NEXT],
                     }),
                 expectedPlayerSelectionContext:
                     PlayerSelectionContextService.new({
                         playerIntent:
                             PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                        keyPress: {
-                            keyButtonName: KeyButtonName.NEXT_SQUADDIE,
-                        },
+                        playerInputActions: [PlayerInputAction.NEXT],
                     }),
                 expectedPlayerSelectionChanges:
                     PlayerSelectionChangesService.new({

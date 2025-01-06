@@ -21,6 +21,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { PlayerInputTestService } from "../../utils/test/playerInput"
+import { PlayerInputStateService } from "../../ui/playerInput/playerInputState"
 
 describe("dialogue box player", () => {
     describe("dialog box without answers finishes", () => {
@@ -89,10 +91,11 @@ describe("dialogue box player", () => {
                 DialoguePlayerService.isFinished(dialoguePlayerState)
             ).toBeFalsy()
 
-            DialoguePlayerService.keyPressed(
+            DialoguePlayerService.keyPressed({
                 dialoguePlayerState,
-                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
-            )
+                event: PlayerInputTestService.pressAcceptKey(),
+                playerInputState: PlayerInputStateService.newFromEnvironment(),
+            })
             expect(
                 DialoguePlayerService.isAnimating(dialoguePlayerState)
             ).toBeFalsy()

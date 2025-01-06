@@ -11,7 +11,6 @@ import {
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { Dialogue, DialogueService } from "./dialogue"
 import { isValidValue } from "../../utils/validityCheck"
-import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import p5 from "p5"
 import {
     DIALOGUE_SPEAKER_PORTRAIT_STYLE_CONSTANTS,
@@ -19,6 +18,12 @@ import {
     DialogueTextService,
 } from "./constants"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import { OrchestratorComponentKeyEvent } from "../../battle/orchestrator/battleOrchestratorComponent"
+import {
+    PlayerInputAction,
+    PlayerInputState,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
 
 export interface DialoguePlayerState {
     type: CutsceneActionPlayerType.DIALOGUE
@@ -137,13 +142,27 @@ export const DialoguePlayerService = {
     setImageResource: (state: DialoguePlayerState, image: p5.Image) => {
         setPortrait(state, image)
     },
-    keyPressed: (dialoguePlayerState: DialoguePlayerState, keyCode: number) => {
+    keyPressed: ({
+        dialoguePlayerState,
+        event,
+        playerInputState,
+    }: {
+        dialoguePlayerState: DialoguePlayerState
+        event: OrchestratorComponentKeyEvent
+        playerInputState: PlayerInputState
+    }) => {
+        const actions: PlayerInputAction[] =
+            PlayerInputStateService.getActionsForPressedKey(
+                playerInputState,
+                event.keyCode
+            )
+
         if (
             isAnimating(dialoguePlayerState) &&
             !DialogueService.asksUserForAnAnswer(
                 dialoguePlayerState.dialogue
             ) &&
-            KeyWasPressed(KeyButtonName.ACCEPT, keyCode)
+            actions.includes(PlayerInputAction.ACCEPT)
         ) {
             dialoguePlayerState.dialogFinished = true
         }

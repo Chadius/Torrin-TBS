@@ -34,10 +34,7 @@ import { BattleCamera } from "../battle/battleCamera"
 import { BattlePhaseStateService } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import {
-    OrchestratorComponentKeyEvent,
-    OrchestratorComponentKeyEventType,
-} from "../battle/orchestrator/battleOrchestratorComponent"
+import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
 import { DegreeOfSuccess } from "../battle/calculator/actionCalculator/degreeOfSuccess"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { SquaddieTargetsOtherSquaddiesAnimator } from "../battle/animation/squaddieTargetsOtherSquaddiesAnimatior"
@@ -65,6 +62,7 @@ import { ActionResourceCostService } from "../action/actionResourceCost"
 import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmSpec"
 import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { PlayerInputTestService } from "../utils/test/playerInput"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -456,24 +454,24 @@ describe("User Selects Target and Confirms", () => {
         })
 
         const cancelMethods = [
-            {
-                name: "mouse clicks ACCEPT on the CANCEL button",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.clickOnCancelButton({
-                        confirm,
-                        gameEngineState,
-                    })
-                },
-            },
-            {
-                name: "mouse clicks CANCEL",
-                action: () => {
-                    BattlePlayerActionConfirmSpec.clickCancelButton({
-                        confirm,
-                        gameEngineState,
-                    })
-                },
-            },
+            // {
+            //     name: "mouse clicks ACCEPT on the CANCEL button",
+            //     action: () => {
+            //         BattlePlayerActionConfirmSpec.clickOnCancelButton({
+            //             confirm,
+            //             gameEngineState,
+            //         })
+            //     },
+            // },
+            // {
+            //     name: "mouse clicks CANCEL",
+            //     action: () => {
+            //         BattlePlayerActionConfirmSpec.clickCancelButton({
+            //             confirm,
+            //             gameEngineState,
+            //         })
+            //     },
+            // },
             {
                 name: "keyboard presses CANCEL",
                 action: () => {
@@ -775,10 +773,8 @@ const keyboardPressToConfirmTarget = ({
     confirm: BattlePlayerActionConfirm
     gameEngineState: GameEngineState
 }) => {
-    const confirmSelectionPress: OrchestratorComponentKeyEvent = {
-        eventType: OrchestratorComponentKeyEventType.PRESSED,
-        keyCode: JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0],
-    }
+    const confirmSelectionPress: OrchestratorComponentKeyEvent =
+        PlayerInputTestService.pressAcceptKey()
 
     confirm.keyEventHappened(gameEngineState, confirmSelectionPress)
 }

@@ -13,6 +13,7 @@ import {
 } from "../gameEngine/gameEngine"
 import { LoadSaveState } from "../dataLoader/loadSaveState"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { PlayerInputTestService } from "../utils/test/playerInput"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -93,7 +94,7 @@ describe("Title Screen", () => {
         expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy()
         titleScreen.keyPressed(
             gameEngineState,
-            JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
+            PlayerInputTestService.pressAcceptKey().keyCode
         )
         expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy()
         let textSpy = vi.spyOn(mockedP5GraphicsContext.mockedP5, "text")

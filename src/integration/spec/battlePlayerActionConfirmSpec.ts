@@ -62,9 +62,9 @@ export const BattlePlayerActionConfirmSpec = {
     }) => {
         confirm.keyEventHappened(gameEngineState, {
             eventType: OrchestratorComponentKeyEventType.PRESSED,
-            keyCode: JSON.parse(
-                process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL
-            )[0],
+            keyCode: JSON.parse(process.env.PLAYER_INPUT_CANCEL)[0][
+                "pressedKey"
+            ],
         })
     },
 }

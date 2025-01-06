@@ -17,12 +17,28 @@ export default defineConfig({
             VERSION: "vitest",
             LOG_MESSAGES: JSON.stringify(false),
             STARTUP_MODE: "TITLE_SCREEN",
-            KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE: JSON.stringify([88, 17]),
-            KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT: JSON.stringify([13]),
-            KEYBOARD_SHORTCUTS_BINDINGS_CANCEL: JSON.stringify([8, 46, 27]),
             MOUSE_BUTTON_BINDINGS_ACCEPT: "left",
             MOUSE_BUTTON_BINDINGS_INFO: "center",
             MOUSE_BUTTON_BINDINGS_CANCEL: "right",
+            PLAYER_INPUT_ACCEPT: JSON.stringify([
+                { pressedKey: 13 },
+                { pressedKey: 32 },
+            ]),
+            PLAYER_INPUT_CANCEL: JSON.stringify([
+                { pressedKey: 8 },
+                { pressedKey: 46 },
+                { pressedKey: 27 },
+            ]),
+            PLAYER_INPUT_NEXT: JSON.stringify([
+                { pressedKey: 88 },
+                { pressedKey: 17 },
+            ]),
+            PLAYER_INPUT_MODIFIER_KEY_CODES: JSON.stringify({
+                shift: [16],
+                ctrl: [17],
+                alt: [18],
+                meta: [224],
+            }),
         },
     },
 })

@@ -7,7 +7,6 @@ import {
 } from "../../trait/traitStatusStorage"
 import {
     OrchestratorComponentKeyEvent,
-    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType,
 } from "../orchestrator/battleOrchestratorComponent"
@@ -48,6 +47,7 @@ import {
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { PlayerInputTestService } from "../../utils/test/playerInput"
 
 describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
     let objectRepository: ObjectRepository
@@ -209,13 +209,8 @@ describe("SquaddieTargetsOtherSquaddiesAnimation", () => {
             {
                 name: "when keyboard presses ACCEPT",
                 action: (gameEngineState: GameEngineState) => {
-                    const keyboardEvent: OrchestratorComponentKeyEvent = {
-                        eventType: OrchestratorComponentKeyEventType.PRESSED,
-                        keyCode: JSON.parse(
-                            process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT
-                        )[0],
-                    }
-
+                    const keyboardEvent: OrchestratorComponentKeyEvent =
+                        PlayerInputTestService.pressAcceptKey()
                     animator.keyEventHappened(gameEngineState, keyboardEvent)
                 },
             },

@@ -352,4 +352,33 @@ describe("Game Engine", () => {
             )
         })
     })
+
+    it("will apply keyboard events to the playerInput", async () => {
+        const gameEngine = new GameEngine({
+            startupMode: GameModeEnum.BATTLE,
+            graphicsBuffer: mockedP5GraphicsBuffer,
+        })
+        await gameEngine.setup({
+            graphicsBuffer: mockedP5GraphicsBuffer,
+            campaignId: "the campaign",
+            version: "TEST",
+        })
+        expect(
+            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+                .active
+        ).toBeFalsy()
+
+        const SHIFT_KEY_CODE = 16
+        gameEngine.keyIsDown(SHIFT_KEY_CODE)
+        expect(
+            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+                .active
+        ).toBeTruthy()
+
+        gameEngine.keyIsUp(SHIFT_KEY_CODE)
+        expect(
+            gameEngine.gameEngineState.playerInputState.modifierKeyCodes.shift
+                .active
+        ).toBeFalsy()
+    })
 })

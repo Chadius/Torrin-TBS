@@ -22,7 +22,6 @@ import {
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { PlayerCommandSelection } from "../hud/playerCommandHUD"
-import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import {
     PlayerSelectionContextCalculationArgsService,
     PlayerSelectionService,
@@ -31,6 +30,10 @@ import { PlayerSelectionChanges } from "../playerSelectionService/playerSelectio
 import { PlayerSelectionContext } from "../playerSelectionService/playerSelectionContext"
 import { MessageBoardListener } from "../../message/messageBoardListener"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import {
+    PlayerInputAction,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
 
 export class BattlePlayerSquaddieSelector
     implements BattleOrchestratorComponent, MessageBoardListener
@@ -127,6 +130,7 @@ export class BattlePlayerSquaddieSelector
                     y: mouseY,
                     button: mouseButton,
                 },
+                playerInputActions: [],
             })
         )
         PlayerSelectionService.applyContextToGetChanges({
@@ -147,6 +151,7 @@ export class BattlePlayerSquaddieSelector
                     x: mouseX,
                     y: mouseY,
                 },
+                playerInputActions: [],
             })
         )
         PlayerSelectionService.applyContextToGetChanges({
@@ -178,14 +183,16 @@ export class BattlePlayerSquaddieSelector
         if (event.eventType !== OrchestratorComponentKeyEventType.PRESSED) {
             return
         }
-
-        if (KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, event.keyCode)) {
+        const actions: PlayerInputAction[] =
+            PlayerInputStateService.getActionsForPressedKey(
+                gameEngineState.playerInputState,
+                event.keyCode
+            )
+        if (actions.includes(PlayerInputAction.NEXT)) {
             const context = PlayerSelectionService.calculateContext(
                 PlayerSelectionContextCalculationArgsService.new({
                     gameEngineState,
-                    keyPress: {
-                        keyButtonName: KeyButtonName.NEXT_SQUADDIE,
-                    },
+                    playerInputActions: [PlayerInputAction.NEXT],
                 })
             )
             PlayerSelectionService.applyContextToGetChanges({
@@ -264,6 +271,7 @@ const processPlayerCommandSelection = ({
                     gameEngineState,
                     mouseClick,
                     endTurnSelected: true,
+                    playerInputActions: [],
                 })
             )
             changes = PlayerSelectionService.applyContextToGetChanges({
@@ -280,6 +288,7 @@ const processPlayerCommandSelection = ({
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState.playerCommandState
                             .selectedActionTemplateId,
+                    playerInputActions: [],
                 })
             )
             changes = PlayerSelectionService.applyContextToGetChanges({

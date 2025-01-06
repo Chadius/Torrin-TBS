@@ -19,16 +19,6 @@ export default defineConfig(({ mode }) => {
         "process.env.STARTUP_MODE":
             JSON.stringify(process.env.STARTUP_MODE) ||
             JSON.stringify("TITLE_SCREEN"),
-        "process.env.KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE":
-            JSON.stringify(
-                process.env.KEYBOARD_SHORTCUTS_BINDINGS_NEXT_SQUADDIE
-            ) || JSON.stringify("[88, 17]"),
-        "process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT":
-            JSON.stringify(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT) ||
-            JSON.stringify("[13,32]"),
-        "process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL":
-            JSON.stringify(process.env.KEYBOARD_SHORTCUTS_BINDINGS_CANCEL) ||
-            JSON.stringify("[8,46,27]"),
         "process.env.MOUSE_BUTTON_BINDINGS_ACCEPT":
             JSON.stringify(process.env.MOUSE_BUTTON_BINDINGS_ACCEPT) ||
             JSON.stringify("left"),
@@ -38,6 +28,22 @@ export default defineConfig(({ mode }) => {
         "process.env.MOUSE_BUTTON_BINDINGS_CANCEL":
             JSON.stringify(process.env.MOUSE_BUTTON_BINDINGS_CANCEL) ||
             JSON.stringify("right"),
+        "process.env.PLAYER_INPUT_ACCEPT":
+            JSON.stringify(process.env.PLAYER_INPUT_ACCEPT) ||
+            JSON.stringify('[{"pressedKey":13},{"pressedKey":32}]'),
+        "process.env.PLAYER_INPUT_CANCEL":
+            JSON.stringify(process.env.PLAYER_INPUT_CANCEL) ||
+            JSON.stringify(
+                '[{"pressedKey":8},{"pressedKey":46},{"pressedKey":27}]'
+            ),
+        "process.env.PLAYER_INPUT_NEXT":
+            JSON.stringify(process.env.PLAYER_INPUT_NEXT) ||
+            JSON.stringify('[{"pressedKey":88},{"pressedKey":17}]'),
+        "process.env.PLAYER_INPUT_MODIFIER_KEY_CODES":
+            JSON.stringify(process.env.PLAYER_INPUT_MODIFIER_KEY_CODES) ||
+            JSON.stringify(
+                '{"shift":[16],"ctrl":[17],"alt":[18],"meta":[224]}'
+            ),
     }
     if (mode === "production") {
         environmentVariables["process.env.CAMPAIGN_ID"] =

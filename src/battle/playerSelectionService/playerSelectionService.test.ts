@@ -43,7 +43,6 @@ import {
     MessageBoardMessagePlayerSelectsEmptyTile,
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
-import { KeyButtonName } from "../../utils/keyboardConfig"
 import {
     CoordinateSystem,
     HexCoordinate,
@@ -64,6 +63,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 
 describe("Player Selection Service", () => {
     let gameEngineState: GameEngineState
@@ -591,9 +591,9 @@ describe("Player Selection Service", () => {
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
 
-            actualContext = pressButton({
-                keyButtonName: KeyButtonName.NEXT_SQUADDIE,
+            actualContext = PlayerSelectionService.calculateContext({
                 gameEngineState,
+                playerInputActions: [PlayerInputAction.NEXT],
             })
         })
         afterEach(() => {
@@ -607,8 +607,8 @@ describe("Player Selection Service", () => {
         })
 
         it("knows the button that was pressed", () => {
-            expect(actualContext.keyPress.keyButtonName).toEqual(
-                KeyButtonName.NEXT_SQUADDIE
+            expect(actualContext.playerInputActions).includes(
+                PlayerInputAction.NEXT
             )
         })
 
@@ -1375,6 +1375,7 @@ describe("Player Selection Service", () => {
                     y: 0,
                     button: MouseButton.ACCEPT,
                 }),
+                playerInputActions: [],
             })
         }
 
@@ -1406,6 +1407,7 @@ describe("Player Selection Service", () => {
                     y: 0,
                     button: MouseButton.ACCEPT,
                 }),
+                playerInputActions: [],
             })
         }
 
@@ -1436,6 +1438,7 @@ describe("Player Selection Service", () => {
                         y: 0,
                         button: MouseButton.ACCEPT,
                     }),
+                    playerInputActions: [],
                 })
             }
         )
@@ -1453,6 +1456,7 @@ describe("Player Selection Service", () => {
                     y: 0,
                     button: MouseButton.ACCEPT,
                 }),
+                playerInputActions: [],
             })
         })
 
@@ -1469,6 +1473,7 @@ describe("Player Selection Service", () => {
                     y: 0,
                     button: MouseButton.ACCEPT,
                 }),
+                playerInputActions: [],
             })
         })
 
@@ -1491,6 +1496,7 @@ describe("Player Selection Service", () => {
                         y: 0,
                         button: MouseButton.ACCEPT,
                     }),
+                    playerInputActions: [],
                 })
                 changes = PlayerSelectionService.applyContextToGetChanges({
                     gameEngineState,
@@ -1554,6 +1560,7 @@ describe("Player Selection Service", () => {
                     y: 0,
                     button: MouseButton.ACCEPT,
                 }),
+                playerInputActions: [],
             })
         })
 
@@ -1780,6 +1787,7 @@ const clickOnMapCoordinate = ({
             y: screenY,
             button: MouseButton.ACCEPT,
         }),
+        playerInputActions: [],
     })
 }
 
@@ -1805,21 +1813,7 @@ const hoverOverMapCoordinate = ({
             x: screenX,
             y: screenY,
         },
-    })
-}
-
-const pressButton = ({
-    keyButtonName,
-    gameEngineState,
-}: {
-    keyButtonName: KeyButtonName
-    gameEngineState: GameEngineState
-}): PlayerSelectionContext => {
-    return PlayerSelectionService.calculateContext({
-        gameEngineState,
-        keyPress: {
-            keyButtonName,
-        },
+        playerInputActions: [],
     })
 }
 

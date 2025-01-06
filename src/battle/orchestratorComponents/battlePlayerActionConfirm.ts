@@ -4,7 +4,6 @@ import {
     VERTICAL_ALIGN,
 } from "../../ui/constants"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepositoryService } from "../objectRepository"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
     BattleOrchestratorChanges,
@@ -22,15 +21,16 @@ import { RectArea, RectAreaService } from "../../ui/rectArea"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
-import { ActionEffectTemplate } from "../../action/template/actionEffectTemplate"
-import { ActionTemplate } from "../../action/template/actionTemplate"
 import { MouseButton } from "../../utils/mouseConfig"
-import { KeyButtonName, KeyWasPressed } from "../../utils/keyboardConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
+import {
+    PlayerInputAction,
+    PlayerInputState,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
 
 const layout = {
     okButton: {
@@ -164,6 +164,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 mouseEvent,
                 keyboardEvent,
                 cancelButtonArea: this.cancelButton.rectangle.area,
+                playerInputState: gameEngineState.playerInputState,
             })
         ) {
             TargetingResultsService.highlightTargetRange(gameEngineState)
@@ -180,6 +181,7 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
                 mouseEvent,
                 keyboardEvent,
                 confirmButtonArea: this.confirmButton.rectangle.area,
+                playerInputState: gameEngineState.playerInputState,
             })
         ) {
             return
@@ -247,48 +249,23 @@ export class BattlePlayerActionConfirm implements BattleOrchestratorComponent {
     }
 }
 
-const getActionEffectTemplate = ({
-    gameEngineState,
-}: {
-    gameEngineState: GameEngineState
-}): {
-    found: boolean
-    actionTemplate: ActionTemplate
-    actionEffectSquaddieTemplate: ActionEffectTemplate
-} => {
-    const actionTemplate = ObjectRepositoryService.getActionTemplateById(
-        gameEngineState.repository,
-        BattleActionDecisionStepService.getAction(
-            gameEngineState.battleOrchestratorState.battleState
-                .battleActionDecisionStep
-        ).actionTemplateId
-    )
-    if (!isValidValue(actionTemplate)) {
-        return {
-            found: false,
-            actionTemplate,
-            actionEffectSquaddieTemplate: undefined,
-        }
-    }
-
-    const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
-
-    return {
-        found: true,
-        actionTemplate,
-        actionEffectSquaddieTemplate: actionEffectTemplate,
-    }
-}
-
 const didUserCancelActionConfirmation = ({
     mouseEvent,
     keyboardEvent,
     cancelButtonArea,
+    playerInputState,
 }: {
     mouseEvent?: OrchestratorComponentMouseEventClicked
     keyboardEvent?: OrchestratorComponentKeyEvent
     cancelButtonArea: RectArea
+    playerInputState: PlayerInputState
 }): boolean => {
+    const actions: PlayerInputAction[] = isValidValue(keyboardEvent)
+        ? PlayerInputStateService.getActionsForPressedKey(
+              playerInputState,
+              keyboardEvent.keyCode
+          )
+        : []
     switch (true) {
         case isValidValue(mouseEvent) &&
             mouseEvent.mouseButton === MouseButton.CANCEL:
@@ -302,7 +279,7 @@ const didUserCancelActionConfirmation = ({
             ):
             return true
         case isValidValue(keyboardEvent) &&
-            KeyWasPressed(KeyButtonName.CANCEL, keyboardEvent.keyCode):
+            actions.includes(PlayerInputAction.CANCEL):
             return true
         default:
             return false
@@ -313,11 +290,19 @@ const didUserConfirmActionConfirmation = ({
     mouseEvent,
     keyboardEvent,
     confirmButtonArea,
+    playerInputState,
 }: {
     mouseEvent?: OrchestratorComponentMouseEventClicked
     keyboardEvent?: OrchestratorComponentKeyEvent
     confirmButtonArea: RectArea
+    playerInputState: PlayerInputState
 }) => {
+    const actions: PlayerInputAction[] = isValidValue(keyboardEvent)
+        ? PlayerInputStateService.getActionsForPressedKey(
+              playerInputState,
+              keyboardEvent.keyCode
+          )
+        : []
     switch (true) {
         case isValidValue(mouseEvent) &&
             mouseEvent.mouseButton === MouseButton.ACCEPT &&
@@ -328,7 +313,7 @@ const didUserConfirmActionConfirmation = ({
             ):
             return true
         case isValidValue(keyboardEvent) &&
-            KeyWasPressed(KeyButtonName.ACCEPT, keyboardEvent.keyCode) === true:
+            actions.includes(PlayerInputAction.ACCEPT):
             return true
         default:
             return false

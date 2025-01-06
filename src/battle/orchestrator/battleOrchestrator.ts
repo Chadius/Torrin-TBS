@@ -361,15 +361,15 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public keyPressed(state: GameEngineState, keyCode: number) {
+    public keyPressed(gameEngineState: GameEngineState, keyCode: number) {
         const keyEvent: OrchestratorComponentKeyEvent = {
             eventType: OrchestratorComponentKeyEventType.PRESSED,
             keyCode,
         }
-        this.getCurrentComponent().keyEventHappened(state, keyEvent)
+        this.getCurrentComponent().keyEventHappened(gameEngineState, keyEvent)
 
         if (this.uiControlSettings.displayBattleMap === true) {
-            this.mapDisplay.keyEventHappened(state, keyEvent)
+            this.mapDisplay.keyEventHappened(gameEngineState, keyEvent)
         }
     }
 

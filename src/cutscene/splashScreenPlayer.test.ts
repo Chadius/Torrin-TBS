@@ -17,6 +17,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { PlayerInputTestService } from "../utils/test/playerInput"
+import { PlayerInputStateService } from "../ui/playerInput/playerInputState"
 
 describe("splash screen", () => {
     describe("splash screen finishes", () => {
@@ -52,10 +54,11 @@ describe("splash screen", () => {
             expect(SplashScreenPlayerService.isAnimating(player)).toBeTruthy()
             expect(SplashScreenPlayerService.isFinished(player)).toBeFalsy()
 
-            SplashScreenPlayerService.keyPressed(
-                player,
-                JSON.parse(process.env.KEYBOARD_SHORTCUTS_BINDINGS_ACCEPT)[0]
-            )
+            SplashScreenPlayerService.keyPressed({
+                splashScreenPlayerState: player,
+                event: PlayerInputTestService.pressAcceptKey(),
+                playerInputState: PlayerInputStateService.newFromEnvironment(),
+            })
 
             expect(SplashScreenPlayerService.isAnimating(player)).toBeFalsy()
             expect(SplashScreenPlayerService.isFinished(player)).toBeTruthy()

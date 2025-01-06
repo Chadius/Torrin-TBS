@@ -7,6 +7,8 @@ import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ImageUI, ImageUILoadingBehavior } from "../ui/ImageUI"
 import { ResourceHandler } from "../resource/resourceHandler"
+import { OrchestratorComponentKeyEvent } from "../battle/orchestrator/battleOrchestratorComponent"
+import { PlayerInputState } from "../ui/playerInput/playerInputState"
 
 export interface SplashScreenPlayerState {
     type: CutsceneActionPlayerType.SPLASH_SCREEN
@@ -85,10 +87,15 @@ export const SplashScreenPlayerService = {
     ): boolean => {
         return isAnimating(splashScreenPlayerState)
     },
-    keyPressed: (
-        splashScreenPlayerState: SplashScreenPlayerState,
-        keyCode: number
-    ) => {
+    keyPressed: ({
+        splashScreenPlayerState,
+        event,
+        playerInputState,
+    }: {
+        splashScreenPlayerState: SplashScreenPlayerState
+        event: OrchestratorComponentKeyEvent
+        playerInputState: PlayerInputState
+    }) => {
         if (
             isTimeExpired(splashScreenPlayerState) &&
             isAnimating(splashScreenPlayerState)
