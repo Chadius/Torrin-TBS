@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
     PlayerInputAction,
     PlayerInputButtonCombination,
@@ -31,12 +31,18 @@ describe("Player Input State", () => {
                 actions: {
                     [PlayerInputAction.ACCEPT]: [
                         {
-                            pressedKey: ACCEPT_KEY_NO_MODIFIERS,
+                            press: ACCEPT_KEY_NO_MODIFIERS,
                         },
                         {
-                            pressedKey: ACCEPT_KEY_WITH_SHIFT_MODIFIER,
+                            press: ACCEPT_KEY_WITH_SHIFT_MODIFIER,
                             modifiers: {
                                 shift: true,
+                            },
+                        },
+                        {
+                            hold: {
+                                key: ACCEPT_KEY_NO_MODIFIERS,
+                                delay: 100,
                             },
                         },
                     ],
@@ -49,7 +55,7 @@ describe("Player Input State", () => {
             let actions: PlayerInputAction[] =
                 PlayerInputStateService.getActionsForPressedKey(
                     playerInput,
-                    nextSquaddieInputs[0].pressedKey
+                    nextSquaddieInputs[0].press
                 )
             expect(actions).includes(PlayerInputAction.NEXT)
         })
@@ -76,6 +82,28 @@ describe("Player Input State", () => {
             )
             expect(actions).not.includes(PlayerInputAction.ACCEPT)
         })
+
+        it("knows when a key can be held down", () => {
+            let actions: PlayerInputAction[] = []
+            const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
+            PlayerInputStateService.keyIsDown(
+                playerInput,
+                ACCEPT_KEY_NO_MODIFIERS
+            )
+            actions = PlayerInputStateService.getActionsForHeldKeys(playerInput)
+            expect(actions).toHaveLength(0)
+
+            dateSpy.mockReturnValue(100)
+            actions = PlayerInputStateService.getActionsForHeldKeys(playerInput)
+            expect(actions).includes(PlayerInputAction.ACCEPT)
+
+            PlayerInputStateService.keyIsUp(
+                playerInput,
+                ACCEPT_KEY_NO_MODIFIERS
+            )
+            actions = PlayerInputStateService.getActionsForHeldKeys(playerInput)
+            expect(actions).toHaveLength(0)
+        })
     })
 
     describe("default player input uses environment to define keys", () => {
@@ -96,6 +124,22 @@ describe("Player Input State", () => {
             {
                 action: PlayerInputAction.NEXT,
                 combinations: JSON.parse(process.env.PLAYER_INPUT_NEXT),
+            },
+            {
+                action: PlayerInputAction.SCROLL_LEFT,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_LEFT),
+            },
+            {
+                action: PlayerInputAction.SCROLL_RIGHT,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_RIGHT),
+            },
+            {
+                action: PlayerInputAction.SCROLL_UP,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_UP),
+            },
+            {
+                action: PlayerInputAction.SCROLL_DOWN,
+                combinations: JSON.parse(process.env.PLAYER_INPUT_SCROLL_DOWN),
             },
         ]
 

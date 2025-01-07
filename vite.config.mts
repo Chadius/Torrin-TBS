@@ -30,20 +30,41 @@ export default defineConfig(({ mode }) => {
             JSON.stringify("right"),
         "process.env.PLAYER_INPUT_ACCEPT":
             JSON.stringify(process.env.PLAYER_INPUT_ACCEPT) ||
-            JSON.stringify('[{"pressedKey":13},{"pressedKey":32}]'),
+            JSON.stringify('[{"press":13},{"press":32}]'),
         "process.env.PLAYER_INPUT_CANCEL":
             JSON.stringify(process.env.PLAYER_INPUT_CANCEL) ||
-            JSON.stringify(
-                '[{"pressedKey":8},{"pressedKey":46},{"pressedKey":27}]'
-            ),
+            JSON.stringify('[{"press":8},{"press":46},{"press":27}]'),
         "process.env.PLAYER_INPUT_NEXT":
             JSON.stringify(process.env.PLAYER_INPUT_NEXT) ||
-            JSON.stringify('[{"pressedKey":88},{"pressedKey":17}]'),
+            JSON.stringify('[{"press":88},{"press":17}]'),
+        "process.env.PLAYER_INPUT_SCROLL_LEFT":
+            JSON.stringify(process.env.PLAYER_SCROLL_LEFT) ||
+            JSON.stringify(
+                '[{"hold":{"key":37, "delay":100},"modifiers":{"shift":true}}]'
+            ),
+        "process.env.PLAYER_INPUT_SCROLL_RIGHT":
+            JSON.stringify(process.env.PLAYER_SCROLL_RIGHT) ||
+            JSON.stringify(
+                '[{"hold":{"key":39, "delay":100},"modifiers":{"shift":true}}]'
+            ),
+        "process.env.PLAYER_INPUT_SCROLL_UP":
+            JSON.stringify(process.env.PLAYER_SCROLL_UP) ||
+            JSON.stringify(
+                '[{"hold":{"key":38, "delay":100},"modifiers":{"shift":true}}]'
+            ),
+        "process.env.PLAYER_INPUT_SCROLL_DOWN":
+            JSON.stringify(process.env.PLAYER_SCROLL_DOWN) ||
+            JSON.stringify(
+                '[{"hold":{"key":40, "delay":100},"modifiers":{"shift":true}}]'
+            ),
         "process.env.PLAYER_INPUT_MODIFIER_KEY_CODES":
             JSON.stringify(process.env.PLAYER_INPUT_MODIFIER_KEY_CODES) ||
             JSON.stringify(
                 '{"shift":[16],"ctrl":[17],"alt":[18],"meta":[224]}'
             ),
+        "process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE":
+            JSON.stringify(process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE) ||
+            JSON.stringify('{"horizontal": 7,"vertical": 5}'),
     }
     if (mode === "production") {
         environmentVariables["process.env.CAMPAIGN_ID"] =

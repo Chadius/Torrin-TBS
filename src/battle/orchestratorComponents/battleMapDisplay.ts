@@ -22,6 +22,10 @@ import { BattleActionRecorderService } from "../history/battleAction/battleActio
 import { MissionMapService } from "../../missionMap/missionMap"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 import { ResourceHandler } from "../../resource/resourceHandler"
+import {
+    PlayerInputAction,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
 
 const SCREEN_EDGES = {
     left: [0.1, 0.04, 0.02],
@@ -29,8 +33,16 @@ const SCREEN_EDGES = {
     right: [0.9, 0.96, 0.98],
     bottom: [0.9, 0.96, 0.98],
 }
+const HORIZONTAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
+    process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE
+).horizontal
+const VERTICAL_SCROLL_SPEED_PER_UPDATE = JSON.parse(
+    process.env.MAP_KEYBOARD_SCROLL_SPEED_PER_UPDATE
+).vertical
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
+    public scrollTime: number
+
     draw({
         gameEngineState,
         graphics,
@@ -129,10 +141,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        gameEngineState: GameEngineState,
+        keyEvent: OrchestratorComponentKeyEvent
     ): void {
-        // Required by inheritance
+        // Required by Inheritance
     }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {
@@ -182,6 +194,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
     }): void {
+        this.checkForKeyboardHeldKeys(gameEngineState)
         this.draw({
             gameEngineState,
             graphics: graphicsContext,
@@ -195,8 +208,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         return undefined
     }
 
-    reset(state: GameEngineState) {
-        // Required by inheritance
+    reset(gameEngineState: GameEngineState) {
+        this.scrollTime = undefined
     }
 
     private drawSquaddieMapIcons(
@@ -249,6 +262,30 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     }
                 }
             })
+    }
+
+    private checkForKeyboardHeldKeys(gameEngineState: GameEngineState) {
+        const actions = PlayerInputStateService.getActionsForHeldKeys(
+            gameEngineState.playerInputState
+        )
+
+        if (actions.includes(PlayerInputAction.SCROLL_LEFT)) {
+            gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate -=
+                HORIZONTAL_SCROLL_SPEED_PER_UPDATE
+        }
+        if (actions.includes(PlayerInputAction.SCROLL_RIGHT)) {
+            gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate +=
+                HORIZONTAL_SCROLL_SPEED_PER_UPDATE
+        }
+        if (actions.includes(PlayerInputAction.SCROLL_UP)) {
+            gameEngineState.battleOrchestratorState.battleState.camera.yCoordinate -=
+                VERTICAL_SCROLL_SPEED_PER_UPDATE
+        }
+        if (actions.includes(PlayerInputAction.SCROLL_DOWN)) {
+            gameEngineState.battleOrchestratorState.battleState.camera.yCoordinate +=
+                VERTICAL_SCROLL_SPEED_PER_UPDATE
+        }
+        gameEngineState.battleOrchestratorState.battleState.camera.constrainCamera()
     }
 }
 

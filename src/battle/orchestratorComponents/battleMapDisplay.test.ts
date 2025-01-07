@@ -21,6 +21,12 @@ import { BattleHUDStateService } from "../hud/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    PlayerInputAction,
+    PlayerInputStateService,
+} from "../../ui/playerInput/playerInputState"
+import { PlayerInputTestService } from "../../utils/test/playerInput"
+import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay
@@ -67,7 +73,7 @@ describe("battleMapDisplay", () => {
     })
 
     describe("panning the camera", () => {
-        let state: GameEngineState
+        let gameEngineState: GameEngineState
         let camera: BattleCamera
         let initialCameraCoordinates: number[]
 
@@ -75,7 +81,7 @@ describe("battleMapDisplay", () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT]
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = GameEngineStateService.new({
+            gameEngineState = GameEngineStateService.new({
                 repository: undefined,
                 resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.new({
@@ -113,7 +119,7 @@ describe("battleMapDisplay", () => {
 
             vi.spyOn(Date, "now").mockImplementation(() => timeToPan / 2)
             battleMapDisplay.draw({
-                gameEngineState: state,
+                gameEngineState: gameEngineState,
                 graphics: mockedP5GraphicsContext,
                 resourceHandler,
             })
@@ -124,7 +130,7 @@ describe("battleMapDisplay", () => {
                 (initialCameraCoordinates[1] + destinationCoordinates[1]) / 2
             )
 
-            battleMapDisplay.mouseEventHappened(state, {
+            battleMapDisplay.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.MOVED,
                 mouseX: 0,
                 mouseY: 0,
@@ -134,7 +140,7 @@ describe("battleMapDisplay", () => {
 
             vi.spyOn(Date, "now").mockImplementation(() => timeToPan)
             battleMapDisplay.draw({
-                gameEngineState: state,
+                gameEngineState: gameEngineState,
                 graphics: mockedP5GraphicsContext,
                 resourceHandler,
             })
@@ -145,6 +151,96 @@ describe("battleMapDisplay", () => {
                 destinationCoordinates[1]
             )
         })
+
+        const keyboardScrollInputTests = [
+            {
+                direction: "right",
+                playerInput: PlayerInputTestService.holdScrollRightKey,
+                expectation: (
+                    camera: BattleCamera,
+                    initialCameraCoordinates: {
+                        cameraX: number
+                        cameraY: number
+                    }
+                ) =>
+                    camera.getCoordinates().cameraX >
+                    initialCameraCoordinates.cameraX,
+            },
+            {
+                direction: "left",
+                playerInput: PlayerInputTestService.holdScrollLeftKey,
+                expectation: (
+                    camera: BattleCamera,
+                    initialCameraCoordinates: {
+                        cameraX: number
+                        cameraY: number
+                    }
+                ) =>
+                    camera.getCoordinates().cameraX <
+                    initialCameraCoordinates.cameraX,
+            },
+            {
+                direction: "up",
+                playerInput: PlayerInputTestService.holdScrollUpKey,
+                expectation: (
+                    camera: BattleCamera,
+                    initialCameraCoordinates: {
+                        cameraX: number
+                        cameraY: number
+                    }
+                ) =>
+                    camera.getCoordinates().cameraY <
+                    initialCameraCoordinates.cameraY,
+            },
+            {
+                direction: "down",
+                playerInput: PlayerInputTestService.holdScrollDownKey,
+                expectation: (
+                    camera: BattleCamera,
+                    initialCameraCoordinates: {
+                        cameraX: number
+                        cameraY: number
+                    }
+                ) =>
+                    camera.getCoordinates().cameraY >
+                    initialCameraCoordinates.cameraY,
+            },
+        ]
+
+        it.each(keyboardScrollInputTests)(
+            `$direction`,
+            ({ playerInput, expectation }) => {
+                gameEngineState.battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
+                    100,
+                    100
+                )
+                gameEngineState.battleOrchestratorState.battleState.camera.xCoordinate =
+                    ScreenDimensions.SCREEN_WIDTH
+                gameEngineState.battleOrchestratorState.battleState.camera.yCoordinate =
+                    ScreenDimensions.SCREEN_HEIGHT
+
+                const initialCameraCoordinates =
+                    gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates()
+
+                const dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
+
+                playerInput(gameEngineState.playerInputState)
+                dateSpy.mockReturnValue(1000)
+                battleMapDisplay.update({
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsContext: mockedP5GraphicsContext,
+                })
+
+                expect(
+                    expectation(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .camera,
+                        initialCameraCoordinates
+                    )
+                ).toBeTruthy()
+            }
+        )
     })
 
     describe("it will change the camera velocity based on the mouse location", () => {
