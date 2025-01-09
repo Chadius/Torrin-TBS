@@ -104,6 +104,13 @@ export const LoadCampaignData = {
                         return campaignFileData
                     }
 
+                    if (
+                        filename ===
+                        "assets/campaign/theNewCampaign/campaign.json"
+                    ) {
+                        return campaignFileData
+                    }
+
                     if (filename === "assets/npcData/action_templates.json") {
                         return npcActionTemplates
                     }

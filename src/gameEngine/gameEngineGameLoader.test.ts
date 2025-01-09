@@ -56,7 +56,7 @@ describe("GameEngineGameLoader", () => {
     const campaignId = "coolCampaign"
 
     beforeEach(() => {
-        loader = new GameEngineGameLoader()
+        loader = new GameEngineGameLoader(campaignId)
 
         resourceHandler = mocks.mockResourceHandler(
             new MockedP5GraphicsBuffer()
@@ -91,7 +91,7 @@ describe("GameEngineGameLoader", () => {
 
     describe("loading the campaign", () => {
         it("loads the campaign first", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loadFileIntoFormatSpy).toBeCalledWith(
                 "assets/campaign/coolCampaign/campaign.json"
             )
@@ -121,7 +121,7 @@ describe("GameEngineGameLoader", () => {
                 ...Object.values(campaignFileData.resources.attributeIcons),
             ]
 
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(
                 gameEngineState.resourceHandler.areAllResourcesLoaded(
                     expectedResourceKeys
@@ -135,7 +135,7 @@ describe("GameEngineGameLoader", () => {
             ).toHaveLength(expectedResourceKeys.length)
         })
         it("knows it has not gotten resources yet", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
         it("knows it is not complete", async () => {
@@ -147,26 +147,26 @@ describe("GameEngineGameLoader", () => {
 
     describe("loading the mission", () => {
         it("asks the loader to load the mission", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loadFileIntoFormatSpy).toBeCalledWith(
                 "assets/campaign/coolCampaign/missions/0000.json"
             )
         })
 
         it("knows file has been loaded", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(
                 loader.missionLoaderContext.completionProgress.started
             ).toBeTruthy()
         })
 
         it("knows it has not gotten resources yet", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loader.appliedResources).toBeFalsy()
         })
 
         it("knows it is not complete", async () => {
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loader.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
@@ -175,7 +175,7 @@ describe("GameEngineGameLoader", () => {
                 .spyOn(console, "error")
                 .mockImplementation(() => {})
             loadFileIntoFormatSpy.mockRejectedValue("Error")
-            await loader.update(gameEngineState)
+            await loadCampaignAndMissionFromFiles(loader, gameEngineState)
             expect(loader.errorFoundWhileLoading).toBeTruthy()
             expect(consoleErrorSpy).toBeCalledWith(
                 expect.stringContaining("Error while loading campaign file")
@@ -192,12 +192,10 @@ describe("GameEngineGameLoader", () => {
         let squaddieRepositorySize: number
 
         beforeEach(async () => {
-            await loader.update(gameEngineState)
-            squaddieRepositorySize =
-                ObjectRepositoryService.getBattleSquaddieIterator(
-                    gameEngineState.repository
-                ).length
-            await loader.update(gameEngineState)
+            squaddieRepositorySize = await loadResources(
+                loader,
+                gameEngineState
+            )
         })
 
         it("should load resources into the handler", () => {
@@ -360,9 +358,10 @@ describe("GameEngineGameLoader", () => {
         let currentState: GameEngineState
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader()
+            loader = new GameEngineGameLoader(campaignId)
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
+                campaignId,
                 missionStatistics: {
                     ...MissionStatisticsService.new({}),
                     timeElapsedInMilliseconds: 1,
@@ -533,8 +532,7 @@ describe("GameEngineGameLoader", () => {
         })
 
         it("will mark the save as complete", async () => {
-            await loader.update(currentState)
-            await loader.update(currentState)
+            await loadResources(loader, currentState)
 
             expect(
                 currentState.fileState.loadSaveState.userRequestedLoad
@@ -617,9 +615,10 @@ describe("GameEngineGameLoader", () => {
         let currentState: GameEngineState
 
         beforeEach(() => {
-            loader = new GameEngineGameLoader()
+            loader = new GameEngineGameLoader(campaignId)
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
+                campaignId,
                 missionStatistics: {
                     ...MissionStatisticsService.new({}),
                     timeElapsedInMilliseconds: 1,
@@ -772,9 +771,7 @@ describe("GameEngineGameLoader", () => {
                 "isValid",
                 "get"
             ).mockReturnValue(false)
-            await loader.update(currentState)
-            await loader.update(currentState)
-            await loader.update(currentState)
+            await loadResources(loader, currentState)
             expect(
                 currentState.fileState.loadSaveState.applicationStartedLoad
             ).toBeFalsy()
@@ -815,17 +812,111 @@ describe("GameEngineGameLoader", () => {
             expect(loader.recommendStateChanges(currentState).nextMode).toBe(
                 GameModeEnum.TITLE_SCREEN
             )
-            expect(
-                currentState.fileState.loadSaveState.userRequestedLoad
-            ).toBeFalsy()
             openDialogSpy.mockRestore()
+        })
+
+        describe("Load a different campaign", () => {
+            let retrieveSpy: MockInstance
+
+            beforeEach(async () => {
+                await loadResources(loader, currentState)
+
+                loadedBattleSaveState = {
+                    ...DefaultBattleSaveState(),
+                    campaignId: "theNewCampaign",
+                    missionStatistics: {
+                        ...MissionStatisticsService.new({}),
+                        timeElapsedInMilliseconds: 1,
+                    },
+                    teams: [
+                        {
+                            id: "playerTeam",
+                            name: "Players",
+                            affiliation: SquaddieAffiliation.PLAYER,
+                            battleSquaddieIds: [],
+                            iconResourceKey: "",
+                        },
+                    ],
+                    cutsceneTriggerCompletion: [
+                        {
+                            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                            cutsceneId: "default_victory",
+                            systemReactedToTrigger: false,
+                        },
+                        {
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            cutsceneId: "introduction",
+                            systemReactedToTrigger: false,
+                            turn: 0,
+                        },
+                    ],
+                }
+                loader.reset(currentState)
+                retrieveSpy = vi
+                    .spyOn(SaveFile, "RetrieveFileContent")
+                    .mockResolvedValue(loadedBattleSaveState)
+                LoadSaveStateService.userRequestsLoad(
+                    currentState.fileState.loadSaveState
+                )
+            })
+
+            afterEach(() => {
+                retrieveSpy.mockRestore()
+            })
+
+            it("will read the file to figure out the campaign Id to load", async () => {
+                await reactToLoadRequest(loader, currentState)
+                await loadCampaignAndMissionFromFiles(loader, currentState)
+                expect(retrieveSpy).toBeCalled()
+                expect(openDialogSpy).toBeCalled()
+                expect(loader.loadedBattleSaveState).toEqual(
+                    loadedBattleSaveState
+                )
+                expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(
+                    "theNewCampaign"
+                )
+                retrieveSpy.mockRestore()
+            })
+
+            it("will try to load the campaign", async () => {
+                await reactToLoadRequest(loader, currentState)
+                await loadCampaignAndMissionFromFiles(loader, currentState)
+                expect(loadFileIntoFormatSpy).toBeCalledWith(
+                    "assets/campaign/theNewCampaign/campaign.json"
+                )
+            })
+
+            it("will clear the loading state once it has finished", async () => {
+                await reactToLoadRequest(loader, currentState)
+                await loadResources(loader, currentState)
+                expect(loader.finishedLoading).toBeTruthy()
+            })
+
+            it("will not change the campaign if the load fails", async () => {
+                const consoleErrorSpy = vi
+                    .spyOn(console, "error")
+                    .mockImplementation(() => {})
+                loadFileIntoFormatSpy.mockRejectedValue("Error")
+                await reactToLoadRequest(loader, currentState)
+                await loadCampaignAndMissionFromFiles(loader, currentState)
+                expect(consoleErrorSpy).toBeCalledWith(
+                    new Error("Loading campaign theNewCampaign failed")
+                )
+                expect(loader.campaignLoaderContext.campaignIdToLoad).toEqual(
+                    campaignId
+                )
+                expect(
+                    currentState.fileState.loadSaveState
+                        .applicationErroredWhileLoading
+                ).toBeTruthy()
+                consoleErrorSpy.mockRestore()
+            })
         })
     })
 
-    describe("reloading while game is in progress", () => {
+    describe("reloading the same campaign while game is in progress", () => {
         beforeEach(async () => {
-            await loader.update(gameEngineState)
-            await loader.update(gameEngineState)
+            await loadResources(loader, gameEngineState)
         })
 
         const resetLoaderAndClearBattleOrchestratorState = () => {
@@ -852,7 +943,7 @@ describe("GameEngineGameLoader", () => {
 
             resetLoaderAndClearBattleOrchestratorState()
 
-            await loader.update(gameEngineState)
+            await reactToLoadRequest(loader, gameEngineState)
             const missionMapCallsCount = 1
             const playerArmyCallsCount = 1
             const npcActionTemplatesCallsCount = 1
@@ -880,8 +971,7 @@ describe("GameEngineGameLoader", () => {
 
         it("will switch to battle mode once resources have finished loading", async () => {
             resetLoaderAndClearBattleOrchestratorState()
-            await loader.update(gameEngineState)
-            await loader.update(gameEngineState)
+            await loadResources(loader, gameEngineState)
             expect(loader.appliedResources).toBeTruthy()
             expect(loader.hasCompleted(gameEngineState)).toBeTruthy()
             expect(loader.recommendStateChanges(gameEngineState).nextMode).toBe(
@@ -890,3 +980,30 @@ describe("GameEngineGameLoader", () => {
         })
     })
 })
+
+const loadCampaignAndMissionFromFiles = async (
+    loader: GameEngineGameLoader,
+    gameEngineState: GameEngineState
+) => {
+    await loader.update(gameEngineState)
+}
+
+const reactToLoadRequest = async (
+    loader: GameEngineGameLoader,
+    gameEngineState: GameEngineState
+) => {
+    await loader.update(gameEngineState)
+}
+
+const loadResources = async (
+    loader: GameEngineGameLoader,
+    gameEngineState: GameEngineState
+) => {
+    await loadCampaignAndMissionFromFiles(loader, gameEngineState)
+    const squaddieRepositorySize =
+        ObjectRepositoryService.getBattleSquaddieIterator(
+            gameEngineState.repository
+        ).length
+    await loader.update(gameEngineState)
+    return squaddieRepositorySize
+}

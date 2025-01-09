@@ -45,54 +45,14 @@ export class GameEngineGameLoader implements GameEngineComponent {
     startedLoading: boolean
     finishedLoading: boolean
 
-    constructor() {
+    constructor(campaignIdToLoad: string) {
         this.resetInternalFields()
-        this.campaignLoaderContext.campaignIdToLoad = process.env.CAMPAIGN_ID
+        this.campaignLoaderContext.campaignIdToLoad = campaignIdToLoad
     }
 
     async update(state: GameEngineState) {
         if (this.startedLoading === false && this.finishedLoading === false) {
-            this.startedLoading = true
-            this.backupBattleOrchestratorState =
-                state.battleOrchestratorState.clone()
-
-            try {
-                await this.loadBattleSaveStateFromFile(state)
-            } catch {
-                this.errorFoundWhileLoading = true
-            }
-
-            if (this.errorFoundWhileLoading) {
-                return
-            }
-
-            if (isValidValue(state.repository)) {
-                ObjectRepositoryService.reset(state.repository)
-            }
-
-            if (
-                this.campaignLoaderContext &&
-                isValidValue(this.campaignLoaderContext.campaignIdToLoad)
-            ) {
-                this.resetBattleOrchestratorState(state.battleOrchestratorState)
-                await this.loadCampaignDataFromFile(
-                    this.campaignLoaderContext.campaignIdToLoad,
-                    state
-                )
-                    .then(async () => {
-                        await this.loadMissionDataFromFile(
-                            state.campaign,
-                            state,
-                            state.repository
-                        ).then(() => {
-                            this.finishedLoading = true
-                        })
-                    })
-                    .catch((err) => {
-                        this.errorFoundWhileLoading = true
-                        console.error(err)
-                    })
-            }
+            await this.attemptToLoadFile(state)
             return
         }
 
@@ -151,9 +111,6 @@ export class GameEngineGameLoader implements GameEngineComponent {
         state: GameEngineState
     ): GameEngineChanges | undefined {
         if (this.errorFoundWhileLoading) {
-            LoadSaveStateService.userFinishesRequestingLoad(
-                state.fileState.loadSaveState
-            )
             return {
                 nextMode:
                     state.modeThatInitiatedLoading !== GameModeEnum.UNKNOWN
@@ -304,6 +261,9 @@ export class GameEngineGameLoader implements GameEngineComponent {
         const campaignData =
             await CampaignLoaderService.loadCampaignFromFile(campaignId)
         if (!isValidValue(campaignData)) {
+            LoadSaveStateService.applicationErrorsWhileLoading(
+                gameEngineState.fileState.loadSaveState
+            )
             throw new Error(`Loading campaign ${campaignId} failed`)
         }
 
@@ -437,6 +397,54 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 this.errorFoundWhileLoading = true
                 console.error("Failed to load progress file from storage.")
                 console.error(reason)
+            })
+    }
+
+    private async attemptToLoadFile(gameEngineState: GameEngineState) {
+        this.startedLoading = true
+        this.backupBattleOrchestratorState =
+            gameEngineState.battleOrchestratorState.clone()
+
+        try {
+            await this.loadBattleSaveStateFromFile(gameEngineState)
+        } catch {
+            LoadSaveStateService.applicationErrorsWhileLoading(
+                gameEngineState.fileState.loadSaveState
+            )
+            this.errorFoundWhileLoading = true
+            return
+        }
+
+        if (!this.campaignLoaderContext) return
+
+        const campaignIdToLoad = isValidValue(
+            this.loadedBattleSaveState?.campaignId
+        )
+            ? this.loadedBattleSaveState?.campaignId
+            : this.campaignLoaderContext.campaignIdToLoad
+
+        if (!campaignIdToLoad) return
+
+        await this.loadCampaignDataFromFile(campaignIdToLoad, gameEngineState)
+            .then(async () => {
+                if (isValidValue(gameEngineState.repository)) {
+                    ObjectRepositoryService.reset(gameEngineState.repository)
+                }
+                this.resetBattleOrchestratorState(
+                    gameEngineState.battleOrchestratorState
+                )
+                this.campaignLoaderContext.campaignIdToLoad = campaignIdToLoad
+                await this.loadMissionDataFromFile(
+                    gameEngineState.campaign,
+                    gameEngineState,
+                    gameEngineState.repository
+                ).then(() => {
+                    this.finishedLoading = true
+                })
+            })
+            .catch((err) => {
+                this.errorFoundWhileLoading = true
+                console.error(err)
             })
     }
 }

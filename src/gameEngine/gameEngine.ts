@@ -202,7 +202,9 @@ export class GameEngine {
             resourceHandler: this.resourceHandler,
             version,
         })
-        this.gameEngineGameLoader = new GameEngineGameLoader()
+        this.gameEngineGameLoader = new GameEngineGameLoader(
+            process.env.CAMPAIGN_ID
+        )
         this.version = version
         this.resetComponentStates()
     }
