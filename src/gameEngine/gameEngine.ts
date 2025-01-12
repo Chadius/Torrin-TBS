@@ -53,6 +53,7 @@ import {
     PlayerInputState,
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
+import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum
@@ -189,7 +190,6 @@ export class GameEngine {
             squaddieUsesActionOnSquaddie:
                 new BattleSquaddieUsesActionOnSquaddie(),
             playerHudController: new PlayerHudController(),
-            version,
         })
 
         await this.lazyLoadResourceHandler({
@@ -368,6 +368,23 @@ export class GameEngine {
             playerDecisionHUDListener,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
         )
+
+        const playerDataMessageListener = new PlayerDataMessageListener(
+            "playerDataMessageListener"
+        )
+        ;[
+            MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
+        ].forEach((messageBoardMessageType) => {
+            this.gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                messageBoardMessageType
+            )
+        })
     }
 
     private async lazyLoadResourceHandler({

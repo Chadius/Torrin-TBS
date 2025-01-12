@@ -1,13 +1,13 @@
 import {
     BattleSaveState,
     BattleSaveStateService,
-} from "../battle/history/battleSaveState"
-import { ObjectRepositoryService } from "../battle/objectRepository"
-import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../battle/orchestrator/battleState"
-import { BattleCamera } from "../battle/battleCamera"
-import { NullMissionMap } from "../utils/test/battleOrchestratorState"
-import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
+} from "../../battle/history/battleSaveState"
+import { ObjectRepositoryService } from "../../battle/objectRepository"
+import { BattleOrchestratorStateService } from "../../battle/orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../../battle/orchestrator/battleState"
+import { BattleCamera } from "../../battle/battleCamera"
+import { NullMissionMap } from "../../utils/test/battleOrchestratorState"
+import { BattlePhase } from "../../battle/orchestratorComponents/battlePhaseTracker"
 import { LoadSaveState, LoadSaveStateService } from "./loadSaveState"
 import { beforeEach, describe, expect, it } from "vitest"
 
@@ -39,7 +39,6 @@ describe("Load SaveState", () => {
         const loadFlags = LoadSaveStateService.new({})
 
         expect(loadFlags.userRequestedLoad).toBeFalsy()
-        expect(loadFlags.applicationStartedLoad).toBeFalsy()
         expect(loadFlags.userCanceledLoad).toBeFalsy()
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy()
         expect(loadFlags.applicationCompletedLoad).toBeFalsy()
@@ -58,13 +57,6 @@ describe("Load SaveState", () => {
                 applicationErroredWhileLoading: true,
             })
             expect(loadFlags.applicationErroredWhileLoading).toBeTruthy()
-        })
-        it("applicationStartedLoad", () => {
-            const loadFlags = LoadSaveStateService.new({
-                applicationStartedLoad: true,
-            })
-
-            expect(loadFlags.applicationStartedLoad).toBeTruthy()
         })
         it("userCanceledLoad", () => {
             const loadFlags = LoadSaveStateService.new({
@@ -94,20 +86,12 @@ describe("Load SaveState", () => {
         expect(loadFlags.userRequestedLoad).toBeTruthy()
     })
 
-    it("knows when the application has started loading", () => {
-        const loadFlags = LoadSaveStateService.new({})
-        LoadSaveStateService.applicationStartsLoad(loadFlags)
-        expect(loadFlags.applicationStartedLoad).toBeTruthy()
-    })
-
     it("knows when the user has selected a file and process completed loading save state", () => {
         const loadFlags = LoadSaveStateService.new({
             userRequestedLoad: true,
-            applicationStartedLoad: true,
         })
         LoadSaveStateService.applicationCompletesLoad(loadFlags, saveState)
         expect(loadFlags.applicationCompletedLoad).toBeTruthy()
-        expect(loadFlags.applicationStartedLoad).toBeFalsy()
         expect(loadFlags.saveState).toEqual(saveState)
     })
 
@@ -118,7 +102,6 @@ describe("Load SaveState", () => {
         LoadSaveStateService.userCancelsLoad(loadFlags)
         expect(loadFlags.userCanceledLoad).toBeTruthy()
         expect(loadFlags.userRequestedLoad).toBeFalsy()
-        expect(loadFlags.applicationStartedLoad).toBeFalsy()
         expect(loadFlags.saveState).toBeUndefined()
     })
 
@@ -128,7 +111,6 @@ describe("Load SaveState", () => {
         })
         LoadSaveStateService.applicationErrorsWhileLoading(loadFlags)
         expect(loadFlags.applicationErroredWhileLoading).toBeTruthy()
-        expect(loadFlags.applicationStartedLoad).toBeFalsy()
         expect(loadFlags.userRequestedLoad).toBeTruthy()
         expect(loadFlags.saveState).toBeUndefined()
     })
@@ -137,7 +119,6 @@ describe("Load SaveState", () => {
         const loadFlags = LoadSaveStateService.new({
             userRequestedLoad: true,
             applicationErroredWhileLoading: true,
-            applicationStartedLoad: true,
             userCanceledLoad: true,
             applicationCompletedLoad: true,
             saveState: saveState,
@@ -146,7 +127,6 @@ describe("Load SaveState", () => {
         LoadSaveStateService.reset(loadFlags)
 
         expect(loadFlags.userRequestedLoad).toBeFalsy()
-        expect(loadFlags.applicationStartedLoad).toBeFalsy()
         expect(loadFlags.userCanceledLoad).toBeFalsy()
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy()
         expect(loadFlags.applicationCompletedLoad).toBeFalsy()
@@ -157,7 +137,6 @@ describe("Load SaveState", () => {
         const loadFlags = LoadSaveStateService.new({
             userRequestedLoad: true,
             applicationErroredWhileLoading: true,
-            applicationStartedLoad: true,
             userCanceledLoad: true,
             applicationCompletedLoad: true,
             saveState: saveState,
@@ -166,9 +145,6 @@ describe("Load SaveState", () => {
         const clone: LoadSaveState = LoadSaveStateService.clone(loadFlags)
 
         expect(clone.userRequestedLoad).toEqual(loadFlags.userRequestedLoad)
-        expect(clone.applicationStartedLoad).toEqual(
-            loadFlags.applicationStartedLoad
-        )
         expect(clone.userCanceledLoad).toEqual(loadFlags.userCanceledLoad)
         expect(clone.applicationErroredWhileLoading).toEqual(
             loadFlags.applicationErroredWhileLoading

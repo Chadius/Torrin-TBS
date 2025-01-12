@@ -7,6 +7,8 @@ import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrato
 import { PopupWindow } from "../battle/hud/popupWindow"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { ResourceHandler } from "../resource/resourceHandler"
+import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
+import { BattleSaveState } from "../battle/history/battleSaveState"
 
 export type MessageBoardMessage =
     | MessageBoardMessageBase
@@ -33,6 +35,12 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
     | MessageBoardMessageSquaddieTurnEnds
+    | MessageBoardMessagePlayerDataLoadUserRequest
+    | MessageBoardMessagePlayerDataLoadBegin
+    | MessageBoardMessagePlayerDataLoadComplete
+    | MessageBoardMessagePlayerDataLoadErrorDuring
+    | MessageBoardMessagePlayerDataLoadUserCancel
+    | MessageBoardMessagePlayerDataLoadFinishRequest
 
 export enum MessageBoardMessageType {
     BASE = "BASE",
@@ -59,6 +67,12 @@ export enum MessageBoardMessageType {
     PLAYER_CONFIRMS_DECISION_STEP_ACTOR = "PLAYER_CONFIRMS_DECISION_STEP_ACTOR",
     PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION = "PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION",
     SQUADDIE_TURN_ENDS = "SQUADDIE_TURN_ENDS",
+    PLAYER_DATA_LOAD_USER_REQUEST = "PLAYER_DATA_LOAD_USER_REQUEST",
+    PLAYER_DATA_LOAD_COMPLETE = "PLAYER_DATA_LOAD_COMPLETE",
+    PLAYER_DATA_LOAD_BEGIN = "PLAYER_DATA_LOAD_BEGIN",
+    PLAYER_DATA_LOAD_ERROR_DURING = "PLAYER_DATA_LOAD_ERROR_DURING",
+    PLAYER_DATA_LOAD_USER_CANCEL = "PLAYER_DATA_LOAD_USER_CANCEL",
+    PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD = "PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD",
 }
 
 export interface MessageBoardMessageBase {
@@ -207,4 +221,35 @@ export interface MessageBoardMessagePlayerControlledSquaddieNeedsNextAction {
 export interface MessageBoardMessageSquaddieTurnEnds {
     type: MessageBoardMessageType.SQUADDIE_TURN_ENDS
     gameEngineState: GameEngineState
+}
+
+export interface MessageBoardMessagePlayerDataLoadUserRequest {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+    loadSaveState: LoadSaveState
+}
+
+export interface MessageBoardMessagePlayerDataLoadBegin {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+    loadSaveState: LoadSaveState
+}
+
+export interface MessageBoardMessagePlayerDataLoadComplete {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+    loadSaveState: LoadSaveState
+    saveState: BattleSaveState
+}
+
+export interface MessageBoardMessagePlayerDataLoadErrorDuring {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
+    loadSaveState: LoadSaveState
+}
+
+export interface MessageBoardMessagePlayerDataLoadUserCancel {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL
+    loadSaveState: LoadSaveState
+}
+
+export interface MessageBoardMessagePlayerDataLoadFinishRequest {
+    type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
+    loadSaveState: LoadSaveState
 }

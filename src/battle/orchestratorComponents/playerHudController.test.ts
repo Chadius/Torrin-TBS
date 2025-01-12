@@ -72,7 +72,6 @@ describe("PlayerHUDController", () => {
 
         controller = new PlayerHudController()
         orchestrator = new BattleOrchestrator({
-            version: "TEST",
             computerSquaddieSelector: undefined,
             cutscenePlayer: undefined,
             initializeBattle: undefined,

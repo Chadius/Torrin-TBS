@@ -86,10 +86,12 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             gameEngineState
         )
-        FileAccessHUDService.updateStatusMessage(
-            gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
-            gameEngineState.fileState
-        )
+        FileAccessHUDService.updateStatusMessage({
+            fileAccessHUD:
+                gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
+            fileState: gameEngineState.fileState,
+            messageBoard: gameEngineState.messageBoard,
+        })
         FileAccessHUDService.draw(
             gameEngineState.battleOrchestratorState.battleHUD.fileAccessHUD,
             graphics

@@ -11,9 +11,11 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../gameEngine/gameEngine"
-import { LoadSaveState } from "../dataLoader/loadSaveState"
+import { LoadSaveState } from "../dataLoader/playerData/loadSaveState"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 
 describe("Title Screen", () => {
     let gameEngineState: GameEngineState
@@ -48,6 +50,13 @@ describe("Title Screen", () => {
             titleScreenState,
             resourceHandler: mockResourceHandler,
         })
+
+        const playerDataMessageListener: PlayerDataMessageListener =
+            new PlayerDataMessageListener("listener")
+        gameEngineState.messageBoard.addListener(
+            playerDataMessageListener,
+            MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+        )
     })
 
     it("will setup when called and generate a state", () => {

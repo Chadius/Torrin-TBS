@@ -31,7 +31,7 @@ import { GameEngineState, GameEngineStateService } from "./gameEngine"
 import { CutsceneService } from "../cutscene/cutscene"
 import { CampaignService } from "../campaign/campaign"
 import { CampaignFileFormat } from "../campaign/campaignFileFormat"
-import { LoadSaveStateService } from "../dataLoader/loadSaveState"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { BattleHUDService } from "../battle/hud/battleHUD"
 import { LoadCampaignData } from "../utils/fileHandling/loadCampaignData"
@@ -44,6 +44,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
+import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
 
 describe("GameEngineGameLoader", () => {
     let loader: GameEngineGameLoader
@@ -437,9 +439,16 @@ describe("GameEngineGameLoader", () => {
                 }),
                 campaign: CampaignService.default(),
             })
-            LoadSaveStateService.userRequestsLoad(
-                originalState.fileState.loadSaveState
+            const playerDataMessageListener: PlayerDataMessageListener =
+                new PlayerDataMessageListener("listener")
+            originalState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
             )
+            originalState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: originalState.fileState.loadSaveState,
+            })
             currentState = GameEngineStateService.new({
                 titleScreenState: { ...originalState.titleScreenState },
                 battleOrchestratorState:
@@ -458,6 +467,14 @@ describe("GameEngineGameLoader", () => {
             )
             currentState.campaignIdThatWasLoaded =
                 originalState.campaignIdThatWasLoaded
+            currentState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+            )
+            currentState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+            )
         })
 
         it("will backup the battle orchestrator gameEngineState", async () => {
@@ -465,6 +482,13 @@ describe("GameEngineGameLoader", () => {
             expect(loader.backupBattleOrchestratorState).toEqual(
                 originalState.battleOrchestratorState
             )
+        })
+
+        it("knows the user requested a save", async () => {
+            await loader.update(currentState)
+            expect(
+                currentState.fileState.loadSaveState.userRequestedLoad
+            ).toBeTruthy()
         })
 
         it("will try to begin retrieving file content", async () => {
@@ -657,9 +681,6 @@ describe("GameEngineGameLoader", () => {
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default(),
             })
-            LoadSaveStateService.userRequestsLoad(
-                originalState.fileState.loadSaveState
-            )
             currentState = GameEngineStateService.new({
                 repository: ObjectRepositoryService.new(),
                 previousMode: GameModeEnum.TITLE_SCREEN,
@@ -668,9 +689,24 @@ describe("GameEngineGameLoader", () => {
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default(),
             })
-            LoadSaveStateService.userRequestsLoad(
-                currentState.fileState.loadSaveState
+            const playerDataMessageListener: PlayerDataMessageListener =
+                new PlayerDataMessageListener("listener")
+            currentState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
             )
+            currentState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
+            )
+            currentState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE
+            )
+            currentState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: currentState.fileState.loadSaveState,
+            })
         })
 
         it("will try to begin retrieving file content", async () => {
@@ -801,9 +837,10 @@ describe("GameEngineGameLoader", () => {
             openDialogSpy = vi
                 .spyOn(SaveFile, "RetrieveFileContent")
                 .mockRejectedValue(null)
-            LoadSaveStateService.userRequestsLoad(
-                currentState.fileState.loadSaveState
-            )
+            currentState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: currentState.fileState.loadSaveState,
+            })
             await loader.update(currentState)
             await loader.update(currentState)
             expect(consoleErrorSpy).toBeCalled()
@@ -855,9 +892,10 @@ describe("GameEngineGameLoader", () => {
                 retrieveSpy = vi
                     .spyOn(SaveFile, "RetrieveFileContent")
                     .mockResolvedValue(loadedBattleSaveState)
-                LoadSaveStateService.userRequestsLoad(
-                    currentState.fileState.loadSaveState
-                )
+                currentState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                    loadSaveState: currentState.fileState.loadSaveState,
+                })
             })
 
             afterEach(() => {

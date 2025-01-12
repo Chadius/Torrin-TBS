@@ -21,7 +21,7 @@ import { BattleActionSquaddieChange } from "../history/battleAction/battleAction
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 
 export const MissionCutsceneService = {
-    FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat: (
+    findCutsceneTriggersToActivateBasedOnVictoryAndDefeat: (
         gameEngineState: GameEngineState,
         battleOrchestratorModeThatJustCompleted: BattleOrchestratorMode
     ): CutsceneTrigger[] => {
@@ -30,7 +30,7 @@ export const MissionCutsceneService = {
             battleOrchestratorModeThatJustCompleted
         )
     },
-    FindCutsceneTriggersToActivateOnStartOfPhase: ({
+    findCutsceneTriggersToActivateOnStartOfPhase: ({
         gameEngineState,
         battleOrchestratorModeThatJustCompleted,
         ignoreTurn0Triggers,
@@ -45,7 +45,7 @@ export const MissionCutsceneService = {
             ignoreTurn0Triggers,
         })
     },
-    FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction: ({
+    findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction: ({
         gameEngineState,
         squaddieChanges,
     }: {
@@ -275,7 +275,7 @@ export class CutsceneMessageListener implements MessageBoardListener {
         if (!squaddieChanges || squaddieChanges.length === 0) return
 
         const cutsceneTriggers =
-            MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+            MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                 {
                     gameEngineState: message.gameEngineState,
                     squaddieChanges,

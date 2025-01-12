@@ -21,12 +21,7 @@ import { BattleHUDStateService } from "../hud/battleHUDState"
 import { SummaryHUDStateService } from "../hud/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
-import {
-    PlayerInputAction,
-    PlayerInputStateService,
-} from "../../ui/playerInput/playerInputState"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
 
 describe("battleMapDisplay", () => {
     let battleMapDisplay: BattleMapDisplay

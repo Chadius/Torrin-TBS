@@ -172,7 +172,7 @@ describe("Mission Cutscene Service", () => {
                     ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
                     const info =
-                        MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                        MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                             victoryState,
                             mode
                         )
@@ -190,7 +190,7 @@ describe("Mission Cutscene Service", () => {
                     .battleCompletionStatus
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
             const info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                     victoryState,
                     BattleOrchestratorMode.CUTSCENE_PLAYER
                 )
@@ -205,7 +205,7 @@ describe("Mission Cutscene Service", () => {
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
             victoryCutsceneTrigger.systemReactedToTrigger = true
             const info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                     victoryState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
@@ -223,7 +223,7 @@ describe("Mission Cutscene Service", () => {
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
             const info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                     defeatState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
@@ -296,7 +296,7 @@ describe("Mission Cutscene Service", () => {
             ).toBe(BattleCompletionStatus.IN_PROGRESS)
 
             const info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+                MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                     defeatState,
                     BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE
                 )
@@ -354,7 +354,7 @@ describe("Mission Cutscene Service", () => {
 
         it("will check for any introductory cutscenes during phase 0", () => {
             let info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -364,7 +364,7 @@ describe("Mission Cutscene Service", () => {
             expect(info).toStrictEqual([turn0CutsceneTrigger])
 
             let info2 =
-                MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -376,7 +376,7 @@ describe("Mission Cutscene Service", () => {
 
         it("will remove phase 0 cutscene triggers", () => {
             let info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -389,7 +389,7 @@ describe("Mission Cutscene Service", () => {
 
         it("will not check for any turn starting cutscenes mid turn", () => {
             const info =
-                MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+                MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
                     {
                         gameEngineState: turn0State,
                         battleOrchestratorModeThatJustCompleted:
@@ -496,7 +496,7 @@ describe("Mission Cutscene Service", () => {
 
                 const finderSpy = vi.spyOn(
                     MissionCutsceneService,
-                    "FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
+                    "findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction"
                 )
                 gameEngineStateWithInjuryCutscene.battleOrchestratorState.battleState.cutsceneTriggers.push(
                     injuredCutsceneTrigger
@@ -570,7 +570,7 @@ describe("Mission Cutscene Service", () => {
                 )
 
                 expect(
-                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange],
@@ -605,7 +605,7 @@ describe("Mission Cutscene Service", () => {
                 )
 
                 expect(
-                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange1],
@@ -644,7 +644,7 @@ describe("Mission Cutscene Service", () => {
                 )
 
                 expect(
-                    MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                    MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                         {
                             gameEngineState: gameEngineStateWithInjuryCutscene,
                             squaddieChanges: [battleActionSquaddieChange2],
@@ -756,7 +756,7 @@ describe("Mission Cutscene Service", () => {
                             : []
 
                         expect(
-                            MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
+                            MissionCutsceneService.findCutsceneTriggersToActivateBasedOnSquaddieSquaddieAction(
                                 {
                                     gameEngineState:
                                         gameEngineStateWithInjuryCutscene,

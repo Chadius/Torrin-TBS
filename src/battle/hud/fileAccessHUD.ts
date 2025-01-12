@@ -10,12 +10,14 @@ import {
 } from "../../ui/constants"
 import { isValidValue } from "../../utils/validityCheck"
 import { SaveSaveStateService } from "../../dataLoader/saveSaveState"
-import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
+import { LoadSaveStateService } from "../../dataLoader/playerData/loadSaveState"
 import { GameEngineState } from "../../gameEngine/gameEngine"
 import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
 import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { FileState } from "../../gameEngine/fileState"
+import { MessageBoard } from "../../message/messageBoard"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 
 export enum FileAccessHUDMessage {
     SAVE_SUCCESS = "Saved!",
@@ -147,12 +149,14 @@ export const FileAccessHUDService = {
         mouseX,
         mouseY,
         fileState,
+        messageBoard,
     }: {
         fileAccessHUD: FileAccessHUD
         mouseButton: MouseButton
         mouseX: number
         mouseY: number
         fileState: FileState
+        messageBoard: MessageBoard
     }): boolean => {
         if (mouseButton !== MouseButton.ACCEPT) {
             return
@@ -163,6 +167,7 @@ export const FileAccessHUDService = {
             {
                 fileAccessHUD,
                 fileState,
+                messageBoard,
             }
         )
         const wasSaveButtonClicked = fileAccessHUD.saveButton.mouseClicked(
@@ -201,11 +206,20 @@ export const FileAccessHUDService = {
     updateButtonStatus: (fileAccessHUD: FileAccessHUD) => {
         changeButtonStatusBasedOnMessage(fileAccessHUD)
     },
-    updateStatusMessage: (
-        fileAccessHUD: FileAccessHUD,
+    updateStatusMessage: ({
+        fileAccessHUD,
+        fileState,
+        messageBoard,
+    }: {
+        fileAccessHUD: FileAccessHUD
         fileState: FileState
-    ): string => {
-        return updateStatusMessage(fileAccessHUD, fileState)
+        messageBoard: MessageBoard
+    }): string => {
+        return updateStatusMessage({
+            fileAccessHUD: fileAccessHUD,
+            fileState: fileState,
+            messageBoard: messageBoard,
+        })
     },
     draw: (fileAccessHUD: FileAccessHUD, graphicsContext: GraphicsBuffer) => {
         fileAccessHUD.loadButton.draw(graphicsContext)
@@ -219,10 +233,15 @@ export const FileAccessHUDService = {
     },
 }
 
-const updateStatusMessage = (
-    fileAccessHUD: FileAccessHUD,
+const updateStatusMessage = ({
+    fileAccessHUD,
+    fileState,
+    messageBoard,
+}: {
+    fileAccessHUD: FileAccessHUD
     fileState: FileState
-): string => {
+    messageBoard: MessageBoard
+}): string => {
     if (!didCurrentMessageExpire(fileAccessHUD)) {
         const messageToShow = calculateMessageToShow(fileState, fileAccessHUD)
         updateMessageLabel(fileAccessHUD, messageToShow)
@@ -241,7 +260,10 @@ const updateStatusMessage = (
             fileState.loadSaveState
         )
     ) {
-        LoadSaveStateService.userFinishesRequestingLoad(fileState.loadSaveState)
+        messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
+            loadSaveState: fileState.loadSaveState,
+        })
     }
     clearMessage(fileAccessHUD)
     enableButtons(fileAccessHUD)
@@ -253,8 +275,7 @@ const battleIsCurrentlySavingOrLoading = (caller: {
     fileState: FileState
 }) =>
     caller.fileState.saveSaveState.savingInProgress ||
-    caller.fileState.loadSaveState.userRequestedLoad ||
-    caller.fileState.loadSaveState.applicationStartedLoad
+    caller.fileState.loadSaveState.userRequestedLoad
 
 const clickedOnLoadButton = (
     mouseX: number,
@@ -263,12 +284,16 @@ const clickedOnLoadButton = (
     caller: {
         fileAccessHUD: FileAccessHUD
         fileState: FileState
+        messageBoard: MessageBoard
     }
 ): {} => {
     if (battleIsCurrentlySavingOrLoading(caller)) {
         return
     }
-    LoadSaveStateService.userRequestsLoad(caller.fileState.loadSaveState)
+    caller.messageBoard.sendMessage({
+        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+        loadSaveState: caller.fileState.loadSaveState,
+    })
     return undefined
 }
 
@@ -370,6 +395,7 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
             caller: {
                 fileAccessHUD: FileAccessHUD
                 fileState: FileState
+                messageBoard: MessageBoard
             }
         ): {} {
             return clickedOnLoadButton(mouseX, mouseY, button, caller)

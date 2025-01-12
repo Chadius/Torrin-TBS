@@ -14,7 +14,6 @@ import { MissionObjectiveHelper } from "../battle/missionResult/missionObjective
 import { MissionRewardType } from "../battle/missionResult/missionReward"
 import { MissionConditionType } from "../battle/missionResult/missionCondition"
 import { ObjectRepositoryService } from "../battle/objectRepository"
-import { LoadSaveStateService } from "../dataLoader/loadSaveState"
 import { ResourceLocator, ResourceType } from "../resource/resourceHandler"
 import * as DataLoader from "../dataLoader/dataLoader"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
@@ -299,9 +298,11 @@ describe("Game Engine", () => {
             })
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap =
                 NullMissionMap()
-            LoadSaveStateService.userRequestsLoad(
-                newGameEngine.gameEngineState.fileState.loadSaveState
-            )
+            newGameEngine.gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState:
+                    newGameEngine.gameEngineState.fileState.loadSaveState,
+            })
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives =
                 [
                     MissionObjectiveHelper.validateMissionObjective({

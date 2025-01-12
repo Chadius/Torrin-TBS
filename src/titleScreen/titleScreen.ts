@@ -18,7 +18,7 @@ import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TextBox, TextBoxService } from "../ui/textBox/textBox"
 import { Rectangle, RectangleHelper } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"
-import { LoadSaveStateService } from "../dataLoader/loadSaveState"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -27,6 +27,7 @@ import {
     PlayerInputAction,
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000
 
@@ -265,9 +266,12 @@ export class TitleScreen implements GameEngineComponent {
         }
     }
 
-    markGameToBeLoaded(state: GameEngineState): void {
-        LoadSaveStateService.reset(state.fileState.loadSaveState)
-        LoadSaveStateService.userRequestsLoad(state.fileState.loadSaveState)
+    markGameToBeLoaded(gameEngineState: GameEngineState): void {
+        LoadSaveStateService.reset(gameEngineState.fileState.loadSaveState)
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+            loadSaveState: gameEngineState.fileState.loadSaveState,
+        })
     }
 
     private draw(

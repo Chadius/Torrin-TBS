@@ -7,7 +7,10 @@ import { BattleCutscenePlayer } from "../orchestratorComponents/battleCutscenePl
 import { BattlePlayerSquaddieSelector } from "../orchestratorComponents/battlePlayerSquaddieSelector"
 import { BattleSquaddieMover } from "../orchestratorComponents/battleSquaddieMover"
 import { BattleMapDisplay } from "../orchestratorComponents/battleMapDisplay"
-import { BattlePhaseController } from "../orchestratorComponents/battlePhaseController"
+import {
+    BattlePhaseController,
+    BattlePhaseStateService,
+} from "../orchestratorComponents/battlePhaseController"
 import { BattleSquaddieUsesActionOnMap } from "../orchestratorComponents/battleSquaddieUsesActionOnMap"
 import { BattlePlayerSquaddieTarget } from "../orchestratorComponents/battlePlayerSquaddieTarget"
 import { ObjectRepositoryService } from "../objectRepository"
@@ -42,7 +45,6 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { LoadSaveStateService } from "../../dataLoader/loadSaveState"
 import { BattleHUDService } from "../hud/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
@@ -51,6 +53,8 @@ import { CutsceneQueueService } from "../cutscene/cutsceneIdQueue"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { PlayerDataMessageListener } from "../../dataLoader/playerData/playerDataMessageListener"
 
 describe("Battle Orchestrator", () => {
     type OrchestratorTestOptions = {
@@ -308,24 +312,24 @@ describe("Battle Orchestrator", () => {
 
     it("plays a cutscene at the start of the turn", () => {
         orchestrator = createOrchestrator({})
-        const turn0StateCutsceneId = "starting"
+        const turn1StateCutsceneId = "starting"
         const mockCutscene = CutsceneService.new({})
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
-                [turn0StateCutsceneId]: mockCutscene,
+                [turn1StateCutsceneId]: mockCutscene,
             },
         })
 
-        const turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger = {
+        const turn1CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger = {
             cutsceneId: "starting",
             triggeringEvent: TriggeringEvent.START_OF_TURN,
             systemReactedToTrigger: false,
-            turn: 0,
+            turn: 1,
         }
 
-        const turn0State: GameEngineState = GameEngineStateService.new({
+        const turn1State: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.new({
                 battleState: BattleStateService.newBattleState({
@@ -338,17 +342,17 @@ describe("Battle Orchestrator", () => {
                     }),
                     cutsceneCollection,
                     objectives: [],
-                    cutsceneTriggers: [turn0CutsceneTrigger],
+                    cutsceneTriggers: [turn1CutsceneTrigger],
                     battlePhaseState: {
-                        turnCount: 0,
+                        turnCount: 1,
                         currentAffiliation: BattlePhase.UNKNOWN,
                     },
                 }),
             }),
-            repository: undefined,
+            repository: ObjectRepositoryService.new(),
         })
 
-        orchestrator.update(turn0State, mockedP5GraphicsContext)
+        orchestrator.update(turn1State, mockedP5GraphicsContext)
         expect(orchestrator.getCurrentMode()).toBe(
             BattleOrchestratorMode.CUTSCENE_PLAYER
         )
@@ -356,7 +360,7 @@ describe("Battle Orchestrator", () => {
             mockBattleCutscenePlayer
         )
         expect(mockBattleCutscenePlayer.currentCutsceneId).toBe(
-            turn0StateCutsceneId
+            turn1StateCutsceneId
         )
     })
 
@@ -513,9 +517,6 @@ describe("Battle Orchestrator", () => {
             }),
             repository: ObjectRepositoryService.new(),
         })
-        LoadSaveStateService.applicationStartsLoad(
-            stateWithCutscene.fileState.loadSaveState
-        )
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext)
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined()
@@ -904,9 +905,13 @@ describe("Battle Orchestrator", () => {
                         ],
                         battleCompletionStatus:
                             BattleCompletionStatus.IN_PROGRESS,
+                        battlePhaseState: BattlePhaseStateService.new({
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.PLAYER,
+                        }),
                     }),
                 }),
-                repository: undefined,
+                repository: ObjectRepositoryService.new(),
             })
 
             orchestrator = createOrchestrator({
@@ -1193,37 +1198,55 @@ describe("Battle Orchestrator", () => {
                 .fn()
                 .mockReturnValue(new UIControlSettings({ pauseTimer: false }))
 
-            const state: GameEngineState = GameEngineStateService.new({
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.new({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        campaignId: "test campaign",
-                    }),
-                    battleHUD: BattleHUDService.new({}),
-                }),
-                repository: undefined,
-            })
+            const gameEngineState: GameEngineState = GameEngineStateService.new(
+                {
+                    resourceHandler: undefined,
+                    battleOrchestratorState: BattleOrchestratorStateService.new(
+                        {
+                            battleState: BattleStateService.newBattleState({
+                                missionId: "test mission",
+                                campaignId: "test campaign",
+                                battlePhaseState: BattlePhaseStateService.new({
+                                    turnCount: 0,
+                                    currentAffiliation: BattlePhase.PLAYER,
+                                }),
+                            }),
+                            battleHUD: BattleHUDService.new({}),
+                        }
+                    ),
+                    repository: undefined,
+                }
+            )
+            const playerDataMessageListener: PlayerDataMessageListener =
+                new PlayerDataMessageListener("listener")
+            gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+            )
 
             orchestrator = createOrchestrator({
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
             })
             expect(
-                state.battleOrchestratorState.battleState.missionStatistics
-                    .timeElapsedInMilliseconds
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics.timeElapsedInMilliseconds
             ).toBeUndefined()
 
-            orchestrator.update(state, mockedP5GraphicsContext)
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
 
             expect(
-                state.battleOrchestratorState.battleState.missionStatistics
-                    .timeElapsedInMilliseconds
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics.timeElapsedInMilliseconds
             ).toBe(0)
-            orchestrator.update(state, mockedP5GraphicsContext)
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
             expect(
-                state.battleOrchestratorState.battleState.missionStatistics
-                    .timeElapsedInMilliseconds
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics.timeElapsedInMilliseconds
             ).toBe(0)
 
             expect(orchestrator.getCurrentMode()).toBe(
@@ -1233,17 +1256,17 @@ describe("Battle Orchestrator", () => {
                 mockPlayerHudController
             )
             vi.spyOn(Date, "now").mockReturnValue(0)
-            orchestrator.update(state, mockedP5GraphicsContext)
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
             expect(
-                state.battleOrchestratorState.battleState.missionStatistics
-                    .timeElapsedInMilliseconds
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics.timeElapsedInMilliseconds
             ).toBe(0)
 
             vi.spyOn(Date, "now").mockReturnValue(100)
-            orchestrator.update(state, mockedP5GraphicsContext)
+            orchestrator.update(gameEngineState, mockedP5GraphicsContext)
             expect(
-                state.battleOrchestratorState.battleState.missionStatistics
-                    .timeElapsedInMilliseconds
+                gameEngineState.battleOrchestratorState.battleState
+                    .missionStatistics.timeElapsedInMilliseconds
             ).toBeGreaterThan(0)
         })
         const expectKeyEventsWillGoToMapDisplay = (
@@ -1294,13 +1317,32 @@ describe("Battle Orchestrator", () => {
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         campaignId: "test campaign",
+                        battlePhaseState: BattlePhaseStateService.new({
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.PLAYER,
+                        }),
                     }),
                 }),
-                repository: undefined,
+                repository: ObjectRepositoryService.new(),
             })
-            LoadSaveStateService.userRequestsLoad(
-                gameEngineState.fileState.loadSaveState
+            const playerDataMessageListener: PlayerDataMessageListener =
+                new PlayerDataMessageListener("listener")
+            gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST
             )
+            gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING
+            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
         })
 
         it("sets the completed flag if the user wants to load progress", () => {
@@ -1312,24 +1354,28 @@ describe("Battle Orchestrator", () => {
         })
 
         it("does not set the completed flag if loading has started", () => {
-            LoadSaveStateService.userRequestsLoad(
-                gameEngineState.fileState.loadSaveState
-            )
-            LoadSaveStateService.applicationStartsLoad(
-                gameEngineState.fileState.loadSaveState
-            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
 
             orchestrator.update(gameEngineState, mockedP5GraphicsContext)
             expect(orchestrator.hasCompleted(gameEngineState)).toBeFalsy()
         })
 
         it("does not set the completed flag if there is an error while loading", () => {
-            LoadSaveStateService.userRequestsLoad(
-                gameEngineState.fileState.loadSaveState
-            )
-            LoadSaveStateService.applicationErrorsWhileLoading(
-                gameEngineState.fileState.loadSaveState
-            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_REQUEST,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
 
             orchestrator.update(gameEngineState, mockedP5GraphicsContext)
             expect(orchestrator.hasCompleted(gameEngineState)).toBeFalsy()

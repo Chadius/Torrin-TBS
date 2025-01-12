@@ -88,6 +88,7 @@ export class BattlePlayerSquaddieSelector
             mouseY,
             mouseButton,
             fileState: gameEngineState.fileState,
+            messageBoard: gameEngineState.messageBoard,
         })
         if (fileAccessHudWasClicked) {
             return

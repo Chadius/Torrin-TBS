@@ -33,7 +33,8 @@ import {
     CampaignLoaderService,
 } from "../dataLoader/campaignLoader"
 import { CampaignResources } from "../campaign/campaignResources"
-import { LoadSaveStateService } from "../dataLoader/loadSaveState"
+import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
+import { MessageBoardMessageType } from "../message/messageBoardMessage"
 
 export class GameEngineGameLoader implements GameEngineComponent {
     campaignLoaderContext: CampaignLoaderContext
@@ -261,9 +262,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
         const campaignData =
             await CampaignLoaderService.loadCampaignFromFile(campaignId)
         if (!isValidValue(campaignData)) {
-            LoadSaveStateService.applicationErrorsWhileLoading(
-                gameEngineState.fileState.loadSaveState
-            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
             throw new Error(`Loading campaign ${campaignId} failed`)
         }
 
@@ -373,26 +375,31 @@ export class GameEngineGameLoader implements GameEngineComponent {
             return
         }
 
-        LoadSaveStateService.applicationStartsLoad(
-            gameEngineState.fileState.loadSaveState
-        )
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_DATA_LOAD_BEGIN,
+            loadSaveState: gameEngineState.fileState.loadSaveState,
+        })
+
         await SaveFile.RetrieveFileContent()
             .then((saveState: BattleSaveState) => {
                 this.loadedBattleSaveState = saveState
-                LoadSaveStateService.applicationCompletesLoad(
-                    gameEngineState.fileState.loadSaveState,
-                    this.loadedBattleSaveState
-                )
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_DATA_LOAD_COMPLETE,
+                    loadSaveState: gameEngineState.fileState.loadSaveState,
+                    saveState: this.loadedBattleSaveState,
+                })
             })
             .catch((reason) => {
                 if (reason === "user canceled") {
-                    LoadSaveStateService.userCancelsLoad(
-                        gameEngineState.fileState.loadSaveState
-                    )
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_DATA_LOAD_USER_CANCEL,
+                        loadSaveState: gameEngineState.fileState.loadSaveState,
+                    })
                 } else {
-                    LoadSaveStateService.applicationErrorsWhileLoading(
-                        gameEngineState.fileState.loadSaveState
-                    )
+                    gameEngineState.messageBoard.sendMessage({
+                        type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
+                        loadSaveState: gameEngineState.fileState.loadSaveState,
+                    })
                 }
                 this.errorFoundWhileLoading = true
                 console.error("Failed to load progress file from storage.")
@@ -408,9 +415,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
         try {
             await this.loadBattleSaveStateFromFile(gameEngineState)
         } catch {
-            LoadSaveStateService.applicationErrorsWhileLoading(
-                gameEngineState.fileState.loadSaveState
-            )
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_ERROR_DURING,
+                loadSaveState: gameEngineState.fileState.loadSaveState,
+            })
             this.errorFoundWhileLoading = true
             return
         }

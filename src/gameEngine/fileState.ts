@@ -5,7 +5,7 @@ import {
 import {
     LoadSaveState,
     LoadSaveStateService,
-} from "../dataLoader/loadSaveState"
+} from "../dataLoader/playerData/loadSaveState"
 
 export interface FileState {
     saveSaveState: SaveSaveState

@@ -89,7 +89,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         computerSquaddieSelector,
         playerHudController,
         initializeBattle,
-        version,
     }: {
         cutscenePlayer: BattleCutscenePlayer
         playerSquaddieSelector: BattlePlayerSquaddieSelector
@@ -103,7 +102,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         phaseController: BattlePhaseController
         playerHudController: PlayerHudController
         initializeBattle: InitializeBattle
-        version: string
     }) {
         this.cutscenePlayer = cutscenePlayer
         this.playerSquaddieSelector = playerSquaddieSelector
@@ -459,10 +457,10 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.mode = orchestrationChanges.nextMode || defaultNextMode
     }
 
-    private checkOnMissionCompletion = (
+    private checkOnMissionCompletion(
         orchestrationChanges: BattleOrchestratorChanges,
         gameEngineState: GameEngineState
-    ) => {
+    ) {
         if (orchestrationChanges.checkMissionObjectives === true) {
             let completionStatus: BattleCompletionStatus =
                 this.checkMissionCompleteStatus(gameEngineState)
@@ -473,11 +471,9 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    private getCutsceneTriggersToCalculate = (
-        gameEngineState: GameEngineState
-    ) => {
+    private getCutsceneTriggersToCalculate(gameEngineState: GameEngineState) {
         return [
-            ...MissionCutsceneService.FindCutsceneTriggersToActivateOnStartOfPhase(
+            ...MissionCutsceneService.findCutsceneTriggersToActivateOnStartOfPhase(
                 {
                     gameEngineState,
                     battleOrchestratorModeThatJustCompleted: this.mode,
@@ -488,14 +484,14 @@ export class BattleOrchestrator implements GameEngineComponent {
                             .battlePhaseState.turnCount === 0,
                 }
             ),
-            ...MissionCutsceneService.FindCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
+            ...MissionCutsceneService.findCutsceneTriggersToActivateBasedOnVictoryAndDefeat(
                 gameEngineState,
                 this.mode
             ),
         ]
     }
 
-    private prepareToPlayNextTriggeredCutscene = ({
+    private prepareToPlayNextTriggeredCutscene({
         cutsceneId,
         cutsceneTrigger,
         gameEngineState,
@@ -503,7 +499,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         cutsceneId: string
         cutsceneTrigger: CutsceneTrigger
         gameEngineState: GameEngineState
-    }) => {
+    }) {
         this.cutscenePlayer.startCutscene(cutsceneId, gameEngineState)
 
         if (cutsceneTrigger !== undefined) {
