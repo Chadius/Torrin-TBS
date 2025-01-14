@@ -104,4 +104,24 @@ export const CampaignResourcesService = {
             },
         }
     },
+    clone: (original: CampaignResources): CampaignResources => ({
+        missionMapMovementIconResourceKeys: {
+            ...original.missionMapMovementIconResourceKeys,
+        },
+        missionMapAttackIconResourceKeys: {
+            ...original.missionMapAttackIconResourceKeys,
+        },
+        missionAttributeIconResourceKeys: {
+            ...original.missionAttributeIconResourceKeys,
+        },
+        actionEffectSquaddieTemplateButtonIcons: {
+            ...original.actionEffectSquaddieTemplateButtonIcons,
+        },
+        mapTiles: {
+            resourceKeys: [...original.mapTiles.resourceKeys],
+            defaultByTerrainCost: { ...original.mapTiles.defaultByTerrainCost },
+        },
+        attributeComparisons: { ...original.attributeComparisons },
+        attributeIcons: { ...original.attributeIcons },
+    }),
 }

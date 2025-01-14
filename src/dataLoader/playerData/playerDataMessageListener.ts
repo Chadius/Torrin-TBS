@@ -40,6 +40,7 @@ export class PlayerDataMessageListener implements MessageBoardListener {
                 LoadSaveStateService.userFinishesRequestingLoad(
                     message.loadSaveState
                 )
+                LoadSaveStateService.reset(message.loadSaveState)
                 break
         }
     }

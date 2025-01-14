@@ -3,6 +3,7 @@ import * as mocks from "../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import {
+    LoadPlayerArmyFromFile,
     MissionFileFormat,
     NpcTeam,
     NpcTeamMissionDeployment,
@@ -26,12 +27,11 @@ import { SplashScreen } from "../../cutscene/splashScreen"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { LoadCampaignData } from "../../utils/fileHandling/loadCampaignData"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Mission Loader", () => {
     let resourceHandler: ResourceHandler
     let missionData: MissionFileFormat
-    let loadFileIntoFormatSpy: MockInstance
     let missionLoaderContext: MissionLoaderContext
     let objectRepository: ObjectRepository
     let enemyDemonSlitherTemplate: SquaddieTemplate
@@ -48,7 +48,6 @@ describe("Mission Loader", () => {
         resourceHandler.loadResource = vi.fn()
         resourceHandler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
         ;({
-            loadFileIntoFormatSpy,
             playerArmy,
             missionData,
             enemyDemonSlitherTemplate,
@@ -68,19 +67,14 @@ describe("Mission Loader", () => {
         ).toBeFalsy()
     })
 
-    describe("can load mission data from a file", () => {
+    describe("can apply mission data from a file", () => {
         beforeEach(async () => {
-            await MissionLoader.loadMissionFromFile({
+            await MissionLoader.applyMissionData({
+                missionData,
                 missionLoaderContext: missionLoaderContext,
-                campaignId: "coolCampaign",
-                missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,
             })
-        })
-
-        it("calls the loading function", () => {
-            expect(loadFileIntoFormatSpy).toBeCalled()
         })
 
         it("reports file loading was a success", () => {
@@ -436,12 +430,12 @@ describe("Mission Loader", () => {
 
     describe("can load player army information", () => {
         let initialPendingResourceListLength: number
+        let playerArmyData: PlayerArmy
 
         beforeEach(async () => {
-            await MissionLoader.loadMissionFromFile({
+            await MissionLoader.applyMissionData({
+                missionData,
                 missionLoaderContext: missionLoaderContext,
-                campaignId: "coolCampaign",
-                missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,
             })
@@ -449,9 +443,12 @@ describe("Mission Loader", () => {
             initialPendingResourceListLength =
                 missionLoaderContext.resourcesPendingLoading.length
 
-            await MissionLoader.loadPlayerArmyFromFile({
-                missionLoaderContext: missionLoaderContext,
+            playerArmyData = await LoadPlayerArmyFromFile()
+
+            await MissionLoader.loadPlayerSquaddieTemplatesFile({
+                playerArmyData,
                 resourceHandler,
+                missionLoaderContext,
                 objectRepository,
             })
         })
@@ -490,7 +487,7 @@ describe("Mission Loader", () => {
             })
         })
 
-        it("adds player squaddies to the repository", () => {
+        it("adds player squaddie templates to the repository", () => {
             const missionLoaderContextSquaddieTemplateIds: string[] =
                 Object.keys(missionLoaderContext.squaddieData.templates)
 
@@ -511,7 +508,12 @@ describe("Mission Loader", () => {
             )
         })
 
-        it("loads the required player deployments onto the map", () => {
+        it("loads the required player deployments onto the map", async () => {
+            await MissionLoader.createAndAddBattleSquaddies({
+                playerArmyData,
+                objectRepository,
+            })
+
             missionData.player.deployment.required.forEach(
                 (requiredDeployment) => {
                     const coordinateDescriptor =
@@ -583,7 +585,7 @@ describe("Mission Loader", () => {
             .mockImplementation((_: string) => {
                 return false
             })
-        MissionLoader.checkResourcesPendingLoading({
+        MissionLoader.updateStatusOnMissionLoaderContextResources({
             missionLoaderContext,
             resourceHandler,
         })
@@ -598,7 +600,7 @@ describe("Mission Loader", () => {
             .mockImplementation((resourceKey: string) => {
                 return resourceKey === "A"
             })
-        MissionLoader.checkResourcesPendingLoading({
+        MissionLoader.updateStatusOnMissionLoaderContextResources({
             missionLoaderContext,
             resourceHandler,
         })
@@ -609,7 +611,7 @@ describe("Mission Loader", () => {
             .mockImplementation((_: string) => {
                 return true
             })
-        MissionLoader.checkResourcesPendingLoading({
+        MissionLoader.updateStatusOnMissionLoaderContextResources({
             missionLoaderContext,
             resourceHandler,
         })
@@ -622,10 +624,9 @@ describe("Mission Loader", () => {
                 .fn()
                 .mockReturnValue({ width: 1, height: 1 })
 
-            await MissionLoader.loadMissionFromFile({
+            await MissionLoader.applyMissionData({
+                missionData,
                 missionLoaderContext: missionLoaderContext,
-                campaignId: "coolCampaign",
-                missionId: "0000",
                 resourceHandler,
                 objectRepository: objectRepository,
             })

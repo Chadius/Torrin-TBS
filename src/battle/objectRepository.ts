@@ -91,6 +91,7 @@ export const ObjectRepositoryService = {
     > => {
         const battleSquaddie: BattleSquaddie =
             repo.battleSquaddies[battleSquaddieId]
+
         if (!battleSquaddie) {
             return makeError(
                 new Error(

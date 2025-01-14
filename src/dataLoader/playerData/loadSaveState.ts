@@ -72,19 +72,7 @@ export const LoadSaveStateService = {
         loadSaveState.userRequestedLoad = false
         loadSaveState.saveState = undefined
     },
-    reset: (loadSaveState: LoadSaveState): void => {
-        Object.assign(
-            loadSaveState,
-            newLoadSaveState({
-                saveState: undefined,
-                applicationStartedLoad: false,
-                applicationErroredWhileLoading: false,
-                applicationCompletedLoad: false,
-                userRequestedLoad: false,
-                userCanceledLoad: false,
-            })
-        )
-    },
+    reset: (loadSaveState: LoadSaveState): void => reset(loadSaveState),
     clone: (loadFlags: LoadSaveState): LoadSaveState => {
         return newLoadSaveState({
             ...loadFlags,
@@ -127,4 +115,18 @@ const newLoadSaveState = ({
         userRequestedLoad: userRequestedLoad,
         userCanceledLoad,
     }
+}
+
+const reset = (loadSaveState: LoadSaveState): void => {
+    Object.assign(
+        loadSaveState,
+        newLoadSaveState({
+            saveState: undefined,
+            applicationStartedLoad: false,
+            applicationErroredWhileLoading: false,
+            applicationCompletedLoad: false,
+            userRequestedLoad: false,
+            userCanceledLoad: false,
+        })
+    )
 }

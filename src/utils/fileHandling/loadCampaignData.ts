@@ -54,6 +54,13 @@ export const LoadCampaignData = {
 
                     if (
                         filename ===
+                        `assets/campaign/theNewCampaign/missions/0000.json`
+                    ) {
+                        return missionData
+                    }
+
+                    if (
+                        filename ===
                         "assets/playerArmy/young_torrin/base-squaddie-template.json"
                     ) {
                         return baseSquaddieTemplatesById["young_torrin"]
@@ -108,7 +115,10 @@ export const LoadCampaignData = {
                         filename ===
                         "assets/campaign/theNewCampaign/campaign.json"
                     ) {
-                        return campaignFileData
+                        return {
+                            ...campaignFileData,
+                            id: "theNewCampaign",
+                        }
                     }
 
                     if (filename === "assets/npcData/action_templates.json") {

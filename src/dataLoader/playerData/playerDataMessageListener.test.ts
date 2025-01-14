@@ -158,5 +158,26 @@ describe("Player Data Message Listener", () => {
             })
             expect(spy).toHaveBeenCalledWith(loadSaveState, saveState)
         })
+
+        it("completely resets the state when the service finishes", () => {
+            const newSaveSate = LoadSaveStateService.new({})
+
+            messageBoard.addListener(
+                playerDataMessageListener,
+                MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
+            )
+            const loadSaveState = LoadSaveStateService.new({
+                userRequestedLoad: true,
+                userCanceledLoad: true,
+                applicationStartedLoad: true,
+                applicationErroredWhileLoading: true,
+                applicationCompletedLoad: true,
+            })
+            messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD,
+                loadSaveState,
+            })
+            expect(loadSaveState).toEqual(newSaveSate)
+        })
     })
 })

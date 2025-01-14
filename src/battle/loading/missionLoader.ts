@@ -1,8 +1,6 @@
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
 import {
-    LoadMissionFromFile,
-    LoadPlayerArmyFromFile,
     MissionFileFormat,
     MissionLoaderService,
     NpcTeamMissionDeployment,
@@ -35,7 +33,6 @@ import { BattleCamera } from "../battleCamera"
 import { CutsceneService } from "../../cutscene/cutscene"
 import { LoadFileIntoFormat } from "../../dataLoader/dataLoader"
 import { PlayerArmy } from "../../campaign/playerArmy"
-import { SquaddieResource } from "../../squaddie/resource"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { isValidValue } from "../../utils/validityCheck"
 import p5 from "p5"
@@ -103,25 +100,18 @@ export const MissionLoader = {
             },
         }
     },
-    loadMissionFromFile: async ({
+    applyMissionData: async ({
+        missionData,
         missionLoaderContext,
-        missionId,
-        campaignId,
         resourceHandler,
         objectRepository,
     }: {
+        missionData: MissionFileFormat
         missionLoaderContext: MissionLoaderContext
-        missionId: string
-        campaignId: string
         resourceHandler: ResourceHandler
         objectRepository: ObjectRepository
     }) => {
         missionLoaderContext.completionProgress.started = true
-        const missionData: MissionFileFormat = await LoadMissionFromFile(
-            campaignId,
-            missionId
-        )
-
         missionLoaderContext.id = missionData.id
 
         missionLoaderContext.missionMap = MissionMapService.new({
@@ -193,7 +183,7 @@ export const MissionLoader = {
             resourceHandler,
         })
     },
-    checkResourcesPendingLoading: ({
+    updateStatusOnMissionLoaderContextResources: ({
         missionLoaderContext,
         resourceHandler,
     }: {
@@ -225,16 +215,17 @@ export const MissionLoader = {
             resourceHandler,
         })
     },
-    loadPlayerArmyFromFile: async ({
+    loadPlayerSquaddieTemplatesFile: async ({
+        playerArmyData,
         resourceHandler,
         missionLoaderContext,
         objectRepository,
     }: {
+        playerArmyData: PlayerArmy
         resourceHandler: ResourceHandler
         missionLoaderContext: MissionLoaderContext
         objectRepository: ObjectRepository
     }) => {
-        const playerArmyData: PlayerArmy = await LoadPlayerArmyFromFile()
         const baseSquaddieTemplates: SquaddieTemplate[] = []
         for (const build of playerArmyData.squaddieBuilds) {
             baseSquaddieTemplates.push(
@@ -252,15 +243,36 @@ export const MissionLoader = {
         })
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
-            const resources = squaddieTemplate.squaddieId.resources
             loadSquaddieTemplateResources({
                 template: squaddieTemplate,
                 missionLoaderContext,
-                resources,
                 resourceHandler,
                 objectRepository,
             })
         })
+
+        baseSquaddieTemplates.forEach((squaddieTemplate) => {
+            ObjectRepositoryService.addSquaddieTemplate(
+                objectRepository,
+                squaddieTemplate
+            )
+        })
+    },
+    createAndAddBattleSquaddies: async ({
+        playerArmyData,
+        objectRepository,
+    }: {
+        playerArmyData: PlayerArmy
+        objectRepository: ObjectRepository
+    }) => {
+        const baseSquaddieTemplates: SquaddieTemplate[] = []
+        for (const build of playerArmyData.squaddieBuilds) {
+            baseSquaddieTemplates.push(
+                await MissionLoaderService.loadBaseSquaddieTemplateBySquaddieTemplateId(
+                    build.squaddieTemplateId
+                )
+            )
+        }
 
         baseSquaddieTemplates.forEach((squaddieTemplate) => {
             const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
@@ -271,24 +283,21 @@ export const MissionLoader = {
                 squaddieTemplate,
             })
 
-            ObjectRepositoryService.addSquaddie({
-                repo: objectRepository,
-                squaddieTemplate,
-                battleSquaddie: battleSquaddie,
-            })
+            ObjectRepositoryService.addBattleSquaddie(
+                objectRepository,
+                battleSquaddie
+            )
         })
     },
 }
 
 const loadSquaddieTemplateResources = ({
     missionLoaderContext,
-    resources,
     resourceHandler,
     template,
     objectRepository,
 }: {
     missionLoaderContext: MissionLoaderContext
-    resources: SquaddieResource
     resourceHandler: ResourceHandler
     template: SquaddieTemplate
     objectRepository: ObjectRepository
@@ -390,7 +399,7 @@ const initializeCutscenes = ({
 }) => {
     Object.entries(
         missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById
-    ).forEach(([id, cutscene]) => {
+    ).forEach(([_, cutscene]) => {
         CutsceneService.setResources(cutscene, resourceHandler)
     })
 }
@@ -472,12 +481,12 @@ const loadAndPrepareNPCTemplateData = async ({
         return
     }
     loaderLock.locked = true
-
-    let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {}
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(
         Object.keys(missionLoaderContext.squaddieData.templates)
     )
-    loadedTemplatesById = { ...loadedNPCTemplatesById }
+    let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {
+        ...loadedNPCTemplatesById,
+    }
 
     Object.values(loadedTemplatesById).forEach((template) => {
         SquaddieTemplateService.sanitize(template)

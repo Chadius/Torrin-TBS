@@ -278,9 +278,9 @@ const battleIsCurrentlySavingOrLoading = (caller: {
     caller.fileState.loadSaveState.userRequestedLoad
 
 const clickedOnLoadButton = (
-    mouseX: number,
-    mouseY: number,
-    button: Button,
+    _mouseX: number,
+    _mouseY: number,
+    _button: Button,
     caller: {
         fileAccessHUD: FileAccessHUD
         fileState: FileState
@@ -298,9 +298,9 @@ const clickedOnLoadButton = (
 }
 
 const clickedOnSaveButton = (
-    mouseX: number,
-    mouseY: number,
-    button: Button,
+    _mouseX: number,
+    _mouseY: number,
+    _button: Button,
     caller: {
         fileAccessHUD: FileAccessHUD
         fileState: FileState
@@ -321,10 +321,10 @@ const createUIObjects = (fileAccessHUD: FileAccessHUD) => {
     })
     fileAccessHUD.loadButton = new Button({
         onMoveHandler(
-            mouseX: number,
-            mouseY: number,
-            button: Button,
-            caller: any
+            _mouseX: number,
+            _mouseY: number,
+            _button: Button,
+            _caller: any
         ): {} {
             return {}
         },
@@ -530,7 +530,7 @@ const didCurrentMessageExpire = (fileAccessHUD: FileAccessHUD) => {
 
 const calculateMessageToShow = (
     fileState: FileState,
-    fileAccessHUD: FileAccessHUD
+    _fileAccessHUD: FileAccessHUD
 ): string => {
     const messageChecks: { [key in FileAccessHUDMessage]?: boolean } = {
         [FileAccessHUDMessage.SAVE_IN_PROGRESS]:
