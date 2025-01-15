@@ -226,6 +226,7 @@ describe("Squaddie Service", () => {
             expect(damageExplanation.raw).toBe(1)
             expect(damageExplanation.absorbed).toBe(1)
             expect(damageExplanation.net).toBe(0)
+            expect(damageExplanation.willKo).toBeFalsy()
 
             let { maxHitPoints, currentHitPoints } =
                 SquaddieService.getHitPoints({

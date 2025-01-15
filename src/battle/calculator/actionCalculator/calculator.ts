@@ -466,6 +466,7 @@ const forecastCalculatedEffectAndReturnChange = ({
             raw: calculatedEffect.damage.raw,
             absorbed: calculatedEffect.damage.absorbed,
             net: calculatedEffect.damage.net,
+            willKo: inBattleAttributesToChange.currentHitPoints <= 0,
         }),
         actorDegreeOfSuccess: calculatedEffect.degreeOfSuccess,
         attributesBefore: changes.attributesBefore,

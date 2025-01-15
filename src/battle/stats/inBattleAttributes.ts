@@ -61,6 +61,7 @@ export const InBattleAttributesService = {
             net: startingHitPoints - inBattleAttributes.currentHitPoints,
             raw: damageToTake,
             absorbed: absorbedDamageExplanation.absorbed,
+            willKo: inBattleAttributes.currentHitPoints <= 0,
         }
     },
     receiveHealing(data: InBattleAttributes, amountHealed: number): number {

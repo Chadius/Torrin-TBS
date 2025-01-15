@@ -524,7 +524,7 @@ describe("calculator", () => {
             expect(missionStatistics.damageDealtByPlayerTeam).toBe(2)
         })
 
-        it("will record the damage dealt to the player to mission statistics", () => {
+        it("will record the damage taken by the player to mission statistics", () => {
             const missionStatistics: MissionStatistics =
                 MissionStatisticsService.new({})
             MissionStatisticsService.reset(missionStatistics)
@@ -593,6 +593,24 @@ describe("calculator", () => {
                             DegreeOfSuccess.SUCCESS
                     )
                 ).not.toBeUndefined()
+            })
+
+            it("will note the attack was fatal if it deals more damage than the target hit points", () => {
+                enemy1BattleSquaddie.inBattleAttributes.currentHitPoints = 1
+                forecast = forecastBodyDamage({
+                    currentlySelectedAction:
+                        actionNeedsAnAttackRollToDealBodyDamage,
+                })
+                const successForecast =
+                    forecast.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.actorDegreeOfSuccess ===
+                            DegreeOfSuccess.SUCCESS
+                    )
+                expect(successForecast.damage.net).toBeGreaterThanOrEqual(
+                    enemy1BattleSquaddie.inBattleAttributes.currentHitPoints
+                )
+                expect(successForecast.damage.willKo).toBeTruthy()
             })
         })
     })

@@ -40,7 +40,7 @@ describe("inBattleAttributes", () => {
             soldierAttributes.maxHitPoints
         )
     })
-    it("takes damage", () => {
+    it("takes less damage than current hit points", () => {
         const soldierAttributes: ArmyAttributes = ArmyAttributesService.new({
             maxHitPoints: 3,
             movement: SquaddieMovementService.new({
@@ -60,6 +60,7 @@ describe("inBattleAttributes", () => {
         expect(damageExplanation.net).toBe(2)
         expect(damageExplanation.raw).toBe(2)
         expect(damageExplanation.absorbed).toBe(0)
+        expect(damageExplanation.willKo).toBeFalsy()
         expect(inBattleAttributes.currentHitPoints).toBe(
             soldierAttributes.maxHitPoints - damageExplanation.net
         )
@@ -82,6 +83,7 @@ describe("inBattleAttributes", () => {
             })
 
         expect(actualDamageTaken.net).toBe(soldierAttributes.maxHitPoints)
+        expect(actualDamageTaken.willKo).toBeTruthy()
         expect(inBattleAttributes.currentHitPoints).toBe(0)
     })
     it("receive healing up to maximum", () => {
@@ -103,7 +105,6 @@ describe("inBattleAttributes", () => {
             inBattleAttributes,
             9001
         )
-
         expect(actualAmountHealed).toBe(2)
         expect(inBattleAttributes.currentHitPoints).toBe(
             soldierAttributes.maxHitPoints
@@ -924,6 +925,7 @@ describe("inBattleAttributes", () => {
             expect(damageExplanation.net).toBe(0)
             expect(damageExplanation.raw).toBe(1)
             expect(damageExplanation.absorbed).toBe(1)
+            expect(damageExplanation.willKo).toBeFalsy()
 
             const absorbAttribute =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(
@@ -946,6 +948,7 @@ describe("inBattleAttributes", () => {
             expect(damageExplanation.net).toBe(2)
             expect(damageExplanation.raw).toBe(5)
             expect(damageExplanation.absorbed).toBe(3)
+            expect(damageExplanation.willKo).toBeFalsy()
 
             const absorbAttribute =
                 InBattleAttributesService.calculateCurrentAttributeModifiers(

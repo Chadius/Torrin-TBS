@@ -27,6 +27,7 @@ import {
     AttributeTypeAndAmount,
     AttributeTypeService,
 } from "../../../../../../squaddie/attribute/attributeType"
+import { DegreeOfSuccess } from "../../../../../calculator/actionCalculator/degreeOfSuccess"
 
 export class CreateNextEffectsOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
@@ -168,7 +169,12 @@ const generateEffectMessageForFoe = (
         )
 
     if (
-        (triesToDealDamage && !dealsDamage) ||
+        (triesToDealDamage &&
+            !dealsDamage &&
+            [
+                DegreeOfSuccess.CRITICAL_SUCCESS,
+                DegreeOfSuccess.SUCCESS,
+            ].includes(forecastedChange.actorDegreeOfSuccess)) ||
         (!triesToDealDamage && attributeModifierDifferences.length === 0)
     ) {
         return "NO DAMAGE"
@@ -179,8 +185,10 @@ const generateEffectMessageForFoe = (
         attributeModifierDifferences,
         messageToShow
     )
-    if (dealsDamage) {
+    if (dealsDamage && !forecastedChange.damage.willKo) {
         messageToShow += `${forecastedChange.damage.net} damage`
+    } else if (dealsDamage && forecastedChange.damage.willKo) {
+        messageToShow += `KO!`
     }
     return messageToShow
 }
@@ -201,6 +209,12 @@ const generateEffectMessageForFriendAndSelf = (
         InBattleAttributesService.calculateAttributeModifiersGainedAfterChanges(
             forecastedChange.attributesBefore,
             forecastedChange.attributesAfter
+        ).filter((attributeTypeAndAmount) =>
+            actionTemplate.actionEffectTemplates.some((actionEffectTemplate) =>
+                actionEffectTemplate.attributeModifiers.some(
+                    (modifier) => modifier.type === attributeTypeAndAmount.type
+                )
+            )
         )
 
     if (

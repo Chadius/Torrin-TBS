@@ -9,6 +9,7 @@ export interface DamageExplanation {
     raw: number
     absorbed: number
     net: number
+    willKo: boolean
 }
 
 export const DamageExplanationService = {
@@ -16,14 +17,17 @@ export const DamageExplanationService = {
         raw,
         absorbed,
         net,
+        willKo,
     }: {
         raw?: number
         absorbed?: number
         net?: number
+        willKo?: boolean
     }): DamageExplanation => ({
         raw: raw ?? 0,
         absorbed: absorbed ?? 0,
         net: net ?? 0,
+        willKo: willKo ?? false,
     }),
 }
 
