@@ -10,7 +10,7 @@ import {
     PopupWindow,
     PopupWindowService,
     PopupWindowStatus,
-} from "../popupWindow"
+} from "../popupWindow/popupWindow"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 

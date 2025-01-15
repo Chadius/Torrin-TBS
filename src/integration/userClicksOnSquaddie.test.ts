@@ -42,13 +42,13 @@ import {
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
-import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository

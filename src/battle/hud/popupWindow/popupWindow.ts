@@ -1,17 +1,17 @@
-import { Label, LabelService } from "../../ui/label"
-import { RectAreaService } from "../../ui/rectArea"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { BattleCamera } from "../battleCamera"
-import { isValidValue } from "../../utils/validityCheck"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { Label, LabelService } from "../../../ui/label"
+import { RectAreaService } from "../../../ui/rectArea"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import { BattleCamera } from "../../battleCamera"
+import { isValidValue } from "../../../utils/validityCheck"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     WARNING_POPUP_TEXT_CONSTANTS,
-} from "../../cutscene/dialogue/constants"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+} from "../../../cutscene/dialogue/constants"
+import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
+import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 
 export interface PopupWindow {
     status: PopupWindowStatus

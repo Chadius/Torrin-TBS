@@ -39,9 +39,8 @@ import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestr
 import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
-import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
@@ -61,6 +60,7 @@ import {
     vi,
 } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("User cancels the previewed action", () => {
     let objectRepository: ObjectRepository
@@ -568,7 +568,6 @@ const getGameEngineState = ({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
-        resourceHandler: gameEngineState.resourceHandler,
         objectRepository: gameEngineState.repository,
         gameEngineState,
     })

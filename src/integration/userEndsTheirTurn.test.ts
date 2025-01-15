@@ -54,7 +54,6 @@ import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
 import { MouseButton, MouseClickService } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import {
@@ -66,6 +65,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository

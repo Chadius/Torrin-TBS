@@ -11,8 +11,8 @@ import { MissionConditionType } from "../missionResult/missionCondition"
 import { BattleState, BattleStateService } from "./battleState"
 import { FixedNumberGenerator } from "../numberGenerator/fixed"
 import { RandomNumberGenerator } from "../numberGenerator/random"
-import { BattleHUDStateService } from "../hud/battleHUDState"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("orchestratorState", () => {

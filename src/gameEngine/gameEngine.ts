@@ -40,7 +40,6 @@ import { isValidValue } from "../utils/validityCheck"
 import { SaveSaveStateService } from "../dataLoader/saveSaveState"
 import { FileState, FileStateService } from "./fileState"
 import { MessageBoard } from "../message/messageBoard"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { PlayerHudController } from "../battle/orchestratorComponents/playerHudController"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -54,6 +53,7 @@ import {
     PlayerInputStateService,
 } from "../ui/playerInput/playerInputState"
 import { PlayerDataMessageListener } from "../dataLoader/playerData/playerDataMessageListener"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum

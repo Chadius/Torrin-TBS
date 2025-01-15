@@ -1,8 +1,12 @@
-import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
-import { getValidValueOrDefault, isValidValue } from "../../utils/validityCheck"
-import { MessageBoardListener } from "../../message/messageBoardListener"
 import {
-    MessageBoardMessage,
+    FileAccessHUD,
+    FileAccessHUDService,
+} from "../fileAccess/fileAccessHUD"
+import {
+    getValidValueOrDefault,
+    isValidValue,
+} from "../../../utils/validityCheck"
+import {
     MessageBoardMessageMoveSquaddieToCoordinate,
     MessageBoardMessagePlayerCancelsSquaddieSelection,
     MessageBoardMessagePlayerCancelsTargetConfirmation,
@@ -17,51 +21,51 @@ import {
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
     SquaddieSelectionMethod,
-} from "../../message/messageBoardMessage"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ObjectRepositoryService } from "../objectRepository"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { MissionMapService } from "../../missionMap/missionMap"
-import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
+} from "../../../message/messageBoardMessage"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { MissionMapService } from "../../../missionMap/missionMap"
+import { ConvertCoordinateService } from "../../../hexMap/convertCoordinates"
+import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
-} from "../actionDecision/battleActionDecisionStep"
-import { HIGHLIGHT_PULSE_COLOR } from "../../hexMap/hexDrawingUtils"
-import { TargetingResultsService } from "../targeting/targetingService"
-import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
+} from "../../actionDecision/battleActionDecisionStep"
+import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
+import { TargetingResultsService } from "../../targeting/targetingService"
+import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
 import {
     CoordinateSystem,
     HexCoordinate,
-} from "../../hexMap/hexCoordinate/hexCoordinate"
-import { SquaddieService } from "../../squaddie/squaddieService"
-import { SummaryHUDStateService } from "./summaryHUD"
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { SquaddieService } from "../../../squaddie/squaddieService"
+import { SummaryHUDStateService } from "../summary/summaryHUD"
 import {
     BattleAction,
     BattleActionService,
-} from "../history/battleAction/battleAction"
-import { SquaddieTurnService } from "../../squaddie/turn"
-import { ActionCalculator } from "../calculator/actionCalculator/calculator"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+} from "../../history/battleAction/battleAction"
+import { SquaddieTurnService } from "../../../squaddie/turn"
+import { ActionCalculator } from "../../calculator/actionCalculator/calculator"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     MapGraphicsLayerService,
     MapGraphicsLayerSquaddieTypes,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
-import { MapHighlightService } from "../animation/mapHighlight"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { MissionMapSquaddieCoordinateService } from "../../missionMap/squaddieCoordinate"
+} from "../../../hexMap/mapGraphicsLayer"
+import { MapHighlightService } from "../../animation/mapHighlight"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
 import { BattleHUDStateService } from "./battleHUDState"
-import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
-import { PopupWindowService } from "./popupWindow"
-import { BattleCamera, BattleCameraService } from "../battleCamera"
-import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
-import { CalculatedResult } from "../history/calculatedResult"
+import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
+import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
+import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { ActionTemplateService } from "../../../action/template/actionTemplate"
+import { PopupWindowService } from "../popupWindow/popupWindow"
+import { BattleCamera, BattleCameraService } from "../../battleCamera"
+import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
+import { CalculatedResult } from "../../history/calculatedResult"
 
 export interface BattleHUD {
     fileAccessHUD: FileAccessHUD
@@ -77,7 +81,7 @@ export const BattleHUDService = {
         }
     },
     cancelTargetSelection: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerCancelsTargetSelection
     ) => {
         const gameEngineState = message.gameEngineState
@@ -104,7 +108,7 @@ export const BattleHUDService = {
         })
     },
     cancelTargetConfirmation: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerCancelsTargetConfirmation
     ) => {
         const gameEngineState = message.gameEngineState
@@ -184,7 +188,7 @@ export const BattleHUDService = {
         })
     },
     playerSelectsSquaddie: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerSelectsAndLocksSquaddie
     ) => {
         const gameEngineState = message.gameEngineState
@@ -240,7 +244,6 @@ export const BattleHUDService = {
                 summaryHUDState:
                     gameEngineState.battleOrchestratorState.battleHUDState
                         .summaryHUDState,
-                resourceHandler: gameEngineState.resourceHandler,
                 objectRepository: gameEngineState.repository,
                 gameEngineState,
             })
@@ -256,7 +259,7 @@ export const BattleHUDService = {
         }
     },
     playerPeeksAtSquaddie: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerPeeksAtSquaddie
     ) => {
         const gameEngineState = message.gameEngineState
@@ -348,7 +351,7 @@ export const BattleHUDService = {
         )
     },
     playerSelectsActionThatRequiresATarget: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     ) => {
         const gameEngineState = message.gameEngineState
@@ -394,7 +397,7 @@ export const BattleHUDService = {
         })
     },
     playerSelectsTargetCoordinate: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerSelectsTargetCoordinate
     ) => {
         const gameEngineState = message.gameEngineState
@@ -420,7 +423,7 @@ export const BattleHUDService = {
         )
     },
     playerConfirmsAction: (
-        battleHUD: BattleHUD,
+        _battleHUD: BattleHUD,
         message: MessageBoardMessagePlayerConfirmsAction
     ) => {
         const gameEngineState = message.gameEngineState
@@ -677,91 +680,6 @@ export const BattleHUDService = {
     ) => {
         return playerControlledSquaddieNeedsNextAction(message)
     },
-}
-
-export class BattleHUDListener implements MessageBoardListener {
-    messageBoardListenerId: string
-
-    constructor(messageBoardListenerId: string) {
-        this.messageBoardListenerId = messageBoardListenerId
-    }
-
-    receiveMessage(message: MessageBoardMessage): void {
-        switch (message.type) {
-            case MessageBoardMessageType.STARTED_PLAYER_PHASE:
-            case MessageBoardMessageType.PLAYER_CAN_CONTROL_DIFFERENT_SQUADDIE:
-                FileAccessHUDService.enableButtons(
-                    message.gameEngineState.battleOrchestratorState.battleHUD
-                        .fileAccessHUD
-                )
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_SELECTION:
-                BattleHUDService.cancelTargetSelection(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION:
-                BattleHUDService.cancelTargetConfirmation(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_ENDS_TURN:
-                BattleHUDService.endPlayerSquaddieTurn(
-                    message.gameEngineState,
-                    message.battleAction
-                )
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE:
-                BattleHUDService.playerSelectsSquaddie(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE:
-                BattleHUDService.playerPeeksAtSquaddie(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET:
-                BattleHUDService.playerSelectsActionThatRequiresATarget(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
-                BattleHUDService.playerSelectsTargetCoordinate(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.PLAYER_CONFIRMS_ACTION:
-                BattleHUDService.playerConfirmsAction(
-                    message.gameEngineState.battleOrchestratorState.battleHUD,
-                    message
-                )
-                break
-            case MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE:
-                BattleHUDService.selectAndLockNextSquaddie(message)
-                break
-            case MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE:
-                BattleHUDService.tryToMoveSquaddieToLocation(message)
-                break
-            case MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION:
-                BattleHUDService.cancelSquaddieSelectionAtStartOfTurn(message)
-                break
-            case MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE:
-                BattleHUDService.clicksOnAnEmptyTileAtTheStartOfTheTurn(message)
-                break
-            case MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION:
-                BattleHUDService.playerControlledSquaddieNeedsNextAction(
-                    message
-                )
-                break
-        }
-    }
 }
 
 const processEndTurnAction = (

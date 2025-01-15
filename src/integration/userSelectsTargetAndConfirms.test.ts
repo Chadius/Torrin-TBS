@@ -42,9 +42,8 @@ import { BattleSquaddieUsesActionOnSquaddie } from "../battle/orchestratorCompon
 import { DamageType } from "../squaddie/squaddieService"
 import { SquaddieSkipsAnimationAnimator } from "../battle/animation/squaddieSkipsAnimationAnimator"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { BattlePlayerActionConfirm } from "../battle/orchestratorComponents/battlePlayerActionConfirm"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import {
     BattleActionDecisionStep,
@@ -63,6 +62,7 @@ import { BattlePlayerActionConfirmSpec } from "./spec/battlePlayerActionConfirmS
 import { BattlePlayerActionTargetSpec } from "./spec/battlePlayerSquaddieTargetSpec"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { PlayerInputTestService } from "../utils/test/playerInput"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("User Selects Target and Confirms", () => {
     let objectRepository: ObjectRepository
@@ -690,7 +690,6 @@ const getGameEngineState = ({
         summaryHUDState:
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState,
-        resourceHandler: gameEngineState.resourceHandler,
         objectRepository: gameEngineState.repository,
         gameEngineState,
     })

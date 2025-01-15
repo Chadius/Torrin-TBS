@@ -46,16 +46,16 @@ import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/batt
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattlePlayerSquaddieTarget } from "../battle/orchestratorComponents/battlePlayerSquaddieTarget"
 import { MouseButton } from "../utils/mouseConfig"
-import { BattleHUDListener } from "../battle/hud/battleHUD"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { MapGraphicsLayer } from "../hexMap/mapGraphicsLayer"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { TargetConstraintsService } from "../action/targetConstraints"
 import { ActionResourceCostService } from "../action/actionResourceCost"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
-import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository

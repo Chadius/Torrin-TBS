@@ -1,28 +1,28 @@
-import { ButtonStatus } from "../../ui/button"
-import { RectAreaService } from "../../ui/rectArea"
-import { SaveSaveStateService } from "../../dataLoader/saveSaveState"
-import { BattleSaveStateService } from "../history/battleSaveState"
+import { ButtonStatus } from "../../../ui/button"
+import { RectAreaService } from "../../../ui/rectArea"
+import { SaveSaveStateService } from "../../../dataLoader/saveSaveState"
+import { BattleSaveStateService } from "../../history/battleSaveState"
 import {
     FileAccessHUD,
     FileAccessHUDDesign,
     FileAccessHUDMessage,
     FileAccessHUDService,
 } from "./fileAccessHUD"
-import { MouseButton } from "../../utils/mouseConfig"
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { ObjectRepositoryService } from "../objectRepository"
-import { BattleStateService } from "../orchestrator/battleState"
-import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
-import { MissionMapService } from "../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { BattleStateService } from "../../orchestrator/battleState"
+import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
+import { MissionMapService } from "../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import { BattleCamera } from "../battleCamera"
-import { CampaignService } from "../../campaign/campaign"
-import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
-import { FileState, FileStateService } from "../../gameEngine/fileState"
+} from "../../../gameEngine/gameEngine"
+import { BattleCamera } from "../../battleCamera"
+import { CampaignService } from "../../../campaign/campaign"
+import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
+import { FileState, FileStateService } from "../../../gameEngine/fileState"
 import {
     afterEach,
     beforeEach,
@@ -32,9 +32,9 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { MessageBoard } from "../../message/messageBoard"
-import { PlayerDataMessageListener } from "../../dataLoader/playerData/playerDataMessageListener"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
+import { MessageBoard } from "../../../message/messageBoard"
+import { PlayerDataMessageListener } from "../../../dataLoader/playerData/playerDataMessageListener"
+import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 
 describe("File Access HUD", () => {
     let fileAccessHUD: FileAccessHUD

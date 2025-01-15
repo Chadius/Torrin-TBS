@@ -22,7 +22,7 @@ import {
 import { CampaignService } from "../../campaign/campaign"
 import { ActionTemplateService } from "../../action/template/actionTemplate"
 import { BattlePhaseState } from "./battlePhaseController"
-import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -30,7 +30,7 @@ import { RectAreaService } from "../../ui/rectArea"
 import {
     PlayerCommandSelection,
     PlayerCommandStateService,
-} from "../hud/playerCommandHUD"
+} from "../hud/playerCommand/playerCommandHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
 import {
@@ -71,6 +71,7 @@ import {
 } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
+import { BattleHUDListener } from "../hud/battleHUD/battleHUDListener"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =

@@ -26,7 +26,7 @@ import { BattlePhase } from "./battlePhaseTracker"
 import { SquaddieTurnService } from "../../squaddie/turn"
 import { InBattleAttributesService } from "../stats/inBattleAttributes"
 import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { CampaignService } from "../../campaign/campaign"
@@ -41,7 +41,7 @@ import {
     BattleAction,
     BattleActionService,
 } from "../history/battleAction/battleAction"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import {
     afterEach,
     beforeEach,

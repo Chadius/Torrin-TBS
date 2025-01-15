@@ -1,91 +1,97 @@
-import { MessageBoard } from "../../message/messageBoard"
-import { BattleHUDListener, BattleHUDService } from "./battleHUD"
+import { MessageBoard } from "../../../message/messageBoard"
+import { BattleHUDService } from "./battleHUD"
 import {
     MessageBoardMessage,
     MessageBoardMessageType,
-} from "../../message/messageBoardMessage"
-import { BattlePhase } from "../orchestratorComponents/battlePhaseTracker"
+} from "../../../message/messageBoardMessage"
+import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
-import { BattleStateService } from "../orchestrator/battleState"
-import { FileAccessHUD, FileAccessHUDService } from "./fileAccessHUD"
-import { ButtonStatus } from "../../ui/button"
-import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { SquaddieTemplateService } from "../../campaign/squaddieTemplate"
-import { SquaddieIdService } from "../../squaddie/id"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { BattleSquaddie, BattleSquaddieService } from "../battleSquaddie"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { MissionMap, MissionMapService } from "../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { OrchestratorUtilities } from "../orchestratorComponents/orchestratorUtils"
+} from "../../../gameEngine/gameEngine"
+import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
+import { BattleStateService } from "../../orchestrator/battleState"
+import {
+    FileAccessHUD,
+    FileAccessHUDService,
+} from "../fileAccess/fileAccessHUD"
+import { ButtonStatus } from "../../../ui/button"
+import * as mocks from "../../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { SquaddieTemplateService } from "../../../campaign/squaddieTemplate"
+import { SquaddieIdService } from "../../../squaddie/id"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import { OrchestratorUtilities } from "../../orchestratorComponents/orchestratorUtils"
 import {
     BattleActionDecisionStep,
     BattleActionDecisionStepService,
-} from "../actionDecision/battleActionDecisionStep"
+} from "../../actionDecision/battleActionDecisionStep"
 import {
     ActionTemplate,
     ActionTemplateService,
-} from "../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
+} from "../../../action/template/actionTemplate"
+import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
-} from "../../trait/traitStatusStorage"
-import { CampaignService } from "../../campaign/campaign"
-import { DrawSquaddieUtilities } from "../animation/drawSquaddie"
-import { BattleCamera } from "../battleCamera"
+} from "../../../trait/traitStatusStorage"
+import { CampaignService } from "../../../campaign/campaign"
+import { DrawSquaddieUtilities } from "../../animation/drawSquaddie"
+import { BattleCamera } from "../../battleCamera"
 import {
     BattleSquaddieTeam,
     BattleSquaddieTeamService,
-} from "../battleSquaddieTeam"
-import { SummaryHUDStateService } from "./summaryHUD"
+} from "../../battleSquaddieTeam"
+import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { BattleHUDStateService } from "./battleHUDState"
 import {
     BattlePhaseState,
     BattlePhaseStateService,
-} from "../orchestratorComponents/battlePhaseController"
+} from "../../orchestratorComponents/battlePhaseController"
 import {
     BattleAction,
     BattleActionService,
-} from "../history/battleAction/battleAction"
+} from "../../history/battleAction/battleAction"
 import {
     CoordinateSystem,
     HexCoordinate,
-} from "../../hexMap/hexCoordinate/hexCoordinate"
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
-} from "../../squaddie/turn"
-import { SquaddieMovementService } from "../../squaddie/movement"
-import { DamageType, SquaddieService } from "../../squaddie/squaddieService"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
+} from "../../../squaddie/turn"
+import { SquaddieMovementService } from "../../../squaddie/movement"
+import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
     BattleActionSquaddieChangeService,
     DamageExplanationService,
-} from "../history/battleAction/battleActionSquaddieChange"
-import { InBattleAttributesService } from "../stats/inBattleAttributes"
-import { SquaddieRepositoryService } from "../../utils/test/squaddie"
+} from "../../history/battleAction/battleActionSquaddieChange"
+import { InBattleAttributesService } from "../../stats/inBattleAttributes"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
 import {
     MapGraphicsLayer,
     MapGraphicsLayerType,
-} from "../../hexMap/mapGraphicsLayer"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
-import { MovementCalculatorService } from "../calculator/movement/movementCalculator"
-import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
-import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { BattleActionActorContextService } from "../history/battleAction/battleActionActorContext"
-import { BattleActionQueueService } from "../history/battleAction/battleActionQueue"
-import { PopupWindow } from "./popupWindow"
-import { TargetConstraintsService } from "../../action/targetConstraints"
-import { ArmyAttributesService } from "../../squaddie/armyAttributes"
-import { RollResultService } from "../calculator/actionCalculator/rollResult"
-import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
+} from "../../../hexMap/mapGraphicsLayer"
+import { MouseButton, MouseClickService } from "../../../utils/mouseConfig"
+import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
+import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
+import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
+import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
+import { BattleActionQueueService } from "../../history/battleAction/battleActionQueue"
+import { PopupWindow } from "../popupWindow/popupWindow"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
+import { RollResultService } from "../../calculator/actionCalculator/rollResult"
+import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import {
     afterEach,
     beforeEach,
@@ -95,7 +101,8 @@ import {
     MockInstance,
     vi,
 } from "vitest"
-import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import { BattleHUDListener } from "./battleHUDListener"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -603,21 +610,17 @@ describe("Battle HUD", () => {
     describe("Player peeks at a squaddie", () => {
         let gameEngineState: GameEngineState
         let battleSquaddie: BattleSquaddie
-        let battleSquaddie2: BattleSquaddie
         let battleHUDListener: BattleHUDListener
 
         beforeEach(() => {
-            ;({
-                gameEngineState,
-                playerSoldierBattleSquaddie: battleSquaddie,
-                battleSquaddie2,
-            } = createGameEngineState({
-                missionMap: MissionMapService.new({
-                    terrainTileMap: TerrainTileMapService.new({
-                        movementCost: ["1 1 1 "],
+            ;({ gameEngineState, playerSoldierBattleSquaddie: battleSquaddie } =
+                createGameEngineState({
+                    missionMap: MissionMapService.new({
+                        terrainTileMap: TerrainTileMapService.new({
+                            movementCost: ["1 1 1 "],
+                        }),
                     }),
-                }),
-            }))
+                }))
 
             battleHUDListener = new BattleHUDListener("battleHUDListener")
             gameEngineState.messageBoard.addListener(
@@ -1151,7 +1154,6 @@ describe("Battle HUD", () => {
                         .summaryHUDState,
                 objectRepository: repository,
                 gameEngineState,
-                resourceHandler: gameEngineState.resourceHandler,
             })
         })
 

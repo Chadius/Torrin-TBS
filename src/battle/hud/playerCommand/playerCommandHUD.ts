@@ -1,42 +1,45 @@
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SummaryHUDState } from "./summaryHUD"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { GameEngineState } from "../../gameEngine/gameEngine"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { SummaryHUDState } from "../summary/summaryHUD"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
 import {
     HEX_TILE_WIDTH,
     HUE_BY_SQUADDIE_AFFILIATION,
-} from "../../graphicsConstants"
-import { MakeDecisionButton } from "./playerActionPanel/makeDecisionButton"
-import { MouseButton } from "../../utils/mouseConfig"
-import { ActionTemplate } from "../../action/template/actionTemplate"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { isValidValue } from "../../utils/validityCheck"
+} from "../../../graphicsConstants"
+import { MakeDecisionButton } from "../playerActionPanel/makeDecisionButton"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { ActionTemplate } from "../../../action/template/actionTemplate"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { isValidValue } from "../../../utils/validityCheck"
 import {
     HORIZONTAL_ALIGN,
     VERTICAL_ALIGN,
     WINDOW_SPACING,
-} from "../../ui/constants"
-import { ButtonStatus } from "../../ui/button"
-import { Label, LabelService } from "../../ui/label"
-import { RectangleHelper } from "../../ui/rectangle"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
-import { ValidityCheckService } from "../actionValidity/validityChecker"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+} from "../../../ui/constants"
+import { ButtonStatus } from "../../../ui/button"
+import { Label, LabelService } from "../../../ui/label"
+import { RectangleHelper } from "../../../ui/rectangle"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { ValidityCheckService } from "../../actionValidity/validityChecker"
+import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
+import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     PlayerDecisionHUDService,
     PopupWindowType,
-} from "./playerActionPanel/playerDecisionHUD"
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
+} from "../playerActionPanel/playerDecisionHUD"
+import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
     WARNING_POPUP_TEXT_CONSTANTS,
-} from "../../cutscene/dialogue/constants"
-import { PopupWindowService } from "./popupWindow"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+} from "../../../cutscene/dialogue/constants"
+import { PopupWindowService } from "../popupWindow/popupWindow"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 
 export enum PlayerCommandSelection {
     PLAYER_COMMAND_SELECTION_NONE = "PLAYER_COMMAND_SELECTION_NONE",
@@ -135,14 +138,12 @@ export const PlayerCommandStateService = {
         summaryHUDState,
         objectRepository,
         gameEngineState,
-        resourceHandler,
         battleSquaddieId,
     }: {
         playerCommandState: PlayerCommandState
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
         gameEngineState: GameEngineState
-        resourceHandler: ResourceHandler
         battleSquaddieId: string
     }) => {
         playerCommandState.playerCommandWindow = {
@@ -151,7 +152,6 @@ export const PlayerCommandStateService = {
                     x: summaryHUDState.screenSelectionCoordinates.x,
                     y: summaryHUDState.screenSelectionCoordinates.y,
                 },
-                summaryHUDState,
                 objectRepository,
                 gameEngineState
             ),
@@ -161,7 +161,6 @@ export const PlayerCommandStateService = {
             playerCommandState: summaryHUDState.playerCommandState,
             gameEngineState,
             objectRepository,
-            resourceHandler,
             battleSquaddieId,
         })
     },
@@ -169,13 +168,11 @@ export const PlayerCommandStateService = {
         mouseX,
         mouseY,
         mouseButton,
-        gameEngineState,
         playerCommandState,
     }: {
         mouseX: number
         mouseButton: MouseButton
         mouseY: number
-        gameEngineState: GameEngineState
         playerCommandState: PlayerCommandState
     }): PlayerCommandSelection => {
         if (!isValidValue(playerCommandState)) {
@@ -215,7 +212,6 @@ export const PlayerCommandStateService = {
         ) {
             mouseClickedOnEndTurnButton({
                 playerCommandState,
-                gameEngineState,
             })
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_END_TURN
         }
@@ -237,7 +233,6 @@ export const PlayerCommandStateService = {
         }
 
         return mouseClickedOnActionButton({
-            gameEngineState,
             playerCommandState,
             actionButtonClicked,
         })
@@ -413,7 +408,6 @@ const getPlayerCommandWindowAreaBasedOnMouse = (
         x: number
         y: number
     },
-    summaryHUDState: SummaryHUDState,
     objectRepository: ObjectRepository,
     gameEngineState: GameEngineState
 ): RectArea => {
@@ -485,13 +479,11 @@ const createButtons = ({
     playerCommandState,
     objectRepository,
     gameEngineState,
-    resourceHandler,
     battleSquaddieId,
 }: {
     playerCommandState: PlayerCommandState
     objectRepository: ObjectRepository
     gameEngineState: GameEngineState
-    resourceHandler: ResourceHandler
     battleSquaddieId: string
 }) => {
     const { squaddieTemplate } = getResultOrThrowError(
@@ -507,14 +499,11 @@ const createButtons = ({
         playerCommandState,
         objectRepository,
         gameEngineState,
-        resourceHandler,
         battleSquaddieId,
     })
     createButtonsForSecondRow({
         playerCommandState,
         objectRepository,
-        gameEngineState,
-        resourceHandler,
         battleSquaddieId,
     })
 }
@@ -550,13 +539,11 @@ const createButtonsForFirstRow = ({
     playerCommandState,
     objectRepository,
     gameEngineState,
-    resourceHandler,
     battleSquaddieId,
 }: {
     playerCommandState: PlayerCommandState
     objectRepository: ObjectRepository
     gameEngineState: GameEngineState
-    resourceHandler: ResourceHandler
     battleSquaddieId: string
 }) => {
     const { squaddieTemplate } = getResultOrThrowError(
@@ -639,14 +626,10 @@ const createButtonsForFirstRow = ({
 const createButtonsForSecondRow = ({
     playerCommandState,
     objectRepository,
-    gameEngineState,
-    resourceHandler,
     battleSquaddieId,
 }: {
     playerCommandState: PlayerCommandState
     objectRepository: ObjectRepository
-    gameEngineState: GameEngineState
-    resourceHandler: ResourceHandler
     battleSquaddieId: string
 }) => {
     const { squaddieTemplate } = getResultOrThrowError(
@@ -715,10 +698,8 @@ const mouseClickedOnMoveButton = (playerCommandState: PlayerCommandState) => {
 
 const mouseClickedOnEndTurnButton = ({
     playerCommandState,
-    gameEngineState,
 }: {
     playerCommandState: PlayerCommandState
-    gameEngineState: GameEngineState
 }) => {
     playerCommandState.playerSelectedEndTurn = true
     playerCommandState.playerSelectedSquaddieAction = false
@@ -728,11 +709,9 @@ const mouseClickedOnEndTurnButton = ({
 const mouseClickedOnActionButton = ({
     playerCommandState,
     actionButtonClicked,
-    gameEngineState,
 }: {
     playerCommandState: PlayerCommandState
     actionButtonClicked: MakeDecisionButton
-    gameEngineState: GameEngineState
 }): PlayerCommandSelection => {
     playerCommandState.playerSelectedEndTurn = false
     playerCommandState.playerSelectedSquaddieAction = true

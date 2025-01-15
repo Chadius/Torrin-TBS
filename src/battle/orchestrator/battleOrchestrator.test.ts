@@ -45,7 +45,7 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { PlayerHudController } from "../orchestratorComponents/playerHudController"
 import { BattlePlayerActionConfirm } from "../orchestratorComponents/battlePlayerActionConfirm"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"

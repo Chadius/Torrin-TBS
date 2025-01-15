@@ -1,8 +1,8 @@
-import { RectArea } from "../../ui/rectArea"
+import { RectArea } from "../../../ui/rectArea"
 import {
     ColorDescription,
     GraphicsBuffer,
-} from "../../utils/graphics/graphicsRenderer"
+} from "../../../utils/graphics/graphicsRenderer"
 
 export const DrawBattleHUD = {
     drawHorizontalDividedBar: ({

@@ -9,7 +9,7 @@ import {
 import { BattleOrchestratorMode } from "../orchestrator/battleOrchestrator"
 import { UIControlSettings } from "../orchestrator/uiControlSettings"
 import { GameEngineState } from "../../gameEngine/gameEngine"
-import { FileAccessHUDService } from "../hud/fileAccessHUD"
+import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
 import {
     MouseButton,
     MouseClick,
@@ -20,8 +20,8 @@ import {
     MessageBoardMessageType,
 } from "../../message/messageBoardMessage"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
-import { PlayerCommandSelection } from "../hud/playerCommandHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
+import { PlayerCommandSelection } from "../hud/playerCommand/playerCommandHUD"
 import {
     PlayerSelectionContextCalculationArgsService,
     PlayerSelectionService,
@@ -102,7 +102,6 @@ export class BattlePlayerSquaddieSelector
             SummaryHUDStateService.mouseClicked({
                 mouseX,
                 mouseY,
-                gameEngineState,
                 mouseButton,
                 summaryHUDState,
             })
@@ -203,7 +202,7 @@ export class BattlePlayerSquaddieSelector
         }
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_gameEngineState: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: true,
             displayMap: true,
@@ -211,11 +210,7 @@ export class BattlePlayerSquaddieSelector
         })
     }
 
-    update({
-        gameEngineState,
-        graphicsContext,
-        resourceHandler,
-    }: {
+    update(_params: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
         resourceHandler: ResourceHandler
@@ -224,7 +219,7 @@ export class BattlePlayerSquaddieSelector
     }
 
     recommendStateChanges(
-        gameEngineState: GameEngineState
+        _gameEngineState: GameEngineState
     ): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode = this.recommendedNextMode
 
@@ -234,7 +229,7 @@ export class BattlePlayerSquaddieSelector
         }
     }
 
-    reset(gameEngineState: GameEngineState) {
+    reset(_gameEngineState: GameEngineState) {
         this.componentCompleted = false
         this.recommendedNextMode = BattleOrchestratorMode.UNKNOWN
     }

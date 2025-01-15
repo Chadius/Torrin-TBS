@@ -1,14 +1,14 @@
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { RectAreaService } from "../../ui/rectArea"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { LabelService } from "../../ui/label"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { RectAreaService } from "../../../ui/rectArea"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import { LabelService } from "../../../ui/label"
 import {
     PopupWindow,
     PopupWindowService,
     PopupWindowStatus,
 } from "./popupWindow"
-import { BattleCamera } from "../battleCamera"
-import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
+import { BattleCamera } from "../../battleCamera"
+import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     afterEach,
     beforeEach,

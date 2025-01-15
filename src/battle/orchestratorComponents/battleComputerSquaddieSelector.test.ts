@@ -53,7 +53,7 @@ import {
     ActionEffectTemplateService,
     VersusSquaddieResistance,
 } from "../../action/template/actionEffectTemplate"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton } from "../../utils/mouseConfig"
 import {
     BattleActionDecisionStep,

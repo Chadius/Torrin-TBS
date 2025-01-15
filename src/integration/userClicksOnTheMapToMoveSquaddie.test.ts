@@ -39,7 +39,7 @@ import { SquaddieMovementService } from "../squaddie/movement"
 import { BattleOrchestratorMode } from "../battle/orchestrator/battleOrchestrator"
 import { BattleSquaddieMover } from "../battle/orchestratorComponents/battleSquaddieMover"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
-import { BattleHUDListener, BattleHUDService } from "../battle/hud/battleHUD"
+import { BattleHUDService } from "../battle/hud/battleHUD/battleHUD"
 import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
@@ -50,8 +50,9 @@ import {
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
 import { BattleActionRecorderService } from "../battle/history/battleAction/battleActionRecorder"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
-import { SummaryHUDStateService } from "../battle/hud/summaryHUD"
+import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
 
 describe("user clicks on the map to move", () => {
     let repository: ObjectRepository

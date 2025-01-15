@@ -34,7 +34,7 @@ import {
 } from "../history/battleAction/battleAction"
 import { BattleSquaddieSelectorService } from "../orchestratorComponents/battleSquaddieSelectorUtils"
 import { SquaddieTemplate } from "../../campaign/squaddieTemplate"
-import { PopupWindowService } from "../hud/popupWindow"
+import { PopupWindowService } from "../hud/popupWindow/popupWindow"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 
 export enum PlayerIntent {

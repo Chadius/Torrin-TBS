@@ -4,9 +4,12 @@ import { BattleCompletionStatus } from "./missionObjectivesAndCutscenes"
 import { NumberGeneratorStrategy } from "../numberGenerator/strategy"
 import { RandomNumberGenerator } from "../numberGenerator/random"
 import { getValidValueOrDefault } from "../../utils/validityCheck"
-import { BattleHUDState, BattleHUDStateService } from "../hud/battleHUDState"
-import { FileAccessHUDService } from "../hud/fileAccessHUD"
-import { BattleHUD, BattleHUDService } from "../hud/battleHUD"
+import {
+    BattleHUDState,
+    BattleHUDStateService,
+} from "../hud/battleHUD/battleHUDState"
+import { FileAccessHUDService } from "../hud/fileAccess/fileAccessHUD"
+import { BattleHUD, BattleHUDService } from "../hud/battleHUD/battleHUD"
 import {
     CutsceneIdQueue,
     CutsceneQueueService,

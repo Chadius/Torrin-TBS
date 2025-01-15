@@ -1,39 +1,42 @@
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import {
     mockConsoleWarn,
     MockedP5GraphicsBuffer,
     mockResourceHandler,
-} from "../../utils/test/mocks"
+} from "../../../utils/test/mocks"
 import {
     SUMMARY_HUD_PEEK_EXPIRATION_MS,
     SummaryHUDState,
     SummaryHUDStateService,
 } from "./summaryHUD"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
-} from "../../action/template/actionEffectTemplate"
+} from "../../../action/template/actionEffectTemplate"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import { CampaignService } from "../../campaign/campaign"
-import { ResourceHandler } from "../../resource/resourceHandler"
+} from "../../../gameEngine/gameEngine"
+import { CampaignService } from "../../../campaign/campaign"
+import { ResourceHandler } from "../../../resource/resourceHandler"
 import {
     PlayerCommandSelection,
     PlayerCommandStateService,
-} from "./playerCommandHUD"
-import { MouseButton } from "../../utils/mouseConfig"
-import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { TargetConstraintsService } from "../../action/targetConstraints"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { SquaddieNameAndPortraitTileService } from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
-import { MissionMapService } from "../../missionMap/missionMap"
-import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
-import { ActionTilePosition } from "./playerActionPanel/tile/actionTilePosition"
+} from "../playerCommand/playerCommandHUD"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { SquaddieNameAndPortraitTileService } from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { MissionMapService } from "../../../missionMap/missionMap"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import {
     afterEach,
     beforeEach,
@@ -861,6 +864,7 @@ describe("summaryHUD", () => {
 
             dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS + 1)
             drawAndExpectTileNotToExist(ActionTilePosition.PEEK_PLAYABLE_NAME)
+            expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
         })
         it("will expire the right side tile over time", () => {
             SummaryHUDStateService.peekAtSquaddie({
@@ -882,6 +886,7 @@ describe("summaryHUD", () => {
 
             dateSpy.mockReturnValue(SUMMARY_HUD_PEEK_EXPIRATION_MS + 1)
             drawAndExpectTileNotToExist(ActionTilePosition.PEEK_RIGHT_NAME)
+            expect(summaryHUDState.squaddieToPeekAt).toBeUndefined()
         })
         it("will never expire the right tile if no date was set", () => {
             SummaryHUDStateService.peekAtSquaddie({
@@ -906,6 +911,9 @@ describe("summaryHUD", () => {
             drawAndExpectTileToExist(
                 "enemy",
                 ActionTilePosition.PEEK_RIGHT_NAME
+            )
+            expect(summaryHUDState.squaddieToPeekAt.battleSquaddieId).toEqual(
+                "enemy"
             )
         })
     })
@@ -935,7 +943,6 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
-                resourceHandler,
             })
             SummaryHUDStateService.draw({
                 summaryHUDState,
@@ -978,7 +985,6 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
-                resourceHandler,
             })
         })
 
@@ -1041,7 +1047,6 @@ describe("summaryHUD", () => {
                     summaryHUDState.playerCommandState.actionButtons[0]
                         .buttonIcon.drawArea
                 ),
-                gameEngineState,
             })
             expect(playerCommandSpy).toBeCalled()
             expect(selection).toEqual(
@@ -1062,7 +1067,6 @@ describe("summaryHUD", () => {
                 summaryHUDState,
                 gameEngineState,
                 objectRepository,
-                resourceHandler,
             })
 
             SummaryHUDStateService.createActionTiles({

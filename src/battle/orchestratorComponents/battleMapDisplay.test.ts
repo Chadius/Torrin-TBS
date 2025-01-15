@@ -16,9 +16,9 @@ import {
     GameEngineState,
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
-import { BattleHUDService } from "../hud/battleHUD"
-import { BattleHUDStateService } from "../hud/battleHUDState"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { ResourceHandler } from "../../resource/resourceHandler"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { PlayerInputTestService } from "../../utils/test/playerInput"

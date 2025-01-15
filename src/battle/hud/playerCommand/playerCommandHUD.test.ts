@@ -1,39 +1,42 @@
-import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { SummaryHUDState, SummaryHUDStateService } from "./summaryHUD"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { SummaryHUDState, SummaryHUDStateService } from "../summary/summaryHUD"
 import {
     GameEngineState,
     GameEngineStateService,
-} from "../../gameEngine/gameEngine"
-import * as mocks from "../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
-import { SquaddieAffiliation } from "../../squaddie/squaddieAffiliation"
+} from "../../../gameEngine/gameEngine"
+import * as mocks from "../../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import {
     MoveButtonPurpose,
     PlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
 } from "./playerCommandHUD"
-import { ActionTemplateService } from "../../action/template/actionTemplate"
+import { ActionTemplateService } from "../../../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
-} from "../../action/template/actionEffectTemplate"
-import { MouseButton } from "../../utils/mouseConfig"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { CampaignService } from "../../campaign/campaign"
-import { ButtonStatus } from "../../ui/button"
-import { SquaddieRepositoryService } from "../../utils/test/squaddie"
-import { ValidityCheckService } from "../actionValidity/validityChecker"
-import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { CoordinateSystem } from "../../hexMap/hexCoordinate/hexCoordinate"
-import { PopupWindow } from "./popupWindow"
-import { TextHandlingService } from "../../utils/graphics/textHandlingService"
-import { TargetConstraintsService } from "../../action/targetConstraints"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
+} from "../../../action/template/actionEffectTemplate"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { CampaignService } from "../../../campaign/campaign"
+import { ButtonStatus } from "../../../ui/button"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { ValidityCheckService } from "../../actionValidity/validityChecker"
+import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
+import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { PopupWindow } from "../popupWindow/popupWindow"
+import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
 import {
     afterEach,
     beforeEach,
@@ -234,7 +237,6 @@ describe("playerCommandHUD", () => {
 
                 SummaryHUDStateService.createActorTiles({
                     summaryHUDState,
-                    resourceHandler,
                     objectRepository,
                     gameEngineState,
                 })
@@ -272,7 +274,6 @@ describe("playerCommandHUD", () => {
 
         SummaryHUDStateService.createActorTiles({
             summaryHUDState,
-            resourceHandler,
             objectRepository,
             gameEngineState,
         })
@@ -291,7 +292,6 @@ describe("playerCommandHUD", () => {
             mouseX: RectAreaService.centerX(buttonArea),
             mouseY: RectAreaService.centerY(buttonArea),
             mouseButton: MouseButton.ACCEPT,
-            gameEngineState,
             playerCommandState,
         })
     }
@@ -318,7 +318,6 @@ describe("playerCommandHUD", () => {
                     playerCommandState.playerCommandWindow.area
                 ) - 100,
             mouseButton: MouseButton.ACCEPT,
-            gameEngineState,
             playerCommandState,
         })
 

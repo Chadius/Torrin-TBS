@@ -1,13 +1,13 @@
-import { SummaryHUDState } from "./summaryHUD"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
-import { RectAreaService } from "../../ui/rectArea"
-import { HEX_TILE_WIDTH } from "../../graphicsConstants"
+import { SummaryHUDState } from "../summary/summaryHUD"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
+import { RectAreaService } from "../../../ui/rectArea"
+import { HEX_TILE_WIDTH } from "../../../graphicsConstants"
 import {
     MouseButton,
     MouseClick,
     MouseClickService,
-} from "../../utils/mouseConfig"
+} from "../../../utils/mouseConfig"
 
 export interface BattleHUDState {
     nextSquaddieBattleSquaddieIdsToCycleThrough: string[]

@@ -1,4 +1,4 @@
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import {
     GameEngineState,
     GameEngineStateService,

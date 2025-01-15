@@ -1,5 +1,5 @@
 import { BattleHUDState, BattleHUDStateService } from "./battleHUDState"
-import { SummaryHUDStateService } from "./summaryHUD"
+import { SummaryHUDStateService } from "../summary/summaryHUD"
 import { describe, expect, it } from "vitest"
 
 describe("BattleHUDState", () => {

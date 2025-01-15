@@ -1,39 +1,42 @@
-import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import {
+    ObjectRepository,
+    ObjectRepositoryService,
+} from "../../objectRepository"
 import {
     PlayerCommandSelection,
     PlayerCommandState,
     PlayerCommandStateService,
-} from "./playerCommandHUD"
-import { GameEngineState } from "../../gameEngine/gameEngine"
-import { ResourceHandler } from "../../resource/resourceHandler"
-import { MouseButton } from "../../utils/mouseConfig"
-import { isValidValue } from "../../utils/validityCheck"
+} from "../playerCommand/playerCommandHUD"
+import { GameEngineState } from "../../../gameEngine/gameEngine"
+import { ResourceHandler } from "../../../resource/resourceHandler"
+import { MouseButton } from "../../../utils/mouseConfig"
+import { isValidValue } from "../../../utils/validityCheck"
 import {
     SquaddieNameAndPortraitTile,
     SquaddieNameAndPortraitTileService,
-} from "./playerActionPanel/tile/squaddieNameAndPortraitTile"
-import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { RectAreaService } from "../../ui/rectArea"
-import { getResultOrThrowError } from "../../utils/ResultOrError"
-import { SquaddieService } from "../../squaddie/squaddieService"
-import { MissionMapService } from "../../missionMap/missionMap"
+} from "../playerActionPanel/tile/squaddieNameAndPortraitTile"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { RectAreaService } from "../../../ui/rectArea"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { SquaddieService } from "../../../squaddie/squaddieService"
+import { MissionMapService } from "../../../missionMap/missionMap"
 import {
     ActionTilePosition,
     ActionTilePositionService,
-} from "./playerActionPanel/tile/actionTilePosition"
+} from "../playerActionPanel/tile/actionTilePosition"
 import {
     SquaddieStatusTile,
     SquaddieStatusTileService,
-} from "./playerActionPanel/tile/squaddieStatusTile"
+} from "../playerActionPanel/tile/squaddieStatusTile"
 import {
     ActionSelectedTile,
     ActionSelectedTileService,
-} from "./playerActionPanel/tile/actionSelectedTile"
+} from "../playerActionPanel/tile/actionSelectedTile"
 import {
     ActionPreviewTile,
     ActionPreviewTileService,
-} from "./playerActionPanel/tile/actionPreviewTile/actionPreviewTile"
+} from "../playerActionPanel/tile/actionPreviewTile/actionPreviewTile"
 
 export const SUMMARY_HUD_PEEK_EXPIRATION_MS = 2000
 
@@ -139,13 +142,11 @@ export const SummaryHUDStateService = {
         mouseButton,
         mouseY,
         summaryHUDState,
-        gameEngineState,
     }: {
         mouseX: number
         mouseButton: MouseButton
         summaryHUDState: SummaryHUDState
         mouseY: number
-        gameEngineState: GameEngineState
     }): PlayerCommandSelection => {
         if (!summaryHUDState?.showPlayerCommand) {
             return PlayerCommandSelection.PLAYER_COMMAND_SELECTION_NONE
@@ -155,7 +156,6 @@ export const SummaryHUDStateService = {
             mouseX,
             mouseButton,
             mouseY,
-            gameEngineState,
             playerCommandState: summaryHUDState.playerCommandState,
         })
     },
@@ -237,12 +237,10 @@ export const SummaryHUDStateService = {
         summaryHUDState,
         objectRepository,
         gameEngineState,
-        resourceHandler,
     }: {
         summaryHUDState: SummaryHUDState
         objectRepository: ObjectRepository
         gameEngineState: GameEngineState
-        resourceHandler: ResourceHandler
     }) => {
         if (
             !BattleActionDecisionStepService.isActorSet(
@@ -259,7 +257,6 @@ export const SummaryHUDStateService = {
             summaryHUDState,
             objectRepository,
             gameEngineState,
-            resourceHandler,
             battleSquaddieId: BattleActionDecisionStepService.getActor(
                 gameEngineState.battleOrchestratorState.battleState
                     .battleActionDecisionStep

@@ -22,10 +22,10 @@ import { Label, LabelService } from "../../ui/label"
 import { isValidValue } from "../../utils/validityCheck"
 import { MouseButton } from "../../utils/mouseConfig"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { BattleHUDStateService } from "../hud/battleHUDState"
+import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
 import { ResourceHandler } from "../../resource/resourceHandler"
@@ -77,7 +77,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return this.highlightedTargetRange.length > 0
     }
 
-    hasCompleted(gameEngineState: GameEngineState): boolean {
+    hasCompleted(_gameEngineState: GameEngineState): boolean {
         const userWantsADifferentAbility: boolean = this.cancelAbility === true
         const userSelectedTarget: boolean = this.hasSelectedValidTarget === true
         return userWantsADifferentAbility || userSelectedTarget
@@ -211,7 +211,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                         gameEngineState.battleOrchestratorState.battleHUDState
                             .summaryHUDState,
                     gameEngineState,
-                    resourceHandler: gameEngineState.resourceHandler,
                     objectRepository: gameEngineState.repository,
                 })
             }

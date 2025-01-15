@@ -5,7 +5,7 @@ import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import { PopupWindow, PopupWindowService } from "../popupWindow"
+import { PopupWindow, PopupWindowService } from "../popupWindow/popupWindow"
 import { LabelService } from "../../../ui/label"
 import { RectAreaService } from "../../../ui/rectArea"
 import {

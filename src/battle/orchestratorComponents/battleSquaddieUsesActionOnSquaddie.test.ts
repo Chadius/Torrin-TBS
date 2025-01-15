@@ -44,7 +44,7 @@ import { DegreeOfSuccess } from "../calculator/actionCalculator/degreeOfSuccess"
 import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDListener, BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
@@ -68,6 +68,7 @@ import {
     MockInstance,
     vi,
 } from "vitest"
+import { BattleHUDListener } from "../hud/battleHUD/battleHUDListener"
 
 describe("BattleSquaddieUsesActionOnSquaddie", () => {
     let objectRepository: ObjectRepository

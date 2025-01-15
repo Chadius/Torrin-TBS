@@ -48,11 +48,11 @@ import {
     HexCoordinate,
 } from "../../hexMap/hexCoordinate/hexCoordinate"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { BattleActionService } from "../history/battleAction/battleAction"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
-import { PopupWindow } from "../hud/popupWindow"
+import { PopupWindow } from "../hud/popupWindow/popupWindow"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
     afterEach,

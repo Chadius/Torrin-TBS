@@ -47,7 +47,7 @@ import { CampaignService } from "../../campaign/campaign"
 import { ArmyAttributesService } from "../../squaddie/armyAttributes"
 import { SquaddieStatusTileService } from "../hud/playerActionPanel/tile/squaddieStatusTile"
 import { ActionTilePosition } from "../hud/playerActionPanel/tile/actionTilePosition"
-import { SummaryHUDStateService } from "../hud/summaryHUD"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     afterEach,

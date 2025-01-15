@@ -25,7 +25,7 @@ import {
 } from "../../hexMap/pathfinder/searchResults/searchResult"
 import { PathfinderService } from "../../hexMap/pathfinder/pathGeneration/pathfinder"
 import { CampaignService } from "../../campaign/campaign"
-import { BattleHUDService } from "../hud/battleHUD"
+import { BattleHUDService } from "../hud/battleHUD/battleHUD"
 import { BattlePhase } from "./battlePhaseTracker"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { SquaddieRepositoryService } from "../../utils/test/squaddie"
