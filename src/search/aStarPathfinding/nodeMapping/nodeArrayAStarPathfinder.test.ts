@@ -1,4 +1,4 @@
-import { SearchGraph } from "../searchGraph/graph"
+import { SearchGraph } from "../../searchGraph/graph"
 import { NodeArrayAStarPathfinder } from "./nodeArrayAStarPathfinder"
 import { describe, expect, it } from "vitest"
 

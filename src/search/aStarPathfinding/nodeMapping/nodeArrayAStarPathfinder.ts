@@ -1,10 +1,10 @@
-import { SearchConnection, SearchGraph } from "../searchGraph/graph"
-import { AStarSearchService } from "./aStarSearchService"
+import { SearchConnection, SearchGraph } from "../../searchGraph/graph"
+import { AStarSearchService } from "../aStarSearchService"
 import {
     NodeRecordStorage,
     SearchNodeRecord,
     SearchNodeRecordStatus,
-} from "../nodeRecord/nodeRecord"
+} from "../../nodeRecord/nodeRecord"
 
 export const NodeArrayAStarPathfinder = {
     getLowestCostConnectionsFromStartNodesToEndNode: <T>({
