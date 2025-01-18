@@ -50,7 +50,7 @@ export const AStarSearchService = {
                 break
             }
 
-            const connections = graph.getConnections(currentRecord.node)
+            const connections = graph.getConnections(currentRecord)
             connections.forEach((connection) => {
                 const endNode = connection.toNode
                 const endNodeCost = currentRecord.costSoFar + connection.cost

@@ -1,12 +1,13 @@
 import { SearchGraph } from "../../searchGraph/graph"
 import { NodeArrayAStarPathfinder } from "./nodeArrayAStarPathfinder"
 import { describe, expect, it } from "vitest"
+import { SearchNodeRecord } from "../../nodeRecord/nodeRecord"
 
 describe("Node Array A* Pathfinder", () => {
     describe("getLowestCostConnectionsFromStartToEndNode", () => {
         it("will not move if it is at the endpoint", () => {
             const graph: SearchGraph<number> = {
-                getConnections: (_fromNode: number) => [
+                getConnections: (_fromNode: SearchNodeRecord<number>) => [
                     {
                         cost: 0,
                         fromNode: 0,
@@ -114,7 +115,7 @@ describe("Node Array A* Pathfinder", () => {
     describe("isEndNodeReachableFromStartNodes", () => {
         it("is reachable if it starts at the endpoint", () => {
             const graph: SearchGraph<number> = {
-                getConnections: (_fromNode: number) => [
+                getConnections: (_fromNode: SearchNodeRecord<number>) => [
                     {
                         cost: 0,
                         fromNode: 0,
@@ -242,8 +243,8 @@ A --1-> B1 -20--> C
   \-2-> B2 -1-/
 * */
 const makeGraphWith1SplitPath = () => {
-    const getConnections = (fromNode: string) => {
-        if (fromNode === "A") {
+    const getConnections = (fromNode: SearchNodeRecord<string>) => {
+        if (fromNode.node === "A") {
             return [
                 {
                     cost: 1,
@@ -257,7 +258,7 @@ const makeGraphWith1SplitPath = () => {
                 },
             ]
         }
-        if (fromNode === "B1") {
+        if (fromNode.node === "B1") {
             return [
                 {
                     cost: 20,
@@ -271,7 +272,7 @@ const makeGraphWith1SplitPath = () => {
                 },
             ]
         }
-        if (fromNode === "B2") {
+        if (fromNode.node === "B2") {
             return [
                 {
                     cost: 1,

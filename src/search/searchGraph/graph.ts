@@ -1,3 +1,5 @@
+import { SearchNodeRecord } from "../nodeRecord/nodeRecord"
+
 export interface SearchConnection<T> {
     cost: number
     fromNode: T
@@ -5,7 +7,7 @@ export interface SearchConnection<T> {
 }
 
 export interface SearchGraph<T> {
-    getConnections: (fromNode: T) => SearchConnection<T>[]
+    getConnections: (fromNode: SearchNodeRecord<T>) => SearchConnection<T>[]
     getAllNodes: () => {
         data: T
         key: string
