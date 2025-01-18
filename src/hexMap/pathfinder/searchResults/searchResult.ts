@@ -45,24 +45,6 @@ export const SearchResultsService = {
             ? searchResults.shortestPathByCoordinate[q][r]
             : undefined
     },
-    isCoordinateReachable: (
-        searchResult: SearchResult,
-        q: number,
-        r: number
-    ): boolean => {
-        return isCoordinateReachable(searchResult, q, r)
-    },
-    numberOfActionsToReachCoordinate: (
-        searchResults: SearchResult,
-        q: number,
-        r: number
-    ): number => {
-        const shortestPath = searchResults.shortestPathByCoordinate[q][r]
-        if (shortestPath === undefined) {
-            return undefined
-        }
-        return shortestPath.currentNumberOfMoveActions
-    },
     getCoordinatesByNumberOfMoveActions: (
         searchResults: SearchResult
     ): { [moveActions: number]: HexCoordinate[] } => {

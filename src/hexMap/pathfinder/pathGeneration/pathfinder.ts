@@ -33,7 +33,7 @@ import {
     CoordinateGeneratorShape,
 } from "../../../battle/targeting/coordinateGenerator"
 
-export interface PathfinderWorkingState {
+interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>
     coordinateGeneratorShape: CoordinateGeneratorShape
     mapLayers: {
@@ -47,7 +47,7 @@ export interface PathfinderWorkingState {
     stopCoordinatesReached: HexCoordinate[]
 }
 
-export const PathfinderWorkingStateHelper = {
+const PathfinderWorkingStateHelper = {
     new: ({
         terrainTileMap,
         searchParameters,

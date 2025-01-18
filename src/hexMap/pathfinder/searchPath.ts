@@ -76,33 +76,4 @@ export const SearchPathService = {
         }
         return 0
     },
-    pathsHaveTheSameAncestor: ({
-        pathA,
-        pathB,
-        ancestor,
-    }: {
-        pathA: SearchPath
-        pathB: SearchPath
-        ancestor: HexCoordinate
-    }): boolean => {
-        const pathAAncestorIndex: number = pathA.coordinatesTraveled.findIndex(
-            (tile: CoordinateTraveled) =>
-                tile.hexCoordinate.q === ancestor.q &&
-                tile.hexCoordinate.r === ancestor.r
-        )
-        if (pathAAncestorIndex < 0) {
-            return false
-        }
-
-        const pathBAncestorIndex: number = pathB.coordinatesTraveled.findIndex(
-            (tile: CoordinateTraveled) =>
-                tile.hexCoordinate.q === ancestor.q &&
-                tile.hexCoordinate.r === ancestor.r
-        )
-        if (pathBAncestorIndex < 0) {
-            return false
-        }
-
-        return pathAAncestorIndex === pathBAncestorIndex
-    },
 }
