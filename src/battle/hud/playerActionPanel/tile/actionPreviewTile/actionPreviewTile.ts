@@ -50,6 +50,12 @@ export interface ActionPreviewTile {
 const shortWidth = ScreenDimensions.SCREEN_WIDTH / 6 / (GOLDEN_RATIO + 1)
 const longWidth = ScreenDimensions.SCREEN_WIDTH / 6 / GOLDEN_RATIO
 
+export enum ShowDegreeOfSuccessEvenIfNoEffect {
+    YES = "YES",
+    NO = "NO",
+    IF_CRITICAL_FAILURE_DOES_NOT_EXIST = "IF_CRITICAL_FAILURE_DOES_NOT_EXIST",
+}
+
 export interface ActionPreviewTileLayout {
     topRowOffset: number
     targetName: {
@@ -68,7 +74,7 @@ export interface ActionPreviewTileLayout {
         rowOrder: {
             degreeOfSuccess: DegreeOfSuccess
             suffix: string
-            showEvenIfNoEffect: boolean
+            showEvenIfNoEffect: ShowDegreeOfSuccessEvenIfNoEffect
             showChanceOfSuccess: boolean
         }[]
     }
@@ -188,31 +194,36 @@ export const ActionPreviewTileService = {
                     {
                         degreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
                         suffix: "crit",
-                        showEvenIfNoEffect: true,
+                        showEvenIfNoEffect:
+                            ShowDegreeOfSuccessEvenIfNoEffect.YES,
                         showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                         suffix: "hit",
-                        showEvenIfNoEffect: true,
+                        showEvenIfNoEffect:
+                            ShowDegreeOfSuccessEvenIfNoEffect.YES,
                         showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.FAILURE,
                         suffix: "miss",
-                        showEvenIfNoEffect: false,
+                        showEvenIfNoEffect:
+                            ShowDegreeOfSuccessEvenIfNoEffect.IF_CRITICAL_FAILURE_DOES_NOT_EXIST,
                         showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
                         suffix: "botch",
-                        showEvenIfNoEffect: true,
+                        showEvenIfNoEffect:
+                            ShowDegreeOfSuccessEvenIfNoEffect.YES,
                         showChanceOfSuccess: true,
                     },
                     {
                         degreeOfSuccess: DegreeOfSuccess.NONE,
                         suffix: "",
-                        showEvenIfNoEffect: false,
+                        showEvenIfNoEffect:
+                            ShowDegreeOfSuccessEvenIfNoEffect.NO,
                         showChanceOfSuccess: false,
                     },
                 ],

@@ -265,20 +265,43 @@ describe("Action Preview Tile", () => {
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()
             })
-            it("will text the chance to critically miss if there is an effect", () => {
+            it("will text the chance to miss even if there is no chance of critically missing", () => {
+                const forecastSpy = generateForecastSpy([
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "enemy_0",
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                        chanceOfDegreeOfSuccess: 18,
+                    }),
+                    BattleActionSquaddieChangeService.new({
+                        battleSquaddieId: "enemy_0",
+                        actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
+                        chanceOfDegreeOfSuccess: 18,
+                    }),
+                ])
+
+                createAndDrawTile(
+                    gameEngineState,
+                    objectRepository,
+                    graphicsBuffer
+                )
+
+                expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
+                    "50% miss"
+                )
+                expect(forecastSpy).toBeCalled()
+                forecastSpy.mockRestore()
+            })
+            it("will text the chance to critically miss if there is no effect", () => {
                 const forecastSpy = generateForecastSpy([
                     BattleActionSquaddieChangeService.new({
                         battleSquaddieId: "enemy_0",
                         actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
                         damageExplanation: DamageExplanationService.new({
-                            raw: 1,
+                            raw: 0,
                             absorbed: 0,
-                            net: 1,
+                            net: 0,
                         }),
                         chanceOfDegreeOfSuccess: 18,
-                        attributesAfter: InBattleAttributesService.new({
-                            currentHitPoints: 1,
-                        }),
                     }),
                 ])
 
@@ -1040,7 +1063,7 @@ describe("Action Preview Tile", () => {
                                                     rollModifiers: {
                                                         [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
                                                             -3,
-                                                        [RollModifierType.TIER]: 2,
+                                                        [RollModifierType.PROFICIENCY]: 2,
                                                     },
                                                 }),
                                             targetSquaddieModifiers: {
@@ -1092,7 +1115,7 @@ describe("Action Preview Tile", () => {
                     "-3 MAP"
                 )
                 expect(getAllDrawnText(graphicsBufferSpies["text"])).includes(
-                    "+2 Tier"
+                    "+2 Prof"
                 )
                 expect(forecastSpy).toBeCalled()
                 forecastSpy.mockRestore()

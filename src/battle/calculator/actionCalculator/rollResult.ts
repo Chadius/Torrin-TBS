@@ -4,7 +4,7 @@ export const DIE_SIZE = 6
 
 export enum RollModifierType {
     MULTIPLE_ATTACK_PENALTY = "MULTIPLE_ATTACK_PENALTY",
-    TIER = "TIER",
+    PROFICIENCY = "PROFICIENCY",
 }
 
 export const RollModifierTypeService = {
@@ -17,6 +17,7 @@ export const RollModifierTypeService = {
     }): string => {
         if (abbreviate) {
             if (type === RollModifierType.MULTIPLE_ATTACK_PENALTY) return "MAP"
+            if (type === RollModifierType.PROFICIENCY) return "Prof"
         }
         return `${TextHandlingService.titleCase(type).replaceAll("_", " ")}`
     },

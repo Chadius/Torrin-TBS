@@ -34,6 +34,7 @@ import {
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../../../action/template/actionEffectTemplate"
 import {
     AttributeModifier,
@@ -99,6 +100,7 @@ describe("calculator", () => {
                     damageDescriptions: {
                         [DamageType.BODY]: actionBodyDamageAmount,
                     },
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
             ],
         })
@@ -122,6 +124,7 @@ describe("calculator", () => {
                     damageDescriptions: {
                         [DamageType.BODY]: actionBodyDamageAmount,
                     },
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
                 }),
             ],
         })
@@ -1237,62 +1240,62 @@ describe("calculator", () => {
             })
         })
 
-        it("will apply the tier bonus to the attacker roll to increase change of hitting", () => {
-            const { battleSquaddie: enemyBattle } = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(
-                    objectRepository,
-                    enemy1DynamicId
+        describe("attack proficiency", () => {
+            it("will apply the proficiency bonus to the attacker roll to increase change of hitting", () => {
+                const { battleSquaddie: enemyBattle } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        objectRepository,
+                        enemy1DynamicId
+                    )
                 )
-            )
-            enemyBattle.inBattleAttributes.armyAttributes.armor = {
-                proficiencyLevel: ProficiencyLevel.NOVICE,
-                base: 0,
-            }
-
-            const { battleSquaddie: playerTier1BattleSquaddie } =
-                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    battleId: "playerTier1",
-                    templateId: "playerTier1",
-                    name: "playerTier1",
-                    objectRepository: objectRepository,
-                    actionTemplateIds: [
-                        actionAlwaysHitsAndDealsBodyDamage.id,
-                        actionNeedsAnAttackRollToDealBodyDamage.id,
-                    ],
-                    attributes: ArmyAttributesService.new({
-                        maxHitPoints: 5,
-                        movement: SquaddieMovementService.new({
-                            movementPerAction: 2,
-                        }),
-                        armor: {
-                            proficiencyLevel: ProficiencyLevel.UNTRAINED,
-                            base: -5,
-                        },
-                        tier: 1,
-                    }),
+                setArmorClass({
+                    battleSquaddie: enemyBattle,
+                    desiredArmorClass: 2,
                 })
 
-            const expectedRolls: number[] = [1, 5]
-            const numberGenerator: StreamNumberGenerator =
-                new StreamNumberGenerator({ results: expectedRolls })
+                const { battleSquaddie: playerTier1BattleSquaddie } =
+                    SquaddieRepositoryService.createNewSquaddieAndAddToRepository(
+                        {
+                            affiliation: SquaddieAffiliation.PLAYER,
+                            battleId: "playerTier1",
+                            templateId: "playerTier1",
+                            name: "playerTier1",
+                            objectRepository: objectRepository,
+                            actionTemplateIds: [
+                                actionAlwaysHitsAndDealsBodyDamage.id,
+                                actionNeedsAnAttackRollToDealBodyDamage.id,
+                            ],
+                            attributes: ArmyAttributesService.new({
+                                maxHitPoints: 5,
+                                movement: SquaddieMovementService.new({
+                                    movementPerAction: 2,
+                                }),
+                                ...setAttackBonusVersusArmor(2),
+                            }),
+                        }
+                    )
 
-            const results = dealBodyDamage({
-                actingBattleSquaddie: playerTier1BattleSquaddie,
-                currentlySelectedAction:
-                    actionNeedsAnAttackRollToDealBodyDamage,
-                numberGenerator,
-            })
-            const enemy1Changes =
-                results.changesPerEffect[0].squaddieChanges.find(
-                    (change) =>
-                        change.battleSquaddieId ===
-                        enemy1BattleSquaddie.battleSquaddieId
+                const expectedRolls: number[] = [1, 5]
+                const numberGenerator: StreamNumberGenerator =
+                    new StreamNumberGenerator({ results: expectedRolls })
+
+                const results = dealBodyDamage({
+                    actingBattleSquaddie: playerTier1BattleSquaddie,
+                    currentlySelectedAction:
+                        actionNeedsAnAttackRollToDealBodyDamage,
+                    numberGenerator,
+                })
+                const enemy1Changes =
+                    results.changesPerEffect[0].squaddieChanges.find(
+                        (change) =>
+                            change.battleSquaddieId ===
+                            enemy1BattleSquaddie.battleSquaddieId
+                    )
+                expect(enemy1Changes.actorDegreeOfSuccess).toBe(
+                    DegreeOfSuccess.SUCCESS
                 )
-            expect(enemy1Changes.actorDegreeOfSuccess).toBe(
-                DegreeOfSuccess.SUCCESS
-            )
-            expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+                expect(enemy1Changes.damage.net).toBe(actionBodyDamageAmount)
+            })
         })
 
         it("will apply the tier bonus to the defender stats to reduce chance of getting hit", () => {
@@ -1789,4 +1792,24 @@ describe("calculator", () => {
             ).toEqual(4 - 2)
         })
     })
+})
+
+const setArmorClass = ({
+    battleSquaddie,
+    desiredArmorClass,
+}: {
+    battleSquaddie: BattleSquaddie
+    desiredArmorClass: number
+}) => {
+    battleSquaddie.inBattleAttributes.armyAttributes.armor = {
+        proficiencyLevel: ProficiencyLevel.NOVICE,
+        base: desiredArmorClass - 1,
+    }
+}
+
+const setAttackBonusVersusArmor = (desiredAttackBonus: number) => ({
+    tier: desiredAttackBonus - 1,
+    versusProficiencyLevels: {
+        [VersusSquaddieResistance.ARMOR]: ProficiencyLevel.NOVICE,
+    },
 })

@@ -7,7 +7,10 @@ import {
     BattleActionSquaddieChangeService,
 } from "../../../../../history/battleAction/battleActionSquaddieChange"
 import { ActionEffectTemplateService } from "../../../../../../action/template/actionEffectTemplate"
-import { ActionPreviewTileLayout } from "../actionPreviewTile"
+import {
+    ActionPreviewTileLayout,
+    ShowDegreeOfSuccessEvenIfNoEffect,
+} from "../actionPreviewTile"
 import {
     Blackboard,
     BlackboardService,
@@ -60,6 +63,12 @@ const findNextDegreeOfSuccessToDraw = (
     actionTemplate: ActionTemplate
 ) => {
     let forecastedChange: BattleActionSquaddieChange = undefined
+    const hasCriticalFailure: boolean = targetForecast.squaddieChanges.some(
+        (change) =>
+            change.actorDegreeOfSuccess === DegreeOfSuccess.CRITICAL_FAILURE &&
+            change.chanceOfDegreeOfSuccess > 0
+    )
+
     const degreeOfSuccessToDraw = potentialDegreesOfSuccessToDraw.find(
         (degreeOfSuccessInfo) => {
             forecastedChange = targetForecast.squaddieChanges.find(
@@ -90,7 +99,15 @@ const findNextDegreeOfSuccessToDraw = (
 
             switch (true) {
                 case targetHasOnlyOneDegreeOfSuccess ||
-                    degreeOfSuccessInfo.showEvenIfNoEffect:
+                    degreeOfSuccessInfo.showEvenIfNoEffect ===
+                        ShowDegreeOfSuccessEvenIfNoEffect.YES:
+                    return true
+                case ActionEffectTemplateService.doesItTargetFoes(
+                    actionTemplate.actionEffectTemplates[0]
+                ) &&
+                    !hasCriticalFailure &&
+                    degreeOfSuccessInfo.degreeOfSuccess ===
+                        DegreeOfSuccess.FAILURE:
                     return true
                 case ActionEffectTemplateService.doesItTargetFoes(
                     actionTemplate.actionEffectTemplates[0]

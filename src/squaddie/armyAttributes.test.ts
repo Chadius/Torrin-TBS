@@ -4,6 +4,7 @@ import {
     ProficiencyLevel,
 } from "./armyAttributes"
 import { describe, expect, it } from "vitest"
+import { VersusSquaddieResistance } from "../action/template/actionEffectTemplate"
 
 describe("sanitize", () => {
     it("can be sanitized to fill in missing fields", () => {
@@ -12,6 +13,7 @@ describe("sanitize", () => {
             armor: null,
             movement: undefined,
             tier: undefined,
+            versusProficiencyLevels: undefined,
         }
         ArmyAttributesService.sanitize(attributesWithMissingFields)
         const defaultAttributes = ArmyAttributesService.default()
@@ -26,6 +28,13 @@ describe("sanitize", () => {
             defaultAttributes.movement
         )
         expect(attributesWithMissingFields.tier).toEqual(defaultAttributes.tier)
+        expect(attributesWithMissingFields.versusProficiencyLevels).toEqual({
+            [VersusSquaddieResistance.ARMOR]: ProficiencyLevel.UNTRAINED,
+            [VersusSquaddieResistance.BODY]: ProficiencyLevel.UNTRAINED,
+            [VersusSquaddieResistance.MIND]: ProficiencyLevel.UNTRAINED,
+            [VersusSquaddieResistance.SOUL]: ProficiencyLevel.UNTRAINED,
+            [VersusSquaddieResistance.OTHER]: ProficiencyLevel.UNTRAINED,
+        })
     })
     it("will sanitize and give default maximum hit points if maxHitPoints is non positive", () => {
         const attributesWithNoHitPoints: ArmyAttributes = {
@@ -33,6 +42,7 @@ describe("sanitize", () => {
             armor: null,
             movement: undefined,
             tier: undefined,
+            versusProficiencyLevels: undefined,
         }
         ArmyAttributesService.sanitize(attributesWithNoHitPoints)
         const defaultAttributes = ArmyAttributesService.default()
@@ -48,6 +58,9 @@ describe("sanitize", () => {
         )
         expect(attributes.armor).toEqual(ArmyAttributesService.default().armor)
         expect(attributes.tier).toEqual(ArmyAttributesService.default().tier)
+        expect(attributes.versusProficiencyLevels).toEqual(
+            ArmyAttributesService.default().versusProficiencyLevels
+        )
     })
     it("will create attributes with the given arguments", () => {
         const attributes: ArmyAttributes = ArmyAttributesService.new({
@@ -57,6 +70,9 @@ describe("sanitize", () => {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
                 base: 3,
             },
+            versusProficiencyLevels: {
+                [VersusSquaddieResistance.ARMOR]: ProficiencyLevel.MASTER,
+            },
         })
         expect(attributes.maxHitPoints).toEqual(10)
         expect(attributes.armor.proficiencyLevel).toEqual(
@@ -64,5 +80,8 @@ describe("sanitize", () => {
         )
         expect(attributes.armor.base).toEqual(3)
         expect(attributes.tier).toEqual(2)
+        expect(attributes.versusProficiencyLevels.ARMOR).toEqual(
+            ProficiencyLevel.MASTER
+        )
     })
 })

@@ -17,13 +17,21 @@ import { ActionTemplateService } from "../action/template/actionTemplate"
 import { isValidValue } from "../utils/validityCheck"
 import { BonusByProficiencyLevel, ProficiencyLevel } from "./armyAttributes"
 import { AttributeType } from "./attribute/attributeType"
-import { TargetBySquaddieAffiliationRelation } from "../action/template/actionEffectTemplate"
+import {
+    TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
+} from "../action/template/actionEffectTemplate"
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
 }
 
 export interface SquaddieArmorExplanation {
+    net: number
+    initial: number
+}
+
+export interface SquaddieVersusSquaddieResistanceExplanation {
     net: number
     initial: number
 }
@@ -293,6 +301,31 @@ export const SquaddieService = {
                 },
             }
         )
+    },
+    getVersusSquaddieResistanceProficiencyBonus: ({
+        squaddieTemplate,
+        versusSquaddieResistance,
+    }: {
+        squaddieTemplate: SquaddieTemplate
+        versusSquaddieResistance: VersusSquaddieResistance
+    }): SquaddieVersusSquaddieResistanceExplanation => {
+        const proficiencyLevel =
+            squaddieTemplate.attributes.versusProficiencyLevels[
+                versusSquaddieResistance
+            ]
+
+        if (proficiencyLevel === ProficiencyLevel.UNTRAINED) {
+            return {
+                net: 0,
+                initial: 0,
+            }
+        }
+
+        const tier = squaddieTemplate.attributes.tier
+        return {
+            net: tier + (BonusByProficiencyLevel[proficiencyLevel] ?? 0),
+            initial: tier,
+        }
     },
 }
 

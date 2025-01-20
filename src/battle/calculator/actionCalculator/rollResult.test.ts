@@ -1,4 +1,8 @@
-import { RollModifierType, RollResultService } from "./rollResult"
+import {
+    RollModifierType,
+    RollModifierTypeService,
+    RollResultService,
+} from "./rollResult"
 import { describe, expect, it } from "vitest"
 
 describe("Roll Result", () => {
@@ -55,7 +59,7 @@ describe("Roll Result", () => {
                     rolls: [1, 1],
                     occurred: true,
                     rollModifiers: {
-                        [RollModifierType.TIER]: 3,
+                        [RollModifierType.PROFICIENCY]: 3,
                     },
                 })
             )
@@ -69,8 +73,8 @@ describe("Roll Result", () => {
                     rolls: [1, 3],
                     occurred: true,
                     rollModifiers: {
+                        [RollModifierType.PROFICIENCY]: 4,
                         [RollModifierType.MULTIPLE_ATTACK_PENALTY]: -2,
-                        [RollModifierType.TIER]: 4,
                     },
                 })
             )
@@ -92,6 +96,37 @@ describe("Roll Result", () => {
             )
             expect(sanitized.occurred).toBeFalsy()
             expect(sanitized.rolls).toEqual([])
+        })
+    })
+
+    describe("creates readable names for modifiers", () => {
+        const tests = [
+            {
+                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                abbreviate: false,
+                expected: "Multiple attack penalty",
+            },
+            {
+                type: RollModifierType.MULTIPLE_ATTACK_PENALTY,
+                abbreviate: true,
+                expected: "MAP",
+            },
+            {
+                type: RollModifierType.PROFICIENCY,
+                abbreviate: false,
+                expected: "Proficiency",
+            },
+            {
+                type: RollModifierType.PROFICIENCY,
+                abbreviate: true,
+                expected: "Prof",
+            },
+        ]
+
+        it.each(tests)(`$expected`, ({ type, abbreviate, expected }) => {
+            expect(
+                RollModifierTypeService.readableName({ type, abbreviate })
+            ).toEqual(expected)
         })
     })
 })

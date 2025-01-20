@@ -22,6 +22,7 @@ import { ActionTemplateService } from "../action/template/actionTemplate"
 import {
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "../action/template/actionEffectTemplate"
 import { Trait, TraitStatusStorageService } from "../trait/traitStatusStorage"
 import { SquaddieIdService } from "./id"
@@ -166,6 +167,64 @@ describe("Squaddie Service", () => {
                 }
             )
         })
+    })
+
+    describe("Attack bonus against armor", () => {
+        it("should not apply tier if the squaddie is untrained", () => {
+            playerSquaddieTemplate.attributes.tier = 1
+            playerSquaddieTemplate.attributes.versusProficiencyLevels[
+                VersusSquaddieResistance.ARMOR
+            ] = ProficiencyLevel.UNTRAINED
+
+            let { net, initial } =
+                SquaddieService.getVersusSquaddieResistanceProficiencyBonus({
+                    squaddieTemplate: playerSquaddieTemplate,
+                    versusSquaddieResistance: VersusSquaddieResistance.ARMOR,
+                })
+
+            expect(initial).toBe(0)
+            expect(net).toBe(0)
+        })
+
+        const tests = [
+            {
+                proficiencyLevel: ProficiencyLevel.NOVICE,
+                proficiencyBonus: 1,
+            },
+            {
+                proficiencyLevel: ProficiencyLevel.EXPERT,
+                proficiencyBonus: 2,
+            },
+            {
+                proficiencyLevel: ProficiencyLevel.MASTER,
+                proficiencyBonus: 3,
+            },
+            {
+                proficiencyLevel: ProficiencyLevel.LEGENDARY,
+                proficiencyBonus: 4,
+            },
+        ]
+        it.each(tests)(
+            `$proficiencyLevel: $proficiencyBonus`,
+            ({ proficiencyLevel, proficiencyBonus }) => {
+                playerSquaddieTemplate.attributes.tier = 1
+                playerSquaddieTemplate.attributes.versusProficiencyLevels[
+                    VersusSquaddieResistance.ARMOR
+                ] = proficiencyLevel
+
+                let { net, initial } =
+                    SquaddieService.getVersusSquaddieResistanceProficiencyBonus(
+                        {
+                            squaddieTemplate: playerSquaddieTemplate,
+                            versusSquaddieResistance:
+                                VersusSquaddieResistance.ARMOR,
+                        }
+                    )
+
+                expect(initial).toBe(1)
+                expect(net).toBe(1 + proficiencyBonus)
+            }
+        )
     })
 
     describe("Current Hit Points", () => {

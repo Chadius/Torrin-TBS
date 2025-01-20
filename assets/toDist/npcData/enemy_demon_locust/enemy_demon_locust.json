@@ -27,7 +27,10 @@
     "movement": {
       "movementPerAction": 2
     },
-    "tier": 0
+    "tier": 0,
+    "versusProficiencyLevels": {
+      "ARMOR": "NOVICE"
+    }
   },
   "actionTemplateIds": [
     "demon_locust_arrow"

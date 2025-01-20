@@ -14,7 +14,7 @@ export enum TargetBySquaddieAffiliationRelation {
 }
 
 export enum VersusSquaddieResistance {
-    UNKNOWN = "UNKNOWN",
+    OTHER = "OTHER",
     ARMOR = "ARMOR",
     BODY = "BODY",
     MIND = "MIND",
@@ -77,8 +77,7 @@ export const ActionEffectTemplateService = {
             ],
             targetConstraints: {
                 versusSquaddieResistance:
-                    versusSquaddieResistance ??
-                    VersusSquaddieResistance.UNKNOWN,
+                    versusSquaddieResistance ?? VersusSquaddieResistance.OTHER,
                 squaddieAffiliationRelation: {
                     [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
                         squaddieAffiliationRelation
@@ -156,5 +155,41 @@ const sanitize = (data: ActionEffectTemplate): ActionEffectTemplate => {
         : {}
     data.actionDecisions = getValidValueOrDefault(data.actionDecisions, [])
     TraitStatusStorageService.sanitize(data.traits)
+    data.targetConstraints = getValidValueOrDefault(data.targetConstraints, {
+        versusSquaddieResistance: VersusSquaddieResistance.OTHER,
+        squaddieAffiliationRelation: {
+            [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+            [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
+            [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+        },
+    })
+    data.targetConstraints.versusSquaddieResistance = getValidValueOrDefault(
+        data.targetConstraints.versusSquaddieResistance,
+        VersusSquaddieResistance.OTHER
+    )
+    data.targetConstraints.squaddieAffiliationRelation = {
+        [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+            getValidValueOrDefault(
+                data.targetConstraints.squaddieAffiliationRelation[
+                    TargetBySquaddieAffiliationRelation.TARGET_SELF
+                ],
+                false
+            ),
+        [TargetBySquaddieAffiliationRelation.TARGET_ALLY]:
+            getValidValueOrDefault(
+                data.targetConstraints.squaddieAffiliationRelation[
+                    TargetBySquaddieAffiliationRelation.TARGET_ALLY
+                ],
+                false
+            ),
+        [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+            getValidValueOrDefault(
+                data.targetConstraints.squaddieAffiliationRelation[
+                    TargetBySquaddieAffiliationRelation.TARGET_FOE
+                ],
+                false
+            ),
+    }
+
     return data
 }

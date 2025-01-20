@@ -65,10 +65,12 @@ export const ActionCalculator = {
                 actionEffectTemplate,
                 actorBattleSquaddie,
                 targetedBattleSquaddieIds,
+                actorSquaddieTemplate,
             }: {
                 gameEngineState: GameEngineState
                 actionEffectTemplate: ActionEffectTemplate
                 actorBattleSquaddie: BattleSquaddie
+                actorSquaddieTemplate: SquaddieTemplate
                 targetedBattleSquaddieIds: string[]
             }): ActionEffectChange => {
                 const change: ActionEffectChange =
@@ -77,6 +79,7 @@ export const ActionCalculator = {
                         gameEngineState,
                         actionEffectTemplate,
                         actorBattleSquaddie,
+                        actorSquaddieTemplate,
                     })
 
                 change.squaddieChanges.forEach((squaddieChange) =>
@@ -102,17 +105,20 @@ export const ActionCalculator = {
                 gameEngineState,
                 actionEffectTemplate,
                 actorBattleSquaddie,
+                actorSquaddieTemplate,
                 targetedBattleSquaddieIds,
             }: {
                 gameEngineState: GameEngineState
                 actionEffectTemplate: ActionEffectTemplate
                 actorBattleSquaddie: BattleSquaddie
+                actorSquaddieTemplate: SquaddieTemplate
                 targetedBattleSquaddieIds: string[]
             }): ActionEffectChange =>
                 forecastChangesForSquaddieAndActionEffectTemplate({
                     gameEngineState,
                     actionEffectTemplate,
                     actorBattleSquaddie,
+                    actorSquaddieTemplate,
                     targetedBattleSquaddieIds,
                 }),
         }),
@@ -122,16 +128,19 @@ const getActorContext = ({
     gameEngineState,
     actionEffectTemplate,
     actorBattleSquaddie,
+    actorSquaddieTemplate,
 }: {
     gameEngineState: GameEngineState
     actionEffectTemplate: ActionEffectTemplate
     actorBattleSquaddie: BattleSquaddie
+    actorSquaddieTemplate: SquaddieTemplate
 }): BattleActionActorContext => {
     if (isAnAttack(actionEffectTemplate)) {
         return CalculatorAttack.getActorContext({
             actionEffectTemplate,
             gameEngineState,
             actorBattleSquaddie,
+            actorSquaddieTemplate,
         })
     }
     return CalculatorMiscellaneous.getActorContext({
@@ -485,10 +494,12 @@ const calculateResults = ({
         actionEffectTemplate,
         actorBattleSquaddie,
         targetedBattleSquaddieIds,
+        actorSquaddieTemplate,
     }: {
         gameEngineState: GameEngineState
         actionEffectTemplate: ActionEffectTemplate
         actorBattleSquaddie: BattleSquaddie
+        actorSquaddieTemplate: SquaddieTemplate
         targetedBattleSquaddieIds: string[]
     }) => ActionEffectChange
 }): CalculatedResult => {
@@ -511,7 +522,10 @@ const calculateResults = ({
         return undefined
     }
 
-    const { battleSquaddie: actorBattleSquaddie } = getResultOrThrowError(
+    const {
+        battleSquaddie: actorBattleSquaddie,
+        squaddieTemplate: actorSquaddieTemplate,
+    } = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(
             gameEngineState.repository,
             actorBattleSquaddieId
@@ -542,6 +556,7 @@ const calculateResults = ({
                     gameEngineState,
                     actionEffectTemplate,
                     actorBattleSquaddie,
+                    actorSquaddieTemplate,
                     targetedBattleSquaddieIds,
                 })
 
@@ -562,16 +577,19 @@ const forecastChangesForSquaddieAndActionEffectTemplate = ({
     actionEffectTemplate,
     actorBattleSquaddie,
     targetedBattleSquaddieIds,
+    actorSquaddieTemplate,
 }: {
     gameEngineState: GameEngineState
     actionEffectTemplate: ActionEffectTemplate
     actorBattleSquaddie: BattleSquaddie
+    actorSquaddieTemplate: SquaddieTemplate
     targetedBattleSquaddieIds: string[]
 }): ActionEffectChange => {
     const actorContext = getActorContext({
         gameEngineState,
-        actionEffectTemplate: actionEffectTemplate,
-        actorBattleSquaddie: actorBattleSquaddie,
+        actionEffectTemplate,
+        actorBattleSquaddie,
+        actorSquaddieTemplate,
     })
 
     const squaddieChanges: BattleActionSquaddieChange[] =
@@ -711,16 +729,19 @@ const applySquaddieChangesForThisEffectSquaddieTemplate2 = ({
     actionEffectTemplate,
     actorBattleSquaddie,
     targetedBattleSquaddieIds,
+    actorSquaddieTemplate,
 }: {
     targetedBattleSquaddieIds: string[]
     gameEngineState: GameEngineState
     actionEffectTemplate: ActionEffectTemplate
     actorBattleSquaddie: BattleSquaddie
+    actorSquaddieTemplate: SquaddieTemplate
 }): ActionEffectChange => {
     const actorContext = getActorContext({
         gameEngineState,
-        actionEffectTemplate: actionEffectTemplate,
-        actorBattleSquaddie: actorBattleSquaddie,
+        actionEffectTemplate,
+        actorBattleSquaddie,
+        actorSquaddieTemplate,
     })
 
     const squaddieChanges: BattleActionSquaddieChange[] =

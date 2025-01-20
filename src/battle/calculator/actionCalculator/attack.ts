@@ -113,10 +113,12 @@ export const CalculatorAttack = {
         actionEffectTemplate,
         gameEngineState,
         actorBattleSquaddie,
+        actorSquaddieTemplate,
     }: {
         actionEffectTemplate: ActionEffectTemplate
         gameEngineState: GameEngineState
         actorBattleSquaddie: BattleSquaddie
+        actorSquaddieTemplate: SquaddieTemplate
     }): BattleActionActorContext => {
         let actingSquaddieModifiers =
             CalculatorAttack.getActingSquaddieModifiersForAttack(
@@ -127,6 +129,7 @@ export const CalculatorAttack = {
             actionEffectTemplate,
             gameEngineState,
             actorBattleSquaddie,
+            actorSquaddieTemplate,
         })
 
         return BattleActionActorContextService.new({
@@ -173,19 +176,28 @@ const maybeMakeAttackRoll = ({
     actionEffectTemplate,
     gameEngineState,
     actorBattleSquaddie,
+    actorSquaddieTemplate,
 }: {
     actionEffectTemplate: ActionEffectTemplate
     gameEngineState: GameEngineState
     actorBattleSquaddie: BattleSquaddie
+    actorSquaddieTemplate: SquaddieTemplate
 }): RollResult => {
     if (doesActionNeedAnAttackRoll(actionEffectTemplate)) {
-        const rollModifiers = {
+        const rollModifiers: {
+            [t in RollModifierType]?: number
+        } = {
             [RollModifierType.MULTIPLE_ATTACK_PENALTY]:
                 calculateMultipleAttackPenaltyForActionsThisTurn(
                     gameEngineState
                 ),
-            [RollModifierType.TIER]:
-                actorBattleSquaddie.inBattleAttributes.armyAttributes.tier,
+            [RollModifierType.PROFICIENCY]:
+                SquaddieService.getVersusSquaddieResistanceProficiencyBonus({
+                    squaddieTemplate: actorSquaddieTemplate,
+                    versusSquaddieResistance:
+                        actionEffectTemplate.targetConstraints
+                            .versusSquaddieResistance,
+                }).net,
         }
 
         const attackRoll = [
@@ -270,14 +282,12 @@ const calculateDegreeOfSuccessBasedOnRollTotalVersusTarget = (
     return degreeOfSuccess
 }
 const compareAttackRollToGetDegreeOfSuccess = ({
-    actor,
     actingSquaddieRoll,
     actionEffectTemplate,
     targetBattleSquaddie,
     targetSquaddieTemplate,
     actingSquaddieModifierTotal,
 }: {
-    actor: BattleSquaddie
     actingSquaddieRoll: RollResult
     actionEffectTemplate: ActionEffectTemplate
     targetBattleSquaddie: BattleSquaddie
@@ -387,7 +397,6 @@ const getDegreeOfSuccess = ({
 
     return compareAttackRollToGetDegreeOfSuccess({
         actionEffectTemplate,
-        actor: actorBattleSquaddie,
         targetBattleSquaddie: targetBattleSquaddie,
         targetSquaddieTemplate: targetSquaddieTemplate,
         actingSquaddieRoll: actorContext.actorRoll,

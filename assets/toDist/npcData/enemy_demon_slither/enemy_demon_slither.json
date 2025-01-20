@@ -26,7 +26,10 @@
     "movement": {
       "movementPerAction": 2
     },
-    "tier": 0
+    "tier": 0,
+    "versusProficiencyLevels": {
+      "ARMOR": "UNTRAINED"
+    }
   },
   "actionTemplateIds": [
     "demon_slither_bite"

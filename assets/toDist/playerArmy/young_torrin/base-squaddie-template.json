@@ -33,7 +33,10 @@
       "passThroughWalls": false,
       "crossOverPits": false
     },
-    "tier": 1
+    "tier": 1,
+    "versusProficiencyLevels": {
+      "ARMOR": "NOVICE"
+    }
   },
   "actionTemplateIds": [
     "torrin_water_cannon",

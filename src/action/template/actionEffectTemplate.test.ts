@@ -7,6 +7,7 @@ import {
     ActionEffectTemplate,
     ActionEffectTemplateService,
     TargetBySquaddieAffiliationRelation,
+    VersusSquaddieResistance,
 } from "./actionEffectTemplate"
 import { ActionDecisionType } from "./actionTemplate"
 import { describe, expect, it } from "vitest"
@@ -103,6 +104,18 @@ describe("ActionEffectTemplate", () => {
             )
             expect(actionWithMissingFields.damageDescriptions).toEqual({})
             expect(actionWithMissingFields.healingDescriptions).toEqual({})
+            expect(
+                actionWithMissingFields.targetConstraints
+                    .versusSquaddieResistance
+            ).toEqual(VersusSquaddieResistance.OTHER)
+            expect(
+                actionWithMissingFields.targetConstraints
+                    .squaddieAffiliationRelation
+            ).toEqual({
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: false,
+                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: false,
+                [TargetBySquaddieAffiliationRelation.TARGET_FOE]: false,
+            })
         })
     })
 
