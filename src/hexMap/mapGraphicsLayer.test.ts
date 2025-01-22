@@ -10,12 +10,12 @@ describe("Map Graphics Layer", () => {
     it("has an Id", () => {
         const mapGraphicsLayerWithId = MapGraphicsLayerService.new({
             id: "wow",
-            type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+            type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
         })
 
         expect(mapGraphicsLayerWithId.id).toEqual("wow")
         expect(mapGraphicsLayerWithId.type).toEqual(
-            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
         )
     })
 

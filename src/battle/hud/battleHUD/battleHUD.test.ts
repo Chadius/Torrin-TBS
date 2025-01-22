@@ -743,11 +743,11 @@ describe("Battle HUD", () => {
             ).toBeUndefined()
         })
 
-        it("highlights the map with the controllable squaddie's range", () => {
+        it("does not highlight range for normally controllable squaddies", () => {
             gameEngineState.messageBoard.sendMessage({
                 type: MessageBoardMessageType.PLAYER_PEEKS_AT_SQUADDIE,
                 gameEngineState,
-                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
+                battleSquaddieSelectedId: "player_soldier_0",
                 selectionMethod: {
                     mouse: { x: 0, y: 0 },
                 },
@@ -759,10 +759,9 @@ describe("Battle HUD", () => {
                         .missionMap.terrainTileMap,
                 id: battleSquaddie.battleSquaddieId,
             })
-            expect(graphicsLayer.type).toEqual(
-                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
-            )
+            expect(graphicsLayer).toBeUndefined()
         })
+
         it("highlights ranges for normally uncontrollable squaddies", () => {
             ObjectRepositoryService.addSquaddie({
                 repo: gameEngineState.repository,
@@ -2304,11 +2303,6 @@ describe("Battle HUD", () => {
                 gameEngineState.battleOrchestratorState.battleState.missionMap
                     .terrainTileMap,
                 MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
-            )
-            expect(terrainTileMapSpy).toBeCalledWith(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
             )
             terrainTileMapSpy.mockRestore()
         })

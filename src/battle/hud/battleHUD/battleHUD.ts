@@ -317,26 +317,20 @@ export const BattleHUDService = {
                         : SquaddieTurnService.new(),
             })
 
-        ;[
-            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
-            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
-        ].forEach((type) => {
-            TerrainTileMapService.removeGraphicsLayerByType(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                type
-            )
-        })
+        TerrainTileMapService.removeGraphicsLayerByType(
+            gameEngineState.battleOrchestratorState.battleState.missionMap
+                .terrainTileMap,
+            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
+        )
 
         const { squaddieIsNormallyControllableByPlayer } =
             SquaddieService.canPlayerControlSquaddieRightNow({
                 squaddieTemplate,
                 battleSquaddie,
             })
+        if (squaddieIsNormallyControllableByPlayer) return
         const layerType: MapGraphicsLayerType =
-            squaddieIsNormallyControllableByPlayer
-                ? MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
-                : MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
+            MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
 
         const actionRangeLayer = MapGraphicsLayerService.new({
             id: battleSquaddieId,
@@ -654,11 +648,6 @@ export const BattleHUDService = {
             gameEngineState.battleOrchestratorState.battleState.missionMap
                 .terrainTileMap,
             MapGraphicsLayerType.CLICKED_ON_CONTROLLABLE_SQUADDIE
-        )
-        TerrainTileMapService.removeGraphicsLayerByType(
-            gameEngineState.battleOrchestratorState.battleState.missionMap
-                .terrainTileMap,
-            MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
         )
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =

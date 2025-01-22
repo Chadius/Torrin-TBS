@@ -363,7 +363,7 @@ describe("Terrain Tile Map", () => {
                         ],
                     },
                 ],
-                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
             })
         })
 
@@ -416,7 +416,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.addGraphicsLayer(map, hoveredLayer)
             TerrainTileMapService.removeGraphicsLayerByType(
                 map,
-                MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE
+                MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE
             )
 
             expect(
@@ -438,7 +438,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.removeGraphicsLayerWithIdAndType({
                 terrainTileMap: map,
                 id: clickedLayer.id,
-                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
             })
 
             expect(
@@ -457,7 +457,7 @@ describe("Terrain Tile Map", () => {
             TerrainTileMapService.removeGraphicsLayerWithIdAndType({
                 terrainTileMap: map,
                 id: hoveredLayer.id,
-                type: MapGraphicsLayerType.HOVERED_OVER_CONTROLLABLE_SQUADDIE,
+                type: MapGraphicsLayerType.HOVERED_OVER_NORMALLY_UNCONTROLLABLE_SQUADDIE,
             })
 
             expect(

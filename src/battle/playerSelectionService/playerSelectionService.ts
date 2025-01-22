@@ -184,6 +184,9 @@ export const PlayerSelectionService = {
                 battleSquaddieTryingToStartAnAction &&
                 clickedOnSquaddie &&
                 squaddieIsNormallyControllableByPlayer:
+            case battleSquaddieTryingToStartAnAction &&
+                clickedOnSquaddie &&
+                !squaddieIsNormallyControllableByPlayer:
                 if (
                     !isDifferentSquaddieInRange(
                         battleSquaddieTryingToStartAnAction,
@@ -212,30 +215,6 @@ export const PlayerSelectionService = {
                     playerIntent:
                         PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE,
                     battleSquaddieId: clickedBattleSquaddieId,
-                    mouseClick,
-                })
-            case battleSquaddieTryingToStartAnAction &&
-                clickedOnSquaddie &&
-                !squaddieIsNormallyControllableByPlayer:
-                if (
-                    !isDifferentSquaddieInRange(
-                        battleSquaddieTryingToStartAnAction,
-                        gameEngineState,
-                        clickedLocation
-                    )
-                ) {
-                    return PlayerSelectionContextService.new({
-                        playerIntent:
-                            PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE_OUT_OF_RANGE,
-                        battleSquaddieId: battleSquaddieTryingToStartAnAction,
-                        mouseClick,
-                    })
-                }
-
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_SQUADDIE,
-                    battleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
                 })
             case !isSquaddieTakingATurn &&

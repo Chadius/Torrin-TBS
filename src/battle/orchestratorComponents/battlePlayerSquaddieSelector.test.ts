@@ -119,7 +119,7 @@ describe("BattleSquaddieSelector", () => {
         expectedPlayerSelectionContextCalculationArgs?: PlayerSelectionContextCalculationArgs
         expectedPlayerSelectionContext?: PlayerSelectionContext
         expectedPlayerSelectionChanges?: PlayerSelectionChanges
-    }) => {
+    }): boolean => {
         if (expectedPlayerSelectionContextCalculationArgs) {
             expect(calculateContextSpy).toHaveBeenCalledWith(
                 expectedPlayerSelectionContextCalculationArgs
@@ -146,6 +146,7 @@ describe("BattleSquaddieSelector", () => {
         } else {
             expect(applyContextSpy).toHaveBeenCalled()
         }
+        return true
     }
 
     const makeBattlePhaseTrackerWithPlayerTeam = (
@@ -282,26 +283,28 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("will use the player selection service to make the needed changes", () => {
-            expectContextSpiesWereCalled({
-                expectedPlayerSelectionContextCalculationArgs:
-                    PlayerSelectionContextCalculationArgsService.new({
-                        gameEngineState,
-                        mouseMovement: {
-                            x: battleSquaddieScreenPositionX,
-                            y: battleSquaddieScreenPositionY,
-                        },
-                        playerInputActions: [],
-                    }),
-                expectedPlayerSelectionContext:
-                    PlayerSelectionContextService.new({
-                        playerIntent: PlayerIntent.PEEK_AT_SQUADDIE,
-                        mouseMovement: {
-                            x: battleSquaddieScreenPositionX,
-                            y: battleSquaddieScreenPositionY,
-                        },
-                        battleSquaddieId: "battleSquaddieId",
-                    }),
-            })
+            expect(
+                expectContextSpiesWereCalled({
+                    expectedPlayerSelectionContextCalculationArgs:
+                        PlayerSelectionContextCalculationArgsService.new({
+                            gameEngineState,
+                            mouseMovement: {
+                                x: battleSquaddieScreenPositionX,
+                                y: battleSquaddieScreenPositionY,
+                            },
+                            playerInputActions: [],
+                        }),
+                    expectedPlayerSelectionContext:
+                        PlayerSelectionContextService.new({
+                            playerIntent: PlayerIntent.PEEK_AT_SQUADDIE,
+                            mouseMovement: {
+                                x: battleSquaddieScreenPositionX,
+                                y: battleSquaddieScreenPositionY,
+                            },
+                            battleSquaddieId: "battleSquaddieId",
+                        }),
+                })
+            ).toBeTruthy()
         })
 
         it("will generate a message to indicate player hovered over the squaddie", () => {
@@ -379,38 +382,40 @@ describe("BattleSquaddieSelector", () => {
             })
 
             it("will use the player selection service to make the needed changes", () => {
-                expectContextSpiesWereCalled({
-                    expectedPlayerSelectionContextCalculationArgs:
-                        PlayerSelectionContextCalculationArgsService.new({
-                            gameEngineState,
-                            mouseClick: {
-                                x: x,
-                                y: y,
-                                button: MouseButton.ACCEPT,
-                            },
-                            playerInputActions: [],
-                        }),
-                    expectedPlayerSelectionContext:
-                        PlayerSelectionContextService.new({
-                            playerIntent:
-                                PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
-                            mouseClick: {
-                                x: x,
-                                y: y,
-                                button: MouseButton.ACCEPT,
-                            },
-                            battleSquaddieId: "battleSquaddieId",
-                        }),
-                    expectedPlayerSelectionChanges:
-                        PlayerSelectionChangesService.new({
-                            messageSent: {
-                                type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
-                                battleSquaddieId: "battleSquaddieId",
-                                targetCoordinate: { q: 0, r: 1 },
+                expect(
+                    expectContextSpiesWereCalled({
+                        expectedPlayerSelectionContextCalculationArgs:
+                            PlayerSelectionContextCalculationArgsService.new({
                                 gameEngineState,
-                            },
-                        }),
-                })
+                                mouseClick: {
+                                    x: x,
+                                    y: y,
+                                    button: MouseButton.ACCEPT,
+                                },
+                                playerInputActions: [],
+                            }),
+                        expectedPlayerSelectionContext:
+                            PlayerSelectionContextService.new({
+                                playerIntent:
+                                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
+                                mouseClick: {
+                                    x: x,
+                                    y: y,
+                                    button: MouseButton.ACCEPT,
+                                },
+                                battleSquaddieId: "battleSquaddieId",
+                            }),
+                        expectedPlayerSelectionChanges:
+                            PlayerSelectionChangesService.new({
+                                messageSent: {
+                                    type: MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
+                                    battleSquaddieId: "battleSquaddieId",
+                                    targetCoordinate: { q: 0, r: 1 },
+                                    gameEngineState,
+                                },
+                            }),
+                    })
+                ).toBeTruthy()
             })
 
             it("will generate a message to indicate player wants to move the squaddie", () => {
@@ -503,40 +508,43 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("knows the player intends to end the turn", () => {
-            expectContextSpiesWereCalled({
-                expectedPlayerSelectionContextCalculationArgs:
-                    PlayerSelectionContextCalculationArgsService.new({
-                        gameEngineState,
-                        mouseClick: {
-                            x: x,
-                            y: y,
-                            button: MouseButton.ACCEPT,
-                        },
-                        playerInputActions: [],
-                        endTurnSelected: true,
-                    }),
-                expectedPlayerSelectionContext:
-                    PlayerSelectionContextService.new({
-                        playerIntent: PlayerIntent.END_SQUADDIE_TURN,
-                        battleSquaddieId: "battleSquaddieId",
-                    }),
-                expectedPlayerSelectionChanges:
-                    PlayerSelectionChangesService.new({
-                        battleOrchestratorMode:
-                            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-                        messageSent: {
-                            type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+            expect(
+                expectContextSpiesWereCalled({
+                    expectedPlayerSelectionContextCalculationArgs:
+                        PlayerSelectionContextCalculationArgsService.new({
                             gameEngineState,
-                            battleAction: BattleActionService.new({
-                                actor: {
-                                    actorBattleSquaddieId: "battleSquaddieId",
-                                },
-                                action: { isEndTurn: true },
-                                effect: { endTurn: true },
-                            }),
-                        },
-                    }),
-            })
+                            mouseClick: {
+                                x: x,
+                                y: y,
+                                button: MouseButton.ACCEPT,
+                            },
+                            playerInputActions: [],
+                            endTurnSelected: true,
+                        }),
+                    expectedPlayerSelectionContext:
+                        PlayerSelectionContextService.new({
+                            playerIntent: PlayerIntent.END_SQUADDIE_TURN,
+                            battleSquaddieId: "battleSquaddieId",
+                        }),
+                    expectedPlayerSelectionChanges:
+                        PlayerSelectionChangesService.new({
+                            battleOrchestratorMode:
+                                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                            messageSent: {
+                                type: MessageBoardMessageType.PLAYER_ENDS_TURN,
+                                gameEngineState,
+                                battleAction: BattleActionService.new({
+                                    actor: {
+                                        actorBattleSquaddieId:
+                                            "battleSquaddieId",
+                                    },
+                                    action: { isEndTurn: true },
+                                    effect: { endTurn: true },
+                                }),
+                            },
+                        }),
+                })
+            ).toBeTruthy()
         })
 
         it("sends a message to end the turn", () => {
@@ -616,43 +624,45 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("knows the player wants to use the action", () => {
-            expectContextSpiesWereCalled({
-                expectedPlayerSelectionContextCalculationArgs:
-                    PlayerSelectionContextCalculationArgsService.new({
-                        gameEngineState,
-                        mouseClick: MouseClickService.new({
-                            x: x,
-                            y: y,
-                            button: MouseButton.ACCEPT,
-                        }),
-                        playerInputActions: [],
-                        actionTemplateId: "melee",
-                    }),
-                expectedPlayerSelectionContext:
-                    PlayerSelectionContextService.new({
-                        playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
-                        battleSquaddieId: "battleSquaddieId",
-                        actionTemplateId: "melee",
-                        mouseClick: MouseClickService.new({
-                            x: x,
-                            y: y,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    }),
-                expectedPlayerSelectionChanges:
-                    PlayerSelectionChangesService.new({
-                        battleOrchestratorMode:
-                            BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
-                        messageSent: {
-                            type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+            expect(
+                expectContextSpiesWereCalled({
+                    expectedPlayerSelectionContextCalculationArgs:
+                        PlayerSelectionContextCalculationArgsService.new({
                             gameEngineState,
+                            mouseClick: MouseClickService.new({
+                                x: x,
+                                y: y,
+                                button: MouseButton.ACCEPT,
+                            }),
+                            playerInputActions: [],
+                            actionTemplateId: "melee",
+                        }),
+                    expectedPlayerSelectionContext:
+                        PlayerSelectionContextService.new({
+                            playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
                             battleSquaddieId: "battleSquaddieId",
                             actionTemplateId: "melee",
-                            mapStartingCoordinate: { q: 0, r: 0 },
-                            mouseLocation: { x, y },
-                        },
-                    }),
-            })
+                            mouseClick: MouseClickService.new({
+                                x: x,
+                                y: y,
+                                button: MouseButton.ACCEPT,
+                            }),
+                        }),
+                    expectedPlayerSelectionChanges:
+                        PlayerSelectionChangesService.new({
+                            battleOrchestratorMode:
+                                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                            messageSent: {
+                                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+                                gameEngineState,
+                                battleSquaddieId: "battleSquaddieId",
+                                actionTemplateId: "melee",
+                                mapStartingCoordinate: { q: 0, r: 0 },
+                                mouseLocation: { x, y },
+                            },
+                        }),
+                })
+            ).toBeTruthy()
         })
 
         it("sends a message to target", () => {
@@ -714,26 +724,28 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("knows the player wants to switch to the next squaddie", () => {
-            expectContextSpiesWereCalled({
-                expectedPlayerSelectionContextCalculationArgs:
-                    PlayerSelectionContextCalculationArgsService.new({
-                        gameEngineState,
-                        playerInputActions: [PlayerInputAction.NEXT],
-                    }),
-                expectedPlayerSelectionContext:
-                    PlayerSelectionContextService.new({
-                        playerIntent:
-                            PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                        playerInputActions: [PlayerInputAction.NEXT],
-                    }),
-                expectedPlayerSelectionChanges:
-                    PlayerSelectionChangesService.new({
-                        messageSent: {
-                            type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+            expect(
+                expectContextSpiesWereCalled({
+                    expectedPlayerSelectionContextCalculationArgs:
+                        PlayerSelectionContextCalculationArgsService.new({
                             gameEngineState,
-                        },
-                    }),
-            })
+                            playerInputActions: [PlayerInputAction.NEXT],
+                        }),
+                    expectedPlayerSelectionContext:
+                        PlayerSelectionContextService.new({
+                            playerIntent:
+                                PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
+                            playerInputActions: [PlayerInputAction.NEXT],
+                        }),
+                    expectedPlayerSelectionChanges:
+                        PlayerSelectionChangesService.new({
+                            messageSent: {
+                                type: MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
+                                gameEngineState,
+                            },
+                        }),
+                })
+            ).toBeTruthy()
         })
 
         it("sends a message to target", () => {
