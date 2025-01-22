@@ -37,7 +37,10 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../../action/template/actionTemplate"
-import { ActionEffectTemplateService } from "../../../action/template/actionEffectTemplate"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
 import {
     Trait,
     TraitStatusStorageService,
@@ -68,7 +71,11 @@ import {
     SquaddieTurnService,
 } from "../../../squaddie/turn"
 import { SquaddieMovementService } from "../../../squaddie/movement"
-import { DamageType, SquaddieService } from "../../../squaddie/squaddieService"
+import {
+    DamageType,
+    HealingType,
+    SquaddieService,
+} from "../../../squaddie/squaddieService"
 import { getResultOrThrowError } from "../../../utils/ResultOrError"
 import { DegreeOfSuccess } from "../../calculator/actionCalculator/degreeOfSuccess"
 import {
@@ -103,6 +110,11 @@ import {
 } from "vitest"
 import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
 import { BattleHUDListener } from "./battleHUDListener"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 describe("Battle HUD", () => {
     let mockP5GraphicsContext: MockedP5GraphicsBuffer
@@ -123,6 +135,7 @@ describe("Battle HUD", () => {
     }): {
         gameEngineState: GameEngineState
         longswordAction: ActionTemplate
+        healSelfAction: ActionTemplate
         playerSoldierBattleSquaddie: BattleSquaddie
         battleSquaddie2: BattleSquaddie
     } => {
@@ -163,6 +176,35 @@ describe("Battle HUD", () => {
                 }),
             ],
         })
+        const healSelfAction = ActionTemplateService.new({
+            id: "self",
+            name: "self",
+            targetConstraints: TargetConstraintsService.new({
+                minimumRange: 0,
+                maximumRange: 0,
+                coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    squaddieAffiliationRelation: {
+                        [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        HEALING: true,
+                    }),
+                    attributeModifiers: [
+                        AttributeModifierService.new({
+                            type: AttributeType.ARMOR,
+                            amount: 1,
+                            source: AttributeSource.CIRCUMSTANCE,
+                        }),
+                    ],
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 1,
+                    },
+                }),
+            ],
+        })
         teams.push(playerTeam)
         const { battleSquaddie: playerSoldierBattleSquaddie } =
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
@@ -171,7 +213,7 @@ describe("Battle HUD", () => {
                 battleId: "player_soldier_0",
                 affiliation: SquaddieAffiliation.PLAYER,
                 objectRepository: repository,
-                actionTemplateIds: [longswordAction.id],
+                actionTemplateIds: [longswordAction.id, healSelfAction.id],
             })
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
             "player_soldier_0",
@@ -233,6 +275,10 @@ describe("Battle HUD", () => {
             gameEngineState.repository,
             longswordAction
         )
+        ObjectRepositoryService.addActionTemplate(
+            gameEngineState.repository,
+            healSelfAction
+        )
 
         gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
             BattleActionDecisionStepService.new()
@@ -247,6 +293,7 @@ describe("Battle HUD", () => {
         return {
             gameEngineState,
             longswordAction,
+            healSelfAction,
             playerSoldierBattleSquaddie,
             battleSquaddie2,
         }
@@ -1135,6 +1182,7 @@ describe("Battle HUD", () => {
         let gameEngineState: GameEngineState
         let playerSoldierBattleSquaddie: BattleSquaddie
         let longswordAction: ActionTemplate
+        let healSelfAction: ActionTemplate
         let messageSpy: MockInstance
 
         beforeEach(() => {
@@ -1142,6 +1190,7 @@ describe("Battle HUD", () => {
                 gameEngineState,
                 playerSoldierBattleSquaddie,
                 longswordAction,
+                healSelfAction,
             } = createGameEngineState({}))
 
             const repository = gameEngineState.repository
@@ -1235,21 +1284,6 @@ describe("Battle HUD", () => {
                 ).toBeTruthy()
             })
 
-            it("will set the actions this round to the squaddie and its coordinate", () => {
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
-                expect(
-                    BattleActionDecisionStepService.getAction(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).actionTemplateId
-                ).toEqual(longswordAction.id)
-            })
-
             it("will add a new tile to the HUD", () => {
                 expect(
                     gameEngineState.battleOrchestratorState.battleHUDState
@@ -1266,6 +1300,138 @@ describe("Battle HUD", () => {
                 }
 
                 expect(messageSpy).toBeCalledWith(expectedMessage)
+            })
+        })
+        describe("Action already knows its targets", () => {
+            beforeEach(() => {
+                battleHUDListener = new BattleHUDListener("battleHUDListener")
+                gameEngineState.messageBoard.addListener(
+                    battleHUDListener,
+                    MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS
+                )
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
+                    gameEngineState,
+                    actionTemplateId: "self",
+                    actorBattleSquaddieId:
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    mapStartingCoordinate: { q: 0, r: 0 },
+                    targetBattleSquaddieIds: [
+                        playerSoldierBattleSquaddie.battleSquaddieId,
+                    ],
+                })
+            })
+
+            it("hides the command window", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.showPlayerCommand
+                ).toBeFalsy()
+            })
+
+            it("updates the action builder actor", () => {
+                expect(
+                    BattleActionDecisionStepService.isActorSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
+                ).toEqual(playerSoldierBattleSquaddie.battleSquaddieId)
+            })
+
+            it("updates the action builder action", () => {
+                expect(
+                    BattleActionDecisionStepService.isActionSet(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getAction(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).actionTemplateId
+                ).toEqual(healSelfAction.id)
+            })
+
+            it("sets the target", () => {
+                expect(
+                    BattleActionDecisionStepService.isTargetConsidered(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionDecisionStepService.getTarget(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    )
+                ).toEqual({
+                    targetCoordinate: { q: 0, r: 0 },
+                    confirmed: false,
+                })
+            })
+
+            it("will not add to the recorder", () => {
+                expect(
+                    BattleActionRecorderService.isAnimationQueueEmpty(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                ).toBeTruthy()
+                expect(
+                    BattleActionRecorderService.isAlreadyAnimatedQueueEmpty(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionRecorder
+                    )
+                ).toBeTruthy()
+            })
+
+            it("will add a new action selected tile to the HUD", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionSelectedTile.actionName
+                ).toBe(healSelfAction.name)
+            })
+
+            it("will submit an event saying the action is ready", () => {
+                const expectedMessage: MessageBoardMessage = {
+                    type: MessageBoardMessageType.PLAYER_CONFIRMS_DECISION_STEP_ACTOR,
+                    gameEngineState,
+                    recommendedMode:
+                        BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                }
+
+                expect(messageSpy).toBeCalledWith(expectedMessage)
+            })
+
+            it("shows a summary window for the target", () => {
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: mockP5GraphicsContext,
+                })
+
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieNameTiles["TARGET_NAME"]
+                        .battleSquaddieId
+                ).toEqual("player_soldier_0")
+            })
+
+            it("will add an action preview tile to the HUD", () => {
+                expect(
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.actionPreviewTile
+                ).not.toBeUndefined()
             })
         })
     })

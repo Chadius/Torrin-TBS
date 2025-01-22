@@ -307,13 +307,14 @@ export class GameEngine {
             MessageBoardMessageType.PLAYER_CANCELS_TARGET_CONFIRMATION,
             MessageBoardMessageType.PLAYER_ENDS_TURN,
             MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET,
+            MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
             MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE,
             MessageBoardMessageType.PLAYER_CONFIRMS_ACTION,
             MessageBoardMessageType.SELECT_AND_LOCK_NEXT_SQUADDIE,
             MessageBoardMessageType.MOVE_SQUADDIE_TO_COORDINATE,
             MessageBoardMessageType.PLAYER_CANCELS_SQUADDIE_SELECTION,
             MessageBoardMessageType.PLAYER_SELECTS_EMPTY_TILE,
-            MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET,
+            MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
             MessageBoardMessageType.PLAYER_CONTROLLED_SQUADDIE_NEEDS_NEXT_ACTION,
         ].forEach((messageBoardMessageType) => {
             this.gameEngineState.messageBoard.addListener(

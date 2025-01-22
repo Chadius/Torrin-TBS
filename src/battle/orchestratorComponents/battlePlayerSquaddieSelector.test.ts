@@ -57,7 +57,7 @@ import {
     Trait,
     TraitStatusStorageService,
 } from "../../trait/traitStatusStorage"
-import { DamageType } from "../../squaddie/squaddieService"
+import { DamageType, HealingType } from "../../squaddie/squaddieService"
 import { BattleActionRecorderService } from "../history/battleAction/battleActionRecorder"
 import { TargetConstraintsService } from "../../action/targetConstraints"
 import {
@@ -72,6 +72,12 @@ import {
 import { PlayerInputTestService } from "../../utils/test/playerInput"
 import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 import { BattleHUDListener } from "../hud/battleHUD/battleHUDListener"
+import { CoordinateGeneratorShape } from "../targeting/coordinateGenerator"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../squaddie/attribute/attributeType"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -189,6 +195,87 @@ describe("BattleSquaddieSelector", () => {
             )
         }
 
+        if (
+            !ObjectRepositoryService.hasActionTemplateId(
+                objectRepository,
+                "self"
+            )
+        ) {
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    id: "self",
+                    name: "self",
+                    targetConstraints: TargetConstraintsService.new({
+                        minimumRange: 0,
+                        maximumRange: 0,
+                        coordinateGeneratorShape:
+                            CoordinateGeneratorShape.BLOOM,
+                    }),
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                    true,
+                            },
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    HEALING: true,
+                                }
+                            ),
+                            attributeModifiers: [
+                                AttributeModifierService.new({
+                                    type: AttributeType.ARMOR,
+                                    amount: 1,
+                                    source: AttributeSource.CIRCUMSTANCE,
+                                }),
+                            ],
+                            healingDescriptions: {
+                                [HealingType.LOST_HIT_POINTS]: 1,
+                            },
+                        }),
+                    ],
+                })
+            )
+        }
+
+        if (
+            !ObjectRepositoryService.hasActionTemplateId(
+                objectRepository,
+                "ranged"
+            )
+        ) {
+            ObjectRepositoryService.addActionTemplate(
+                objectRepository,
+                ActionTemplateService.new({
+                    name: "ranged",
+                    id: "ranged",
+                    targetConstraints: TargetConstraintsService.new({
+                        minimumRange: 0,
+                        maximumRange: 2,
+                        coordinateGeneratorShape:
+                            CoordinateGeneratorShape.BLOOM,
+                    }),
+                    actionEffectTemplates: [
+                        ActionEffectTemplateService.new({
+                            squaddieAffiliationRelation: {
+                                [TargetBySquaddieAffiliationRelation.TARGET_FOE]:
+                                    true,
+                            },
+                            traits: TraitStatusStorageService.newUsingTraitValues(
+                                {
+                                    [Trait.ALWAYS_SUCCEEDS]: true,
+                                    [Trait.ATTACK]: true,
+                                }
+                            ),
+                            damageDescriptions: {
+                                [DamageType.BODY]: 2,
+                            },
+                        }),
+                    ],
+                })
+            )
+        }
         const playerTeam: BattleSquaddieTeam = {
             id: "playerTeamId",
             name: "player controlled team",
@@ -203,7 +290,7 @@ describe("BattleSquaddieSelector", () => {
             battleId: "battleSquaddieId",
             affiliation: SquaddieAffiliation.PLAYER,
             objectRepository: objectRepository,
-            actionTemplateIds: ["melee"],
+            actionTemplateIds: ["melee", "ranged", "self"],
         })
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
             "battleSquaddieId",
@@ -301,7 +388,7 @@ describe("BattleSquaddieSelector", () => {
                                 x: battleSquaddieScreenPositionX,
                                 y: battleSquaddieScreenPositionY,
                             },
-                            battleSquaddieId: "battleSquaddieId",
+                            actorBattleSquaddieId: "battleSquaddieId",
                         }),
                 })
             ).toBeTruthy()
@@ -403,7 +490,7 @@ describe("BattleSquaddieSelector", () => {
                                     y: y,
                                     button: MouseButton.ACCEPT,
                                 },
-                                battleSquaddieId: "battleSquaddieId",
+                                actorBattleSquaddieId: "battleSquaddieId",
                             }),
                         expectedPlayerSelectionChanges:
                             PlayerSelectionChangesService.new({
@@ -524,7 +611,7 @@ describe("BattleSquaddieSelector", () => {
                     expectedPlayerSelectionContext:
                         PlayerSelectionContextService.new({
                             playerIntent: PlayerIntent.END_SQUADDIE_TURN,
-                            battleSquaddieId: "battleSquaddieId",
+                            actorBattleSquaddieId: "battleSquaddieId",
                         }),
                     expectedPlayerSelectionChanges:
                         PlayerSelectionChangesService.new({
@@ -562,6 +649,122 @@ describe("BattleSquaddieSelector", () => {
                         endTurn: true,
                     },
                 }),
+            })
+        })
+    })
+
+    describe("an action is selected that does not require a target", () => {
+        let gameEngineState: GameEngineState
+        let x: number
+        let y: number
+
+        beforeEach(() => {
+            const battlePhaseState =
+                makeBattlePhaseTrackerWithPlayerTeam(missionMap)
+
+            gameEngineState = createGameEngineState({
+                battlePhaseState,
+                missionMap,
+            })
+
+            BattleHUDService.playerSelectsSquaddie(
+                gameEngineState.battleOrchestratorState.battleHUD,
+                {
+                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                    gameEngineState,
+                    battleSquaddieSelectedId: "battleSquaddieId",
+                    selectionMethod: {
+                        mouse: MouseClickService.new({
+                            x: 0,
+                            y: 0,
+                            button: MouseButton.ACCEPT,
+                        }),
+                    },
+                }
+            )
+
+            const battleHUDListener = new BattleHUDListener("battleHUDListener")
+            gameEngineState.messageBoard.addListener(
+                battleHUDListener,
+                MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
+            )
+
+            messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
+        })
+
+        afterEach(() => {
+            messageSpy.mockRestore()
+        })
+
+        const selectActionButton = (actionTemplateId: string) => {
+            const actionButton =
+                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+                    (button) => button.actionTemplateId === actionTemplateId
+                )
+
+            x = RectAreaService.centerX(actionButton.buttonIcon.drawArea)
+            y = RectAreaService.centerY(actionButton.buttonIcon.drawArea)
+            selector.mouseClicked({
+                mouseX: x,
+                mouseY: y,
+                mouseButton: MouseButton.ACCEPT,
+                gameEngineState,
+            })
+        }
+
+        it("knows the player wants to use the self action", () => {
+            selectActionButton("self")
+            expect(
+                expectContextSpiesWereCalled({
+                    expectedPlayerSelectionContextCalculationArgs:
+                        PlayerSelectionContextCalculationArgsService.new({
+                            gameEngineState,
+                            mouseClick: MouseClickService.new({
+                                x: x,
+                                y: y,
+                                button: MouseButton.ACCEPT,
+                            }),
+                            playerInputActions: [],
+                            actionTemplateId: "self",
+                        }),
+                    expectedPlayerSelectionContext:
+                        PlayerSelectionContextService.new({
+                            playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
+                            actorBattleSquaddieId: "battleSquaddieId",
+                            actionTemplateId: "self",
+                            mouseClick: MouseClickService.new({
+                                x: x,
+                                y: y,
+                                button: MouseButton.ACCEPT,
+                            }),
+                            targetBattleSquaddieIds: ["battleSquaddieId"],
+                        }),
+                    expectedPlayerSelectionChanges:
+                        PlayerSelectionChangesService.new({
+                            battleOrchestratorMode:
+                                BattleOrchestratorMode.PLAYER_HUD_CONTROLLER,
+                            messageSent: {
+                                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
+                                gameEngineState,
+                                actorBattleSquaddieId: "battleSquaddieId",
+                                actionTemplateId: "self",
+                                mapStartingCoordinate: { q: 0, r: 0 },
+                                targetBattleSquaddieIds: ["battleSquaddieId"],
+                            },
+                        }),
+                })
+            ).toBeTruthy()
+        })
+
+        it("sends a message to target", () => {
+            selectActionButton("self")
+            expect(messageSpy).toHaveBeenCalledWith({
+                type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
+                gameEngineState,
+                actorBattleSquaddieId: "battleSquaddieId",
+                targetBattleSquaddieIds: ["battleSquaddieId"],
+                actionTemplateId: "self",
+                mapStartingCoordinate: { q: 0, r: 0 },
             })
         })
     })
@@ -640,7 +843,7 @@ describe("BattleSquaddieSelector", () => {
                     expectedPlayerSelectionContext:
                         PlayerSelectionContextService.new({
                             playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
-                            battleSquaddieId: "battleSquaddieId",
+                            actorBattleSquaddieId: "battleSquaddieId",
                             actionTemplateId: "melee",
                             mouseClick: MouseClickService.new({
                                 x: x,

@@ -31,7 +31,7 @@ export type MessageBoardMessage =
     | MessageBoardMessageMoveSquaddieToCoordinate
     | MessageBoardMessagePlayerCancelsSquaddieSelection
     | MessageBoardMessagePlayerSelectsEmptyTile
-    | MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget
+    | MessageBoardMessagePlayerSelectsActionWithKnownTargets
     | MessageBoardMessagePlayerConfirmsDecisionStepActor
     | MessageBoardMessagePlayerControlledSquaddieNeedsNextAction
     | MessageBoardMessageSquaddieTurnEnds
@@ -55,7 +55,7 @@ export enum MessageBoardMessageType {
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
-    PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET",
+    PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS = "PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS",
     PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
     PLAYER_CONFIRMS_ACTION = "PLAYER_CONFIRMS_ACTION",
     SQUADDIE_PHASE_STARTS = "SQUADDIE_PHASE_STARTS",
@@ -153,11 +153,12 @@ export interface MessageBoardMessagePlayerSelectsActionThatRequiresATarget {
     mouseLocation: ScreenLocation
 }
 
-export interface MessageBoardMessagePlayerSelectsActionThatDoesNotNeedATarget {
-    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_THAT_DOES_NOT_NEED_A_TARGET
+export interface MessageBoardMessagePlayerSelectsActionWithKnownTargets {
+    type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS
     gameEngineState: GameEngineState
     actionTemplateId: string
-    battleSquaddieId: string
+    actorBattleSquaddieId: string
+    targetBattleSquaddieIds: string[]
     mapStartingCoordinate: HexCoordinate
 }
 

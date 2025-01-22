@@ -7,33 +7,37 @@ export interface PlayerSelectionContext {
     playerInputActions: PlayerInputAction[]
     mouseClick: MouseClick
     mouseMovement: { x: number; y: number }
-    battleSquaddieId: string
+    actorBattleSquaddieId: string
     playerIntent: PlayerIntent
+    targetBattleSquaddieIds: string[]
 }
 
 export const PlayerSelectionContextService = {
     new: ({
         playerIntent,
-        battleSquaddieId,
+        actorBattleSquaddieId,
         mouseClick,
         mouseMovement,
         actionTemplateId,
         playerInputActions,
+        targetBattleSquaddieIds,
     }: {
         playerIntent: PlayerIntent
-        battleSquaddieId?: string
+        actorBattleSquaddieId?: string
         mouseClick?: MouseClick
         mouseMovement?: { x: number; y: number }
         actionTemplateId?: string
         playerInputActions?: PlayerInputAction[]
+        targetBattleSquaddieIds?: string[]
     }): PlayerSelectionContext => {
         return {
             playerIntent,
-            battleSquaddieId,
+            actorBattleSquaddieId,
             mouseClick,
             mouseMovement,
             actionTemplateId,
             playerInputActions,
+            targetBattleSquaddieIds: targetBattleSquaddieIds ?? [],
         }
     },
 }

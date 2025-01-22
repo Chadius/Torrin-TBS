@@ -1,7 +1,6 @@
 import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../terrainTileMap"
 import { SearchParameters, SearchParametersService } from "../searchParameters"
-import { HexGridMovementCost } from "../../hexGridMovementCost"
 import { SearchPath, SearchPathService } from "../searchPath"
 import {
     SearchResult,

@@ -58,6 +58,12 @@ export class BattleHUDListener implements MessageBoardListener {
                     message
                 )
                 break
+            case MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS:
+                BattleHUDService.playerSelectsActionWithKnownTargets(
+                    message.gameEngineState.battleOrchestratorState.battleHUD,
+                    message
+                )
+                break
             case MessageBoardMessageType.PLAYER_SELECTS_TARGET_COORDINATE:
                 BattleHUDService.playerSelectsTargetCoordinate(
                     message.gameEngineState.battleOrchestratorState.battleHUD,

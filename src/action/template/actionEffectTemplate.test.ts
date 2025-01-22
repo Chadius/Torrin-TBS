@@ -88,6 +88,32 @@ describe("ActionEffectTemplate", () => {
             ActionEffectTemplateService.doesItTargetFoes(helpfulAttack)
         ).toBeFalsy()
     })
+    it("uses the traits to determine if it only targets the user", () => {
+        const helpMyself = ActionEffectTemplateService.new({
+            traits: TraitStatusStorageService.newUsingTraitValues({
+                [Trait.HEALING]: true,
+            }),
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+            },
+        })
+        expect(
+            ActionEffectTemplateService.doesItOnlyTargetSelf(helpMyself)
+        ).toBeTruthy()
+
+        const helpOthers = ActionEffectTemplateService.new({
+            traits: TraitStatusStorageService.newUsingTraitValues({
+                [Trait.HEALING]: true,
+            }),
+            squaddieAffiliationRelation: {
+                [TargetBySquaddieAffiliationRelation.TARGET_SELF]: true,
+                [TargetBySquaddieAffiliationRelation.TARGET_ALLY]: true,
+            },
+        })
+        expect(
+            ActionEffectTemplateService.doesItOnlyTargetSelf(helpOthers)
+        ).toBeFalsy()
+    })
 
     describe("sanitize", () => {
         it("can be sanitized to fill in missing fields", () => {

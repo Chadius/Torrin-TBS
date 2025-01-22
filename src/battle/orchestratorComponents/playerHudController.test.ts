@@ -8,7 +8,7 @@ import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
 import { CampaignService } from "../../campaign/campaign"
 import * as mocks from "../..//utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../..//utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import { BattleOrchestratorStateService } from "../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../orchestrator/battleState"
 import {
@@ -277,6 +277,31 @@ describe("PlayerHUDController", () => {
                 controller.recommendStateChanges(gameEngineState)
             expect(recommendedChanges.nextMode).toEqual(
                 BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET
+            )
+        })
+        it("recommends player squaddie confirm when a action does not need a target", () => {
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: playerBattleSquaddieId,
+            })
+            BattleActionDecisionStepService.addAction({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                actionTemplateId: singleTargetAction.id,
+            })
+            BattleActionDecisionStepService.setConsideredTarget({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                targetCoordinate: { q: 0, r: 2 },
+            })
+            const recommendedChanges =
+                controller.recommendStateChanges(gameEngineState)
+            expect(recommendedChanges.nextMode).toEqual(
+                BattleOrchestratorMode.PLAYER_ACTION_CONFIRM
             )
         })
         it("recommends squaddie on squaddie when the action and target are selected, even if this ends their turn", () => {

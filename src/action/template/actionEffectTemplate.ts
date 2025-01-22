@@ -109,6 +109,18 @@ export const ActionEffectTemplateService = {
     sanitize: (data: ActionEffectTemplate): ActionEffectTemplate => {
         return sanitize(data)
     },
+    doesItOnlyTargetSelf: (
+        actionEffectTemplate: ActionEffectTemplate
+    ): boolean =>
+        actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_SELF
+        ] &&
+        !actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_ALLY
+        ] &&
+        !actionEffectTemplate.targetConstraints.squaddieAffiliationRelation[
+            TargetBySquaddieAffiliationRelation.TARGET_FOE
+        ],
     doesItTargetFriends: (
         actionEffectTemplate: ActionEffectTemplate
     ): boolean =>

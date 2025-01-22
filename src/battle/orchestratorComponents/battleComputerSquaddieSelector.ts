@@ -98,13 +98,13 @@ export class BattleComputerSquaddieSelector
     }
 
     keyEventHappened(
-        state: GameEngineState,
-        event: OrchestratorComponentKeyEvent
+        _state: GameEngineState,
+        _event: OrchestratorComponentKeyEvent
     ): void {
         // Required by inheritance but does nothing
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
@@ -174,7 +174,7 @@ export class BattleComputerSquaddieSelector
         }
     }
 
-    reset(gameEngineState: GameEngineState) {
+    reset(_gameEngineState: GameEngineState) {
         this.resetInternalState()
     }
 
@@ -194,7 +194,9 @@ export class BattleComputerSquaddieSelector
         )
     }
 
-    private isPauseToShowSquaddieSelectionRequired(state: GameEngineState) {
+    private isPauseToShowSquaddieSelectionRequired(
+        _gameEngineState: GameEngineState
+    ) {
         if (
             this.mostRecentDecisionSteps === undefined ||
             this.mostRecentDecisionSteps.length === 0
@@ -209,7 +211,9 @@ export class BattleComputerSquaddieSelector
         )
     }
 
-    private pauseToShowSquaddieSelectionCompleted(state: GameEngineState) {
+    private pauseToShowSquaddieSelectionCompleted(
+        _gameEngineState: GameEngineState
+    ) {
         return (
             this.showSelectedActionWaitTime !== undefined &&
             Date.now() - this.showSelectedActionWaitTime >=
@@ -456,11 +460,11 @@ export class BattleComputerSquaddieSelector
         this.mostRecentDecisionSteps = battleActionDecisionSteps
     }
 
-    private highlightRangeForFirstActionTemplateDecisionStep = (
+    private highlightRangeForFirstActionTemplateDecisionStep(
         battleActionDecisionSteps: BattleActionDecisionStep[],
         gameEngineState: GameEngineState,
         battleSquaddie: BattleSquaddie
-    ) => {
+    ) {
         const firstActionTemplateDecisionStep = battleActionDecisionSteps.find(
             (battleActionDecisionStep) =>
                 battleActionDecisionStep.action.actionTemplateId !== undefined
@@ -483,11 +487,11 @@ export class BattleComputerSquaddieSelector
         )
     }
 
-    private updateSquaddieLocationForEachMovementDecisionStep = (
+    private updateSquaddieLocationForEachMovementDecisionStep(
         battleActionDecisionSteps: BattleActionDecisionStep[],
         gameEngineState: GameEngineState,
         battleSquaddie: BattleSquaddie
-    ) => {
+    ) {
         battleActionDecisionSteps
             .filter(
                 (battleActionDecisionStep) =>
@@ -517,13 +521,6 @@ export class BattleComputerSquaddieSelector
                         gameEngineState.battleOrchestratorState.battleState
                             .missionMap,
                         battleActionDecisionStep.actor.battleSquaddieId
-                    )
-                const { battleSquaddie: actorBattleSquaddie } =
-                    getResultOrThrowError(
-                        ObjectRepositoryService.getSquaddieByBattleId(
-                            gameEngineState.repository,
-                            battleActionDecisionStep.actor.battleSquaddieId
-                        )
                     )
 
                 switch (true) {
