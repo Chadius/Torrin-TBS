@@ -62,10 +62,7 @@ import {
     BattleAction,
     BattleActionService,
 } from "../../history/battleAction/battleAction"
-import {
-    CoordinateSystem,
-    HexCoordinate,
-} from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import {
     DEFAULT_ACTION_POINTS_PER_TURN,
     SquaddieTurnService,
@@ -94,7 +91,6 @@ import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { BattleActionActorContextService } from "../../history/battleAction/battleActionActorContext"
 import { BattleActionQueueService } from "../../history/battleAction/battleActionQueue"
-import { PopupWindow } from "../popupWindow/popupWindow"
 import { TargetConstraintsService } from "../../../action/targetConstraints"
 import { ArmyAttributesService } from "../../../squaddie/armyAttributes"
 import { RollResultService } from "../../calculator/actionCalculator/rollResult"
@@ -2089,37 +2085,6 @@ describe("Battle HUD", () => {
                     targetCoordinate: { q: -100, r: 9001 },
                 })
             }
-
-            it("sends a message stating the player selection is invalid", () => {
-                movementCalculatorSpy = vi
-                    .spyOn(MovementCalculatorService, "isMovementPossible")
-                    .mockReturnValue(false)
-
-                sendMessageToMove()
-
-                expect(messageSpy).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                        gameEngineState,
-                    })
-                )
-                const popupWindow: PopupWindow = messageSpy.mock.calls.reduce(
-                    (popupWindowFound, args) => {
-                        if (
-                            args[0].type !==
-                            MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
-                        ) {
-                            return popupWindowFound
-                        }
-                        return args[0].popupWindow
-                    },
-                    undefined
-                )
-                expect(popupWindow.coordinateSystem).toBe(
-                    CoordinateSystem.SCREEN
-                )
-                expect(popupWindow.label.textBox.text).toBe("out of range")
-            })
 
             it("does not complete the action", () => {
                 movementCalculatorSpy = vi

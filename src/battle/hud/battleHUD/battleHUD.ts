@@ -36,10 +36,7 @@ import {
 import { HIGHLIGHT_PULSE_COLOR } from "../../../hexMap/hexDrawingUtils"
 import { TargetingResultsService } from "../../targeting/targetingService"
 import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
-import {
-    CoordinateSystem,
-    HexCoordinate,
-} from "../../../hexMap/hexCoordinate/hexCoordinate"
+import { HexCoordinate } from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { SquaddieService } from "../../../squaddie/squaddieService"
 import { SummaryHUDStateService } from "../summary/summaryHUD"
 import {
@@ -63,7 +60,6 @@ import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
-import { PopupWindowService } from "../popupWindow/popupWindow"
 import { BattleCamera, BattleCameraService } from "../../battleCamera"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CalculatedResult } from "../../history/calculatedResult"
@@ -644,37 +640,15 @@ export const BattleHUDService = {
             )
         )
         const destination = message.targetCoordinate
-        const isMovementPossible = MovementCalculatorService.isMovementPossible(
-            {
+        if (
+            !MovementCalculatorService.isMovementPossible({
                 gameEngineState,
                 battleSquaddie,
                 squaddieTemplate,
                 destination,
-            }
-        )
-
-        if (!isMovementPossible) {
-            const { screenX, screenY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: message.targetCoordinate.q,
-                    r: message.targetCoordinate.r,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                })
-
-            gameEngineState.messageBoard.sendMessage({
-                type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
-                gameEngineState,
-                popupWindow: PopupWindowService.newWarningWindow({
-                    screenX: screenX,
-                    screenY: screenY,
-                    camera: gameEngineState.battleOrchestratorState.battleState
-                        .camera,
-                    text: "out of range",
-                    coordinateSystem: CoordinateSystem.SCREEN,
-                }),
             })
+        )
             return
-        }
 
         MovementCalculatorService.setBattleActionDecisionStepReadyToAnimate({
             gameEngineState,
