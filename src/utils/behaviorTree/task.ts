@@ -1,9 +1,9 @@
-import { Blackboard } from "../blackboard/blackboard"
+import { DataBlob } from "../dataBlob/dataBlob"
 
 export type JSONParameter = number | string | boolean | void
 
 export interface BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     children?: BehaviorTreeTask[]
     run: () => boolean
     clone: () => BehaviorTreeTask

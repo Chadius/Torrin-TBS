@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { UntilFailDecorator } from "./untilFail"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 import { LimitDecorator } from "../limit/limit"
 
 describe("Until Fail decorator", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("returns true once the child task fails", () => {
@@ -39,7 +39,7 @@ describe("Until Fail decorator", () => {
             new AlwaysFalseCondition(blackboard)
         )
         const clone: UntilFailDecorator = original.clone() as UntilFailDecorator
-        expect(clone.blackboard).toEqual(original.blackboard)
+        expect(clone.dataBlob).toEqual(original.dataBlob)
         expect(clone.children).toEqual(original.children)
         expect(clone.children).not.toBe(original.children)
     })

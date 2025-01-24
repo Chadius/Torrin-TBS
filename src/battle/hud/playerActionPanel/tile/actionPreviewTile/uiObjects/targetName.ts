@@ -1,8 +1,8 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    Blackboard,
-    BlackboardService,
-} from "../../../../../../utils/blackboard/blackboard"
+    DataBlob,
+    DataBlobService,
+} from "../../../../../../utils/dataBlob/dataBlob"
 import {
     ActionTilePosition,
     ActionTilePositionService,
@@ -17,20 +17,20 @@ import {
 } from "../actionPreviewTile"
 
 export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
 
-    constructor(blackboard: Blackboard) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob) {
+        this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
-            this.blackboard,
+        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
+            this.dataBlob,
             "uiObjects"
         )
 
-        let context: ActionPreviewTileContext = BlackboardService.get(
-            this.blackboard,
+        let context: ActionPreviewTileContext = DataBlobService.get(
+            this.dataBlob,
             "context"
         )
 
@@ -44,8 +44,8 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             ActionTilePositionService.getBoundingBoxBasedOnActionTilePosition(
                 ActionTilePosition.ACTION_PREVIEW
             )
-        const layoutConstants = BlackboardService.get<ActionPreviewTileLayout>(
-            this.blackboard,
+        const layoutConstants = DataBlobService.get<ActionPreviewTileLayout>(
+            this.dataBlob,
             "layout"
         ).targetName
 
@@ -70,8 +70,8 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
             text: textInfo.text,
         })
 
-        BlackboardService.add<ActionPreviewTileUIObjects>(
-            this.blackboard,
+        DataBlobService.add<ActionPreviewTileUIObjects>(
+            this.dataBlob,
             "uiObjects",
             uiObjects
         )
@@ -80,6 +80,6 @@ export class CreateTargetNameTextBoxesAction implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new CreateTargetNameTextBoxesAction(this.blackboard)
+        return new CreateTargetNameTextBoxesAction(this.dataBlob)
     }
 }

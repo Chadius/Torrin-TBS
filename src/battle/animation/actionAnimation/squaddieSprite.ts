@@ -3,7 +3,7 @@ import { SquaddieEmotion } from "./actionAnimationConstants"
 import { ScreenDimensions } from "../../../utils/graphics/graphicsConfig"
 import p5 from "p5"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
-import { ImageUI, ImageUILoadingBehavior } from "../../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 
 let defaultImage: ImageUI
 

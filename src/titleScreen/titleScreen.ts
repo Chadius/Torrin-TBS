@@ -22,7 +22,11 @@ import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { isValidValue } from "../utils/validityCheck"
 import p5 from "p5"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "../ui/ImageUI"
+import {
+    ImageUI,
+    ImageUILoadingBehavior,
+    ImageUIService,
+} from "../ui/imageUI/imageUI"
 import {
     PlayerInputAction,
     PlayerInputStateService,

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { LimitDecorator } from "./limit"
 
 describe("Limit decorator", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("returns the child run result when run with a positive limit", () => {
@@ -54,7 +54,7 @@ describe("Limit decorator", () => {
             { limit: 1 }
         )
         const clone: LimitDecorator = original.clone() as LimitDecorator
-        expect(clone.blackboard).toEqual(original.blackboard)
+        expect(clone.dataBlob).toEqual(original.dataBlob)
         expect(clone.limit).toEqual(original.limit)
 
         expect(original.run()).toBe(true)

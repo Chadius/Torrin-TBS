@@ -40,7 +40,7 @@ import {
     ActionTemplate,
     ActionTemplateService,
 } from "../../action/template/actionTemplate"
-import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 
 export interface MissionLoaderCompletionProgress {

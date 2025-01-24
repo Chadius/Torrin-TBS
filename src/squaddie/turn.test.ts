@@ -13,27 +13,27 @@ import { ActionResourceCostService } from "../action/actionResourceCost"
 import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Squaddie turn and resources", () => {
-    describe("actions", () => {
-        let turn: SquaddieTurn
-        let actionSpends2ActionPoints: ActionTemplate
-        beforeEach(() => {
-            turn = SquaddieTurnService.new()
-            actionSpends2ActionPoints = ActionTemplateService.new({
-                id: "actionSpends2ActionPoints",
-                name: "Power Attack",
-                resourceCost: ActionResourceCostService.new({
-                    actionPoints: 2,
-                }),
-                actionEffectTemplates: [
-                    ActionEffectTemplateService.new({
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                        }),
+    let turn: SquaddieTurn
+    let actionSpends2ActionPoints: ActionTemplate
+    beforeEach(() => {
+        turn = SquaddieTurnService.new()
+        actionSpends2ActionPoints = ActionTemplateService.new({
+            id: "actionSpends2ActionPoints",
+            name: "Power Attack",
+            resourceCost: ActionResourceCostService.new({
+                actionPoints: 2,
+            }),
+            actionEffectTemplates: [
+                ActionEffectTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
                     }),
-                ],
-            })
+                }),
+            ],
         })
+    })
 
+    describe("actions", () => {
         it("should start with 3 action points", () => {
             expect(turn.remainingActionPoints).toBe(3)
         })
@@ -110,6 +110,41 @@ describe("Squaddie turn and resources", () => {
             expect(
                 SquaddieTurnService.hasActionPointsRemaining(turn)
             ).toBeFalsy()
+        })
+    })
+    describe("Reserving action points", () => {
+        it("can reserve action points and knows when the remaining points are not enough", () => {
+            SquaddieTurnService.reserveActionPoints(turn, 2)
+            expect(turn.reservedActionPoints).toBe(2)
+            expect(turn.remainingActionPoints).toBe(3)
+            const query = SquaddieTurnService.canPerformAction(
+                turn,
+                actionSpends2ActionPoints
+            )
+            expect(query.canPerform).toBeFalsy()
+            expect(query.reason).toBe(
+                ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
+            )
+        })
+        it("cannot reserve more action points than it has available", () => {
+            SquaddieTurnService.spendActionPoints(turn, 1)
+            SquaddieTurnService.reserveActionPoints(turn, 3)
+            expect(turn.reservedActionPoints).toBe(2)
+        })
+        it("can override reserved action points and knows when the remaining points are enough", () => {
+            SquaddieTurnService.reserveActionPoints(turn, 2)
+            SquaddieTurnService.reserveActionPoints(turn, 1)
+            expect(turn.reservedActionPoints).toBe(1)
+            const query = SquaddieTurnService.canPerformAction(
+                turn,
+                actionSpends2ActionPoints
+            )
+            expect(query.canPerform).toBeTruthy()
+        })
+        it("resetting the turn should clear reserved action points", () => {
+            SquaddieTurnService.reserveActionPoints(turn, 2)
+            SquaddieTurnService.beginNewRound(turn)
+            expect(turn.reservedActionPoints).toBe(0)
         })
     })
 })

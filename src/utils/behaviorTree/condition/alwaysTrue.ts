@@ -1,11 +1,11 @@
 import { BehaviorTreeTask } from "../task"
-import { Blackboard } from "../../blackboard/blackboard"
+import { DataBlob } from "../../dataBlob/dataBlob"
 
 export class AlwaysTrueCondition implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
 
-    constructor(blackboard: Blackboard) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob) {
+        this.dataBlob = blackboard
     }
 
     run(): boolean {
@@ -13,6 +13,6 @@ export class AlwaysTrueCondition implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new AlwaysTrueCondition(this.blackboard)
+        return new AlwaysTrueCondition(this.dataBlob)
     }
 }

@@ -406,8 +406,6 @@ const updateSummaryHUDAfterFinishingAnimation = (
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                graphicsContext,
-                resourceHandler,
             })
         )
 }

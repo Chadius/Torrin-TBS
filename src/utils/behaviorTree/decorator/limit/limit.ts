@@ -1,19 +1,19 @@
 import { BehaviorTreeTask, JSONParameter } from "../../task"
-import { Blackboard } from "../../../blackboard/blackboard"
+import { DataBlob } from "../../../dataBlob/dataBlob"
 
 export class LimitDecorator implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     children?: BehaviorTreeTask[]
 
     limit: number
     numberOfTimesRun: number
 
     constructor(
-        blackboard: Blackboard,
+        blackboard: DataBlob,
         child: BehaviorTreeTask,
         extraArguments: { [key: string]: JSONParameter }
     ) {
-        this.blackboard = blackboard
+        this.dataBlob = blackboard
         if (!child) {
             throw new Error(
                 "[LimitDecorator.constructor] must have a child task"
@@ -39,7 +39,7 @@ export class LimitDecorator implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new LimitDecorator(this.blackboard, this.children[0].clone(), {
+        return new LimitDecorator(this.dataBlob, this.children[0].clone(), {
             limit: this.limit,
         })
     }

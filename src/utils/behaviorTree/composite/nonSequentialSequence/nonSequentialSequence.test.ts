@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { BehaviorTreeTask } from "../../task"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
-import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 import { NonSequentialSequenceComposite } from "./nonSequentialSequence"
 
 describe("Non Sequential Selector composite", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("returns false if no children return true", () => {

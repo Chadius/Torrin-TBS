@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
 import { InverterDecorator } from "./inverter"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 
 describe("Inverter decorator", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("runs the child and returns false if it returns true", () => {
@@ -42,7 +42,7 @@ describe("Inverter decorator", () => {
             new AlwaysTrueCondition(blackboard)
         )
         const clone: InverterDecorator = original.clone() as InverterDecorator
-        expect(clone.blackboard).toEqual(original.blackboard)
+        expect(clone.dataBlob).toEqual(original.dataBlob)
         expect(clone.children).toEqual(original.children)
         expect(clone.children).not.toBe(original.children)
     })

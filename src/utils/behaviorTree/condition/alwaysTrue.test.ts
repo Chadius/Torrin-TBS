@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { Blackboard, BlackboardService } from "../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../dataBlob/dataBlob"
 import { AlwaysTrueCondition } from "./alwaysTrue"
 
 describe("Always True condition", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("returns true when run", () => {
@@ -16,7 +16,7 @@ describe("Always True condition", () => {
     it("can be cloned", () => {
         const original = new AlwaysTrueCondition(blackboard)
         const clone = original.clone()
-        expect(clone.blackboard).toEqual(original.blackboard)
+        expect(clone.dataBlob).toEqual(original.dataBlob)
         expect(clone.run()).toBe(true)
     })
 })

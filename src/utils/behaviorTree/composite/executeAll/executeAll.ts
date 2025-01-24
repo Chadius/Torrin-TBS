@@ -1,12 +1,12 @@
 import { BehaviorTreeTask } from "../../task"
-import { Blackboard } from "../../../blackboard/blackboard"
+import { DataBlob } from "../../../dataBlob/dataBlob"
 
 export class ExecuteAllComposite implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     children?: BehaviorTreeTask[]
 
-    constructor(blackboard: Blackboard, children: BehaviorTreeTask[]) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob, children: BehaviorTreeTask[]) {
+        this.dataBlob = blackboard
         this.children = children
     }
 
@@ -20,6 +20,6 @@ export class ExecuteAllComposite implements BehaviorTreeTask {
 
     clone(): BehaviorTreeTask {
         const clonedChildren = this.children.map((child) => child.clone())
-        return new ExecuteAllComposite(this.blackboard, clonedChildren)
+        return new ExecuteAllComposite(this.dataBlob, clonedChildren)
     }
 }

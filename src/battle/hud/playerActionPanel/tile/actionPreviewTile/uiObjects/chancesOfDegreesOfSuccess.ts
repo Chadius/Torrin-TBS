@@ -1,8 +1,8 @@
 import { BehaviorTreeTask } from "../../../../../../utils/behaviorTree/task"
 import {
-    Blackboard,
-    BlackboardService,
-} from "../../../../../../utils/blackboard/blackboard"
+    DataBlob,
+    DataBlobService,
+} from "../../../../../../utils/dataBlob/dataBlob"
 import {
     ActionTilePosition,
     ActionTilePositionService,
@@ -19,32 +19,32 @@ import { ActionPreviewTileDegreesOfSuccessService } from "./degreesOfSuccess"
 export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
     implements BehaviorTreeTask
 {
-    blackboard: Blackboard
+    dataBlob: DataBlob
 
-    constructor(blackboard: Blackboard) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob) {
+        this.dataBlob = blackboard
     }
 
     run(): boolean {
-        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
-            this.blackboard,
+        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
+            this.dataBlob,
             "uiObjects"
         )
 
-        let context: ActionPreviewTileContext = BlackboardService.get(
-            this.blackboard,
+        let context: ActionPreviewTileContext = DataBlobService.get(
+            this.dataBlob,
             "context"
         )
 
         const degreesOfSuccessLayoutConstants =
-            BlackboardService.get<ActionPreviewTileLayout>(
-                this.blackboard,
+            DataBlobService.get<ActionPreviewTileLayout>(
+                this.dataBlob,
                 "layout"
             ).degreesOfSuccess
 
         const chancesOfDegreesOfSuccessLayoutConstants =
-            BlackboardService.get<ActionPreviewTileLayout>(
-                this.blackboard,
+            DataBlobService.get<ActionPreviewTileLayout>(
+                this.dataBlob,
                 "layout"
             ).chancesOfDegreesOfSuccess
 
@@ -71,7 +71,7 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
         const top =
             ActionPreviewTileDegreesOfSuccessService.calculateTopOfNextDegreesOfSuccessRow(
                 {
-                    blackboard: this.blackboard,
+                    blackboard: this.dataBlob,
                     degreeOfSuccessUIObjects:
                         uiObjects.chancesOfDegreesOfSuccessTextBoxes,
                     boundingBox,
@@ -94,8 +94,8 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
             }),
         })
 
-        BlackboardService.add<ActionPreviewTileUIObjects>(
-            this.blackboard,
+        DataBlobService.add<ActionPreviewTileUIObjects>(
+            this.dataBlob,
             "uiObjects",
             uiObjects
         )
@@ -105,7 +105,7 @@ export class CreateNextChancesOfDegreesOfSuccessTextBoxAction
 
     clone(): BehaviorTreeTask {
         return new CreateNextChancesOfDegreesOfSuccessTextBoxAction(
-            this.blackboard
+            this.dataBlob
         )
     }
 }

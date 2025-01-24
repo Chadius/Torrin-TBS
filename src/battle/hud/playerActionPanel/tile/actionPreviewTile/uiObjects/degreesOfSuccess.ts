@@ -12,9 +12,9 @@ import {
     ShowDegreeOfSuccessEvenIfNoEffect,
 } from "../actionPreviewTile"
 import {
-    Blackboard,
-    BlackboardService,
-} from "../../../../../../utils/blackboard/blackboard"
+    DataBlob,
+    DataBlobService,
+} from "../../../../../../utils/dataBlob/dataBlob"
 import { RectArea, RectAreaService } from "../../../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../../../ui/constants"
 
@@ -39,7 +39,7 @@ export const ActionPreviewTileDegreesOfSuccessService = {
         degreeOfSuccessUIObjects,
         boundingBox,
     }: {
-        blackboard: Blackboard
+        blackboard: DataBlob
         degreeOfSuccessUIObjects: {
             degreeOfSuccess: DegreeOfSuccess
             textBox: TextBox
@@ -142,7 +142,7 @@ const calculateTopOfNextDegreesOfSuccessRow = ({
     degreeOfSuccessUIObjects,
     boundingBox,
 }: {
-    blackboard: Blackboard
+    blackboard: DataBlob
     degreeOfSuccessUIObjects: {
         degreeOfSuccess: DegreeOfSuccess
         textBox: TextBox
@@ -155,5 +155,5 @@ const calculateTopOfNextDegreesOfSuccessRow = ({
                   .textBox.area
           ) +
           WINDOW_SPACING.SPACING1 / 2
-        : BlackboardService.get<ActionPreviewTileLayout>(blackboard, "layout")
+        : DataBlobService.get<ActionPreviewTileLayout>(blackboard, "layout")
               .topRowOffset + RectAreaService.top(boundingBox)

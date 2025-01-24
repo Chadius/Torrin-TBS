@@ -1,12 +1,12 @@
 import { BehaviorTreeTask } from "../../task"
-import { Blackboard } from "../../../blackboard/blackboard"
+import { DataBlob } from "../../../dataBlob/dataBlob"
 
 export class UntilFailDecorator implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     children?: BehaviorTreeTask[]
 
-    constructor(blackboard: Blackboard, child: BehaviorTreeTask) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob, child: BehaviorTreeTask) {
+        this.dataBlob = blackboard
         if (!child) {
             throw new Error(
                 "[UntilFailDecorator.constructor] must have a child task"
@@ -24,6 +24,6 @@ export class UntilFailDecorator implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new UntilFailDecorator(this.blackboard, this.children[0].clone())
+        return new UntilFailDecorator(this.dataBlob, this.children[0].clone())
     }
 }

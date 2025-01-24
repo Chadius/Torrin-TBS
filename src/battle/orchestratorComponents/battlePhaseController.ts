@@ -23,7 +23,7 @@ import p5 from "p5"
 import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { TerrainTileMapService } from "../../hexMap/terrainTileMap"
 import { ResourceHandler } from "../../resource/resourceHandler"
-import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 
 export const BANNER_ANIMATION_TIME = 2000
 

@@ -840,9 +840,7 @@ const createSquaddieStatusTile = ({
     SquaddieStatusTileService.updateTileUsingSquaddie({
         tile: summaryHUDState.squaddieStatusTiles[actionPanelPosition],
         objectRepository: gameEngineState.repository,
-        graphicsContext,
         missionMap:
             gameEngineState.battleOrchestratorState.battleState.missionMap,
-        resourceHandler: gameEngineState.resourceHandler,
     })
 }

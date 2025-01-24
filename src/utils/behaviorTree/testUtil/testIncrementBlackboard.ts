@@ -1,11 +1,11 @@
 import { BehaviorTreeTask } from "../task"
-import { Blackboard, BlackboardService } from "../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../dataBlob/dataBlob"
 
 export class IncrementBlackboard implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
 
-    constructor(blackboard: Blackboard) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob) {
+        this.dataBlob = blackboard
     }
 
     clone(): BehaviorTreeTask {
@@ -14,13 +14,9 @@ export class IncrementBlackboard implements BehaviorTreeTask {
 
     run(): boolean {
         let currentValue: number =
-            BlackboardService.get<number>(this.blackboard, "increment") ?? 0
+            DataBlobService.get<number>(this.dataBlob, "increment") ?? 0
         currentValue += 1
-        BlackboardService.add<number>(
-            this.blackboard,
-            "increment",
-            currentValue
-        )
+        DataBlobService.add<number>(this.dataBlob, "increment", currentValue)
         return true
     }
 }

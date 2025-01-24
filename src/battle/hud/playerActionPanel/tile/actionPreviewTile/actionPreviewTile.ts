@@ -22,9 +22,9 @@ import { ActionCalculator } from "../../../../calculator/actionCalculator/calcul
 import { CalculatedResult } from "../../../../history/calculatedResult"
 import { DegreeOfSuccess } from "../../../../calculator/actionCalculator/degreeOfSuccess"
 import {
-    Blackboard,
-    BlackboardService,
-} from "../../../../../utils/blackboard/blackboard"
+    DataBlob,
+    DataBlobService,
+} from "../../../../../utils/dataBlob/dataBlob"
 import { BehaviorTreeTask } from "../../../../../utils/behaviorTree/task"
 import { SequenceComposite } from "../../../../../utils/behaviorTree/composite/sequence/sequence"
 import { InverterDecorator } from "../../../../../utils/behaviorTree/decorator/inverter/inverter"
@@ -43,7 +43,7 @@ import {
 
 export interface ActionPreviewTile {
     forecast: CalculatedResult
-    blackboard: Blackboard
+    data: DataBlob
     drawBehaviorTree: BehaviorTreeTask
 }
 
@@ -169,7 +169,7 @@ export const ActionPreviewTileService = {
             gameEngineState,
         })
 
-        const blackboard: Blackboard = BlackboardService.new()
+        const dataBlob: DataBlob = DataBlobService.new()
         const layout: ActionPreviewTileLayout = {
             topRowOffset: 38,
             targetName: {
@@ -288,14 +288,10 @@ export const ActionPreviewTileService = {
             forecast: forecast,
         })
 
-        BlackboardService.add<ActionPreviewTileLayout>(
-            blackboard,
-            "layout",
-            layout
-        )
+        DataBlobService.add<ActionPreviewTileLayout>(dataBlob, "layout", layout)
 
-        BlackboardService.add<ActionPreviewTileContext>(
-            blackboard,
+        DataBlobService.add<ActionPreviewTileContext>(
+            dataBlob,
             "context",
             context
         )
@@ -308,16 +304,16 @@ export const ActionPreviewTileService = {
             targetNameTextBox: undefined,
             modifiers: undefined,
         }
-        BlackboardService.add<ActionPreviewTileUIObjects>(
-            blackboard,
+        DataBlobService.add<ActionPreviewTileUIObjects>(
+            dataBlob,
             "uiObjects",
             uiObjects
         )
-        const drawBehaviorTree = createDrawingBehaviorTree(blackboard)
+        const drawBehaviorTree = createDrawingBehaviorTree(dataBlob)
 
         return {
             forecast,
-            blackboard,
+            data: dataBlob,
             drawBehaviorTree,
         }
     },
@@ -328,14 +324,14 @@ export const ActionPreviewTileService = {
         tile: ActionPreviewTile
         graphicsContext: GraphicsBuffer
     }) => {
-        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
-            tile.blackboard,
+        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
+            tile.data,
             "uiObjects"
         )
         uiObjects.graphicsContext = graphicsContext
 
-        const context = BlackboardService.get<ActionPreviewTileContext>(
-            tile.blackboard,
+        const context = DataBlobService.get<ActionPreviewTileContext>(
+            tile.data,
             "context"
         )
 
@@ -349,7 +345,7 @@ export const ActionPreviewTileService = {
     },
 }
 
-const createDrawingBehaviorTree = (blackboard: Blackboard) => {
+const createDrawingBehaviorTree = (blackboard: DataBlob) => {
     const createTargetNameTextBoxTree = new SequenceComposite(blackboard, [
         new InverterDecorator(
             blackboard,
@@ -408,9 +404,9 @@ const createDrawingBehaviorTree = (blackboard: Blackboard) => {
         new DoesUIObjectExistCondition(blackboard, "graphicsContext"),
         new DrawTextBoxesAction(
             blackboard,
-            (blackboard: Blackboard) => {
+            (blackboard: DataBlob) => {
                 const uiObjects =
-                    BlackboardService.get<ActionPreviewTileUIObjects>(
+                    DataBlobService.get<ActionPreviewTileUIObjects>(
                         blackboard,
                         "uiObjects"
                     )
@@ -426,9 +422,9 @@ const createDrawingBehaviorTree = (blackboard: Blackboard) => {
                     uiObjects.targetNameTextBox,
                 ].filter((x) => x)
             },
-            (blackboard: Blackboard) => {
+            (blackboard: DataBlob) => {
                 const uiObjects =
-                    BlackboardService.get<ActionPreviewTileUIObjects>(
+                    DataBlobService.get<ActionPreviewTileUIObjects>(
                         blackboard,
                         "uiObjects"
                     )
@@ -498,17 +494,17 @@ const createActionPreviewTileContext = ({
 }
 
 class DoesUIObjectExistCondition implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     uiObjectKey: string
 
-    constructor(blackboard: Blackboard, uiObjectKey: string) {
-        this.blackboard = blackboard
+    constructor(blackboard: DataBlob, uiObjectKey: string) {
+        this.dataBlob = blackboard
         this.uiObjectKey = uiObjectKey
     }
 
     run(): boolean {
-        const uiObjects = BlackboardService.get<ActionPreviewTileUIObjects>(
-            this.blackboard,
+        const uiObjects = DataBlobService.get<ActionPreviewTileUIObjects>(
+            this.dataBlob,
             "uiObjects"
         )
         return (
@@ -517,6 +513,6 @@ class DoesUIObjectExistCondition implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new DoesUIObjectExistCondition(this.blackboard, this.uiObjectKey)
+        return new DoesUIObjectExistCondition(this.dataBlob, this.uiObjectKey)
     }
 }

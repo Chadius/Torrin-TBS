@@ -1,7 +1,7 @@
-import { RectArea } from "./rectArea"
+import { RectArea } from "../rectArea"
 import p5 from "p5"
-import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
-import { ResourceHandler } from "../resource/resourceHandler"
+import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
+import { ResourceHandler } from "../../resource/resourceHandler"
 
 export enum ImageUILoadingBehavior {
     USE_IMAGE_SIZE = "USE_IMAGE_SIZE",

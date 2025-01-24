@@ -25,7 +25,7 @@ import {
     ImageUI,
     ImageUILoadingBehavior,
     ImageUIService,
-} from "../../../../ui/ImageUI"
+} from "../../../../ui/imageUI/imageUI"
 
 const layoutConstants = {
     portraitNameText: {

@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { BehaviorTreeTask } from "../../task"
 import { AlwaysTrueCondition } from "../../condition/alwaysTrue"
-import { Blackboard, BlackboardService } from "../../../blackboard/blackboard"
+import { DataBlob, DataBlobService } from "../../../dataBlob/dataBlob"
 import { AlwaysFalseCondition } from "../../condition/alwaysFalse"
 import { SelectorComposite } from "./selector"
 import { IncrementBlackboard } from "../../testUtil/testIncrementBlackboard"
 
 describe("Selector composite", () => {
-    let blackboard: Blackboard
+    let blackboard: DataBlob
     beforeEach(() => {
-        blackboard = BlackboardService.new()
+        blackboard = DataBlobService.new()
     })
 
     it("returns false if no children return true", () => {
@@ -40,7 +40,7 @@ describe("Selector composite", () => {
             new IncrementBlackboard(blackboard),
         ])
         expect(sequence.run()).toBe(true)
-        expect(BlackboardService.get(blackboard, "increment")).toEqual(1)
+        expect(DataBlobService.get(blackboard, "increment")).toEqual(1)
     })
 
     it("can clone recursively", () => {

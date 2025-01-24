@@ -89,7 +89,10 @@ describe("Action Point Checker", () => {
                     battleSquaddie,
                     squaddieTemplate,
                 })
-            ).toEqual({ actionPointsRemaining: startingActionPoints })
+            ).toEqual({
+                actionPointsRemaining: startingActionPoints,
+                actionPointsReserved: 0,
+            })
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,
@@ -169,7 +172,10 @@ describe("Action Point Checker", () => {
                     battleSquaddie,
                     squaddieTemplate,
                 })
-            ).toEqual({ actionPointsRemaining: startingActionPoints })
+            ).toEqual({
+                actionPointsRemaining: startingActionPoints,
+                actionPointsReserved: 0,
+            })
             expect(
                 ActionPointCheck.canAfford({
                     battleSquaddie,

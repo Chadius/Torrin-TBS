@@ -7,7 +7,7 @@ import {
     DialoguePosition,
     DialogueTextService,
 } from "./constants"
-import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 export class DialoguePortraitImage {

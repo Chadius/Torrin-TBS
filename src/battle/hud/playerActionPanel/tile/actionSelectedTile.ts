@@ -14,7 +14,7 @@ import {
     ImageUI,
     ImageUILoadingBehavior,
     ImageUIService,
-} from "../../../../ui/imageUI"
+} from "../../../../ui/imageUI/imageUI"
 import { RectArea, RectAreaService } from "../../../../ui/rectArea"
 import { WINDOW_SPACING } from "../../../../ui/constants"
 import { isValidValue } from "../../../../utils/validityCheck"

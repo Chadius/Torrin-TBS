@@ -1,12 +1,12 @@
 import { BehaviorTreeTask } from "../../task"
-import { Blackboard } from "../../../blackboard/blackboard"
+import { DataBlob } from "../../../dataBlob/dataBlob"
 
 export class InverterDecorator implements BehaviorTreeTask {
-    blackboard: Blackboard
+    dataBlob: DataBlob
     children?: BehaviorTreeTask[]
 
-    constructor(blackboard: Blackboard, child: BehaviorTreeTask) {
-        this.blackboard = blackboard
+    constructor(dataBlob: DataBlob, child: BehaviorTreeTask) {
+        this.dataBlob = dataBlob
         if (!child) {
             throw new Error(
                 "[InverterDecorator.constructor] must have a child task"
@@ -20,6 +20,6 @@ export class InverterDecorator implements BehaviorTreeTask {
     }
 
     clone(): BehaviorTreeTask {
-        return new InverterDecorator(this.blackboard, this.children[0].clone())
+        return new InverterDecorator(this.dataBlob, this.children[0].clone())
     }
 }

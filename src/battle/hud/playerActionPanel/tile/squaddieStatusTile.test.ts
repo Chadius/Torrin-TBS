@@ -132,9 +132,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
                 objectRepository,
-                graphicsContext: mockP5GraphicsContext,
                 missionMap: MissionMapService.default(),
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -166,9 +164,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
                 objectRepository,
-                graphicsContext: mockP5GraphicsContext,
                 missionMap: MissionMapService.default(),
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -205,9 +201,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
                 objectRepository,
-                graphicsContext: mockP5GraphicsContext,
                 missionMap: MissionMapService.default(),
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -248,9 +242,7 @@ describe("Squaddie Status Tile", () => {
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
                 objectRepository,
-                graphicsContext: mockP5GraphicsContext,
                 missionMap: MissionMapService.default(),
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -295,8 +287,6 @@ describe("Squaddie Status Tile", () => {
                 tile,
                 objectRepository,
                 missionMap,
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -341,8 +331,6 @@ describe("Squaddie Status Tile", () => {
                 tile,
                 objectRepository,
                 missionMap: MissionMapService.default(),
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -399,8 +387,6 @@ describe("Squaddie Status Tile", () => {
                 tile,
                 objectRepository,
                 missionMap: MissionMapService.default(),
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -479,8 +465,6 @@ describe("Squaddie Status Tile", () => {
                         tile,
                         objectRepository,
                         missionMap: MissionMapService.default(),
-                        graphicsContext: mockP5GraphicsContext,
-                        resourceHandler,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -561,8 +545,6 @@ describe("Squaddie Status Tile", () => {
                         tile,
                         objectRepository,
                         missionMap: MissionMapService.default(),
-                        graphicsContext: mockP5GraphicsContext,
-                        resourceHandler,
                     })
 
                     SquaddieStatusTileService.draw({
@@ -628,8 +610,6 @@ describe("Squaddie Status Tile", () => {
                 tile,
                 objectRepository,
                 missionMap: MissionMapService.default(),
-                graphicsContext: mockP5GraphicsContext,
-                resourceHandler,
             })
 
             SquaddieStatusTileService.draw({
@@ -690,8 +670,6 @@ describe("Squaddie Status Tile", () => {
                     tile,
                     objectRepository,
                     missionMap: MissionMapService.default(),
-                    graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
                 })
 
                 SquaddieStatusTileService.draw({
@@ -711,8 +689,6 @@ describe("Squaddie Status Tile", () => {
                     tile,
                     objectRepository,
                     missionMap: MissionMapService.default(),
-                    graphicsContext: mockP5GraphicsContext,
-                    resourceHandler,
                 })
 
                 SquaddieStatusTileService.draw({

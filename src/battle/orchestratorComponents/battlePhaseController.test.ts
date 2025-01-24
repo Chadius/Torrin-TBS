@@ -27,7 +27,7 @@ import {
     GameEngineStateService,
 } from "../../gameEngine/gameEngine"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
-import { ImageUI, ImageUILoadingBehavior } from "../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../ui/imageUI/imageUI"
 import { RectAreaService } from "../../ui/rectArea"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import { beforeEach, describe, expect, it, vi } from "vitest"

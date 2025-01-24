@@ -641,7 +641,6 @@ describe("Battle State", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                graphicsContext: expect.anything(),
             })
             expect(updateTileUsingSquaddieSpy).toBeCalledWith({
                 tile: gameEngineState.battleOrchestratorState.battleHUDState
@@ -652,7 +651,6 @@ describe("Battle State", () => {
                 missionMap:
                     gameEngineState.battleOrchestratorState.battleState
                         .missionMap,
-                graphicsContext: expect.anything(),
             })
 
             updateTileUsingSquaddieSpy.mockRestore()

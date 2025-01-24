@@ -1,8 +1,8 @@
-import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "./ImageUI"
-import { RectArea, RectAreaService } from "./rectArea"
-import { ResourceHandler } from "../resource/resourceHandler"
-import * as mocks from "../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
+import { ImageUI, ImageUILoadingBehavior, ImageUIService } from "./imageUI"
+import { RectArea, RectAreaService } from "../rectArea"
+import { ResourceHandler } from "../../resource/resourceHandler"
+import * as mocks from "../../utils/test/mocks"
+import { MockedP5GraphicsBuffer } from "../../utils/test/mocks"
 import {
     afterEach,
     beforeEach,

@@ -32,7 +32,7 @@ import {
     MapGraphicsLayerType,
 } from "../../hexMap/mapGraphicsLayer"
 import { ConvertCoordinateService } from "../../hexMap/convertCoordinates"
-import { ImageUI } from "../../ui/ImageUI"
+import { ImageUI } from "../../ui/imageUI/imageUI"
 import { ResourceHandler } from "../../resource/resourceHandler"
 
 const MAP_ICON_CONSTANTS = {
@@ -338,11 +338,13 @@ const drawMapIconActionPointsBar = (
         return
     }
 
-    const { actionPointsRemaining } = SquaddieService.getNumberOfActionPoints({
-        squaddieTemplate,
-        battleSquaddie,
-    })
-    if (actionPointsRemaining >= DEFAULT_ACTION_POINTS_PER_TURN) {
+    const { actionPointsRemaining, actionPointsReserved } =
+        SquaddieService.getNumberOfActionPoints({
+            squaddieTemplate,
+            battleSquaddie,
+        })
+    const actionPointsToShow = actionPointsRemaining - actionPointsReserved
+    if (actionPointsToShow >= DEFAULT_ACTION_POINTS_PER_TURN) {
         return
     }
     const { screenX, screenY } =
@@ -376,7 +378,7 @@ const drawMapIconActionPointsBar = (
     drawMapIconBar({
         graphics,
         amount: {
-            current: actionPointsRemaining,
+            current: actionPointsToShow,
             max: DEFAULT_ACTION_POINTS_PER_TURN,
         },
         bar: {

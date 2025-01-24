@@ -19,7 +19,7 @@ import {
     ObjectRepository,
     ObjectRepositoryService,
 } from "../../objectRepository"
-import { ImageUI, ImageUILoadingBehavior } from "../../../ui/ImageUI"
+import { ImageUI, ImageUILoadingBehavior } from "../../../ui/imageUI/imageUI"
 import { AttributeType } from "../../../squaddie/attribute/attributeType"
 
 const DECISION_BUTTON_LAYOUT_COLORS = {
