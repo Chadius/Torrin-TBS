@@ -17,7 +17,7 @@ import {
     BattleSquaddieTeamService,
 } from "../../../battleSquaddieTeam"
 import * as mocks from "../../../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../../../utils/test/mocks"
+import { MockedGraphicsBufferService, MockedP5GraphicsBuffer } from "../../../../utils/test/mocks"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectAreaService } from "../../../../ui/rectArea"
 import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
@@ -137,26 +137,11 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = {}
-            graphicsBufferSpies["text"] = vi
-                .spyOn(mockP5GraphicsContext, "text")
-                .mockReturnValue()
-            graphicsBufferSpies["image"] = vi
-                .spyOn(mockP5GraphicsContext, "image")
-                .mockReturnValue()
-            graphicsBufferSpies["rect"] = vi
-                .spyOn(mockP5GraphicsContext, "rect")
-                .mockReturnValue()
-            graphicsBufferSpies["fill"] = vi
-                .spyOn(mockP5GraphicsContext, "fill")
-                .mockReturnValue()
-            graphicsBufferSpies["textWidth"] = vi
-                .spyOn(mockP5GraphicsContext, "textWidth")
-                .mockReturnValue(10)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
         })
 
         afterEach(() => {
-            resetSpies(graphicsBufferSpies)
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
         it.each(tests)(`$affiliation`, ({ affiliation }) => {
@@ -179,7 +164,7 @@ describe("Squaddie Name and Portrait Tile", () => {
                 expect.anything()
             )
 
-            resetSpies(graphicsBufferSpies)
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
     })
 
@@ -199,14 +184,11 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = {}
-            graphicsBufferSpies["textWidth"] = vi
-                .spyOn(mockP5GraphicsContext, "textWidth")
-                .mockReturnValue(10)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
         })
 
         afterEach(() => {
-            resetSpies(graphicsBufferSpies)
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
         describe("drawing", () => {
@@ -262,18 +244,11 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = {}
-            graphicsBufferSpies["text"] = vi.spyOn(
-                mockP5GraphicsContext,
-                "text"
-            )
-            graphicsBufferSpies["textWidth"] = vi
-                .spyOn(mockP5GraphicsContext, "textWidth")
-                .mockReturnValue(10)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
         })
 
         afterEach(() => {
-            resetSpies(graphicsBufferSpies)
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
 
         it("does not create the text until we try to draw", () => {
@@ -328,12 +303,6 @@ describe("Squaddie Name and Portrait Tile", () => {
         })
     })
 })
-
-const resetSpies = (spies: { [key: string]: MockInstance }) => {
-    Object.values(spies ?? {}).forEach((spy) => {
-        spy.mockRestore()
-    })
-}
 
 const createSquaddieOfGivenAffiliation = ({
     objectRepository,

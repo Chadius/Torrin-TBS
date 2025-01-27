@@ -1,43 +1,24 @@
-import {
-    ObjectRepository,
-    ObjectRepositoryService,
-} from "../../../objectRepository"
+import { ObjectRepository, ObjectRepositoryService } from "../../../objectRepository"
 import { SquaddieAffiliation } from "../../../../squaddie/squaddieAffiliation"
 import { SquaddieTemplateService } from "../../../../campaign/squaddieTemplate"
 import { SquaddieIdService } from "../../../../squaddie/id"
 import { BattleSquaddie, BattleSquaddieService } from "../../../battleSquaddie"
 import * as mocks from "../../../../utils/test/mocks"
-import { MockedP5GraphicsBuffer } from "../../../../utils/test/mocks"
+import { MockedGraphicsBufferService, MockedP5GraphicsBuffer } from "../../../../utils/test/mocks"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { HUE_BY_SQUADDIE_AFFILIATION } from "../../../../graphicsConstants"
 import { ActionTilePosition } from "./actionTilePosition"
-import {
-    SquaddieStatusTile,
-    SquaddieStatusTileService,
-} from "./squaddieStatusTile"
+import { SquaddieStatusTile, SquaddieStatusTileService, SquaddieStatusTileUIObjects } from "./squaddieStatusTile"
 import { DamageType } from "../../../../squaddie/squaddieService"
 import { InBattleAttributesService } from "../../../stats/inBattleAttributes"
-import {
-    AttributeModifierService,
-    AttributeSource,
-} from "../../../../squaddie/attribute/attributeModifier"
+import { AttributeModifierService, AttributeSource } from "../../../../squaddie/attribute/attributeModifier"
 import { SquaddieTurnService } from "../../../../squaddie/turn"
-import {
-    MissionMap,
-    MissionMapService,
-} from "../../../../missionMap/missionMap"
+import { MissionMap, MissionMapService } from "../../../../missionMap/missionMap"
 import { TerrainTileMapService } from "../../../../hexMap/terrainTileMap"
-import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    MockInstance,
-    vi,
-} from "vitest"
+import { afterEach, beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
 import { ProficiencyLevel } from "../../../../squaddie/armyAttributes"
 import { AttributeType } from "../../../../squaddie/attribute/attributeType"
+import { DataBlobService } from "../../../../utils/dataBlob/dataBlob"
 
 describe("Squaddie Status Tile", () => {
     let objectRepository: ObjectRepository
@@ -53,26 +34,11 @@ describe("Squaddie Status Tile", () => {
         resourceHandler.loadResource = vi
             .fn()
             .mockReturnValue({ width: 1, height: 1 })
-        graphicsBufferSpies = {}
-        graphicsBufferSpies["text"] = vi
-            .spyOn(mockP5GraphicsContext, "text")
-            .mockReturnValue()
-        graphicsBufferSpies["image"] = vi
-            .spyOn(mockP5GraphicsContext, "image")
-            .mockReturnValue()
-        graphicsBufferSpies["rect"] = vi
-            .spyOn(mockP5GraphicsContext, "rect")
-            .mockReturnValue()
-        graphicsBufferSpies["fill"] = vi
-            .spyOn(mockP5GraphicsContext, "fill")
-            .mockReturnValue()
-        graphicsBufferSpies["textWidth"] = vi
-            .spyOn(mockP5GraphicsContext, "textWidth")
-            .mockReturnValue(10)
+        graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
     })
 
     afterEach(() => {
-        resetSpies(graphicsBufferSpies)
+        MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
     })
 
     describe("background color set by affiliation", () => {
@@ -111,7 +77,7 @@ describe("Squaddie Status Tile", () => {
                 expect.anything()
             )
 
-            resetSpies(graphicsBufferSpies)
+            MockedGraphicsBufferService.resetSpies(graphicsBufferSpies)
         })
     })
 
@@ -217,6 +183,41 @@ describe("Squaddie Status Tile", () => {
                 expect.anything(),
                 expect.anything()
             )
+        })
+        it("should draw a meter representing the current action points", () => {
+            SquaddieTurnService.spendActionPoints(
+                battleSquaddie.squaddieTurn,
+                1,
+            )
+            SquaddieTurnService.reserveActionPoints(
+                battleSquaddie.squaddieTurn,
+                1,
+            )
+            SquaddieStatusTileService.updateTileUsingSquaddie({
+                tile,
+                objectRepository,
+                missionMap: MissionMapService.default(),
+            })
+
+            SquaddieStatusTileService.draw({
+                tile,
+                graphicsContext: mockP5GraphicsContext,
+                resourceHandler,
+            })
+
+            const uiObjects = DataBlobService.get<SquaddieStatusTileUIObjects>(
+                tile.data,
+                "uiObjects",
+            )
+
+            const dataBlob = uiObjects.actionPoints.actionPointMeterDataBlob
+            expect(
+                DataBlobService.get<number>(dataBlob, "currentValue"),
+            ).toEqual(2)
+            expect(
+                DataBlobService.get<number>(dataBlob, "highlightedValue"),
+            ).toEqual(1)
+            expect(DataBlobService.get<number>(dataBlob, "maxValue")).toEqual(3)
         })
     })
 
@@ -709,12 +710,6 @@ describe("Squaddie Status Tile", () => {
         })
     })
 })
-
-const resetSpies = (spies: { [key: string]: MockInstance }) => {
-    Object.values(spies ?? {}).forEach((spy) => {
-        spy.mockRestore()
-    })
-}
 
 const createSquaddieOfGivenAffiliation = ({
     objectRepository,

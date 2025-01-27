@@ -255,9 +255,24 @@ export const MockedGraphicsBufferService = {
         graphicsBufferSpies["fill"] = vi
             .spyOn(mockP5GraphicsContext, "fill")
             .mockReturnValue()
+        graphicsBufferSpies["line"] = vi
+            .spyOn(mockP5GraphicsContext, "line")
+            .mockReturnValue()
         graphicsBufferSpies["textWidth"] = vi
             .spyOn(mockP5GraphicsContext, "textWidth")
             .mockReturnValue(10)
+        graphicsBufferSpies["stroke"] = vi.spyOn(
+            mockP5GraphicsContext,
+            "stroke"
+        )
+        graphicsBufferSpies["noStroke"] = vi.spyOn(
+            mockP5GraphicsContext,
+            "noStroke"
+        )
+        graphicsBufferSpies["strokeWeight"] = vi.spyOn(
+            mockP5GraphicsContext,
+            "strokeWeight"
+        )
         return graphicsBufferSpies
     },
     resetSpies: (graphicsBufferSpies: { [key: string]: MockInstance }) => {

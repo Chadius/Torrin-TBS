@@ -1,0 +1,314 @@
+import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
+import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
+import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
+import { RectArea, RectAreaService } from "../../../ui/rectArea"
+import { getValidValueOrDefault } from "../../../utils/validityCheck"
+
+export interface DrawHorizontalMeterActionDataBlob extends DataBlob {
+    data: {
+        drawingArea: RectArea
+        maxValue: number
+        emptyColor: number[]
+
+        currentValue?: number
+        currentValueFillColor?: number[]
+        currentValueSegmentColor?: number[]
+        currentValueSegmentStrokeWeight?: number
+        currentValueSegmentDivisionInterval?: number
+
+        highlightedValue?: number
+        highlightedValueFillColor?: number[]
+        highlightedValueFillAlphaRange?: number[]
+        highlightedValueFillAlphaPeriod?: number
+        highlightedValueFillStartTime?: number
+
+        outlineStrokeWeight?: number
+        outlineStrokeColor?: number[]
+    }
+}
+
+export class DrawHorizontalMeterAction implements BehaviorTreeTask {
+    graphicsContext: GraphicsBuffer
+    dataBlob: DrawHorizontalMeterActionDataBlob
+
+    constructor(
+        dataBlob: DrawHorizontalMeterActionDataBlob,
+        graphicsContext: GraphicsBuffer,
+    ) {
+        this.dataBlob = dataBlob
+        this.graphicsContext = graphicsContext
+    }
+
+    clone(): BehaviorTreeTask {
+        return new DrawHorizontalMeterAction(
+            this.dataBlob,
+            this.graphicsContext,
+        )
+    }
+
+    run(): boolean {
+        this.graphicsContext.push()
+        this.drawBackground()
+        this.drawCurrentValue()
+        this.drawSegmentedValue()
+        this.drawHighlightedValue()
+        this.graphicsContext.pop()
+        return true
+    }
+
+    private get emptyColor(): number[] {
+        return DataBlobService.get<number[]>(this.dataBlob, "emptyColor")
+    }
+
+    private get drawingArea(): RectArea {
+        return DataBlobService.get<RectArea>(this.dataBlob, "drawingArea")
+    }
+
+    private get outlineStrokeColor(): number[] {
+        return DataBlobService.get<number[]>(
+            this.dataBlob,
+            "outlineStrokeColor",
+        )
+    }
+
+    private get outlineStrokeWeight(): number {
+        return DataBlobService.get<number>(this.dataBlob, "outlineStrokeWeight")
+    }
+
+    private get currentValue(): number {
+        return DataBlobService.get<number>(this.dataBlob, "currentValue")
+    }
+
+    private get highlightedValue(): number {
+        return DataBlobService.get<number>(this.dataBlob, "highlightedValue")
+    }
+
+    private get maxValue(): number {
+        return DataBlobService.get<number>(this.dataBlob, "maxValue")
+    }
+
+    private get currentValueFillColor(): number[] {
+        return DataBlobService.get<number[]>(
+            this.dataBlob,
+            "currentValueFillColor",
+        )
+    }
+
+    private get currentValueSegmentColor(): number[] {
+        return DataBlobService.get<number[]>(
+            this.dataBlob,
+            "currentValueSegmentColor",
+        )
+    }
+
+    private get currentValueSegmentStrokeWeight(): number {
+        return DataBlobService.get<number>(
+            this.dataBlob,
+            "currentValueSegmentStrokeWeight",
+        )
+    }
+
+    private get currentValueSegmentDivisionInterval(): number {
+        return DataBlobService.get<number>(
+            this.dataBlob,
+            "currentValueSegmentDivisionInterval",
+        )
+    }
+
+    private get highlightedValueFillColor(): number[] {
+        return DataBlobService.get<number[]>(
+            this.dataBlob,
+            "highlightedValueFillColor",
+        )
+    }
+
+    private get highlightedValueFillAlphaRange(): number[] {
+        return DataBlobService.get<number[]>(
+            this.dataBlob,
+            "highlightedValueFillAlphaRange",
+        )
+    }
+
+    private get highlightedValueFillAlphaPeriod(): number {
+        return DataBlobService.get<number>(
+            this.dataBlob,
+            "highlightedValueFillAlphaPeriod",
+        )
+    }
+
+    private get highlightedValueFillStartTime(): number {
+        return getValidValueOrDefault(
+            DataBlobService.get<number>(
+                this.dataBlob,
+                "highlightedValueFillStartTime",
+            ),
+            0,
+        )
+    }
+
+    private drawBackground() {
+        this.graphicsContext.fill(
+            this.emptyColor[0],
+            this.emptyColor[1],
+            this.emptyColor[2],
+        )
+
+        if (
+            this.outlineStrokeWeight != undefined &&
+            this.outlineStrokeWeight > 0
+        ) {
+            this.graphicsContext.strokeWeight(this.outlineStrokeWeight)
+
+            this.graphicsContext.stroke(
+                this.outlineStrokeColor[0],
+                this.outlineStrokeColor[1],
+                this.outlineStrokeColor[2],
+            )
+        } else {
+            this.graphicsContext.noStroke()
+        }
+
+        this.graphicsContext.rect(
+            RectAreaService.left(this.drawingArea),
+            RectAreaService.top(this.drawingArea),
+            RectAreaService.width(this.drawingArea),
+            RectAreaService.height(this.drawingArea),
+        )
+    }
+
+    private drawCurrentValue() {
+        if (!this.isCurrentValueDefined()) return
+        if (this.highlightedValue && this.currentValue <= this.highlightedValue)
+            return
+
+        this.graphicsContext.fill(
+            this.currentValueFillColor[0],
+            this.currentValueFillColor[1],
+            this.currentValueFillColor[2],
+        )
+
+        const currentEndValue = this.highlightedValue
+            ? this.currentValue - this.highlightedValue
+            : this.currentValue
+
+        this.graphicsContext.rect(
+            RectAreaService.left(this.drawingArea),
+            RectAreaService.top(this.drawingArea),
+            this.calculateValueWidth(currentEndValue),
+            RectAreaService.height(this.drawingArea),
+        )
+    }
+
+    private calculateValueWidth(value: number): number {
+        return (RectAreaService.width(this.drawingArea) * value) / this.maxValue
+    }
+
+    private drawSegmentedValue() {
+        if (!this.isCurrentValueDefined()) return
+        if (
+            this.currentValueSegmentDivisionInterval == undefined ||
+            this.currentValueSegmentDivisionInterval == 0
+        )
+            return
+        if (
+            this.currentValueSegmentStrokeWeight == undefined ||
+            this.currentValueSegmentStrokeWeight == 0
+        )
+            return
+
+        this.graphicsContext.strokeWeight(this.currentValueSegmentStrokeWeight)
+
+        const outlineStrokeBorder = this.outlineStrokeWeight ?? 0
+
+        this.graphicsContext.stroke(
+            this.currentValueSegmentColor[0],
+            this.currentValueSegmentColor[1],
+            this.currentValueSegmentColor[2],
+        )
+
+        for (
+            let i = this.currentValueSegmentDivisionInterval;
+            i < this.maxValue;
+            i += this.currentValueSegmentDivisionInterval
+        ) {
+            this.graphicsContext.line(
+                RectAreaService.left(this.drawingArea) + (RectAreaService.width(this.drawingArea) * i) / this.maxValue,
+                RectAreaService.top(this.drawingArea) + outlineStrokeBorder,
+                RectAreaService.left(this.drawingArea) + (RectAreaService.width(this.drawingArea) * i) / this.maxValue,
+                RectAreaService.bottom(this.drawingArea) + outlineStrokeBorder - 1,
+            )
+        }
+    }
+
+    private isMaxValueDefined(): boolean {
+        return !(this.maxValue == undefined || this.maxValue == 0)
+    }
+
+    private isCurrentValueDefined(): boolean {
+        if (this.currentValue == undefined || this.currentValue == 0)
+            return false
+        return this.isMaxValueDefined()
+    }
+
+    private isHighlightedValueDefined(): boolean {
+        if (this.highlightedValue == undefined || this.highlightedValue == 0)
+            return false
+        return this.isCurrentValueDefined()
+    }
+
+    private drawHighlightedValue() {
+        if (!this.isHighlightedValueDefined()) return
+
+        if (
+            this.highlightedValueFillAlphaRange == undefined ||
+            this.highlightedValueFillAlphaRange.length == 0
+        )
+            return
+        if (
+            this.highlightedValueFillColor == undefined ||
+            this.highlightedValueFillColor.length == 0
+        )
+            return
+        if (
+            this.highlightedValueFillAlphaPeriod == undefined ||
+            this.highlightedValueFillAlphaPeriod == 0
+        )
+            return
+
+        const timeElapsed =
+            (Date.now() - this.highlightedValueFillStartTime) %
+            this.highlightedValueFillAlphaPeriod
+
+        const linearInterpolatedAlphaValue =
+            this.highlightedValueFillAlphaRange[0] +
+            (timeElapsed *
+                (this.highlightedValueFillAlphaRange[1] -
+                    this.highlightedValueFillAlphaRange[0])) /
+            this.highlightedValueFillAlphaPeriod
+
+        this.graphicsContext.fill(
+            this.highlightedValueFillColor[0],
+            this.highlightedValueFillColor[1],
+            this.highlightedValueFillColor[2],
+            linearInterpolatedAlphaValue,
+        )
+
+        const highlightedStartValue =
+            this.currentValue > this.highlightedValue
+                ? this.currentValue - this.highlightedValue
+                : 0
+
+        const highlightedEndValue =
+            this.currentValue > this.highlightedValue
+                ? this.currentValue
+                : this.highlightedValue
+
+        this.graphicsContext.rect(
+            RectAreaService.left(this.drawingArea) +
+            this.calculateValueWidth(highlightedStartValue),
+            RectAreaService.top(this.drawingArea),
+            this.calculateValueWidth(highlightedEndValue),
+            RectAreaService.height(this.drawingArea),
+        )
+    }
+}
