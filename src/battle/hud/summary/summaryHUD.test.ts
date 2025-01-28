@@ -150,9 +150,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
                 BattleActionDecisionStepService.new()
@@ -201,9 +199,7 @@ describe("summaryHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default(),
                 })
-                summaryHUDState = SummaryHUDStateService.new({
-                    screenSelectionCoordinates: { x: 0, y: 0 },
-                })
+                summaryHUDState = SummaryHUDStateService.new()
 
                 const { left, right, top, bottom } = positions.reduce(
                     (currentSides, position) => {
@@ -290,9 +286,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
@@ -340,9 +334,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
@@ -400,9 +392,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             const dateNowSpy = vi.spyOn(Date, "now").mockImplementation(() => 0)
 
@@ -462,9 +452,7 @@ describe("summaryHUD", () => {
                 actionTemplateIds: [],
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             SummaryHUDStateService.peekAtSquaddie({
                 summaryHUDState,
@@ -520,9 +508,7 @@ describe("summaryHUD", () => {
                 campaign: CampaignService.default(),
             })
 
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
                 name: "player",
@@ -663,9 +649,7 @@ describe("summaryHUD", () => {
                 repository: objectRepository,
                 campaign: CampaignService.default(),
             })
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
         })
 
         it("will draw the target window on the right side", () => {
@@ -711,9 +695,7 @@ describe("summaryHUD", () => {
                     repository: objectRepository,
                     campaign: CampaignService.default(),
                 })
-                summaryHUDState = SummaryHUDStateService.new({
-                    screenSelectionCoordinates: { x: 0, y: 0 },
-                })
+                summaryHUDState = SummaryHUDStateService.new()
 
                 const panelWindowRectArea =
                     RectAreaService.newRectangleBasedOnMultipleRectAreas(
@@ -794,9 +776,7 @@ describe("summaryHUD", () => {
 
         beforeEach(() => {
             dateSpy = vi.spyOn(Date, "now").mockReturnValue(0)
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
@@ -921,9 +901,7 @@ describe("summaryHUD", () => {
     describe("can create a playerCommandHUD based on the main panel", () => {
         let summaryHUDState: SummaryHUDState
         beforeEach(() => {
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
             let gameEngineState = GameEngineStateService.new({
                 resourceHandler,
                 repository: objectRepository,
@@ -960,12 +938,7 @@ describe("summaryHUD", () => {
     describe("player selects an action to see action tile", () => {
         let gameEngineState: GameEngineState
         beforeEach(() => {
-            summaryHUDState = SummaryHUDStateService.new({
-                screenSelectionCoordinates: {
-                    x: 0,
-                    y: 0,
-                },
-            })
+            summaryHUDState = SummaryHUDStateService.new()
 
             gameEngineState = GameEngineStateService.new({
                 resourceHandler,
@@ -1001,12 +974,12 @@ describe("summaryHUD", () => {
                 "mouseMoved"
             )
             const mouseX = RectAreaService.centerX(
-                summaryHUDState.playerCommandState.actionButtons[0].buttonIcon
-                    .drawArea
+                summaryHUDState.playerCommandState.actionButtons[0].uiObjects
+                    .buttonIcon.drawArea
             )
             const mouseY = RectAreaService.centerY(
-                summaryHUDState.playerCommandState.actionButtons[0].buttonIcon
-                    .drawArea
+                summaryHUDState.playerCommandState.actionButtons[0].uiObjects
+                    .buttonIcon.drawArea
             )
 
             SummaryHUDStateService.mouseMoved({
@@ -1041,12 +1014,13 @@ describe("summaryHUD", () => {
                 mouseButton: MouseButton.ACCEPT,
                 mouseX: RectAreaService.centerX(
                     summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonIcon.drawArea
+                        .uiObjects.buttonIcon.drawArea
                 ),
                 mouseY: RectAreaService.centerY(
                     summaryHUDState.playerCommandState.actionButtons[0]
-                        .buttonIcon.drawArea
+                        .uiObjects.buttonIcon.drawArea
                 ),
+                gameEngineState,
             })
             expect(playerCommandSpy).toBeCalled()
             expect(selection).toEqual(

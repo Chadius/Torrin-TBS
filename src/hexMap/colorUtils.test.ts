@@ -1,8 +1,4 @@
-import {
-    BlendColor,
-    PulseBlendColor,
-    pulseBlendColorToBlendColor,
-} from "./colorUtils"
+import { BlendColor, ColorUtils, PulseBlendColor } from "./colorUtils"
 import { describe, expect, test, vi } from "vitest"
 
 describe("PulseBlendColor to BlendColor", () => {
@@ -38,18 +34,18 @@ describe("PulseBlendColor to BlendColor", () => {
         ]
 
         vi.spyOn(Date, "now").mockImplementation(() => 250) // peak value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
-            highBlendColor
-        )
+        expect(
+            ColorUtils.pulseBlendColorToBlendColor(pulseBlendColor)
+        ).toStrictEqual(highBlendColor)
 
         vi.spyOn(Date, "now").mockImplementation(() => 0) // base value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
-            baseBlendColor
-        )
+        expect(
+            ColorUtils.pulseBlendColorToBlendColor(pulseBlendColor)
+        ).toStrictEqual(baseBlendColor)
 
         vi.spyOn(Date, "now").mockImplementation(() => 750) // valley value
-        expect(pulseBlendColorToBlendColor(pulseBlendColor)).toStrictEqual(
-            lowBlendColor
-        )
+        expect(
+            ColorUtils.pulseBlendColorToBlendColor(pulseBlendColor)
+        ).toStrictEqual(lowBlendColor)
     })
 })

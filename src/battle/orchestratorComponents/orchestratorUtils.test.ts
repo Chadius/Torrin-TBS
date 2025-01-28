@@ -914,12 +914,7 @@ describe("Orchestration Utils", () => {
             )
 
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                SummaryHUDStateService.new({
-                    screenSelectionCoordinates: {
-                        x: 0,
-                        y: 0,
-                    },
-                })
+                SummaryHUDStateService.new()
 
             OrchestratorUtilities.messageAndHighlightPlayableSquaddieTakingATurn(
                 {

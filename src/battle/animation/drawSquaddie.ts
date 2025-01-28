@@ -4,7 +4,7 @@ import {
     HUE_BY_SQUADDIE_AFFILIATION,
 } from "../../graphicsConstants"
 import { RectArea, RectAreaService } from "../../ui/rectArea"
-import { Rectangle, RectangleHelper } from "../../ui/rectangle"
+import { Rectangle, RectangleService } from "../../ui/rectangle"
 import { BattleCamera } from "../battleCamera"
 import { getResultOrThrowError } from "../../utils/ResultOrError"
 import { ObjectRepository, ObjectRepositoryService } from "../objectRepository"
@@ -604,13 +604,13 @@ const drawMapIconBar = ({
         foregroundColor: number[]
     }
 }) => {
-    const background: Rectangle = RectangleHelper.new({
+    const background: Rectangle = RectangleService.new({
         area: bar.backgroundArea,
         fillColor: bar.backgroundColor,
         strokeColor: bar.strokeColor,
         strokeWeight: bar.strokeWeight,
     })
-    RectangleHelper.draw(background, graphics)
+    RectangleService.draw(background, graphics)
 
     const foregroundWidth =
         (bar.backgroundArea.width * amount.current) / amount.max
@@ -621,10 +621,10 @@ const drawMapIconBar = ({
         width: foregroundWidth,
     })
 
-    const foreground: Rectangle = RectangleHelper.new({
+    const foreground: Rectangle = RectangleService.new({
         area: foregroundRectArea,
         fillColor: bar.foregroundColor,
         noStroke: true,
     })
-    RectangleHelper.draw(foreground, graphics)
+    RectangleService.draw(foreground, graphics)
 }

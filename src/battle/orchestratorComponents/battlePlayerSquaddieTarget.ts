@@ -25,10 +25,8 @@ import { GraphicsBuffer } from "../../utils/graphics/graphicsRenderer"
 import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { MissionMapService } from "../../missionMap/missionMap"
-import { BattleHUDStateService } from "../hud/battleHUD/battleHUDState"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { TerrainTileGraphicsService } from "../../hexMap/terrainTileGraphics"
-import { ResourceHandler } from "../../resource/resourceHandler"
 import { PlayerCancelButtonService } from "./commonUI/playerCancelButton"
 import { ScreenDimensions } from "../../utils/graphics/graphicsConfig"
 import {
@@ -121,7 +119,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
     }
 
-    uiControlSettings(state: GameEngineState): UIControlSettings {
+    uiControlSettings(_: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: true,
             displayMap: true,
@@ -132,11 +130,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     update({
         gameEngineState,
         graphicsContext,
-        resourceHandler,
     }: {
         gameEngineState: GameEngineState
         graphicsContext: GraphicsBuffer
-        resourceHandler: ResourceHandler
     }): void {
         if (!this.hasHighlightedTargetRange) {
             return this.highlightTargetRange(gameEngineState)
@@ -171,7 +167,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return undefined
     }
 
-    reset(state: GameEngineState) {
+    reset(_: GameEngineState) {
         this.resetObject()
     }
 
@@ -199,12 +195,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     .summaryHUDState
             ) {
                 gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                    SummaryHUDStateService.new({
-                        screenSelectionCoordinates:
-                            BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
-                                { gameEngineState }
-                            ),
-                    })
+                    SummaryHUDStateService.new()
 
                 SummaryHUDStateService.createActorTiles({
                     summaryHUDState:

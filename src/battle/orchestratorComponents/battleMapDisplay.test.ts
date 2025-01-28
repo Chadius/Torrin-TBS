@@ -297,7 +297,7 @@ describe("battleMapDisplay", () => {
 
         it.each(tests)(
             `moving mouse to ($mouseX, $mouseY) will make the camera $cameraDescription`,
-            ({ cameraDescription, mouseX, mouseY, cameraVelocityTest }) => {
+            ({ mouseX, mouseY, cameraVelocityTest }) => {
                 battleMapDisplay.moveCameraBasedOnMouseMovement(
                     state,
                     mouseX,
@@ -317,12 +317,7 @@ describe("battleMapDisplay", () => {
 
         const stateWithOpenedHUD = BattleOrchestratorStateService.new({
             battleHUDState: BattleHUDStateService.new({
-                summaryHUDState: SummaryHUDStateService.new({
-                    screenSelectionCoordinates: {
-                        x: 0,
-                        y: 0,
-                    },
-                }),
+                summaryHUDState: SummaryHUDStateService.new(),
             }),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
@@ -347,83 +342,5 @@ describe("battleMapDisplay", () => {
         ).toBe(0)
         expect(mouseHoverSpy).toBeCalled()
         mouseHoverSpy.mockRestore()
-    })
-
-    describe("will horizontally scroll the camera if the HUD is open but only at the extreme edge", () => {
-        let camera: BattleCamera
-        let initialCameraCoordinates: number[]
-
-        beforeEach(() => {
-            initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT]
-            camera = new BattleCamera(...initialCameraCoordinates)
-        })
-
-        type CameraTest = {
-            cameraDescription: string
-            mouseX: number
-            cameraVelocityTest: (camera: BattleCamera) => boolean
-        }
-
-        const tests: CameraTest[] = [
-            {
-                cameraDescription: "move left",
-                mouseX: 0,
-                cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity().xVelocity < 0,
-            },
-            {
-                cameraDescription: "move right",
-                mouseX: ScreenDimensions.SCREEN_WIDTH,
-                cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity().xVelocity > 0,
-            },
-            {
-                cameraDescription: "not move",
-                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                cameraVelocityTest: (camera: BattleCamera) =>
-                    camera.getVelocity().xVelocity === 0,
-            },
-        ]
-
-        const stateWithOpenedHUD = BattleOrchestratorStateService.new({
-            battleHUDState: BattleHUDStateService.new({
-                summaryHUDState: SummaryHUDStateService.new({
-                    screenSelectionCoordinates: {
-                        x: 0,
-                        y: 0,
-                    },
-                }),
-            }),
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                campaignId: "test campaign",
-                camera,
-            }),
-        })
-
-        it.each(tests)(
-            `when hovering over the HUD at mouseX $mouseX, the camera should $cameraDescription`,
-            ({ mouseX, cameraVelocityTest }) => {
-                stateWithOpenedHUD.battleState.camera.setXVelocity(0)
-                stateWithOpenedHUD.battleState.camera.setYVelocity(0)
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.y =
-                    ScreenDimensions.SCREEN_HEIGHT
-                stateWithOpenedHUD.battleHUDState.summaryHUDState.screenSelectionCoordinates.x =
-                    mouseX
-                const mouseHoverSpy: MockInstance = vi
-                    .spyOn(SummaryHUDStateService, "isMouseHoveringOver")
-                    .mockReturnValue(true)
-                battleMapDisplay.moveCameraBasedOnMouseMovement(
-                    stateWithOpenedHUD,
-                    mouseX,
-                    ScreenDimensions.SCREEN_HEIGHT
-                )
-                expect(
-                    cameraVelocityTest(stateWithOpenedHUD.battleState.camera)
-                ).toBeTruthy()
-                expect(mouseHoverSpy).toBeCalled()
-                mouseHoverSpy.mockRestore()
-            }
-        )
     })
 })

@@ -302,26 +302,10 @@ describe("Player Selection Service", () => {
                             gameEngineState,
                         })
 
-                    const { screenX, screenY } =
-                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
-                            {
-                                q: 0,
-                                r: 1,
-                                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                            }
-                        )
-
                     expectedMessage = {
                         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                         gameEngineState,
                         battleSquaddieSelectedId: "ENEMY",
-                        selectionMethod: {
-                            mouse: MouseClickService.new({
-                                x: screenX,
-                                y: screenY,
-                                button: MouseButton.ACCEPT,
-                            }),
-                        },
                     }
                 })
 
@@ -387,26 +371,11 @@ describe("Player Selection Service", () => {
                             context: actualContext,
                             gameEngineState,
                         })
-                    const { screenX, screenY } =
-                        ConvertCoordinateService.convertMapCoordinatesToScreenLocation(
-                            {
-                                q: 0,
-                                r: 0,
-                                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                            }
-                        )
 
                     expectedMessage = {
                         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                         gameEngineState,
                         battleSquaddieSelectedId: "PLAYER",
-                        selectionMethod: {
-                            mouse: MouseClickService.new({
-                                x: screenX,
-                                y: screenY,
-                                button: MouseButton.ACCEPT,
-                            }),
-                        },
                     }
                 })
 
@@ -445,9 +414,7 @@ describe("Player Selection Service", () => {
                         battleSquaddieId: "PLAYER",
                     })
                     gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                        SummaryHUDStateService.new({
-                            screenSelectionCoordinates: { x: 0, y: 0 },
-                        })
+                        SummaryHUDStateService.new()
                     actualContext = clickOnMapCoordinate({
                         q: 0,
                         r: 2,

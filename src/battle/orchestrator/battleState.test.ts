@@ -603,7 +603,7 @@ describe("Battle State", () => {
                 .mockImplementation(() => {})
 
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                SummaryHUDStateService.new({})
+                SummaryHUDStateService.new()
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles =
                 {}
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.squaddieStatusTiles[

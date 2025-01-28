@@ -45,7 +45,7 @@ import { OrchestratorUtilities } from "./orchestratorUtils"
 import { isValidValue } from "../../utils/validityCheck"
 import { CampaignService } from "../../campaign/campaign"
 import { BattleHUDService } from "../hud/battleHUD/battleHUD"
-import { MouseButton, MouseClickService } from "../../utils/mouseConfig"
+import { MouseButton } from "../../utils/mouseConfig"
 import { BattleActionDecisionStepService } from "../actionDecision/battleActionDecisionStep"
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import {
@@ -260,13 +260,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
-            selectionMethod: {
-                mouse: MouseClickService.new({
-                    x: 0,
-                    y: 0,
-                    button: MouseButton.ACCEPT,
-                }),
-            },
         })
         BattleActionRecorderService.addReadyToAnimateBattleAction(
             gameEngineState.battleOrchestratorState.battleState
@@ -328,13 +321,6 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
             battleSquaddieSelectedId: battleSquaddieBase.battleSquaddieId,
-            selectionMethod: {
-                mouse: MouseClickService.new({
-                    x: 0,
-                    y: 0,
-                    button: MouseButton.ACCEPT,
-                }),
-            },
         })
 
         BattleActionRecorderService.addReadyToAnimateBattleAction(

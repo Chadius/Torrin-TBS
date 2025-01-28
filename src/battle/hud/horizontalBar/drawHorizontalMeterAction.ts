@@ -33,7 +33,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
 
     constructor(
         dataBlob: DrawHorizontalMeterActionDataBlob,
-        graphicsContext: GraphicsBuffer,
+        graphicsContext: GraphicsBuffer
     ) {
         this.dataBlob = dataBlob
         this.graphicsContext = graphicsContext
@@ -42,7 +42,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
     clone(): BehaviorTreeTask {
         return new DrawHorizontalMeterAction(
             this.dataBlob,
-            this.graphicsContext,
+            this.graphicsContext
         )
     }
 
@@ -67,7 +67,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
     private get outlineStrokeColor(): number[] {
         return DataBlobService.get<number[]>(
             this.dataBlob,
-            "outlineStrokeColor",
+            "outlineStrokeColor"
         )
     }
 
@@ -90,49 +90,49 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
     private get currentValueFillColor(): number[] {
         return DataBlobService.get<number[]>(
             this.dataBlob,
-            "currentValueFillColor",
+            "currentValueFillColor"
         )
     }
 
     private get currentValueSegmentColor(): number[] {
         return DataBlobService.get<number[]>(
             this.dataBlob,
-            "currentValueSegmentColor",
+            "currentValueSegmentColor"
         )
     }
 
     private get currentValueSegmentStrokeWeight(): number {
         return DataBlobService.get<number>(
             this.dataBlob,
-            "currentValueSegmentStrokeWeight",
+            "currentValueSegmentStrokeWeight"
         )
     }
 
     private get currentValueSegmentDivisionInterval(): number {
         return DataBlobService.get<number>(
             this.dataBlob,
-            "currentValueSegmentDivisionInterval",
+            "currentValueSegmentDivisionInterval"
         )
     }
 
     private get highlightedValueFillColor(): number[] {
         return DataBlobService.get<number[]>(
             this.dataBlob,
-            "highlightedValueFillColor",
+            "highlightedValueFillColor"
         )
     }
 
     private get highlightedValueFillAlphaRange(): number[] {
         return DataBlobService.get<number[]>(
             this.dataBlob,
-            "highlightedValueFillAlphaRange",
+            "highlightedValueFillAlphaRange"
         )
     }
 
     private get highlightedValueFillAlphaPeriod(): number {
         return DataBlobService.get<number>(
             this.dataBlob,
-            "highlightedValueFillAlphaPeriod",
+            "highlightedValueFillAlphaPeriod"
         )
     }
 
@@ -140,9 +140,9 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         return getValidValueOrDefault(
             DataBlobService.get<number>(
                 this.dataBlob,
-                "highlightedValueFillStartTime",
+                "highlightedValueFillStartTime"
             ),
-            0,
+            0
         )
     }
 
@@ -150,7 +150,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         this.graphicsContext.fill(
             this.emptyColor[0],
             this.emptyColor[1],
-            this.emptyColor[2],
+            this.emptyColor[2]
         )
 
         if (
@@ -162,7 +162,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             this.graphicsContext.stroke(
                 this.outlineStrokeColor[0],
                 this.outlineStrokeColor[1],
-                this.outlineStrokeColor[2],
+                this.outlineStrokeColor[2]
             )
         } else {
             this.graphicsContext.noStroke()
@@ -172,7 +172,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             RectAreaService.left(this.drawingArea),
             RectAreaService.top(this.drawingArea),
             RectAreaService.width(this.drawingArea),
-            RectAreaService.height(this.drawingArea),
+            RectAreaService.height(this.drawingArea)
         )
     }
 
@@ -184,7 +184,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         this.graphicsContext.fill(
             this.currentValueFillColor[0],
             this.currentValueFillColor[1],
-            this.currentValueFillColor[2],
+            this.currentValueFillColor[2]
         )
 
         const currentEndValue = this.highlightedValue
@@ -195,7 +195,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             RectAreaService.left(this.drawingArea),
             RectAreaService.top(this.drawingArea),
             this.calculateValueWidth(currentEndValue),
-            RectAreaService.height(this.drawingArea),
+            RectAreaService.height(this.drawingArea)
         )
     }
 
@@ -223,7 +223,7 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         this.graphicsContext.stroke(
             this.currentValueSegmentColor[0],
             this.currentValueSegmentColor[1],
-            this.currentValueSegmentColor[2],
+            this.currentValueSegmentColor[2]
         )
 
         for (
@@ -232,10 +232,16 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             i += this.currentValueSegmentDivisionInterval
         ) {
             this.graphicsContext.line(
-                RectAreaService.left(this.drawingArea) + (RectAreaService.width(this.drawingArea) * i) / this.maxValue,
+                RectAreaService.left(this.drawingArea) +
+                    (RectAreaService.width(this.drawingArea) * i) /
+                        this.maxValue,
                 RectAreaService.top(this.drawingArea) + outlineStrokeBorder,
-                RectAreaService.left(this.drawingArea) + (RectAreaService.width(this.drawingArea) * i) / this.maxValue,
-                RectAreaService.bottom(this.drawingArea) + outlineStrokeBorder - 1,
+                RectAreaService.left(this.drawingArea) +
+                    (RectAreaService.width(this.drawingArea) * i) /
+                        this.maxValue,
+                RectAreaService.bottom(this.drawingArea) +
+                    outlineStrokeBorder -
+                    1
             )
         }
     }
@@ -284,13 +290,13 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             (timeElapsed *
                 (this.highlightedValueFillAlphaRange[1] -
                     this.highlightedValueFillAlphaRange[0])) /
-            this.highlightedValueFillAlphaPeriod
+                this.highlightedValueFillAlphaPeriod
 
         this.graphicsContext.fill(
             this.highlightedValueFillColor[0],
             this.highlightedValueFillColor[1],
             this.highlightedValueFillColor[2],
-            linearInterpolatedAlphaValue,
+            linearInterpolatedAlphaValue
         )
 
         const highlightedStartValue =
@@ -305,10 +311,10 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
 
         this.graphicsContext.rect(
             RectAreaService.left(this.drawingArea) +
-            this.calculateValueWidth(highlightedStartValue),
+                this.calculateValueWidth(highlightedStartValue),
             RectAreaService.top(this.drawingArea),
             this.calculateValueWidth(highlightedEndValue),
-            RectAreaService.height(this.drawingArea),
+            RectAreaService.height(this.drawingArea)
         )
     }
 }

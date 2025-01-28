@@ -21,7 +21,6 @@ import {
     MessageBoardMessagePlayerSelectsTargetCoordinate,
     MessageBoardMessageSelectAndLockNextSquaddie,
     MessageBoardMessageType,
-    SquaddieSelectionMethod,
 } from "../../../message/messageBoardMessage"
 import { GameEngineState } from "../../../gameEngine/gameEngine"
 import { ObjectRepositoryService } from "../../objectRepository"
@@ -54,13 +53,11 @@ import {
 import { MapHighlightService } from "../../animation/mapHighlight"
 import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
 import { MissionMapSquaddieCoordinateService } from "../../../missionMap/squaddieCoordinate"
-import { BattleHUDStateService } from "./battleHUDState"
 import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { SquaddieTemplate } from "../../../campaign/squaddieTemplate"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
 import { ActionTemplateService } from "../../../action/template/actionTemplate"
-import { BattleCamera, BattleCameraService } from "../../battleCamera"
 import { ActionTilePosition } from "../playerActionPanel/tile/actionTilePosition"
 import { CalculatedResult } from "../../history/calculatedResult"
 
@@ -191,15 +188,8 @@ export const BattleHUDService = {
         const gameEngineState = message.gameEngineState
         const battleSquaddieId = message.battleSquaddieSelectedId
 
-        const { x, y } = getScreenSelectionCoordinates(
-            message.selectionMethod,
-            gameEngineState.battleOrchestratorState.battleState.camera
-        )
-
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x, y },
-            })
+            SummaryHUDStateService.new()
 
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
@@ -268,15 +258,8 @@ export const BattleHUDService = {
                     .summaryHUDState
             )
         ) {
-            const { x, y } = getScreenSelectionCoordinates(
-                message.selectionMethod,
-                gameEngineState.battleOrchestratorState.battleState.camera
-            )
-
             gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-                SummaryHUDStateService.new({
-                    screenSelectionCoordinates: { x, y },
-                })
+                SummaryHUDStateService.new()
         }
 
         SummaryHUDStateService.peekAtSquaddie({
@@ -620,13 +603,6 @@ export const BattleHUDService = {
             type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
             gameEngineState,
             battleSquaddieSelectedId: nextBattleSquaddieId,
-            selectionMethod: {
-                mouse: BattleHUDStateService.getPositionToOpenPlayerCommandWindow(
-                    {
-                        gameEngineState,
-                    }
-                ),
-            },
         })
     },
     tryToMoveSquaddieToLocation: (
@@ -920,24 +896,4 @@ const playerControlledSquaddieNeedsNextAction = (
             .terrainTileMap,
         actionRangeOnMap
     )
-}
-
-const getScreenSelectionCoordinates = (
-    selectionMethod: SquaddieSelectionMethod,
-    camera: BattleCamera
-): { x: number; y: number } => {
-    if (selectionMethod.mouse) {
-        return {
-            x: selectionMethod.mouse.x,
-            y: selectionMethod.mouse.y,
-        }
-    }
-
-    const { screenX: x, screenY: y } =
-        ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-            q: selectionMethod.mapCoordinate.q,
-            r: selectionMethod.mapCoordinate.r,
-            ...BattleCameraService.getCoordinates(camera),
-        })
-    return { x, y }
 }

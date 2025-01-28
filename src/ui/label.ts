@@ -1,6 +1,6 @@
 import { RectAreaService } from "./rectArea"
 import { TextBox, TextBoxArguments, TextBoxService } from "./textBox/textBox"
-import { Rectangle, RectangleArguments, RectangleHelper } from "./rectangle"
+import { Rectangle, RectangleArguments, RectangleService } from "./rectangle"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 
 export type TextBoxMargin = {
@@ -21,7 +21,7 @@ export const LabelService = {
     new: (
         options: RectangleArguments & TextBoxArguments & TextBoxMargin
     ): Label => {
-        let rectangle = RectangleHelper.new(options)
+        let rectangle = RectangleService.new(options)
 
         const innerTextRect = RectAreaService.new({
             baseRectangle: options.area,
@@ -41,7 +41,7 @@ export const LabelService = {
         }
     },
     draw: (label: Label, graphics: GraphicsBuffer): void => {
-        RectangleHelper.draw(label.rectangle, graphics)
+        RectangleService.draw(label.rectangle, graphics)
         TextBoxService.draw(label.textBox, graphics)
     },
 }

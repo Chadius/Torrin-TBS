@@ -37,7 +37,6 @@ import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrc
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
 import { CampaignService } from "../campaign/campaign"
-import { MakeDecisionButton } from "../battle/hud/playerActionPanel/makeDecisionButton"
 import { RectAreaService } from "../ui/rectArea"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
@@ -56,6 +55,11 @@ import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import {
+    ActionButton,
+    ActionButtonService,
+} from "../battle/hud/playerActionPanel/actionButton/actionButton"
+import { PlayerCommandState } from "../battle/hud/playerCommand/playerCommandHUD"
 
 describe("user clicks on an action to consider it", () => {
     let objectRepository: ObjectRepository
@@ -71,7 +75,7 @@ describe("user clicks on an action to consider it", () => {
     let resourceHandler: ResourceHandler
     let missionMap: MissionMap
 
-    let attackButton: MakeDecisionButton
+    let attackButton: ActionButton
     let selector: BattlePlayerSquaddieSelector
 
     beforeEach(() => {
@@ -204,14 +208,19 @@ describe("user clicks on an action to consider it", () => {
             gameEngineState,
             mockP5GraphicsContext
         )
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
+        attackButton = getActionButton(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+            attackAction.id
+        )
 
         selector.mouseClicked({
-            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
+            mouseX: RectAreaService.centerX(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
+            mouseY: RectAreaService.centerY(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
             mouseButton: MouseButton.ACCEPT,
             gameEngineState,
         })
@@ -232,15 +241,20 @@ describe("user clicks on an action to consider it", () => {
             mockP5GraphicsContext
         )
 
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
+        attackButton = getActionButton(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+            attackAction.id
+        )
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
+            mouseX: RectAreaService.centerX(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
+            mouseY: RectAreaService.centerY(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
             mouseButton: MouseButton.ACCEPT,
         })
         expect(
@@ -278,15 +292,20 @@ describe("user clicks on an action to consider it", () => {
             mockP5GraphicsContext
         )
 
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
+        attackButton = getActionButton(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+            attackAction.id
+        )
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
+            mouseX: RectAreaService.centerX(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
+            mouseY: RectAreaService.centerY(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
             mouseButton: MouseButton.ACCEPT,
         })
 
@@ -304,16 +323,20 @@ describe("user clicks on an action to consider it", () => {
             gameEngineState,
             mockP5GraphicsContext
         )
-
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
+        attackButton = getActionButton(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+            attackAction.id
+        )
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
+            mouseX: RectAreaService.centerX(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
+            mouseY: RectAreaService.centerY(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
             mouseButton: MouseButton.ACCEPT,
         })
         selector.recommendStateChanges(gameEngineState)
@@ -348,14 +371,18 @@ describe("user clicks on an action to consider it", () => {
             mockP5GraphicsContext
         )
 
-        attackButton =
-            gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                (button) => button.actionTemplateId === attackAction.id
-            )
-
+        attackButton = getActionButton(
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState.playerCommandState,
+            attackAction.id
+        )
         selector.mouseClicked({
-            mouseX: RectAreaService.centerX(attackButton.buttonIcon.drawArea),
-            mouseY: RectAreaService.centerY(attackButton.buttonIcon.drawArea),
+            mouseX: RectAreaService.centerX(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
+            mouseY: RectAreaService.centerY(
+                attackButton.uiObjects.buttonIcon.drawArea
+            ),
             mouseButton: MouseButton.ACCEPT,
             gameEngineState,
         })
@@ -424,3 +451,13 @@ const selectorClicksOnSquaddie = (
         graphicsBuffer: graphicsContext,
     })
 }
+
+const getActionButton = (
+    playerCommandState: PlayerCommandState,
+    actionTemplateId: string
+) =>
+    playerCommandState.actionButtons.find(
+        (actionButton) =>
+            ActionButtonService.getActionTemplateId(actionButton) ===
+            actionTemplateId
+    )

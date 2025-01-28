@@ -282,9 +282,6 @@ export const PlayerSelectionService = {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: context.actorBattleSquaddieId,
-                    selectionMethod: {
-                        mouse: context.mouseClick,
-                    },
                 }
                 gameEngineState.messageBoard.sendMessage(messageSent)
                 return PlayerSelectionChangesService.new({ messageSent })

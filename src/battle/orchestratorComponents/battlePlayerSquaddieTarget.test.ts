@@ -231,9 +231,7 @@ describe("BattleSquaddieTarget", () => {
         })
 
         gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState =
-            SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 0 },
-            })
+            SummaryHUDStateService.new()
 
         messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
     })

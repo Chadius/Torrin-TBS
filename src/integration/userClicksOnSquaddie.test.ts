@@ -22,7 +22,6 @@ import {
 import { BattleOrchestratorStateService } from "../battle/orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../battle/orchestrator/battleState"
 import { BattleCamera } from "../battle/battleCamera"
-import { MakeDecisionButton } from "../battle/hud/playerActionPanel/makeDecisionButton"
 import * as mocks from "../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../utils/test/mocks"
 import { ResourceHandler } from "../resource/resourceHandler"
@@ -41,7 +40,7 @@ import {
 } from "../battle/orchestratorComponents/battlePhaseController"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { CampaignService } from "../campaign/campaign"
-import { MouseButton, MouseClickService } from "../utils/mouseConfig"
+import { MouseButton } from "../utils/mouseConfig"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleActionDecisionStepService } from "../battle/actionDecision/battleActionDecisionStep"
 import { ActionTilePosition } from "../battle/hud/playerActionPanel/tile/actionTilePosition"
@@ -49,6 +48,11 @@ import { SummaryHUDStateService } from "../battle/hud/summary/summaryHUD"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import {
+    ActionButton,
+    ActionButtonService,
+} from "../battle/hud/playerActionPanel/actionButton/actionButton"
+import { END_TURN_NAME } from "../battle/hud/playerCommand/playerCommandHUD"
 
 describe("User clicks on a squaddie", () => {
     let repository: ObjectRepository
@@ -134,7 +138,7 @@ describe("User clicks on a squaddie", () => {
         mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
     })
 
-    it("HUD produces a button for each ActionTemplate", () => {
+    it("HUD produces a button for each ActionTemplate and 1 for End Turn", () => {
         const attackAction2 = ActionTemplateService.new({
             id: "action2",
             name: "action2",
@@ -177,20 +181,37 @@ describe("User clicks on a squaddie", () => {
             ].battleSquaddieId
         ).toEqual(playerBattleSquaddie.battleSquaddieId)
 
-        const actionButtons: MakeDecisionButton[] =
+        const actionButtons: ActionButton[] =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState.playerCommandState.actionButtons
-        expect(actionButtons).toHaveLength(2)
+        expect(actionButtons).toHaveLength(
+            playerSquaddieTemplate.actionTemplateIds.length + 1
+        )
 
         expect(
             actionButtons.find((button) => {
-                return button.actionTemplateId === attackAction.id
+                return (
+                    ActionButtonService.getActionTemplateId(button) ===
+                    attackAction.id
+                )
             })
         ).toBeTruthy()
 
         expect(
             actionButtons.find((button) => {
-                return button.actionTemplateId === attackAction2.id
+                return (
+                    ActionButtonService.getActionTemplateId(button) ===
+                    attackAction2.id
+                )
+            })
+        ).toBeTruthy()
+
+        expect(
+            actionButtons.find((button) => {
+                return (
+                    ActionButtonService.getActionTemplateId(button) ===
+                    END_TURN_NAME
+                )
             })
         ).toBeTruthy()
     })
@@ -586,13 +607,6 @@ const selectSquaddieForTheHUD = ({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-        selectionMethod: {
-            mouse: MouseClickService.new({
-                x: 0,
-                y: 0,
-                button: MouseButton.ACCEPT,
-            }),
-        },
     })
 
     SummaryHUDStateService.draw({

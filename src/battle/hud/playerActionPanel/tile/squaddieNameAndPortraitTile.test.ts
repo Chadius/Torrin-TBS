@@ -17,7 +17,10 @@ import {
     BattleSquaddieTeamService,
 } from "../../../battleSquaddieTeam"
 import * as mocks from "../../../../utils/test/mocks"
-import { MockedGraphicsBufferService, MockedP5GraphicsBuffer } from "../../../../utils/test/mocks"
+import {
+    MockedGraphicsBufferService,
+    MockedP5GraphicsBuffer,
+} from "../../../../utils/test/mocks"
 import { ResourceHandler } from "../../../../resource/resourceHandler"
 import { RectAreaService } from "../../../../ui/rectArea"
 import { ScreenDimensions } from "../../../../utils/graphics/graphicsConfig"
@@ -137,7 +140,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
+                mockP5GraphicsContext
+            )
         })
 
         afterEach(() => {
@@ -184,7 +189,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
+                mockP5GraphicsContext
+            )
         })
 
         afterEach(() => {
@@ -244,7 +251,9 @@ describe("Squaddie Name and Portrait Tile", () => {
             resourceHandler = mocks.mockResourceHandler(mockP5GraphicsContext)
             resourceHandler.isResourceLoaded = vi.fn().mockReturnValue(false)
             resourceHandler.loadResource = vi.fn().mockImplementation(() => {})
-            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(mockP5GraphicsContext)
+            graphicsBufferSpies = MockedGraphicsBufferService.addSpies(
+                mockP5GraphicsContext
+            )
         })
 
         afterEach(() => {

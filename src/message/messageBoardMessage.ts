@@ -127,7 +127,6 @@ export interface MessageBoardMessagePlayerSelectsAndLocksSquaddie {
     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE
     gameEngineState: GameEngineState
     battleSquaddieSelectedId: string
-    selectionMethod: SquaddieSelectionMethod
 }
 
 export interface MessageBoardMessagePlayerPeeksAtSquaddie {

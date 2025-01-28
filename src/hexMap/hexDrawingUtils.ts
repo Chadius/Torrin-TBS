@@ -6,12 +6,7 @@ import {
 } from "../resource/resourceHandler"
 import { ConvertCoordinateService } from "./convertCoordinates"
 import { TerrainTileMap, TerrainTileMapService } from "./terrainTileMap"
-import {
-    BlendColor,
-    calculatePulseValueOverTime,
-    PulseBlendColor,
-    pulseBlendColorToBlendColor,
-} from "./colorUtils"
+import { BlendColor, ColorUtils, PulseBlendColor } from "./colorUtils"
 import { HexCoordinate } from "./hexCoordinate/hexCoordinate"
 import { BattleCamera } from "../battle/battleCamera"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
@@ -110,7 +105,15 @@ const drawOutlinedTile = (
     cameraY: number
 ): void => {
     graphicsContext.push()
-    graphicsContext.stroke(0, 10, calculatePulseValueOverTime(50, 100, 2000))
+    graphicsContext.stroke(
+        0,
+        10,
+        ColorUtils.calculatePulseValueOverTime({
+            low: 50,
+            high: 100,
+            periodInMilliseconds: 2000,
+        })
+    )
     graphicsContext.strokeWeight(2)
     graphicsContext.noFill()
 
@@ -228,7 +231,8 @@ const drawHexTileTerrainAndHighlight = ({
         defaultTerrainResourceKeyByTerrainType[terrainType]
     )
     graphics.push()
-    const blendColor: BlendColor = pulseBlendColorToBlendColor(pulseBlendColor)
+    const blendColor: BlendColor =
+        ColorUtils.pulseBlendColorToBlendColor(pulseBlendColor)
     graphics.tint(blendColor[0], blendColor[1], blendColor[2], blendColor[3])
     drawHexTile({
         graphics,

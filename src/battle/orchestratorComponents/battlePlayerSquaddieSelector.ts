@@ -103,6 +103,7 @@ export class BattlePlayerSquaddieSelector
                 mouseX,
                 mouseY,
                 mouseButton,
+                gameEngineState,
                 summaryHUDState,
             })
 

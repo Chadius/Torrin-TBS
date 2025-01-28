@@ -9,11 +9,25 @@ export type PulseBlendColor = {
     periodAlpha: number
 }
 
-export function calculatePulseValueOverTime(
+export const ColorUtils = {
+    calculatePulseValueOverTime: ({
+        low,
+        high,
+        periodInMilliseconds,
+    }: {
+        low: number
+        high: number
+        periodInMilliseconds: number
+    }): number => calculatePulseValueOverTime(low, high, periodInMilliseconds),
+    pulseBlendColorToBlendColor: (pulse: PulseBlendColor): BlendColor =>
+        pulseBlendColorToBlendColor(pulse),
+}
+
+const calculatePulseValueOverTime = (
     low: number,
     high: number,
     periodInMilliseconds: number
-): number {
+): number => {
     const millisecondsSinceEpoch = Date.now()
 
     const base = (high + low) / 2
@@ -28,10 +42,8 @@ export function calculatePulseValueOverTime(
     )
 }
 
-export function pulseBlendColorToBlendColor(
-    pulse: PulseBlendColor
-): BlendColor {
-    return [
+const pulseBlendColorToBlendColor = (pulse: PulseBlendColor): BlendColor =>
+    [
         pulse.hue,
         pulse.saturation,
         pulse.brightness,
@@ -41,4 +53,3 @@ export function pulseBlendColorToBlendColor(
             pulse.periodAlpha
         ),
     ] as BlendColor
-}

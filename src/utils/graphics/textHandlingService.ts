@@ -228,6 +228,8 @@ const getWidthOfText = (
     graphicsContext: GraphicsBuffer
 ) => {
     return Math.max(
-        ...inProgressTextFit.text.split("\n").map(graphicsContext.textWidth)
+        ...inProgressTextFit.text
+            .split("\n")
+            .map((text) => graphicsContext.textWidth(text))
     )
 }

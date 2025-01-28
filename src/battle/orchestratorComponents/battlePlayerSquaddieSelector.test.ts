@@ -28,6 +28,7 @@ import { BattleActionDecisionStepService } from "../actionDecision/battleActionD
 import { MessageBoardMessageType } from "../../message/messageBoardMessage"
 import { RectAreaService } from "../../ui/rectArea"
 import {
+    END_TURN_NAME,
     PlayerCommandSelection,
     PlayerCommandStateService,
 } from "../hud/playerCommand/playerCommandHUD"
@@ -78,6 +79,8 @@ import {
     AttributeSource,
 } from "../../squaddie/attribute/attributeModifier"
 import { AttributeType } from "../../squaddie/attribute/attributeType"
+import { ActionButtonService } from "../hud/playerActionPanel/actionButton/actionButton"
+import { SummaryHUDStateService } from "../hud/summary/summaryHUD"
 
 describe("BattleSquaddieSelector", () => {
     let selector: BattlePlayerSquaddieSelector =
@@ -436,13 +439,6 @@ describe("BattleSquaddieSelector", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 }
             )
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -562,32 +558,15 @@ describe("BattleSquaddieSelector", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 }
             )
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-
-            x = RectAreaService.centerX(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
-            )
-            y = RectAreaService.centerY(
-                gameEngineState.battleOrchestratorState.battleHUDState
-                    .summaryHUDState.playerCommandState.endTurnButton.buttonArea
-            )
-            selector.mouseClicked({
-                mouseX: x,
-                mouseY: y,
-                mouseButton: MouseButton.ACCEPT,
+            ;({ x, y } = selectActionButton({
+                actionTemplateId: END_TURN_NAME,
                 gameEngineState,
-            })
+                selector,
+            }))
         })
 
         afterEach(() => {
@@ -673,13 +652,6 @@ describe("BattleSquaddieSelector", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 }
             )
 
@@ -696,24 +668,12 @@ describe("BattleSquaddieSelector", () => {
             messageSpy.mockRestore()
         })
 
-        const selectActionButton = (actionTemplateId: string) => {
-            const actionButton =
-                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                    (button) => button.actionTemplateId === actionTemplateId
-                )
-
-            x = RectAreaService.centerX(actionButton.buttonIcon.drawArea)
-            y = RectAreaService.centerY(actionButton.buttonIcon.drawArea)
-            selector.mouseClicked({
-                mouseX: x,
-                mouseY: y,
-                mouseButton: MouseButton.ACCEPT,
-                gameEngineState,
-            })
-        }
-
         it("knows the player wants to use the self action", () => {
-            selectActionButton("self")
+            ;({ x, y } = selectActionButton({
+                actionTemplateId: "self",
+                gameEngineState,
+                selector,
+            }))
             expect(
                 expectContextSpiesWereCalled({
                     expectedPlayerSelectionContextCalculationArgs:
@@ -757,7 +717,11 @@ describe("BattleSquaddieSelector", () => {
         })
 
         it("sends a message to target", () => {
-            selectActionButton("self")
+            selectActionButton({
+                actionTemplateId: "self",
+                gameEngineState,
+                selector,
+            })
             expect(messageSpy).toHaveBeenCalledWith({
                 type: MessageBoardMessageType.PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS,
                 gameEngineState,
@@ -789,13 +753,6 @@ describe("BattleSquaddieSelector", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 }
             )
 
@@ -806,20 +763,11 @@ describe("BattleSquaddieSelector", () => {
             )
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
-
-            const meleeButton =
-                gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
-                    (button) => button.actionTemplateId === "melee"
-                )
-
-            x = RectAreaService.centerX(meleeButton.buttonIcon.drawArea)
-            y = RectAreaService.centerY(meleeButton.buttonIcon.drawArea)
-            selector.mouseClicked({
-                mouseX: x,
-                mouseY: y,
-                mouseButton: MouseButton.ACCEPT,
+            ;({ x, y } = selectActionButton({
+                actionTemplateId: "melee",
                 gameEngineState,
-            })
+                selector,
+            }))
         })
 
         afterEach(() => {
@@ -898,13 +846,6 @@ describe("BattleSquaddieSelector", () => {
                     type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                     gameEngineState,
                     battleSquaddieSelectedId: "battleSquaddieId",
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 }
             )
 
@@ -1023,4 +964,41 @@ const clickOnMapCoordinate = ({
         mouseY: destinationScreenY,
         mouseButton: MouseButton.ACCEPT,
     })
+}
+
+const selectActionButton = ({
+    actionTemplateId,
+    gameEngineState,
+    selector,
+}: {
+    actionTemplateId: string
+    gameEngineState: GameEngineState
+    selector: BattlePlayerSquaddieSelector
+}): { x: number; y: number } => {
+    const graphicsBuffer = new MockedP5GraphicsBuffer()
+    SummaryHUDStateService.draw({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        gameEngineState,
+        graphicsBuffer,
+        resourceHandler: mocks.mockResourceHandler(graphicsBuffer),
+    })
+
+    const actionButton =
+        gameEngineState.battleOrchestratorState.battleHUDState.summaryHUDState.playerCommandState.actionButtons.find(
+            (button) =>
+                ActionButtonService.getActionTemplateId(button) ===
+                actionTemplateId
+        )
+
+    let x = RectAreaService.centerX(actionButton.uiObjects.buttonIcon.drawArea)
+    let y = RectAreaService.centerY(actionButton.uiObjects.buttonIcon.drawArea)
+    selector.mouseClicked({
+        mouseX: x,
+        mouseY: y,
+        mouseButton: MouseButton.ACCEPT,
+        gameEngineState,
+    })
+    return { x, y }
 }

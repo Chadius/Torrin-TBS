@@ -25,7 +25,7 @@ export interface Rectangle {
     noFill?: boolean
 }
 
-export const RectangleHelper = {
+export const RectangleService = {
     new: ({
         area,
         fillColor,

@@ -252,18 +252,10 @@ const messageAndHighlightPlayableSquaddieTakingATurn = ({
         gameEngineState: gameEngineState,
     })
 
-    const { mapCoordinate } = MissionMapService.getByBattleSquaddieId(
-        gameEngineState.battleOrchestratorState.battleState.missionMap,
-        battleSquaddie.battleSquaddieId
-    )
-
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
         gameEngineState: gameEngineState,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-        selectionMethod: {
-            mapCoordinate,
-        },
     })
 }
 

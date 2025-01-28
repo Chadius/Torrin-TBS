@@ -16,7 +16,7 @@ import {
 import { RectArea, RectAreaService } from "../ui/rectArea"
 import { ScreenDimensions } from "../utils/graphics/graphicsConfig"
 import { TextBox, TextBoxService } from "../ui/textBox/textBox"
-import { Rectangle, RectangleHelper } from "../ui/rectangle"
+import { Rectangle, RectangleService } from "../ui/rectangle"
 import { ResourceHandler } from "../resource/resourceHandler"
 import { LoadSaveStateService } from "../dataLoader/playerData/loadSaveState"
 import { isValidValue } from "../utils/validityCheck"
@@ -283,7 +283,7 @@ export class TitleScreen implements GameEngineComponent {
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ): void {
-        RectangleHelper.draw(this.lazyLoadBackground(), graphicsContext)
+        RectangleService.draw(this.lazyLoadBackground(), graphicsContext)
         this.drawTitleBanner(graphicsContext, resourceHandler)
 
         TextBoxService.draw(this.lazyLoadTitle(), graphicsContext)
@@ -812,7 +812,7 @@ export class TitleScreen implements GameEngineComponent {
 
     private lazyLoadBackground() {
         if (this.background === undefined) {
-            this.background = RectangleHelper.new({
+            this.background = RectangleService.new({
                 area: RectAreaService.new({
                     left: 0,
                     top: 0,

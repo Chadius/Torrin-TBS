@@ -85,7 +85,6 @@ import {
     MapGraphicsLayer,
     MapGraphicsLayerType,
 } from "../../../hexMap/mapGraphicsLayer"
-import { MouseButton, MouseClickService } from "../../../utils/mouseConfig"
 import { MovementCalculatorService } from "../../calculator/movement/movementCalculator"
 import { BattleOrchestratorMode } from "../../orchestrator/battleOrchestrator"
 import { BattleActionRecorderService } from "../../history/battleAction/battleActionRecorder"
@@ -259,9 +258,7 @@ describe("Battle HUD", () => {
                     teams,
                 }),
                 battleHUDState: BattleHUDStateService.new({
-                    summaryHUDState: SummaryHUDStateService.new({
-                        screenSelectionCoordinates: { x: 0, y: 0 },
-                    }),
+                    summaryHUDState: SummaryHUDStateService.new(),
                 }),
             }),
             repository,
@@ -477,13 +474,6 @@ describe("Battle HUD", () => {
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                selectionMethod: {
-                    mouse: MouseClickService.new({
-                        x: 0,
-                        y: 0,
-                        button: MouseButton.ACCEPT,
-                    }),
-                },
             })
 
             SummaryHUDStateService.draw({
@@ -544,42 +534,24 @@ describe("Battle HUD", () => {
             expect(playerCommandState.selectedActionTemplateId).toBeUndefined()
         })
 
-        describe("begin creating a turn when a squaddie is selected", () => {
-            const selectionMethods = [
-                {
-                    name: "mouse click",
-                    selectionMethod: {
-                        mouse: { x: 0, y: 0, button: MouseButton.ACCEPT },
-                    },
-                },
-                {
-                    name: "directly selecting the squaddie coordinate",
-                    selectionMethod: {
-                        mapCoordinate: { q: 0, r: 0 },
-                    },
-                },
-            ]
-
-            it.each(selectionMethods)(`$name`, ({ selectionMethod }) => {
-                gameEngineState.messageBoard.sendMessage({
-                    type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
-                    gameEngineState,
-                    battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                    selectionMethod,
-                })
-                expect(
-                    BattleActionDecisionStepService.isActorSet(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    )
-                ).toBeTruthy()
-                expect(
-                    BattleActionDecisionStepService.getActor(
-                        gameEngineState.battleOrchestratorState.battleState
-                            .battleActionDecisionStep
-                    ).battleSquaddieId
-                ).toEqual(battleSquaddie.battleSquaddieId)
+        it("begin creating a turn when a squaddie is selected", () => {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
+                gameEngineState,
+                battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
             })
+            expect(
+                BattleActionDecisionStepService.isActorSet(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                )
+            ).toBeTruthy()
+            expect(
+                BattleActionDecisionStepService.getActor(
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep
+                ).battleSquaddieId
+            ).toEqual(battleSquaddie.battleSquaddieId)
         })
 
         describe("Player selects squaddie they cannot control because it is an enemy", () => {
@@ -607,13 +579,6 @@ describe("Battle HUD", () => {
                     gameEngineState,
                     battleSquaddieSelectedId:
                         enemyBattleSquaddie.battleSquaddieId,
-                    selectionMethod: {
-                        mouse: MouseClickService.new({
-                            x: 0,
-                            y: 0,
-                            button: MouseButton.ACCEPT,
-                        }),
-                    },
                 })
 
                 SummaryHUDStateService.draw({
@@ -739,13 +704,6 @@ describe("Battle HUD", () => {
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                selectionMethod: {
-                    mouse: MouseClickService.new({
-                        x: 0,
-                        y: 0,
-                        button: MouseButton.ACCEPT,
-                    }),
-                },
             })
             SummaryHUDStateService.draw({
                 summaryHUDState:
@@ -2058,13 +2016,6 @@ describe("Battle HUD", () => {
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                selectionMethod: {
-                    mouse: MouseClickService.new({
-                        x: 0,
-                        y: 0,
-                        button: MouseButton.ACCEPT,
-                    }),
-                },
             })
 
             messageSpy = vi.spyOn(gameEngineState.messageBoard, "sendMessage")
@@ -2532,13 +2483,6 @@ describe("Battle HUD", () => {
                 type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
                 gameEngineState,
                 battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-                selectionMethod: {
-                    mouse: MouseClickService.new({
-                        x: 0,
-                        y: 0,
-                        button: MouseButton.ACCEPT,
-                    }),
-                },
             })
 
             BattleActionDecisionStepService.setActor({

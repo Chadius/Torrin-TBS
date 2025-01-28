@@ -7,24 +7,9 @@ describe("BattleHUDState", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({})
         expect(battleHUDState.summaryHUDState).toBeUndefined()
     })
-    it("can be initialized with given fields", () => {
-        const battleHUDState: BattleHUDState = BattleHUDStateService.new({
-            summaryHUDState: SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 1 },
-            }),
-        })
-        expect(
-            battleHUDState.summaryHUDState.screenSelectionCoordinates
-        ).toEqual({
-            x: 0,
-            y: 1,
-        })
-    })
     it("can be cloned", () => {
         const battleHUDState: BattleHUDState = BattleHUDStateService.new({
-            summaryHUDState: SummaryHUDStateService.new({
-                screenSelectionCoordinates: { x: 0, y: 1 },
-            }),
+            summaryHUDState: SummaryHUDStateService.new(),
         })
 
         const clone = BattleHUDStateService.clone(battleHUDState)

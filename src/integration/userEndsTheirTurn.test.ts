@@ -42,7 +42,6 @@ import { CampaignService } from "../campaign/campaign"
 import { RectAreaService } from "../ui/rectArea"
 import { BattlePhase } from "../battle/orchestratorComponents/battlePhaseTracker"
 import { BattlePlayerSquaddieSelector } from "../battle/orchestratorComponents/battlePlayerSquaddieSelector"
-import { ConvertCoordinateService } from "../hexMap/convertCoordinates"
 import { OrchestratorComponentMouseEventType } from "../battle/orchestrator/battleOrchestratorComponent"
 import { SquaddieTurnService } from "../squaddie/turn"
 import { OrchestratorUtilities } from "../battle/orchestratorComponents/orchestratorUtils"
@@ -51,7 +50,7 @@ import {
     BattleSquaddieUsesActionOnMap,
 } from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap"
 import { DrawSquaddieUtilities } from "../battle/animation/drawSquaddie"
-import { MouseButton, MouseClickService } from "../utils/mouseConfig"
+import { MouseButton } from "../utils/mouseConfig"
 import { GraphicsBuffer } from "../utils/graphics/graphicsRenderer"
 import { MessageBoardMessageType } from "../message/messageBoardMessage"
 import { BattleActionService } from "../battle/history/battleAction/battleAction"
@@ -66,6 +65,12 @@ import {
     vi,
 } from "vitest"
 import { BattleHUDListener } from "../battle/hud/battleHUD/battleHUDListener"
+import { ActionButtonService } from "../battle/hud/playerActionPanel/actionButton/actionButton"
+import { END_TURN_NAME } from "../battle/hud/playerCommand/playerCommandHUD"
+import {
+    SummaryHUDState,
+    SummaryHUDStateService,
+} from "../battle/hud/summary/summaryHUD"
 
 describe("User ends their turn", () => {
     let objectRepository: ObjectRepository
@@ -130,20 +135,6 @@ describe("User ends their turn", () => {
             battleSquaddieIds: [playerBattleSquaddie.battleSquaddieId],
         })
 
-        resourceHandler = mocks.mockResourceHandler(
-            new MockedP5GraphicsBuffer()
-        )
-        resourceHandler.areAllResourcesLoaded = vi
-            .fn()
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-        resourceHandler = mocks.mockResourceHandler(
-            new MockedP5GraphicsBuffer()
-        )
-        resourceHandler.getResource = vi
-            .fn()
-            .mockReturnValue({ width: 32, height: 32 })
-
         missionMap = MissionMapService.new({
             terrainTileMap: TerrainTileMapService.new({
                 movementCost: ["1 1 "],
@@ -159,6 +150,12 @@ describe("User ends their turn", () => {
             },
         })
 
+        const graphicsBuffer = new MockedP5GraphicsBuffer()
+        resourceHandler = mocks.mockResourceHandler(graphicsBuffer)
+        resourceHandler.areAllResourcesLoaded = vi.fn().mockReturnValue(true)
+        resourceHandler.getResource = vi
+            .fn()
+            .mockReturnValue({ width: 32, height: 32 })
         gameEngineState = getGameEngineState({
             resourceHandler,
             missionMap,
@@ -169,6 +166,7 @@ describe("User ends their turn", () => {
                 turnCount: 0,
             }),
         })
+
         const battleHUDListener = new BattleHUDListener("battleHUDListener")
         gameEngineState.messageBoard.addListener(
             battleHUDListener,
@@ -178,6 +176,7 @@ describe("User ends their turn", () => {
         selectSquaddieForTheHUD({
             battleSquaddie: playerBattleSquaddie,
             gameEngineState,
+            graphicsBuffer,
         })
         selector = new BattlePlayerSquaddieSelector()
         gameEngineState.messageBoard.addListener(
@@ -203,12 +202,13 @@ describe("User ends their turn", () => {
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
+        const endTurnButton = getEndTurnButton(summaryHUDState)
         selector.mouseClicked({
             mouseX: RectAreaService.centerX(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             mouseY: RectAreaService.centerY(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             gameEngineState,
             mouseButton: MouseButton.ACCEPT,
@@ -223,30 +223,17 @@ describe("User ends their turn", () => {
     })
 
     it("EndTurn adds a BattleAction to end the turn", () => {
-        let { screenX: mouseX, screenY: mouseY } =
-            ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                q: 0,
-                r: 0,
-                ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-            })
-
-        selector.mouseEventHappened(gameEngineState, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
-            mouseButton: MouseButton.ACCEPT,
-        })
-
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
+        const endTurnButton = getEndTurnButton(summaryHUDState)
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             mouseY: RectAreaService.centerY(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             mouseButton: MouseButton.ACCEPT,
         })
@@ -272,13 +259,14 @@ describe("User ends their turn", () => {
         let summaryHUDState =
             gameEngineState.battleOrchestratorState.battleHUDState
                 .summaryHUDState
+        const endTurnButton = getEndTurnButton(summaryHUDState)
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: RectAreaService.centerX(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             mouseY: RectAreaService.centerY(
-                summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                endTurnButton.uiObjects.buttonIcon.drawArea
             ),
             mouseButton: MouseButton.ACCEPT,
         })
@@ -307,29 +295,17 @@ describe("User ends their turn", () => {
                 TerrainTileMapService,
                 "removeAllGraphicsLayers"
             )
-            let { screenX: mouseX, screenY: mouseY } =
-                ConvertCoordinateService.convertMapCoordinatesToScreenLocation({
-                    q: 0,
-                    r: 0,
-                    ...gameEngineState.battleOrchestratorState.battleState.camera.getCoordinates(),
-                })
-            selector.mouseEventHappened(gameEngineState, {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY,
-                mouseButton: MouseButton.ACCEPT,
-            })
-
             let summaryHUDState =
                 gameEngineState.battleOrchestratorState.battleHUDState
                     .summaryHUDState
+            const endTurnButton = getEndTurnButton(summaryHUDState)
             selector.mouseEventHappened(gameEngineState, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: RectAreaService.centerX(
-                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                    endTurnButton.uiObjects.buttonIcon.drawArea
                 ),
                 mouseY: RectAreaService.centerY(
-                    summaryHUDState.playerCommandState.endTurnButton.buttonArea
+                    endTurnButton.uiObjects.buttonIcon.drawArea
                 ),
                 mouseButton: MouseButton.ACCEPT,
             })
@@ -509,20 +485,30 @@ const getGameEngineState = ({
 const selectSquaddieForTheHUD = ({
     battleSquaddie,
     gameEngineState,
+    graphicsBuffer,
 }: {
     battleSquaddie: BattleSquaddie
     gameEngineState: GameEngineState
+    graphicsBuffer: GraphicsBuffer
 }) => {
     gameEngineState.messageBoard.sendMessage({
         type: MessageBoardMessageType.PLAYER_SELECTS_AND_LOCKS_SQUADDIE,
         gameEngineState,
         battleSquaddieSelectedId: battleSquaddie.battleSquaddieId,
-        selectionMethod: {
-            mouse: MouseClickService.new({
-                x: 0,
-                y: 0,
-                button: MouseButton.ACCEPT,
-            }),
-        },
+    })
+
+    SummaryHUDStateService.draw({
+        summaryHUDState:
+            gameEngineState.battleOrchestratorState.battleHUDState
+                .summaryHUDState,
+        gameEngineState,
+        graphicsBuffer,
+        resourceHandler: mocks.mockResourceHandler(graphicsBuffer),
     })
 }
+
+const getEndTurnButton = (summaryHUDState: SummaryHUDState) =>
+    summaryHUDState.playerCommandState.actionButtons.find(
+        (button) =>
+            ActionButtonService.getActionTemplateId(button) === END_TURN_NAME
+    )
