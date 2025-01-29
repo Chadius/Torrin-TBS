@@ -24,7 +24,7 @@ import {
 
 export interface SquaddieActionPointsExplanation {
     actionPointsRemaining: number
-    actionPointsReserved: number
+    actionPointsMarked: number
 }
 
 export interface SquaddieArmorExplanation {
@@ -74,13 +74,12 @@ export const SquaddieService = {
         })
     },
     getNumberOfActionPoints: ({
-        squaddieTemplate,
         battleSquaddie,
     }: {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
     }): SquaddieActionPointsExplanation => {
-        return getNumberOfActionPoints({ squaddieTemplate, battleSquaddie })
+        return getNumberOfActionPoints({ battleSquaddie })
     },
     searchPathCoordinatesByNumberOfMovementActions: ({
         searchPath,
@@ -195,12 +194,11 @@ export const SquaddieService = {
     },
     getArmorClass: ({
         squaddieTemplate,
-        battleSquaddie,
     }: {
         squaddieTemplate: SquaddieTemplate
         battleSquaddie: BattleSquaddie
     }): SquaddieArmorExplanation => {
-        return getArmorClass({ squaddieTemplate, battleSquaddie })
+        return getArmorClass({ squaddieTemplate })
     },
     isSquaddieAlive: ({
         squaddieTemplate,
@@ -331,25 +329,21 @@ export const SquaddieService = {
 }
 
 const getNumberOfActionPoints = ({
-    squaddieTemplate,
     battleSquaddie,
 }: {
-    squaddieTemplate: SquaddieTemplate
     battleSquaddie: BattleSquaddie
 }): SquaddieActionPointsExplanation => {
     return {
         actionPointsRemaining:
             battleSquaddie.squaddieTurn.remainingActionPoints,
-        actionPointsReserved: battleSquaddie.squaddieTurn.reservedActionPoints,
+        actionPointsMarked: battleSquaddie.squaddieTurn.markedActionPoints,
     }
 }
 
 const getArmorClass = ({
     squaddieTemplate,
-    battleSquaddie,
 }: {
     squaddieTemplate: SquaddieTemplate
-    battleSquaddie: BattleSquaddie
 }): SquaddieArmorExplanation => {
     const baseArmor = 6
 
@@ -402,7 +396,6 @@ export enum HealingType {
 const giveHealingToTheSquaddie = ({
     inBattleAttributes,
     healingAmount,
-    healingType,
 }: {
     inBattleAttributes: InBattleAttributes
     healingAmount: number

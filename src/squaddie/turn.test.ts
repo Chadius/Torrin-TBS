@@ -112,39 +112,31 @@ describe("Squaddie turn and resources", () => {
             ).toBeFalsy()
         })
     })
-    describe("Reserving action points", () => {
-        it("can reserve action points and knows when the remaining points are not enough", () => {
-            SquaddieTurnService.reserveActionPoints(turn, 2)
-            expect(turn.reservedActionPoints).toBe(2)
+    describe("Marking action points", () => {
+        it("can mark action points and knows when the remaining points are not enough", () => {
+            SquaddieTurnService.markActionPoints(turn, 2)
+            expect(turn.markedActionPoints).toBe(2)
             expect(turn.remainingActionPoints).toBe(3)
-            const query = SquaddieTurnService.canPerformAction(
-                turn,
-                actionSpends2ActionPoints
-            )
-            expect(query.canPerform).toBeFalsy()
-            expect(query.reason).toBe(
-                ActionPerformFailureReason.TOO_FEW_ACTIONS_REMAINING
-            )
         })
-        it("cannot reserve more action points than it has available", () => {
+        it("cannot mark more action points than it has available", () => {
             SquaddieTurnService.spendActionPoints(turn, 1)
-            SquaddieTurnService.reserveActionPoints(turn, 3)
-            expect(turn.reservedActionPoints).toBe(2)
+            SquaddieTurnService.markActionPoints(turn, 3)
+            expect(turn.markedActionPoints).toBe(2)
         })
-        it("can override reserved action points and knows when the remaining points are enough", () => {
-            SquaddieTurnService.reserveActionPoints(turn, 2)
-            SquaddieTurnService.reserveActionPoints(turn, 1)
-            expect(turn.reservedActionPoints).toBe(1)
-            const query = SquaddieTurnService.canPerformAction(
-                turn,
-                actionSpends2ActionPoints
-            )
-            expect(query.canPerform).toBeTruthy()
+        it("can override marked action points and knows when the remaining points are enough", () => {
+            SquaddieTurnService.markActionPoints(turn, 2)
+            SquaddieTurnService.markActionPoints(turn, 1)
+            expect(turn.markedActionPoints).toBe(1)
         })
-        it("resetting the turn should clear reserved action points", () => {
-            SquaddieTurnService.reserveActionPoints(turn, 2)
+        it("resetting the turn should clear marked action points", () => {
+            SquaddieTurnService.markActionPoints(turn, 2)
             SquaddieTurnService.beginNewRound(turn)
-            expect(turn.reservedActionPoints).toBe(0)
+            expect(turn.markedActionPoints).toBe(0)
+        })
+        it("spending action points should clear marked action points", () => {
+            SquaddieTurnService.markActionPoints(turn, 2)
+            SquaddieTurnService.spendActionPoints(turn, 1)
+            expect(turn.markedActionPoints).toBe(0)
         })
     })
 })

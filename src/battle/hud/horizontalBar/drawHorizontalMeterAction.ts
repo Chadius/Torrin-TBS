@@ -2,7 +2,7 @@ import { DataBlob, DataBlobService } from "../../../utils/dataBlob/dataBlob"
 import { GraphicsBuffer } from "../../../utils/graphics/graphicsRenderer"
 import { BehaviorTreeTask } from "../../../utils/behaviorTree/task"
 import { RectArea, RectAreaService } from "../../../ui/rectArea"
-import { getValidValueOrDefault } from "../../../utils/validityCheck"
+import { ColorUtils } from "../../../hexMap/colorUtils"
 
 export interface DrawHorizontalMeterActionDataBlob extends DataBlob {
     data: {
@@ -20,7 +20,6 @@ export interface DrawHorizontalMeterActionDataBlob extends DataBlob {
         highlightedValueFillColor?: number[]
         highlightedValueFillAlphaRange?: number[]
         highlightedValueFillAlphaPeriod?: number
-        highlightedValueFillStartTime?: number
 
         outlineStrokeWeight?: number
         outlineStrokeColor?: number[]
@@ -133,16 +132,6 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         return DataBlobService.get<number>(
             this.dataBlob,
             "highlightedValueFillAlphaPeriod"
-        )
-    }
-
-    private get highlightedValueFillStartTime(): number {
-        return getValidValueOrDefault(
-            DataBlobService.get<number>(
-                this.dataBlob,
-                "highlightedValueFillStartTime"
-            ),
-            0
         )
     }
 
@@ -281,22 +270,17 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
         )
             return
 
-        const timeElapsed =
-            (Date.now() - this.highlightedValueFillStartTime) %
-            this.highlightedValueFillAlphaPeriod
-
-        const linearInterpolatedAlphaValue =
-            this.highlightedValueFillAlphaRange[0] +
-            (timeElapsed *
-                (this.highlightedValueFillAlphaRange[1] -
-                    this.highlightedValueFillAlphaRange[0])) /
-                this.highlightedValueFillAlphaPeriod
+        const alphaValue = ColorUtils.calculatePulseValueOverTime({
+            low: this.highlightedValueFillAlphaRange[0],
+            high: this.highlightedValueFillAlphaRange[1],
+            periodInMilliseconds: this.highlightedValueFillAlphaPeriod,
+        })
 
         this.graphicsContext.fill(
             this.highlightedValueFillColor[0],
             this.highlightedValueFillColor[1],
             this.highlightedValueFillColor[2],
-            linearInterpolatedAlphaValue
+            alphaValue
         )
 
         const highlightedStartValue =
@@ -313,7 +297,9 @@ export class DrawHorizontalMeterAction implements BehaviorTreeTask {
             RectAreaService.left(this.drawingArea) +
                 this.calculateValueWidth(highlightedStartValue),
             RectAreaService.top(this.drawingArea),
-            this.calculateValueWidth(highlightedEndValue),
+            this.calculateValueWidth(
+                highlightedEndValue - highlightedStartValue
+            ),
             RectAreaService.height(this.drawingArea)
         )
     }

@@ -22,6 +22,7 @@ export type MessageBoardMessage =
     | MessageBoardMessagePlayerSelectsAndLocksSquaddie
     | MessageBoardMessagePlayerPeeksAtSquaddie
     | MessageBoardBattleActionFinishesAnimation
+    | MessageBoardMessagePlayerConsidersAction
     | MessageBoardMessagePlayerSelectsActionThatRequiresATarget
     | MessageBoardMessagePlayerSelectsTargetCoordinate
     | MessageBoardMessagePlayerConfirmsAction
@@ -54,6 +55,7 @@ export enum MessageBoardMessageType {
     PLAYER_SELECTS_AND_LOCKS_SQUADDIE = "PLAYER_SELECTS_AND_LOCKS_SQUADDIE",
     PLAYER_PEEKS_AT_SQUADDIE = "PLAYER_PEEKS_AT_SQUADDIE",
     BATTLE_ACTION_FINISHES_ANIMATION = "BATTLE_ACTION_FINISHES_ANIMATION",
+    PLAYER_CONSIDERS_ACTION = "PLAYER_CONSIDERS_ACTION",
     PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET = "PLAYER_SELECTS_ACTION_THAT_REQUIRES_A_TARGET",
     PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS = "PLAYER_SELECTS_ACTION_WITH_KNOWN_TARGETS",
     PLAYER_SELECTS_TARGET_COORDINATE = "PLAYER_SELECTS_TARGET_COORDINATE",
@@ -252,4 +254,14 @@ export interface MessageBoardMessagePlayerDataLoadUserCancel {
 export interface MessageBoardMessagePlayerDataLoadFinishRequest {
     type: MessageBoardMessageType.PLAYER_DATA_LOAD_FINISH_REQUEST_LOAD
     loadSaveState: LoadSaveState
+}
+
+export interface MessageBoardMessagePlayerConsidersAction {
+    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+    gameEngineState: GameEngineState
+    action: {
+        actionTemplateId: string
+        isEndTurn: boolean
+        cancel: boolean
+    }
 }

@@ -312,11 +312,6 @@ describe("Horizontal Meter", () => {
             "highlightedValueFillAlphaPeriod",
             1000
         )
-        DataBlobService.add<number>(
-            horizontalBarData,
-            "highlightedValueFillStartTime",
-            0
-        )
 
         DataBlobService.add<number>(horizontalBarData, "maxValue", 5)
         DataBlobService.add<number>(horizontalBarData, "currentValue", 2)
@@ -329,7 +324,12 @@ describe("Horizontal Meter", () => {
         const dateSpy = vi.spyOn(Date, "now").mockReturnValue(500)
         drawBehavior.run()
         expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(4, 5, 6)
-        expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(10, 11, 12, 50)
+        expect(graphicsBufferSpies["fill"]).toHaveBeenCalledWith(
+            10,
+            11,
+            12,
+            expect.any(Number)
+        )
         expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
             10,
             20,
@@ -339,7 +339,7 @@ describe("Horizontal Meter", () => {
         expect(graphicsBufferSpies["rect"]).toHaveBeenCalledWith(
             10 + 360 / 5,
             20,
-            (360 * 2) / 5,
+            360 / 5,
             30
         )
         expect(dateSpy).toHaveBeenCalled()

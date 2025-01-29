@@ -338,12 +338,12 @@ const drawMapIconActionPointsBar = (
         return
     }
 
-    const { actionPointsRemaining, actionPointsReserved } =
+    const { actionPointsRemaining, actionPointsMarked } =
         SquaddieService.getNumberOfActionPoints({
             squaddieTemplate,
             battleSquaddie,
         })
-    const actionPointsToShow = actionPointsRemaining - actionPointsReserved
+    const actionPointsToShow = actionPointsRemaining - actionPointsMarked
     if (actionPointsToShow >= DEFAULT_ACTION_POINTS_PER_TURN) {
         return
     }

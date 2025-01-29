@@ -215,10 +215,7 @@ describe("Squaddie Status Tile", () => {
                 battleSquaddie.squaddieTurn,
                 1
             )
-            SquaddieTurnService.reserveActionPoints(
-                battleSquaddie.squaddieTurn,
-                1
-            )
+            SquaddieTurnService.markActionPoints(battleSquaddie.squaddieTurn, 1)
             SquaddieStatusTileService.updateTileUsingSquaddie({
                 tile,
                 objectRepository,

@@ -301,7 +301,19 @@ describe("playerCommandHUD", () => {
             actionButtonSpy.mockRestore()
         })
 
-        describe("consider and select actions by hovering the mouse", () => {
+        describe("consider actions by hovering the mouse", () => {
+            let messageSpy: MockInstance
+            beforeEach(() => {
+                messageSpy = vi.spyOn(
+                    gameEngineState.messageBoard,
+                    "sendMessage"
+                )
+            })
+
+            afterEach(() => {
+                messageSpy.mockRestore()
+            })
+
             it("will consider an action when the user hovers over the action button", () => {
                 selectPlayer()
                 const disabledActionButton = findActionButtonByActionTemplateId(
@@ -343,6 +355,59 @@ describe("playerCommandHUD", () => {
                         "WillAlwaysBeDisabled"
                     )
                 ).toBeTruthy()
+            })
+            it("will send a message when the user considers an action", () => {
+                selectPlayer()
+                const actionNeedsTargetButton =
+                    findActionButtonByActionTemplateId(actionNeedsTarget.id)
+                hoverOverActionButton({
+                    buttonArea:
+                        actionNeedsTargetButton.uiObjects.buttonIcon.drawArea,
+                })
+                expect(messageSpy).toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                        action: {
+                            actionTemplateId: actionNeedsTarget.id,
+                            isEndTurn: false,
+                            cancel: false,
+                        },
+                    })
+                )
+            })
+            it("will not send a message if the considered action is disabled", () => {
+                selectPlayer()
+                const disabledActionButton = findActionButtonByActionTemplateId(
+                    actionWillAlwaysBeDisabled.id
+                )
+                hoverOverActionButton({
+                    buttonArea:
+                        disabledActionButton.uiObjects.buttonIcon.drawArea,
+                })
+                expect(messageSpy).not.toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    })
+                )
+            })
+            it("will send a message to cancel consideration if no button is hovered", () => {
+                selectPlayer()
+                PlayerCommandStateService.mouseMoved({
+                    mouseX: -9001,
+                    mouseY: 9001,
+                    gameEngineState,
+                    playerCommandState,
+                })
+                expect(messageSpy).toBeCalledWith(
+                    expect.objectContaining({
+                        type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                        action: {
+                            actionTemplateId: undefined,
+                            isEndTurn: false,
+                            cancel: true,
+                        },
+                    })
+                )
             })
         })
         describe("selecting an action by mouse", () => {

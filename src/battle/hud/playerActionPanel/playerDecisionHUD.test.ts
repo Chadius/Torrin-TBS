@@ -1,10 +1,16 @@
-import { GameEngineStateService } from "../../../gameEngine/gameEngine"
+import {
+    GameEngineState,
+    GameEngineStateService,
+} from "../../../gameEngine/gameEngine"
 import { BattleOrchestratorStateService } from "../../orchestrator/battleOrchestratorState"
 import { BattleStateService } from "../../orchestrator/battleState"
 import { BattlePhase } from "../../orchestratorComponents/battlePhaseTracker"
 import { ObjectRepositoryService } from "../../objectRepository"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
-import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
+import {
+    CoordinateSystem,
+    HexCoordinate,
+} from "../../../hexMap/hexCoordinate/hexCoordinate"
 import { PopupWindow, PopupWindowService } from "../popupWindow/popupWindow"
 import { LabelService } from "../../../ui/label"
 import { RectAreaService } from "../../../ui/rectArea"
@@ -13,8 +19,60 @@ import {
     PlayerDecisionHUDService,
     PopupWindowType,
 } from "./playerDecisionHUD"
+import * as mocks from "../../../utils/test/mocks"
 import { MockedP5GraphicsBuffer } from "../../../utils/test/mocks"
 import { beforeEach, describe, expect, it, MockInstance, vi } from "vitest"
+import {
+    BattlePhaseState,
+    BattlePhaseStateService,
+} from "../../orchestratorComponents/battlePhaseController"
+import { MissionMap, MissionMapService } from "../../../missionMap/missionMap"
+import {
+    ActionTemplate,
+    ActionTemplateService,
+} from "../../../action/template/actionTemplate"
+import { BattleSquaddie, BattleSquaddieService } from "../../battleSquaddie"
+import { TerrainTileMapService } from "../../../hexMap/terrainTileMap"
+import {
+    BattleSquaddieTeam,
+    BattleSquaddieTeamService,
+} from "../../battleSquaddieTeam"
+import { SquaddieAffiliation } from "../../../squaddie/squaddieAffiliation"
+import { TargetConstraintsService } from "../../../action/targetConstraints"
+import { CoordinateGeneratorShape } from "../../targeting/coordinateGenerator"
+import {
+    ActionEffectTemplateService,
+    TargetBySquaddieAffiliationRelation,
+} from "../../../action/template/actionEffectTemplate"
+import {
+    Trait,
+    TraitStatusStorageService,
+} from "../../../trait/traitStatusStorage"
+import {
+    DamageType,
+    HealingType,
+    SquaddieService,
+} from "../../../squaddie/squaddieService"
+import {
+    AttributeModifierService,
+    AttributeSource,
+} from "../../../squaddie/attribute/attributeModifier"
+import { AttributeType } from "../../../squaddie/attribute/attributeType"
+import { SquaddieRepositoryService } from "../../../utils/test/squaddie"
+import { SquaddieTurnService } from "../../../squaddie/turn"
+import { BattleHUDService } from "../battleHUD/battleHUD"
+import { BattleCamera } from "../../battleCamera"
+import { BattleHUDStateService } from "../battleHUD/battleHUDState"
+import { SummaryHUDStateService } from "../summary/summaryHUD"
+import { CampaignService } from "../../../campaign/campaign"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { ActionTilePosition } from "./tile/actionTilePosition"
+import { DataBlobService } from "../../../utils/dataBlob/dataBlob"
+import {
+    SquaddieStatusTileContext,
+    SquaddieStatusTileService,
+} from "./tile/squaddieStatusTile"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
 
 describe("Player Decision HUD", () => {
     const differentSquaddiePopup: PopupWindow = PopupWindowService.new({
@@ -157,6 +215,424 @@ describe("Player Decision HUD", () => {
 
             expect(drawSpy).not.toBeCalled()
             drawSpy.mockRestore()
+        })
+    })
+
+    describe("Player Considers an Action", () => {
+        let mockP5GraphicsContext: MockedP5GraphicsBuffer
+        let playerDecisionHUDListener: PlayerDecisionHUDListener
+        let gameEngineState: GameEngineState
+        let longswordAction: ActionTemplate
+
+        beforeEach(() => {
+            mockP5GraphicsContext = new MockedP5GraphicsBuffer()
+            mockP5GraphicsContext.textWidth = vi.fn().mockReturnValue(1)
+        })
+
+        const createGameEngineState = ({
+            battlePhaseState,
+            battleSquaddieCoordinate,
+            missionMap,
+        }: {
+            battlePhaseState?: BattlePhaseState
+            battleSquaddieCoordinate?: HexCoordinate
+            missionMap?: MissionMap
+        }): {
+            gameEngineState: GameEngineState
+            longswordAction: ActionTemplate
+            healSelfAction: ActionTemplate
+            playerSoldierBattleSquaddie: BattleSquaddie
+            battleSquaddie2: BattleSquaddie
+        } => {
+            const repository = ObjectRepositoryService.new()
+            missionMap =
+                missionMap ??
+                MissionMapService.new({
+                    terrainTileMap: TerrainTileMapService.new({
+                        movementCost: ["1 1 1 ", " 1 1 1 ", "  1 1 1 "],
+                    }),
+                })
+
+            const playerTeam: BattleSquaddieTeam = {
+                id: "playerTeamId",
+                name: "player controlled team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
+            }
+            let teams: BattleSquaddieTeam[] = []
+            const longswordAction = ActionTemplateService.new({
+                name: "longsword",
+                id: "longsword",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+                }),
+                actionEffectTemplates: [
+                    ActionEffectTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ALWAYS_SUCCEEDS]: true,
+                            [Trait.ATTACK]: true,
+                        }),
+                        damageDescriptions: {
+                            [DamageType.BODY]: 2,
+                        },
+                    }),
+                ],
+            })
+            const healSelfAction = ActionTemplateService.new({
+                id: "self",
+                name: "self",
+                targetConstraints: TargetConstraintsService.new({
+                    minimumRange: 0,
+                    maximumRange: 0,
+                    coordinateGeneratorShape: CoordinateGeneratorShape.BLOOM,
+                }),
+                actionEffectTemplates: [
+                    ActionEffectTemplateService.new({
+                        squaddieAffiliationRelation: {
+                            [TargetBySquaddieAffiliationRelation.TARGET_SELF]:
+                                true,
+                        },
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            HEALING: true,
+                        }),
+                        attributeModifiers: [
+                            AttributeModifierService.new({
+                                type: AttributeType.ARMOR,
+                                amount: 1,
+                                source: AttributeSource.CIRCUMSTANCE,
+                            }),
+                        ],
+                        healingDescriptions: {
+                            [HealingType.LOST_HIT_POINTS]: 1,
+                        },
+                    }),
+                ],
+            })
+            teams.push(playerTeam)
+            const { battleSquaddie: playerSoldierBattleSquaddie } =
+                SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
+                    name: "Player Soldier",
+                    templateId: "player_soldier",
+                    battleId: "player_soldier_0",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    objectRepository: repository,
+                    actionTemplateIds: [longswordAction.id, healSelfAction.id],
+                })
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_0",
+            ])
+
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_0",
+                coordinate: battleSquaddieCoordinate ?? { q: 0, r: 0 },
+            })
+
+            const battleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_1",
+                squaddieTurn: SquaddieTurnService.new(),
+            })
+            ObjectRepositoryService.addBattleSquaddie(
+                repository,
+                battleSquaddie2
+            )
+            BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, [
+                "player_soldier_1",
+            ])
+
+            MissionMapService.addSquaddie({
+                missionMap: missionMap,
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_1",
+                coordinate: { q: 0, r: 1 },
+            })
+
+            const gameEngineState = GameEngineStateService.new({
+                resourceHandler: mocks.mockResourceHandler(
+                    new MockedP5GraphicsBuffer()
+                ),
+                battleOrchestratorState: BattleOrchestratorStateService.new({
+                    battleHUD: BattleHUDService.new({}),
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "test mission",
+                        campaignId: "test campaign",
+                        missionMap,
+                        camera: new BattleCamera(),
+                        battlePhaseState:
+                            battlePhaseState ??
+                            BattlePhaseStateService.new({
+                                currentAffiliation: BattlePhase.PLAYER,
+                                turnCount: 1,
+                            }),
+                        teams,
+                    }),
+                    battleHUDState: BattleHUDStateService.new({
+                        summaryHUDState: SummaryHUDStateService.new(),
+                    }),
+                }),
+                repository,
+                campaign: CampaignService.default(),
+            })
+            ObjectRepositoryService.addActionTemplate(
+                gameEngineState.repository,
+                longswordAction
+            )
+            ObjectRepositoryService.addActionTemplate(
+                gameEngineState.repository,
+                healSelfAction
+            )
+
+            gameEngineState.battleOrchestratorState.battleState.battleActionDecisionStep =
+                BattleActionDecisionStepService.new()
+
+            BattleActionDecisionStepService.setActor({
+                actionDecisionStep:
+                    gameEngineState.battleOrchestratorState.battleState
+                        .battleActionDecisionStep,
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            })
+
+            return {
+                gameEngineState,
+                longswordAction,
+                healSelfAction,
+                playerSoldierBattleSquaddie,
+                battleSquaddie2,
+            }
+        }
+
+        const getNumberOfActionPointsMarkedInSquaddieTile = (
+            gameEngineState: GameEngineState
+        ): number => {
+            const data =
+                gameEngineState.battleOrchestratorState.battleHUDState
+                    .summaryHUDState.squaddieStatusTiles[
+                    ActionTilePosition.ACTOR_STATUS
+                ].data
+            const tileContext = DataBlobService.get<SquaddieStatusTileContext>(
+                data,
+                "context"
+            )
+            return tileContext.actionPoints.actionPointsMarked
+        }
+
+        const getNumberOfActionPointsMarkedInSquaddieTurn = (
+            gameEngineState: GameEngineState
+        ) => {
+            const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    gameEngineState.repository,
+                    BattleActionDecisionStepService.getActor(
+                        gameEngineState.battleOrchestratorState.battleState
+                            .battleActionDecisionStep
+                    ).battleSquaddieId
+                )
+            )
+            const explanation = SquaddieService.getNumberOfActionPoints({
+                battleSquaddie,
+                squaddieTemplate,
+            })
+            return explanation.actionPointsMarked
+        }
+
+        beforeEach(() => {
+            ;({ gameEngineState, longswordAction } = createGameEngineState({}))
+
+            const repository = gameEngineState.repository
+
+            SummaryHUDStateService.createActorTiles({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                objectRepository: repository,
+                gameEngineState,
+            })
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
+            playerDecisionHUDListener = new PlayerDecisionHUDListener(
+                "PlayerDecisionHUDListener"
+            )
+            gameEngineState.messageBoard.addListener(
+                playerDecisionHUDListener,
+                MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+            )
+        })
+
+        describe("considers a valid action", () => {
+            beforeEach(() => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    gameEngineState,
+                    action: {
+                        actionTemplateId: longswordAction.id,
+                        isEndTurn: false,
+                        cancel: false,
+                    },
+                })
+
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: mockP5GraphicsContext,
+                })
+            })
+
+            it("marks some of the action points", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
+                ).toEqual(longswordAction.resourceCost.actionPoints)
+            })
+            it("marks portions of the actor status tile action bar", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
+                ).toEqual(longswordAction.resourceCost.actionPoints)
+            })
+        })
+        it("clears the invalid selection popup window when a valid action is considered", () => {
+            PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
+                playerDecisionHUD:
+                    gameEngineState.battleOrchestratorState.playerDecisionHUD,
+                message: {
+                    type: MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID,
+                    gameEngineState,
+                    popupWindow: PopupWindowService.new({}),
+                },
+                popupWindow: PopupWindowService.new({}),
+            })
+            expect(
+                gameEngineState.battleOrchestratorState.playerDecisionHUD
+                    .popupWindows[PopupWindowType.PLAYER_INVALID_SELECTION]
+            ).not.toBeUndefined()
+
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                gameEngineState,
+                action: {
+                    actionTemplateId: longswordAction.id,
+                    isEndTurn: false,
+                    cancel: false,
+                },
+            })
+
+            SummaryHUDStateService.draw({
+                summaryHUDState:
+                    gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState,
+                gameEngineState,
+                resourceHandler: gameEngineState.resourceHandler,
+                graphicsBuffer: mockP5GraphicsContext,
+            })
+
+            expect(
+                gameEngineState.battleOrchestratorState.playerDecisionHUD
+                    .popupWindows[PopupWindowType.PLAYER_INVALID_SELECTION]
+            ).toBeUndefined()
+        })
+
+        describe("considers ending the turn", () => {
+            beforeEach(() => {
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    gameEngineState,
+                    action: {
+                        actionTemplateId: undefined,
+                        isEndTurn: true,
+                        cancel: false,
+                    },
+                })
+
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: mockP5GraphicsContext,
+                })
+            })
+            it("marks all of the action points", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
+                ).toEqual(3)
+            })
+            it("marks all of the actor status tile action bar", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
+                ).toEqual(3)
+            })
+        })
+        describe("cancels consideration", () => {
+            beforeEach(() => {
+                const { battleSquaddie } = getResultOrThrowError(
+                    ObjectRepositoryService.getSquaddieByBattleId(
+                        gameEngineState.repository,
+                        BattleActionDecisionStepService.getActor(
+                            gameEngineState.battleOrchestratorState.battleState
+                                .battleActionDecisionStep
+                        ).battleSquaddieId
+                    )
+                )
+                SquaddieTurnService.markActionPoints(
+                    battleSquaddie.squaddieTurn,
+                    2
+                )
+                SquaddieStatusTileService.updateTileUsingSquaddie({
+                    tile: gameEngineState.battleOrchestratorState.battleHUDState
+                        .summaryHUDState.squaddieStatusTiles[
+                        ActionTilePosition.ACTOR_STATUS
+                    ],
+                    objectRepository: gameEngineState.repository,
+                    missionMap:
+                        gameEngineState.battleOrchestratorState.battleState
+                            .missionMap,
+                })
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
+                ).toEqual(2)
+
+                gameEngineState.messageBoard.sendMessage({
+                    type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                    gameEngineState,
+                    action: {
+                        actionTemplateId: undefined,
+                        isEndTurn: false,
+                        cancel: true,
+                    },
+                })
+
+                SummaryHUDStateService.draw({
+                    summaryHUDState:
+                        gameEngineState.battleOrchestratorState.battleHUDState
+                            .summaryHUDState,
+                    gameEngineState,
+                    resourceHandler: gameEngineState.resourceHandler,
+                    graphicsBuffer: mockP5GraphicsContext,
+                })
+            })
+            it("marks no action points", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTurn(gameEngineState)
+                ).toEqual(0)
+            })
+            it("marks none of the actor status tile action bar", () => {
+                expect(
+                    getNumberOfActionPointsMarkedInSquaddieTile(gameEngineState)
+                ).toEqual(0)
+            })
         })
     })
 })

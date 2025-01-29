@@ -369,6 +369,10 @@ export class GameEngine {
             playerDecisionHUDListener,
             MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
         )
+        this.gameEngineState.messageBoard.addListener(
+            playerDecisionHUDListener,
+            MessageBoardMessageType.PLAYER_CONSIDERS_ACTION
+        )
 
         const playerDataMessageListener = new PlayerDataMessageListener(
             "playerDataMessageListener"

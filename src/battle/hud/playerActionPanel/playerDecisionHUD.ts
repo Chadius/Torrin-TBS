@@ -1,6 +1,7 @@
 import { MessageBoardListener } from "../../../message/messageBoardListener"
 import {
     MessageBoardMessage,
+    MessageBoardMessagePlayerConsidersAction,
     MessageBoardMessagePlayerSelectionIsInvalid,
     MessageBoardMessageType,
 } from "../../../message/messageBoardMessage"
@@ -11,6 +12,12 @@ import {
     PopupWindowService,
     PopupWindowStatus,
 } from "../popupWindow/popupWindow"
+import { BattleActionDecisionStepService } from "../../actionDecision/battleActionDecisionStep"
+import { getResultOrThrowError } from "../../../utils/ResultOrError"
+import { ObjectRepositoryService } from "../../objectRepository"
+import { SquaddieTurnService } from "../../../squaddie/turn"
+import { SquaddieStatusTileService } from "./tile/squaddieStatusTile"
+import { ActionTilePosition } from "./tile/actionTilePosition"
 
 const INVALID_SELECTION_POP_UP_DURATION_MS = 2000
 
@@ -22,16 +29,19 @@ export class PlayerDecisionHUDListener implements MessageBoardListener {
     }
 
     receiveMessage(message: MessageBoardMessage): void {
-        if (
-            message.type === MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID
-        ) {
-            PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
-                message,
-                popupWindow: message.popupWindow,
-                playerDecisionHUD:
-                    message.gameEngineState.battleOrchestratorState
-                        .playerDecisionHUD,
-            })
+        switch (message.type) {
+            case MessageBoardMessageType.PLAYER_SELECTION_IS_INVALID:
+                PlayerDecisionHUDService.createPlayerInvalidSelectionPopup({
+                    message,
+                    popupWindow: message.popupWindow,
+                    playerDecisionHUD:
+                        message.gameEngineState.battleOrchestratorState
+                            .playerDecisionHUD,
+                })
+                break
+            case MessageBoardMessageType.PLAYER_CONSIDERS_ACTION:
+                playerConsidersAction(message)
+                break
         }
     }
 }
@@ -77,7 +87,6 @@ export const PlayerDecisionHUDService = {
     },
     createPlayerInvalidSelectionPopup: ({
         playerDecisionHUD,
-        message,
         popupWindow,
     }: {
         playerDecisionHUD: PlayerDecisionHUD
@@ -105,4 +114,57 @@ const setPopupWindow = (
     popupWindowType: PopupWindowType
 ) => {
     playerDecisionHUD.popupWindows[popupWindowType] = popupWindow
+}
+
+const playerConsidersAction = (
+    message: MessageBoardMessagePlayerConsidersAction
+) => {
+    const gameEngineState = message.gameEngineState
+    const battleSquaddieId: string = BattleActionDecisionStepService.getActor(
+        gameEngineState.battleOrchestratorState.battleState
+            .battleActionDecisionStep
+    ).battleSquaddieId
+
+    const { battleSquaddie } = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            battleSquaddieId
+        )
+    )
+
+    switch (true) {
+        case !!message.action.actionTemplateId:
+            SquaddieTurnService.markActionPoints(
+                battleSquaddie.squaddieTurn,
+                ObjectRepositoryService.getActionTemplateById(
+                    gameEngineState.repository,
+                    message.action.actionTemplateId
+                ).resourceCost.actionPoints
+            )
+            break
+        case !!message.action.isEndTurn:
+            SquaddieTurnService.markActionPoints(
+                battleSquaddie.squaddieTurn,
+                battleSquaddie.squaddieTurn.remainingActionPoints
+            )
+            break
+        case !!message.action.cancel:
+            SquaddieTurnService.markActionPoints(battleSquaddie.squaddieTurn, 0)
+            break
+    }
+
+    SquaddieStatusTileService.updateTileUsingSquaddie({
+        tile: gameEngineState.battleOrchestratorState.battleHUDState
+            .summaryHUDState.squaddieStatusTiles[
+            ActionTilePosition.ACTOR_STATUS
+        ],
+        objectRepository: gameEngineState.repository,
+        missionMap:
+            gameEngineState.battleOrchestratorState.battleState.missionMap,
+    })
+
+    PlayerDecisionHUDService.clearPopupWindow(
+        gameEngineState.battleOrchestratorState.playerDecisionHUD,
+        PopupWindowType.PLAYER_INVALID_SELECTION
+    )
 }

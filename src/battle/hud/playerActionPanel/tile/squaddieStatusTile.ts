@@ -171,7 +171,7 @@ export interface SquaddieStatusTileContext {
     }
     actionPoints?: {
         actionPointsRemaining: number
-        actionPointsReserved: number
+        actionPointsMarked: number
     }
     movement?: {
         initialMovementPerAction: number
@@ -507,7 +507,7 @@ const calculateActionPoints = (
     battleSquaddie: BattleSquaddie,
     squaddieTemplate: SquaddieTemplate
 ) => {
-    let { actionPointsRemaining, actionPointsReserved } =
+    let { actionPointsRemaining, actionPointsMarked } =
         SquaddieService.getNumberOfActionPoints({
             battleSquaddie,
             squaddieTemplate,
@@ -515,7 +515,7 @@ const calculateActionPoints = (
 
     return {
         actionPointsRemaining,
-        actionPointsReserved,
+        actionPointsMarked,
     }
 }
 
@@ -1119,13 +1119,13 @@ class IsActionPointsCorrectCondition implements BehaviorTreeTask {
             )
         )
 
-        const { actionPointsRemaining, actionPointsReserved } =
+        const { actionPointsRemaining, actionPointsMarked } =
             calculateActionPoints(battleSquaddie, squaddieTemplate)
 
         return (
             context.actionPoints?.actionPointsRemaining ===
                 actionPointsRemaining &&
-            context.actionPoints?.actionPointsReserved === actionPointsReserved
+            context.actionPoints?.actionPointsMarked === actionPointsMarked
         )
     }
 
@@ -1160,15 +1160,15 @@ class UpdateActionPointsContextAction implements BehaviorTreeTask {
             )
         )
 
-        const { actionPointsRemaining, actionPointsReserved } =
+        const { actionPointsRemaining, actionPointsMarked } =
             calculateActionPoints(battleSquaddie, squaddieTemplate)
 
         context.actionPoints ||= {
             actionPointsRemaining: 0,
-            actionPointsReserved: 0,
+            actionPointsMarked: 0,
         }
         context.actionPoints.actionPointsRemaining = actionPointsRemaining
-        context.actionPoints.actionPointsReserved = actionPointsReserved
+        context.actionPoints.actionPointsMarked = actionPointsMarked
 
         DataBlobService.add<SquaddieStatusTileContext>(
             this.dataBlob,
@@ -1267,14 +1267,14 @@ class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
         DataBlobService.add<number>(
             actionPointMeterDataBlob,
             "highlightedValue",
-            context.actionPoints.actionPointsReserved
+            context.actionPoints.actionPointsMarked
         )
 
         let highlightedValueFillStartTime = DataBlobService.get<number>(
             actionPointMeterDataBlob,
             "highlightedValueFillStartTime"
         )
-        if (context.actionPoints.actionPointsReserved === 0) {
+        if (context.actionPoints.actionPointsMarked === 0) {
             DataBlobService.add<number>(
                 actionPointMeterDataBlob,
                 "highlightedValueFillStartTime",
@@ -1403,7 +1403,7 @@ class UpdateActionPointsUIObjectsAction implements BehaviorTreeTask {
         DataBlobService.add<number>(
             actionPointMeterDataBlob,
             "highlightedValue",
-            context.actionPoints.actionPointsReserved
+            context.actionPoints.actionPointsMarked
         )
         DataBlobService.add<number>(
             actionPointMeterDataBlob,

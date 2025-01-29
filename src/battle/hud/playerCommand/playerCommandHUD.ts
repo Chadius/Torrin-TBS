@@ -22,10 +22,6 @@ import {
 } from "../../actionValidity/validityChecker"
 import { MessageBoardMessageType } from "../../../message/messageBoardMessage"
 import { CoordinateSystem } from "../../../hexMap/hexCoordinate/hexCoordinate"
-import {
-    PlayerDecisionHUDService,
-    PopupWindowType,
-} from "../playerActionPanel/playerDecisionHUD"
 import { TextHandlingService } from "../../../utils/graphics/textHandlingService"
 import {
     DIALOGUE_FONT_STYLE_CONSTANTS,
@@ -54,6 +50,7 @@ export interface PlayerCommandState {
     playerSelectedSquaddieAction: boolean
     selectedActionTemplateId: string
     playerSelectedEndTurn: boolean
+    battleSquaddieId: string
     newInvalidPopup: {
         buttonArea: RectArea
         message: string
@@ -71,6 +68,7 @@ export const PlayerCommandStateService = {
             playerSelectedSquaddieAction: false,
             selectedActionTemplateId: undefined,
             playerSelectedEndTurn: false,
+            battleSquaddieId: undefined,
             actionButtons: [],
             squaddieAffiliationHue:
                 HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
@@ -88,6 +86,7 @@ export const PlayerCommandStateService = {
         gameEngineState: GameEngineState
         battleSquaddieId: string
     }) => {
+        summaryHUDState.playerCommandState.battleSquaddieId = battleSquaddieId
         createActionButtons({
             playerCommandState: summaryHUDState.playerCommandState,
             gameEngineState,
@@ -168,6 +167,8 @@ export const PlayerCommandStateService = {
             return
         }
 
+        if (playerCommandState.selectedActionTemplateId) return
+
         const actionValidity = ValidityCheckService.calculateActionValidity({
             objectRepository: gameEngineState.repository,
             battleSquaddieId: BattleActionDecisionStepService.getActor(
@@ -177,43 +178,56 @@ export const PlayerCommandStateService = {
             gameEngineState,
         })
 
-        if (!playerCommandState.selectedActionTemplateId) {
-            const consideredActionButton =
-                playerCommandState.actionButtons.find((actionButton) =>
-                    ActionButtonService.shouldConsiderActionBecauseOfMouseMovement(
-                        actionButton,
-                        { x: mouseX, y: mouseY }
-                    )
+        const consideredActionButton = playerCommandState.actionButtons.find(
+            (actionButton) =>
+                ActionButtonService.shouldConsiderActionBecauseOfMouseMovement(
+                    actionButton,
+                    { x: mouseX, y: mouseY }
                 )
-            if (consideredActionButton) {
-                playerCommandState.consideredActionTemplateId =
-                    ActionButtonService.getActionTemplateId(
-                        consideredActionButton
-                    )
+        )
 
-                if (
+        if (!consideredActionButton) {
+            gameEngineState.messageBoard.sendMessage({
+                type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+                gameEngineState,
+                action: {
+                    actionTemplateId: undefined,
+                    isEndTurn: false,
+                    cancel: true,
+                },
+            })
+            return
+        }
+
+        playerCommandState.consideredActionTemplateId =
+            ActionButtonService.getActionTemplateId(consideredActionButton)
+
+        if (
+            actionValidity[playerCommandState.consideredActionTemplateId]
+                ?.disabled
+        ) {
+            playerCommandState.newInvalidPopup = {
+                buttonArea:
+                    consideredActionButton.uiObjects.buttonIcon.drawArea,
+                message:
                     actionValidity[
                         playerCommandState.consideredActionTemplateId
-                    ]?.disabled
-                ) {
-                    playerCommandState.newInvalidPopup = {
-                        buttonArea:
-                            consideredActionButton.uiObjects.buttonIcon
-                                .drawArea,
-                        message:
-                            actionValidity[
-                                playerCommandState.consideredActionTemplateId
-                            ].messages.join("\n"),
-                    }
-                } else {
-                    PlayerDecisionHUDService.clearPopupWindow(
-                        gameEngineState.battleOrchestratorState
-                            .playerDecisionHUD,
-                        PopupWindowType.PLAYER_INVALID_SELECTION
-                    )
-                }
+                    ].messages.join("\n"),
             }
+            return
         }
+
+        gameEngineState.messageBoard.sendMessage({
+            type: MessageBoardMessageType.PLAYER_CONSIDERS_ACTION,
+            gameEngineState,
+            action: {
+                actionTemplateId: isActionButtonEndTurn(consideredActionButton)
+                    ? undefined
+                    : consideredActionButton.actionTemplate.id,
+                isEndTurn: isActionButtonEndTurn(consideredActionButton),
+                cancel: false,
+            },
+        })
     },
     draw({
         playerCommandState,
