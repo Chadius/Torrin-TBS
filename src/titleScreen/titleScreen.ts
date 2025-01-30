@@ -55,7 +55,7 @@ const colors = {
 
 const TitleScreenDesign = {
     logo: {
-        iconImageResourceKey: "torrins trial logo",
+        iconImageResourceKey: "title screen logo",
         screenHeight: 0.5,
     },
     title: {

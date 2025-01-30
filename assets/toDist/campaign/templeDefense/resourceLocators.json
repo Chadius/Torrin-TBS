@@ -91,8 +91,8 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/logo-torrins-trial.png",
-    "key": "torrins trial logo"
+    "path": "assets/gameLogoCircle.png",
+    "key": "title screen logo"
   },
   {
     "type": "IMAGE",
