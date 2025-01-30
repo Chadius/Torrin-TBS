@@ -1,6 +1,6 @@
 [
   {
-    "id": "torrin_water_cannon",
+    "id": "nahla_water_cannon",
     "name": "water cannon",
     "targetConstraints": {
       "minimumRange": 0,
@@ -31,7 +31,7 @@
     ]
   },
   {
-    "id": "young_torrin_healing_touch",
+    "id": "young_nahla_healing_touch",
     "name": "healing touch",
     "resourceCost": {
       "actionPoints": 2
@@ -66,7 +66,7 @@
     ]
   },
   {
-    "id": "young_torrin_torrent_surge",
+    "id": "young_nahla_torrent_surge",
     "name": "torrent surge",
     "targetConstraints": {
       "minimumRange": 0,

@@ -11,17 +11,17 @@ import { beforeEach, describe, expect, it } from "vitest"
 
 describe("Mission Map", () => {
     let map: TerrainTileMap
-    let torrinSquaddie: SquaddieId
+    let nahlaSquaddie: SquaddieId
     beforeEach(() => {
         map = TerrainTileMapService.new({
             movementCost: ["1 1 2 "],
         })
 
-        torrinSquaddie = {
-            name: "Torrin",
+        nahlaSquaddie = {
+            name: "Nahla",
             templateId: "000",
             resources: {
-                mapIconResourceKey: "map_icon_torrin",
+                mapIconResourceKey: "map_icon_nahla",
                 actionSpritesByEmotion: {},
             },
             traits: TraitStatusStorageService.newUsingTraitValues(),
@@ -37,7 +37,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 2 },
         })
 
@@ -46,7 +46,7 @@ describe("Mission Map", () => {
                 missionMap,
                 "dynamic_squaddie_0"
             )
-        expect(squaddieTemplateId).toBe(torrinSquaddie.templateId)
+        expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
         expect(squaddieMapCoordinate.q).toBe(0)
         expect(squaddieMapCoordinate.r).toBe(2)
         ;({ mapCoordinate: squaddieMapCoordinate, squaddieTemplateId } =
@@ -54,7 +54,7 @@ describe("Mission Map", () => {
                 missionMap,
                 "dynamic_squaddie_0"
             ))
-        expect(squaddieTemplateId).toBe(torrinSquaddie.templateId)
+        expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
         expect(squaddieMapCoordinate.q).toBe(0)
         expect(squaddieMapCoordinate.r).toBe(2)
     })
@@ -67,7 +67,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
         })
 
         const { mapCoordinate: squaddieMapCoordinate, squaddieTemplateId } =
@@ -75,7 +75,7 @@ describe("Mission Map", () => {
                 missionMap,
                 "dynamic_squaddie_0"
             )
-        expect(squaddieTemplateId).toBe(torrinSquaddie.templateId)
+        expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
         expect(squaddieMapCoordinate).toBeUndefined()
     })
 
@@ -103,7 +103,7 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 2 },
         })
         expect(error).toBeUndefined()
@@ -111,7 +111,7 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_1",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 2 },
         })
         expect(error).toEqual(expect.any(Error))
@@ -122,7 +122,7 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_1",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 0 },
         })
 
@@ -138,14 +138,14 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
         })
         expect(error).toBeUndefined()
 
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
         })
 
         expect(error).toEqual(expect.any(Error))
@@ -154,7 +154,7 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "different_dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
         })
         expect(error).toBeUndefined()
     })
@@ -168,7 +168,7 @@ describe("Mission Map", () => {
         error = MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: -999, r: 999 },
         })
         expect(error).toEqual(expect.any(Error))
@@ -183,7 +183,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 2 },
         })
 
@@ -196,7 +196,7 @@ describe("Mission Map", () => {
             r: 2,
         })
 
-        expect(squaddieTemplateId).toBe(torrinSquaddie.templateId)
+        expect(squaddieTemplateId).toBe(nahlaSquaddie.templateId)
         expect(battleSquaddieId).toBe("dynamic_squaddie_0")
         expect(squaddieMapCoordinate.q).toBe(0)
         expect(squaddieMapCoordinate.r).toBe(2)
@@ -221,7 +221,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
         MissionMapService.updateBattleSquaddieCoordinate(
@@ -240,7 +240,7 @@ describe("Mission Map", () => {
             })
         ).toStrictEqual({
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             mapCoordinate: { q: 0, r: 0 },
         })
         expect(
@@ -260,7 +260,7 @@ describe("Mission Map", () => {
 
         MissionMapService.addSquaddie({
             missionMap,
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             battleSquaddieId: "dynamic_squaddie_0",
             coordinate: {
                 q: 0,
@@ -279,7 +279,7 @@ describe("Mission Map", () => {
             })
         ).toStrictEqual({
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             mapCoordinate: { q: 0, r: 0 },
         })
         expect(
@@ -300,7 +300,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
         MissionMapService.updateBattleSquaddieCoordinate(
@@ -314,7 +314,7 @@ describe("Mission Map", () => {
         ).toStrictEqual([
             {
                 battleSquaddieId: "dynamic_squaddie_0",
-                squaddieTemplateId: torrinSquaddie.templateId,
+                squaddieTemplateId: nahlaSquaddie.templateId,
                 mapCoordinate: undefined,
             },
         ])
@@ -352,7 +352,7 @@ describe("Mission Map", () => {
         MissionMapService.addSquaddie({
             missionMap,
             battleSquaddieId: "dynamic_squaddie_0",
-            squaddieTemplateId: torrinSquaddie.templateId,
+            squaddieTemplateId: nahlaSquaddie.templateId,
             coordinate: { q: 0, r: 1 },
         })
 

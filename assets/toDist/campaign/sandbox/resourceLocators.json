@@ -6,8 +6,8 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/map-icon-young-torrin.png",
-    "key": "map icon young torrin"
+    "path": "assets/playerArmy/young_nahla/map-icon-young-nahla.png",
+    "key": "map icon young nahla"
   },
   {
     "type": "IMAGE",
@@ -126,8 +126,8 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/cutscene-portrait-young-torrin.png",
-    "key": "young torrin cutscene portrait"
+    "path": "assets/playerArmy/young_nahla/cutscene-portrait-young-nahla.png",
+    "key": "young nahla cutscene portrait"
   },
   {
     "type": "IMAGE",
@@ -206,38 +206,38 @@
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-attack.png",
-    "key": "combat-young-torrin-attack"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-attack.png",
+    "key": "combat-young-nahla-attack"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-damaged.png",
-    "key": "combat-young-torrin-damaged"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-damaged.png",
+    "key": "combat-young-nahla-damaged"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-dead.png",
-    "key": "combat-young-torrin-dead"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-dead.png",
+    "key": "combat-young-nahla-dead"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-neutral.png",
-    "key": "combat-young-torrin-neutral"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-neutral.png",
+    "key": "combat-young-nahla-neutral"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-targeted.png",
-    "key": "combat-young-torrin-targeted"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-targeted.png",
+    "key": "combat-young-nahla-targeted"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-assisting.png",
-    "key": "combat-young-torrin-assisting"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-assisting.png",
+    "key": "combat-young-nahla-assisting"
   },
   {
     "type": "IMAGE",
-    "path": "assets/playerArmy/young_torrin/combat-young-torrin-thankful.png",
-    "key": "combat-young-torrin-thankful"
+    "path": "assets/playerArmy/young_nahla/combat-young-nahla-thankful.png",
+    "key": "combat-young-nahla-thankful"
   },
   {
     "type": "IMAGE",

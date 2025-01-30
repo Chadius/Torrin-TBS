@@ -94,11 +94,13 @@ A few quick ideas, see the Trello board.
 ### Magical Desert Fantasy
 A sophisticated magical city, within a magically infused desert.
 ### Young Water Elemental Priestess
-Torrin, a young djinn made of water, becomes a priestess of good and joins an army to fight an evil army.
+Nahla, a young djinn made of water, becomes a priestess of good and joins an army to fight an evil army.
+
+(formerly named Torrin until I learned that was a male Irish name.)
 ### Crusader of Justice
 Sir Camil hails from the Western Kingdom, where he learned the tenets of justice and practices them to this day.
 
-He teams up with Torrin and encourages her to practice herself. 
+He teams up with Nahla and encourages her to practice herself. 
 ### Fire Emblem (Game Boy Advance, 2003)
 The Desert kingdom of Nabata kept a peace between dragons and humans while the rest of the continent of Elibe waged war.
 

@@ -48,8 +48,8 @@ describe("Battle Squaddie Team", () => {
         }
         playerSquaddieTemplateBase = SquaddieTemplateService.new({
             squaddieId: {
-                templateId: "young_torrin",
-                name: "Torrin",
+                templateId: "young_nahla",
+                name: "Nahla",
                 resources: {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
@@ -66,9 +66,8 @@ describe("Battle Squaddie Team", () => {
         )
 
         playerBattleSquaddie0 = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "young_torrin_0",
-            squaddieTemplateId: "young_torrin",
-            squaddieTurn: { remainingActionPoints: 3 },
+            battleSquaddieId: "young_nahla_0",
+            squaddieTemplateId: "young_nahla",
         })
 
         ObjectRepositoryService.addBattleSquaddie(
@@ -77,17 +76,16 @@ describe("Battle Squaddie Team", () => {
         )
 
         playerBattleSquaddie1 = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "young_torrin_1",
-            squaddieTemplateId: "young_torrin",
-            squaddieTurn: { remainingActionPoints: 3 },
+            battleSquaddieId: "young_nahla_1",
+            squaddieTemplateId: "young_nahla",
         })
         ObjectRepositoryService.addBattleSquaddie(
             squaddieRepository,
             playerBattleSquaddie1
         )
         BattleSquaddieTeamService.addBattleSquaddieIds(twoPlayerTeam, [
-            "young_torrin_0",
-            "young_torrin_1",
+            "young_nahla_0",
+            "young_nahla_1",
         ])
 
         twoEnemyTeam = {
@@ -119,7 +117,6 @@ describe("Battle Squaddie Team", () => {
         enemyBattleSquaddie0 = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "enemy_slither_demon_0",
             squaddieTemplateId: "enemy_slither_demon",
-            squaddieTurn: { remainingActionPoints: 3 },
         })
 
         ObjectRepositoryService.addBattleSquaddie(
@@ -130,7 +127,6 @@ describe("Battle Squaddie Team", () => {
         enemyBattleSquaddie1 = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "enemy_slither_demon_1",
             squaddieTemplateId: "enemy_slither_demon",
-            squaddieTurn: { remainingActionPoints: 3 },
         })
         ObjectRepositoryService.addBattleSquaddie(
             squaddieRepository,
@@ -204,7 +200,7 @@ describe("Battle Squaddie Team", () => {
                 twoPlayerTeam,
                 squaddieRepository
             )
-        ).toStrictEqual(["young_torrin_0", "young_torrin_1"])
+        ).toStrictEqual(["young_nahla_0", "young_nahla_1"])
         BattleSquaddieService.endTurn(playerBattleSquaddie0)
 
         expect(
@@ -212,7 +208,7 @@ describe("Battle Squaddie Team", () => {
                 twoPlayerTeam,
                 squaddieRepository
             )
-        ).toStrictEqual(["young_torrin_1"])
+        ).toStrictEqual(["young_nahla_1"])
     })
     it("can get a squaddie who can act this round but is not controlled by the player", () => {
         expect(

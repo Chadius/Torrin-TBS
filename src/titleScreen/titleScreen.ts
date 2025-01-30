@@ -110,7 +110,7 @@ const TitleScreenDesign = {
         descriptionText: "Locust demons attack from range.",
         iconImageResourceKey: "combat-demon-locust-neutral",
     },
-    torrin: {
+    nahla: {
         iconArea: {
             startColumn: 5,
             width: 100,
@@ -118,8 +118,8 @@ const TitleScreenDesign = {
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         },
         descriptionText:
-            "This is Torrin. She can attack at range and heal with a touch.",
-        iconImageResourceKey: "young torrin cutscene portrait",
+            "This is Nahla. She can attack at range and heal with a touch.",
+        iconImageResourceKey: "young nahla cutscene portrait",
     },
     sirCamil: {
         iconArea: {
@@ -149,7 +149,7 @@ const resourceKeys: string[] = [
     TitleScreenDesign.sirCamil.iconImageResourceKey,
     TitleScreenDesign.demonSlither.iconImageResourceKey,
     TitleScreenDesign.demonLocust.iconImageResourceKey,
-    TitleScreenDesign.torrin.iconImageResourceKey,
+    TitleScreenDesign.nahla.iconImageResourceKey,
 ]
 
 export class TitleScreen implements GameEngineComponent {
@@ -186,7 +186,7 @@ export class TitleScreen implements GameEngineComponent {
         descriptionText: TextBox
     }
 
-    private torrinUIElements: {
+    private nahlaUIElements: {
         icon: ImageUI
         iconArea: RectArea
         descriptionText: TextBox
@@ -349,8 +349,8 @@ export class TitleScreen implements GameEngineComponent {
             })
         }
 
-        if (!isValidValue(this.torrinUIElements)) {
-            this.torrinUIElements = {
+        if (!isValidValue(this.nahlaUIElements)) {
+            this.nahlaUIElements = {
                 icon: undefined,
                 iconArea: RectAreaService.new({
                     left: 0,
@@ -361,8 +361,8 @@ export class TitleScreen implements GameEngineComponent {
                 descriptionText: undefined,
             }
         }
-        if (!isValidValue(this.torrinUIElements.icon)) {
-            this.torrinUIElements.iconArea = RectAreaService.new({
+        if (!isValidValue(this.nahlaUIElements.icon)) {
+            this.nahlaUIElements.iconArea = RectAreaService.new({
                 left: 0,
                 top: 0,
                 width: 0,
@@ -842,7 +842,7 @@ export class TitleScreen implements GameEngineComponent {
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ) {
-        this.drawTorrinCharacterIntroduction(graphicsContext, resourceHandler)
+        this.drawNahlaCharacterIntroduction(graphicsContext, resourceHandler)
         this.drawSirCamilCharacterIntroduction(graphicsContext, resourceHandler)
         this.drawDemonSlitherCharacterIntroduction(
             graphicsContext,
@@ -859,7 +859,7 @@ export class TitleScreen implements GameEngineComponent {
         resourceHandler: ResourceHandler
     ) {
         if (this.sirCamilUIElements.icon === undefined) {
-            this.createSirCamilPlaceholderIconAreaUnderTorrin()
+            this.createSirCamilPlaceholderIconAreaUnderNahla()
         }
 
         if (this.sirCamilUIElements.descriptionText === undefined) {
@@ -879,13 +879,13 @@ export class TitleScreen implements GameEngineComponent {
             let image: p5.Image = this.resourceHandler.getResource(
                 "sir camil cutscene portrait"
             )
-            this.setSirCamilIconBasedOnImageAndTorrinImage(image)
+            this.setSirCamilIconBasedOnImageAndNahlaImage(image)
             this.setSirCamilDescriptionText()
         }
         this.sirCamilUIElements.icon.draw({ graphicsContext, resourceHandler })
     }
 
-    private setSirCamilIconBasedOnImageAndTorrinImage(image: p5.Image) {
+    private setSirCamilIconBasedOnImageAndNahlaImage(image: p5.Image) {
         ;({
             iconArea: this.sirCamilUIElements.iconArea,
             icon: this.sirCamilUIElements.icon,
@@ -895,13 +895,13 @@ export class TitleScreen implements GameEngineComponent {
             desiredWidth: TitleScreenDesign.sirCamil.iconArea.width,
             overrides: {
                 top:
-                    RectAreaService.bottom(this.torrinUIElements.iconArea) +
+                    RectAreaService.bottom(this.nahlaUIElements.iconArea) +
                     WINDOW_SPACING.SPACING1,
             },
         }))
     }
 
-    private createSirCamilPlaceholderIconAreaUnderTorrin() {
+    private createSirCamilPlaceholderIconAreaUnderNahla() {
         this.sirCamilUIElements.iconArea = RectAreaService.new({
             startColumn: TitleScreenDesign.sirCamil.iconArea.startColumn,
             endColumn: TitleScreenDesign.sirCamil.iconArea.startColumn + 1,
@@ -932,19 +932,19 @@ export class TitleScreen implements GameEngineComponent {
         })
     }
 
-    private drawTorrinCharacterIntroduction(
+    private drawNahlaCharacterIntroduction(
         graphicsContext: GraphicsBuffer,
         resourceHandler: ResourceHandler
     ) {
-        if (this.torrinUIElements.icon === undefined) {
-            this.createPlaceholderTorrinIconArea()
+        if (this.nahlaUIElements.icon === undefined) {
+            this.createPlaceholderNahlaIconArea()
         }
 
-        if (this.torrinUIElements.descriptionText === undefined) {
-            this.setTorrinDescriptionText()
+        if (this.nahlaUIElements.descriptionText === undefined) {
+            this.setNahlaDescriptionText()
         }
         TextBoxService.draw(
-            this.torrinUIElements.descriptionText,
+            this.nahlaUIElements.descriptionText,
             graphicsContext
         )
 
@@ -952,55 +952,55 @@ export class TitleScreen implements GameEngineComponent {
             return
         }
 
-        if (this.torrinUIElements.icon === undefined) {
+        if (this.nahlaUIElements.icon === undefined) {
             let image: p5.Image = this.resourceHandler.getResource(
-                "young torrin cutscene portrait"
+                "young nahla cutscene portrait"
             )
-            this.setTorrinIconBasedOnImage(image)
-            this.setTorrinDescriptionText()
+            this.setNahlaIconBasedOnImage(image)
+            this.setNahlaDescriptionText()
         }
-        this.torrinUIElements.icon.draw({ graphicsContext, resourceHandler })
+        this.nahlaUIElements.icon.draw({ graphicsContext, resourceHandler })
     }
 
-    private setTorrinIconBasedOnImage(image: p5.Image) {
+    private setNahlaIconBasedOnImage(image: p5.Image) {
         ;({
-            iconArea: this.torrinUIElements.iconArea,
-            icon: this.torrinUIElements.icon,
+            iconArea: this.nahlaUIElements.iconArea,
+            icon: this.nahlaUIElements.icon,
         } = updateIconBasedOnImage({
-            iconArea: this.torrinUIElements.iconArea,
+            iconArea: this.nahlaUIElements.iconArea,
             image,
-            desiredWidth: TitleScreenDesign.torrin.iconArea.width,
+            desiredWidth: TitleScreenDesign.nahla.iconArea.width,
         }))
     }
 
-    private setTorrinDescriptionText() {
-        this.torrinUIElements.descriptionText = TextBoxService.new({
+    private setNahlaDescriptionText() {
+        this.nahlaUIElements.descriptionText = TextBoxService.new({
             area: RectAreaService.new({
                 left:
-                    RectAreaService.right(this.torrinUIElements.iconArea) +
+                    RectAreaService.right(this.nahlaUIElements.iconArea) +
                     WINDOW_SPACING.SPACING1,
-                top: this.torrinUIElements.iconArea.top,
-                height: this.torrinUIElements.iconArea.height,
+                top: this.nahlaUIElements.iconArea.top,
+                height: this.nahlaUIElements.iconArea.height,
                 width:
                     ScreenDimensions.SCREEN_WIDTH -
-                    RectAreaService.right(this.torrinUIElements.iconArea) -
+                    RectAreaService.right(this.nahlaUIElements.iconArea) -
                     WINDOW_SPACING.SPACING2,
             }),
-            text: TitleScreenDesign.torrin.descriptionText,
+            text: TitleScreenDesign.nahla.descriptionText,
             fontSize: WINDOW_SPACING.SPACING2,
             fontColor: colors.descriptionText,
             vertAlign: VERTICAL_ALIGN.CENTER,
         })
     }
 
-    private createPlaceholderTorrinIconArea() {
-        this.torrinUIElements.iconArea = RectAreaService.new({
-            startColumn: TitleScreenDesign.torrin.iconArea.startColumn,
-            endColumn: TitleScreenDesign.torrin.iconArea.startColumn + 1,
+    private createPlaceholderNahlaIconArea() {
+        this.nahlaUIElements.iconArea = RectAreaService.new({
+            startColumn: TitleScreenDesign.nahla.iconArea.startColumn,
+            endColumn: TitleScreenDesign.nahla.iconArea.startColumn + 1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: TitleScreenDesign.torrin.iconArea.top,
-            height: TitleScreenDesign.torrin.iconArea.top,
+            top: TitleScreenDesign.nahla.iconArea.top,
+            height: TitleScreenDesign.nahla.iconArea.top,
         })
     }
 
@@ -1079,7 +1079,7 @@ export class TitleScreen implements GameEngineComponent {
         } = updateIconBasedOnImage({
             iconArea: this.demonSlitherUIElements.iconArea,
             image,
-            desiredWidth: TitleScreenDesign.torrin.iconArea.width,
+            desiredWidth: TitleScreenDesign.nahla.iconArea.width,
         }))
     }
 

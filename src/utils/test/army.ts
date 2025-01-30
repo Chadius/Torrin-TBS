@@ -28,7 +28,7 @@ export const TestPlayerArmyData = () => {
     const playerArmy: PlayerArmy = PlayerArmyService.new({
         squaddieBuilds: [
             SquaddieBuildService.new({
-                squaddieTemplateId: "young_torrin",
+                squaddieTemplateId: "young_nahla",
             }),
             SquaddieBuildService.new({
                 squaddieTemplateId: "sir_camil",
@@ -37,7 +37,7 @@ export const TestPlayerArmyData = () => {
     })
     const playerActionTemplates: ActionTemplate[] = [
         ActionTemplateService.new({
-            id: "torrin_water_cannon",
+            id: "nahla_water_cannon",
             name: "water cannon",
             targetConstraints: TargetConstraintsService.new({
                 minimumRange: 0,
@@ -60,7 +60,7 @@ export const TestPlayerArmyData = () => {
             buttonIconResourceKey: "decision-button-bow",
         }),
         ActionTemplateService.new({
-            id: "young_torrin_healing_touch",
+            id: "young_nahla_healing_touch",
             name: "healing touch",
             resourceCost: ActionResourceCostService.new({
                 actionPoints: 2,
@@ -112,25 +112,23 @@ export const TestPlayerArmyData = () => {
         }),
     ]
     const baseSquaddieTemplatesById: { [k: string]: SquaddieTemplate } = {
-        young_torrin: SquaddieTemplateService.new({
+        young_nahla: SquaddieTemplateService.new({
             squaddieId: {
-                templateId: "young_torrin",
-                name: "Torrin",
+                templateId: "young_nahla",
+                name: "Nahla",
                 resources: {
-                    mapIconResourceKey: "map icon young torrin",
+                    mapIconResourceKey: "map icon young nahla",
                     actionSpritesByEmotion: {
-                        [SquaddieEmotion.NEUTRAL]:
-                            "combat-young-torrin-neutral",
-                        [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
+                        [SquaddieEmotion.NEUTRAL]: "combat-young-nahla-neutral",
+                        [SquaddieEmotion.ATTACK]: "combat-young-nahla-attack",
                         [SquaddieEmotion.TARGETED]:
-                            "combat-young-torrin-targeted",
-                        [SquaddieEmotion.DAMAGED]:
-                            "combat-young-torrin-damaged",
-                        [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
+                            "combat-young-nahla-targeted",
+                        [SquaddieEmotion.DAMAGED]: "combat-young-nahla-damaged",
+                        [SquaddieEmotion.DEAD]: "combat-young-nahla-dead",
                         [SquaddieEmotion.ASSISTING]:
-                            "combat-young-torrin-assisting",
+                            "combat-young-nahla-assisting",
                         [SquaddieEmotion.THANKFUL]:
-                            "combat-young-torrin-thankful",
+                            "combat-young-nahla-thankful",
                     },
                 },
                 traits: TraitStatusStorageService.newUsingTraitValues({
@@ -147,8 +145,8 @@ export const TestPlayerArmyData = () => {
                 }),
             }),
             actionTemplateIds: [
-                "torrin_water_cannon",
-                "young_torrin_healing_touch",
+                "nahla_water_cannon",
+                "young_nahla_healing_touch",
             ],
         }),
         sir_camil: SquaddieTemplateService.new({

@@ -93,8 +93,8 @@ export const TestMissionData = () => {
                         coordinate: { q: 1, r: 1 },
                     },
                     {
-                        squaddieTemplateId: "young_torrin",
-                        battleSquaddieId: "young_torrin",
+                        squaddieTemplateId: "young_nahla",
+                        battleSquaddieId: "young_nahla",
                         coordinate: { q: 1, r: 0 },
                     },
                 ],
@@ -331,19 +331,19 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_1",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText: "Yay! We did it!",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "victory_1",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText: "Yay! We did it!",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
@@ -375,10 +375,10 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "defeat_0",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText: "We have to retreat!",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
@@ -405,7 +405,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_0",
                             speakerName: "How to play",
                             dialogueText:
-                                "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
+                                "To move, click on Nahla or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
                             speakerPortraitResourceKey:
                                 "tutorial-confirm-cancel",
                             animationDuration: 0,
@@ -416,7 +416,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_1",
                             speakerName: "How to play",
                             dialogueText:
-                                "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
+                                "Nahla and Sir Camil get 3 Action Points. You can spend them to move and act.",
                             speakerPortraitResourceKey:
                                 "tutorial-spend-action-points",
                             animationDuration: 0,
@@ -435,10 +435,10 @@ export const TestMissionData = () => {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "how_to_play_3",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
-                            speakerName: "Torrin",
+                                "young nahla cutscene portrait",
+                            speakerName: "Nahla",
                             dialogueText:
-                                "Torrin can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nBut it can heal one target.",
+                                "Nahla can use her Water Cannon to attack from range.\nHealing Touch costs 2 of your 3 action points.\nBut it can heal one target.",
                             animationDuration: 0,
                         },
                         {
@@ -446,7 +446,7 @@ export const TestMissionData = () => {
                             id: "how_to_play_4",
                             speakerName: "Sir Camil",
                             dialogueText:
-                                "Sir Camil has more Health and Armor than Torrin.\nHe has a longsword for melee attacks.\nRaise Shield to improve his Armor until the start of his next turn.",
+                                "Sir Camil has more Health and Armor than Nahla.\nHe has a longsword for melee attacks.\nRaise Shield to improve his Armor until the start of his next turn.",
                             speakerPortraitResourceKey:
                                 "sir camil cutscene portrait",
                             animationDuration: 0,
@@ -458,11 +458,11 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn1_0",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText:
                                 "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
@@ -492,11 +492,11 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn2_1",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText:
                                 "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                     ],
@@ -506,11 +506,11 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn4_0",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText:
                                 "I can barely see ahead of us. What's going on down there?",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
@@ -540,21 +540,21 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn5_1",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText:
                                 "If you... hover the... mouse over them\nyou can see where they can move.",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn5_2",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText:
                                 "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                     ],
@@ -564,10 +564,10 @@ export const TestMissionData = () => {
                         {
                             type: CutsceneActionPlayerType.DIALOGUE,
                             id: "turn7_0",
-                            speakerName: "Torrin",
+                            speakerName: "Nahla",
                             dialogueText: "Ah! I missed again!",
                             speakerPortraitResourceKey:
-                                "young torrin cutscene portrait",
+                                "young nahla cutscene portrait",
                             animationDuration: 0,
                         },
                         {

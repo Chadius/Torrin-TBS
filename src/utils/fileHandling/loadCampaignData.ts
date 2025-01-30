@@ -61,9 +61,9 @@ export const LoadCampaignData = {
 
                     if (
                         filename ===
-                        "assets/playerArmy/young_torrin/base-squaddie-template.json"
+                        "assets/playerArmy/young_nahla/base-squaddie-template.json"
                     ) {
-                        return baseSquaddieTemplatesById["young_torrin"]
+                        return baseSquaddieTemplatesById["young_nahla"]
                     }
 
                     if (

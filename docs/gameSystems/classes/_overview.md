@@ -2,7 +2,7 @@
 Each playable character chooses a specific class to focus on. This denotes their main role in combat.
 
 - Teros, for example, is a wizard. His primary task is to cast magical spells.
-- Torrin is an elementalist. She can conjure effects that revolve around water, like hydraulic blasts and healing wounds.
+- Nahla is an elementalist. She can conjure effects that revolve around water, like hydraulic blasts and healing wounds.
 
 The class denotes their main role, but as squaddies level up they can veer into different classes.
 

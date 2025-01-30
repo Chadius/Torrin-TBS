@@ -46,8 +46,8 @@
       "optional": [],
       "required": [
         {
-          "squaddieTemplateId": "young_torrin",
-          "battleSquaddieId": "young_torrin",
+          "squaddieTemplateId": "young_nahla",
+          "battleSquaddieId": "young_nahla",
           "coordinate": {
             "q": 0,
             "r": 1
@@ -162,9 +162,9 @@
           {
             "type": "DIALOGUE",
             "id": "victory_1",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "dialogueText": "Yay! We did it!",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
           {

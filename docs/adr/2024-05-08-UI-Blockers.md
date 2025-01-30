@@ -21,13 +21,13 @@ Their teammate then died from taking too much damage.
 - Action bar should glow to indicate how many points the player will spend on this action.
 
 ## Had to memorize what actions did
-- Torrin's ranged attack was getting performed in melee. Either players didn't know it was ranged or they treated everything as melee.
-- Torrin's healing ability was not obvious. Players would let a wounded Sir Camil travel on while Torrin idled.
+- Nahla's ranged attack was getting performed in melee. Either players didn't know it was ranged or they treated everything as melee.
+- Nahla's healing ability was not obvious. Players would let a wounded Sir Camil travel on while Nahla idled.
 
 ### Mitigations
 - Add icons for buttons to quickly explain their intent (DONE)
 - Add a quick text description under the button to explain interesting behavior (DONE)
-- Add a dialogue that appears if Sir Camil is injured at the start of a turn. Maybe have him suggest a retreat if Torrin is out of reach.
+- Add a dialogue that appears if Sir Camil is injured at the start of a turn. Maybe have him suggest a retreat if Nahla is out of reach.
 - Add pop up text to explain what the action does.
 
 ## MAP is unknown

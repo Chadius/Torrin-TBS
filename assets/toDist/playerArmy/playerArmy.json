@@ -1,7 +1,7 @@
 {
   "squaddieBuilds": [
     {
-      "squaddieTemplateId": "young_torrin"
+      "squaddieTemplateId": "young_nahla"
     },
     {
       "squaddieTemplateId": "sir_camil"
@@ -13,18 +13,18 @@
   "squaddieTemplates": [
     {
       "squaddieId": {
-        "templateId": "young_torrin",
-        "name": "Torrin",
+        "templateId": "young_nahla",
+        "name": "Nahla",
         "resources": {
-          "mapIconResourceKey": "map icon young torrin",
+          "mapIconResourceKey": "map icon young nahla",
           "actionSpritesByEmotion": {
-            "NEUTRAL": "combat-young-torrin-neutral",
-            "ATTACK": "combat-young-torrin-attack",
-            "TARGETED": "combat-young-torrin-targeted",
-            "DAMAGED": "combat-young-torrin-damaged",
-            "DEAD": "combat-young-torrin-dead",
-            "ASSISTING": "combat-young-torrin-assisting",
-            "THANKFUL": "combat-young-torrin-thankful"
+            "NEUTRAL": "combat-young-nahla-neutral",
+            "ATTACK": "combat-young-nahla-attack",
+            "TARGETED": "combat-young-nahla-targeted",
+            "DAMAGED": "combat-young-nahla-damaged",
+            "DEAD": "combat-young-nahla-dead",
+            "ASSISTING": "combat-young-nahla-assisting",
+            "THANKFUL": "combat-young-nahla-thankful"
           }
         },
         "traits": {
@@ -46,9 +46,9 @@
         "tier": 1
       },
       "actionTemplateIds": [
-        "torrin_water_cannon",
-        "young_torrin_healing_touch",
-        "young_torrin_torrent_surge"
+        "nahla_water_cannon",
+        "young_nahla_healing_touch",
+        "young_nahla_torrent_surge"
       ]
     },
     {

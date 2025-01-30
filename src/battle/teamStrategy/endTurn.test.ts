@@ -40,7 +40,7 @@ describe("end turn team strategy", () => {
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "new_static_squaddie",
-                name: "Torrin",
+                name: "Nahla",
                 resources: {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},

@@ -51,7 +51,7 @@ async function OpenFileDialogToSelectAFile() {
             }
             reader.readAsText(file, "UTF-8")
         }
-        input.oncancel = (e) => {
+        input.oncancel = (_) => {
             reject(new Error("user canceled"))
         }
         input.click()

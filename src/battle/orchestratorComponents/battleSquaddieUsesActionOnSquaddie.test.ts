@@ -92,7 +92,7 @@ describe("BattleSquaddieUsesActionOnSquaddie", () => {
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,
         } = SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            name: "Torrin",
+            name: "Nahla",
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,

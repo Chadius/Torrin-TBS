@@ -45,7 +45,7 @@ describe("BattleSquaddieUsesActionOnMap", () => {
         mockedP5GraphicsContext = new MockedP5GraphicsBuffer()
         squaddieRepository = ObjectRepositoryService.new()
         SquaddieRepositoryService.createNewSquaddieAndAddToRepository({
-            name: "Torrin",
+            name: "Nahla",
             templateId: "static_squaddie",
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,

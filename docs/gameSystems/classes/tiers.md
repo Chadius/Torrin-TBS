@@ -53,7 +53,7 @@ Lini is a Cleric first, a Spy second. To represent her faith and her agility, sh
 
 The Godsfont Guard represent an elite fighting force, so they should have lots of fighting experience. They are strong enough to deal with minor scuffles.
 
-Torrin is a centuries-old warrior.
+Nahla is a centuries-old warrior.
 Blued is an experiment mostly gone right.
 
 ## Fewer trees taken as you level up

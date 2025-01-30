@@ -67,8 +67,8 @@
           }
         },
         {
-          "squaddieTemplateId": "young_torrin",
-          "battleSquaddieId": "young_torrin",
+          "squaddieTemplateId": "young_nahla",
+          "battleSquaddieId": "young_nahla",
           "coordinate": {
             "q": 1,
             "r": 0
@@ -363,8 +363,8 @@
       {
         "triggeringEvent": "SQUADDIE_IS_INJURED",
         "systemReactedToTrigger": false,
-        "cutsceneId": "torrin_is_injured",
-        "battleSquaddieIdsToCheckForInjury": ["young_torrin"]
+        "cutsceneId": "nahla_is_injured",
+        "battleSquaddieIdsToCheckForInjury": ["young_nahla"]
       },
       {
         "triggeringEvent": "SQUADDIE_IS_INJURED",
@@ -390,9 +390,9 @@
           {
             "type": "DIALOGUE",
             "id": "victory_1",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "speakerPortraitPosition": "CENTER",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "speakerNamePosition": "CENTER",
             "dialogueText": "Yay! We did it!",
             "dialogueTextPosition": "CENTER",
@@ -444,9 +444,9 @@
           {
             "type": "DIALOGUE",
             "id": "defeat_0",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "dialogueText": "We have to retreat!\nI'll heal you more next time.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
           {
@@ -485,7 +485,7 @@
             "speakerPortraitPosition": "LEFT",
             "speakerName": "How to play",
             "speakerNamePosition": "CENTER",
-            "dialogueText": "Click on Torrin and Sir Camil.\nMove and Act using AP.\nAction Point costs vary.",
+            "dialogueText": "Click on Nahla and Sir Camil.\nMove and Act using AP.\nAction Point costs vary.",
             "dialogueTextPosition": "CENTER",
             "animationDuration": 0,
             "backgroundColor": [280,6,52]
@@ -497,9 +497,9 @@
           {
             "type": "DIALOGUE",
             "id": "turn1_0",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "dialogueText": "Ugh! Demons!\nI'll stay back and shoot them.\nI can also heal if I'm close.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
           {
@@ -525,9 +525,9 @@
           {
             "type": "DIALOGUE",
             "id": "turn2_1",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "speakerPortraitPosition": "LEFT",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
             "dialogueText": "It also slows the demons down.\nThat gives me an idea...",
             "dialogueTextPosition": "LEFT",
@@ -536,8 +536,8 @@
           {
             "type": "DIALOGUE",
             "id": "turn2_2",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
-            "speakerName": "Torrin",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
+            "speakerName": "Nahla",
             "dialogueText": "I can use Torrent Surge.\nSand won't slow me down!",
             "animationDuration": 0
           },
@@ -556,9 +556,9 @@
           {
             "type": "DIALOGUE",
             "id": "turn3_0",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "speakerPortraitPosition": "LEFT",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "speakerNamePosition": "LEFT",
             "dialogueText": "Move the camera\nby moving the mouse\nto the edge of the screen.",
             "dialogueTextPosition": "LEFT",
@@ -594,22 +594,22 @@
           }
         ]
       },
-      "torrin_is_injured": {
+      "nahla_is_injured": {
         "directions": [
           {
             "type": "DIALOGUE",
-            "id": "torrin_is_injured_0",
-            "speakerName": "Torrin",
+            "id": "nahla_is_injured_0",
+            "speakerName": "Nahla",
             "dialogueText": "Ow!\nI'll use Healing Touch.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
-            "id": "torrin_is_injured_1",
-            "speakerName": "Torrin",
+            "id": "nahla_is_injured_1",
+            "speakerName": "Nahla",
             "dialogueText": "2 Action Points\nto heal 2 Hit Points.\nAnd I have to be close.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
         ]
@@ -620,16 +620,16 @@
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_0",
             "speakerName": "Sir Camil",
-            "dialogueText": "Blast!\nThey got through my armor!\nTorrin, can you heal me?",
+            "dialogueText": "Blast!\nThey got through my armor!\nNahla, can you heal me?",
             "speakerPortraitResourceKey": "sir camil cutscene portrait",
             "animationDuration": 0
           },
           {
             "type": "DIALOGUE",
             "id": "sir_camil_is_injured_1",
-            "speakerName": "Torrin",
+            "speakerName": "Nahla",
             "dialogueText": "Sure! I have Healing Touch.\nI need to get close to you.\nIt costs 2 Action Points.",
-            "speakerPortraitResourceKey": "young torrin cutscene portrait",
+            "speakerPortraitResourceKey": "young nahla cutscene portrait",
             "animationDuration": 0
           }
         ]

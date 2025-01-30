@@ -48,8 +48,8 @@ describe("Object Repository", () => {
                 }),
             }),
             squaddieId: {
-                templateId: "young_torrin",
-                name: "Torrin",
+                templateId: "young_nahla",
+                name: "Nahla",
                 resources: {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
@@ -59,9 +59,8 @@ describe("Object Repository", () => {
             },
         })
         battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
-            battleSquaddieId: "young_torrin_0",
-            squaddieTemplateId: "young_torrin",
-            squaddieTurn: { remainingActionPoints: 3 },
+            battleSquaddieId: "young_nahla_0",
+            squaddieTemplateId: "young_nahla",
         })
 
         ObjectRepositoryService.addSquaddieTemplate(
@@ -79,7 +78,7 @@ describe("Object Repository", () => {
         expect(
             ObjectRepositoryService.hasSquaddieByBattleId(
                 objectRepository,
-                "young_torrin_0"
+                "young_nahla_0"
             )
         ).toBeTruthy()
         expect(
@@ -92,7 +91,7 @@ describe("Object Repository", () => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
-                "young_torrin_0"
+                "young_nahla_0"
             )
         )
 
@@ -113,9 +112,7 @@ describe("Object Repository", () => {
         }).toThrow(Error)
         expect(() => {
             shouldThrowError()
-        }).toThrow(
-            "cannot addSquaddieTemplate 'young_torrin', is already added"
-        )
+        }).toThrow("cannot addSquaddieTemplate 'young_nahla', is already added")
     })
 
     it("should throw error if you add battle squaddie for static squaddie that doesn't exist", () => {
@@ -125,7 +122,6 @@ describe("Object Repository", () => {
                 BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
-                    squaddieTurn: { remainingActionPoints: 3 },
                 })
             )
         }
@@ -159,7 +155,7 @@ describe("Object Repository", () => {
         expect(() => {
             shouldThrowError()
         }).toThrow(
-            "cannot addBattleSquaddie 'young_torrin_0', again, it already exists"
+            "cannot addBattleSquaddie 'young_nahla_0', again, it already exists"
         )
     })
 
@@ -170,7 +166,6 @@ describe("Object Repository", () => {
                 (battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
-                    squaddieTurn: { remainingActionPoints: 3 },
                 }))
             )
         }
@@ -186,14 +181,14 @@ describe("Object Repository", () => {
     it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
         const resultOrError = ObjectRepositoryService.getSquaddieByBattleId(
             objectRepository,
-            "young_torrin_0"
+            "young_nahla_0"
         )
 
         expect(isError(resultOrError)).toBeTruthy()
 
         const expectedError = unwrapResultOrError(resultOrError)
         expect((expectedError as Error).message).toBe(
-            "cannot getBattleSquaddieByID for 'young_torrin_0', does not exist"
+            "cannot getBattleSquaddieByID for 'young_nahla_0', does not exist"
         )
     })
 
@@ -232,7 +227,7 @@ describe("Object Repository", () => {
             ObjectRepositoryService.getBattleSquaddieIterator(objectRepository)
         expect(entities).toStrictEqual([
             {
-                battleSquaddieId: "young_torrin_0",
+                battleSquaddieId: "young_nahla_0",
                 battleSquaddie: battleSquaddieBase,
             },
         ])
@@ -249,7 +244,7 @@ describe("Object Repository", () => {
             )
         ).toBeTruthy()
 
-        const turnEnded: SquaddieTurn = { remainingActionPoints: 3 }
+        const turnEnded: SquaddieTurn = SquaddieTurnService.new()
         SquaddieTurnService.endTurn(turnEnded)
         ObjectRepositoryService.updateBattleSquaddie(
             objectRepository,
@@ -264,7 +259,7 @@ describe("Object Repository", () => {
         const { squaddieTemplate, battleSquaddie } = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(
                 objectRepository,
-                "young_torrin_0"
+                "young_nahla_0"
             )
         )
 
@@ -286,7 +281,7 @@ describe("Object Repository", () => {
             const badBattleSquaddie = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: "does not exist",
-                squaddieTurn: { remainingActionPoints: 3 },
+                squaddieTurn: SquaddieTurnService.new(),
             })
 
             ObjectRepositoryService.updateBattleSquaddie(
