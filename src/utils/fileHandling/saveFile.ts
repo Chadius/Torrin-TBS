@@ -3,7 +3,7 @@ import {
     BattleSaveStateService,
 } from "../../battle/history/battleSaveState"
 
-export const SAVE_FILENAME: string = "torrins-trial-save.json"
+export const SAVE_FILENAME: string = "fell-desert-save.json"
 export const SAVE_CONTENT_TYPE: string = "application/json"
 
 export const SaveFile = {

@@ -1,12 +1,12 @@
 {
-    "name": "2022-10-14-torrin-demo",
+    "name": "battle-of-fell-desert",
     "version": "1.0.0",
     "description": "",
     "private": "true",
     "source": "src/index.html",
     "type": "module",
     "scripts": {
-        "zip": "cd dist && zip -r ../build/torrins-trial.zip ./ -x '.DS_Store'",
+        "zip": "cd dist && zip -r ../build/fell-desert.zip ./ -x '.DS_Store'",
         "format-check": "prettier --config .prettierrc.yaml --check .",
         "format-fix": "prettier --config .prettierrc.yaml --write .",
         "find-js": "find src -name \"*.js\" -type f",

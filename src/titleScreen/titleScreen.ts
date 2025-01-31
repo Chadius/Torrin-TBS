@@ -73,7 +73,7 @@ const TitleScreenDesign = {
         screenHeightBottom: 0.32,
         startColumn: 4,
         endColumn: 11,
-        text: "Desert Fantasy Squad Tactics",
+        text: "The Battle of Fell Desert",
     },
     startGameButton: {
         smallWindowWarning: "Window is too small",
@@ -462,7 +462,7 @@ export class TitleScreen implements GameEngineComponent {
                         TitleScreenDesign.title.screenHeight,
                     height: WINDOW_SPACING.SPACING4,
                 }),
-                text: "Torrin's Trial",
+                text: "Lady of Arid Tranquility",
                 fontSize: WINDOW_SPACING.SPACING2,
                 fontColor: colors.backgroundText,
             })
