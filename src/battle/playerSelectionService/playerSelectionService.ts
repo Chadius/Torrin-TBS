@@ -38,6 +38,16 @@ import { PlayerInputAction } from "../../ui/playerInput/playerInputState"
 import { ActionTemplate } from "../../action/template/actionTemplate"
 import { ActionEffectTemplateService } from "../../action/template/actionEffectTemplate"
 import { TargetingResultsService } from "../targeting/targetingService"
+import { BehaviorTreeTask } from "../../utils/behaviorTree/task"
+import { DataBlobService } from "../../utils/dataBlob/dataBlob"
+import { SelectorComposite } from "../../utils/behaviorTree/composite/selector/selector"
+
+interface PlayerContextDataBlob {
+    data: {
+        playerSelectionContextCalculationArgs: PlayerSelectionContextCalculationArgs
+        playerSelectionContext?: PlayerSelectionContext
+    }
+}
 
 export enum PlayerIntent {
     UNKNOWN = "UNKNOWN",
@@ -98,150 +108,49 @@ export const PlayerSelectionService = {
         endTurnSelected,
         playerInputActions,
     }: PlayerSelectionContextCalculationArgs): PlayerSelectionContext => {
-        const isSquaddieTakingATurn: boolean =
-            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
-                gameEngineState
-            )
-        let battleSquaddieIdCurrentlyTakingATurn: string =
-            OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
-                gameEngineState,
-            })
-
-        const hasAtLeastOnePlayerControllableSquaddie: boolean =
-            playerCanControlAtLeastOneSquaddie(gameEngineState)
-
-        const clickedLocation: HexCoordinate = mouseClick
-            ? getClickedOnLocation({
-                  gameEngineState,
-                  screenCoordinate: { x: mouseClick.x, y: mouseClick.y },
-              })
-            : undefined
-
-        const playerSelectsAnAction: boolean = !!actionTemplateId
-        const playerEndsTheirTurn: boolean = !!endTurnSelected
-        const battleSquaddieIdCurrentlyMakingADecision: string =
-            BattleActionDecisionStepService.isActorSet(
-                gameEngineState.battleOrchestratorState.battleState
-                    .battleActionDecisionStep
-            )
-                ? BattleActionDecisionStepService.getActor(
-                      gameEngineState.battleOrchestratorState.battleState
-                          .battleActionDecisionStep
-                  ).battleSquaddieId
-                : undefined
-
-        const battleSquaddieTryingToStartAnAction: string =
-            battleSquaddieIdCurrentlyMakingADecision ||
-            battleSquaddieIdCurrentlyTakingATurn
-
-        const {
-            clickedOnSquaddie,
-            battleSquaddieId: clickedBattleSquaddieId,
-            squaddieIsNormallyControllableByPlayer,
-        } = getSquaddiePlayerClickedOn({
-            gameEngineState,
-            mouseClick,
-        })
-
-        const {
-            hoveredOverSquaddie,
-            battleSquaddieId: hoveredBattleSquaddieId,
-        } = getSquaddiePlayerHoveredOver({
-            gameEngineState,
-            mouseMovement,
-        })
-
-        const mouseClickLocationIsOnMap: boolean =
-            !!mouseClick &&
-            !!clickedLocation &&
-            TerrainTileMapService.isCoordinateOnMap(
-                gameEngineState.battleOrchestratorState.battleState.missionMap
-                    .terrainTileMap,
-                clickedLocation
-            )
-
-        const playerClickedOnADifferentSquaddieThanTheActingSquaddie: boolean =
-            clickedOnSquaddie &&
-            clickedBattleSquaddieId !== battleSquaddieTryingToStartAnAction
-
-        switch (true) {
-            case battleSquaddieTryingToStartAnAction && playerSelectsAnAction:
-                return calculateContextWhenPlayerSelectsAnAction({
+        const dataBlob: PlayerContextDataBlob = {
+            data: {
+                playerSelectionContextCalculationArgs: {
                     gameEngineState,
-                    actionTemplateId,
-                    actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
                     mouseClick,
-                })
-            case battleSquaddieTryingToStartAnAction && playerEndsTheirTurn:
-                return PlayerSelectionContextService.new({
-                    playerIntent: PlayerIntent.END_SQUADDIE_TURN,
-                    actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
-                })
-            case !hasAtLeastOnePlayerControllableSquaddie:
-                return PlayerSelectionContextService.new({
-                    playerIntent: PlayerIntent.END_PHASE,
-                })
-            case !isSquaddieTakingATurn &&
-                clickedOnSquaddie &&
-                squaddieIsNormallyControllableByPlayer:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE,
-                    actorBattleSquaddieId: clickedBattleSquaddieId,
-                    mouseClick,
-                })
-            case !isSquaddieTakingATurn &&
-                clickedOnSquaddie &&
-                !squaddieIsNormallyControllableByPlayer:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE,
-                    actorBattleSquaddieId: clickedBattleSquaddieId,
-                    mouseClick,
-                })
-            case isSquaddieTakingATurn &&
-                playerClickedOnADifferentSquaddieThanTheActingSquaddie &&
-                !!mouseClick:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
-                    actorBattleSquaddieId: clickedBattleSquaddieId,
-                    mouseClick,
-                })
-            case battleSquaddieTryingToStartAnAction &&
-                mouseClickLocationIsOnMap:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
-                    actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
-                    mouseClick,
-                })
-            case battleSquaddieTryingToStartAnAction &&
-                !!mouseClick &&
-                !mouseClickLocationIsOnMap &&
-                !isSquaddieTakingATurn:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
-                })
-            case hoveredOverSquaddie:
-                return PlayerSelectionContextService.new({
-                    playerIntent: PlayerIntent.PEEK_AT_SQUADDIE,
-                    actorBattleSquaddieId: hoveredBattleSquaddieId,
                     mouseMovement,
-                })
-            case !!mouseClick && !isSquaddieTakingATurn:
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE,
-                    mouseClick,
-                })
-            case playerInputActions.includes(PlayerInputAction.NEXT):
-                return PlayerSelectionContextService.new({
-                    playerIntent:
-                        PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
-                    playerInputActions: [PlayerInputAction.NEXT],
-                })
+                    actionTemplateId,
+                    endTurnSelected,
+                    playerInputActions,
+                },
+            },
+        }
+
+        const calculateBehaviorTree = new CollectDataForContext(dataBlob)
+        calculateBehaviorTree.run()
+
+        const selectWorkingBehaviorTree = new SelectorComposite(dataBlob, [
+            new PlayerSelectsAnActionBehavior(dataBlob),
+            new PlayerEndsSquaddieTurnBehavior(dataBlob),
+            new EndPhaseIfPlayerLacksControllableSquaddiesBehavior(dataBlob),
+            new PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior(
+                dataBlob
+            ),
+            new PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior(
+                dataBlob
+            ),
+            new AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior(
+                dataBlob
+            ),
+            new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(dataBlob),
+            new PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior(
+                dataBlob
+            ),
+            new PlayerHoversOverSquaddieToPeekAtItBehavior(dataBlob),
+            new PlayerClicksOnAnEmptyMapTileBehavior(dataBlob),
+            new PlayerPressesNextButtonBehavior(dataBlob),
+        ])
+
+        if (selectWorkingBehaviorTree.run()) {
+            return DataBlobService.get<PlayerSelectionContext>(
+                dataBlob,
+                "playerSelectionContext"
+            )
         }
 
         return PlayerSelectionContextService.new({
@@ -446,36 +355,6 @@ const getSquaddiePlayerClickedOn = ({
     }
 }
 
-const getSquaddiePlayerHoveredOver = ({
-    gameEngineState,
-    mouseMovement,
-}: {
-    gameEngineState: GameEngineState
-    mouseMovement: { x: number; y: number }
-}): {
-    hoveredOverSquaddie: boolean
-    battleSquaddieId: string
-} => {
-    if (mouseMovement === undefined) {
-        return {
-            hoveredOverSquaddie: false,
-            battleSquaddieId: undefined,
-        }
-    }
-    const battleSquaddieId = getBattleSquaddieIdAtLocation({
-        screenCoordinate: {
-            x: mouseMovement.x,
-            y: mouseMovement.y,
-        },
-        gameEngineState,
-    })
-
-    return {
-        hoveredOverSquaddie: !!battleSquaddieId,
-        battleSquaddieId,
-    }
-}
-
 const getBattleSquaddieIdAtLocation = ({
     screenCoordinate,
     gameEngineState,
@@ -564,62 +443,823 @@ const playerSelectsAnAction = ({
     })
 }
 
-const calculateContextWhenPlayerSelectsAnAction = ({
-    gameEngineState,
-    actionTemplateId,
-    actorBattleSquaddieId,
-    mouseClick,
-}: {
+const getBattleSquaddieTryingToStartAnAction = (
     gameEngineState: GameEngineState
-    actionTemplateId: string
-    actorBattleSquaddieId: string
-    mouseClick: MouseClick
-}) => {
-    const actionTemplate: ActionTemplate =
-        ObjectRepositoryService.getActionTemplateById(
-            gameEngineState.repository,
-            actionTemplateId
-        )
-    if (
-        ActionEffectTemplateService.doesItOnlyTargetSelf(
-            actionTemplate.actionEffectTemplates[0]
-        )
-    ) {
-        return PlayerSelectionContextService.new({
-            playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
-            actionTemplateId,
-            actorBattleSquaddieId: actorBattleSquaddieId,
-            mouseClick,
-            targetBattleSquaddieIds: [actorBattleSquaddieId],
+) => {
+    let battleSquaddieIdCurrentlyTakingATurn: string =
+        OrchestratorUtilities.getBattleSquaddieIdCurrentlyTakingATurn({
+            gameEngineState,
         })
+
+    const battleSquaddieIdCurrentlyMakingADecision: string =
+        BattleActionDecisionStepService.isActorSet(
+            gameEngineState.battleOrchestratorState.battleState
+                .battleActionDecisionStep
+        )
+            ? BattleActionDecisionStepService.getActor(
+                  gameEngineState.battleOrchestratorState.battleState
+                      .battleActionDecisionStep
+              ).battleSquaddieId
+            : undefined
+
+    return (
+        battleSquaddieIdCurrentlyMakingADecision ||
+        battleSquaddieIdCurrentlyTakingATurn
+    )
+}
+
+class CollectDataForContext implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
     }
 
-    const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(
-            gameEngineState.repository,
-            actorBattleSquaddieId
+    run(): boolean {
+        const contextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+
+        const isSquaddieTakingATurn: boolean =
+            OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                contextCalculationArgs.gameEngineState
+            )
+
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn",
+            isSquaddieTakingATurn
         )
+
+        const hasAtLeastOnePlayerControllableSquaddie: boolean =
+            playerCanControlAtLeastOneSquaddie(
+                contextCalculationArgs.gameEngineState
+            )
+
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "hasAtLeastOnePlayerControllableSquaddie",
+            hasAtLeastOnePlayerControllableSquaddie
+        )
+
+        this.calculatePlayerActionSelection(contextCalculationArgs)
+
+        const battleSquaddieTryingToStartAnAction: string =
+            getBattleSquaddieTryingToStartAnAction(
+                contextCalculationArgs.gameEngineState
+            )
+        DataBlobService.add<string>(
+            this.dataBlob,
+            "battleSquaddieTryingToStartAnAction",
+            battleSquaddieTryingToStartAnAction
+        )
+
+        const {
+            clickedOnSquaddie,
+            battleSquaddieId: clickedBattleSquaddieId,
+            squaddieIsNormallyControllableByPlayer,
+        } = getSquaddiePlayerClickedOn({
+            gameEngineState: contextCalculationArgs.gameEngineState,
+            mouseClick: contextCalculationArgs.mouseClick,
+        })
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "clickedOnSquaddie",
+            clickedOnSquaddie
+        )
+        DataBlobService.add<string>(
+            this.dataBlob,
+            "clickedBattleSquaddieId",
+            clickedBattleSquaddieId
+        )
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "squaddieIsNormallyControllableByPlayer",
+            squaddieIsNormallyControllableByPlayer
+        )
+        this.calculateHoveredLocation(contextCalculationArgs)
+        this.calculateClickedLocation(contextCalculationArgs)
+
+        const playerClickedOnADifferentSquaddieThanTheActingSquaddie: boolean =
+            clickedOnSquaddie &&
+            clickedBattleSquaddieId !== battleSquaddieTryingToStartAnAction
+
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "playerClickedOnADifferentSquaddieThanTheActingSquaddie",
+            playerClickedOnADifferentSquaddieThanTheActingSquaddie
+        )
+        return true
+    }
+
+    private calculateHoveredLocation(
+        contextCalculationArgs: PlayerSelectionContextCalculationArgs
+    ) {
+        const {
+            hoveredOverSquaddie,
+            battleSquaddieId: hoveredBattleSquaddieId,
+        } = this.getSquaddiePlayerHoveredOver({
+            gameEngineState: contextCalculationArgs.gameEngineState,
+            mouseMovement: contextCalculationArgs.mouseMovement,
+        })
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "hoveredOverSquaddie",
+            hoveredOverSquaddie
+        )
+        DataBlobService.add<string>(
+            this.dataBlob,
+            "hoveredBattleSquaddieId",
+            hoveredBattleSquaddieId
+        )
+    }
+
+    private calculateClickedLocation(
+        contextCalculationArgs: PlayerSelectionContextCalculationArgs
+    ) {
+        const clickedLocation: HexCoordinate = contextCalculationArgs.mouseClick
+            ? getClickedOnLocation({
+                  gameEngineState: contextCalculationArgs.gameEngineState,
+                  screenCoordinate: {
+                      x: contextCalculationArgs.mouseClick.x,
+                      y: contextCalculationArgs.mouseClick.y,
+                  },
+              })
+            : undefined
+        const mouseClickLocationIsOnMap: boolean =
+            !!contextCalculationArgs.mouseClick &&
+            !!clickedLocation &&
+            TerrainTileMapService.isCoordinateOnMap(
+                contextCalculationArgs.gameEngineState.battleOrchestratorState
+                    .battleState.missionMap.terrainTileMap,
+                clickedLocation
+            )
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "mouseClickLocationIsOnMap",
+            mouseClickLocationIsOnMap
+        )
+    }
+
+    private calculatePlayerActionSelection(
+        contextCalculationArgs: PlayerSelectionContextCalculationArgs
+    ) {
+        const playerSelectsAnAction: boolean =
+            !!contextCalculationArgs.actionTemplateId
+        const playerEndsTheirTurn: boolean =
+            !!contextCalculationArgs.endTurnSelected
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "playerSelectsAnAction",
+            playerSelectsAnAction
+        )
+        DataBlobService.add<boolean>(
+            this.dataBlob,
+            "playerEndsTheirTurn",
+            playerEndsTheirTurn
+        )
+    }
+
+    private getSquaddiePlayerHoveredOver({
+        gameEngineState,
+        mouseMovement,
+    }: {
+        gameEngineState: GameEngineState
+        mouseMovement: { x: number; y: number }
+    }): {
+        hoveredOverSquaddie: boolean
+        battleSquaddieId: string
+    } {
+        if (mouseMovement === undefined) {
+            return {
+                hoveredOverSquaddie: false,
+                battleSquaddieId: undefined,
+            }
+        }
+        const battleSquaddieId = getBattleSquaddieIdAtLocation({
+            screenCoordinate: {
+                x: mouseMovement.x,
+                y: mouseMovement.y,
+            },
+            gameEngineState,
+        })
+
+        return {
+            hoveredOverSquaddie: !!battleSquaddieId,
+            battleSquaddieId,
+        }
+    }
+
+    clone(): CollectDataForContext {
+        return new CollectDataForContext(this.dataBlob)
+    }
+}
+
+class PlayerSelectsAnActionBehavior implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const battleSquaddieTryingToStartAnAction: string =
+            DataBlobService.get<string>(
+                this.dataBlob,
+                "battleSquaddieTryingToStartAnAction"
+            )
+        const actorBattleSquaddieId = battleSquaddieTryingToStartAnAction
+
+        const playerSelectsAnAction = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "playerSelectsAnAction"
+        )
+        if (!(battleSquaddieTryingToStartAnAction && playerSelectsAnAction)) {
+            return false
+        }
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { gameEngineState, actionTemplateId, mouseClick } =
+            playerSelectionContextCalculationArgs
+
+        const actionTemplate: ActionTemplate =
+            ObjectRepositoryService.getActionTemplateById(
+                gameEngineState.repository,
+                actionTemplateId
+            )
+        if (
+            ActionEffectTemplateService.doesItOnlyTargetSelf(
+                actionTemplate.actionEffectTemplates[0]
+            )
+        ) {
+            addPlayerSelectionContextToDataBlob(
+                this.dataBlob,
+                PlayerSelectionContextService.new({
+                    playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
+                    actionTemplateId,
+                    actorBattleSquaddieId: actorBattleSquaddieId,
+                    mouseClick,
+                    targetBattleSquaddieIds: [actorBattleSquaddieId],
+                })
+            )
+            return true
+        }
+
+        const { battleSquaddie, squaddieTemplate } = getResultOrThrowError(
+            ObjectRepositoryService.getSquaddieByBattleId(
+                gameEngineState.repository,
+                actorBattleSquaddieId
+            )
+        )
+
+        const potentialTargetBattleSquaddieIds =
+            TargetingResultsService.findValidTargets({
+                map: gameEngineState.battleOrchestratorState.battleState
+                    .missionMap,
+                actionTemplate,
+                actionEffectSquaddieTemplate:
+                    actionTemplate.actionEffectTemplates[0],
+                actingSquaddieTemplate: squaddieTemplate,
+                actingBattleSquaddie: battleSquaddie,
+                squaddieRepository: gameEngineState.repository,
+            }).battleSquaddieIdsInRange
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
+                actionTemplateId,
+                actorBattleSquaddieId: actorBattleSquaddieId,
+                mouseClick,
+                targetBattleSquaddieIds:
+                    potentialTargetBattleSquaddieIds.length <= 1
+                        ? potentialTargetBattleSquaddieIds
+                        : [],
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerSelectsAnActionBehavior {
+        return new PlayerSelectsAnActionBehavior(this.dataBlob)
+    }
+}
+
+const addPlayerSelectionContextToDataBlob = (
+    dataBlob: PlayerContextDataBlob,
+    playerSelectionContext: PlayerSelectionContext
+) => {
+    DataBlobService.add<PlayerSelectionContext>(
+        dataBlob,
+        "playerSelectionContext",
+        playerSelectionContext
     )
+}
 
-    const potentialTargetBattleSquaddieIds =
-        TargetingResultsService.findValidTargets({
-            map: gameEngineState.battleOrchestratorState.battleState.missionMap,
-            actionTemplate,
-            actionEffectSquaddieTemplate:
-                actionTemplate.actionEffectTemplates[0],
-            actingSquaddieTemplate: squaddieTemplate,
-            actingBattleSquaddie: battleSquaddie,
-            squaddieRepository: gameEngineState.repository,
-        }).battleSquaddieIdsInRange
+class PlayerEndsSquaddieTurnBehavior implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
 
-    return PlayerSelectionContextService.new({
-        playerIntent: PlayerIntent.PLAYER_SELECTS_AN_ACTION,
-        actionTemplateId,
-        actorBattleSquaddieId: actorBattleSquaddieId,
-        mouseClick,
-        targetBattleSquaddieIds:
-            potentialTargetBattleSquaddieIds.length <= 1
-                ? potentialTargetBattleSquaddieIds
-                : [],
-    })
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const battleSquaddieTryingToStartAnAction: string =
+            DataBlobService.get<string>(
+                this.dataBlob,
+                "battleSquaddieTryingToStartAnAction"
+            )
+        const playerEndsTheirTurn = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "playerEndsTheirTurn"
+        )
+
+        if (!(battleSquaddieTryingToStartAnAction && playerEndsTheirTurn)) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.END_SQUADDIE_TURN,
+                actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerEndsSquaddieTurnBehavior {
+        return new PlayerEndsSquaddieTurnBehavior(this.dataBlob)
+    }
+}
+
+class EndPhaseIfPlayerLacksControllableSquaddiesBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const hasAtLeastOnePlayerControllableSquaddie =
+            DataBlobService.get<boolean>(
+                this.dataBlob,
+                "hasAtLeastOnePlayerControllableSquaddie"
+            )
+
+        if (hasAtLeastOnePlayerControllableSquaddie) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.END_PHASE,
+            })
+        )
+        return true
+    }
+
+    clone(): EndPhaseIfPlayerLacksControllableSquaddiesBehavior {
+        return new EndPhaseIfPlayerLacksControllableSquaddiesBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const isSquaddieTakingATurn = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn"
+        )
+
+        const clickedOnSquaddie = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "clickedOnSquaddie"
+        )
+
+        const squaddieIsNormallyControllableByPlayer =
+            DataBlobService.get<boolean>(
+                this.dataBlob,
+                "squaddieIsNormallyControllableByPlayer"
+            )
+
+        if (
+            !(
+                !isSquaddieTakingATurn &&
+                clickedOnSquaddie &&
+                squaddieIsNormallyControllableByPlayer
+            )
+        ) {
+            return false
+        }
+
+        const clickedBattleSquaddieId = DataBlobService.get<string>(
+            this.dataBlob,
+            "clickedBattleSquaddieId"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_PLAYABLE,
+                actorBattleSquaddieId: clickedBattleSquaddieId,
+                mouseClick,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior {
+        return new PlayerClicksOnPlayableSquaddieBeforeTurnStartsBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const isSquaddieTakingATurn = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn"
+        )
+
+        const clickedOnSquaddie = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "clickedOnSquaddie"
+        )
+
+        const squaddieIsNormallyControllableByPlayer =
+            DataBlobService.get<boolean>(
+                this.dataBlob,
+                "squaddieIsNormallyControllableByPlayer"
+            )
+
+        if (
+            !(
+                !isSquaddieTakingATurn &&
+                clickedOnSquaddie &&
+                !squaddieIsNormallyControllableByPlayer
+            )
+        ) {
+            return false
+        }
+
+        const clickedBattleSquaddieId = DataBlobService.get<string>(
+            this.dataBlob,
+            "clickedBattleSquaddieId"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.START_OF_TURN_CLICK_ON_SQUADDIE_UNCONTROLLABLE,
+                actorBattleSquaddieId: clickedBattleSquaddieId,
+                mouseClick,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior {
+        return new PlayerClicksOnUncontrollableSquaddieBeforeTurnStartsBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const isSquaddieTakingATurn = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn"
+        )
+
+        const playerClickedOnADifferentSquaddieThanTheActingSquaddie =
+            DataBlobService.get<boolean>(
+                this.dataBlob,
+                "playerClickedOnADifferentSquaddieThanTheActingSquaddie"
+            )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        if (
+            !(
+                isSquaddieTakingATurn &&
+                playerClickedOnADifferentSquaddieThanTheActingSquaddie &&
+                !!mouseClick
+            )
+        ) {
+            return false
+        }
+
+        const clickedBattleSquaddieId = DataBlobService.get<string>(
+            this.dataBlob,
+            "clickedBattleSquaddieId"
+        )
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.SQUADDIE_SELECTED_DIFFERENT_SQUADDIE_MID_TURN,
+                actorBattleSquaddieId: clickedBattleSquaddieId,
+                mouseClick,
+            })
+        )
+        return true
+    }
+
+    clone(): AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior {
+        return new AfterSquaddieStartsTurnPlayerClicksADifferentSquaddieBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const battleSquaddieTryingToStartAnAction: string =
+            DataBlobService.get<string>(
+                this.dataBlob,
+                "battleSquaddieTryingToStartAnAction"
+            )
+
+        const mouseClickLocationIsOnMap = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "mouseClickLocationIsOnMap"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        if (
+            !(battleSquaddieTryingToStartAnAction && mouseClickLocationIsOnMap)
+        ) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.SQUADDIE_SELECTED_MOVE_SQUADDIE_TO_COORDINATE,
+                actorBattleSquaddieId: battleSquaddieTryingToStartAnAction,
+                mouseClick,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior {
+        return new PlayerClicksOnTheMapToMoveTheSelectedSquaddieBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior
+    implements BehaviorTreeTask
+{
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const isSquaddieTakingATurn = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn"
+        )
+
+        const battleSquaddieTryingToStartAnAction: string =
+            DataBlobService.get<string>(
+                this.dataBlob,
+                "battleSquaddieTryingToStartAnAction"
+            )
+
+        const mouseClickLocationIsOnMap = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "mouseClickLocationIsOnMap"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        if (
+            !(
+                battleSquaddieTryingToStartAnAction &&
+                !!mouseClick &&
+                !mouseClickLocationIsOnMap &&
+                !isSquaddieTakingATurn
+            )
+        ) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.SQUADDIE_SELECTED_CANCEL_SQUADDIE_SELECTION,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior {
+        return new PlayerClicksOffMapToCancelAllSquaddieSelectionBehavior(
+            this.dataBlob
+        )
+    }
+}
+
+class PlayerHoversOverSquaddieToPeekAtItBehavior implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const hoveredOverSquaddie = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "hoveredOverSquaddie"
+        )
+
+        const hoveredBattleSquaddieId = DataBlobService.get<string>(
+            this.dataBlob,
+            "hoveredBattleSquaddieId"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseMovement } = playerSelectionContextCalculationArgs
+
+        if (!hoveredOverSquaddie) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.PEEK_AT_SQUADDIE,
+                actorBattleSquaddieId: hoveredBattleSquaddieId,
+                mouseMovement,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerHoversOverSquaddieToPeekAtItBehavior {
+        return new PlayerHoversOverSquaddieToPeekAtItBehavior(this.dataBlob)
+    }
+}
+
+class PlayerClicksOnAnEmptyMapTileBehavior implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const isSquaddieTakingATurn: boolean = DataBlobService.get<boolean>(
+            this.dataBlob,
+            "isSquaddieTakingATurn"
+        )
+
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { mouseClick } = playerSelectionContextCalculationArgs
+
+        if (!(!!mouseClick && !isSquaddieTakingATurn)) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent: PlayerIntent.START_OF_TURN_CLICK_ON_EMPTY_TILE,
+                mouseClick,
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerClicksOnAnEmptyMapTileBehavior {
+        return new PlayerClicksOnAnEmptyMapTileBehavior(this.dataBlob)
+    }
+}
+
+class PlayerPressesNextButtonBehavior implements BehaviorTreeTask {
+    dataBlob: PlayerContextDataBlob
+
+    constructor(dataBlob: PlayerContextDataBlob) {
+        this.dataBlob = dataBlob
+    }
+
+    run(): boolean {
+        const playerSelectionContextCalculationArgs =
+            DataBlobService.get<PlayerSelectionContextCalculationArgs>(
+                this.dataBlob,
+                "playerSelectionContextCalculationArgs"
+            )
+        const { playerInputActions } = playerSelectionContextCalculationArgs
+
+        if (!playerInputActions.includes(PlayerInputAction.NEXT)) {
+            return false
+        }
+
+        addPlayerSelectionContextToDataBlob(
+            this.dataBlob,
+            PlayerSelectionContextService.new({
+                playerIntent:
+                    PlayerIntent.START_OF_TURN_SELECT_NEXT_CONTROLLABLE_SQUADDIE,
+                playerInputActions: [PlayerInputAction.NEXT],
+            })
+        )
+        return true
+    }
+
+    clone(): PlayerPressesNextButtonBehavior {
+        return new PlayerPressesNextButtonBehavior(this.dataBlob)
+    }
 }
